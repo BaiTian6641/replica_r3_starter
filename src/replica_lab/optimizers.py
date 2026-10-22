@@ -256,7 +256,7 @@ class ReplicaOptimizer(Optimizer):
 
 def build_optimizer(model: nn.Module, optimizer_name: str = "muon8bit", *,
                     lr_base: float = 1e-5, lr_new: float = 1e-4,
-                    lr_muon_base: float = 0.001, lr_muon_new: float = 0.001,
+                    lr_muon_base: float | None = None, lr_muon_new: float | None = None,
                     momentum: float = 0.95, ns_steps: int = 5,
                     block_size: int = 2048, weight_decay: float = 0.01
                     ) -> ReplicaOptimizer | None:
@@ -269,6 +269,11 @@ def build_optimizer(model: nn.Module, optimizer_name: str = "muon8bit", *,
     """
     if optimizer_name not in {"muon8bit", "adamw"}:
         raise ValueError("optimizer_name must be muon8bit or adamw")
+    # This implementation uses the RMS-aligned 0.2*sqrt(max(shape)) update.
+    # Unspecified Muon rates follow the corresponding AdamW scope; carrying
+    # over stock original-scaled Muon's 1e-3 default can amplify full tuning.
+    lr_muon_base = lr_base if lr_muon_base is None else lr_muon_base
+    lr_muon_new = lr_new if lr_muon_new is None else lr_muon_new
     names = {id(p): name for name, p in model.named_parameters()}
     excluded = set()
     for module in model.modules():

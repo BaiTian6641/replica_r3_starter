@@ -202,6 +202,13 @@ def test_checkpoint_preserves_int8_and_restart_equivalence():
         torch.testing.assert_close(p, q, atol=0, rtol=0)
 
 
+def test_rms_aligned_default_rates_follow_each_scope():
+    model = tiny()
+    optimizer = build_optimizer(model, lr_base=2e-5, lr_new=7e-5)
+    for group in optimizer.param_groups:
+        assert group["lr"] == (2e-5 if group["scope"] == "original" else 7e-5)
+
+
 def test_rejects_bad_precision_gradient_and_checkpoint_scope():
     with pytest.raises(ValueError, match="FP32"):
         build_optimizer(MatrixModel().half())

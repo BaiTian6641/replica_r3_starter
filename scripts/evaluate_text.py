@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from train_text import encode_row, load_rows
+from replica_lab.evaluation import score_answer, strict_integer
 
 
 def file_sha256(path: Path) -> str:
@@ -30,26 +31,6 @@ def file_sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(8 * 1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
-
-
-def strict_integer(text: str) -> int | None:
-    """Accept a whole decimal answer; never search explanatory prose for it."""
-    stripped = text.strip()
-    if not re.fullmatch(r"[+-]?[0-9]+", stripped):
-        return None
-    return int(stripped)
-
-
-def score_answer(completion: str, expected: str) -> dict:
-    predicted_integer, expected_integer = strict_integer(completion), strict_integer(expected)
-    exact = completion.strip() == expected.strip()
-    integer_correct = (predicted_integer == expected_integer
-                       if expected_integer is not None and predicted_integer is not None
-                       else False)
-    return {"exact_text_match": exact, "predicted_integer": predicted_integer,
-            "expected_integer": expected_integer,
-            "strict_integer_match": integer_correct if expected_integer is not None else None,
-            "task_correct": integer_correct if expected_integer is not None else exact}
 
 
 def exported_inventory(directory: Path, source_config: dict, lock: dict) -> dict:
