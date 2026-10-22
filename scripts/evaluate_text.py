@@ -2,8 +2,8 @@
 """Offline native MiniCPM5 greedy generation on verified train or dev fixtures.
 
 This small functional preflight measures fixture task completion, not general
-model quality. The training-only memory adapter is deliberately bypassed; only
-the original sealed parent or a plain D0 full-tuning export can be evaluated.
+model quality. Original/plain D0 exports use native cached generation; augmented
+exports use original-prompt-fixed support/workspace with uncached re-prefill.
 Training-split scoring is explicitly a tiny memorization diagnostic, not held-out
 accuracy. Only prompt IDs, never gold response tokens, reach model generation.
 """
@@ -35,14 +35,18 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def exported_inventory(directory: Path, source_config: dict, lock: dict) -> dict:
-    """Accept a native plain-full export and preserve its local byte provenance."""
+def exported_inventory(directory: Path, source_config: dict, lock: dict, *,
+                       augmented: bool = False) -> dict:
+    """Validate an export's architecture, parent and local byte provenance."""
     if not directory.is_dir() or not list(directory.glob("*.safetensors")):
         raise ValueError("--exported-base requires a local native safetensors export")
     manifest_path = directory.parent / "adapter_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    if manifest.get("regime") != "full" or manifest.get("training_scope") != "text_only":
-        raise ValueError("Native export evaluation supports plain D0 full tuning only")
+    regimes = {"modules_only", "full_augmented"} if augmented else {"full"}
+    if manifest.get("regime") not in regimes or manifest.get("training_scope") != "text_only":
+        raise ValueError("Export regime does not match the requested plain D0 full or augmented path")
+    if augmented and not (directory.parent / "sidecars.safetensors").is_file():
+        raise ValueError("Augmented export requires sidecars.safetensors")
     parent = manifest.get("run", {}).get("model_lock", {})
     if any(parent.get(key) != lock.get(key) for key in ("repo_id", "revision", "config_sha256")):
         raise ValueError("Export parent does not match the sealed source model lock")
@@ -56,8 +60,9 @@ def exported_inventory(directory: Path, source_config: dict, lock: dict) -> dict
         raise ValueError("Remote-code exports are unsupported")
     relevant = sorted(p for p in directory.rglob("*")
                       if p.is_file() and p.suffix in {".json", ".safetensors", ".model", ".jinja"})
-    return {"base_path": str(directory.resolve()),
+    return {"base_path": str(directory.resolve()), "regime": manifest["regime"],
             "adapter_manifest_sha256": file_sha256(manifest_path),
+            "sidecars_sha256": file_sha256(directory.parent / "sidecars.safetensors") if augmented else None,
             "files_sha256": {p.relative_to(directory).as_posix(): file_sha256(p) for p in relevant}}
 
 
@@ -73,7 +78,7 @@ def evaluation_metadata(split: str, available_examples: int | None = None) -> di
             ("Training-set tiny memorization diagnostic, not held-out accuracy or general quality"
              if training else "Small synthetic XOR development-fixture preflight, not general quality"),
             f"Only the first declared {'training' if training else 'development'} examples are evaluated",
-            "Native cached generation covers the parent and plain D0 export only",
+            "Augmented exports use fixed-context uncached generation; plain exports use native caching",
             "Memory peaks are sampled; profiler records interval and counter semantics",
         ],
     }
@@ -91,8 +96,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model-path", type=Path, required=True,
                         help="Original sealed native source, including its tokenizer")
     parser.add_argument("--model-lock", type=Path, required=True)
-    parser.add_argument("--exported-base", type=Path,
+    exports = parser.add_mutually_exclusive_group()
+    exports.add_argument("--exported-base", type=Path,
                         help="Optional checkpoint/base from a plain D0 full-tuning run")
+    exports.add_argument("--exported-adapter", type=Path,
+                        help="Augmented checkpoint directory containing base/ and sidecars.safetensors")
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--split", choices=("train", "dev"), default="dev",
                         help="Training scores are tiny memorization diagnostics; default: dev")
@@ -132,6 +140,10 @@ def main() -> None:
               "max_new_tokens": args.max_new_tokens, "max_length": args.max_length,
               "decoding": {"do_sample": False, "num_beams": 1, "use_cache": True,
                            "enable_thinking": False}, "examples": [],
+              "implementation_sha256": {name: file_sha256(ROOT / name) for name in (
+                  "scripts/evaluate_text.py", "scripts/train_text.py",
+                  "src/replica_lab/model_adapter.py", "src/replica_lab/generation.py",
+                  "src/replica_lab/neural.py", "src/replica_lab/evaluation.py")},
               **evaluation_metadata(args.split)}
     profiler = RunProfiler(args.device, args.output, sample_interval=0.25)
     profiler.start()
@@ -145,7 +157,11 @@ def main() -> None:
         source_config = validate_model_lock(args.model_path, lock)
         report["model_lock"] = lock
         model_path = args.model_path
-        if args.exported_base is not None:
+        if args.exported_adapter is not None:
+            model_path = args.exported_adapter / "base"
+            report["export_provenance"] = exported_inventory(model_path, source_config, lock, augmented=True)
+            report["decoding"].update(use_cache=False, context="fixed_original_prompt_and_support")
+        elif args.exported_base is not None:
             report["export_provenance"] = exported_inventory(args.exported_base, source_config, lock)
             model_path = args.exported_base
         profiler.mark("snapshot_validated")
@@ -171,6 +187,14 @@ def main() -> None:
         parameter_devices = {parameter.device.type for parameter in base.parameters()}
         if parameter_dtypes != {torch.float32} or parameter_devices != {args.device}:
             raise RuntimeError("Native generation requires all parameters in FP32 on the requested device")
+        adapter = None
+        if args.exported_adapter is not None:
+            from replica_lab.model_adapter import LlamaMemoryAdapter
+            manifest = json.loads((args.exported_adapter / "adapter_manifest.json").read_text())
+            adapter = LlamaMemoryAdapter(base, manifest["regime"], **manifest["adapter_settings"])
+            adapter.load_sidecars(args.exported_adapter / "sidecars.safetensors")
+            adapter = adapter.to(args.device).eval()
+            report["parameters"] = adapter.parameter_audit()
         report.update(parameter_count=count,
                       parameter_dtypes=sorted(str(dtype) for dtype in parameter_dtypes),
                       parameter_devices=sorted(parameter_devices), native_use_cache=base.config.use_cache)
@@ -178,7 +202,7 @@ def main() -> None:
         generation_config.do_sample = False
         generation_config.num_beams = 1
         generation_config.max_new_tokens = args.max_new_tokens
-        generation_config.use_cache = True
+        generation_config.use_cache = adapter is None
         report["generation_config"] = generation_config.to_dict()
         eos = generation_config.eos_token_id
         eos_ids = set(eos if isinstance(eos, list) else [eos])
@@ -189,8 +213,16 @@ def main() -> None:
                 attention_mask = batch["prompt_mask"].to(args.device)
                 profiler.mark("generation_start", example_id=row["id"])
                 example_started = time.monotonic()
-                output = base.generate(input_ids=input_ids, attention_mask=attention_mask,
-                                       generation_config=generation_config)
+                if adapter is not None:
+                    from replica_lab.generation import generate_fixed_context
+                    output = generate_fixed_context(
+                        adapter, prompt_ids=input_ids, prompt_mask=attention_mask,
+                        memory_ids=batch["memory_ids"].to(args.device),
+                        memory_mask=batch["memory_mask"].to(args.device),
+                        max_new_tokens=args.max_new_tokens, eos_token_id=eos)
+                else:
+                    output = base.generate(input_ids=input_ids, attention_mask=attention_mask,
+                                           generation_config=generation_config)
                 if args.device == "mps":
                     torch.mps.synchronize()
                 elif args.device == "cuda":

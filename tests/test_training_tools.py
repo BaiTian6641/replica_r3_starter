@@ -180,10 +180,24 @@ def test_generation_restores_training_mode_after_exception():
     assert model.base.training is True
 
 
-def test_generation_rejects_augmented_model_before_running():
+def test_augmented_generation_receives_only_prompt_and_source(monkeypatch):
     model = FakeAdapter([[1, 4]])
     model.regime = "full_augmented"
     batches, rows = encoded_rows(1)
-    with pytest.raises(ValueError, match="baseline and plain full"):
-        evaluate_generations(model, batches, rows, "cpu", tokenizer=FakeTokenizer())
+    batches[0].update(memory_ids=torch.tensor([[5, 6]]),
+                      memory_mask=torch.ones(1, 2, dtype=torch.bool))
+    calls = []
+    def generated(adapter, **kwargs):
+        assert adapter is model
+        assert set(kwargs) == {"prompt_ids", "prompt_mask", "memory_ids", "memory_mask",
+                               "max_new_tokens", "eos_token_id"}
+        assert torch.equal(kwargs["prompt_ids"], batches[0]["prompt_ids"])
+        assert torch.equal(kwargs["memory_ids"], batches[0]["memory_ids"])
+        calls.append(kwargs)
+        return torch.tensor([[7, 8, 9, 1, 4]])
+    monkeypatch.setattr("replica_lab.generation.generate_fixed_context", generated)
+    report = evaluate_generations(model, batches, rows, "cpu", tokenizer=FakeTokenizer())
+    assert report["task_accuracy"] == 1
+    assert report["decoding"]["use_cache"] is False
+    assert len(calls) == 1
     assert not model.base.calls

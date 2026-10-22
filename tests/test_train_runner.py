@@ -194,3 +194,27 @@ def test_native_runner_keeps_production_parameter_guard_by_default(tiny_source):
     args = arguments(tiny_source, "wrong-model")
     with pytest.raises(RuntimeError, match="Unexpected unique parameter count"):
         TRAIN.execute(args, PhaseRecorder())
+
+
+def test_modules_only_runner_opens_upstream_gradients_and_preserves_base(tiny_source):
+    args = arguments(tiny_source, "d1-first", stop_after=1)
+    args.regime = "modules_only"
+    first, _ = execute(tiny_source, args)
+    resumed_args = arguments(tiny_source, "d1-resumed",
+                             resume_from=args.output / "training_checkpoint_0001")
+    resumed_args.regime = "modules_only"
+    report, _ = execute(tiny_source, resumed_args)
+    assert report["parameters"]["original"]["trainable"] == 0
+    assert first["first_update_gradient_audit"]["new"]["nonzero_gradient_tensors"] == 2
+    assert report["first_update_gradient_audit"]["new"]["nonzero_gradient_tensors"] > 2
+    assert report["first_update_gradient_audit"]["original"]["gradient_tensors"] == 0
+    assert report["reload_verification"]["maximum_absolute_logit_difference"] == 0
+    assert report["generation_history"][-1]["decoding"]["use_cache"] is False
+    original = load_file(tiny_source.source / "model.safetensors")
+    exported = load_file(resumed_args.output / "checkpoint/base/model.safetensors")
+    assert original.keys() == exported.keys()
+    for name in original:
+        assert torch.equal(original[name], exported[name]), name
+    initial = load_file(args.output / "checkpoint/sidecars.safetensors")
+    final = load_file(resumed_args.output / "checkpoint/sidecars.safetensors")
+    assert sum(not torch.equal(initial[name], final[name]) for name in initial) > 2

@@ -117,7 +117,7 @@ def main():
     parser.add_argument("--warmup-steps", type=int, default=0)
     parser.add_argument("--min-lr-ratio", type=float, default=0.2)
     parser.add_argument("--generation-every", type=int, default=0,
-                        help="Strict training-set generation diagnostic every N updates (plain D0 only)")
+                        help="Strict training-set generation diagnostic every N updates")
     parser.add_argument("--generation-max-new-tokens", type=int, default=8)
     parser.add_argument("--stop-on-train-perfect", action="store_true",
                         help="Stop after two consecutive perfect, nonconstant train generation checks")
@@ -144,8 +144,6 @@ def main():
         parser.error("Invalid LR floor or generation budget")
     if args.stop_after is not None and not 1 <= args.stop_after <= args.steps:
         parser.error("stop-after must be within the total step budget")
-    if args.generation_every and args.regime != "full":
-        parser.error("In-training generation currently supports plain full D0 only")
     if args.stop_on_train_perfect and not args.generation_every:
         parser.error("Train-perfect stopping requires periodic generation")
     if args.resume_from and args.regime == "baseline":
@@ -243,7 +241,7 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                                  "src/replica_lab/optimizers.py", "src/replica_lab/curriculum.py",
                                  "src/replica_lab/training_tools.py", "src/replica_lab/training_state.py",
                                  "src/replica_lab/checkpointing.py", "src/replica_lab/evaluation.py",
-                                 "src/replica_lab/neural.py")}}
+                                 "src/replica_lab/neural.py", "src/replica_lab/generation.py")}}
     resume_receipt = validate_training_checkpoint(args.resume_from, contract) if args.resume_from else None
     tokenizer = AutoTokenizer.from_pretrained(args.model_path, local_files_only=True,
                                                trust_remote_code=False)
@@ -340,8 +338,12 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                 profiler.mark("backward_complete", step=step + 1, tokens=tokens)
             finally:
                 model.release_context()
+        # The first backward opens zero-initialized output projections. Audit
+        # the next update too, to distinguish that expected initial behavior
+        # from an upstream branch which never starts learning.
+        gradient_audit = model.gradient_audit() if step < start_step + 2 else None
         if step == start_step:
-            first_gradient_audit = model.gradient_audit()
+            first_gradient_audit = gradient_audit
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
         profiler.mark("optimizer_step_complete", step=step + 1)
@@ -357,6 +359,7 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                                "processed_tokens": step_tokens, "supervised_tokens": total,
                                "train_response_nll_before_update": accumulated,
                                "elapsed_seconds": update_elapsed,
+                               "gradient_audit": gradient_audit,
                                "processed_tokens_per_second": step_tokens / update_elapsed})
         losses.append(accumulated)
         actual_step = step + 1
@@ -464,7 +467,7 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                            for name in ("torch", "transformers", "safetensors")},
               "limitations": ["Single device, no optimizer offload or distributed sharding",
                               "Dev NLL is not held-out task success or self-improvement evidence",
-                              "No autoregressive cached generation integration",
+                              "Augmented generation uses fixed-context uncached re-prefill",
                               "Runtime checkpoints are single-device and require the same bound training contract",
                               "Muon8bit is a portable project experiment, not a validated paper reproduction",
                               "This runner is text-only; it does not train a VLM"]}

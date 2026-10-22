@@ -1,10 +1,11 @@
-"""Training-only native Llama adapter; no pretrained performance claims.
+"""Native Llama residual adapter; no pretrained performance claims.
 
 One batch owns the sidecar context until backward completes. Call
 ``release_context`` after backward (or after an evaluation forward). This keeps
 checkpoint recomputation on the same immutable support/prompt state. This
-reference adapter intentionally does not implement generation caching, parallel
-requests, distributed sharding, online fast-state updates or a VLM port.
+``replica_lab.generation`` supplies greedy uncached decoding with one fixed
+prompt/source context. This adapter does not implement generation caching,
+parallel requests, distributed sharding, online fast-state updates or a VLM port.
 """
 from __future__ import annotations
 
@@ -203,6 +204,31 @@ class LlamaMemoryAdapter(nn.Module):
             }
         return result
 
+    def prepare_context(self, *, prompt_ids, prompt_mask=None,
+                        memory_ids=None, memory_mask=None) -> None:
+        """Build one owned context from already-known prompt/source inputs.
+
+        Training keeps it until backward completes; fixed-context generation
+        keeps it through the final emitted token. This method does not decide
+        source eligibility. Callers must exclude future targets and release
+        ownership before constructing another context or saving the model.
+        """
+        if self._context is not None:
+            raise RuntimeError("Previous batch is still in flight; release context after backward")
+        if not self.augmented:
+            return
+        if prompt_ids is None or memory_ids is None:
+            raise ValueError("Separate past-only prompt_ids and memory_ids are required")
+        if prompt_ids.ndim != 2 or memory_ids.ndim != 2:
+            raise ValueError("Context IDs must have shape [batch, sequence]")
+        if not prompt_ids.shape[1] or prompt_ids.shape[0] != memory_ids.shape[0]:
+            raise ValueError("Context requires a nonempty prompt and matching batch sizes")
+        embed = self.base.get_input_embeddings()
+        # Preserve writer and candidate-embedding gradients in training.
+        slots, valid = self.support_writer(embed(memory_ids), memory_mask)
+        workspace = self.workspace.build(embed(prompt_ids), prompt_mask)
+        self._context = (slots, valid, workspace)
+
     def forward(self, input_ids, attention_mask=None, labels=None, *,
                 prompt_ids=None, prompt_mask=None,
                 memory_ids=None, memory_mask=None):
@@ -224,12 +250,8 @@ class LlamaMemoryAdapter(nn.Module):
                 raise ValueError("prompt_ids must match the past-only input prefix")
             if labels is not None and torch.any(labels[:, :length][valid_prompt] != -100):
                 raise ValueError("Prompt workspace may not include supervised target positions")
-            embed = self.base.get_input_embeddings()
-            # No no_grad: full_augmented may co-adapt original embeddings, while
-            # frozen embeddings still permit the new writer's parameter gradients.
-            slots, valid = self.support_writer(embed(memory_ids), memory_mask)
-            workspace = self.workspace.build(embed(prompt_ids), prompt_mask)
-            self._context = (slots, valid, workspace)
+            self.prepare_context(prompt_ids=prompt_ids, prompt_mask=prompt_mask,
+                                 memory_ids=memory_ids, memory_mask=memory_mask)
         try:
             return self.base(input_ids=input_ids, attention_mask=attention_mask,
                              labels=labels, use_cache=False, return_dict=True)

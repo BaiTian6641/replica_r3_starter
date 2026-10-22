@@ -56,6 +56,30 @@ def test_split_parser_preserves_default_dev_and_accepts_explicit_train():
         evaluate.build_parser().parse_args(required + ["--split", "audit"])
 
 
+def test_augmented_export_requires_explicit_path_sidecars_and_source_parent(tmp_path):
+    base = tmp_path / "base"
+    base.mkdir()
+    (base / "model.safetensors").write_bytes(b"native-fixture")
+    (base / "config.json").write_text('{}')
+    lock = {"repo_id": "source", "revision": "same", "config_sha256": "config"}
+    manifest = {"regime": "modules_only", "training_scope": "text_only",
+                "run": {"model_lock": lock}}
+    (tmp_path / "adapter_manifest.json").write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="sidecars"):
+        evaluate.exported_inventory(base, {}, lock, augmented=True)
+    (tmp_path / "sidecars.safetensors").write_bytes(b"sidecar-fixture")
+    report = evaluate.exported_inventory(base, {}, lock, augmented=True)
+    assert report["regime"] == "modules_only"
+    assert report["sidecars_sha256"] == evaluate.file_sha256(tmp_path / "sidecars.safetensors")
+    with pytest.raises(ValueError, match="parent"):
+        evaluate.exported_inventory(base, {}, {**lock, "revision": "other"}, augmented=True)
+    required = ["--model-path", "source", "--model-lock", "lock.json",
+                "--data", "data.jsonl", "--output", "output"]
+    with pytest.raises(SystemExit):
+        evaluate.build_parser().parse_args(required + ["--exported-base", "base",
+                                                       "--exported-adapter", "adapter"])
+
+
 def test_training_report_role_does_not_claim_development_accuracy():
     training = evaluate.evaluation_metadata("train", 8)
     assert training["evaluated_split"] == "train"

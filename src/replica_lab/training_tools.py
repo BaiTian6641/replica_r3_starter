@@ -83,15 +83,16 @@ def apply_learning_rates(optimizer, base_rates: list, completed_steps: int,
 
 def evaluate_generations(model, encoded: list, batch_rows: list, device: str,
                          max_new_tokens: int = 8, *, tokenizer) -> dict:
-    """Greedily generate and strictly score native baseline/plain-full answers.
+    """Greedily generate and strictly score native or fixed-context answers.
 
     Only past-only ``prompt_ids`` and their mask reach generation. Reference
     labels and response-bearing training input IDs never reach the model.
     Derive generation configuration from the model config, bypassing inherited
     stochastic generation settings. Preserve training modes and model config.
     """
-    if getattr(model, "regime", None) not in {"baseline", "full"}:
-        raise ValueError("Native generation supports only baseline and plain full regimes")
+    if getattr(model, "regime", None) not in {"baseline", "full", "modules_only", "full_augmented"}:
+        raise ValueError("Unknown generation regime")
+    augmented = model.regime in {"modules_only", "full_augmented"}
     if len(encoded) != len(batch_rows) or not encoded:
         raise ValueError("Nonempty encoded batches and rows must have matching lengths")
     if not isinstance(max_new_tokens, int) or isinstance(max_new_tokens, bool) or max_new_tokens < 1:
@@ -118,10 +119,18 @@ def evaluate_generations(model, encoded: list, batch_rows: list, device: str,
                 if prompt.ndim != 2 or prompt.shape[0] != 1 or mask.shape != prompt.shape:
                     raise ValueError("Generation expects one past-only prompt and matching mask per row")
                 input_ids = prompt.to(device)
-                output = base.generate(
-                    input_ids=input_ids, attention_mask=mask.to(device),
-                    generation_config=generation_config, do_sample=False,
-                    use_cache=True, max_new_tokens=max_new_tokens)
+                if augmented:
+                    from replica_lab.generation import generate_fixed_context
+                    output = generate_fixed_context(
+                        model, prompt_ids=input_ids, prompt_mask=mask.to(device),
+                        memory_ids=batch["memory_ids"].to(device),
+                        memory_mask=batch["memory_mask"].to(device),
+                        max_new_tokens=max_new_tokens, eos_token_id=eos)
+                else:
+                    output = base.generate(
+                        input_ids=input_ids, attention_mask=mask.to(device),
+                        generation_config=generation_config, do_sample=False,
+                        use_cache=True, max_new_tokens=max_new_tokens)
                 generated = output[0, input_ids.shape[1]:].cpu().tolist()
                 ended_by_eos = bool(generated and generated[-1] in eos_ids)
                 answer_ids = generated[:-1] if ended_by_eos else generated
@@ -149,5 +158,6 @@ def evaluate_generations(model, encoded: list, batch_rows: list, device: str,
             "fixture_task_accuracy": correct / len(examples),
             "exact_text_accuracy": sum(item["exact_text_match"] for item in examples) / len(examples),
             "response_histogram": histogram, "distinct_responses": len(histogram),
-            "decoding": {"do_sample": False, "num_beams": 1, "use_cache": True,
+            "decoding": {"do_sample": False, "num_beams": 1, "use_cache": not augmented,
+                         "context": "fixed_original_prompt_and_support" if augmented else "native_prompt",
                          "max_new_tokens": max_new_tokens}}
