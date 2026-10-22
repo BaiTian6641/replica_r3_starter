@@ -218,3 +218,116 @@ def test_modules_only_runner_opens_upstream_gradients_and_preserves_base(tiny_so
     initial = load_file(args.output / "checkpoint/sidecars.safetensors")
     final = load_file(resumed_args.output / "checkpoint/sidecars.safetensors")
     assert sum(not torch.equal(initial[name], final[name]) for name in initial) > 2
+
+
+def test_full_augmented_runner_resumes_all_scopes_sidecars_and_generation(tiny_source):
+    def d2_arguments(name, **kwargs):
+        args = arguments(tiny_source, name, **kwargs)
+        args.regime = "full_augmented"
+        # Distinct original/new rates expose lost ownership or schedule state.
+        args.lr_new = args.lr_muon_new = 3e-4
+        return args
+
+    continuous_args = d2_arguments("d2-uninterrupted")
+    continuous, _ = execute(tiny_source, continuous_args)
+    first_args = d2_arguments("d2-first", stop_after=1)
+    first, _ = execute(tiny_source, first_args)
+    resumed_args = d2_arguments("d2-resumed",
+        resume_from=first_args.output / "training_checkpoint_0001")
+    resumed, phases = execute(tiny_source, resumed_args)
+    assert resumed["run_contract"] == first["run_contract"] == continuous["run_contract"]
+    assert resumed["start_step"] == 1 and resumed["steps"] == continuous["steps"] == 2
+    assert any(name == "runtime_restored" and fields["completed_steps"] == 1
+               for name, fields in phases.phases)
+
+    original = load_file(tiny_source.source / "model.safetensors")
+    native = load_file(resumed_args.output / "checkpoint/base/model.safetensors")
+    sidecars = load_file(resumed_args.output / "checkpoint/sidecars.safetensors")
+    scope = resumed["parameters"]
+    assert scope["regime"] == "full_augmented"
+    assert scope["original"]["total"] == scope["original"]["trainable"] == tiny_source.count
+    assert scope["new"]["trainable"] == scope["new"]["total"] > 0
+    assert scope["new"]["tensor_count"] == len(sidecars) == 48
+
+    groups = resumed["optimizer"]["groups"]
+    assert [(group["scope"], group["algorithm"]) for group in groups] == [
+        ("original", "muon8bit"), ("original", "adamw"),
+        ("new", "muon8bit"), ("new", "adamw")]
+    owned_names = [name for group in groups for name in group["param_names"]]
+    # This fixture inserts at its only native decoder block. Native safetensor
+    # names stay unwrapped, while live optimizer ownership includes .original.
+    expected_original = {"base." + name.replace("model.layers.0.",
+        "model.layers.0.original.", 1) for name in original}
+    expected_new = set(sidecars)
+    assert set(owned_names) == expected_original | expected_new
+    assert len(owned_names) == len(set(owned_names)) == len(original) + 48
+    for group in groups:
+        expected_names = expected_original if group["scope"] == "original" else expected_new
+        assert set(group["param_names"]).issubset(expected_names)
+    assert sum(group["parameters"] for group in groups) == tiny_source.count + scope["new"]["total"]
+
+    first_grad = first["first_update_gradient_audit"]
+    later_grad = resumed["first_update_gradient_audit"]
+    for audit in (first_grad, later_grad):
+        assert audit["original"]["eligible_tensors"] == len(original)
+        assert audit["original"]["gradient_tensors"] == len(original)
+        assert audit["original"]["nonzero_gradient_tensors"] == len(original)
+        assert not audit["original"]["missing_gradient_names"]
+        assert audit["new"]["eligible_tensors"] == audit["new"]["gradient_tensors"] == 48
+        assert not audit["new"]["missing_gradient_names"]
+    assert first_grad["new"]["nonzero_gradient_tensors"] == 2
+    assert later_grad["new"]["nonzero_gradient_tensors"] == 48
+    assert original.keys() == native.keys()
+    for name in original:
+        assert not torch.equal(original[name], native[name]), name
+    assert not torch.equal(original["model.embed_tokens.weight"], native["model.embed_tokens.weight"])
+    assert not torch.equal(original["lm_head.weight"], native["lm_head.weight"])
+    first_sidecars = load_file(first_args.output / "checkpoint/sidecars.safetensors")
+    assert sum(not torch.equal(first_sidecars[name], sidecars[name]) for name in sidecars) > 2
+
+    # Resume must reproduce the complete adapted model, including nonzero
+    # branches, rather than only reloading matching original base weights.
+    for relative in ("base/model.safetensors", "sidecars.safetensors"):
+        expected = load_file(continuous_args.output / "checkpoint" / relative)
+        actual = load_file(resumed_args.output / "checkpoint" / relative)
+        assert expected.keys() == actual.keys()
+        for name in expected:
+            torch.testing.assert_close(actual[name], expected[name], rtol=0, atol=0)
+    assert continuous["dev_response_nll"] == resumed["dev_response_nll"]
+    assert continuous["generation_history"] == resumed["generation_history"]
+    for report in (first, continuous, resumed):
+        assert report["reload_verification"]["status"] == "passed"
+        assert report["reload_verification"]["maximum_absolute_logit_difference"] == 0.0
+        for check in report["generation_history"]:
+            assert check["decoding"]["use_cache"] is False
+            assert check["decoding"]["context"] == "fixed_original_prompt_and_support"
+            assert check["evaluated_examples"] == 2
+            assert all(example["prompt_tokens"] == 4 for example in check["examples"])
+    assert [check["step"] for check in resumed["generation_history"]] == [1, 2]
+    assert resumed["train_updates"][0] == first["train_updates"][0]
+    assert [step["learning_rates"] for step in resumed["train_updates"]] == [
+        [5e-5, 5e-5, 1.5e-4, 1.5e-4], [1e-4, 1e-4, 3e-4, 3e-4]]
+
+    checkpoint = resumed_args.output / "training_checkpoint_0002"
+    receipt = validate_training_checkpoint(checkpoint, resumed["run_contract"])
+    assert receipt["completed_steps"] == 2
+    assert "sidecars.safetensors" in receipt["files_sha256"]
+    runtime = torch.load(checkpoint / "runtime.pt", map_location="cpu", weights_only=True)
+    expected_runtime = torch.load(continuous_args.output / "training_checkpoint_0002/runtime.pt",
+                                 map_location="cpu", weights_only=True)
+    assert runtime["metadata"]["data_state"]["next_step"] == 2
+    assert runtime["metadata"]["data_state"]["update_reports"] == resumed["train_updates"]
+    assert runtime["metadata"]["schedule_state"] == {
+        "completed_steps": 2, "base_rates": [1e-4, 1e-4, 3e-4, 3e-4]}
+    assert runtime["optimizer"]["param_groups"] == expected_runtime["optimizer"]["param_groups"]
+    assert runtime["optimizer"]["state"].keys() == expected_runtime["optimizer"]["state"].keys()
+    for identity, state in runtime["optimizer"]["state"].items():
+        for key, value in state.items():
+            expected = expected_runtime["optimizer"]["state"][identity][key]
+            if isinstance(value, torch.Tensor):
+                assert value.dtype == expected.dtype
+                torch.testing.assert_close(value, expected, rtol=0, atol=0)
+            else:
+                assert value == expected
+    for name, value in load_file(checkpoint / "sidecars.safetensors").items():
+        torch.testing.assert_close(value, sidecars[name], rtol=0, atol=0)
