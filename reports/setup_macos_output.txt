@@ -1,0 +1,132 @@
+Resolved 64 packages in 4ms
+Checked 43 packages in 5ms
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.12.14 (main, Sep  1 2026, 14:09:38) [Clang 22.1.3 ]",
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.4",
+    "pytest": "9.1.1",
+    "jsonschema": "4.26.0",
+    "accelerate": null,
+    "deepspeed": null,
+    "mlx": null,
+    "mlx-lm": null,
+    "mlx-vlm": null
+  },
+  "nvidia": {
+    "available": false
+  },
+  "topology": {
+    "available": false
+  },
+  "training_performed": false,
+  "chip": {
+    "available": true,
+    "returncode": 0,
+    "stdout": "Apple M2 Ultra",
+    "stderr": ""
+  },
+  "cpu_cores": {
+    "available": true,
+    "returncode": 0,
+    "stdout": "24",
+    "stderr": ""
+  },
+  "unified_memory_bytes": {
+    "available": true,
+    "returncode": 0,
+    "stdout": "68719476736",
+    "stderr": ""
+  },
+  "apple_gpus": [
+    {
+      "sppci_model": "Apple M2 Ultra",
+      "sppci_cores": "60",
+      "spdisplays_mtlgpufamilysupport": "spdisplays_metal4"
+    }
+  ],
+  "memory_pressure": {
+    "available": true,
+    "returncode": 0,
+    "stdout": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 93%",
+    "stderr": ""
+  },
+  "swap": {
+    "available": true,
+    "returncode": 0,
+    "stdout": "vm.swapusage: total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+    "stderr": ""
+  },
+  "torch_backends": {
+    "mps_built": true,
+    "mps_available": true,
+    "cuda_available": false,
+    "cuda_build": null,
+    "cuda_arch_list": []
+  }
+}
+test_agent_experience_cannot_own_source (test_contracts.ContractTests.test_agent_experience_cannot_own_source) ... ok
+test_exact_duplicate_with_new_group_is_rejected (test_contracts.ContractTests.test_exact_duplicate_with_new_group_is_rejected) ... ok
+test_hypothetical_cannot_be_human_history (test_contracts.ContractTests.test_hypothetical_cannot_be_human_history) ... ok
+test_lineage_leak_is_rejected_even_if_words_change (test_contracts.ContractTests.test_lineage_leak_is_rejected_even_if_words_change) ... ok
+test_unverified_teacher_output_is_quarantined (test_contracts.ContractTests.test_unverified_teacher_output_is_quarantined) ... ok
+test_verification_is_not_truthy_string (test_contracts.ContractTests.test_verification_is_not_truthy_string) ... ok
+test_branch_experience_not_visible_in_source_mode (test_memory.MemoryTests.test_branch_experience_not_visible_in_source_mode) ... ok
+test_cross_subject_read_returns_nothing (test_memory.MemoryTests.test_cross_subject_read_returns_nothing) ... ok
+test_deleting_correction_does_not_revive_superseded_fact (test_memory.MemoryTests.test_deleting_correction_does_not_revive_superseded_fact) ... ok
+test_future_correction_does_not_rewrite_past_view (test_memory.MemoryTests.test_future_correction_does_not_rewrite_past_view) ... ok
+test_idempotence_and_collision (test_memory.MemoryTests.test_idempotence_and_collision) ... ok
+test_invalid_timestamp_cannot_bypass_causal_cutoff (test_memory.MemoryTests.test_invalid_timestamp_cannot_bypass_causal_cutoff) ... ok
+test_replica_cannot_delete_source (test_memory.MemoryTests.test_replica_cannot_delete_source) ... ok
+test_restart_and_forgetting_invalidate_derivations (test_memory.MemoryTests.test_restart_and_forgetting_invalidate_derivations) ... ok
+test_source_snapshot_ignores_later_revision (test_memory.MemoryTests.test_source_snapshot_ignores_later_revision) ... ok
+test_unapproved_source_write_is_rejected (test_memory.MemoryTests.test_unapproved_source_write_is_rejected) ... ok
+test_evaluation_of_different_candidate_is_rejected (test_learning.LearningTests.test_evaluation_of_different_candidate_is_rejected) ... ok
+test_invariant_failure_overrides_large_gain (test_learning.LearningTests.test_invariant_failure_overrides_large_gain) ... ok
+test_manifest_publication_restart_and_rollback (test_learning.LearningTests.test_manifest_publication_restart_and_rollback) ... ok
+test_retention_damage_rejects_candidate (test_learning.LearningTests.test_retention_damage_rejects_candidate) ... ok
+test_small_sample_is_inconclusive (test_learning.LearningTests.test_small_sample_is_inconclusive) ... ok
+test_stale_parent_and_rejected_candidate_cannot_publish (test_learning.LearningTests.test_stale_parent_and_rejected_candidate_cannot_publish) ... ok
+test_zero_observed_loss_does_not_certify_one_percent_budget_at_n200 (test_learning.LearningTests.test_zero_observed_loss_does_not_certify_one_percent_budget_at_n200) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.018s
+
+OK
+{
+  "kind": "stdlib_contract_tests",
+  "tests": 23,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "success": true,
+  "model_quality_evaluated": false
+}
+{
+  "examples": 48,
+  "lineage_groups": 6,
+  "split_counts": {
+    "audit": 0,
+    "calibration": 0,
+    "dev": 16,
+    "promotion": 0,
+    "train": 32
+  },
+  "semantic_grounding_checked": false,
+  "consent_checked": false
+}
+......................................................................   [100%]
+70 passed in 2.33s
+W1022 15:04:48.358000 44422 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 121.40it/s]
+Loading weights:   0%|          | 0/21 [00:00<?, ?it/s]Loading weights: 100%|██████████| 21/21 [00:00<00:00, 11972.32it/s]
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 203.46it/s]
+Loading weights:   0%|          | 0/21 [00:00<?, ?it/s]Loading weights: 100%|██████████| 21/21 [00:00<00:00, 11691.05it/s]
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:00<00:00, 216.03it/s]
+Loading weights:   0%|          | 0/21 [00:00<?, ?it/s]Loading weights: 100%|██████████| 21/21 [00:00<00:00, 16227.04it/s]
+{"status": "passed", "device": "mps", "arms": 3, "report": "reports/muon8bit-mps-20261022T200442Z-44393.json"}
+Setup complete. Activate with: source .venv/bin/activate

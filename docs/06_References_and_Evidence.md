@@ -1,6 +1,6 @@
 # 06 - Primary sources and evidence limits
 
-**Reviewed 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
+**Current workstation/optimizer setup review: 22 October 2026 (America/Chicago). Original bundle review label: 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
 
 ## 1. Research-to-design references
 
@@ -22,6 +22,7 @@
 | R14 | [Persona vectors](https://www.anthropic.com/research/persona-vectors) | Possible drift diagnostics | Trait directions are not complete identity |
 | R15 | [Memory of Amortized Contexts](https://arxiv.org/abs/2403.04317); [author code](https://github.com/jihoontack/MAC) | Learned context interfaces | Requires learned alignment, not arbitrary tensor interchange |
 | R16 | [LongMem](https://arxiv.org/abs/2306.07174); [author code](https://github.com/Victorwz/LongMem) | Memory readers with frozen representations | Base/writer changes invalidate old representation assumptions |
+| R17 | [Effective Quantization of Muon Optimizer States, arXiv:2509.23106](https://arxiv.org/abs/2509.23106) | Motivation for blockwise linear 8-bit Muon momentum | This project implements a portable experiment, not a reproduction of the paper's training results |
 
 The full combined architecture is a project synthesis. A component's published success does not prove that combining all components will work. Unofficial Titans/HOPE implementations are not presented as author-maintained trainers in this starter.
 
@@ -55,6 +56,9 @@ The observed license label applies to the inspected artifact, not automatically 
 | Recomputed forward behavior | [PyTorch checkpointing](https://docs.pytorch.org/docs/2.14/checkpoint.html) |
 | DDP memory semantics | [PyTorch DDP](https://docs.pytorch.org/docs/2.14/notes/ddp.html) |
 | CPU optimizer offload | [DeepSpeed ZeRO-Offload](https://www.deepspeed.ai/tutorials/zero-offload/) |
+| Muon algorithm and eligible tensors | [Official PyTorch Muon API](https://docs.pytorch.org/docs/2.14/generated/torch.optim.Muon.html) |
+| Current macOS backend | [PyTorch MPS backend](https://docs.pytorch.org/docs/2.14/notes/mps.html) |
+| Later GPU hardware | [NVIDIA RTX PRO 4000 Blackwell SFF Edition specifications](https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-4000-sff/) |
 | MiniCPM full-tuning integration | [OpenBMB SWIFT guide](https://github.com/OpenBMB/MiniCPM/blob/main/docs/finetune/ms_swift.md) |
 | MLX unified memory | [Official MLX docs](https://ml-explore.github.io/mlx/build/html/usage/unified_memory.html) |
 | MLX-LM full-mode scope | [Official source](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/lora.py) and [training guide](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/LORA.md) |
@@ -64,15 +68,19 @@ The observed license label applies to the inspected artifact, not automatically 
 
 These repositories are references, not all installed or integrated dependencies. DeepSpeed, MLX, VLM, formal verification and large-model ports were not run here.
 
+The selected project optimizer is portable eager PyTorch Muon 8-bit on macOS MPS first and CUDA later: linear INT8 momentum in 2048-element blocks, FP32 scales/dequantization/Newton-Schulz temporaries, and FP32 parameters and gradients in the initial path. Trainable embeddings, output head, learned slot queries, 1D and other ineligible tensors use auxiliary FP32-state AdamW; an all-AdamW run remains an explicit comparison. One optimizer owns the mixed groups, covering each intended trainable tensor exactly once without changing the D0/D1/D2 scope. This is a project implementation choice; stock PyTorch Muon and quantized AdamW packages do not establish equivalent 8-bit Muon behavior. Source-reported convergence and state savings do not guarantee this project's quality, speed or full-model fit.
+
 ## 5. Evidence made in this bundle
 
-See [validation.json](../reports/validation.json) and [test output](../reports/test_output.txt) for exact counts and runtime versions. Tests cover record/identity/data contracts, temporal correction and deletion, numerical null paths, gradients, causal prompt support, state isolation, native tiny-Llama integration, parameter scope and serialization. [The deterministic demo report](../reports/contract_demo.json) covers software publication/restart/rejection/rollback.
+Historical bundle evidence is recorded in [validation.json](../reports/validation.json) and [test output](../reports/test_output.txt); preserve their recorded dates, counts and runtime versions. Current workstation setup evidence is recorded separately in the [runbook](03_Implementation_and_Runbook.md) and setup reports. Tests cover record/identity/data contracts, temporal correction and deletion, numerical null paths, gradients, causal prompt support, state isolation, native tiny-Llama integration, parameter scope and serialization. [The deterministic demo report](../reports/contract_demo.json) covers software publication/restart/rejection/rollback.
+
+The current Mac setup adds [70 passing tests](../reports/validation_macos_setup.json), [tiny MPS D0/D1/D2 updates with Muon 8-bit and export/reload](../reports/muon8bit_mps_smoke.json), and a [sealed checkpoint tensor-header inventory](../reports/minicpm5_snapshot_inventory.json). The downloaded source snapshot was not instantiated or trained. The optimizer tests include stock AdamW/Muon comparisons, independent SVD direction checks, quantization error, exact routing and INT8 state continuation; they do not reproduce paper convergence results.
 
 The following remain **unrun**:
 
 - Native pretrained MiniCPM5 loading/training and task-quality evaluation.
 - CUDA full fine-tuning, sharding or optimizer offload.
-- M2 Ultra / MLX / MPS measurements.
+- Native pretrained full-model M2 Ultra / MPS training and MLX parity measurements.
 - Actual V4.7 multimodal integration and full-VLM gradient tests.
 - A learned autonomous curriculum/director operating through multiple neural updates.
 - Ten-cycle model learning, broad transfer or source-person fidelity.
@@ -86,4 +94,4 @@ Seven supplied R2 Markdown files are copied without edits under reference/r2. Th
 
 R3 supersedes practical handoff details where needed: actual executable scripts now exist; the dataset catalog is freshly checked; the Mac has a defined role; the smaller VLM is a distinct architectural port; publication and deletion behavior have executable checks. It does not revise the user's central objective or convert the project into a static persona.
 
-Memory sizes, learning rates, data mixtures, cycle counts and thresholds in the plan are **PROPOSED**. Test counts and observed numerical invariants are **MEASURED HERE**. Paper findings are **REPORTED BY THEIR AUTHORS** within their protocols. User goals and hardware statements are **USER CONTEXT**.
+Memory estimates, learning rates, data mixtures, cycle counts and thresholds in the plan are **PROPOSED** or explicitly labelled arithmetic. Test counts and observed numerical invariants are **MEASURED HERE**, with the report's recorded date and scope. Paper findings are **REPORTED BY THEIR AUTHORS** within their protocols. Optimizer selection and the later Blackwell experiment are **USER CONTEXT**; the current Apple M2 Ultra arm64 host, 24 CPU cores and 64 GiB unified memory are confirmed by the local hardware inventory. NVIDIA's 24 GB GDDR7 specification describes the planned RTX PRO 4000 Blackwell SFF Edition, not an installed CUDA device.

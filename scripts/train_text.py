@@ -12,6 +12,7 @@ from contextlib import nullcontext
 import hashlib
 import importlib.metadata
 import json
+import os
 from pathlib import Path
 import random
 import sys
@@ -86,14 +87,22 @@ def main():
     parser.add_argument("--dev", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--regime", choices=("baseline", "full", "modules_only", "full_augmented"), required=True)
-    parser.add_argument("--device", choices=("cpu", "cuda", "mps"), default="cuda")
+    parser.add_argument("--device", choices=("cpu", "cuda", "mps"), default="mps" if sys.platform == "darwin" else "cuda")
     parser.add_argument("--dtype", choices=("float32", "bfloat16"), default="float32",
-                        help="Compute dtype; resident parameters and AdamW states remain FP32")
+                        help="Compute dtype; resident parameters remain FP32")
+    parser.add_argument("--optimizer", choices=("muon8bit", "adamw"), default="muon8bit")
     parser.add_argument("--steps", type=int, default=100)
     parser.add_argument("--grad-accum", type=int, default=8)
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--lr-base", type=float, default=1e-5)
     parser.add_argument("--lr-new", type=float, default=1e-4)
+    parser.add_argument("--lr-muon-base", type=float, default=1e-3,
+                        help="Separate provisional Muon LR; retune before quality comparisons")
+    parser.add_argument("--lr-muon-new", type=float, default=1e-3)
+    parser.add_argument("--momentum", type=float, default=0.95)
+    parser.add_argument("--ns-steps", type=int, default=5)
+    parser.add_argument("--block-size", type=int, default=2048)
+    parser.add_argument("--weight-decay", type=float, default=0.01)
     parser.add_argument("--seed", type=int, default=17)
     parser.add_argument("--memory-size", type=int, default=64)
     parser.add_argument("--workspace-size", type=int, default=64)
@@ -108,11 +117,14 @@ def main():
         parser.error("Trainable regimes require at least one update")
     if args.output.exists() and any(args.output.iterdir()):
         parser.error("Use a new empty output directory to preserve earlier runs")
+    if args.device == "mps" and os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") == "1":
+        parser.error("Unset PYTORCH_ENABLE_MPS_FALLBACK to keep MPS provenance explicit")
 
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
     from replica_lab.contracts import audit_splits
+    from replica_lab.optimizers import build_optimizer
 
     lock = json.loads(args.model_lock.read_text())
     validate_model_lock(args.model_path, lock)
@@ -156,8 +168,11 @@ def main():
                 if args.dtype == "bfloat16" else nullcontext())
     def device_batch(batch):
         return {key: value.to(args.device) for key, value in batch.items()}
-    groups = model.optimizer_groups(args.lr_base, args.lr_new)
-    optimizer = torch.optim.AdamW(groups, foreach=False) if groups else None
+    optimizer = build_optimizer(
+        model, args.optimizer, lr_base=args.lr_base, lr_new=args.lr_new,
+        lr_muon_base=args.lr_muon_base, lr_muon_new=args.lr_muon_new,
+        momentum=args.momentum, ns_steps=args.ns_steps,
+        block_size=args.block_size, weight_decay=args.weight_decay)
     first_gradient_audit = None
     started = time.monotonic()
     model.train()
@@ -211,11 +226,14 @@ def main():
                 model.release_context()
     if args.device == "cuda":
         torch.cuda.synchronize()
+    elif args.device == "mps":
+        torch.mps.synchronize()
     report = {"status": "completed_local_training_run", "model_lock": lock,
               "parameters": audit, "parameter_dtype": "float32", "compute_dtype": args.dtype,
               "device": args.device, "steps": args.steps, "seed": args.seed,
               "grad_accum": args.grad_accum, "max_length": args.max_length,
               "checkpointing": args.checkpointing,
+              "optimizer": optimizer.audit() if optimizer is not None else None,
               "train_examples": len(train_rows), "dev_examples": len(dev_rows),
               "data_sha256": hashlib.sha256(args.data.read_bytes()).hexdigest(),
               "dev_sha256": hashlib.sha256(args.dev.read_bytes()).hexdigest(),
@@ -223,12 +241,15 @@ def main():
               "first_update_gradient_audit": first_gradient_audit,
               "elapsed_seconds": time.monotonic() - started,
               "cuda_peak_allocated_bytes": torch.cuda.max_memory_allocated() if args.device == "cuda" else None,
+              "mps_current_allocated_bytes": torch.mps.current_allocated_memory() if args.device == "mps" else None,
+              "mps_driver_allocated_bytes": torch.mps.driver_allocated_memory() if args.device == "mps" else None,
               "packages": {name: importlib.metadata.version(name)
                            for name in ("torch", "transformers", "safetensors")},
               "limitations": ["Single device, no optimizer offload or distributed sharding",
                               "Dev NLL is not held-out task success or self-improvement evidence",
                               "No autoregressive cached generation integration",
                               "Weight export only; optimizer/RNG resume checkpoint is not implemented",
+                              "Muon8bit is a portable project experiment, not a validated paper reproduction",
                               "This runner is text-only; it does not train a VLM"]}
     model.save_pretrained(args.output / "checkpoint", manifest=report)
     tokenizer.save_pretrained(args.output / "checkpoint" / "base")

@@ -6,12 +6,12 @@ build-backend = "setuptools.build_meta"
 name = "replica-lab"
 version = "0.3.0"
 description = "TAIS Obsidian / Replica research starter; experimental, not a trained cognitive model"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = []
 
 [project.optional-dependencies]
-test = ["pytest>=8"]
-neural = ["torch>=2.14,<2.15", "transformers==5.20.2", "safetensors==0.8.0"]
+test = ["pytest==9.1.1", "jsonschema==4.26.0"]
+neural = ["torch==2.14.1", "transformers==5.20.2", "safetensors==0.8.0", "numpy==2.5.4"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

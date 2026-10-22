@@ -26,7 +26,8 @@ def main():
     p.add_argument("--output", required=True)
     a = p.parse_args()
     packages = {}
-    for name in ("torch", "transformers", "accelerate", "deepspeed", "mlx", "mlx-lm", "mlx-vlm"):
+    for name in ("torch", "transformers", "safetensors", "numpy", "pytest", "jsonschema",
+                 "accelerate", "deepspeed", "mlx", "mlx-lm", "mlx-vlm"):
         try:
             packages[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
@@ -41,8 +42,39 @@ def main():
         result["meminfo"] = {k.strip(): v.strip() for k, v in
                              (line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines())}
     if sys.platform == "darwin":
+        result["chip"] = run(["sysctl", "-n", "machdep.cpu.brand_string"])
+        result["cpu_cores"] = run(["sysctl", "-n", "hw.ncpu"])
         result["unified_memory_bytes"] = run(["sysctl", "-n", "hw.memsize"])
-        result["display_devices"] = run(["system_profiler", "SPDisplaysDataType", "-json"])
+        displays = run(["system_profiler", "SPDisplaysDataType", "-json"])
+        # Retain accelerator properties without monitor serials or display IDs.
+        if displays.get("returncode") == 0:
+            result["apple_gpus"] = [
+                {key: item.get(key) for key in ("sppci_model", "sppci_cores", "spdisplays_mtlgpufamilysupport")}
+                for item in json.loads(displays["stdout"]).get("SPDisplaysDataType", [])
+            ]
+        else:
+            result["apple_gpus"] = displays
+        result["memory_pressure"] = run(["memory_pressure", "-Q"])
+        result["swap"] = run(["sysctl", "vm.swapusage"])
+    try:
+        import torch
+        result["torch_backends"] = {
+            "mps_built": torch.backends.mps.is_built(),
+            "mps_available": torch.backends.mps.is_available(),
+            "cuda_available": torch.cuda.is_available(),
+            "cuda_build": torch.version.cuda,
+            "cuda_arch_list": torch.cuda.get_arch_list() if torch.cuda.is_available() else [],
+        }
+        if torch.cuda.is_available():
+            result["cuda_devices"] = [
+                {"index": i, "name": torch.cuda.get_device_name(i),
+                 "total_memory_bytes": torch.cuda.get_device_properties(i).total_memory,
+                 "compute_capability": list(torch.cuda.get_device_capability(i))}
+                for i in range(torch.cuda.device_count())
+            ]
+            result["torch_backends"]["native_bfloat16_current_device"] = torch.cuda.is_bf16_supported(including_emulation=False)
+    except ImportError:
+        result["torch_backends"] = {"status": "torch_not_installed"}
     out = Path(a.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2) + "\n")

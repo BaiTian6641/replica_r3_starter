@@ -11,6 +11,7 @@ import ast
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -24,19 +25,42 @@ STEMS = (
     "04_causal_support_query", "05_autonomous_learning_loop",
     "06_replica_identity_lineage", "07_two_stage_roadmap", "08_dataset_pipeline",
 )
+PRUNED_DIRECTORIES = {
+    ".git", ".venv", ".cache", "checkpoints", "runs", "private",
+    "__pycache__", ".pytest_cache", "node_modules", ".agents", ".codex",
+}
+PRUNED_PATHS = {("data", "raw"), ("data", "processed")}
 
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def document_files():
+    """Walk project documents without entering local state or private data."""
+    for directory, children, files in os.walk(ROOT):
+        parent = Path(directory)
+        children[:] = [name for name in children
+                       if name not in PRUNED_DIRECTORIES
+                       and (parent / name).relative_to(ROOT).parts not in PRUNED_PATHS]
+        for name in files:
+            path = parent / name
+            if path.suffix in {".json", ".md"}:
+                yield path
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="reports/bundle_validation.json")
+    parser.add_argument("--validation-report", default="reports/validation.json",
+                        help="Test/hash evidence to check; preserves the historical report")
     args = parser.parse_args()
     destination = Path(args.output)
     if not destination.is_absolute():
         destination = ROOT / destination
+    validation_path = Path(args.validation_report)
+    if not validation_path.is_absolute():
+        validation_path = ROOT / validation_path
     failures: list[str] = []
     checks: dict[str, object] = {}
     required = [
@@ -58,7 +82,8 @@ def main() -> int:
         if actual != expected:
             failures.append(f"{folder}: expected {expected} files, got {actual}")
 
-    json_paths = sorted(ROOT.rglob("*.json"))
+    documents = sorted(document_files())
+    json_paths = [path for path in documents if path.suffix == ".json"]
     for path in json_paths:
         try:
             json.loads(path.read_text())
@@ -75,7 +100,7 @@ def main() -> int:
     checks["python_files_parsed"] = len(python_paths)
 
     local_links = 0
-    for path in sorted(ROOT.rglob("*.md")):
+    for path in (path for path in documents if path.suffix == ".md"):
         if "reference" in path.relative_to(ROOT).parts:
             continue
         content = re.sub(r"(?ms)^```.*?^```\s*$|^~~~.*?^~~~\s*$", "", path.read_text())
@@ -96,7 +121,7 @@ def main() -> int:
         if not path.is_file() or sha256(path) != row["sha256"]:
             failures.append(f"Archived source changed: {row['archive_path']}")
     checks["archived_sources_hashed"] = len(source["files"])
-    validation = json.loads((ROOT / "reports/validation.json").read_text())
+    validation = json.loads(validation_path.read_text())
     for name, digest in validation["tested_file_sha256"].items():
         path = ROOT / name
         if not path.is_file() or sha256(path) != digest:
@@ -129,6 +154,7 @@ def main() -> int:
         "status": "passed" if not failures else "failed",
         "validated_at": datetime.now(timezone.utc).isoformat(),
         "scope": "File integrity, syntax and delivery consistency; no model-quality evaluation",
+        "validation_evidence_source": os.path.relpath(validation_path, ROOT),
         "checks": checks,
         "failures": failures,
         "archival_link_check_excluded": "reference/r2; source bytes verified separately",

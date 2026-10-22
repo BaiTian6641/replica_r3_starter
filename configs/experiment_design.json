@@ -1,5 +1,25 @@
 {
   "kind": "research_design_not_drop_in_trainer_config",
+  "optimizer_experiment": {
+    "selected": "muon8bit",
+    "implementation": "replica_lab.optimizers portable eager reference",
+    "platform_order": ["mac_m2_ultra_64gb", "rtx_pro_4000_blackwell_sff"],
+    "quantized_state": "eligible hidden 2D matrix momentum only",
+    "momentum_dtype": "int8",
+    "scale_dtype": "float32",
+    "block_size": 2048,
+    "auxiliary_optimizer": "AdamW FP32 for embeddings, output head and other ineligible tensors",
+    "reference_comparator": "adamw",
+    "muon_lr_base": 0.001,
+    "muon_lr_new": 0.001,
+    "adamw_lr_base": 0.00001,
+    "adamw_lr_new": 0.0001,
+    "momentum": 0.95,
+    "newton_schulz_steps": 5,
+    "weight_decay": 0.01,
+    "hyperparameters_status": "provisional preflight values; retune before model-quality comparisons",
+    "full_model_fit_verified": false
+  },
   "stage1_required": [
     "B0",
     "B1",

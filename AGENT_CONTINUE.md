@@ -4,6 +4,8 @@ Resume the existing TAIS Obsidian / Replica work. Preserve the objective and all
 
 Read execution_state.md, recent commits, git status, the last raw run report, AGENT_START.md and the relevant work package in docs/03_Implementation_and_Runbook.md. Distinguish tested code from proposed work and pretrained-model experiments from fixture tests.
 
+Preserve the setup choice: experimental Muon 8-bit on this M2 Ultra Mac Studio (64 GiB), then the later RTX PRO 4000 Blackwell SFF (24 GB); FP32 AdamW auxiliary groups keep embeddings/head/slot queries eligible. The locked environment, source snapshot/seal and tiny MPS checks are already established. Next qualify the real native model; do not rerun setup or silently replace Muon with AdamW. CUDA full-text residency needs the separate P2 path.
+
 State briefly: current accepted checkpoint/manifest; last verified gate; current failing or incomplete gate; next concrete action. Then perform that action. Reuse prior successful checks unless a change invalidates them.
 
 Use parallel workers with disjoint ownership when useful. Keep one owner for schemas and integration. Preserve uncommitted user changes and use focused commits. Do not invent remotes, silently substitute models or broaden into unrelated architecture rewrites.

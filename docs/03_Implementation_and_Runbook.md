@@ -2,6 +2,8 @@
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
+**Local setup, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [current validation](../reports/validation_macos_setup.json), [MPS smoke](../reports/muon8bit_mps_smoke.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). Current checks use tiny randomly initialized models; full pretrained updates remain unrun.
+
 ## 1. What the delivered code actually does
 
 | Component | Delivered behavior | Important boundary |
@@ -12,9 +14,13 @@
 | neural.py | Learned record pooling, residual reader, recurrent prompt workspace, functional linear fast state | Simplified project modules, not a reproduced research architecture |
 | model_adapter.py | One complete native Llama block wrapper; explicit trainable scope; safe base/sidecar export | Training-only text adapter; no native generation cache, VLM or distributed support |
 | train_text.py | Pinned local MiniCPM5 text runner; response-only loss; four regimes; parameter/gradient report | Real pretrained run not performed; no offload, long-run resume or task accuracy evaluator |
+| optimizers.py | Experimental blockwise INT8 Muon momentum + auxiliary FP32 AdamW; exact original/new routing and optimizer-state serialization | Portable eager FP32 math; not fused, distributed or a validated paper reproduction |
+| setup_macos.sh / smoke_training.py | Locked environment; tiny MPS D0/D1/D2 forward/backward/update and export/reload | Does not establish full-size model fit, quality or training-run resume |
 | run_contract_demo.py | Observe/store/compile/evaluate/publish/restart/reject/rollback on deterministic XOR fixtures | Fixed symbolic compiler and curriculum; no LLM learning claim |
 | make_fixtures.py | 32 train + 16 dev solver-verified synthetic examples | Plumbing data only |
 | pin_model.py / seal_snapshot.py | Resolve metadata revision; seal exact local snapshot bytes | Local hashing is not an independent publisher signature |
+| download_model.py | Acquire complete snapshot at the existing immutable metadata lock; retain receipt | No weight execution; weights and download caches are ignored by Git |
+| inspect_snapshot.py | Verify seal and count actual checkpoint tensor shapes; estimate optimizer mixture bytes | Reads headers without model execution; arithmetic is not a measured memory peak |
 | inventory.py | Read-only environment/hardware report | Does not set drivers, select a GPU or establish fit |
 
 The model runner and record/promotion utilities are separate foundations. Integrating the learned model's action/learning policy into a persistent operating loop is an explicit work package below. A tested folder of components is not yet a model-integrated autonomous system.
@@ -31,74 +37,89 @@ python scripts/run_contract_demo.py --output runs/contract_demo_01
 
 These commands need Python 3.11+ and no model weights. The demo intentionally refuses to overwrite a nonempty run directory. Its report says model_learning_evaluated=false.
 
-For the numerical and native-Llama tests, create an isolated virtual environment and install a platform-appropriate PyTorch wheel plus the pinned packages in requirements-neural.txt. The delivered numerical report records the CPU reference versions. Then:
+For this Apple Silicon Mac, use the project Python 3.12.14 environment. `uv.lock` pins direct and transitive dependencies; installing the pinned NumPy release requires Python 3.12+. Run the complete setup or its individual steps:
 
 ~~~bash
-python -m pip install -r requirements-neural.txt
-python -m pip install -e . --no-deps
-python -m pytest tests -q
+sh scripts/setup_macos.sh
+# Individual steps:
+UV_CACHE_DIR="$PWD/.cache/uv" uv sync --locked --extra neural --extra test
+.venv/bin/python -m pytest tests -q
+.venv/bin/python scripts/smoke_training.py --device mps --optimizer muon8bit --output reports/muon8bit_mps_next.json
+source .venv/bin/activate
 ~~~
 
-Do not install a CPU wheel over an existing CUDA environment. Use [PyTorch's installation selector](https://pytorch.org/get-started/locally/) for the actual driver/platform. The package metadata alone is not proof of hardware compatibility.
+The installed versions are PyTorch 2.14.1, Transformers 5.20.2, safetensors 0.8.0, NumPy 2.5.4, pytest 9.1.1 and jsonschema 4.26.0. The original CPU report is retained separately. No bitsandbytes, torchao, MLX or DeepSpeed is required for the portable optimizer.
+
+The smoke uses three updates per D0/D1/D2 arm, checks frozen/full parameter ownership, actual embedding/head changes and export/reload with nonreentrant checkpointing. Its MPS counters are current allocations, not peak measurements. It refuses CPU fallback. Use a fresh report path on each run.
+
+On the later Blackwell machine, create a separate environment and use [PyTorch's installation selector](https://pytorch.org/get-started/locally/) for its OS/driver and a Blackwell-compatible build. Inventory the actual GPU, driver, CUDA build, compiled architectures and native BF16 before running the same smoke with `--device cuda`; preserve its resolved dependency list separately. Do not copy the Mac `.venv`. No CUDA device or driver was installed here.
 
 ## 3. Acquire and pin the exact text checkpoint
 
 Inventory the intended machine:
 
 ~~~bash
-python scripts/inventory.py --output reports/hardware_local.json
-python scripts/pin_model.py --model-id openbmb/MiniCPM5-2B --output configs/minicpm5_metadata_lock.local.json
+.venv/bin/python scripts/inventory.py --output reports/hardware_local.json
+.venv/bin/python scripts/pin_model.py --model-id openbmb/MiniCPM5-2B --output configs/minicpm5_metadata_lock.next.json
 ~~~
 
-The second command fetches public metadata and config only. It resolves the current requested branch to a full immutable revision. It fails on unavailable metadata rather than replacing the model.
+The second command fetches public metadata and config only. It resolves the current requested branch to a full immutable revision. It fails on unavailable metadata rather than replacing the model. The initial setup already wrote [minicpm5_metadata_lock.local.json](../configs/minicpm5_metadata_lock.local.json); keep that lock for this experiment, rather than re-resolving `main`.
 
-Download the complete checkpoint at that exact revision in a separate deliberate setup action:
+Download the complete checkpoint at that exact revision (the helper records acquisition and resumes the same revision):
 
-~~~python
-import json
-from huggingface_hub import snapshot_download
-
-lock = json.load(open("configs/minicpm5_metadata_lock.local.json"))
-snapshot_download(
-    repo_id=lock["repo_id"],
-    revision=lock["revision"],
-    local_dir="checkpoints/minicpm5_source",
-)
+~~~bash
+.venv/bin/python scripts/download_model.py --model-lock configs/minicpm5_metadata_lock.local.json --output checkpoints/minicpm5_source
 ~~~
 
 Then seal the downloaded bytes:
 
 ~~~bash
-python scripts/seal_snapshot.py --snapshot checkpoints/minicpm5_source --input-lock configs/minicpm5_metadata_lock.local.json --output-lock configs/minicpm5_sealed_lock.local.json
+.venv/bin/python scripts/seal_snapshot.py --snapshot checkpoints/minicpm5_source --input-lock configs/minicpm5_metadata_lock.local.json --output-lock configs/minicpm5_sealed_lock.local.json
 ~~~
 
-The runner verifies the config, native architecture, local file inventory and file hashes before loading. It additionally checks the total original parameter count. Hashes bind later runs to those local bytes; retain download metadata and license provenance to support the claimed upstream origin.
+The runner verifies the config, native architecture, selected local file inventory and file hashes before loading. The seal covers `.json`, `.safetensors`, `.model` and `.jinja` files, including this snapshot's tokenizer/template; it is not a general hash of arbitrary text vocabulary files. It additionally checks the total original parameter count. Hashes bind later runs to those local bytes; retain download metadata and license provenance to support the claimed upstream origin.
 
 No weights or private records are included in this bundle.
 
-## 4. A real-model preflight, not the main experiment
-
-The following is a single-device command for a machine that can hold the declared state. **It is not a 24 GB full-tuning recipe.** For a 24 GB GPU, first implement the offload/sharding package in section 6 or use a supported official full-tuning baseline.
+The initial setup acquired revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52` into ignored `checkpoints/minicpm5_source` and wrote [the sealed lock](../configs/minicpm5_sealed_lock.local.json). The acquisition receipt is `checkpoints/minicpm5_source.download.json`. The [shape inventory](../reports/minicpm5_snapshot_inventory.json) confirms 2,516,756,480 original parameters without constructing or executing the model:
 
 ~~~bash
-python scripts/train_text.py \
+.venv/bin/python scripts/inspect_snapshot.py --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json --output reports/minicpm5_snapshot_inventory_next.json
+~~~
+
+Its current FP32 full-text weights/gradients/optimizer-state arithmetic is 26.40 GB / 24.59 GiB before activations and temporaries. Therefore the later 24 GB Blackwell full-scope experiment needs P2 offload/sharding or a separately qualified residency change. The same Muon algorithm can first be tested on CUDA with the tiny smoke model.
+
+## 4. A real-model preflight, not the main experiment
+
+The following is the next Mac feasibility command for a machine that can hold the declared state. **It is not a confirmed full-model fit or a 24 GB full-tuning recipe.** First run `--regime baseline --steps 0` with its own output directory for source-model response NLL; generation/task evaluation is still a separate P1 requirement.
+
+~~~bash
+.venv/bin/python scripts/train_text.py \
   --model-path checkpoints/minicpm5_source \
   --model-lock configs/minicpm5_sealed_lock.local.json \
   --data data/fixtures/train.jsonl \
   --dev data/fixtures/dev.jsonl \
   --output runs/minicpm5_D2_preflight_01 \
   --regime full_augmented \
-  --device cuda \
-  --dtype bfloat16 \
+  --device mps \
+  --dtype float32 \
+  --optimizer muon8bit \
+  --lr-muon-base 0.001 \
+  --lr-muon-new 0.001 \
+  --lr-base 0.00001 \
+  --lr-new 0.0001 \
+  --block-size 2048 \
   --steps 2 \
   --grad-accum 1 \
-  --max-length 512 \
+  --max-length 256 \
   --checkpointing
 ~~~
 
 Run separate fresh output directories for full (D0), modules_only (D1) and full_augmented (D2). Use baseline with steps=0 for the runner's untrained NLL reference. The command does not run B0/B1 task-generation evaluation.
 
-For a deliberate Mac feasibility trial, use device=mps and dtype=float32; MPS BF16 is rejected by this reference until separately validated. The Mac may be memory-bound or slow. Do not silently fall back to CPU and label it GPU throughput.
+The Mac path uses MPS FP32; MPS BF16 is rejected by this runner until separately validated. After qualification on the later RTX PRO 4000 Blackwell SFF, use `--device cuda --dtype bfloat16` in a new output directory. Parameters/gradients remain FP32; BF16 is autocast compute only. Run `--optimizer adamw` explicitly for the comparison, with separately tuned rates and a fit check. Never silently fall back to CPU or freeze layers to make full tuning fit.
+
+`--lr-muon-base` and `--lr-muon-new` control hidden 2D matrices; `--lr-base` and `--lr-new` control auxiliary AdamW groups. All four are provisional preflight rates. Momentum defaults to 0.95, five FP32 Newton-Schulz steps, no Nesterov, RMS adjustment `0.2 * sqrt(max(rows, columns))`, block size 2048 and weight decay 0.01. INT8 persistent momentum uses FP32 per-block scales; temporary dequantization and matrix arithmetic remain FP32. Embeddings, output head, learned slot queries, scalars, 1D and other ineligible tensors receive FP32 AdamW. One optimizer owns these disjoint groups; its audit records exact names, counts, rates and state bytes/dtypes.
 
 Response targets are separately tokenized; prompt labels are masked and EOS is supervised. Overlong examples fail explicitly instead of truncating the evidence or answer. The runner disables thinking mode in its chat-template invocation for a simple action/answer target; repeat native template/reasoning-mode controls before drawing conclusions about reasoning quality.
 
@@ -148,7 +169,7 @@ Exit: source lock, model inventory, real native forward/backward/generation repo
 
 Implement optional training-aware CPU optimizer offload or FSDP/ZeRO sharding while keeping the existing loss and parameter registry. Follow current [DeepSpeed offload](https://www.deepspeed.ai/tutorials/zero-offload/) or [OpenBMB's full-tuning guide](https://github.com/OpenBMB/MiniCPM/blob/main/docs/finetune/ms_swift.md) as the starting reference. Do not pass an inference device map into distributed training.
 
-Add optimizer/scheduler/RNG/data-cursor checkpoints, interruption/restart equivalence, parameter-change auditing and configurable warmup. Compare a short reference update before optimizing performance. Qualify original/full training first; then qualify the custom wrapper under the chosen partitioner. Test differentiable inner updates separately.
+The selected single-device Muon 8-bit setup is implemented and tested on tiny models. It does not supply offload/sharding or establish native full-model fit. Its optimizer state serialization preserves INT8 momentum, but the model runner does not yet save/reload that state. Add optimizer/scheduler/RNG/data-cursor checkpoints, interruption/restart equivalence, parameter-change auditing and configurable warmup. Compare a short reference update before optimizing performance. Qualify original/full training first; then qualify the custom wrapper under the chosen partitioner. Test differentiable inner updates separately.
 
 Exit: D0 and D2 perform real full-scope updates on the intended hardware without silent freezing; interrupted/resumed runs have documented numerical tolerance.
 

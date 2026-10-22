@@ -1,6 +1,6 @@
 # 02 - Two stages, explicit controls, measured hardware
 
-**23 October 2026. All proposed budgets and acceptance margins require preregistration; none are model-quality results from this bundle.**
+**Current setup review: 22 October 2026 (America/Chicago). Original bundle planning label: 23 October 2026. All proposed budgets and acceptance margins require preregistration; none are model-quality results from this bundle.**
 
 ## 1. The two-stage program
 
@@ -61,14 +61,21 @@ Proposed initial training budget is **8-32M processed tokens per trained arm**, 
 | Sequence length | 256 for preflight; 512 then 1024 | Find a feasible representative update before scaling activations |
 | Microbatch | 1 | Clear per-episode causal/state ownership |
 | Effective batch | 8-32 episodes via accumulation | Increase only after profiling and loss normalization checks |
-| Original-parameter LR | 5e-6, 1e-5, 2e-5 | Short developmental adaptation |
-| New-component LR | 1e-4, 3e-4 | New interfaces need their own search |
+| Muon original-matrix LR | 1e-3 provisional smoke default; retune before campaigns | Muon has a different update scale from AdamW |
+| Muon new-matrix LR | 1e-3 provisional smoke default; separate search | New interfaces need their own search |
+| Auxiliary AdamW LR, original/new | 1e-5 / 1e-4 provisional defaults | Embeddings, output head, 1D and other ineligible tensors remain trainable |
+| AdamW comparison LR, original/new | 5e-6, 1e-5, 2e-5 / 1e-4, 3e-4 | Retained as an explicit comparison arm |
 | LoRA LR, later arm | 1e-5, 3e-5, 1e-4 | Not assumed identical to full-tuning optimum |
-| Compute | BF16 where native support is established | Keep optimizer-state dtype explicit |
-| Reference optimizer | FP32-state AdamW | A clear numerical baseline before optimizer quantization |
+| Compute | FP32 for initial MPS validation; BF16 only after backend checks | Keep parameter, gradient, state and temporary dtypes explicit |
+| Selected optimizer experiment | Muon 8-bit + auxiliary FP32-state AdamW | Same project implementation on macOS MPS, later CUDA |
+| Muon state quantization | Linear signed INT8 momentum, 2048-element blocks, FP32 scales | Quantizes persistent momentum only |
 | Activation checkpointing | Nonreentrant; pure forwards | Reduce memory without duplicate external writes |
 
-These are proposed starting points. The included trainer is intentionally a simple FP32-resident AdamW reference with optional BF16 autocast, no warmup scheduler and no resume optimizer state. Add the scheduler and complete resumable state before long campaigns. Do not describe its 100-step default as a training recipe that has converged.
+These are proposed starting points. The selected optimizer is the project's experimental **Muon 8-bit** path. It uses eligible 2D hidden matrices for Muon, with auxiliary AdamW groups for embeddings, output head, learned slot queries, 1D tensors and other ineligible parameters. Parameter routing changes the update rule, not the D0/D1/D2 trainable scope: full-text arms must still update every intended original parameter, including embedding/head tensors. Deduplicate tied tensors and audit every trainable tensor's assignment.
+
+The portable eager PyTorch implementation stores Muon momentum in blockwise INT8, then dequantizes and orthogonalizes in FP32 using Newton-Schulz steps. Model parameters and gradients remain FP32 in the initial path, and auxiliary AdamW moments remain FP32. It is a project experiment inspired by [Effective Quantization of Muon Optimizer States](https://arxiv.org/abs/2509.23106), not a reproduced paper result or a claim of native fused-kernel speed. PyTorch's [Muon documentation](https://docs.pytorch.org/docs/2.14/generated/torch.optim.Muon.html) provides the matrix-eligibility reference; stock `torch.optim.Muon` is not itself this 8-bit optimizer. Installing bitsandbytes or torchao does not turn their AdamW implementations into Muon 8-bit.
+
+Retain `adamw` as an explicitly selected numerical comparison. Retune Muon base/new learning rates rather than copying AdamW values. The trainer still needs a scheduler and complete resumable state before long campaigns; its short default run is an infrastructure check, not a converged training recipe.
 
 For every run, record eligible parameter names, unique trainable count, nonzero gradients, changed tensors, optimizer dtypes and effective loss normalization. During full augmented tuning, a writer must use current candidate embeddings; stale cached features are invalid unless deliberately labelled frozen-teacher targets.
 
@@ -139,41 +146,41 @@ Sources: [MiniCPM5 card](https://huggingface.co/openbmb/MiniCPM5-2B), [small V4.
 
 Count actual unique tensors at the pinned revision. Active MoE parameters determine only part of per-token compute; they are not the storage requirement. For a VLM report decoder, embeddings/head, vision, projector and new modules separately. Full_text and full_vlm are different claims.
 
-## 8. Hardware: feasible routes and honest limits
+## 8. Hardware: current host and later CUDA target
 
-The small workstation's current GPU is unspecified. The M2 Ultra Mac Studio with 64 GB unified memory is confirmed. Earlier context described a dual RTX 3090 Ti plan, 128 GB DRAM and 256 GB Optane, with additional TITAN RTX cards considered. R3 does not assume all four GPUs are installed, nor that the new small workstation is that machine.
+The current host is the **Apple M2 Ultra Mac Studio**, arm64, with **24 CPU cores and 64 GiB unified memory**. The user's `M@Ultra` description is resolved by the actual host inventory. The initial experiment runs here using PyTorch MPS. The later target is the **NVIDIA RTX PRO 4000 Blackwell SFF Edition**, which NVIDIA specifies with **24 GB GDDR7 ECC**. Its CUDA experiment will use the same project Muon 8-bit algorithm and audited parameter routing. [NVIDIA product specifications](https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-4000-sff/).
 
-For P trainable parameters, FP32 resident weights + FP32 gradients + two FP32 Adam moments cost 16P bytes. Other mixed-precision layouts can reach 18-20P with extra copies. Activations, vocabulary logits, workspaces, temporary casts, communication and allocator headroom are additional.
+Earlier dual-3090 Ti, TITAN RTX, DRAM and Optane discussions are historical alternatives, not the installed-machine inventory or prerequisites for this setup. Reinventory the actual CUDA host before its run; do not assume multiple GPUs or pooled VRAM.
 
-| Trainable parameters | 16 bytes/parameter | 20 bytes/parameter |
+### Persistent memory arithmetic
+
+For full training with FP32 parameters and gradients, each Muon parameter requires approximately **9 bytes**: 4 for its weight, 4 for its gradient and 1 for quantized momentum, plus a shared FP32 scale per 2048-element block. Each auxiliary AdamW parameter requires approximately **16 bytes**: weight, gradient and two FP32 moments. Thus a fully trainable mixture needs approximately `9 * P_muon + 16 * P_adamw + scale_bytes` before activations and temporaries. For frozen-base/module-only runs, include loaded frozen weights separately; optimizer state follows only trainable parameters.
+
+| Trainable parameters | Illustrative all-Muon lower bound, 9 bytes/parameter before scales | All-AdamW reference, 16 bytes/parameter |
 |---|---:|---:|
-| 1.0B | 16.00 GB / 14.90 GiB | 20.00 GB / 18.63 GiB |
-| 2.0B | 32.00 GB / 29.80 GiB | 40.00 GB / 37.25 GiB |
-| Actual MiniCPM5-2B | 40.27 GB / 37.50 GiB | 50.34 GB / 46.88 GiB |
+| 1.0B | 9.00 GB / 8.38 GiB | 16.00 GB / 14.90 GiB |
+| 2.0B | 18.00 GB / 16.76 GiB | 32.00 GB / 29.80 GiB |
+| Actual MiniCPM5-2B | 22.65 GB / 21.10 GiB | 40.27 GB / 37.50 GiB |
 
-These are calculations, not measured peaks. MiniCPM5's large vocabulary also makes logits and loss buffers material. A 512-token batch has 66.8 million vocabulary-logit entries before loss temporaries.
+The all-Muon column is an arithmetic lower bound, not this model's actual optimizer mixture: embeddings/head and other ineligible tensors use AdamW. Scales add roughly 4 bytes per block, including each tensor's partial final block. FP32 dequantization, momentum/update intermediates, Newton-Schulz matrices, activations, vocabulary logits, loss buffers, temporary casts and allocator headroom are additional. MiniCPM5's 512-token batch alone has 66.8 million vocabulary-logit entries before loss temporaries.
 
-**One 24 GB GPU:** conventional resident full AdamW training of this 2.5168B model cannot fit. Use training-aware optimizer offload/sharding or a separately named lower-memory optimizer experiment. The shipped single-device trainer intentionally does not pretend to provide offload.
+The [sealed snapshot tensor inventory](../reports/minicpm5_snapshot_inventory.json) now confirms **1,981,808,640 Muon parameters and 534,947,840 auxiliary AdamW parameters**, totaling 2,516,756,480. With this FP32-resident layout, weights, gradients and persistent optimizer tensors alone require **26.40 GB / 24.59 GiB**, before new modules, activations and temporary buffers. This is shape-based arithmetic from the actual checkpoint, not a measured training peak.
 
-**Two 24 GB GPUs:** ordinary DDP replicates state; memory does not pool automatically. A tested FSDP/ZeRO setup is necessary. Begin with the homogeneous 3090 Ti pair if it is available. Heterogeneous TITAN RTX integration is a later placement/kernel experiment; native BF16 assumptions from Ampere cannot be copied to Turing. See [PyTorch DDP](https://docs.pytorch.org/docs/2.14/notes/ddp.html), [Ampere](https://docs.nvidia.com/cuda/ampere-tuning-guide/index.html), [Turing](https://docs.nvidia.com/cuda/turing-tuning-guide/index.html).
+**Mac Studio:** unified memory is shared by the OS, applications and training; the full 64 GiB is not an isolated GPU allocation. The smaller persistent optimizer state is a reason to measure feasibility, not evidence that the full model will fit or train efficiently.
 
-**One 48 GB GPU:** short-context full training is plausible at the lower state budget but not guaranteed after activations and temporary copies. Measure the representative update first.
+**Later 24 GB Blackwell SFF:** the current FP32-resident full-text state budget already exceeds this card's capacity. Full D0/D2 requires a tested offload/sharding adapter or a separately validated lower-residency layout, while retaining Muon 8-bit and the full trainable scope. Begin CUDA qualification with the tiny model; module-only remains a separately labelled control. An inference device map does not provide training-aware offload. [DeepSpeed ZeRO-Offload](https://www.deepspeed.ai/tutorials/zero-offload/) is a possible later adapter, not an installed or validated capability of this runner.
 
-**CPU offload:** [DeepSpeed ZeRO-Offload](https://www.deepspeed.ai/tutorials/zero-offload/) is the initial engineering route for preserving full-parameter scope with constrained VRAM. Implement it in a dedicated trainer adapter and test identical loss/update behavior before adding differentiable inner-memory updates. An inference device map is not a substitute.
+## 9. Mac Studio first-run protocol
 
-**Optane:** inspect its configured mode and OS-visible capacity. Do not add installed persistent-memory and DRAM capacities as if they were equally fast allocatable RAM.
+Use the current Mac as the first training and development machine. Establish CPU numerical checks, then run a tiny MPS model with the selected Muon 8-bit optimizer before downloading and loading the full checkpoint. Confirm that gradients and updates occur in both the Muon matrices and any trainable auxiliary AdamW tensors. Record block size, momentum/scales dtypes, eligible parameter names/counts and optimizer bytes with the run.
 
-## 9. Mac Studio role
+Start pretrained feasibility at microbatch 1 and sequence length 256, progressing to 512 only after a representative update fits. Keep another teacher model out of memory during profiling. Record available memory, MPS allocation, memory pressure, swap, throughput and save/reload behavior. Preserve OS memory safeguards. Higher-order fast-state training and custom kernels need separate backend checks. See [PyTorch MPS backend](https://docs.pytorch.org/docs/2.14/notes/mps.html).
 
-The M2 Ultra is useful for local inference, dataset review, teacher assistance with a suitable local model, independent evaluation, and a separate full-text tuning feasibility trial. Its unified memory is shared with the OS, applications, model buffers and inputs; 64 GB is not an isolated training allocation. [MLX unified memory documentation](https://ml-explore.github.io/mlx/build/html/usage/unified_memory.html).
+The common initial implementation is PyTorch, making the eventual CUDA comparison an explicit backend experiment with the same optimizer equations. MLX remains an optional later port. Apple's unified-memory behavior is described in the [MLX documentation](https://ml-explore.github.io/mlx/build/html/usage/unified_memory.html), but that does not establish parity for this project's custom optimizer or modules.
 
-Start the feasibility trial at microbatch 1 and 256-512 tokens, without a second teacher model resident. Record available memory, peak allocation, memory pressure, swap, throughput and save/reload behavior. Do not change OS memory safeguards to force a fit claim. Higher-order fast-state training and custom kernels need separate backend checks.
+For a future MLX port, audit the whole parameter tree: [MLX-LM lora.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/lora.py) freezes the model and, for its full mode, unfreezes selected transformer blocks. Choosing all blocks does not necessarily unfreeze embeddings, final norm and output head. Call that full_blocks until the inventory proves full_text. Use nonquantized source/converted weights for full-weight training; a 4-bit inference conversion is not automatically equivalent. [MLX-VLM V4.7 support](https://github.com/Blaizzy/mlx-vlm/blob/main/mlx_vlm/models/minicpmv4_7/README.md) does not establish this project's custom-module or full-multimodal gradient support.
 
-There is a current MLX scope trap: [MLX-LM lora.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/lora.py) freezes the model and, for its full mode, unfreezes selected transformer blocks. Choosing all blocks does not necessarily unfreeze embeddings, final norm and output head. Call that full_blocks until the parameter inventory proves full_text; a programmatic all-parameter trainer should unfreeze and audit the whole intended parameter tree.
-
-Use nonquantized source/converted weights for genuine full-weight training. A 4-bit inference conversion is not automatically an equivalent full-tuning starting point. MLX-VLM documents V4.7 support, but that is not evidence that this project's custom modules and full multimodal gradients already work there. [MLX-VLM model documentation](https://github.com/Blaizzy/mlx-vlm/blob/main/mlx_vlm/models/minicpmv4_7/README.md).
-
-The shipped PyTorch runner accepts MPS FP32 as an explicit feasibility path, but no MPS run was performed here. The recommended first numerical reference remains PyTorch; use the Mac for a separate backend comparison, not a hidden pooling of memory with the workstation.
+Consult the [runbook](03_Implementation_and_Runbook.md) and current setup reports for commands and observed checks. A tiny smoke update validates that execution path only. Native pretrained MiniCPM5 quality, realistic full-model peak memory, later Blackwell execution and V4.7 multimodal training require their own measurements.
 
 ## 10. The scale-up decision
 

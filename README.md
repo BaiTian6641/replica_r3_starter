@@ -6,6 +6,21 @@ The target is a semi-cognitive system that uses experience to improve its future
 
 This package contains an executable research starter, detailed construction documents, an eight-page diagram atlas, a dataset catalog, eight complete dataset-generation/review prompts, schemas and coding-agent instructions. It is a new R3 bundle; the seven supplied R2 documents are preserved unchanged under reference/r2.
 
+## Local setup — 22 October 2026 (America/Chicago)
+
+The current development machine is a **Mac Studio, Apple M2 Ultra, 24 CPU cores, 60 GPU cores and 64 GiB unified memory**. The selected optimizer experiment is **Muon 8-bit**, first on PyTorch MPS and later on the **RTX PRO 4000 Blackwell SFF Edition (24 GB)**. See [hardware profiles](configs/hardware_profiles.json) and [experiment settings](configs/experiment_design.json).
+
+Python 3.12.14 and all numerical dependencies are pinned in [uv.lock](uv.lock). The local `.venv` is installed. To reproduce the environment and run the offline checks plus tiny MPS updates:
+
+~~~bash
+sh scripts/setup_macos.sh
+source .venv/bin/activate
+~~~
+
+The project implements an experimental eager PyTorch Muon path with INT8 blockwise momentum and FP32 scales/temporary arithmetic. Embeddings, the output head, learned slot queries and other ineligible tensors use auxiliary FP32 AdamW groups. Weights and gradients remain FP32. `--optimizer muon8bit` is the trainer default; `--optimizer adamw` selects the explicit comparison. This quantizes optimizer momentum, not model weights.
+
+Current checks and limits are recorded in [execution state](execution_state.md), [Mac validation](reports/validation_macos_setup.json) and [tiny MPS optimizer smoke](reports/muon8bit_mps_smoke.json). These checks do not establish pretrained-model fit or convergence. The [runbook](docs/03_Implementation_and_Runbook.md) contains acquisition, baseline and preflight commands; the later CUDA build and hardware must be qualified on the Blackwell machine.
+
 ## Start here
 
 | Read | Purpose |
@@ -21,7 +36,7 @@ This package contains an executable research starter, detailed construction docu
 | [Coding-agent start instructions](AGENT_START.md) | Concrete first session and worker boundaries |
 | [Continuation instructions](AGENT_CONTINUE.md) | Resume progress without restarting or reducing the objective |
 
-## What is measured in this package
+## Original bundle evidence
 
 **53 automated tests passed, with no failures/errors/skips**, using CPU PyTorch 2.14.1 and Transformers 5.20.2. Three JSON schemas and 48 fictional fixture rows were validated. The tests include native tiny-Llama residual integration, parameter ownership, gradients, source/prompt causal separation, functional fast state, record correction/deletion, split leakage, candidate binding and serialization. See [the full validation report](reports/validation.json) and [test output](reports/test_output.txt).
 
@@ -37,15 +52,14 @@ python scripts/validate_data.py data/fixtures/train.jsonl data/fixtures/dev.json
 python scripts/run_contract_demo.py --output runs/contract_demo_01
 ~~~
 
-Python 3.11+ suffices for these core commands. They make no network requests. For numerical tests, install an appropriate PyTorch 2.14.1 build, the packages in requirements-neural.txt and this package:
+Python 3.11+ suffices for these standalone core scripts. They make no network requests. The installed package and pinned numerical environment require Python 3.12+. For the current Mac environment:
 
 ~~~bash
-python -m pip install -r requirements-neural.txt
-python -m pip install -e . --no-deps
-python -m pytest tests -q
+uv sync --locked --extra neural --extra test
+.venv/bin/python -m pytest tests -q
 ~~~
 
-Full pretrained-model setup, immutable revision resolution, local byte sealing and the two-step training preflight are in [the runbook](docs/03_Implementation_and_Runbook.md). No weights are included or automatically downloaded.
+Full pretrained-model setup, immutable revision resolution, local byte sealing and the two-step training preflight are in [the runbook](docs/03_Implementation_and_Runbook.md). Weights stay in ignored `checkpoints/`; the environment setup script does not download them.
 
 ## The research sequence
 
@@ -62,7 +76,7 @@ The primary text target is openbmb/MiniCPM5-2B, whose actual total is 2,516,756,
 
 The provided model adapter is training-only, single-device and text-only. It supports baseline, full, modules_only and full_augmented. It does not provide optimizer offload, distributed sharding, generation caching, optimizer/RNG resume or a VLM adapter. The linear fast-state primitive is tested separately and is not attached to the pretrained-model training path.
 
-A 24 GB GPU needs an additional offload/sharding implementation for conventional full MiniCPM5 AdamW tuning. The runbook makes that the next hardware-dependent package rather than silently freezing weights or calling LoRA full fine-tuning.
+A 24 GB GPU needs an additional offload/sharding implementation for conventional full MiniCPM5 AdamW tuning. The selected Muon experiment reduces persistent momentum storage but retains FP32 AdamW for the large embedding/head tensors; full-model fit still requires measurement and may need offload/sharding.
 
 The memory ledger and publisher are trusted-process reference utilities, not a completed authentication/sandbox service. The model must eventually operate through a host that owns scope, budgets and evaluation. Generated memory text cannot grant permissions.
 

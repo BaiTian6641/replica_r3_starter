@@ -10,6 +10,8 @@ Preserve two stages: full-scope small-model architectural development first; nor
 
 ## Read and establish ground truth
 
+Current setup decision (22 October 2026, America/Chicago): work first on the confirmed Apple M2 Ultra Mac Studio (24 CPU cores, 60 GPU cores, 64 GiB unified memory), using the locked Python 3.12.14 environment and the project's experimental `muon8bit` optimizer on MPS. The same optimizer is planned for the later NVIDIA RTX PRO 4000 Blackwell SFF Edition (24 GB). Keep auxiliary FP32 AdamW for embeddings/head/slot queries and other ineligible parameters; preserve exact D0/D1/D2 scope and separate Muon/base/new rates. Use all-AdamW only as an explicitly selected comparison. Read execution_state.md for completed setup evidence and existing source/sealed locks; do not reacquire a different `main` revision. The FP32 full-text persistent budget alone exceeds 24 GiB, so the later CUDA full-scope path requires P2 offload/sharding or a separately qualified residency change.
+
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
