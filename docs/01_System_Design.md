@@ -1,6 +1,6 @@
 # 01 - A model that develops through experience
 
-**TAIS Obsidian / Replica R3 | 23 October 2026 | Proposed architecture, with a tested starter implementation**
+**TAIS Obsidian / Replica R3 | Contract review: 22 October 2026, America/Chicago | Proposed architecture, with a tested starter implementation**
 
 ## 1. The intended result
 
@@ -9,6 +9,8 @@ Build a persistent model system that can maintain a goal, use previous experienc
 The core hypothesis is that a stable language-model foundation can support a developing system when useful information, procedures, control policies and selected neural components remain adaptable. This is an experimental engineering hypothesis. The delivered code establishes some software and numerical contracts, not the hypothesis.
 
 The supplied R2 documents already establish the full-chain objective. R3 adds an executable starting point, current dataset choices, explicit teacher prompts, model-specific integration constraints, and a diagram atlas. It does not replace the project with a retrieval-only assistant. The seven supplied R2 files are preserved under [reference/r2](../reference/r2/00_README.md); other historical files named inside them were not supplied or inspected in this revision.
+
+The [proposed cognitive contracts](experiments/20261022_Cognitive_Contracts.md) make the full bridge, state lifetimes, update authority, identity evolution and early connected-loop track explicit. They are specifications to implement, not additional measured results. Current evidence includes native D0 training/capacity, last-block D1/D2 forward/backward/export and fixed-context uncached generation qualification. It does not establish a full cognitive bridge, useful memory benefit, learned control or a learned director. Subsequent learning outcomes belong in [execution state](../execution_state.md).
 
 ### Two distinct uses of full fine-tuning
 
@@ -47,9 +49,9 @@ Here theta is the base, phi the trained extensions, E the evidence ledger, W the
 |---|---|---|---|
 | Original base | Pretrained language/reasoning prior | Never edited in place | Archived reference |
 | Developmental base | Co-adapted original parameters | Named full/selective development runs | New checkpoint revision |
-| Reader/writer/workspace parameters | How to encode, use and organize evidence | Candidate training jobs | Versioned extension set |
-| Task workspace | Goal, evidence pointers, hypotheses, next-action state | Decision boundary / bounded recurrent steps | Per task; reset on new task |
-| Fast neural state | Approximate recent associations | Completed observation chunk | Per session and branch |
+| Reader/writer/workspace and proposed action/calibration/director parameters | Encoding, evidence use, control and practice selection | Named candidate training jobs | Separately versioned components of phi; current small-sidecar inventory does not implement them all |
+| Task workspace | Goal, evidence pointers, hypotheses, next-action state | Decision boundary / bounded recurrent steps | Task-local latent state; proposed exact goal/action journal enables restart reconstruction |
+| Fast neural state | Approximate recent associations | Completed observation chunk | Proposed default: request/session-owned, reset at request end and scope/identity/revocation boundaries |
 | Evidence records | Source facts, reports, events and corrections | Authorized record transaction | Subject/branch scope |
 | Skill library | Reusable procedure or neural adapter | Verified candidate publication | Versioned catalog |
 | Source identity | Human's approved history and priorities | Source-person revision | Human source authority |
@@ -58,19 +60,29 @@ Here theta is the base, phi the trained extensions, E the evidence ledger, W the
 
 Records and neural state serve different purposes. Exact identifiers, dates, code and source spans must remain available as records. Approximate memory can improve access and fusion without becoming the sole authority for autobiography.
 
+The proposed [authority matrix](experiments/20261022_Cognitive_Contracts.md#6-authority-matrix) separates event logging/record admission, private task/fast state, evaluated skill/parameter publication, developmental base changes, human source edits and protected branch-goal changes. Evidence admission is not a neural candidate promotion. Foundational branch-goal changes require explicit authorized human review; ordinary bounded skill learning can proceed under existing delegation.
+
 ## 4. Recommended initial neural architecture
 
 Begin with native MiniCPM5-2B, one complete decoder-block wrapper, a learned memory reader, and a separate recurrent workspace. The [official model configuration](https://huggingface.co/openbmb/MiniCPM5-2B/blob/main/config.json) identifies a native Llama decoder; this makes the initial port relatively direct.
 
-At an insertion point:
+At native block `l`, first preserve its complete result, including its own residual paths:
 
-$$h' = h_{\text{native}}+\Delta_{\text{memory}}(h,M)+\Delta_{\text{workspace}}(h,W).$$
+$$h_l^{\mathrm{native}}=\mathrm{Block}_l(h_l;\mathrm{mask},\mathrm{positions},\mathrm{native\ cache}),$$
+
+$$h_{l+1}=h_l^{\mathrm{native}}+\Delta_{\mathrm{memory}}(h_l^{\mathrm{native}},M)+\Delta_{\mathrm{workspace}}(h_l^{\mathrm{native}},W).$$
+
+The readers return deltas; do not add incoming `h_l` a second time. A future fast-state delta is a separately qualified branch.
 
 Each branch has its own null path and gate. Initialize its final output projection to zero while initializing upstream weights normally. This preserves the native result at initialization while allowing the output projection to learn first. Zeroing every factor in a product can prevent useful gradients.
 
 **Implemented starter:** separate support and prompt embedding inputs; attention-based record pooling; memory cross-attention; a small recurrent slot workspace; independent memory/workspace injection; one native block wrapper; explicit per-batch context lifetime through backward.
 
 **Deliberate initial simplifications:** the writer receives input embeddings rather than a separately pretrained semantic encoder; the workspace remains fixed during one answer segment; the input also contains the same source text as the full-tuning baseline. This equal-information comparison does not claim context compression. A later experiment removes duplicated source text and evaluates latency/state/token savings separately.
+
+The current trainer pools one example's concatenated retrieved support into a fixed slot set and rebuilds support/workspace for its forward context. Four slots are **per retrieved set**, not four slots per stored record. Persistent per-record payloads are proposed separately, binding source/permission/evidence revision, base/writer/tokenizer producer and slot-layout versions; updates require invalidation/re-encoding. See [slot granularity and cache contracts](experiments/20261022_Cognitive_Contracts.md#3-slot-granularity-and-representation-versions).
+
+The native qualification uses the last block (`-1`, zero-based block 41). R2's block 27 and two-port 13/27 configurations remain distinct unrun experiments, with native indices preserved and capacity/compute controls. The last-block result does not select an optimal location or demonstrate multi-port cognition.
 
 The code's default dimensions are 64-wide memory and workspace, four slots and two steps to keep tests and initial overfitting small. Research configurations may compare 128/256 dimensions, 4/8/16 slots and 1/2/4 steps after profiling. These are proposed choices, not published optimum values.
 
@@ -79,6 +91,8 @@ The code's default dimensions are 64-wide memory and workspace, four slots and t
 The host runtime runs retrieval, storage, permissions and tool execution outside the differentiable forward. The trained writer, memory reader, workspace and action heads operate beside and within the backbone's computation. They send residual information into selected complete blocks without replacing native attention.
 
 This division preserves a useful engineering boundary: the model proposes a memory/action/update; the host validates the proposal and performs a transaction. A host runtime is needed even when the judgment is neural. It is not evidence that the project has become retrieval-only.
+
+The full proposed **sense → route → core → inject/action** bridge is broader than the current embedding sidecars. It needs a typed goal/constraint/subgoal/evidence/hypothesis/uncertainty state, bounded comparison of candidate actions and hypothetical rollouts, permitted route proposals, versioned native injection ports, and actual outcome feedback. Hypothetical outcomes never become observations. Exact task/goal/action references survive restart; latent workspace is reconstructed. The [bridge contract](experiments/20261022_Cognitive_Contracts.md#2-native-residual-boundary-and-the-full-bridge) defines these interfaces and their acceptance checks without claiming they exist today.
 
 ## 5. Memory components: which paper supports which claim?
 
@@ -105,7 +119,9 @@ $$L_{\text{inner}}(A)=\frac{1}{2N}\sum_i\|k_i A-v_i\|^2.$$
 
 An update returns a new A. It does not mutate a global parameter, database or earlier chunk snapshot. When several decoder depths share this state, every port reads the same chunk-start A; gradients/writes are combined only after the chunk completes. Reading a whole current chunk's write at a deeper layer can leak future tokens into earlier predictions.
 
-Runtime fast-state updates are not equivalent to publishing new global model weights. If fast state persists across sessions, record its owner, schema, source lineage, update count and reset policy explicitly.
+Runtime fast-state updates are not equivalent to publishing new global model weights. The proposed default disables cross-request persistence and resets on task/scope/branch/identity changes, producer incompatibility and revocation. Persistence needs explicit owner, lineage, schema/producer versions, byte/update/expiry bounds and reset rules; missing bounds disable it. Exact goal-journal persistence remains independent of fast-state reset.
+
+Each decision must pin its evidence revision and eligibility/producer versions. A pin does not override later privacy revocation or a selected source's invalidation. The proposed [revocation barrier](experiments/20261022_Cognitive_Contracts.md#4-evidence-pins-and-revocation-barriers) blocks affected running requests/actions, discards dependent workspace/KV/recurrent/fast state, and rebuilds from permitted evidence before resuming. This does not retract delivered output or prove erasure from trained weights.
 
 ## 6. The autonomous development loop
 
@@ -121,6 +137,12 @@ The proposed deployed loop is:
 8. Evaluate the candidate against its parent on unseen task instances and retention tests.
 9. Automatically publish, reject or defer within the delegated policy.
 10. Measure later behavior after restart and on new tasks.
+
+### Early connected pilot, then selected-system qualification
+
+An independent thin S3.1 preparatory pilot may start after S1.1 on an explicitly fixed original/baseline model manifest, in parallel with S2. Connect actual model actions, one real bounded tool/verifier, exact goal/observation journaling, experience admission and typed learning/candidate plumbing. Label any candidate stub; only a real update and later unseen improvement can close the learning claim. This restores R2's early complete-simple-loop direction.
+
+The pilot is partial evidence, not completion of S3.1 or the architecture study. Binding and qualifying the selected frozen architecture still requires S2.5; later candidate/longitudinal gates remain. Existing stage IDs/dependencies are unchanged. See [early versus selected-system acceptance](experiments/20261022_Cognitive_Contracts.md#9-early-connected-pilot-and-the-later-selected-system).
 
 “By itself” means ordinary authorized learning cycles do not need manual approval at every step. The model can select practice, propose updates and use results to improve that selection. A separately controlled evaluator and manifest publisher enforce what counts as improvement. Neither an LLM's confidence nor an increase in its own reward estimate is a sufficient release condition.
 
@@ -140,15 +162,17 @@ A calibration head learns from observed outcomes on a disjoint calibration split
 
 A practical starting proposal contains task family, source event IDs, update target, permitted generator, maximum steps/tokens, replay source IDs, parent manifest and expected evaluation. It does not contain arbitrary shell commands. Verifiable microengineering tasks are useful because correctness can be checked outside the model.
 
+The proposed director is an explicitly versioned `phi_director`, separate from action/calibration components and protected policy `P`. Its initial cadence selects practice at completed task/failure boundaries, freezes versions during comparisons, and trains at most one director candidate at a completed-cycle boundary. Predeclare development-only gain/retention/cost reward, count generation/verifier/replay/training/rejected-candidate costs, and evaluate publication independently of that reward. No sealed audit or hidden promotion labels enter the director. [Director lifecycle and reward contract](experiments/20261022_Cognitive_Contracts.md#8-director-parameters-cadence-and-learning-value).
+
 ## 8. Identity and experience
 
 Preserve four operating modes: source_snapshot, source_current, parallel_replica, assistant_for_source. The first reproduces a dated source profile; the second follows approved human updates; the third develops its own branch; the fourth personalizes assistance without claiming to be the user.
 
-Preference conditioning changes which acceptable solution is favored. It does not make a failed test correct. Style is a separate optional adaptation target. Real decisions, exceptions and changes of mind matter more than personality adjectives.
+In assistance mode, preference conditioning changes which acceptable solution is favored; it does not make a failed test correct. Source-simulation modes may predict a dated mistaken belief, but must attribute it and keep the world assessment separate. A faithful source-belief target is not a verified technical-fact target. Style remains optional and separate. Real decisions, exceptions and changes of mind matter more than personality adjectives.
 
 The source archive is human testimony with uncertainty and provenance. The agent's new experiences are agent history. Inferences and simulated alternatives remain marked as such. A correction changes the current view without falsely rewriting what was known earlier. A deletion must invalidate derived caches/examples/adapters; deleting a record alone does not erase its influence from already trained weights.
 
-See [Replica collection and evaluation](05_Replica_Protocol.md) for the concrete starting interview and fidelity protocol.
+See [Replica collection and evaluation](05_Replica_Protocol.md) for the starting interview, proposed `IdentityChangeProposal`, protected branch-goal review and mode-aware fidelity/correctness protocol.
 
 ## 9. What should remain optional
 

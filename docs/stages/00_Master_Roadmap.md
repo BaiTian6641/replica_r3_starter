@@ -32,6 +32,14 @@ Next implement **prompt-fixed augmented generation parity**, then **D1 tiny over
 
 CPU provenance, solver/evaluation work and Replica intake can proceed while one MPS experiment runs. Keep only one full-size training/evaluation process resident during memory profiling. A local teacher must not compete for unified memory during those measurements. Reuse the source seal and locked environment; do not silently fetch a new `main` revision.
 
+The early thin connected-loop pilot is also parallel preparation: after S1.1,
+bind one fixed baseline manifest to bounded real tools, persistent task state and
+an observation journal. This restores R2's simple complete-loop priority while
+the neural interfaces are studied. It is a preparatory scope inside S3.1, not
+completion of its selected-architecture gate or the later ten-cycle study;
+those retain the existing S2.5 dependency. The [cognitive contracts](../experiments/20261022_Cognitive_Contracts.md)
+make the state, authority and starter-to-core bridge explicit.
+
 The roadmap refines the runbook's P0–P8 and the research guide's I/II stages: S0 corresponds to P0/P1/P2 and I-0/I-2; S1 to P3/I-1; S2 to P4/I-3; S3 to P5/I-4; R to P6/I-P; S4 to P7/I-5; S5 to P8/II. These labels do not rename the experimental arms D0/D1/D2 or T0/T1/T2/T3.
 
 ## What is fixed across experiments

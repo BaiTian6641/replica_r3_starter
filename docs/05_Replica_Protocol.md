@@ -1,6 +1,6 @@
 # 05 - Authentic source records and a developing parallel Replica
 
-**23 October 2026 | Collection and evaluation protocol**
+**Contract review: 22 October 2026, America/Chicago | Collection and evaluation protocol**
 
 ## 1. Preserve the original idea
 
@@ -15,6 +15,8 @@ Three structures remain distinct:
 3. **Replica branch history:** the agent's later actions, outcomes, learned skills and declared differences from the starting snapshot.
 
 Public personalization datasets teach a model how to use preference evidence. They cannot supply the user's real life. Teacher-generated counterfactuals can test a principle; they do not become authentic memories.
+
+The Replica uses the generic goal/evidence/action/verification/learning engine with authentic decision conditioning, an approved identity version and branch-owned experience. It is neither a separate style product nor permission to overwrite that engine's evaluator. The [cognitive contracts](experiments/20261022_Cognitive_Contracts.md) below are proposed interfaces, not an implemented personal archive or measured Replica fidelity result.
 
 ## 2. Capture conditional decision processes
 
@@ -56,6 +58,8 @@ The dependency chain is source record → extraction → examples → adapter/ch
 
 The shipped ledger tracks direct dependencies and correction descendants. It is a logical reference, not a complete backup-deletion or neural-unlearning service.
 
+Proposed runtime decisions pin source/evidence and permission revisions. A historical snapshot never overrides current privacy revocation. Revocation or selected-source invalidation must stop affected running requests/output/actions, discard dependent workspace, native KV/recurrent cache and fast state, then rebuild from eligible evidence. Already delivered output and trained influence need separate retention/rebuild handling. See [the proposed live-state revocation barrier](experiments/20261022_Cognitive_Contracts.md#4-evidence-pins-and-revocation-barriers).
+
 ## 4. Operating modes
 
 | Mode | Reference identity | Allowed interpretation |
@@ -68,6 +72,14 @@ The shipped ledger tracks direct dependencies and correction descendants. It is 
 The active mode, snapshot and branch must be in the system manifest and event trace. Do not silently use current preferences in a historical simulation. Do not force a parallel branch to pretend it has not learned.
 
 The user can preserve foundational goals while allowing strategy and interpretation to change. Represent that as explicit dimensions with update authority and evidence. Do not claim that one latent vector or a fixed list of personality scores is a complete identity.
+
+### Mode-aware fidelity and correctness
+
+The host selects mode, identity version and branch explicitly. Proposed traces separate `predicted_source_belief_or_choice`, `world_assessment` and any `recommended_action`. `source_snapshot` and `source_current` may predict a mistaken source belief, but label its attribution/date and uncertainty; they do not convert it into independently verified world truth. `assistant_for_source` recommends using verified evidence and authorized preferences, identifying contradictions where material. `parallel_replica` may hold an evidence-grounded branch conclusion different from the source, with that divergence recorded.
+
+Rich training/evaluation manifests must retain mode and attribution so a source-simulation target is not reused as an assistance fact. Score source fidelity, technical correctness, process fit and protected-goal continuity separately. Human review establishes personal-priority fit; the relevant independent verifier establishes technical outcomes. A solver failure remains a failure even if the source would have preferred that answer.
+
+Mode/version changes invalidate incompatible personal context. Proposed fast neural state resets by default at request end and task/scope/branch/identity boundaries; persistence requires explicit bounded owner/lineage/version/expiry policy. A restored exact goal journal is not permission to retain unqualified or revoked latent state.
 
 ## 5. Training order
 
@@ -90,6 +102,14 @@ In the small-model laboratory compare ordinary full tuning on the same authentic
 ### R4 - Parallel development after freeze
 
 Let verified skill learning proceed automatically within delegated scope. Record changes as agent development. Human corrections update the source archive; branch-local experience does not. A shift in a foundational source goal needs source authority, while a new verified debugging procedure ordinarily does not.
+
+A protected foundational goal of the **parallel branch** also cannot change silently through a skill/curriculum update. The branch can propose such a change; explicit authorized human review is required for protected identity dimensions. Bounded nonfoundational conclusions and verified skills may change under delegated policy, preserving source/branch attribution and uncertainty. This separates ordinary autonomous development from changing the identity-defining goals the user asked the branch to preserve.
+
+### Proposed IdentityChangeProposal
+
+Before identity-affecting publication, record: proposal ID; parent identity/branch version; active mode/owner; change class (`source_correction`, `source_development`, `replica_development`); changed dimension; old/proposed values; source/evidence pins; reason/uncertainty; allowed uses; expected behavioral effect; retained foundational goals; tests; affected derivatives; required authority; approval or delegated-policy reference; and migration/rollback version.
+
+The host validates the change class and protected dimensions. Human source corrections/development use source authority and create dated versions. Replica changes never edit the source archive. Protected branch-goal changes require explicit authorized human review; a model's confidence or “benign update” label cannot grant it that authority. This is a proposed contract, not an existing executable schema. See [the authority matrix and identity contract](experiments/20261022_Cognitive_Contracts.md#6-authority-matrix).
 
 ## 6. Evaluation with the human source
 
@@ -126,5 +146,7 @@ A useful first integrated experiment combines one authentic decision principle a
 6. It later applies the procedure while retaining source attribution and the original conditional priority.
 
 This tests recognizable decision behavior and useful development together. It does not require the replica to agree with every human belief: faithful prediction of a mistaken belief and correct assistance are different tasks, and the operating mode determines which is being evaluated.
+
+Before an authentic archive exists, the early connected host-loop pilot can use clearly fictional records to test these mode/authority boundaries in parallel with S2. That pilot does not establish source-person fidelity. The full selected-architecture loop and personal evaluation retain their later gates; collection of authentic decisions can begin independently whenever the source supplies permitted material.
 
 No authentic personal training records are fabricated or bundled here. The next collection step is to complete the worksheet for a small set of real decisions and reserve held-out cases before generating variants.
