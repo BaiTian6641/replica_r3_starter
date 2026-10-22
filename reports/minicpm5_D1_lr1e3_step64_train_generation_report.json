@@ -1,0 +1,898 @@
+{
+  "status": "completed_native_generation_preflight",
+  "device": "mps",
+  "parameter_dtype": "float32",
+  "compute_dtype": "float32",
+  "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+  "model_lock_path": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+  "tokenizer_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+  "data_path": "/Users/flare/replica_r3_starter/data/diagnostics/tiny_overfit_mask1/train.jsonl",
+  "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+  "seed": 17,
+  "max_examples": 8,
+  "max_new_tokens": 8,
+  "max_length": 256,
+  "decoding": {
+    "do_sample": false,
+    "num_beams": 1,
+    "use_cache": false,
+    "enable_thinking": false,
+    "context": "fixed_original_prompt_and_support"
+  },
+  "examples": [
+    {
+      "id": "train-w4-m1-x0",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "1",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "e679aef1fad01bba42d7ac274ec927cb457a7732e48a86d57e5ef775a1c5b772",
+      "generated_token_ids": [
+        37,
+        130073
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "0<|im_end|>",
+      "completion": "0",
+      "elapsed_seconds": 0.32619891688227654,
+      "exact_text_match": false,
+      "predicted_integer": 0,
+      "expected_integer": 1,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x1",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "0",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "a95ff49b7c1a8a4fa146a66c23ca0a0212dcbb532121fff8d203643cbcec50ad",
+      "generated_token_ids": [
+        62,
+        1178,
+        317,
+        6491,
+        285,
+        9327,
+        47,
+        769
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "I need to apply the transformation: x",
+      "completion": "I need to apply the transformation: x",
+      "elapsed_seconds": 0.5256006671115756,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 0,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x2",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "3",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "c9b3f5c5ffbcd2b6ec066386af16bf542412a75576f1a7174a0ab401b2388100",
+      "generated_token_ids": [
+        62,
+        1178,
+        746,
+        1982,
+        317,
+        1848,
+        447,
+        401
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "I need more information to help you with",
+      "completion": "I need more information to help you with",
+      "elapsed_seconds": 0.5079348341096193,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 3,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x3",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "2",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "b4bdbbbf6e83ea0b1a32615f2349ee572a9708a2e9e37fb1acfbc5abbb2e2189",
+      "generated_token_ids": [
+        1741,
+        1178,
+        317,
+        11417,
+        285,
+        2333,
+        35,
+        861
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "We need to interpret the problem. It",
+      "completion": "We need to interpret the problem. It",
+      "elapsed_seconds": 0.5397858750075102,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 2,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x4",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "5",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "bcb6e89c0409d14275ada68601f1e2c457c4a1a72305b65f5ceea09c53f3bdea",
+      "generated_token_ids": [
+        1741,
+        1178,
+        317,
+        11417,
+        285,
+        2333,
+        35,
+        861
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "We need to interpret the problem. It",
+      "completion": "We need to interpret the problem. It",
+      "elapsed_seconds": 0.528078833129257,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 5,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x5",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "4",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "c9d1349be12959cd73272cc930fb4bea0b169feb408e23282b850403b10033e5",
+      "generated_token_ids": [
+        1741,
+        1178,
+        317,
+        6491,
+        285,
+        9327,
+        47,
+        458
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "We need to apply the transformation: \"",
+      "completion": "We need to apply the transformation: \"",
+      "elapsed_seconds": 0.5168392919003963,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 4,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x6",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "7",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "a44ab131af57c02ed7d082f5fd2f486d7f2f4055c9179412467265719d466d4d",
+      "generated_token_ids": [
+        1741,
+        1178,
+        317,
+        11417,
+        285,
+        2333,
+        35,
+        861
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "We need to interpret the problem. It",
+      "completion": "We need to interpret the problem. It",
+      "elapsed_seconds": 0.5096995830535889,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 7,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "train-w4-m1-x7",
+      "group_id": "xor-width-4-mask-1",
+      "source_ids": [
+        "fixture://xor/width-4/mask-1"
+      ],
+      "expected": "6",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "80d10d3b6d99343238eb218a1784340824de4d7b5817cea48d6339418cd46be8",
+      "generated_token_ids": [
+        1741,
+        1178,
+        317,
+        11417,
+        285,
+        2333,
+        35,
+        861
+      ],
+      "generated_tokens": 8,
+      "ended_by_eos": false,
+      "hit_token_budget": true,
+      "raw_completion": "We need to interpret the problem. It",
+      "completion": "We need to interpret the problem. It",
+      "elapsed_seconds": 0.5322380419820547,
+      "exact_text_match": false,
+      "predicted_integer": null,
+      "expected_integer": 6,
+      "strict_integer_match": false,
+      "task_correct": false
+    }
+  ],
+  "implementation_sha256": {
+    "scripts/evaluate_text.py": "010f33197f83b1691d443e11e7b0af51954f3752bf6f1ec69657b2068d7b8ad4",
+    "scripts/train_text.py": "1c43d12a7bd891e5934b25eb274ffe7bfb38e3a68f0917a69349759c0c0cd599",
+    "src/replica_lab/model_adapter.py": "bc563a86e7373ab5fbddd6a378aaea6feb8073f045f8f632dc642bef0b8b309d",
+    "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92",
+    "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+    "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624"
+  },
+  "evaluated_split": "train",
+  "evaluation_role": "tiny_training_memorization",
+  "limitations": [
+    "Training-set tiny memorization diagnostic, not held-out accuracy or general quality",
+    "Only the first declared training examples are evaluated",
+    "Augmented exports use fixed-context uncached generation; plain exports use native caching",
+    "Memory peaks are sampled; profiler records interval and counter semantics"
+  ],
+  "model_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "export_provenance": {
+    "base_path": "/Users/flare/replica_r3_starter/runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint/base",
+    "regime": "modules_only",
+    "adapter_manifest_sha256": "4fdb594688e13e6266432e89c5c9e6b66c56ebc1b330aff3e0d0fd515a54898b",
+    "sidecars_sha256": "b5c1ff1bc2debc5f81e7c883e6aaf213f37e5ff9378365d489583ca649f5680d",
+    "files_sha256": {
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "4e1fcb1d384ca436e3580fade2e4fc177360289fd6fbee21da08bc9b26d42683",
+      "generation_config.json": "adc7aa3114cfbd03e9d7bab506d82a17231131c33027cc6296c2afe01dad6392",
+      "model.safetensors": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "5378dcce33a455cfa6a7cd4a5ab54511e787b84b7334ec2d04e54b1d5a1a3cb4"
+    }
+  },
+  "available_examples": 8,
+  "effective_chat_template_sha256": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "total": 2516756480,
+      "trainable": 0,
+      "tensor_count": 381,
+      "trainable_dtypes": []
+    },
+    "new": {
+      "total": 895490,
+      "trainable": 895490,
+      "tensor_count": 48,
+      "trainable_dtypes": [
+        "torch.float32"
+      ]
+    }
+  },
+  "parameter_count": 2516756480,
+  "parameter_dtypes": [
+    "torch.float32"
+  ],
+  "parameter_devices": [
+    "mps"
+  ],
+  "native_use_cache": false,
+  "generation_config": {
+    "max_length": null,
+    "max_new_tokens": 8,
+    "min_length": null,
+    "min_new_tokens": null,
+    "early_stopping": null,
+    "max_time": null,
+    "stop_strings": null,
+    "do_sample": false,
+    "num_beams": 1,
+    "use_mtp": null,
+    "use_cache": false,
+    "cache_implementation": null,
+    "cache_config": null,
+    "max_cache_len": null,
+    "temperature": null,
+    "top_k": null,
+    "top_p": null,
+    "min_p": null,
+    "top_h": null,
+    "typical_p": null,
+    "epsilon_cutoff": null,
+    "eta_cutoff": null,
+    "repetition_penalty": null,
+    "encoder_repetition_penalty": null,
+    "length_penalty": null,
+    "no_repeat_ngram_size": null,
+    "bad_words_ids": null,
+    "renormalize_logits": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "remove_invalid_values": null,
+    "exponential_decay_length_penalty": null,
+    "suppress_tokens": null,
+    "begin_suppress_tokens": null,
+    "sequence_bias": null,
+    "token_healing": null,
+    "guidance_scale": null,
+    "watermarking_config": null,
+    "num_return_sequences": null,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_scores": null,
+    "output_logits": null,
+    "return_dict_in_generate": null,
+    "pad_token_id": 1,
+    "bos_token_id": 0,
+    "eos_token_id": [
+      1,
+      130073
+    ],
+    "encoder_no_repeat_ngram_size": null,
+    "decoder_start_token_id": null,
+    "is_assistant": null,
+    "num_assistant_tokens": null,
+    "num_assistant_tokens_schedule": null,
+    "assistant_confidence_threshold": null,
+    "prompt_lookup_num_tokens": null,
+    "max_matching_ngram_size": null,
+    "assistant_early_exit": null,
+    "assistant_lookbehind": null,
+    "target_lookbehind": null,
+    "assistant_ensemble_weight": null,
+    "speculation_type": null,
+    "compile_config": null,
+    "disable_compile": null,
+    "continuous_batching_config": null,
+    "low_memory": null,
+    "penalty_alpha": null,
+    "dola_layers": null,
+    "diversity_penalty": null,
+    "num_beam_groups": null,
+    "constraints": null,
+    "force_words_ids": null,
+    "prefill_chunk_size": null,
+    "_from_model_config": true,
+    "transformers_version": "5.20.2"
+  },
+  "evaluated_examples": 8,
+  "task_correct": 0,
+  "fixture_task_accuracy": 0.0,
+  "exact_text_accuracy": 0.0,
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "elapsed_seconds": 15.520219790982082,
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-22T22:13:12.985638+00:00",
+    "ended_at": "2026-10-22T22:13:28.568153+00:00",
+    "elapsed_seconds": 15.582491666078568,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 72,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 607928320,
+      "rss_peak_sampled_bytes": 607895552,
+      "mps_allocated_peak_sampled_bytes": 10110460416,
+      "mps_driver_peak_sampled_bytes": 10824237056
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-22T22:13:12.996624+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-22T22:13:28.550568+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "snapshot_validated",
+        "timestamp": "2026-10-22T22:13:20.783129+00:00",
+        "elapsed_seconds": 7.7973217910621315,
+        "seconds_since_previous_mark": 7.7973217910621315,
+        "synchronize_seconds": 1.9167084246873856e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:20.783062+00:00",
+          "elapsed_seconds": 7.797338624950498,
+          "phase": "snapshot_validated",
+          "rss_peak_process_lifetime_bytes": 345686016,
+          "rss_current_bytes": 345686016,
+          "rss_measurement_age_seconds": 1.5573875000700355,
+          "mps_allocated_bytes": 0,
+          "mps_driver_bytes": 393216
+        },
+        "fields": {}
+      },
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-22T22:13:24.536852+00:00",
+        "elapsed_seconds": 11.551061040954664,
+        "seconds_since_previous_mark": 3.753739249892533,
+        "synchronize_seconds": 8.041039109230042e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:24.536776+00:00",
+          "elapsed_seconds": 11.551080625038594,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 477986816,
+          "rss_current_bytes": 457359360,
+          "rss_measurement_age_seconds": 1.1582710421644151,
+          "mps_allocated_bytes": 10078997504,
+          "mps_driver_bytes": 10746200064
+        },
+        "fields": {
+          "parameter_count": 2516756480
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:24.537343+00:00",
+        "elapsed_seconds": 11.551605166168883,
+        "seconds_since_previous_mark": 0.0005441252142190933,
+        "synchronize_seconds": 1.5420373529195786e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:24.537315+00:00",
+          "elapsed_seconds": 11.551609208108857,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 477986816,
+          "rss_current_bytes": 457359360,
+          "rss_measurement_age_seconds": 1.1587919581215829,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10746200064
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x0"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:24.864588+00:00",
+        "elapsed_seconds": 11.878832665970549,
+        "seconds_since_previous_mark": 0.32722749980166554,
+        "synchronize_seconds": 2.3331958800554276e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:24.864540+00:00",
+          "elapsed_seconds": 11.878838583128527,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 597164032,
+          "rss_current_bytes": 457359360,
+          "rss_measurement_age_seconds": 1.4860236670356244,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x0",
+          "generated_tokens": 2,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:24.865063+00:00",
+        "elapsed_seconds": 11.879314915975556,
+        "seconds_since_previous_mark": 0.00048225000500679016,
+        "synchronize_seconds": 1.5827827155590057e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:24.865022+00:00",
+          "elapsed_seconds": 11.879319333005697,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 597180416,
+          "rss_current_bytes": 457359360,
+          "rss_measurement_age_seconds": 1.4865014581009746,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x1"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:25.393066+00:00",
+        "elapsed_seconds": 12.405780458124354,
+        "seconds_since_previous_mark": 0.5264655421487987,
+        "synchronize_seconds": 6.9160014390945435e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:25.393025+00:00",
+          "elapsed_seconds": 12.407334374962375,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607453184,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 0.013899791985750198,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x1",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:25.393637+00:00",
+        "elapsed_seconds": 12.407877708086744,
+        "seconds_since_previous_mark": 0.002097249962389469,
+        "synchronize_seconds": 2.1248124539852142e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:25.393582+00:00",
+          "elapsed_seconds": 12.40788675006479,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 607453184,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 0.014447499997913837,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x2"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:25.902286+00:00",
+        "elapsed_seconds": 12.916514333104715,
+        "seconds_since_previous_mark": 0.5086366250179708,
+        "synchronize_seconds": 2.874992787837982e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:25.902217+00:00",
+          "elapsed_seconds": 12.916527166031301,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607731712,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 0.5230989169795066,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x2",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:25.902785+00:00",
+        "elapsed_seconds": 12.917054291116074,
+        "seconds_since_previous_mark": 0.0005399580113589764,
+        "synchronize_seconds": 2.0829029381275177e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:25.902754+00:00",
+          "elapsed_seconds": 12.917059125145897,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 607731712,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 0.5236205421388149,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x3"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:26.443200+00:00",
+        "elapsed_seconds": 13.457454791059718,
+        "seconds_since_previous_mark": 0.5404004999436438,
+        "synchronize_seconds": 2.499902620911598e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:26.443152+00:00",
+          "elapsed_seconds": 13.457463708007708,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607813632,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 1.0640290421433747,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x3",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:26.443689+00:00",
+        "elapsed_seconds": 13.457953165983781,
+        "seconds_since_previous_mark": 0.0004983749240636826,
+        "synchronize_seconds": 1.7080456018447876e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:26.443649+00:00",
+          "elapsed_seconds": 13.457958166021854,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 607813632,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 1.06451933295466,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x4"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:26.972405+00:00",
+        "elapsed_seconds": 13.986664541065693,
+        "seconds_since_previous_mark": 0.5287113750819117,
+        "synchronize_seconds": 2.458924427628517e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:26.972359+00:00",
+          "elapsed_seconds": 13.986674666171893,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607830016,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 1.5932394170667976,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x4",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:26.972914+00:00",
+        "elapsed_seconds": 13.98719145799987,
+        "seconds_since_previous_mark": 0.0005269169341772795,
+        "synchronize_seconds": 1.7078127712011337e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:26.972884+00:00",
+          "elapsed_seconds": 13.987196207977831,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 607830016,
+          "rss_current_bytes": 607453184,
+          "rss_measurement_age_seconds": 1.5937572920229286,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x5"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:27.490542+00:00",
+        "elapsed_seconds": 14.504789125174284,
+        "seconds_since_previous_mark": 0.5175976671744138,
+        "synchronize_seconds": 4.915986210107803e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:27.490484+00:00",
+          "elapsed_seconds": 14.504808083176613,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607895552,
+          "rss_current_bytes": 607895552,
+          "rss_measurement_age_seconds": 0.021181999938562512,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x5",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:27.491231+00:00",
+        "elapsed_seconds": 14.50551441614516,
+        "seconds_since_previous_mark": 0.0007252909708768129,
+        "synchronize_seconds": 1.7918646335601807e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:27.491203+00:00",
+          "elapsed_seconds": 14.505519208032638,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 607895552,
+          "rss_current_bytes": 607895552,
+          "rss_measurement_age_seconds": 0.021887625101953745,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x6"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:28.001722+00:00",
+        "elapsed_seconds": 15.015984249999747,
+        "seconds_since_previous_mark": 0.5104698338545859,
+        "synchronize_seconds": 2.750195562839508e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:28.001671+00:00",
+          "elapsed_seconds": 15.015993666136637,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607895552,
+          "rss_current_bytes": 607895552,
+          "rss_measurement_age_seconds": 0.5323677079286426,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x6",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T22:13:28.002284+00:00",
+        "elapsed_seconds": 15.016570375068113,
+        "seconds_since_previous_mark": 0.0005861250683665276,
+        "synchronize_seconds": 1.7920974642038345e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:28.002256+00:00",
+          "elapsed_seconds": 15.01657533296384,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 607895552,
+          "rss_current_bytes": 607895552,
+          "rss_measurement_age_seconds": 0.5329445831011981,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x7"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T22:13:28.535285+00:00",
+        "elapsed_seconds": 15.54955045809038,
+        "seconds_since_previous_mark": 0.5329800830222666,
+        "synchronize_seconds": 2.4579931050539017e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T22:13:28.535233+00:00",
+          "elapsed_seconds": 15.549560165964067,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 607895552,
+          "rss_current_bytes": 607895552,
+          "rss_measurement_age_seconds": 1.0659329579211771,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824220672
+        },
+        "fields": {
+          "example_id": "train-w4-m1-x7",
+          "generated_tokens": 8,
+          "task_correct": false
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  }
+}

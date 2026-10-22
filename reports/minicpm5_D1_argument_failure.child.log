@@ -1,0 +1,23 @@
+usage: train_text.py [-h] --model-path MODEL_PATH --model-lock MODEL_LOCK
+                     --data DATA --dev DEV --output OUTPUT --regime
+                     {baseline,full,modules_only,full_augmented}
+                     [--device {cpu,cuda,mps}] [--dtype {float32,bfloat16}]
+                     [--optimizer {muon8bit,adamw}] [--steps STEPS]
+                     [--grad-accum GRAD_ACCUM] [--max-length MAX_LENGTH]
+                     [--lr-base LR_BASE] [--lr-new LR_NEW]
+                     [--lr-muon-base LR_MUON_BASE] [--lr-muon-new LR_MUON_NEW]
+                     [--momentum MOMENTUM] [--ns-steps NS_STEPS]
+                     [--block-size BLOCK_SIZE] [--weight-decay WEIGHT_DECAY]
+                     [--seed SEED] [--memory-size MEMORY_SIZE]
+                     [--workspace-size WORKSPACE_SIZE]
+                     [--insertion-layer INSERTION_LAYER] [--checkpointing]
+                     [--verify-reload] [--sampling {shuffled,answer_balanced}]
+                     [--lr-schedule {constant,cosine}]
+                     [--warmup-steps WARMUP_STEPS]
+                     [--min-lr-ratio MIN_LR_RATIO]
+                     [--generation-every GENERATION_EVERY]
+                     [--generation-max-new-tokens GENERATION_MAX_NEW_TOKENS]
+                     [--stop-on-train-perfect]
+                     [--checkpoint-every CHECKPOINT_EVERY]
+                     [--resume-from RESUME_FROM] [--stop-after STOP_AFTER]
+train_text.py: error: unrecognized arguments: .venv-placeholder

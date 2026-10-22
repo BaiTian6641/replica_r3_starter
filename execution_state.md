@@ -1,53 +1,48 @@
-# Execution state — actual-length D0 capacity and native adapter readiness
+# Execution state — fixed-context generation and native D1 memorization
 
-22 October 2026, America/Chicago. Branch `codex/native-capacity-readiness`; no remote or push configured. Milestones: `a4958d3` protocol/guard, `62390ba` exact-length data, `8ce2444` final-telemetry guard fix, `a7bd06f` native qualification tooling and `8500455` causal episode contract. The final evidence/documentation commit follows. [Previous balanced-overfit state](reports/execution_state_balanced_overfit_20261022.txt) is preserved.
+22 October 2026, America/Chicago. Branch `codex/augmented-generation-d1`; no remote or push configured. Code/protocol: `8df6a0b`; cognitive contracts: `0f36b3f`; conditional rate protocol: `8271520`; source-bound episode slice: `5766768`. The final evidence commit follows. [Previous capacity state](reports/execution_state_capacity_readiness_20261022.txt) is preserved.
 
-**The selected learning diagnostic remains the eight-update checkpoint** at `runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base`: train 8/8 and reused synthetic dev 14/16. No new architecture or post-freeze candidate was promoted. New capacity models start from the sealed original and are infrastructure probes.
+**Native S2.1 fixed-context uncached generation and S2.2 bounded D1 memorization now pass.** The successful D1 sidecars produce 8/8 training answers, but only 2/16 reused synthetic development answers. This is a training-infrastructure result, not useful memory benefit, broad transfer or self-improvement. The existing plain D0 update-8 checkpoint remains the selected learning diagnostic; no developmental model or post-freeze candidate is promoted.
 
-The latest verified gates are **bounded actual 256/512-token D0 training and fresh-process restart**, **native D1/D2 null-branch forward/backward/export checks at 256**, and **the bounded chronological episode contract**. Augmented generation, D1/D2 learning and full D2 optimizer capacity remain incomplete. See [consolidated evidence](reports/capacity_readiness_experiment_20261022.json), [capacity record](docs/experiments/20261022_Capacity_Qualification.md), [native adapter record](docs/experiments/20261022_Native_Adapter_Qualification.md) and [roadmap](docs/stages/00_Master_Roadmap.md).
+## GPU execution and environment
 
-## Environment and unchanged source
+Mac Studio M2 Ultra, 24 CPU / 60 GPU cores, 64 GiB unified memory, macOS 26.6.2. All native model training and answer generation use **MPS GPU, FP32, CPU fallback disabled**. Host tokenization, datasets, file checks and small contract tests remain CPU work. The Neural Engine is not part of the current PyTorch/Muon backend; the [primary-source feasibility review](docs/experiments/20261022_Apple_Accelerators.md) distinguishes public Core ML prediction from experimental ANE training. No ANE execution is claimed.
 
-Mac Studio M2 Ultra, 24 CPU / 60 GPU cores, 64 GiB unified memory, macOS 26.6.2. Python 3.12.14, torch 2.14.1, Transformers 5.20.2 and safetensors 0.8.0 remain locked; `.venv` is ready. The source remains `openbmb/MiniCPM5-2B` at `f97400052a43d642bbc6e9975e2397e3ae6a6b52`; source seal and core training implementation are unchanged. Historical completed-update checkpoints retain their original contract compatibility.
+The locked Python 3.12.14 / torch 2.14.1 / Transformers 5.20.2 environment and sealed `openbmb/MiniCPM5-2B` revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52` remain unchanged. Bound training code stayed identical across each fresh-process continuation. Earlier checkpoints retain their historical code contracts; use the corresponding Git revision when resuming them.
 
-All four capacity processes ran MPS FP32 without CPU fallback, microbatch 1, accumulation 8 and activation checkpointing. Each effective update saw answers `0..7` exactly once. All 2,516,756,480 original parameters were trainable. The portable experimental Muon path uses INT8 hidden-matrix momentum in 2048-element blocks with FP32 scales/temporary arithmetic, momentum 0.95, five Newton–Schulz iterations and no Nesterov; embeddings/head and excluded tensors retain auxiliary FP32 AdamW. Both peak rates were `1e-4`, warmup two updates, zero decay. These are bounded diagnostic settings, not production SFT hyperparameters.
+## Measured generation and D1 results
 
-## Measured capacity
+At actual sequence length 256 (prompt 254), D1/D2 null sidecars exactly match native uncached generation: eight generated tokens and 1,044,480 next-token logits per arm, zero difference. A three-token EOS-disabled probe forces context reuse. Nonzero memory/workspace probes affect logits, and nonzero sidecars export/reload exactly. Source slots and workspace build once from the original prompt/source, remain fixed during answer decoding and release afterward. These capped native prose continuations establish interface parity only. [Generation record](docs/experiments/20261022_Augmented_Generation.md).
 
-| Measure | Actual 256 tokens | Actual 512 tokens |
+D1 trains 895,490 new parameters in 48 tensors while freezing all 2,516,756,480 originals in 381 tensors. Both arms use the original balanced eight-case mask-1 diagnostic, 55 actual tokens, microbatch one, accumulation eight, checkpointing, two-step warmup, zero decay and experimental Muon 8-bit plus FP32 AdamW exclusions. All eight classes occur once per update.
+
+| Measure | First rate 1e-3 | Conditional fresh rate 1e-2 |
 |---|---:|---:|
-| Full / prompt / supervised tokens per row | 256 / 254 / 2 | 512 / 510 / 2 |
-| Capacity train/dev rows | 8 / 8 | 8 / 8 |
-| Completed updates | 2 | 2 |
-| Fresh-process continuation | 1 → 2 | 1 → 2 |
-| Cumulative processed / supervised train tokens | 4,096 / 32 | 8,192 / 32 |
-| Training-update time across both chunks | 44.988 s | 50.945 s |
-| Profiled process time, chunk 1 / chunk 2 | 53.279 / 64.238 s | 61.850 / 76.586 s |
-| Sampled live MPS peak across chunks | 24.96 GiB | 25.29 GiB |
-| Sampled driver MPS peak across chunks | 29.09 GiB | 29.06 GiB |
-| Saved original tensors changed | 381 / 381 | 381 / 381 |
-| Reload logit difference | 0.0 | 0.0 |
+| Updates / fresh-process continuation | 64 / 8→64 | 28 / 8→28 |
+| Final periodic train generation | 0/8 | 8/8 at 24 and 28 |
+| Saved-export train generation | 0/8, cap 8 | 8/8, cap 256, all EOS |
+| Saved-export dev generation | 0/16, cap 8 | 2/16, cap 256, all EOS |
+| Processed / supervised training tokens | 28,160 / 1,024 | 12,320 / 448 |
+| Training-update time | 105.050 s | 45.952 s |
+| Profiled trainer processes | 296.080 s | 149.872 s |
+| Sampled live / driver MPS peak | 9.496 / 11.006 GiB | 9.467 / 11.113 GiB |
 
-Complete chronological register writes, two MASK observations and truthful status fields fill these sequences; there is no padding-only inflation, evidence truncation or copied gold annotation. The [data manifests](data/diagnostics/capacity_256/manifest.json) and [512-token manifest](data/diagnostics/capacity_512/manifest.json) bind source tokenizer/template bytes, generator and file hashes, exact token counts and independent per-bit solver results. These deterministic capacity worlds are not a representative learning corpus or independent long-context benchmark.
+The first negative is preserved. The higher rate was declared before the first arm finished, starts fresh from the same parent/seed, and changes only new-module rates. Caps differ for failed versus successful external evaluation; do not use those scores as a matched quality comparison. All costs count: **92 updates, 40,480 processed tokens, 1,472 supervised tokens, 151.002 s update time and 445.953 s profiled trainer time**. An initial argument-only launch failure performed zero updates and is retained separately.
 
-Both source/export CPU audits confirm all 381 original tensors changed, including embeddings/head, with native names/shapes intact. Every process recorded nonzero gradients in all 381 originals. Reload comparisons covered 33,423,360 logits at 256 and 66,846,720 at 512. [Runtime validation](reports/validation_capacity_runtime_20261022.json) checks all four complete checkpoint receipts, INT8/FP32 storage, RNG devices, cursor, schedule and history; optimizer tensors occupy 6,265,262,080 bytes. Exact full-size uninterrupted-versus-split equivalence remains unmeasured.
+New nonzero gradients open from two output projections at update 1 to all 48 tensors at update 2. The independent saved-weight audit finds zero changed original tensors/elements and all four exports byte-identical in native weights. All 48 sidecars change during each continuation. Optimizer ownership is 16 new Muon matrices plus 32 new AdamW tensors; persistent state is 1,029,824 bytes. Every reload compares 7,180,800 logits with maximum difference zero. Independent runtime validation passes 1,665 assertions over checkpoint bytes, cursor/history/rates/scopes and all four complete guard traces. No sampled swap growth or guard breach is observed. Driver and RSS overlap; sampled peaks can miss transients.
 
-The declared guard stops at sampled driver memory of 40 GiB, sustained system swap growth of 512 MiB, or system free-percentage at/below 15% for three host samples. Nominal host/profile polls are 2 s / 0.25 s. All complete traces pass; system swap occupancy stayed at 1,562.69 MiB in recorded samples. An independently reproduced exit race in the initial watchdog could miss final profile writes; commit `8ce2444` drains them before acceptance. Both earlier 256 traces were independently rechecked in full and contain no breach. Sampled guards cannot guarantee no OOM or detect sub-sample peaks. Host counters are system-wide; MPS and RSS overlap and must not be added.
+[Consolidated evidence](reports/native_augmented_D1_experiment_20261022.json), [D1 experiment](docs/experiments/20261022_D1_Diagnostic.md), [weight audit](reports/minicpm5_D1_checkpoint_audit_20261022.json), [runtime validation](reports/validation_D1_runtime_20261022.json).
 
-These two-update runs qualify bounded D0 execution and restart. Their teacher-forced losses do not establish generated task accuracy, retention or sustained-training capacity; no capacity-model generation score is claimed. The resumed report histories are cumulative, whereas profile duration/memory describe only the current process.
+## Parallel documents and data
 
-## Native D1/D2 and episode foundation
+The [proposed cognitive contracts](docs/experiments/20261022_Cognitive_Contracts.md) now spell out the starter-to-typed-core bridge, slot/cache lifetimes, evidence pins/live revocation, task restart, update authorities, IdentityChangeProposal, mode-aware belief versus correctness and director ownership/reward/cadence. These remain specifications. An early fixed-baseline host-loop pilot can proceed after S1.1 alongside the neural study; full selected-system binding retains S2.5.
 
-The native 256-token sidecar qualification uses 895,490 new parameters in 48 tensors. Both D1 and D2 match the original model exactly across 33,423,360 logits when branch outputs are zero. Target-suffix changes leave observed memory/workspace fixed, target-contaminated prompts are rejected, and source features rebuild after writer changes. Checkpointed backward recomputes the native decoder while constructing writer/workspace once and preserving context until explicit release. D1 has no original gradients; D2 has nonzero gradients in all 381 originals. All 48 new tensors have gradient buffers, initially only the two zero-initialized branch output projections are nonzero, as expected.
+S1.2 now has a [source-bound 20-episode slice](docs/experiments/20261022_Episode_Slice.md): ten synthetic worlds, four cases per role, exact archived source/span hashes, independent chronology/solver checks, and only four train/four dev flattened exports. All 20 checks and 12 targeted tests pass. Audit/promotion fixtures are exposed contract material, not sealed scientific evaluation; the 2,000-target release remains incomplete.
 
-A nonzero diagnostic sidecar probe exports/reloads exactly. This performs **zero optimizer updates** and no augmented generation. The probe is not a trained checkpoint; its 18.90 GiB live / 21.26 GiB driver peak does not qualify full D2 optimizer residency.
+The final suite has **290 passing tests**, zero failures/errors/skips. [Test evidence](reports/test_output_augmented_d1_20261022.txt), [validation](reports/validation_augmented_D1_20261022.json). Archived R2 sources remain unchanged.
 
-The [episode contract](docs/experiments/episode_contract_design.md) implements immutable chronological snapshots, source/agent ownership, current permissions, late correction/tombstone handling, explicit oracle exclusion, audit-view restrictions and exact eight-field export with byte-bound verification receipts. Forty-seven targeted tests cover its boundaries. Raw-source identity/hash authenticity, semantic gold laundering, complete-release admission, global deletion and permission retention outside flattened SFT rows remain host/intake responsibilities. No public corpus, authentic biography or 2,000-target release was admitted.
+## Next concrete gate
 
-## Validation and next concrete work
+Run a bounded **S2.3 full-augmented D2 optimizer/capacity preflight at actual 256 tokens**, preserving full original/new parameter ownership and guarded MPS execution, before D2 tiny overfit. Its memory is not established by D0 capacity or D1's frozen-base result. In parallel, extend S1.2 beyond one rule family and build the early thin connected host-loop pilot from a fixed baseline manifest.
 
-**246 tests pass**, zero failures/errors/skips, on the actual Mac host: [output](reports/test_output_capacity_readiness_20261022.txt), [JUnit](reports/tests_capacity_readiness_20261022.xml), [current validation](reports/validation_capacity_readiness_20261022.json). Three existing top-level schemas plus the nested episode schema validate; all 32 new capacity rows and 48 original fixtures pass solver/schema/split checks in [data validation](reports/validation_capacity_data_20261022.json). Large weights/runtime remain ignored; compact evidence and receipts are tracked.
-
-Next finish **S2.1 prompt-fixed augmented generation**: first qualify an uncached correctness path against native generation under null branches, preserve observed-memory/original-prompt state throughout generated answers, then qualify any cache. Follow with **S2.2 native D1 balanced tiny overfit** and generated-answer verification; D2 optimizer capacity and learning remain separate. In parallel, **S1.2** builds one raw-source-bound solver family and its release manifest before scaling to the proposed 2,000 targets. Preserve source roles, permission/purpose receipts and independent evidence controls.
-
-The 20k pilot, retention study, ten-cycle learned T0–T3 loop, authentic Replica fidelity, VLM training, Blackwell offload and large-model ports remain gated. This Mac result does not qualify the later 24 GB card: current full-text FP32 persistent state alone is 24.59 GiB before activations/temporaries.
+Matched architecture benefit, retention, ten-cycle learning, authentic Replica fidelity, VLM training, augmented KV caching, Blackwell residency and ANE acceleration remain unqualified. The 20k campaign and optional mechanisms retain their data, capacity and independent evaluation gates.

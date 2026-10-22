@@ -1,0 +1,779 @@
+{
+  "status": "passed",
+  "validated_at_utc": "2026-10-22T22:14:14.394393+00:00",
+  "scope": "Read-only CPU checkpoint byte/metadata and recorded guard replay validation; no model construction, GPU work or full-tensor comparisons",
+  "validator_implementation_sha256": {
+    "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+    "src/replica_lab/capacity_guard.py": "a29a24b87344e9613b687c0eb3cdd10ffa621081bf80aee1d493dcdeb22220d8",
+    "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+    "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624"
+  },
+  "runs": [
+    {
+      "run": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022",
+      "status": "passed",
+      "report_sha256": "881fed3bcb14c8dfb3ef216198ff9a39448ae8931b81d6ba6718613adbd43dab",
+      "completed_steps": 8,
+      "start_step": 0,
+      "checkpoint": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008",
+        "receipt_sha256": "778624efa786869affac90f3a029ae46e9d0ad77009b875f102aaf7e4055acba",
+        "receipt_file_count": 9,
+        "bytes_verified": 10081646741,
+        "contract_sha256": "88132a66e79f98be8c95d869ab25c40d290617f8a4ed37fc7a8ea553571c11b5"
+      },
+      "scope": {
+        "regime": "modules_only",
+        "original": {
+          "total": 2516756480,
+          "trainable": 0,
+          "tensor_count": 381,
+          "trainable_dtypes": []
+        },
+        "new": {
+          "total": 895490,
+          "trainable": 895490,
+          "tensor_count": 48,
+          "trainable_dtypes": [
+            "torch.float32"
+          ]
+        }
+      },
+      "optimizer": {
+        "groups": {
+          "muon8bit_tensors": 16,
+          "adamw_tensors": 32
+        },
+        "state_tensor_bytes": 1029824,
+        "state_bytes_by_dtype": {
+          "torch.int8": 876544,
+          "torch.float32": 153280
+        },
+        "current_rates": [
+          0.001,
+          0.001
+        ]
+      },
+      "runtime": {
+        "completed_steps": 8,
+        "data_next_step": 8,
+        "schedule_completed_steps": 8,
+        "base_rates": [
+          0.001,
+          0.001
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "python_rng_present": true,
+        "update_history_length": 8,
+        "generation_history_length": 2,
+        "consecutive_perfect": 0,
+        "histories_equal_training_report": true
+      },
+      "gradients": {
+        "step1_new_nonzero_tensors": 2,
+        "step2_new_nonzero_tensors": 48,
+        "original_gradient_tensors": 0
+      },
+      "generation_checks": [
+        {
+          "step": 4,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 8,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        }
+      ],
+      "stop_reason": "process_chunk_completed",
+      "first_two_perfect_check_stop": null,
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "dev-w5-m2-x0",
+        "compared_logit_elements": 7180800,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022_retry_guard.json",
+        "sha256": "cda9a8d05ff88c48487a842d0355d1a6af844439bc3afc124ca64baa3ddbc784",
+        "host_trace_sha256": "3c8c15a448e5f3bc04377634e970800f246e60c05adeef7767aace3c3f3c6e75",
+        "profile_trace_sha256": "2b8810644ec0fb9e0c838976e27f1cab3f3ed00bdf06945e4e503e270b000cbe",
+        "exact_policy_replay": true,
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1638599229,
+          "memory_free_percent": 89.0
+        },
+        "host_samples": 26,
+        "driver_samples": 352,
+        "peak_driver_bytes": 10938351616,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 71.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 15560392704,
+        "rss_peak_sampled_bytes": 10453778432,
+        "mps_allocated_peak_sampled_bytes": 10196153088,
+        "mps_driver_peak_sampled_bytes": 10938351616
+      }
+    },
+    {
+      "run": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022",
+      "status": "passed",
+      "report_sha256": "877df121c64acaee8eba0be87fbd9b5ede4e12398b3c2b01683fb148d0ed6de7",
+      "completed_steps": 64,
+      "start_step": 8,
+      "checkpoint": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064",
+        "receipt_sha256": "cee0699133bfd32068475fa6d170c76794d538a52b1479f12352ec2e0e5cc526",
+        "receipt_file_count": 9,
+        "bytes_verified": 10081720213,
+        "contract_sha256": "88132a66e79f98be8c95d869ab25c40d290617f8a4ed37fc7a8ea553571c11b5"
+      },
+      "scope": {
+        "regime": "modules_only",
+        "original": {
+          "total": 2516756480,
+          "trainable": 0,
+          "tensor_count": 381,
+          "trainable_dtypes": []
+        },
+        "new": {
+          "total": 895490,
+          "trainable": 895490,
+          "tensor_count": 48,
+          "trainable_dtypes": [
+            "torch.float32"
+          ]
+        }
+      },
+      "optimizer": {
+        "groups": {
+          "muon8bit_tensors": 16,
+          "adamw_tensors": 32
+        },
+        "state_tensor_bytes": 1029824,
+        "state_bytes_by_dtype": {
+          "torch.int8": 876544,
+          "torch.float32": 153280
+        },
+        "current_rates": [
+          0.001,
+          0.001
+        ]
+      },
+      "runtime": {
+        "completed_steps": 64,
+        "data_next_step": 64,
+        "schedule_completed_steps": 64,
+        "base_rates": [
+          0.001,
+          0.001
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "python_rng_present": true,
+        "update_history_length": 64,
+        "generation_history_length": 16,
+        "consecutive_perfect": 0,
+        "histories_equal_training_report": true
+      },
+      "gradients": {
+        "step1_new_nonzero_tensors": 2,
+        "step2_new_nonzero_tensors": 48,
+        "original_gradient_tensors": 0
+      },
+      "generation_checks": [
+        {
+          "step": 4,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 8,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 12,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 16,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 20,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 24,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 28,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 32,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 36,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 40,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 44,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 48,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 52,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 56,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 60,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 7
+        },
+        {
+          "step": 64,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 7
+        }
+      ],
+      "stop_reason": "step_budget_completed",
+      "first_two_perfect_check_stop": null,
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "dev-w5-m2-x0",
+        "compared_logit_elements": 7180800,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022_guard.json",
+        "sha256": "6cca9b2f98d39fc06eb4ecb58d1e5fc5f70bb3068129938635cf361e7e56b018",
+        "host_trace_sha256": "48a81b8f8034baad1559b8045bb742252da5cacd2dea8de24165a5f5c8c04597",
+        "profile_trace_sha256": "472207716b923f7f1f5efcb05806ede574f00bf6431e9a8c3bf82264af00d5e6",
+        "exact_policy_replay": true,
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1638599229,
+          "memory_free_percent": 89.0
+        },
+        "host_samples": 120,
+        "driver_samples": 2111,
+        "peak_driver_bytes": 11817074688,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 71.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 10840539136,
+        "rss_peak_sampled_bytes": 10728554496,
+        "mps_allocated_peak_sampled_bytes": 10194151424,
+        "mps_driver_peak_sampled_bytes": 11817074688
+      }
+    },
+    {
+      "run": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022",
+      "status": "passed",
+      "report_sha256": "475452c4ef83e111483df0b73e0f544c1f25d7f2d1ed38423244a6afbe4b1707",
+      "completed_steps": 8,
+      "start_step": 0,
+      "checkpoint": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008",
+        "receipt_sha256": "e048d39448d87449cdc7e02d559afed8092bf1a737ae70ba779333afa8d2c925",
+        "receipt_file_count": 9,
+        "bytes_verified": 10081646739,
+        "contract_sha256": "c6afd9774c57b45a655cdb0473e3f23afdf9791369dc8fafd09f580819600532"
+      },
+      "scope": {
+        "regime": "modules_only",
+        "original": {
+          "total": 2516756480,
+          "trainable": 0,
+          "tensor_count": 381,
+          "trainable_dtypes": []
+        },
+        "new": {
+          "total": 895490,
+          "trainable": 895490,
+          "tensor_count": 48,
+          "trainable_dtypes": [
+            "torch.float32"
+          ]
+        }
+      },
+      "optimizer": {
+        "groups": {
+          "muon8bit_tensors": 16,
+          "adamw_tensors": 32
+        },
+        "state_tensor_bytes": 1029824,
+        "state_bytes_by_dtype": {
+          "torch.int8": 876544,
+          "torch.float32": 153280
+        },
+        "current_rates": [
+          0.01,
+          0.01
+        ]
+      },
+      "runtime": {
+        "completed_steps": 8,
+        "data_next_step": 8,
+        "schedule_completed_steps": 8,
+        "base_rates": [
+          0.01,
+          0.01
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "python_rng_present": true,
+        "update_history_length": 8,
+        "generation_history_length": 2,
+        "consecutive_perfect": 0,
+        "histories_equal_training_report": true
+      },
+      "gradients": {
+        "step1_new_nonzero_tensors": 2,
+        "step2_new_nonzero_tensors": 48,
+        "original_gradient_tensors": 0
+      },
+      "generation_checks": [
+        {
+          "step": 4,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 8,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        }
+      ],
+      "stop_reason": "process_chunk_completed",
+      "first_two_perfect_check_stop": null,
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "dev-w5-m2-x0",
+        "compared_logit_elements": 7180800,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022_guard.json",
+        "sha256": "104c14cae6dfa9632098a41bdcc426364ab74f59c449976bab1039fa7d9947ba",
+        "host_trace_sha256": "8dc4900eb1f18b2720852719d031d843f61cfd42f826e92f100e8e851d49f352",
+        "profile_trace_sha256": "3b2b167f44fa381d5967a62cdab4e4277dd78afaf5d9a34d4ed9ba96e59a795b",
+        "exact_policy_replay": true,
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1638599229,
+          "memory_free_percent": 90.0
+        },
+        "host_samples": 27,
+        "driver_samples": 355,
+        "peak_driver_bytes": 11886264320,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 72.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 15558819840,
+        "rss_peak_sampled_bytes": 10609639424,
+        "mps_allocated_peak_sampled_bytes": 10165315584,
+        "mps_driver_peak_sampled_bytes": 11886264320
+      }
+    },
+    {
+      "run": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022",
+      "status": "passed",
+      "report_sha256": "f0819e2daeadc66a01dfc006e2d2bbd6254e29b3946a655a206fb6b35c2641eb",
+      "completed_steps": 28,
+      "start_step": 8,
+      "checkpoint": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028",
+        "receipt_sha256": "6ed52a95b54de1a5f2e6a397ca9e92f51c39b9203f987b766e1c4abd1faec3d4",
+        "receipt_file_count": 9,
+        "bytes_verified": 10081670483,
+        "contract_sha256": "c6afd9774c57b45a655cdb0473e3f23afdf9791369dc8fafd09f580819600532"
+      },
+      "scope": {
+        "regime": "modules_only",
+        "original": {
+          "total": 2516756480,
+          "trainable": 0,
+          "tensor_count": 381,
+          "trainable_dtypes": []
+        },
+        "new": {
+          "total": 895490,
+          "trainable": 895490,
+          "tensor_count": 48,
+          "trainable_dtypes": [
+            "torch.float32"
+          ]
+        }
+      },
+      "optimizer": {
+        "groups": {
+          "muon8bit_tensors": 16,
+          "adamw_tensors": 32
+        },
+        "state_tensor_bytes": 1029824,
+        "state_bytes_by_dtype": {
+          "torch.int8": 876544,
+          "torch.float32": 153280
+        },
+        "current_rates": [
+          0.01,
+          0.01
+        ]
+      },
+      "runtime": {
+        "completed_steps": 28,
+        "data_next_step": 28,
+        "schedule_completed_steps": 28,
+        "base_rates": [
+          0.01,
+          0.01
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "python_rng_present": true,
+        "update_history_length": 28,
+        "generation_history_length": 7,
+        "consecutive_perfect": 2,
+        "histories_equal_training_report": true
+      },
+      "gradients": {
+        "step1_new_nonzero_tensors": 2,
+        "step2_new_nonzero_tensors": 48,
+        "original_gradient_tensors": 0
+      },
+      "generation_checks": [
+        {
+          "step": 4,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 8,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 8
+        },
+        {
+          "step": 12,
+          "correct": 0,
+          "distinct_responses": 5,
+          "all_ended_by_eos": false,
+          "capped_responses": 7
+        },
+        {
+          "step": 16,
+          "correct": 0,
+          "distinct_responses": 4,
+          "all_ended_by_eos": false,
+          "capped_responses": 2
+        },
+        {
+          "step": 20,
+          "correct": 5,
+          "distinct_responses": 5,
+          "all_ended_by_eos": true,
+          "capped_responses": 0
+        },
+        {
+          "step": 24,
+          "correct": 8,
+          "distinct_responses": 8,
+          "all_ended_by_eos": true,
+          "capped_responses": 0
+        },
+        {
+          "step": 28,
+          "correct": 8,
+          "distinct_responses": 8,
+          "all_ended_by_eos": true,
+          "capped_responses": 0
+        }
+      ],
+      "stop_reason": "two_consecutive_perfect_training_generation_checks",
+      "first_two_perfect_check_stop": 28,
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "dev-w5-m2-x0",
+        "compared_logit_elements": 7180800,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022_guard.json",
+        "sha256": "c028edd048d6e5deba1cd554fcee690bf3276393a8e33aec90b452cc282e99e5",
+        "host_trace_sha256": "b33733a9875542b599d4ce767c0ff49d99c41426ad5693fee75f0338505c0c22",
+        "profile_trace_sha256": "484d0c82861f0dc020e5b3c24f8dded0eadd9660cf11377d8e2e8f9c43ffe2be",
+        "exact_policy_replay": true,
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1638599229,
+          "memory_free_percent": 89.0
+        },
+        "host_samples": 49,
+        "driver_samples": 788,
+        "peak_driver_bytes": 11932401664,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 69.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 10827513856,
+        "rss_peak_sampled_bytes": 10775019520,
+        "mps_allocated_peak_sampled_bytes": 10165317632,
+        "mps_driver_peak_sampled_bytes": 11932401664
+      }
+    }
+  ],
+  "arm_contracts": {
+    "1e3": {
+      "sha256": "88132a66e79f98be8c95d869ab25c40d290617f8a4ed37fc7a8ea553571c11b5",
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+      "dev_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+      "batch_plan_sha256": "dfb7e2ffb1c2bd11089bef4a923027bbb6bf94b221fb44f707e7b4c8e2d549ce",
+      "settings": {
+        "regime": "modules_only",
+        "device": "mps",
+        "dtype": "float32",
+        "optimizer": "muon8bit",
+        "steps": 64,
+        "grad_accum": 8,
+        "max_length": 256,
+        "lr_base": 0.0001,
+        "lr_new": 0.001,
+        "lr_muon_base": 0.0001,
+        "lr_muon_new": 0.001,
+        "momentum": 0.95,
+        "ns_steps": 5,
+        "block_size": 2048,
+        "weight_decay": 0.0,
+        "seed": 17,
+        "memory_size": 64,
+        "workspace_size": 64,
+        "insertion_layer": -1,
+        "checkpointing": true,
+        "sampling": "answer_balanced",
+        "lr_schedule": "constant",
+        "warmup_steps": 2,
+        "min_lr_ratio": 0.2,
+        "generation_every": 4,
+        "generation_max_new_tokens": 8,
+        "stop_on_train_perfect": true
+      },
+      "implementation_sha256": {
+        "scripts/train_text.py": "1c43d12a7bd891e5934b25eb274ffe7bfb38e3a68f0917a69349759c0c0cd599",
+        "src/replica_lab/model_adapter.py": "bc563a86e7373ab5fbddd6a378aaea6feb8073f045f8f632dc642bef0b8b309d",
+        "src/replica_lab/optimizers.py": "e5bf4d3ed11bcc35d0a52372cb8a76faf07c689e45ba9a59dd0c423f2618fbd6",
+        "src/replica_lab/curriculum.py": "616b4b3fd95b188c030d3750150b246d68d7a59db26cd125b4cb2d16c41d0c88",
+        "src/replica_lab/training_tools.py": "6e5ebb1d95a7165ce587fa1335372dd78055e9a8ae51f7979806682159cfddd7",
+        "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+        "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+        "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+        "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+        "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92"
+      },
+      "fresh_and_resume_match": true
+    },
+    "1e2": {
+      "sha256": "c6afd9774c57b45a655cdb0473e3f23afdf9791369dc8fafd09f580819600532",
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+      "dev_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+      "batch_plan_sha256": "dfb7e2ffb1c2bd11089bef4a923027bbb6bf94b221fb44f707e7b4c8e2d549ce",
+      "settings": {
+        "regime": "modules_only",
+        "device": "mps",
+        "dtype": "float32",
+        "optimizer": "muon8bit",
+        "steps": 64,
+        "grad_accum": 8,
+        "max_length": 256,
+        "lr_base": 0.0001,
+        "lr_new": 0.01,
+        "lr_muon_base": 0.0001,
+        "lr_muon_new": 0.01,
+        "momentum": 0.95,
+        "ns_steps": 5,
+        "block_size": 2048,
+        "weight_decay": 0.0,
+        "seed": 17,
+        "memory_size": 64,
+        "workspace_size": 64,
+        "insertion_layer": -1,
+        "checkpointing": true,
+        "sampling": "answer_balanced",
+        "lr_schedule": "constant",
+        "warmup_steps": 2,
+        "min_lr_ratio": 0.2,
+        "generation_every": 4,
+        "generation_max_new_tokens": 8,
+        "stop_on_train_perfect": true
+      },
+      "implementation_sha256": {
+        "scripts/train_text.py": "1c43d12a7bd891e5934b25eb274ffe7bfb38e3a68f0917a69349759c0c0cd599",
+        "src/replica_lab/model_adapter.py": "bc563a86e7373ab5fbddd6a378aaea6feb8073f045f8f632dc642bef0b8b309d",
+        "src/replica_lab/optimizers.py": "e5bf4d3ed11bcc35d0a52372cb8a76faf07c689e45ba9a59dd0c423f2618fbd6",
+        "src/replica_lab/curriculum.py": "616b4b3fd95b188c030d3750150b246d68d7a59db26cd125b4cb2d16c41d0c88",
+        "src/replica_lab/training_tools.py": "6e5ebb1d95a7165ce587fa1335372dd78055e9a8ae51f7979806682159cfddd7",
+        "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+        "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+        "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+        "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+        "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92"
+      },
+      "fresh_and_resume_match": true
+    }
+  },
+  "limitations": [
+    "Byte receipt validity is not a publisher signature or proof of source truth",
+    "Recorded sampled limits can miss transients; host readings are system-wide and RSS overlaps MPS driver memory",
+    "Native uninterrupted-versus-resumed numerical equivalence and original-weight value comparisons are outside this validation",
+    "External saved-export generation is reported separately"
+  ],
+  "initial_failed_launch": {
+    "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022_guard.json",
+    "sha256": "12ecd739bac99d5ca09bdf2cc758bb37377db3ddfc1f078736489639c9cab53b",
+    "child_log_sha256": "468055483e5070134c38a3fcca0f4c8435099851f5077a853190cb2ec1a175a9",
+    "classification": "argument_validation_failure_before_training",
+    "completed_optimizer_updates": 0,
+    "memory_failure": false,
+    "child_exit_code": 2,
+    "raw_guard_stop_reason": "mps_driver_telemetry_missing",
+    "reason": "Unexpected .venv-placeholder argument caused argparse exit2; missing MPS telemetry was a secondary guard label, not a measured memory breach"
+  },
+  "rate_screen": {
+    "changed_contract_settings": [
+      "lr_new",
+      "lr_muon_new"
+    ],
+    "all_other_contract_fields_equal": true,
+    "low_rate_completed_steps": 64,
+    "low_rate_training_generation_correct": 0,
+    "high_rate_completed_steps": 28,
+    "high_rate_perfect_checks": [
+      24,
+      28
+    ]
+  },
+  "assertions_passed": 1665,
+  "all_four_final_checkpoint_byte_receipts_valid": true,
+  "all_four_guard_replays_without_breach": true,
+  "model_instantiated": false,
+  "gpu_executed": false,
+  "full_tensor_value_comparisons_performed": false
+}

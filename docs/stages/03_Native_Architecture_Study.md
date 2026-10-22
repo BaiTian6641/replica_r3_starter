@@ -2,9 +2,9 @@
 
 Reviewed **22 October 2026, America/Chicago**. See the [master roadmap](00_Master_Roadmap.md), [current execution state](../../execution_state.md) and [dated primary-source review](07_Research_Evidence_20261022.md). Gates and budgets are proposed unless a linked existing report establishes execution. Planned artifacts below do not claim files already exist.
 
-Native **actual 256-token forward/backward/export qualification** now passes for the reader/workspace wrapper: null-logit parity, branch sensitivity, causal target separation, source-feature refresh and checkpoint context lifetime. D1 has no trainable originals or original gradients; D2 has nonzero gradients in all 381 originals. The sidecars add **895,490 parameters in 48 tensors**. Initial gradients in the two zero-initialized output projections are expected; no optimizer update, upstream post-update learning or augmented generation has been measured. **S2.1 remains partial.** [Native report](../../reports/minicpm5_native_adapter_qualification256_report.json).
+Native **actual 256-token forward/backward/export and fixed-context uncached generation qualification** now pass for the reader/workspace wrapper. D1 has no trainable originals or original gradients; D2 backward reaches all 381 originals. The sidecars add **895,490 parameters in 48 tensors**. Both null branches match native generated tokens and all eight steps of next-token logits exactly; nonzero sidecars affect logits and reload exactly. [Forward/backward report](../../reports/minicpm5_native_adapter_qualification256_report.json), [generation result](../experiments/20261022_Augmented_Generation.md).
 
-The next concrete task is **prompt-fixed augmented generation parity**, followed by **D1 eight-class tiny overfit**. Keep observed source and original prompt context fixed while decoding answers; re-prefill is acceptable before KV-cache optimization. D2 optimizer/capacity and the controlled architecture study remain later gates. Use the measured 64-wide, four-slot, two-step configuration before architecture search.
+The bounded **D1 eight-class memorization gate now passes** under the [declared protocol](../experiments/20261022_D1_Fixed_Context_Protocol.md): a fresh 1e-2 arm reaches 8/8 at updates 24 and 28, after the preserved 1e-3 arm fails through 64. Independent saved-export evaluation confirms train 8/8 but dev only 2/16. All 381 original tensors remain unchanged. This does not establish useful memory or generalization. The next native gate is **D2 optimizer/capacity**, with the measured 64-wide, four-slot, two-step configuration. [Consolidated results](../../reports/native_augmented_D1_experiment_20261022.json).
 
 B0 is the frozen original. B1 is the original with strong source-text memory and the same tools. D0 trains all original text parameters; D1 trains only new modules with originals frozen; D2 trains both. D3/D4 LoRA follow only as explicitly labelled extensions after these minimum comparisons. Every trained arm receives the same eligible source information and target data; duplicated source text remains present in the first equal-information comparison. Compression is a later separate experiment.
 
@@ -12,29 +12,29 @@ The feed-forward parameter/compute control and inference budget distinguish usef
 
 ## S2.1 — Qualify native wrapper bypass and generation
 
-**Status:** `partial_native256_forward_backward_qualified_generation_pending`. **Dependencies:** S0.3, S1.4.
+**Status:** `qualified_native256_fixed_context_generation`. **Dependencies:** S0.3, S1.4.
 
-Qualified native MiniCPM5 reader/workspace null-logit parity, nonzero branch sensitivity, checkpoint backward/context lifetime, target/workspace causal separation, source-feature refresh and export/reload on an actual 256-token batch. D1 has zero trainable original parameters/no original gradients; D2 has nonzero gradients in all 381 originals. The 895,490 new parameters span 48 tensors; only the two zero-initialized output projections have nonzero first-backward gradients as expected. No optimizer update or augmented generation ran.
+Qualified native MiniCPM5 null-logit parity, branch sensitivity, checkpoint context lifetime, causal target separation, source-feature refresh and export/reload at 256 tokens. Fixed-context generation now matches native uncached tokens and 1,044,480 next-token logits across eight decode steps in each D1/D2 arm, with zero maximum difference. A separate three-token EOS-disabled probe checks context reuse. Writer/workspace each build once; input IDs remain unchanged, modes restore and context releases. Independent nonzero memory/workspace projections change logits; both nonzero sidecars preserve tokens/logits after reload. These are compatibility probes with no optimizer update or quality claim.
 
-- **Artifact:** reports/minicpm5_native_adapter_qualification256_report.json; reports/minicpm5_native_adapter_qualification256_memory_samples.jsonl; planned: prompt-fixed augmented generation parity report.
+- **Artifact:** reports/minicpm5_native_adapter_qualification256_report.json; reports/minicpm5_augmented_generation_qualification256_report.json; paired memory samples and [generation record](../experiments/20261022_Augmented_Generation.md).
 - **Interface:** LlamaMemoryAdapter -> original complete decoder block + per-batch support/workspace context -> strict evaluator; native names and checkpoint compatibility preserved.
-- **Test gate:** Forward/backward/export portion passes at native dimensions and actual 256 tokens, with scoped D1/D2 gradients and causal/context checks. Entire S2.1 remains partial until augmented generation holds prompt-derived workspace/support fixed across answer decoding and matches native generation on the null path. Initial projection gradients alone do not establish upstream learning or successful optimizer updates.
+- **Test gate:** Native forward/backward/export and original-prompt-fixed uncached generation pass at the bounded tested configuration. KV caching, concurrency, useful memory benefit and optimizer learning are separate gates.
 - **Resources:** Measured one native MPS batch with 64-wide memory/workspace, 4 slots, 2 workspace steps and 895,490 new parameters / 48 tensors. No training campaign or native D1/D2 optimizer capacity qualification is claimed.
 - **Failure policy:** Keep base path intact and repair parity/context lifetime before training new modules. Do not optimize KV caching until correctness holds.
-- **Next smallest task:** Implement and verify prompt-fixed augmented generation parity against the native null path before D1 tiny overfit.
+- **Next smallest task:** Run the bounded D1 optimizer/overfit diagnostic; retain the uncached path as the generation reference.
 
 ## S2.2 — Overfit native D1 new modules with frozen original tensors
 
-**Status:** `pending_native_D1_optimizer_overfit`. **Dependencies:** S2.1, S0.4.
+**Status:** `qualified_native_D1_tiny_memorization_scope_resume`. **Dependencies:** S2.1, S0.4.
 
-Train only the 48 new reader/writer/workspace tensors on the balanced eight-class diagnostic after prompt-fixed generation parity. Native initial D1 backward has qualified frozen-original ownership and two nonzero output-projection gradients; later upstream gradients, optimizer updates, generated overfit answers and checkpoint continuation remain unrun.
+Trained all 48 new tensors / 895,490 parameters with originals frozen on the balanced eight-class diagnostic. The first 1e-3 arm completed 64 updates with 0/8 at every training check. The conditionally predeclared fresh 1e-2 arm achieved 8/8 and eight distinct EOS-terminated answers at updates 24 and 28, then stopped. Every new tensor has a nonzero gradient by update 2; all 48 change during continuation. All 381 originals exactly equal the sealed source promoted to FP32. Both arms resume from update 8 in a new process and reload with zero compared-logit difference. External GPU evaluation of the successful export yields train 8/8 and reused synthetic dev 2/16, all EOS, at cap 256. This is memorization, not a useful-gain result.
 
-- **Artifact:** reports/minicpm5_native_adapter_qualification256_report.json; planned: D1 scope, gradient and generation reports; planned: D1 native checkpoint/export/reload audit.
+- **Artifact:** reports/native_augmented_D1_experiment_20261022.json; reports/minicpm5_D1_checkpoint_audit_20261022.json; reports/validation_D1_runtime_20261022.json; [D1 experiment](../experiments/20261022_D1_Diagnostic.md); raw trainer/generation/memory/guard records.
 - **Interface:** modules_only parameter registry -> mixed optimizer owns each new tensor once -> augmented evaluator. Frozen original tensor hashes remain stable.
-- **Test gate:** New output projections receive initial gradients and upstream branch receives later gradients; originals do not change. Nonconstant correct diagnostic generations and restart/reload work or a clearly recorded D1 learning failure.
-- **Resources:** One MPS run with matched diagnostic examples and explicit new-module rates; new-module training still stores frozen original weights and backward activations.
+- **Test gate:** Bounded scope, later upstream gradients, nonconstant correct training generations, restart/reload and unchanged original weights pass. The failed rate and poor dev transfer remain explicit; architecture and retention gates remain open.
+- **Resources:** Four serial MPS FP32 processes, 55 actual tokens, B8; 64 + 28 updates across two rates. Successful-arm sampled live/driver peaks 9.467/11.113 GiB; optimizer state 1,029,824 bytes. Total training-update time across both arms is 151.002 s; complete trainer processes total 445.953 s, including both rate searches and checkpoint/generation overhead.
 - **Failure policy:** Diagnose gradients, null initialization and frozen-autograd paths. Do not unfreeze layers while retaining the D1 label.
-- **Next smallest task:** After S2.1 prompt-fixed generation parity, run a bounded D1 tiny-overfit update sequence with original hashes fixed, first/later new-gradient audits and generated answer checks.
+- **Next smallest task:** Qualify D2 full-augmented optimizer updates and memory at actual length 256 before its own tiny-overfit run; retain D1's poor transfer for the later fair study.
 
 ## S2.3 — Overfit and profile native D2 full augmented training
 

@@ -1,0 +1,45 @@
+{
+  "kind": "primary_source_apple_accelerator_feasibility_review",
+  "reviewed_on": "2026-10-22",
+  "current_status": {
+    "gpu_training": "Measured native PyTorch MPS runs; CPU fallback disabled",
+    "ane_training": "Not implemented or measured in this project"
+  },
+  "sources": [
+    {
+      "title": "Apple: Accelerated PyTorch training on Mac",
+      "url": "https://developer.apple.com/metal/pytorch/",
+      "finding": "MPS accelerates PyTorch on the Apple GPU"
+    },
+    {
+      "title": "PyTorch: Device and DeviceType",
+      "url": "https://docs.pytorch.org/cppdocs/api/c10/device.html",
+      "finding": "MPS device and custom-backend mechanism; no built-in ANE route for the project"
+    },
+    {
+      "title": "Apple Core ML model API",
+      "url": "https://apple.github.io/coremltools/source/coremltools.models.html",
+      "finding": "Prediction compute-unit policies permit different CPU/GPU/NE combinations"
+    },
+    {
+      "title": "Apple: Analyzing a Core ML model performance in Xcode",
+      "url": "https://developer.apple.com/documentation/coreml/analyzing-a-core-ml-model-s-performance-in-xcode?changes=l_9",
+      "finding": "Inspect actual operation placement and prediction/load/compile time"
+    },
+    {
+      "title": "Apple: MLUpdateTask",
+      "url": "https://developer.apple.com/documentation/coreml/mlupdatetask?changes=l_8",
+      "finding": "On-device updates exist for updatable Core ML models"
+    },
+    {
+      "title": "Orion v1",
+      "url": "https://arxiv.org/html/2603.06728v1",
+      "finding": "Experimental private-API ANE training with CPU components; M4 Max validation only; no demonstrated project port"
+    }
+  ],
+  "next_candidate": "Separate public-CoreML frozen encoder prediction benchmark; verify actual NE placement and MPS parity first",
+  "experiments_performed": false,
+  "packages_installed": false,
+  "models_downloaded": false,
+  "private_apis_invoked": false
+}

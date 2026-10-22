@@ -1,6 +1,6 @@
 # Native sidecar qualification design
 
-Prepared 22 October 2026 for [S2.1](../stages/03_Native_Architecture_Study.md). The [actual native 256-token qualification](20261022_Native_Adapter_Qualification.md) now passed forward/backward/serialization checks on MPS; [the tracked report](../../reports/minicpm5_native_adapter_qualification256_report.json) contains the measured evidence. S2.1 augmented generation remains incomplete.
+Prepared 22 October 2026 for [S2.1](../stages/03_Native_Architecture_Study.md). The [actual native 256-token qualification](20261022_Native_Adapter_Qualification.md) passed forward/backward/serialization checks on MPS; [the tracked report](../../reports/minicpm5_native_adapter_qualification256_report.json) contains that evidence. The subsequent [fixed-context generation gate](20261022_Augmented_Generation.md) also passes through its separate implementation and report.
 
 After capacity jobs finish, run one native process:
 
@@ -22,4 +22,4 @@ Default qualification performs one nonreentrant checkpointed backward in each re
 
 The final D2 export contains a deterministic nonzero sidecar probe, making export/reload equivalence observable rather than hidden behind zero branches. This is a diagnostic artifact, not a trained candidate. CPU tiny-native tests verify parity, perturbation sensitivity, scope, causality, recomputation and nonzero-sidecar roundtrip without model downloads or accelerator work. The completed root-owned native run used the actual 256-token capacity example and performed no optimizer updates; its memory profile does not establish full D2 training fit.
 
-Augmented autoregressive context reconstruction and generation remain unsupported by the existing adapter. This script does not implement them. After forward qualification, complete that S2.1 gate before interpreting native D1/D2 task generations or launching a mechanism comparison.
+This forward/backward script does not implement autoregressive generation. The subsequent [fixed-context generation qualification](20261022_Augmented_Generation.md) now passes through a separate uncached implementation. Context is built once from the original prompt/source and retained throughout the generated answer; cached augmented decoding remains unqualified. D1/D2 learning and mechanism benefit require their own measured gates.

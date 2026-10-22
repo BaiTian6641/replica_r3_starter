@@ -2,7 +2,7 @@
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
-**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Actual 256-token and 512-token D0 short capacity screens also passed, each with two updates split across native restart. Native D1/D2 forward/backward qualification passed at 256; augmented optimizer training, cached generation and broader evaluation remain separate gates. Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md), [learning result record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) and [capacity qualification](experiments/20261022_Capacity_Qualification.md).
+**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Actual 256-token and 512-token D0 short capacity screens also passed, each with two updates split across native restart. Native D1/D2 fixed-context uncached generation now passes at 256. The bounded D1 memorization gate passes at 1e-2 after a preserved 1e-3 failure: saved train 8/8 and dev 2/16, all originals unchanged. D2 optimizer/capacity, augmented caching and broader evaluation remain separate gates. See the [D1 result](experiments/20261022_D1_Diagnostic.md). Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md), [learning result record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) and [capacity qualification](experiments/20261022_Capacity_Qualification.md).
 
 ## 1. What the delivered code actually does
 
@@ -12,9 +12,9 @@
 | memory.py | SQLite records, scope checks, observation-time reads, corrections, tombstones, derived-artifact invalidation | Not a semantic retriever, encrypted vault or OS security boundary |
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |
 | neural.py | Learned record pooling, residual reader, recurrent prompt workspace, functional linear fast state | Simplified project modules, not a reproduced research architecture |
-| model_adapter.py | One complete native Llama block wrapper; explicit trainable scope; safe base/sidecar export | Training-only text adapter; no native generation cache, VLM or distributed support |
-| train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native D0 overfit and short actual 256/512 capacity measured; no offload or distributed training |
-| evaluate_text.py | Greedy native cached generation and strict fixture task scoring for source or plain D0 export | Does not supply augmented generation or broad benchmark accuracy |
+| model_adapter.py / generation.py | Native Llama block wrapper; explicit trainable scope; safe base/sidecar export; original-prompt-fixed uncached generation | Batch-one text reference; no augmented KV cache, VLM or distributed support |
+| train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native D0 capacity and D1 tiny memorization/restart measured; no D2 optimizer capacity, offload or distributed training |
+| evaluate_text.py | Strict greedy fixture scoring: native cached source/D0 or `--exported-adapter` with fixed-context uncached sidecars | Fixture evaluation does not establish broad benchmark accuracy |
 | profiling.py | Periodic MPS allocation/driver samples, process RSS, synchronized phase timing and host swap/pressure endpoints | Sampled MPS peaks can miss transients; unified-memory counters overlap |
 | audit_checkpoint.py | Stream source/export CPU comparisons after dtype normalization | Saved-weight changes do not imply every element received a nonzero gradient |
 | optimizers.py | Experimental blockwise INT8 Muon momentum + auxiliary FP32 AdamW; exact original/new routing and optimizer-state serialization | Portable eager FP32 math; not fused, distributed or a validated paper reproduction |
@@ -26,6 +26,7 @@
 | make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
 | capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
 | qualify_native_adapter.py | Native 256-token D1/D2 null-branch, causality, sensitivity and nonreentrant forward/backward checks | No optimizer updates or augmented generation; D2 capacity remains unqualified |
+| qualify_augmented_generation.py | Native uncached D1/D2 token/logit parity, fixed context, branch sensitivity and nonzero-sidecar reload | One fixture; no learning, quality or KV-cache claim |
 | pin_model.py / seal_snapshot.py | Resolve metadata revision; seal exact local snapshot bytes | Local hashing is not an independent publisher signature |
 | download_model.py | Acquire complete snapshot at the existing immutable metadata lock; retain receipt | No weight execution; weights and download caches are ignored by Git |
 | inspect_snapshot.py | Verify seal and count actual checkpoint tensor shapes; estimate optimizer mixture bytes | Reads headers without model execution; arithmetic is not a measured memory peak |
@@ -401,3 +402,21 @@ Use [the report template](../templates/experiment_report.md). A valid preliminar
 - Explicit implemented/tested/trained/evaluated/unrun status.
 
 The outcome may be a narrow positive mechanism, a useful negative result or an inconclusive budget. Those are all better research outcomes than an unsupported broad self-improvement claim.
+
+### Native fixed-context D1/D2 export evaluation
+
+All native model compute on this Mac uses `--device mps`, with CPU fallback disabled. MPS is GPU execution; the [Neural Engine review](experiments/20261022_Apple_Accelerators.md) records the separate unimplemented ANE path. Data construction and checkpoint-byte verification are host tasks.
+
+The [qualified reference](experiments/20261022_Augmented_Generation.md) builds prompt/source context once and re-prefills each answer token without a KV cache. Evaluate an augmented export with its saved sidecars/settings and the sealed original tokenizer:
+
+```bash
+.venv/bin/python scripts/evaluate_text.py \
+  --model-path checkpoints/minicpm5_source \
+  --model-lock configs/minicpm5_sealed_lock.local.json \
+  --exported-adapter runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint \
+  --data data/fixtures/dev.jsonl --split dev \
+  --output runs/minicpm5_D1_export_dev_next --device mps \
+  --max-examples 16 --max-new-tokens 256 --max-length 256
+```
+
+Use a new output path. Training-split scores are explicitly memorization; the current D1 export scores train 8/8 and dev 2/16. The complete [protocol](experiments/20261022_D1_Fixed_Context_Protocol.md) and [result](experiments/20261022_D1_Diagnostic.md) retain both rates, guard traces and independent frozen-original audits. Source-bound episode data can be reproduced/validated separately using [the slice commands](experiments/20261022_Episode_Slice.md#commands-and-checks).

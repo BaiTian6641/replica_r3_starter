@@ -187,20 +187,23 @@
     {
       "id": "S1.2",
       "title": "Release a 2,000-target solver-backed infrastructure slice",
-      "status": "pending",
+      "status": "partial_source_bound_20_episode_fixture",
       "depends_on": [
         "S1.1"
       ],
       "task": "Generate independent microengineering worlds plus temporal correction, unknown/ask and tool-recovery cases. Compute answers/actions with solvers before teacher verbalization. Balance target/action categories and split complete worlds/rule families before derivatives.",
       "artifacts": [
-        "planned: data release manifest with generator/solver/code hashes",
-        "planned: 2,000-target train/dev exports and stratified review report"
+        "data/diagnostics/episode_slice_v1/manifest.json",
+        "scripts/make_episode_slice.py",
+        "tests/test_episode_slice.py",
+        "docs/experiments/20261022_Episode_Slice.md",
+        "planned: 2,000-target exports and stratified review report"
       ],
       "interface": "World generator -> executable oracle -> optional teacher candidates (verified false) -> independent validator -> admitted exports.",
       "acceptance_gate": "All admitted labels pass their independent verifier; no duplicate world across roles; target/length/action histograms and rejected cases reported. Review at least 20 cases in each critical category as an operational sample, not proof of zero error.",
       "resources": "CPU solvers first; external teacher only with eligible data and logged model/prompt/cost. No audit material or real personal data sent by default.",
       "on_failure": "Fix the generator/solver or drop a failing category. Preserve rejection samples and recompute derived hashes; avoid scaling defective examples.",
-      "next_smallest_task": "Implement a source-bound synthetic packet/register family with independent executable oracle, explicit raw-source hashes, causal unknown/ask/correction cases and complete-release lineage audit; inspect a small slice before scaling to 2,000.",
+      "next_smallest_task": "Review the implemented 20-episode register slice, then add independent task families and tool-recovery cases with role/length/action accounting before scaling toward 2,000. Exposed audit fixtures cannot become the sealed scientific audit.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -267,43 +270,45 @@
     {
       "id": "S2.1",
       "title": "Qualify native wrapper bypass and generation",
-      "status": "partial_native256_forward_backward_qualified_generation_pending",
+      "status": "qualified_native256_fixed_context_generation",
       "depends_on": [
         "S0.3",
         "S1.4"
       ],
-      "task": "Qualified native MiniCPM5 reader/workspace null-logit parity, nonzero branch sensitivity, checkpoint backward/context lifetime, target/workspace causal separation, source-feature refresh and export/reload on an actual 256-token batch. D1 has zero trainable original parameters/no original gradients; D2 has nonzero gradients in all 381 originals. The 895,490 new parameters span 48 tensors; only the two zero-initialized output projections have nonzero first-backward gradients as expected. No optimizer update or augmented generation ran.",
+      "task": "Qualified native MiniCPM5 null-logit parity, branch sensitivity, checkpoint context lifetime, causal target separation, source-feature refresh and export/reload at 256 tokens. Fixed-context generation now matches native uncached tokens and 1,044,480 next-token logits across eight decode steps in each D1/D2 arm, with zero maximum difference. A separate three-token EOS-disabled probe checks context reuse. Writer/workspace each build once; input IDs remain unchanged, modes restore and context releases. Independent nonzero memory/workspace projections change logits; both nonzero sidecars preserve tokens/logits after reload. These are compatibility probes with no optimizer update or quality claim.",
       "artifacts": [
         "reports/minicpm5_native_adapter_qualification256_report.json",
-        "reports/minicpm5_native_adapter_qualification256_memory_samples.jsonl",
-        "planned: prompt-fixed augmented generation parity report"
+        "reports/minicpm5_augmented_generation_qualification256_report.json",
+        "paired memory samples and [generation record](../experiments/20261022_Augmented_Generation.md)"
       ],
       "interface": "LlamaMemoryAdapter -> original complete decoder block + per-batch support/workspace context -> strict evaluator; native names and checkpoint compatibility preserved.",
-      "acceptance_gate": "Forward/backward/export portion passes at native dimensions and actual 256 tokens, with scoped D1/D2 gradients and causal/context checks. Entire S2.1 remains partial until augmented generation holds prompt-derived workspace/support fixed across answer decoding and matches native generation on the null path. Initial projection gradients alone do not establish upstream learning or successful optimizer updates.",
+      "acceptance_gate": "Native forward/backward/export and original-prompt-fixed uncached generation pass at the bounded tested configuration. KV caching, concurrency, useful memory benefit and optimizer learning are separate gates.",
       "resources": "Measured one native MPS batch with 64-wide memory/workspace, 4 slots, 2 workspace steps and 895,490 new parameters / 48 tensors. No training campaign or native D1/D2 optimizer capacity qualification is claimed.",
       "on_failure": "Keep base path intact and repair parity/context lifetime before training new modules. Do not optimize KV caching until correctness holds.",
-      "next_smallest_task": "Implement and verify prompt-fixed augmented generation parity against the native null path before D1 tiny overfit.",
+      "next_smallest_task": "Run the bounded D1 optimizer/overfit diagnostic; retain the uncached path as the generation reference.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
       "id": "S2.2",
       "title": "Overfit native D1 new modules with frozen original tensors",
-      "status": "pending_native_D1_optimizer_overfit",
+      "status": "qualified_native_D1_tiny_memorization_scope_resume",
       "depends_on": [
         "S2.1",
         "S0.4"
       ],
-      "task": "Train only the 48 new reader/writer/workspace tensors on the balanced eight-class diagnostic after prompt-fixed generation parity. Native initial D1 backward has qualified frozen-original ownership and two nonzero output-projection gradients; later upstream gradients, optimizer updates, generated overfit answers and checkpoint continuation remain unrun.",
+      "task": "Trained all 48 new tensors / 895,490 parameters with originals frozen on the balanced eight-class diagnostic. The first 1e-3 arm completed 64 updates with 0/8 at every training check. The conditionally predeclared fresh 1e-2 arm achieved 8/8 and eight distinct EOS-terminated answers at updates 24 and 28, then stopped. Every new tensor has a nonzero gradient by update 2; all 48 change during continuation. All 381 originals exactly equal the sealed source promoted to FP32. Both arms resume from update 8 in a new process and reload with zero compared-logit difference. External GPU evaluation of the successful export yields train 8/8 and reused synthetic dev 2/16, all EOS, at cap 256. This is memorization, not a useful-gain result.",
       "artifacts": [
-        "reports/minicpm5_native_adapter_qualification256_report.json",
-        "planned: D1 scope, gradient and generation reports",
-        "planned: D1 native checkpoint/export/reload audit"
+        "reports/native_augmented_D1_experiment_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "[D1 experiment](../experiments/20261022_D1_Diagnostic.md)",
+        "raw trainer/generation/memory/guard records"
       ],
       "interface": "modules_only parameter registry -> mixed optimizer owns each new tensor once -> augmented evaluator. Frozen original tensor hashes remain stable.",
-      "acceptance_gate": "New output projections receive initial gradients and upstream branch receives later gradients; originals do not change. Nonconstant correct diagnostic generations and restart/reload work or a clearly recorded D1 learning failure.",
-      "resources": "One MPS run with matched diagnostic examples and explicit new-module rates; new-module training still stores frozen original weights and backward activations.",
+      "acceptance_gate": "Bounded scope, later upstream gradients, nonconstant correct training generations, restart/reload and unchanged original weights pass. The failed rate and poor dev transfer remain explicit; architecture and retention gates remain open.",
+      "resources": "Four serial MPS FP32 processes, 55 actual tokens, B8; 64 + 28 updates across two rates. Successful-arm sampled live/driver peaks 9.467/11.113 GiB; optimizer state 1,029,824 bytes. Total training-update time across both arms is 151.002 s; complete trainer processes total 445.953 s, including both rate searches and checkpoint/generation overhead.",
       "on_failure": "Diagnose gradients, null initialization and frozen-autograd paths. Do not unfreeze layers while retaining the D1 label.",
-      "next_smallest_task": "After S2.1 prompt-fixed generation parity, run a bounded D1 tiny-overfit update sequence with original hashes fixed, first/later new-gradient audits and generated answer checks.",
+      "next_smallest_task": "Qualify D2 full-augmented optimizer updates and memory at actual length 256 before its own tiny-overfit run; retain D1's poor transfer for the later fair study.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
@@ -895,7 +900,8 @@
       "prompt-fixed augmented generation parity",
       "D1 tiny overfit",
       "D2 full-augmented update/capacity"
-    ]
+    ],
+    "observation_scope": "Historical pre-optimizer qualification; subsequent generation and D1 evidence are recorded separately above."
   },
   "episode_contract_observation": {
     "status": "bounded_S1_1_implemented",
@@ -910,5 +916,54 @@
       "explicit oracle channels excluded; semantic laundering is not automatically detected",
       "no CLI, public ingestion or2k/20k factory implemented"
     ]
+  },
+  "native_generation_observation": {
+    "status": "qualified_native256_uncached_fixed_context",
+    "report": "reports/minicpm5_augmented_generation_qualification256_report.json",
+    "D1_D2_generated_tokens_exact": true,
+    "maximum_next_token_logit_difference": 0.0,
+    "context_builds_per_answer": 1,
+    "augmented_KV_cache_qualified": false
+  },
+  "native_D1_observation": {
+    "status": "qualified_tiny_memorization_only",
+    "report": "reports/native_augmented_D1_experiment_20261022.json",
+    "failed_first_rate": {
+      "lr": 0.001,
+      "updates": 64,
+      "train_correct": 0
+    },
+    "successful_rate": {
+      "lr": 0.01,
+      "updates": 28,
+      "perfect_checks": [
+        24,
+        28
+      ],
+      "saved_train_correct": 8,
+      "saved_dev_correct": 2
+    },
+    "original_tensors_changed": 0,
+    "new_tensors": 48,
+    "new_parameters": 895490,
+    "broader_transfer_established": false
+  },
+  "episode_slice_observation": {
+    "status": "partial_S1_2_source_bound_fixture",
+    "manifest": "data/diagnostics/episode_slice_v1/manifest.json",
+    "episodes": 20,
+    "worlds": 10,
+    "train_export": 4,
+    "dev_export": 4,
+    "exposed_audit_fixture": true,
+    "scientific_audit_sealed": false,
+    "target_2000_release_complete": false
+  },
+  "parallel_preparation": {
+    "early_S3_1_pilot_after": [
+      "S1.1"
+    ],
+    "full_S3_1_selected_architecture_dependency_unchanged": "S2.5",
+    "contract": "docs/experiments/20261022_Cognitive_Contracts.md"
   }
 }
