@@ -1,0 +1,15 @@
+flowchart TD
+    P[Already observed support and prompt] --> C[Decision context]
+    C --> Q[Current query and causal decoding]
+    S[Chunk-start state] --> L1[Depth port 1 reads]
+    S --> L2[Depth port 2 reads]
+    L1 --> Q
+    L2 --> Q
+    Q --> O[Fix current chunk outputs]
+    L1 --> W1[Deferred write contribution]
+    L2 --> W2[Deferred write contribution]
+    O --> B[Commit barrier]
+    W1 --> B
+    W2 --> B
+    B --> N[Next chunk state]
+    Y[Held-out answers and future events] --> X[Evaluator only]

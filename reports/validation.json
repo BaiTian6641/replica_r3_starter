@@ -1,0 +1,123 @@
+{
+  "status": "passed",
+  "validated_at": "2026-10-23T03:03:34.864516+08:00",
+  "execution_device": "CPU",
+  "python": "3.12.14",
+  "packages": {
+    "torch": "2.14.1+cpu",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0",
+    "pytest": "9.1.1",
+    "jsonschema": "4.26.0"
+  },
+  "pytest_command": "PYTHONPATH=/tmp/replica_r3_testdeps:src python3 -m pytest -q --junitxml=reports/tests.xml",
+  "pytest_exit_code": 0,
+  "pytest": {
+    "tests": 53,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 53,
+    "pytest_seconds": 6.823
+  },
+  "elapsed_seconds": 8.668386,
+  "schemas": {
+    "count": 3,
+    "checks": [
+      {
+        "path": "schemas/learning_proposal.schema.json",
+        "status": "valid_schema",
+        "draft": "https://json-schema.org/draft/2020-12/schema"
+      },
+      {
+        "path": "schemas/record.schema.json",
+        "status": "valid_schema",
+        "draft": "https://json-schema.org/draft/2020-12/schema"
+      },
+      {
+        "path": "schemas/sft_example.schema.json",
+        "status": "valid_schema",
+        "draft": "https://json-schema.org/draft/2020-12/schema"
+      }
+    ]
+  },
+  "fixtures": {
+    "total": 48,
+    "files": [
+      {
+        "path": "data/fixtures/dev.jsonl",
+        "rows": 16,
+        "schema_valid": true,
+        "manifest_hash_matches": true
+      },
+      {
+        "path": "data/fixtures/train.jsonl",
+        "rows": 32,
+        "schema_valid": true,
+        "manifest_hash_matches": true
+      }
+    ],
+    "split_audit": {
+      "examples": 48,
+      "lineage_groups": 6,
+      "split_counts": {
+        "audit": 0,
+        "calibration": 0,
+        "dev": 16,
+        "promotion": 0,
+        "train": 32
+      }
+    },
+    "authentic_personal_records": 0,
+    "benchmark_examples": 0
+  },
+  "additional_regression_checks": {
+    "strict_boolean_confirmed": "passed",
+    "strict_boolean_train_allowed": "passed",
+    "strict_boolean_synthetic": "passed",
+    "correction_invalidates_derived_artifact": "passed",
+    "malformed_timestamp_cannot_reveal_future": "passed",
+    "source_delete_requires_authority": "passed",
+    "deleted_correction_does_not_revive_current_fact": "passed",
+    "publication_binds_evaluation_to_candidate": "passed",
+    "zero_observed_retention_loss_not_overcertified": "passed"
+  },
+  "validated_types": [
+    "Record validation, logical timestamps, subject/branch scoping and source-authority checks",
+    "SQLite restart, correction visibility, deletion tombstones and direct artifact invalidation",
+    "Candidate-score guards and manifest digest/parent binding, publication and rollback",
+    "PyTorch record encoder, memory reader, prompt workspace and functional linear fast-state primitives",
+    "Randomly initialized tiny native Llama adapter: bypass parity, gradients, optimizer ownership, prompt separation, checkpoint recomputation and export/reload",
+    "Model metadata seal validation using dummy files, not downloaded model checkpoints",
+    "JSON Schema definitions, 48 deterministic fictional fixture rows and exact lineage/split audit"
+  ],
+  "not_run": [
+    "No MiniCPM, Gemma or other pretrained model weights were downloaded or loaded",
+    "No CUDA/GPU, MPS/Mac/MLX, full-size model memory fit or throughput tests",
+    "No pretrained 1B/2B fine-tuning, multimodal integration or generation-cache evaluation",
+    "No model capability gain, longitudinal neural self-improvement or replica-fidelity measurement",
+    "No Titans, HOPE, Engram, uTTT or Mem-T algorithm reproduction",
+    "No production process-isolation, evaluator-authentication, distributed publication or neural-unlearning guarantee"
+  ],
+  "interpretation": "These are software, numerical and artifact-contract checks. They are not evidence that a pretrained cognitive model improves or that the proposed full architecture works.",
+  "tested_file_sha256": {
+    "scripts/seal_snapshot.py": "47dba2c14eed2d703ce61a1f15e4414f7632cc2c721ae9bf86d639622de458fb",
+    "scripts/train_text.py": "a68f3329b33968a687d4422a3c466a6a61e38abe073951654dfe752410722c00",
+    "src/replica_lab/__init__.py": "fea2eb9e656cda45f4aeef8e0756ecc35a8ddcbe256f00092c5a95bffced68c4",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/learning.py": "b6412e1afe46ca8096a640c85ea93105c8d3c0439b90a0101d34e83a453f4942",
+    "src/replica_lab/memory.py": "f722bac5fb7863af8c5176f6daca55296ae1fcbee5dae1317b79488fc4618724",
+    "src/replica_lab/model_adapter.py": "4d4ffcccb5457d8219d33b15b746cfdd000044afee3b98d271b23e456504ee78",
+    "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+    "tests/test_contracts.py": "fd51d166da5f042b23abc00045a0807504b87f28fce5cef71c973453b92d12cb",
+    "tests/test_learning.py": "d4ddf437ad5b2719d021bf15fde66fdf8f91420c652557a6f25206a9bea8ae21",
+    "tests/test_memory.py": "e0123d019f5d7d4ae344cc63ce76860329d96c97005a0c8932ce4764900d2265",
+    "tests/test_model_adapter.py": "3e0030746173976aa8e8c301fa6fe4eb3198009ee9852153507fe47e159bc915",
+    "tests/test_model_lock.py": "5c1303cfcfd006d4b144072e26b5677543b1620be076ac2820fd3393bdcc8950",
+    "tests/test_neural.py": "dec9c988403bd5f2860d2122492f30df0f1cc8223cafdef83e8d2761af231303"
+  },
+  "logs": {
+    "junit": "reports/tests.xml",
+    "output": "reports/test_output.txt"
+  }
+}

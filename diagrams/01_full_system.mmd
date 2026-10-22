@@ -1,0 +1,17 @@
+flowchart TD
+    U[Goal and available observations] --> C[Controller and task workspace]
+    E[Scoped evidence records] --> R[Trained memory reader]
+    I[Approved identity and branch history] --> C
+    R --> B[Backbone plus trainable extensions]
+    C --> B
+    B --> A{Answer or act}
+    A --> O[User-facing answer]
+    A --> T[Permitted tools]
+    T --> V[Verified outcome]
+    V --> C
+    V --> E
+    V --> L[Learning proposal]
+    L --> Q[Candidate training and independent evaluation]
+    Q --> P{Accept or reject}
+    P -->|accept| B
+    P -->|reject| L

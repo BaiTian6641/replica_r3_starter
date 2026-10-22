@@ -1,0 +1,14 @@
+flowchart TD
+    O[New permitted observation] --> W[Task workspace]
+    O --> F[Private fast-state candidate]
+    O --> E[Evidence record proposal]
+    W --> A[Current action or answer]
+    F --> B[Chunk-end commit barrier]
+    B --> FN[Next chunk private state]
+    E --> H[Host validates source and scope]
+    H --> DB[Durable evidence ledger]
+    DB --> L[Learning director]
+    L --> C[Candidate skill or sidecar update]
+    C --> V[Independent comparison]
+    V --> P[Versioned extension publication]
+    BASE[Frozen deployed base] --> A

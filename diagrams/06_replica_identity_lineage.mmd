@@ -1,0 +1,13 @@
+flowchart TD
+    H[Human testimony and real decisions] --> A[Source archive]
+    A --> S[Reviewed dated snapshot]
+    S --> P[Parallel Replica branch]
+    P --> E[Agent actions and outcomes]
+    E --> B[Branch-owned experience and development]
+    B --> P
+    H --> C[Authorized source correction]
+    C --> A
+    C --> I[Invalidate dependent artifacts]
+    S --> T[Held-out source-fidelity tests]
+    P --> T
+    T --> D[Report fidelity and declared divergence]

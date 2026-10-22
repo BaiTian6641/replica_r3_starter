@@ -1,0 +1,12 @@
+flowchart TD
+    E[Actual experience and outcome] --> D[Diagnose reusable success or failure]
+    D --> P[Choose bounded practice proposal]
+    P --> T[Train isolated candidate]
+    T --> V[Independent task and retention evaluation]
+    V --> G{Release decision}
+    G -->|accept| M[Publish compatible manifest]
+    G -->|reject or inconclusive| D
+    M --> U[Later unseen tasks and restart tests]
+    U --> E
+    M --> R[Retain rollback revision]
+    R -->|later regression| B[Restore prior compatible manifest]

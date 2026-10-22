@@ -1,0 +1,104 @@
+{
+  "kind": "deterministic_contract_demo",
+  "model_weights_loaded": false,
+  "model_learning_evaluated": false,
+  "autonomous_curriculum_evaluated": false,
+  "generalization_scope": "new integer inputs in a fixed XOR grammar only",
+  "cycles": [
+    {
+      "cycle": 1,
+      "compiler": "fixed_exhaustive_xor_grammar",
+      "evaluation": {
+        "decision": "accept",
+        "target_gain": {
+          "mean": 1.0,
+          "low": 0.9877414573386616,
+          "high": 1.0,
+          "n": 600,
+          "method": "constant_sample_unseen_departure_guard"
+        },
+        "retention_delta": {
+          "mean": 0.0,
+          "low": -0.006129271330669206,
+          "high": 0.006129271330669206,
+          "n": 600,
+          "method": "constant_sample_unseen_departure_guard"
+        },
+        "invariants": {
+          "source_scope": true,
+          "causal_support": true,
+          "base_unchanged": true
+        },
+        "interval_unit": "caller_supplied_independent_pair",
+        "candidate_digest": "3b96a0e252a43afed43ba71055ae40a8d750ef9bf213a575504e0252060f48ac",
+        "parent_manifest_id": "4e92569c1977a2a31210fac146363ab5d912473d1e0182b37b8f687593ec4bf2"
+      },
+      "manifest_id": "ce65040886ac40baec5cb7d0161ca0b49abab6edc7eb8c3adae69462b64085ba"
+    },
+    {
+      "cycle": 2,
+      "compiler": "fixed_exhaustive_xor_grammar",
+      "evaluation": {
+        "decision": "accept",
+        "target_gain": {
+          "mean": 1.0,
+          "low": 0.9877414573386616,
+          "high": 1.0,
+          "n": 600,
+          "method": "constant_sample_unseen_departure_guard"
+        },
+        "retention_delta": {
+          "mean": 0.0,
+          "low": -0.006129271330669206,
+          "high": 0.006129271330669206,
+          "n": 600,
+          "method": "constant_sample_unseen_departure_guard"
+        },
+        "invariants": {
+          "source_scope": true,
+          "causal_support": true,
+          "base_unchanged": true
+        },
+        "interval_unit": "caller_supplied_independent_pair",
+        "candidate_digest": "ffa2e3b9fc786a98f560b019fff7e0917eab65c7dc1012e45662be49ed5d7e21",
+        "parent_manifest_id": "ce65040886ac40baec5cb7d0161ca0b49abab6edc7eb8c3adae69462b64085ba"
+      },
+      "manifest_id": "cae9648bf52ad824c0bce7cfc8bb4b9f1a7c50d630109d0cb23a2901d7c5d7b1"
+    },
+    {
+      "cycle": 3,
+      "compiler": "fixed_exhaustive_xor_grammar",
+      "evaluation": {
+        "decision": "accept",
+        "target_gain": {
+          "mean": 1.0,
+          "low": 0.9877414573386616,
+          "high": 1.0,
+          "n": 600,
+          "method": "constant_sample_unseen_departure_guard"
+        },
+        "retention_delta": {
+          "mean": 0.0,
+          "low": -0.006129271330669206,
+          "high": 0.006129271330669206,
+          "n": 600,
+          "method": "constant_sample_unseen_departure_guard"
+        },
+        "invariants": {
+          "source_scope": true,
+          "causal_support": true,
+          "base_unchanged": true
+        },
+        "interval_unit": "caller_supplied_independent_pair",
+        "candidate_digest": "076f1e7302d2fa62e492c7558fec0df86bf58cb3b72bd8e1cc75a35e67685d67",
+        "parent_manifest_id": "cae9648bf52ad824c0bce7cfc8bb4b9f1a7c50d630109d0cb23a2901d7c5d7b1"
+      },
+      "manifest_id": "19a793f5f5efcc488eea2c9c2cb424451ce3e7d3295cc28e38946035500d9e14"
+    }
+  ],
+  "harmful_candidate_decision": "reject",
+  "persisted_events_after_restart": 3,
+  "restart_manifest_equal": true,
+  "rollback_verified": true,
+  "limitation": "Verifier and candidate share one process; production isolation is not implemented."
+}

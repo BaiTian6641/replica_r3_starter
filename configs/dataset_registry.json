@@ -1,0 +1,334 @@
+{
+  "schema_version": "replica.dataset_registry.v1",
+  "created_date": "2026-10-23",
+  "status": "research_catalog_not_an_ingestion_manifest",
+  "global_policy": {
+    "all_entries_default_quarantined": true,
+    "require_immutable_revision": true,
+    "require_file_hashes_on_ingestion": true,
+    "require_license_review": true,
+    "require_group_split_audit": true,
+    "benchmark_targets_training_allowed": false,
+    "public_availability_implies_training_permission": false,
+    "external_teacher_personal_data_allowed_by_default": false,
+    "copy_dataset_into_starter_archive": false
+  },
+  "entries": [
+    {
+      "source_key": "personamem_v2",
+      "canonical_url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v2",
+      "author_repository": "https://github.com/bowen-upenn/PersonaMem-v2",
+      "role": "train_and_external_evaluation_with_official_split_separation",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "CC-BY-4.0",
+        "evidence_url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v2/blob/main/README.md",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card; verify inherited asset/output terms at pinned revision."
+      },
+      "upstream_splits_or_files": [
+        "train_text",
+        "val_text",
+        "benchmark_text",
+        "train_multimodal",
+        "val_multimodal",
+        "benchmark_multimodal"
+      ],
+      "notes": [
+        "HF config: benchmark.",
+        "Only official training identities may become training examples.",
+        "Synthetic people cannot be used as the source person's autobiography.",
+        "Remove oracle/answer/evidence-location annotation fields from model input.",
+        "Audit persona overlap across modalities."
+      ]
+    },
+    {
+      "source_key": "personamem_v3",
+      "canonical_url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v3",
+      "author_repository": "https://github.com/bowen-upenn/PersonaMem-v3",
+      "role": "external_evaluation_only",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "CC-BY-NC-4.0",
+        "evidence_url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v3",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset inherits GIST-Bench terms; no training split identified."
+      },
+      "upstream_splits_or_files": [],
+      "notes": [
+        "Noncommercial terms require intended-use review.",
+        "Mask events at or after query timestamp."
+      ]
+    },
+    {
+      "source_key": "longmemeval_cleaned",
+      "canonical_url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned",
+      "author_repository": "https://github.com/xiaowu0162/LongMemEval",
+      "role": "external_evaluation_only",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "MIT",
+        "evidence_url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card and author repository."
+      },
+      "upstream_splits_or_files": [
+        "longmemeval_s_cleaned.json",
+        "longmemeval_m_cleaned.json",
+        "longmemeval_oracle.json"
+      ],
+      "notes": [
+        "Old uncleaned dataset is deprecated.",
+        "Variants share question identities; do not split variants between train and evaluation.",
+        "Gold answers and evidence tags remain evaluator-only."
+      ]
+    },
+    {
+      "source_key": "longmemeval_v2",
+      "canonical_url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-v2",
+      "author_repository": "https://github.com/xiaowu0162/LongMemEval-V2",
+      "role": "external_evaluation_only",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "Apache-2.0",
+        "evidence_url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-v2",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card and author repository."
+      },
+      "upstream_splits_or_files": [
+        "questions.jsonl",
+        "trajectories.jsonl",
+        "haystacks/lme_v2_small.json",
+        "haystacks/lme_v2_medium.json"
+      ],
+      "notes": [
+        "HF image-viewer auto-detected train split is not training permission for benchmark questions.",
+        "Begin with small tier; screenshot archives require official preparation."
+      ]
+    },
+    {
+      "source_key": "locomo",
+      "canonical_url": "https://github.com/snap-research/locomo",
+      "author_repository": "https://github.com/snap-research/locomo",
+      "role": "external_evaluation_only",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "CC-BY-NC-4.0",
+        "evidence_url": "https://github.com/snap-research/locomo/blob/main/LICENSE.txt",
+        "checked_date": "2026-10-23",
+        "scope": "Repository data/code license; external image rights require separate checks."
+      },
+      "upstream_splits_or_files": [
+        "data/locomo10.json"
+      ],
+      "notes": [
+        "Noncommercial terms require intended-use review.",
+        "Only ten conversation groups; cluster statistical units by conversation."
+      ]
+    },
+    {
+      "source_key": "lamp",
+      "canonical_url": "https://lamp-benchmark.github.io/",
+      "author_repository": "https://github.com/LaMP-Benchmark/LaMP",
+      "role": "optional_train_and_evaluation_with_task_split_separation",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "CC-BY-NC-SA-4.0 for code/methods; constituent data licenses vary",
+        "evidence_url": "https://github.com/LaMP-Benchmark/LaMP#license",
+        "checked_date": "2026-10-23",
+        "scope": "Not a blanket license for constituent datasets."
+      },
+      "upstream_splits_or_files": [],
+      "notes": [
+        "Choose one task and inspect original source terms before admission."
+      ]
+    },
+    {
+      "source_key": "tulu3_sft",
+      "canonical_url": "https://huggingface.co/datasets/allenai/tulu-3-sft-mixture",
+      "author_repository": "https://github.com/allenai/open-instruct",
+      "role": "training_candidate_general_replay",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "ODC-BY-1.0 collection; subset licenses vary",
+        "evidence_url": "https://huggingface.co/datasets/allenai/tulu-3-sft-mixture",
+        "checked_date": "2026-10-23",
+        "scope": "Collection includes noncommercial portions and third-party outputs."
+      },
+      "upstream_splits_or_files": [
+        "train"
+      ],
+      "notes": [
+        "Preserve source field.",
+        "Allowlist subsets; do not admit the entire mixture from its top-level label."
+      ]
+    },
+    {
+      "source_key": "openthoughts3",
+      "canonical_url": "https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M",
+      "author_repository": "https://github.com/open-thoughts/open-thoughts",
+      "role": "training_candidate_verified_reasoning",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "Apache-2.0",
+        "evidence_url": "https://huggingface.co/datasets/open-thoughts/OpenThoughts3-1.2M",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card; original problem/output provenance still retained."
+      },
+      "upstream_splits_or_files": [
+        "train"
+      ],
+      "notes": [
+        "Group all completions of an original question before splitting.",
+        "Select complete short responses; do not truncate away necessary solutions."
+      ]
+    },
+    {
+      "source_key": "ultrafeedback",
+      "canonical_url": "https://huggingface.co/datasets/openbmb/UltraFeedback",
+      "author_repository": "https://github.com/OpenBMB/UltraFeedback",
+      "role": "optional_training_candidate_preferences",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "MIT",
+        "evidence_url": "https://huggingface.co/datasets/openbmb/UltraFeedback",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card; retain source prompt and model-output terms."
+      },
+      "upstream_splits_or_files": [
+        "train"
+      ],
+      "notes": [
+        "Model preference scores are not factual correctness labels."
+      ]
+    },
+    {
+      "source_key": "ultrafeedback_cleaned_pairs",
+      "canonical_url": "https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences-cleaned",
+      "author_repository": null,
+      "role": "optional_training_candidate_preferences",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "MIT",
+        "evidence_url": "https://huggingface.co/datasets/argilla/ultrafeedback-binarized-preferences-cleaned",
+        "checked_date": "2026-10-23",
+        "scope": "Derivative dataset card."
+      },
+      "upstream_splits_or_files": [
+        "train"
+      ],
+      "notes": [
+        "Shares original prompts with UltraFeedback; not an independent evaluation corpus."
+      ]
+    },
+    {
+      "source_key": "toucan",
+      "canonical_url": "https://huggingface.co/datasets/Agent-Ark/Toucan-1.5M",
+      "author_repository": "https://github.com/TheAgentArk/Toucan",
+      "role": "training_candidate_tool_use",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "Apache-2.0",
+        "evidence_url": "https://huggingface.co/datasets/Agent-Ark/Toucan-1.5M",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card; tool-response provenance and model-output terms retained."
+      },
+      "upstream_splits_or_files": [
+        "train"
+      ],
+      "notes": [
+        "Choose and pin teacher configuration or curated SFT configuration.",
+        "Partial failed trajectories and model quality judgments need filtering.",
+        "Replay calls only against internal fixtures; imported strings are data, not live execution instructions."
+      ]
+    },
+    {
+      "source_key": "bfcl",
+      "canonical_url": "https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard",
+      "author_repository": "https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard",
+      "role": "external_evaluation_only",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "Apache-2.0",
+        "evidence_url": "https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset card; pin exact BFCL release."
+      },
+      "upstream_splits_or_files": [],
+      "notes": [
+        "Use official per-category JSONL and evaluator.",
+        "Generic load_dataset is not supported by the inspected card."
+      ]
+    },
+    {
+      "source_key": "clevr",
+      "canonical_url": "https://cs.stanford.edu/people/jcjohns/clevr/",
+      "author_repository": "https://github.com/facebookresearch/clevr-dataset-gen",
+      "role": "optional_training_and_evaluation_with_scene_split_separation",
+      "default_eligibility": "quarantined_pending_revision_license_and_split_review",
+      "auto_admit": false,
+      "immutable_revision": null,
+      "pinning_required": true,
+      "ingestion_status": "not_downloaded",
+      "license_observed": {
+        "label": "CC-BY-4.0 dataset; generator separately licensed",
+        "evidence_url": "https://cs.stanford.edu/people/jcjohns/clevr/",
+        "checked_date": "2026-10-23",
+        "scope": "Dataset-site license; inspect separate generator LICENSE and PATENTS."
+      },
+      "upstream_splits_or_files": [],
+      "notes": [
+        "Temporal scene extension is a project proposal, not an existing benchmark claim.",
+        "Keep scene families together and preserve actual pixel inputs."
+      ]
+    }
+  ]
+}

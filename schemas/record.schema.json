@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TAIS Replica Record interchange",
+  "description": "Matches the fields and defaults of replica_lab.contracts.Record. observed_at is a nonnegative logical time, not an ISO date. Runtime additionally checks actor_id==subject_id for human_source and supersedes!=record_id; JSON Schema cannot compare sibling field values. Memory ownership, referenced records, chronology and authorization require runtime validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "subject_id",
+    "branch_id",
+    "actor_id",
+    "kind",
+    "observed_at",
+    "content",
+    "source_id"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "subject_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "branch_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "actor_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "human_source",
+        "world_evidence",
+        "agent_experience",
+        "inference",
+        "synthetic"
+      ]
+    },
+    "observed_at": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false
+    },
+    "train_allowed": {
+      "type": "boolean",
+      "default": false
+    },
+    "synthetic": {
+      "type": "boolean",
+      "default": false
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null,
+      "description": "Runtime rejects self-supersession and checks referenced-record scope."
+    },
+    "event_time": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null,
+      "description": "Optional original event-time annotation; not the causal observation clock."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "human_source"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "branch_id": {
+            "const": "source"
+          },
+          "synthetic": {
+            "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "human_source"
+          },
+          "train_allowed": {
+            "const": true
+          }
+        },
+        "required": [
+          "train_allowed"
+        ]
+      },
+      "then": {
+        "properties": {
+          "confirmed": {
+            "const": true
+          }
+        },
+        "required": [
+          "confirmed"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "agent_experience"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "branch_id": {
+            "not": {
+              "const": "source"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "synthetic"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "synthetic": {
+            "const": true
+          }
+        },
+        "required": [
+          "synthetic"
+        ]
+      }
+    }
+  ]
+}

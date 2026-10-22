@@ -1,0 +1,12 @@
+flowchart TD
+    H[Native hidden states] --> N[Complete native decoder block]
+    N --> S[Add independent residual deltas]
+    S --> D[Remaining native decoder and output]
+    E[Past source embeddings] --> W[Trainable record writer]
+    W --> R[Memory reader]
+    N --> R
+    R --> S
+    P[Known prompt embeddings] --> C[Bounded recurrent workspace]
+    C --> X[Workspace reader]
+    N --> X
+    X --> S

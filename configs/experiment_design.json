@@ -1,0 +1,33 @@
+{
+  "kind": "research_design_not_drop_in_trainer_config",
+  "stage1_required": [
+    "B0",
+    "B1",
+    "D0",
+    "D1",
+    "D2"
+  ],
+  "stage1_followups": [
+    "D3",
+    "D4"
+  ],
+  "post_freeze_arms": [
+    "T0",
+    "T1",
+    "T2",
+    "T3",
+    "T4_optional"
+  ],
+  "initial_cycles": 10,
+  "pilot_targets": 20000,
+  "proposed_tokens_per_trained_arm": [
+    8000000,
+    32000000
+  ],
+  "shortlisted_seeds": 3,
+  "target_min_gain": 0.02,
+  "average_retention_loss_budget": 0.01,
+  "critical_task_loss_budget": 0.02,
+  "requires_predeclaration_and_power_check": true,
+  "production_base_frozen": true
+}

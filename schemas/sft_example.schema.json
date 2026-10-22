@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TAIS Replica minimal SFT example",
+  "description": "Exact eight-field trainer export. Schema validity does not establish factual verification, consent or split independence. Generators emit verified=false; only independent validation may authorize true.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "group_id",
+    "split",
+    "prompt",
+    "response",
+    "memory_texts",
+    "source_ids",
+    "verified"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "group_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "split": {
+      "type": "string",
+      "enum": [
+        "train",
+        "dev",
+        "calibration",
+        "promotion",
+        "audit"
+      ]
+    },
+    "prompt": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "response": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "memory_texts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "verified": {
+      "type": "boolean",
+      "description": "True requires external verification evidence; this field is not self-authentication."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "memory_texts": {
+            "minItems": 1
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source_ids": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

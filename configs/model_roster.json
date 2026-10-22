@@ -1,0 +1,39 @@
+{
+  "schema_version": "replica.model_roster.v1",
+  "reviewed_on": "2026-10-23",
+  "model_weights_loaded_here": false,
+  "models": [
+    {
+      "repo_id": "openbmb/MiniCPM5-2B",
+      "role": "stage1_text_full_tuning",
+      "architecture": "LlamaForCausalLM",
+      "revision": null,
+      "status": "metadata_verified_execution_unrun",
+      "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B"
+    },
+    {
+      "repo_id": "openbmb/MiniCPM-V-4.7-1B",
+      "role": "stage1_multimodal_port",
+      "architecture": "MiniCPMV4_7ForConditionalGeneration",
+      "revision": null,
+      "status": "metadata_verified_execution_unrun",
+      "source_url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-1B"
+    },
+    {
+      "repo_id": "google/gemma-4-26B-A4B-it",
+      "role": "stage2_large_frozen_base",
+      "architecture": "model_specific_port_required",
+      "revision": null,
+      "status": "metadata_verified_execution_unrun",
+      "source_url": "https://huggingface.co/google/gemma-4-26B-A4B-it"
+    },
+    {
+      "repo_id": "openbmb/MiniCPM-V-4.7-35B-A3B",
+      "role": "stage2_large_multimodal_frozen_base",
+      "architecture": "MiniCPMV4_7ForConditionalGeneration",
+      "revision": null,
+      "status": "metadata_verified_execution_unrun",
+      "source_url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B"
+    }
+  ]
+}

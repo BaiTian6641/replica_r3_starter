@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TAIS Replica bounded LearningProposal design contract",
+  "description": "Proposed typed work request; not an implemented autonomy engine or permission grant. Only internal allowlisted handlers may interpret it. No shell command, arbitrary program, tool invocation or executable payload fields are allowed. Runtime enforces tighter operator budgets, parameter ownership, manifest hashes, parent binding and evaluation isolation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "update_kind",
+    "source_ids",
+    "target_family",
+    "parent_manifest_id",
+    "allowed_parameter_prefixes",
+    "max_steps",
+    "max_tokens",
+    "training_manifest",
+    "dev_manifest"
+  ],
+  "properties": {
+    "update_kind": {
+      "type": "string",
+      "enum": [
+        "record",
+        "procedure",
+        "sidecar",
+        "skill_adapter",
+        "development_full"
+      ]
+    },
+    "source_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "target_family": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "\\S"
+    },
+    "parent_manifest_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Exact SHA-256 manifest ID issued by ManifestRegistry, or null only when no active parent exists. Runtime compares to active parent; never invent an ID."
+    },
+    "allowed_parameter_prefixes": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[A-Za-z_][A-Za-z0-9_.]*$"
+      },
+      "description": "Literal module-name prefixes, not globs, paths or commands. Runtime expands against actual named_parameters and checks scope. A prefix never authorizes itself."
+    },
+    "max_steps": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000,
+      "description": "Outer serialization bound only; operator policy normally uses a much smaller budget."
+    },
+    "max_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000000,
+      "description": "Total declared token budget; runtime also counts practice/generation as its policy specifies."
+    },
+    "training_manifest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 1024,
+      "description": "Data-manifest path or identifier resolved by the internal registry. Never interpret as a shell command. Runtime verifies existence, hashes, allowed path scope and source/split eligibility."
+    },
+    "dev_manifest": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1,
+      "maxLength": 1024,
+      "description": "Data-manifest path or identifier resolved by the internal registry. Never interpret as a shell command. Runtime verifies existence, hashes, allowed path scope and source/split eligibility."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "update_kind": {
+            "enum": [
+              "sidecar",
+              "skill_adapter",
+              "development_full"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "max_steps": {
+            "minimum": 1
+          },
+          "allowed_parameter_prefixes": {
+            "minItems": 1
+          },
+          "training_manifest": {
+            "type": "string"
+          },
+          "dev_manifest": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "update_kind": {
+            "enum": [
+              "record",
+              "procedure"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "allowed_parameter_prefixes": {
+            "maxItems": 0
+          },
+          "max_steps": {
+            "const": 0
+          }
+        }
+      }
+    }
+  ]
+}

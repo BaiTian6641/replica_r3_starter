@@ -1,0 +1,15 @@
+flowchart TD
+    P[Pin environment and native baseline] --> S[Small text model laboratory]
+    S --> D0[D0 ordinary full tuning]
+    S --> D1[D1 frozen base plus modules]
+    S --> D2[D2 full augmented tuning]
+    D0 --> C[Matched task and retention comparison]
+    D1 --> C
+    D2 --> C
+    C --> F[Freeze selected developmental base]
+    F --> L[Ten post-freeze learning cycles]
+    L --> V[Small native VLM port]
+    V --> G{Mechanism earns its cost}
+    G -->|yes| M[Fresh large-model interfaces]
+    G -->|no or unclear| R[Fix bottleneck or report negative result]
+    M --> B[Longer large-model learning study]

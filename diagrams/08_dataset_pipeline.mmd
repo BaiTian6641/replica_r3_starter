@@ -1,0 +1,15 @@
+flowchart TD
+    S[Permitted sources and deterministic worlds] --> R[Source registry and lineage groups]
+    R --> T[Training groups]
+    R --> D[Development and calibration groups]
+    R --> A[Sealed evaluation groups]
+    T --> G[Teacher expansion with source IDs]
+    G --> Q[Unverified candidate examples]
+    Q --> V[Independent solver or source review]
+    V -->|pass| F[Versioned training export]
+    V -->|fail| X[Reject or repair with evidence]
+    F --> M[Candidate model training]
+    D --> P[Development feedback]
+    M --> P
+    A --> E[Independent final audit]
+    M --> E
