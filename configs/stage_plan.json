@@ -1,0 +1,761 @@
+{
+  "schema_version": "replica.stage_plan.v1",
+  "kind": "research_execution_plan_not_trainer_config",
+  "reviewed_on": "2026-10-22",
+  "timezone": "America/Chicago",
+  "status_authority": "execution_state.md and immutable raw experiment reports; active entries do not claim success",
+  "project_identity": "Local TAIS Obsidian / Replica R3 synthesis; exact-name public search found no matching authoritative project on review date",
+  "model": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "original_parameters": 2516756480,
+    "full_text_scope": "all original parameters including embeddings and head; full_augmented additionally trains new modules",
+    "optimizer": "experimental portable Muon8bit hidden matrices with FP32 auxiliary AdamW for embeddings/head and excluded tensors"
+  },
+  "measured_parent": {
+    "report": "reports/minicpm5_mps_experiment_20261022.json",
+    "actual_sequence_tokens": 55,
+    "updates": 2,
+    "changed_original_tensors": 381,
+    "outcome": "constant zero on all16 development generations; 2/16 equals constant-zero control; no checkpoint promoted",
+    "fit_limit": "short D0 only; actual 256/512, native D1/D2, resume and VLM unqualified"
+  },
+  "independence": {
+    "roles": [
+      "train",
+      "dev",
+      "calibration",
+      "promotion",
+      "audit"
+    ],
+    "learning_policy_reward": "separate exposure boundary; never final audit",
+    "split_unit": "source/world/persona/decision/task family before teacher expansion; all descendants inherit",
+    "promotion": "bounded evaluator-controlled exposures logged",
+    "audit": "never teacher/candidate/director input; exposed cases retired from sealed claims"
+  },
+  "resource_policy": {
+    "current": "Mac Studio M2 Ultra 64 GiB unified memory",
+    "single_full_size_mps_job": true,
+    "memory_counters": "MPS driver and RSS overlap; report separately, never sum",
+    "later": "RTX PRO 4000 Blackwell SFF 24 GB; hardware/build qualification and full-scope residency adapter required",
+    "stops": "declare concrete memory pressure, swap-growth, driver and step/token stop thresholds in each run before launch"
+  },
+  "provisional_science_margins": {
+    "target_gain": 0.02,
+    "mean_retention_loss_budget": 0.01,
+    "critical_task_loss_budget": 0.02,
+    "status": "proposed; predeclare sample size/statistical unit/power/exposure before campaign; not automatic pass thresholds"
+  },
+  "documentation": "docs/stages/00_Master_Roadmap.md",
+  "evidence_register": "docs/stages/07_Research_Evidence_20261022.md",
+  "stages": [
+    {
+      "id": "S0.1",
+      "title": "Preserve the reproducible native source and environment",
+      "status": "measured_short_scope",
+      "depends_on": [],
+      "task": "Reuse the existing Git history, Python lock, sealed checkpoint and source template. Capture code revision and hardware/framework inventory before each new run; never substitute a sibling checkpoint.",
+      "artifacts": [
+        "uv.lock",
+        "configs/minicpm5_sealed_lock.local.json",
+        "reports/hardware_macos_m2_ultra.json",
+        "reports/minicpm5_mps_experiment_20261022.json"
+      ],
+      "interface": "Source lock -> downloader/sealer -> LlamaMemoryAdapter and native evaluator; one exact source revision shared by all arms.",
+      "acceptance_gate": "Existing 55-token native baseline and full D0 evidence is preserved. A clean locked setup can run offline checks, validate fixtures and reproduce native load with the same model/template hashes.",
+      "resources": "M2 Ultra 64 GiB; Python 3.12.14; torch 2.14.1/transformers 5.20.2; one model resident. No reacquisition or environment upgrade needed for this task.",
+      "on_failure": "Stop on seal or version mismatch; identify the changed file/environment before proceeding. Preserve original reports and user changes.",
+      "next_smallest_task": "Record the current commit and sealed revision in the new balanced-overfit run manifest.",
+      "document": "docs/stages/01_Environment_and_D0_Readiness.md"
+    },
+    {
+      "id": "S0.2",
+      "title": "Diagnose the constant-zero failure",
+      "status": "diagnosed_bundled_remediation_observed",
+      "depends_on": [
+        "S0.1"
+      ],
+      "task": "Audit the historical two selected rows, target/EOS masks and native generation boundary, and preserve the short constant-zero negative. The balanced eight-class run now removes constant-zero behavior on its training cases; report its sampler, accumulation, rate, warmup and weight-decay changes as a declared bundled intervention rather than isolated causal factors.",
+      "artifacts": [
+        "reports/minicpm5_mps_preflight_report.json",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json",
+        "data/diagnostics/tiny_overfit_mask1/selection_manifest.json"
+      ],
+      "interface": "Raw train export + encoded examples + strict generation report -> diagnosis; evaluator must preserve raw completions and EOS/cap reasons.",
+      "acceptance_gate": "Historical four supervised tokens and constant-zero control are accounted for, and mask/template/target-coverage checks are inspected. Eight-class training generation now succeeds under the bundle. Exact causal attribution to balancing, rate, accumulation, warmup or decay remains unisolated.",
+      "resources": "CPU file/token audits first; at most one short source/D0 MPS evaluation if an unresolved prefix or mask hypothesis requires it.",
+      "on_failure": "Preserve the historical failure and do not infer that two updates demonstrate an intrinsic Muon defect. Any future causal-factor claim requires a separate controlled ablation; the successful bundled remediation does not supply it.",
+      "next_smallest_task": "Complete checkpoint/export and development/control review of the successful bundled run before assigning broader scope.",
+      "document": "docs/stages/01_Environment_and_D0_Readiness.md"
+    },
+    {
+      "id": "S0.3",
+      "title": "Run balanced full-text tiny overfit and verify generated answers",
+      "status": "training_generation_subgate_passed_acceptance_pending",
+      "depends_on": [
+        "S0.2"
+      ],
+      "task": "The native full-text run from the sealed original generated all eight tiny-overfit training answers correctly, with eight distinct classes 0–7, at updates 4 and 8. Each accumulated update covers every answer class once. The declared bundle uses accumulation 8, matched Muon/auxiliary AdamW base rates 1e-4, two-update warmup and zero decay; the 64-update cap stopped at 8 after two perfect checks. Complete artifact acceptance and evaluate development/control cases separately.",
+      "artifacts": [
+        "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+        "data/diagnostics/tiny_overfit_mask1/selection_manifest.json",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0004.json",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0008.json",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json",
+        "pending: final checkpoint/export/reload acceptance and memory review"
+      ],
+      "interface": "Existing eight-field trainer export -> full regime -> native saved export -> unchanged strict generation parser. Record per-update target coverage, effective batch and all optimizer group rates.",
+      "acceptance_gate": "Generation subgate observed: 8/8 strict greedy matches with all eight answer classes 0–7 at both updates 4 and 8, each ending in EOS. Overall acceptance still requires final full-scope/checkpoint/export/reload and memory review. Fresh-process native resume is S0.4; development transfer and controls are independent and not established by overfit exactness.",
+      "resources": "Completed one bounded MPS full-text run: microbatch 1, accumulation 8, actual length 55, activation checkpointing, eight completed updates under a declared 64-update cap. Final memory acceptance remains under review; this is not a 256-token workload.",
+      "on_failure": "Retain the historical collapse and all control/development failures. A later artifact or transfer failure narrows the conclusion without erasing the 8/8 training observation. Do not credit any single variable in the bundled intervention without ablation.",
+      "next_smallest_task": "Finish the saved-checkpoint/export/reload and memory audit, then verify generated answers from the export and a fresh-process native resume.",
+      "document": "docs/stages/01_Environment_and_D0_Readiness.md"
+    },
+    {
+      "id": "S0.4",
+      "title": "Make full-text training resumable",
+      "status": "tiny_resume_proven_native_pending",
+      "depends_on": [
+        "S0.3"
+      ],
+      "task": "Checkpoint model, mixed Muon/AdamW optimizer tensors, schedule/warmup, RNGs, data order/cursor, completed update/token counts and exact parent/config hashes only between completed optimizer updates with gradients cleared. Tiny real CPU resume equivalence and MPS optimizer/RNG tests pass; qualify a fresh-process native pretrained continuation next. Mid-accumulation checkpoints/resume are unsupported.",
+      "artifacts": [
+        "src/replica_lab/training_state.py",
+        "src/replica_lab/checkpointing.py",
+        "tests/test_checkpointing.py",
+        "tests/test_training_state.py",
+        "reports/tests_balanced_training_code.xml",
+        "pending: fresh-process native pretrained resume report"
+      ],
+      "interface": "Completed-update trainer boundary -> atomic model/runtime checkpoint with byte receipt -> contract-bound optimizer/model/RNG/data/schedule restore. Native inference export is separate; an interrupted partial accumulation restarts from the last completed checkpoint.",
+      "acceptance_gate": "Tiny CPU continuous versus interrupted/resumed next-update equivalence and MPS mixed-optimizer/RNG restoration tests have passed. Native pretrained resume still must consume identical next example IDs and schedule, retain INT8/FP32 states, produce finite full-scope updates and meet declared loss/weight tolerance in a fresh process. Reject source/group/data/config mismatches and incomplete checkpoints.",
+      "resources": "Existing CPU/tiny MPS evidence precedes a bounded native MPS continuation. Measure save/restore host/MPS peaks and disk bytes. Do not run another full-size model concurrently.",
+      "on_failure": "A weights-only reload is not resume. Resume only at completed-update checkpoints; no mid-accumulation gradient buffer recovery is claimed. Quantify any MPS numerical tolerance while keeping cursor/schedule compatibility exact.",
+      "next_smallest_task": "Load the completed-update native checkpoint in a fresh process, validate its byte receipt/contract and execute the next bounded full update with recorded cursor/schedule.",
+      "document": "docs/stages/01_Environment_and_D0_Readiness.md"
+    },
+    {
+      "id": "S0.5",
+      "title": "Measure genuine 256-token and 512-token full training capacity",
+      "status": "pending",
+      "depends_on": [
+        "S0.3",
+        "S0.4"
+      ],
+      "task": "Generate varied episodes whose native encoded sequence lengths actually reach 256 and then 512 without padding-only inflation or answer truncation. Profile D0 forward/backward/update, accumulation, evaluation, state save and reload, then repeat for the selected D2 configuration.",
+      "artifacts": [
+        "planned: capacity workload manifest with length and supervised-token histograms",
+        "planned: per-regime 256/512 memory samples and throughput reports"
+      ],
+      "interface": "Tokenizer/template length audit -> bounded trainer -> profiler phase events. Compare allocated/driver/RSS counters with host pressure/swap; identify overlap and sampling cadence.",
+      "acceptance_gate": "Each claimed length is reached by real encoded content. Full scope, finite updates, qualified restart and export pass with declared headroom, no fallback and no sustained memory-pressure/swap-growth breach. D0 success alone does not qualify D2.",
+      "resources": "Mac 64 GiB; run 256 before 512, one model resident, microbatch 1/checkpointing first. Declare a conservative pressure/driver-memory stop threshold before starting; retain OS safeguards.",
+      "on_failure": "Stop and preserve the failing profile. Reduce length/accumulation or add tested residency changes without freezing hidden layers. Do not extrapolate from the historical 55-token result.",
+      "next_smallest_task": "Create the 256-token workload and verify actual lengths with the pinned tokenizer before allocating the full model.",
+      "document": "docs/stages/01_Environment_and_D0_Readiness.md"
+    },
+    {
+      "id": "S1.1",
+      "title": "Freeze provenance, roles and causal episode contracts",
+      "status": "ready_cpu",
+      "depends_on": [],
+      "task": "Define rich source/episode manifests and explicit export to the existing eight-field training JSONL. Assign source/world/persona/decision families and train/dev/calibration/promotion/audit roles before teacher expansion; preserve event time, observation time, ownership and allowed uses.",
+      "artifacts": [
+        "planned: source intake manifests and adapter contracts",
+        "planned: group/role/causal-cutoff validator report"
+      ],
+      "interface": "Canonical source records -> episode adapter -> exact trainer export; evaluator-only labels are separate from prompt/memory channels. Shared schema changes require integration-owner review.",
+      "acceptance_gate": "Validators detect cross-role descendants, future observations, answer/evidence annotation leaks and unauthorized records. Every admitted row has source hashes, role, group and independent verification evidence.",
+      "resources": "CPU and local files; first one synthetic source family. Keep downloaded public data quarantined and private archives local.",
+      "on_failure": "Quarantine unsupported or ambiguous records; never repair missing biography/license/split information by invention.",
+      "next_smallest_task": "Write one canonical episode example and its exact export mapping, including a late-arriving correction.",
+      "document": "docs/stages/02_Data_and_Evaluation.md"
+    },
+    {
+      "id": "S1.2",
+      "title": "Release a 2,000-target solver-backed infrastructure slice",
+      "status": "pending",
+      "depends_on": [
+        "S1.1"
+      ],
+      "task": "Generate independent microengineering worlds plus temporal correction, unknown/ask and tool-recovery cases. Compute answers/actions with solvers before teacher verbalization. Balance target/action categories and split complete worlds/rule families before derivatives.",
+      "artifacts": [
+        "planned: data release manifest with generator/solver/code hashes",
+        "planned: 2,000-target train/dev exports and stratified review report"
+      ],
+      "interface": "World generator -> executable oracle -> optional teacher candidates (verified false) -> independent validator -> admitted exports.",
+      "acceptance_gate": "All admitted labels pass their independent verifier; no duplicate world across roles; target/length/action histograms and rejected cases reported. Review at least 20 cases in each critical category as an operational sample, not proof of zero error.",
+      "resources": "CPU solvers first; external teacher only with eligible data and logged model/prompt/cost. No audit material or real personal data sent by default.",
+      "on_failure": "Fix the generator/solver or drop a failing category. Preserve rejection samples and recompute derived hashes; avoid scaling defective examples.",
+      "next_smallest_task": "Implement one exact bit/packet or register-map task family with counterexamples that a constant answer cannot pass.",
+      "document": "docs/stages/02_Data_and_Evaluation.md"
+    },
+    {
+      "id": "S1.3",
+      "title": "Qualify one public training adapter and independent benchmark",
+      "status": "pending",
+      "depends_on": [
+        "S1.1"
+      ],
+      "task": "Resolve immutable PersonaMem-v2 card/data revision and training identities, license scope and causal fields; build one training adapter. Separately pin cleaned LongMemEval S with evaluator-only gold/evidence fields. Do not bulk-ingest the research catalog.",
+      "artifacts": [
+        "planned: pinned public-source manifest and approved subset list",
+        "planned: PersonaMem adapter and LongMemEval evaluation adapter audits"
+      ],
+      "interface": "Pinned upstream source -> source-specific adapter -> canonical episodes; official benchmark labels never enter training, retrieval or teacher inputs.",
+      "acceptance_gate": "Card/license/file hashes and identity-group split checks recorded; train/benchmark identities and cross-modal overlap audited. Oracle retrieval is a labelled evaluator condition, not ordinary input access.",
+      "resources": "CPU inspection and minimal selected files; no model needed. Long histories use declared retrieval/chunk budgets rather than silent truncation.",
+      "on_failure": "Leave source quarantined if terms, identity overlap or causal cutoff is unresolved. A Hugging Face auto-detected train split is not permission to train on benchmark targets.",
+      "next_smallest_task": "Resolve one PersonaMem-v2 immutable revision and inspect complete history/query pairs before designing the adapter.",
+      "document": "docs/stages/02_Data_and_Evaluation.md"
+    },
+    {
+      "id": "S1.4",
+      "title": "Lock generation, retention, calibration and evidence controls",
+      "status": "pending",
+      "depends_on": [
+        "S1.1",
+        "S0.3"
+      ],
+      "task": "Extend strict generation evaluation beyond XOR: answer/ask/tool actions, temporal correction and held-out procedural tasks. Lock parsers, budgets, seeds, prompt/template/thinking settings and B0/B1 evidence visibility. Add constant-label, shuffled/missing evidence and matched inference controls.",
+      "artifacts": [
+        "planned: versioned evaluation specification and case manifest",
+        "planned: baseline/retention/control score reports with raw generations"
+      ],
+      "interface": "Role-separated case manifest -> model generation -> fixed parser/solver -> per-family scores and paired/clustered uncertainty. Calibration thresholds use their own split.",
+      "acceptance_gate": "Raw completions, caps/EOS, format failures and answer correctness preserved. Evaluator cannot access training internals and candidate cannot alter oracle. Distinguish overfit cases from unseen inputs and unseen task families.",
+      "resources": "CPU evaluator contracts, then bounded MPS baseline generation. Freeze inference cap before comparison and report token/time costs.",
+      "on_failure": "Fix parser or case validity on development only; version the changed evaluator. Exposed audit cases are retired from sealed claims.",
+      "next_smallest_task": "Add a constant-answer rejection check and classify format/abstention errors independently from solver correctness.",
+      "document": "docs/stages/02_Data_and_Evaluation.md"
+    },
+    {
+      "id": "S1.5",
+      "title": "Predeclare and release the 20,000-target pilot",
+      "status": "pending",
+      "depends_on": [
+        "S1.2",
+        "S1.3",
+        "S1.4",
+        "S0.5"
+      ],
+      "task": "After the infrastructure slice passes, admit the proposed source-allowlisted mixture: 8k general replay, 3k reasoning, 4k temporal, 2k generic personalization, 1k tool recovery and 2k ask/retrieve/verify/stop. Reconcile complete target/token counts with actual measured capacity.",
+      "artifacts": [
+        "planned: immutable pilot release and subset/license manifest",
+        "planned: predeclared comparison/power/exposure plan"
+      ],
+      "interface": "Approved source manifests + verified generators -> grouped immutable release consumed identically by D0/D1/D2; all interface warmup and teacher lineage retained.",
+      "acceptance_gate": "Freeze roles, family counts, processed/support/supervised token accounting, cap and statistical units before campaign. Proposed 8\u201332M processed-token budget must fit measured hardware/lengths and include failed/search runs in costs.",
+      "resources": "Start one-seed short screen; scale only shortlisted conditions. 20k is a proposed cap, not a mandate to fabricate missing eligible data.",
+      "on_failure": "Reduce the admitted pilot transparently if sources are unavailable; do not silently fill gaps with correlated paraphrases or benchmark targets.",
+      "next_smallest_task": "Produce a 2k-slice quality/length report and budget spreadsheet before admitting the remaining pilot data.",
+      "document": "docs/stages/02_Data_and_Evaluation.md"
+    },
+    {
+      "id": "S2.1",
+      "title": "Qualify native wrapper bypass and generation",
+      "status": "pending",
+      "depends_on": [
+        "S0.3",
+        "S1.4"
+      ],
+      "task": "Test the reader/workspace wrapper at real MiniCPM5 dimensions with null branches against native logits and generation. Implement augmented inference with correctly reconstructed support/prompt context; re-prefill is acceptable before cache optimization.",
+      "artifacts": [
+        "planned: native bypass/parity report",
+        "planned: augmented generation path and context-lifetime tests"
+      ],
+      "interface": "LlamaMemoryAdapter -> original complete decoder block + per-batch support/workspace context -> strict evaluator; native names and checkpoint compatibility preserved.",
+      "acceptance_gate": "Null path matches native within declared tolerance; no target text in workspace, no source feature reuse after writer updates, and checkpoint recomputation has no side effects. Context survives backward and is released afterward.",
+      "resources": "CPU/tiny tests followed by one bounded native MPS sample. Use initial 64-wide, 4-slot, 2-step configuration before dimension search.",
+      "on_failure": "Keep base path intact and repair parity/context lifetime before training new modules. Do not optimize KV caching until correctness holds.",
+      "next_smallest_task": "Run a real-dimension null-branch forward and compare native logits under identical masks/template.",
+      "document": "docs/stages/03_Native_Architecture_Study.md"
+    },
+    {
+      "id": "S2.2",
+      "title": "Overfit native D1 new modules with frozen original tensors",
+      "status": "pending",
+      "depends_on": [
+        "S2.1",
+        "S0.4"
+      ],
+      "task": "Train only reader/writer/workspace modules on the balanced diagnostic with original parameters frozen. Initialize branch output projections to zero and upstream factors normally; keep frozen downstream layers in the autograd graph.",
+      "artifacts": [
+        "planned: D1 scope, gradient and generation reports",
+        "planned: D1 native checkpoint/export/reload audit"
+      ],
+      "interface": "modules_only parameter registry -> mixed optimizer owns each new tensor once -> augmented evaluator. Frozen original tensor hashes remain stable.",
+      "acceptance_gate": "New output projections receive initial gradients and upstream branch receives later gradients; originals do not change. Nonconstant correct diagnostic generations and restart/reload work or a clearly recorded D1 learning failure.",
+      "resources": "One MPS run with matched diagnostic examples and explicit new-module rates; new-module training still stores frozen original weights and backward activations.",
+      "on_failure": "Diagnose gradients, null initialization and frozen-autograd paths. Do not unfreeze layers while retaining the D1 label.",
+      "next_smallest_task": "Audit optimizer membership and a first/second-step gradient trace through the native frozen decoder.",
+      "document": "docs/stages/03_Native_Architecture_Study.md"
+    },
+    {
+      "id": "S2.3",
+      "title": "Overfit and profile native D2 full augmented training",
+      "status": "pending",
+      "depends_on": [
+        "S2.1",
+        "S0.4",
+        "S0.5"
+      ],
+      "task": "Train all original parameters plus the same D1 modules from a declared parent, with separate original/new Muon/AdamW rates. Repeat the balanced diagnostic and actual 256/512-token capacity checks for the chosen module size.",
+      "artifacts": [
+        "planned: D2 changed-tensor and optimizer scope reports",
+        "planned: D2 capacity/generation/restart reports"
+      ],
+      "interface": "full_augmented registry -> original/new named groups -> native wrapper and augmented export/reload; full-text scope includes embeddings/head.",
+      "acceptance_gate": "All intended groups receive finite gradients and verified changes; none omitted or double-owned. Diagnostic generation, causal inputs, memory bounds and restart pass. Full D0 fit never substitutes for this D2 result.",
+      "resources": "One native MPS job; microbatch 1/checkpointing initially. Count added modules, support encodings, workspace steps, logits and optimizer temporaries.",
+      "on_failure": "Stop on pressure/scope/parity failure. Use a smaller declared module configuration or tested residency change without freezing original layers.",
+      "next_smallest_task": "Generate the exact native D2 parameter inventory and compare it against D0 originals plus D1 additions.",
+      "document": "docs/stages/03_Native_Architecture_Study.md"
+    },
+    {
+      "id": "S2.4",
+      "title": "Run one-seed D0/D1/D2 and matched capacity/compute screen",
+      "status": "pending",
+      "depends_on": [
+        "S2.2",
+        "S2.3",
+        "S1.5"
+      ],
+      "task": "Run B0/B1 capability/evidence references, D0 ordinary full tuning, D1 modules-only and D2 full augmented from declared parents. Add memory-disabled, workspace-disabled, shuffled-evidence and parameter/compute-matched feed-forward controls.",
+      "artifacts": [
+        "planned: preregistered arm and hyperparameter manifest",
+        "planned: one-seed task/retention/calibration/cost matrix"
+      ],
+      "interface": "Same eligible release/evidence/tools/targets -> per-arm fair rate screen -> fixed generation evaluator. Warmup tokens and search costs included; data-only effects distinguished from architecture effects.",
+      "acceptance_gate": "Report equal-token and equal-total-compute views, actual scopes, confidence/retention and wall-clock/memory overhead. No claim from NLL alone, unequal information or unmatched recurrent inference budget.",
+      "resources": "One shortlisted initial architecture, one seed, bounded steps per arm; serialize full-model MPS jobs. All-AdamW is an explicit separately tuned comparison only if fit/budget allows.",
+      "on_failure": "If D2 ties D0, report ordinary training benefit and remove/redesign expensive modules. Do not stack optional memory systems to conceal a negative.",
+      "next_smallest_task": "Freeze arm matrix, trainable names, parents and useful gain/regression margins before running the screen.",
+      "document": "docs/stages/03_Native_Architecture_Study.md"
+    },
+    {
+      "id": "S2.5",
+      "title": "Repeat shortlisted mechanisms and select developmental checkpoint",
+      "status": "pending",
+      "depends_on": [
+        "S2.4"
+      ],
+      "task": "Repeat promising arms with three seeds and independent held-out families. Analyze errors and compute/parameter controls; select or reject the interface based on fixed task and retention criteria.",
+      "artifacts": [
+        "planned: multi-seed clustered comparison report",
+        "planned: selected developmental manifest or explicit negative decision"
+      ],
+      "interface": "One-seed screen -> preregistered shortlist -> independent evaluator -> versioned base/extensions/source-encoder compatibility manifest.",
+      "acceptance_gate": "Useful gain beyond controls with acceptable uncertainty/retention and feasible measured costs; hard causality/identity invariants all pass. Otherwise report inconclusive or negative. No final audit informs selection.",
+      "resources": "Three seeds for shortlisted trained arms; use measured token/time budgets. Replenish independent promotion families when exposure limits are reached.",
+      "on_failure": "Do not mark architecture complete because budget ends. Freeze a well-characterized simpler baseline if appropriate and preserve the research negative.",
+      "next_smallest_task": "Choose one promising mechanism or a simpler D0 parent and record why its held-out evidence earns freezing.",
+      "document": "docs/stages/03_Native_Architecture_Study.md"
+    },
+    {
+      "id": "S3.1",
+      "title": "Connect a frozen manifest to a host-owned runtime",
+      "status": "pending",
+      "depends_on": [
+        "S2.5",
+        "S1.1"
+      ],
+      "task": "Bind model inference to scoped evidence ledger, task workspace, permitted real tools and event journal. Activate one identity mode and immutable base/extensions manifest; model output proposes actions but host code validates scope/budget and executes actual tools.",
+      "artifacts": [
+        "planned: runtime event/action schema and model-host adapter",
+        "planned: restart/scope/deletion integration report"
+      ],
+      "interface": "Model action proposal -> host validator -> tool observation -> branch-owned experience -> ledger. Manifest binds base, tokenizer, writer, reader, task schema and permissions.",
+      "acceptance_gate": "Actual observations drive revisions, records survive restart, wrong-scope/expired records are hidden, deletion invalidates derived eligibility and base hash stays fixed. No generated text can grant tool authority.",
+      "resources": "Local deterministic tools and CPU journal first; bounded MPS inference. Avoid arbitrary shell execution grammar.",
+      "on_failure": "Reject invalid proposals without side effects and preserve trace. Repair host contracts before allowing autonomous candidate training.",
+      "next_smallest_task": "Implement a bounded answer/ask/retrieve/verify/stop action schema against one solver-backed tool.",
+      "document": "docs/stages/04_Learned_Operating_Loop.md"
+    },
+    {
+      "id": "S3.2",
+      "title": "Train and measure the action policy and capability calibration",
+      "status": "pending",
+      "depends_on": [
+        "S3.1",
+        "S1.2",
+        "S1.4"
+      ],
+      "task": "Supervise when to ask, retrieve, verify, answer or stop from independently checked trajectories. Fit empirical task-success and action-value calibration on disjoint data; include missing decisive constraints, failed tools and deliberately unanswerable tasks.",
+      "artifacts": [
+        "planned: verified action trajectories and policy candidate",
+        "planned: calibrated success/action-cost and recovery evaluation"
+      ],
+      "interface": "Observed host trajectories -> eligible training targets -> candidate policy; calibration labels are real outcomes, not token probabilities or self-reported confidence.",
+      "acceptance_gate": "Policy acts correctly under fixed tool/inference budgets, changes plan after real failure and avoids invented evidence. Report task correctness, clarification benefit, verification cost and calibration separately.",
+      "resources": "Reuse one qualified model; small bounded candidate update. Calibration uses separate role and no final audit feedback.",
+      "on_failure": "Keep deterministic host guardrails even when policy fails. Correct trajectory/verifier errors before increasing policy complexity.",
+      "next_smallest_task": "Collect a small balanced trajectory set where ask versus answer has a solver-defined consequence.",
+      "document": "docs/stages/04_Learned_Operating_Loop.md"
+    },
+    {
+      "id": "S3.3",
+      "title": "Train, reject and publish real isolated candidates",
+      "status": "pending",
+      "depends_on": [
+        "S3.1",
+        "S0.4"
+      ],
+      "task": "Replace symbolic-only candidate compilation with a real named neural extension/skill trainer. Bind source lineage, parent manifest and token/step budget. Evaluate candidate versus current parent independently before atomic publication; retain intentional bad-candidate rejection and rollback.",
+      "artifacts": [
+        "planned: candidate training job manifest and compatibility checks",
+        "planned: accepted/rejected/inconclusive candidate integration trace"
+      ],
+      "interface": "Bounded learning proposal -> eligible replay builder -> isolated trainer -> independent promotion -> immutable manifest publisher -> restart loader.",
+      "acceptance_gate": "One unfamiliar verified failure yields an actual update and later improvement on unseen instances; intentionally damaging or incompatible candidate is rejected; rollback restores prior behavior. Base/evaluator hashes stay stable.",
+      "resources": "One candidate job at a time; predeclare max gradient steps/tokens, verifier calls and wall time. Count rejected candidate costs.",
+      "on_failure": "No evidence means reject/defer, not publish. Preserve parent and candidate; never overwrite the accepted base or relax evaluator to accept a failed update.",
+      "next_smallest_task": "Connect the existing publication contracts to one bounded neural skill update and compare unseen solver cases.",
+      "document": "docs/stages/04_Learned_Operating_Loop.md"
+    },
+    {
+      "id": "S3.4",
+      "title": "Learn useful practice selection against fixed replay",
+      "status": "pending",
+      "depends_on": [
+        "S3.2",
+        "S3.3"
+      ],
+      "task": "Start with a short finite proposal catalog and supervised ranking/contextual bandit for practice selection. Reward later held-out improvement per declared cost. Compare random/fixed selection and replay-matched controls before considering complex reinforcement learning.",
+      "artifacts": [
+        "planned: proposal/ranking dataset and director candidate",
+        "planned: selection-versus-update ablation report"
+      ],
+      "interface": "Branch-owned failure experience -> bounded proposal with source IDs/parent/budget -> independent practice verifier -> candidate trainer. Learning-policy reward split is separate from promotion and final audit.",
+      "acceptance_gate": "Director cannot select audit examples, alter verifier or escape task/budget whitelist. Any T3 gain beyond fixed T2 survives replay-matched data and learning-cost accounting; otherwise no useful selection claim.",
+      "resources": "Small catalog, bounded number of proposals; count teacher generation, solver, training, replay and evaluator calls. No open-ended RL prerequisite.",
+      "on_failure": "Keep fixed replay as baseline and record an inconclusive director if reward is noisy or improvements are indistinguishable.",
+      "next_smallest_task": "Define three permissible practice targets and compute their independently measured learning-value labels on development tasks.",
+      "document": "docs/stages/04_Learned_Operating_Loop.md"
+    },
+    {
+      "id": "S3.5",
+      "title": "Run ten chronological T0/T1/T2/T3 learning cycles",
+      "status": "pending",
+      "depends_on": [
+        "S3.4"
+      ],
+      "task": "Start all arms from the selected frozen parent and same permitted archive. T0 persists nothing, T1 records only, T2 fixed-schedule verified replay/candidates, T3 learned practice plus candidates. Include distribution change, no-improvement period, restart, rejection and rollback.",
+      "artifacts": [
+        "planned: cycle-by-family performance/retention matrix",
+        "planned: chronological costs, exposure and publication history"
+      ],
+      "interface": "Common experience stream -> arm-specific allowed persistent state -> matched later evaluation. T2 replay-matched shadow control isolates T3 data-selection effects.",
+      "acceptance_gate": "Report all ten cycles, old/new family scores, forward transfer, forgetting, calibration, inquiry cost and rejection. T3 beyond T1 supports learning; T3 beyond T2 at stated budgets supports useful selection. Final audit remains unseen until reporting.",
+      "resources": "Ten initial bounded cycles; extend to 30\u201350 only after useful error bars/instrumentation. Match evaluation compute and disclose extra learning compute.",
+      "on_failure": "Do not hide failed cycles or reset history after regression. Reject damaged candidates and preserve a valid negative/inconclusive longitudinal result.",
+      "next_smallest_task": "Freeze the chronological stream, retention matrix and per-cycle resource/exposure budget before cycle 1.",
+      "document": "docs/stages/04_Learned_Operating_Loop.md"
+    },
+    {
+      "id": "R0",
+      "title": "Collect authentic source decision episodes",
+      "status": "awaiting_authentic_source_records",
+      "depends_on": [],
+      "task": "Use the existing interview worksheet to collect real decisions, alternatives, information available then, constraints, reasons, sacrificed tradeoffs and decisive counterfactuals. Preserve original spans, uncertainty, dates and separate allowed uses; never fabricate missing personal history.",
+      "artifacts": [
+        "templates/replica_interview.md",
+        "planned: private authentic source archive and consent/lineage manifest"
+      ],
+      "interface": "Human source statement/document -> confirmed source record -> topic/decision family -> permitted retrieval/training/evaluation use. Assistant inference remains a proposed inference.",
+      "acceptance_gate": "Each record traces to authentic source testimony with allowed use; source facts, later interpretation, hypothetical, synthetic persona and agent experience are distinct. Complete decision families are split before variants.",
+      "resources": "Human-source collection in short sessions; start 5\u201310 independent cases, grow toward proposed 30\u2013100. Private source files stay local and out of default Git/public logs.",
+      "on_failure": "Leave unknown fields blank/unknown. Continue generic architecture work independently; no synthetic biography substitutes for source input.",
+      "next_smallest_task": "Prepare a local intake record for the first real decision and request/consume source material only when the human supplies it.",
+      "document": "docs/stages/05_Replica_and_Longitudinal.md"
+    },
+    {
+      "id": "R1",
+      "title": "Create dated identity snapshots and branch ownership",
+      "status": "pending",
+      "depends_on": [
+        "R0",
+        "S1.1"
+      ],
+      "task": "Create an approved source snapshot and explicit source_snapshot/source_current/parallel_replica/assistant_for_source modes. Separate human updates from agent branch events and track correction/deletion lineage through examples, encodings and adapters.",
+      "artifacts": [
+        "planned: identity snapshot/branch manifest",
+        "planned: historical/current/correction/deletion tests"
+      ],
+      "interface": "Authentic archive -> reviewed dated snapshot -> identity-mode runtime binding. Human source authority updates source identity; agent events update only its branch.",
+      "acceptance_gate": "Historical answers use only information available then; source_current respects approved corrections; parallel branch experiences never become human autobiography. Deletion revokes retrieval and marks dependent trained artifacts for rebuild.",
+      "resources": "CPU ledger tests with fictional controls; authentic snapshots contain only allowed source material. Neural erasure is a separate unlearning/retraining question.",
+      "on_failure": "Quarantine disputed interpretations and preserve prior dated snapshots; never overwrite uncertain history to force consistency.",
+      "next_smallest_task": "Encode one authentic preference plus its exception and a later correction in a dated snapshot.",
+      "document": "docs/stages/05_Replica_and_Longitudinal.md"
+    },
+    {
+      "id": "R2",
+      "title": "Measure evidence-conditioned Replica baselines",
+      "status": "pending",
+      "depends_on": [
+        "R1",
+        "S1.4"
+      ],
+      "task": "Before personal tuning, compare generic, approved-summary and archive-retrieval systems on sealed source decisions and unknown biography. Include decisive versus irrelevant counterfactual changes and repeated human choices to estimate reference variability.",
+      "artifacts": [
+        "planned: held-out decision protocol and blinded review packet",
+        "planned: factual/decision/process/temporal fidelity baseline"
+      ],
+      "interface": "Evaluator-owned decision cases + same available source information -> randomized blinded systems -> source review and objective factual checks.",
+      "acceptance_gate": "Choice/ranking, information requests, rationale fit, unknown handling, time and ownership scored separately. Report raw agreement and human test-retest variability; no percentage-of-person claim.",
+      "resources": "Small human review sessions; fixed inference budget and source exposure across systems. Hold out topic/decision families, not paraphrases.",
+      "on_failure": "Do not tune on reviewed final cases. If a source changes their view or both choices are plausible, preserve that outcome rather than forcing a label.",
+      "next_smallest_task": "Reserve complete decision families for evaluation before producing any teacher expansion.",
+      "document": "docs/stages/05_Replica_and_Longitudinal.md"
+    },
+    {
+      "id": "R3",
+      "title": "Test decision conditioning and internal memory separately from style",
+      "status": "pending",
+      "depends_on": [
+        "R2",
+        "S2.5"
+      ],
+      "task": "Train a small source-grounded preference/reader candidate with general replay. Compare plain full tuning and augmented tuning on the same authentic decisions where appropriate. Keep optional voice/style adaptation separate from source facts and conditional priorities.",
+      "artifacts": [
+        "planned: personal candidate manifest and mixture audit",
+        "planned: blinded decision/factual/retention/style comparison"
+      ],
+      "interface": "Confirmed train-role decisions -> bounded derived targets -> candidate trainer -> independent fidelity and competence evaluator. Every derivative retains its original decision group.",
+      "acceptance_gate": "Useful held-out conditional decision fidelity beyond evidence-only baseline without material competence loss or invented autobiography. Style similarity alone does not pass; repeating a tiny archive does not create independent evidence.",
+      "resources": "Low initial personal mixture share or separable adapter; bounded epochs/rates selected on development. Exact training scope labelled full_text, modules_only or adapter.",
+      "on_failure": "If evidence-only baseline explains gains, retain it and report the personal neural update as unproven. Correct unsupported targets rather than training harder.",
+      "next_smallest_task": "Choose one confirmed conditional principle and test unseen related situations before expanding the personal mixture.",
+      "document": "docs/stages/05_Replica_and_Longitudinal.md"
+    },
+    {
+      "id": "R4",
+      "title": "Evaluate a developing parallel Replica over time",
+      "status": "pending",
+      "depends_on": [
+        "R3",
+        "S3.5"
+      ],
+      "task": "Combine one authentic conditional priority with one independently verified technical skill, then follow source_current and parallel_replica branches through chronological learning. Trace every divergence to a source revision or agent event.",
+      "artifacts": [
+        "planned: branch comparison and provenance history",
+        "planned: longitudinal fidelity/competence/rollback report"
+      ],
+      "interface": "Versioned identity snapshot + accepted skill manifest + branch event journal -> later tasks -> factual, decision and technical outcome evaluators.",
+      "acceptance_gate": "The system applies a learned procedure to new values/compositions, retains source attribution and handles real preference changes. General correctness and faithful prediction of a source belief remain separate dimensions.",
+      "resources": "Reuse the ten-cycle infrastructure; schedule source review only for meaningful new material. Extend horizon only after initial stable evidence.",
+      "on_failure": "Preserve and explain legitimate branch divergence; do not rewrite human source records to match agent development or force agreement.",
+      "next_smallest_task": "Create one unseen microengineering task where the approved conditional priority changes a valid planning choice.",
+      "document": "docs/stages/05_Replica_and_Longitudinal.md"
+    },
+    {
+      "id": "S4.1",
+      "title": "Pin and qualify the native small VLM",
+      "status": "pending",
+      "depends_on": [
+        "S2.5",
+        "S1.1"
+      ],
+      "task": "Resolve/seal MiniCPM-V-4.7-1B model, processor and native code revisions. Inventory text/vision/projector groups; load actual image inputs and test native forward/generation plus hybrid recurrent/attention cache behavior before adding memory.",
+      "artifacts": [
+        "planned: V4.7 source/processor lock and tensor inventory",
+        "planned: native image-dependent parity/cache baseline"
+      ],
+      "interface": "Image asset manifest -> causal asset loader -> native processor expansion/mRoPE/visual insertion -> hybrid model; separate from LlamaMemoryAdapter Llama integration.",
+      "acceptance_gate": "Changing relevant pixels changes the expected answer, and cache/re-prefill results agree within tolerance. Processor-expanded lengths, image crops/tokens and recurrent/attention states are traced and restart-owned.",
+      "resources": "One small VLM resident; first CPU/tiny contract then bounded native Mac profile. Pin new environment separately if native requirements conflict with the text lock.",
+      "on_failure": "Stop at unsupported native kernels/caches and document exact limitation. Caption text alone never qualifies as multimodal execution.",
+      "next_smallest_task": "Pin the native V4.7 revision and inspect processor output shapes for one synthetic image/question pair.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S4.2",
+      "title": "Implement distinct full_text and full_vlm training scopes",
+      "status": "pending",
+      "depends_on": [
+        "S4.1",
+        "S0.4"
+      ],
+      "task": "Build a V4.7-specific adapter/collator preserving native hybrid states. Explicitly register decoder/embeddings/head, vision, projector and new modules. Test full_text with declared frozen vision separately from full_vlm with all original modal parameters eligible.",
+      "artifacts": [
+        "planned: multimodal collator and parameter registry",
+        "planned: image-gradient/update and full_vlm restart audits"
+      ],
+      "interface": "Causal text/image episode -> native collator/loss masks -> modal group optimizer -> native save/processor reload. No image-reference string stands in for a tensor.",
+      "acceptance_gate": "Actual vision/projector gradients and changed tensors in full_vlm; full_text reports frozen groups honestly. Response masks, native caches, source causality, export/reload and resume pass.",
+      "resources": "Microbatch 1, measured text/image budgets and checkpointing; reduce image count/resolution only as declared protocol variables.",
+      "on_failure": "Do not silently freeze modal groups to fit. Preserve a full_text result separately; add residency changes for any failed full_vlm claim.",
+      "next_smallest_task": "Trace an image-dependent loss backward to named vision and projector parameters on the smallest native batch.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S4.3",
+      "title": "Evaluate multimodal memory and chronology controls",
+      "status": "pending",
+      "depends_on": [
+        "S4.2",
+        "S1.4"
+      ],
+      "task": "Release a separate proposed 3,000-target tranche with eligible multimodal personas and solver-backed visual chronology. Compare native/evidence-only/augmented systems with true images, text-only, shuffled images and removed images.",
+      "artifacts": [
+        "planned: modal episode and asset release manifest",
+        "planned: image-dependence, temporal and cost ablation report"
+      ],
+      "interface": "Asset lineage + episode cutoff -> modal collator -> fixed multimodal evaluator; image/task families inherit source split.",
+      "acceptance_gate": "Useful gain depends on relevant pixels and chronological evidence, survives image/shuffle controls, and includes modal parameter/compute costs. No caption-only or future-frame leakage claim.",
+      "resources": "Separate text/image token budget from the 20k text pilot. Start a small solver-backed visual slice before optional public assets.",
+      "on_failure": "Fix asset availability/cutoff/processor bugs or record no visual benefit. Do not inflate text evidence by silently adding image-derived gold captions.",
+      "next_smallest_task": "Generate paired visual scenes differing in exactly one decisive attribute with independent expected answers.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S4.4",
+      "title": "Test one optional memory mechanism at a time",
+      "status": "pending",
+      "depends_on": [
+        "S3.5"
+      ],
+      "task": "Choose one hypothesis from functional linear fast state, Titans-style update, uTTT shared ownership, Engram lookup, Hope multi-rate updates or frozen latent interface. Declare state owner, loss, reset, chunk barrier and matched private/capacity/compute controls.",
+      "artifacts": [
+        "planned: single-mechanism preregistration and version-pinned source notes",
+        "planned: causal/state-isolation/backend and transfer ablation report"
+      ],
+      "interface": "Observed chunk-start snapshot -> all depth reads -> combined post-chunk writes -> session/branch-owned state; published model parameters remain independently versioned.",
+      "acceptance_gate": "No future-token influence, cross-session contamination, storage writes during checkpoint recomputation or stale source encodings. Mechanism adds useful held-out benefit beyond the simplest control at stated memory/compute cost.",
+      "resources": "Begin linear-state CPU/tiny MPS tests; one optional mechanism per run. Do not import CUDA/Triton or higher-order requirements into the stable text env without qualification.",
+      "on_failure": "If no extra value, omit the mechanism. Do not activate all research papers simultaneously or block the learned loop awaiting a reproduction.",
+      "next_smallest_task": "Write a falsifiable one-mechanism hypothesis and an adversarial chunk-boundary causality case.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S5.1",
+      "title": "Qualify Muon8bit on the actual Blackwell host",
+      "status": "waiting_for_target_hardware",
+      "depends_on": [
+        "S0.4"
+      ],
+      "task": "Inventory actual RTX PRO 4000 Blackwell SFF UUID/memory, host RAM, driver/CUDA/PyTorch build and native dtype support. Reproduce tiny CPU/CUDA optimizer routing, INT8 state, checkpoint and D0/D1/D2 updates before native training.",
+      "artifacts": [
+        "planned: Blackwell hardware/environment lock",
+        "planned: CUDA tiny optimizer, dtype and resume parity report"
+      ],
+      "interface": "Same optimizer equations/named eligibility and source lock -> CUDA backend; any BF16 autocast or residency change is separately declared.",
+      "acceptance_gate": "No CPU fallback, all intended groups updated, state/resume correct and independent numerical tests pass. Inventory confirms actual available memory; vendor 24 GB is not a measured free-memory value.",
+      "resources": "Later target only; no installed CUDA device assumed on this Mac. Use a separate platform lock/environment and one bounded tiny job.",
+      "on_failure": "Resolve build/kernel incompatibility before full model. Keep Mac evidence valid and do not infer CUDA success from it.",
+      "next_smallest_task": "On arrival of the workstation, capture GPU UUID, nvidia-smi and PyTorch device/dtype probes.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S5.2",
+      "title": "Implement a full-scope 24 GB residency solution",
+      "status": "pending",
+      "depends_on": [
+        "S5.1",
+        "S0.5"
+      ],
+      "task": "Implement training-aware CPU optimizer offload or qualified ZeRO/FSDP partitioning for the mixed Muon/AdamW registry, or separately validate a lower-residency layout. The current FP32 full-text persistent 26.40 GB budget already exceeds card capacity before activations.",
+      "artifacts": [
+        "planned: offload/partition placement and dtype manifest",
+        "planned: full D0/D2 CUDA memory/transfer/scope/resume report"
+      ],
+      "interface": "Named full registry -> sharding/offload adapter -> native wrapper/optimizer -> checkpoint portability. Ordinary DDP and inference device_map do not pool training memory.",
+      "acceptance_gate": "All originals including embeddings/head stay trainable in D0/D2, actual changed-tensor audit passes, finite updates and resume meet tolerance, and measured peak/host staging/transfers fit the declared capacity.",
+      "resources": "24 GB target GPU plus inventoried host RAM; measure pinned buffers/PCIe transfers and CPU copies. First 256 real tokens then 512. Muon partition semantics require explicit validation.",
+      "on_failure": "If full scope cannot fit, preserve the failure and redesign residency; label modules-only/LoRA alternatives honestly. Never freeze layers while calling it full fine-tuning.",
+      "next_smallest_task": "Build a per-group weight/gradient/state/temporary placement ledger and test offload on the tiny mixed optimizer.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S5.3",
+      "title": "Port only earned mechanisms to larger frozen models",
+      "status": "pending",
+      "depends_on": [
+        "S2.5",
+        "S3.5",
+        "S5.2"
+      ],
+      "task": "Select one larger target from the declared Gemma/MiniCPM-V roster after reconfirming official architecture/license/revision. Build new readers/calibrators and native cache/processor adapters; re-encode approved source memories using the new producer.",
+      "artifacts": [
+        "planned: per-model source/environment/compatibility manifests",
+        "planned: native baseline and frozen-interface/candidate profile"
+      ],
+      "interface": "Portable source records + protocol + verified skill semantics -> new model-specific encoders/interfaces; small-model latent tensors are not transferred as aligned memories.",
+      "acceptance_gate": "Native baseline and null parity, exact frozen-base hashes, compatible candidate publication, measured fit/latency and held-out gains beyond evidence-only controls. Larger native capability may require harder fresh tasks.",
+      "resources": "Profile storage for all MoE parameters, not active-per-token count. Default larger base frozen; qualify actual inference/extension-training residency before campaign.",
+      "on_failure": "Stop a model port if memory or interface quality fails; do not silently change target spelling, use active parameter count as storage, or claim transfer from source-record reuse alone.",
+      "next_smallest_task": "Choose one earned small-model mechanism and define the corresponding larger-model native insertion/ownership contract.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    },
+    {
+      "id": "S5.4",
+      "title": "Run longer operation with migration and audit",
+      "status": "pending",
+      "depends_on": [
+        "S5.3",
+        "R4"
+      ],
+      "task": "Extend chronological operation with versioned source/branch histories, held-out skill transfer, drift, source correction/deletion, rollback and model migration. Replenish promotion windows independently and reserve fresh audit families for final reporting.",
+      "artifacts": [
+        "planned: long-horizon retention/fidelity and cost matrix",
+        "planned: model/source migration, rollback and rebuild playbook"
+      ],
+      "interface": "Accepted manifests + source lineage + branch journals -> reproducible deployments -> independent chronological evaluator and human-source fidelity review.",
+      "acceptance_gate": "Useful later behavior and retained critical tasks at declared costs, traceable branch divergence, successful rollback/rebuild and no hidden audit reuse. Report negative/inconclusive periods and changing source preferences.",
+      "resources": "Extend horizon from ten cycles only after reliable instrumentation; determine cap from measured wall time and evaluator independence, not arbitrary perpetual running.",
+      "on_failure": "Pause publication on hard invariant failure while retaining the last accepted manifest. Restore independent evaluation before restarting candidate acceptance.",
+      "next_smallest_task": "Review ten-cycle failure modes and define which longer-horizon uncertainty the next bounded campaign will resolve.",
+      "document": "docs/stages/06_VLM_Memory_and_Scale.md"
+    }
+  ],
+  "balanced_overfit_observation": {
+    "status": "training_generation_subgate_passed_acceptance_pending",
+    "run_report": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json",
+    "generation_reports": [
+      "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0004.json",
+      "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0008.json"
+    ],
+    "fresh_source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "training_examples": 8,
+    "answer_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "strict_correct_at_update_4": 8,
+    "strict_correct_at_update_8": 8,
+    "distinct_answers_at_both_checks": 8,
+    "actual_sequence_tokens": 55,
+    "completed_updates": 8,
+    "declared_maximum_updates": 64,
+    "stop_reason": "two_consecutive_perfect_training_generation_checks",
+    "declared_bundled_intervention": {
+      "regime": "full",
+      "grad_accum": 8,
+      "per_update_answer_coverage": "each class 0–7 exactly once",
+      "lr_muon_base": 0.0001,
+      "lr_adamw_base": 0.0001,
+      "warmup_updates": 2,
+      "weight_decay": 0.0
+    },
+    "interpretation": "Constant-zero behavior is absent on these eight training cases under the bundled intervention. This does not isolate any individual causal factor or establish generalization.",
+    "acceptance_pending": [
+      "final checkpoint/export/reload acceptance",
+      "memory review",
+      "fresh-process native pretrained resume",
+      "development/control evaluation"
+    ]
+  },
+  "resume_observation": {
+    "checkpoint_boundary": "between completed optimizer updates with gradients cleared; mid-accumulation resume unsupported",
+    "tested": "tiny real CPU model checkpoint/next-update equivalence and MPS mixed-optimizer/RNG restoration tests",
+    "test_evidence": "reports/tests_balanced_training_code.xml",
+    "not_yet_proven": "native pretrained MiniCPM5 fresh-process resumed training equivalence"
+  }
+}

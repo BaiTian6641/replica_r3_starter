@@ -1,0 +1,52 @@
+# Construction roadmap — TAIS Obsidian / Replica R3
+
+Reviewed **22 October 2026, America/Chicago**. This is the executable work sequence for the architecture in [01_System_Design](../01_System_Design.md), with machine-readable dependencies in [stage_plan.json](../../configs/stage_plan.json). Substage artifacts below are planned unless a linked report establishes execution. The [execution state](../../execution_state.md) owns the latest run outcome; this plan does not replace its evidence.
+
+## Current boundary and immediate work
+
+The M2 Ultra / 64 GiB Mac has a locked Python 3.12.14 environment, a sealed native `openbmb/MiniCPM5-2B` revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`, and a measured two-update full-text D0 path using experimental Muon 8-bit. All 381 original tensors changed and native export/reload matched. Those examples were **55 actual tokens**, although their configured ceiling was 256. Their generation collapsed to `0` on all 16 cases. Its 2/16 accuracy equals the constant-zero control. This is a preserved negative result, with no promoted developmental checkpoint. [Native experiment record](../../reports/minicpm5_mps_experiment_20261022.json).
+
+The **balanced eight-class tiny-overfit diagnostic** now generated **8/8 correct answers and eight distinct responses `0`–`7` at both updates 4 and 8** from the sealed original. Every accumulated update covers all eight classes once. The declared bundle also changes accumulation to 8, both optimizer base rates to `1e-4`, warmup to two updates and decay to zero. The 64-update cap stopped at 8 after two perfect checks. These observations remove constant-zero behavior on those training cases; they do not isolate a single causal fix. [Raw update-4 answers](../../runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0004.json), [update-8 answers](../../runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0008.json).
+
+The generation subgate is observed; final checkpoint/export/reload acceptance, memory review and fresh-process native resume remain pending. Tiny real CPU resume equivalence and MPS optimizer/RNG tests pass. Supported checkpoints occur only between completed optimizer updates with gradients cleared; mid-accumulation resume is not supported. The overfit score is memorization evidence. Development transfer, evidence controls and final audit remain separate.
+
+Next, qualify complete optimizer/RNG/data-cursor restart, measure genuinely encoded 256-token and then 512-token episodes, and run native D1/D2. Do not launch the 20,000-target campaign merely because a two-step short fixture fit.
+
+## Ordered work and parallel tracks
+
+| Track | Detailed substages | Current status | Gate that earns the next track |
+|---|---|---|---|
+| S0 — full-text training readiness | [Environment, collapse and capacity](01_Environment_and_D0_Readiness.md) | Short D0 and eight-class training generation measured; final artifact/memory acceptance and native resume pending; tiny resume tests pass | Generated nonconstant correct diagnostic answers, full scope, bounded memory and qualified restart |
+| S1 — eligible data and independent evaluation | [Data and evaluation](02_Data_and_Evaluation.md) | Fictional verified fixtures and strict generation evaluator exist; real intake pending | Grouped causal manifest, solver checks, locked evaluation and reproducible 2,000-target release |
+| S2 — native architecture study | [D0/D1/D2 and controls](03_Native_Architecture_Study.md) | Tiny random-Llama contracts exist; pretrained D1/D2 unrun | Useful held-out gain beyond ordinary full tuning and matched capacity/compute controls, or a documented negative |
+| S3 — frozen-base learned loop | [Operating and learning loop](04_Learned_Operating_Loop.md) | Reference ledger/publisher and symbolic demo exist; learned connected loop unrun | Actual model proposals, isolated neural/skill update, independent publish/reject, ten-cycle T0–T3 comparison |
+| R — authentic Replica, in parallel | [Replica collection and evaluation](05_Replica_and_Longitudinal.md) | Collection protocol exists; no authentic personal archive bundled | Source-confirmed decisions, approved snapshot, separate branch history and held-out fidelity evidence |
+| S4 — separate native VLM and optional mechanisms | [VLM, optional memory and hardware ports](06_VLM_Memory_and_Scale.md) | Planned; no VLM training measured | Native multimodal parity, real image gradients and image-dependent answers; each optional mechanism earns its own ablation |
+| S5 — Blackwell and larger ports | [VLM, optional memory and hardware ports](06_VLM_Memory_and_Scale.md) | Planned target, not present here | CUDA qualification and a full-scope residency solution; transfer only after repeatable small-model evidence |
+
+CPU provenance, solver/evaluation work and Replica intake can proceed while one MPS experiment runs. Keep only one full-size training/evaluation process resident during memory profiling. A local teacher must not compete for unified memory during those measurements. Reuse the source seal and locked environment; do not silently fetch a new `main` revision.
+
+The roadmap refines the runbook's P0–P8 and the research guide's I/II stages: S0 corresponds to P0/P1/P2 and I-0/I-2; S1 to P3/I-1; S2 to P4/I-3; S3 to P5/I-4; R to P6/I-P; S4 to P7/I-5; S5 to P8/II. These labels do not rename the experimental arms D0/D1/D2 or T0/T1/T2/T3.
+
+## What is fixed across experiments
+
+- **Full text:** all original text-model tensors, including embeddings/head, are trainable in D0; all original tensors plus new modules in D2. D1 freezes the originals. On the VLM, `full_text` and `full_vlm` have distinct parameter registries. A LoRA or vision-frozen run never inherits a full-VLM label.
+- **Optimizer:** eligible hidden matrices use the project's blockwise INT8 Muon momentum; embeddings/head and other excluded tensors use auxiliary FP32-state AdamW. Record separate original/new and Muon/AdamW rates, exact names and state bytes. Weights and gradients currently remain FP32. Quantized momentum is not quantized weights, and paper results do not validate this implementation.
+- **Causal inputs:** the workspace receives known prompt tokens; memory receives observed eligible source content. Teacher-forced targets and oracle annotation fields never enter those channels. Record observation time separately from event time.
+- **Comparison:** B0/B1 are frozen capability/evidence baselines; D0/D1/D2 are trained comparisons from declared parents. Give trained arms the same eligible information, optimization opportunities and target data. Count interface warmup and hyperparameter search. Report equal-token and equal-total-compute views separately.
+- **Evidence:** reports identify code/model/template/data hashes, actual encoded/support/supervised tokens, inference settings, scope and changed tensors, failures, memory sampling limits and result. MPS driver allocation and process RSS overlap and must not be added.
+- **Publication:** selected post-freeze candidates cannot edit the frozen base, evaluator, scope policy or source biography. Compatibility checks and independent promotion remain host-owned; an inconclusive candidate is not accepted.
+
+## Evaluation roles and independence
+
+Split complete source/world/persona/decision families **before** teacher expansion. Every translation, paraphrase, counterfactual and modal version inherits its family and role. The project roles are training, development, calibration, rotating promotion and sealed audit; learning-policy reward must also be disjoint from final audit. Development is for implementation, rate search and checkpoint selection. Promotion supports bounded comparisons against the current parent, with every exposure logged. Final audit is never given to teachers, candidates or the learning director. A test used to guide a fix has become development evidence and cannot be relabelled sealed.
+
+Tiny-overfit exactness is an infrastructure gate, not a quality claim. The larger study must predeclare its unit of independence, sample size, smallest useful gain and regression limits. Existing proposals (+2 percentage points gain, at most 1 point mean retention loss and 2 points on critical tasks) remain provisional until power/exposure analysis; 200 zero-difference pairs do not automatically establish a 1% regression bound. Use multiple seeds for shortlisted arms, and cluster uncertainty by independent family/decision/conversation.
+
+## Work ownership, resources and failure policy
+
+The integration owner controls shared schemas, source/model locks, acceptance and Git integration. Delegate disjoint files: a trainer worker owns model/resume/profiling; a data worker owns intake/export/solvers; a runtime worker owns host events/candidates; an independent evaluator checks leakage, scope and unsupported claims. Authentic Replica collection is a human-source track and never filled by generated biography. Current work runs on the existing checkout; each coherent package receives a focused local commit and updated execution state. No remote is assumed.
+
+Every substage specifies an artifact, interface, dependency, test gate, resource cap, failure action and next smallest task in its detailed file and JSON entry. Run one bounded screen before multiplying seeds. On collapse, inspect sampling/masks/template/answer distribution and adjust a declared variable. On OOM or sustained pressure/swap growth, stop the bounded run, preserve the profile and reduce length/accumulation or implement residency changes without changing its claimed parameter scope. On no meaningful gain, preserve the negative and remove/redesign the mechanism. Optional research never blocks the simplest complete learned loop.
+
+The next runnable package completes **S0.3** artifact/memory acceptance and **S0.4** native resume, then **S0.5** actual-length capacity, while **S1.1/S1.2** and **R0/R1** can proceed independently. All later model campaigns remain gated. Current research and exact upstream release caveats are in the [dated evidence register](07_Research_Evidence_20261022.md).
