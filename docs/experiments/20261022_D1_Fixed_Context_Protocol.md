@@ -61,3 +61,21 @@ An achieved tiny fit establishes memorization and training infrastructure only.
 No broad transfer, retention, semi-cognition, Replica fidelity, frozen-base
 self-improvement or useful memory advantage is established by eight cases.
 D2 optimizer capacity and fair architecture controls remain separate later gates.
+
+## Conditional follow-up rate screen
+
+Declared while the first arm was at update 42 (training generation remained 0/8
+through update 40), before its 64-update outcome. If the 1e-3 arm does not attain
+two perfect generation checks within its budget, preserve that negative and run
+**one** fresh-source arm at new-module Muon and AdamW rates **1e-2**. Keep seed 17,
+data, scope, modules, insertion, warmup, schedule, decay, generation and guard
+settings identical. Its own cap is 64 updates, first process stops at 8 for a
+fresh-process restart, with checkpoints every eight updates and the same stopping
+rule. Never resume the 1e-3 optimizer at the higher rate.
+
+This tests whether the first declared rate was too weak for newly initialized
+residual sidecars. The hypothesis is unproven; all search costs and outcomes count.
+No third rate or scope change belongs to this package. After two failed arms,
+record the diagnostic negative and plan an activation-scale/placement investigation
+instead of extending the budget silently. Rate selection here uses training-only
+memorization, not the later independent architecture or promotion benchmark.
