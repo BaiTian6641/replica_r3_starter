@@ -2,7 +2,7 @@
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
-**Local setup, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [current validation](../reports/validation_macos_setup.json), [MPS smoke](../reports/muon8bit_mps_smoke.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). Current checks use tiny randomly initialized models; full pretrained updates remain unrun.
+**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The native baseline and two-update plain full-tuning D0 preflight now ran successfully; native D1/D2 and longer-context trials remain unrun.
 
 ## 1. What the delivered code actually does
 
@@ -13,7 +13,10 @@
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |
 | neural.py | Learned record pooling, residual reader, recurrent prompt workspace, functional linear fast state | Simplified project modules, not a reproduced research architecture |
 | model_adapter.py | One complete native Llama block wrapper; explicit trainable scope; safe base/sidecar export | Training-only text adapter; no native generation cache, VLM or distributed support |
-| train_text.py | Pinned local MiniCPM5 text runner; response-only loss; four regimes; parameter/gradient report | Real pretrained run not performed; no offload, long-run resume or task accuracy evaluator |
+| train_text.py | Pinned local MiniCPM5 runner; response-only loss; four regimes; memory/timing and parameter/gradient reports; optional export/reload verification | Native baseline and two-update D0 measured; no offload or long-run resume |
+| evaluate_text.py | Greedy native cached generation and strict fixture task scoring for source or plain D0 export | Does not supply augmented generation or broad benchmark accuracy |
+| profiling.py | Periodic MPS allocation/driver samples, process RSS, synchronized phase timing and host swap/pressure endpoints | Sampled MPS peaks can miss transients; unified-memory counters overlap |
+| audit_checkpoint.py | Stream source/export CPU comparisons after dtype normalization | Saved-weight changes do not imply every element received a nonzero gradient |
 | optimizers.py | Experimental blockwise INT8 Muon momentum + auxiliary FP32 AdamW; exact original/new routing and optimizer-state serialization | Portable eager FP32 math; not fused, distributed or a validated paper reproduction |
 | setup_macos.sh / smoke_training.py | Locked environment; tiny MPS D0/D1/D2 forward/backward/update and export/reload | Does not establish full-size model fit, quality or training-run resume |
 | run_contract_demo.py | Observe/store/compile/evaluate/publish/restart/reject/rollback on deterministic XOR fixtures | Fixed symbolic compiler and curriculum; no LLM learning claim |
@@ -91,7 +94,7 @@ Its current FP32 full-text weights/gradients/optimizer-state arithmetic is 26.40
 
 ## 4. A real-model preflight, not the main experiment
 
-The following is the next Mac feasibility command for a machine that can hold the declared state. **It is not a confirmed full-model fit or a 24 GB full-tuning recipe.** First run `--regime baseline --steps 0` with its own output directory for source-model response NLL; generation/task evaluation is still a separate P1 requirement.
+The following reproduces the measured plain full-tuning D0 preflight on this Mac in a fresh directory. It confirms only microbatch 1 at the fixtures' actual 55-token length; **it is not a 256-token capacity result or a 24 GB full-tuning recipe**. First run `--regime baseline --steps 0` with its own output directory for source-model response NLL. Baseline mode writes measurements without duplicating the original checkpoint.
 
 ~~~bash
 .venv/bin/python scripts/train_text.py \
@@ -99,8 +102,8 @@ The following is the next Mac feasibility command for a machine that can hold th
   --model-lock configs/minicpm5_sealed_lock.local.json \
   --data data/fixtures/train.jsonl \
   --dev data/fixtures/dev.jsonl \
-  --output runs/minicpm5_D2_preflight_01 \
-  --regime full_augmented \
+  --output runs/minicpm5_D0_preflight_next \
+  --regime full \
   --device mps \
   --dtype float32 \
   --optimizer muon8bit \
@@ -112,7 +115,8 @@ The following is the next Mac feasibility command for a machine that can hold th
   --steps 2 \
   --grad-accum 1 \
   --max-length 256 \
-  --checkpointing
+  --checkpointing \
+  --verify-reload
 ~~~
 
 Run separate fresh output directories for full (D0), modules_only (D1) and full_augmented (D2). Use baseline with steps=0 for the runner's untrained NLL reference. The command does not run B0/B1 task-generation evaluation.
@@ -123,7 +127,42 @@ The Mac path uses MPS FP32; MPS BF16 is rejected by this runner until separately
 
 Response targets are separately tokenized; prompt labels are masked and EOS is supervised. Overlong examples fail explicitly instead of truncating the evidence or answer. The runner disables thinking mode in its chat-template invocation for a simple action/answer target; repeat native template/reasoning-mode controls before drawing conclusions about reasoning quality.
 
-The output contains a native base checkpoint, sidecar weights where applicable, tokenizer files and a run report. Dev NLL is not task success. The exported checkpoint does not include optimizer/RNG state, and the script currently starts only from the exact source MiniCPM checkpoint, not arbitrary previously augmented exports. Add a tested resume/migration loader before repeated neural adaptation.
+Training output contains a native base checkpoint, sidecar weights where applicable, tokenizer files and a run report. `--verify-reload` releases the original model and optimizer before loading the export and comparing one development example's logits. The exported checkpoint does not include optimizer/RNG state, and the script currently starts only from the exact source MiniCPM checkpoint, not arbitrary previously augmented exports. Add a tested resume/migration loader before repeated neural adaptation.
+
+### Measured native results on this Mac
+
+Revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`, PyTorch 2.14.1 / Transformers 5.20.2, FP32 weights/gradients/compute, eager MPS, no CPU fallback. [Complete experiment record](../reports/minicpm5_mps_experiment_20261022.json).
+
+| Metric | Original baseline | Full D0, two updates |
+|---|---:|---:|
+| Actual prompt + target length | 55 tokens | 55 tokens |
+| Dev rows / supervised tokens including EOS | 16 / 32 | 16 / 32 |
+| Dev response-only NLL | 15.011792898 | 1.572720953 |
+| Train processed / supervised tokens | 0 / 0 | 110 / 4 |
+| Update wall time | — | 47.764 s total; 22.769 / 24.995 s |
+| Instrumented processed train tokens/s | — | 2.303 |
+| Sampled MPS tensor allocation peak | 9.41 GiB | 24.74 GiB |
+| Sampled MPS driver allocation peak | 10.07 GiB | 29.15 GiB |
+| Process-lifetime RSS high-water mark | 14.49 GiB | 14.52 GiB |
+| Host swap used, start → end | 1,562.69 → 1,562.69 MiB | 1,562.69 → 1,562.69 MiB |
+| Strict greedy generation, 256-new-token cap | 0/16 | 2/16, constant `0` |
+
+All **2,516,756,480 original parameters** were trainable, and all **381 original tensors** had nonzero first-update gradients. A separate [CPU streaming checkpoint audit](../reports/minicpm5_mps_preflight_checkpoint_audit.json) compared the sealed BF16 source promoted to FP32 against the saved FP32 export: all 381 tensors changed, including embeddings/head, with exact native names/shapes retained. Reloading the export reproduced all 7,180,800 compared logits exactly (maximum absolute difference 0.0). These checks establish full D0 scope and serialization; no checkpoint was promoted.
+
+Memory was sampled every **0.25 seconds** across load, updates, evaluation, export and reload; short-lived peaks can be missed. Current RSS was sampled about every two seconds; `ru_maxrss` covers the process lifetime. On unified memory, RSS and MPS driver counters overlap and must not be added. Swap endpoint occupancy was unchanged; no claim is made about intervening swap traffic. Phase events and raw memory samples are retained in [baseline samples](../reports/minicpm5_mps_baseline_memory_samples.jsonl) and [D0 samples](../reports/minicpm5_mps_preflight_memory_samples.jsonl). Synchronization, the first gradient audit and profiler overhead are included in timing.
+
+The initial 32-new-token generation pilot capped all 16 outputs. The matched rerun used **256 new tokens**, greedy cached native generation, the same 53-token prompts and source template with `enable_thinking=False`. The original model scored 0/16 strict integer matches (eight responses capped, eight ended with EOS). The D0 export emitted **`0` + EOS on all 16 cases** and scored 2/16, exactly matching a constant-zero control. This is answer collapse, not learned XOR; do not interpret the NLL decrease as independent task improvement. Only four training target/EOS tokens were supervised. [Original generations](../reports/minicpm5_mps_generation_baseline_256_report.json), [D0 generations](../reports/minicpm5_mps_generation_D0_256_report.json).
+
+To reproduce generation and audit in new output paths after training exits:
+
+~~~bash
+.venv/bin/python scripts/evaluate_text.py --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json --data data/fixtures/dev.jsonl --output runs/minicpm5_generation_parent_next --device mps --max-examples 16 --max-new-tokens 256 --max-length 256
+.venv/bin/python scripts/evaluate_text.py --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json --exported-base runs/minicpm5_D0_preflight_next/checkpoint/base --data data/fixtures/dev.jsonl --output runs/minicpm5_generation_D0_next --device mps --max-examples 16 --max-new-tokens 256 --max-length 256
+.venv/bin/python scripts/audit_checkpoint.py --source-path checkpoints/minicpm5_source --source-lock configs/minicpm5_sealed_lock.local.json --exported-base runs/minicpm5_D0_preflight_next/checkpoint/base --output reports/minicpm5_checkpoint_audit_next.json
+.venv/bin/python scripts/validate_bundle.py --validation-report reports/validation_native_preflight.json --output reports/bundle_validation_native_preflight_next.json
+~~~
+
+The saved measured D0 export is in `runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base`. It is an experimental preflight artifact, not an accepted developmental checkpoint. Next test balanced tiny-overfit behavior with generation controls, then actual 256-token episodes and native D1/D2 before longer campaigns. Optimizer/scheduler/RNG/data-cursor resume remains pending.
 
 ## 5. Interfaces the next coding agent must preserve
 
@@ -169,7 +208,7 @@ Exit: source lock, model inventory, real native forward/backward/generation repo
 
 Implement optional training-aware CPU optimizer offload or FSDP/ZeRO sharding while keeping the existing loss and parameter registry. Follow current [DeepSpeed offload](https://www.deepspeed.ai/tutorials/zero-offload/) or [OpenBMB's full-tuning guide](https://github.com/OpenBMB/MiniCPM/blob/main/docs/finetune/ms_swift.md) as the starting reference. Do not pass an inference device map into distributed training.
 
-The selected single-device Muon 8-bit setup is implemented and tested on tiny models. It does not supply offload/sharding or establish native full-model fit. Its optimizer state serialization preserves INT8 momentum, but the model runner does not yet save/reload that state. Add optimizer/scheduler/RNG/data-cursor checkpoints, interruption/restart equivalence, parameter-change auditing and configurable warmup. Compare a short reference update before optimizing performance. Qualify original/full training first; then qualify the custom wrapper under the chosen partitioner. Test differentiable inner updates separately.
+The selected single-device Muon 8-bit setup now has tiny-model tests and a measured native two-update D0 path at actual sequence length 55. It does not supply offload/sharding or establish longer-context/D2 fit. Its optimizer state serialization preserves INT8 momentum, but the model runner does not yet save/reload that state. Add optimizer/scheduler/RNG/data-cursor checkpoints, interruption/restart equivalence and configurable warmup. Saved-weight changes are audited separately against the source; qualify the custom wrapper under any later partitioner and test differentiable inner updates separately.
 
 Exit: D0 and D2 perform real full-scope updates on the intended hardware without silent freezing; interrupted/resumed runs have documented numerical tolerance.
 

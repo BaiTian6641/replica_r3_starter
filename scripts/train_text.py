@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import nullcontext
+import gc
 import hashlib
 import importlib.metadata
 import json
@@ -17,6 +18,7 @@ from pathlib import Path
 import random
 import sys
 import time
+import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -108,6 +110,8 @@ def main():
     parser.add_argument("--workspace-size", type=int, default=64)
     parser.add_argument("--insertion-layer", type=int, default=-1)
     parser.add_argument("--checkpointing", action="store_true")
+    parser.add_argument("--verify-reload", action="store_true",
+                        help="Reload the exported model after releasing training state and compare logits")
     args = parser.parse_args()
     if args.steps < 0 or args.grad_accum < 1 or args.max_length < 8:
         parser.error("Invalid step, accumulation or sequence budget")
@@ -120,6 +124,33 @@ def main():
     if args.device == "mps" and os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") == "1":
         parser.error("Unset PYTORCH_ENABLE_MPS_FALLBACK to keep MPS provenance explicit")
 
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
+    from replica_lab.contracts import audit_splits
+    from replica_lab.optimizers import build_optimizer
+    from replica_lab.profiling import RunProfiler
+
+    args.output.mkdir(parents=True, exist_ok=True)
+    profiler = RunProfiler(args.device, args.output)
+    profiler.start()
+    try:
+        report = execute(args, profiler)
+    except BaseException as exc:
+        failure = {"status": "failed", "error_type": type(exc).__name__,
+                   "error": str(exc), "traceback": traceback.format_exc(),
+                   "arguments": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
+                   "profile": profiler.stop()}
+        (args.output / "failure_report.json").write_text(json.dumps(failure, indent=2) + "\n")
+        raise
+    else:
+        report["profile"] = profiler.stop()
+        (args.output / "run_report.json").write_text(json.dumps(report, indent=2) + "\n")
+        print(json.dumps({"report": str(args.output / "run_report.json"),
+                          "dev_response_nll": report["dev_response_nll"]}))
+
+
+def execute(args, profiler):
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
@@ -150,19 +181,22 @@ def main():
                                                trust_remote_code=False)
     encoded_train = [encode_row(row, tokenizer, args.max_length) for row in train_rows]
     encoded_dev = [encode_row(row, tokenizer, args.max_length) for row in dev_rows]
+    actual_lengths = [int(b["input_ids"].shape[1]) for b in encoded_train + encoded_dev]
+    profiler.mark("data_encoded", train_examples=len(train_rows), dev_examples=len(dev_rows),
+                  minimum_sequence_length=min(actual_lengths), maximum_sequence_length=max(actual_lengths))
     base = AutoModelForCausalLM.from_pretrained(
         args.model_path, local_files_only=True, trust_remote_code=False,
         torch_dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
     model = LlamaMemoryAdapter(base, args.regime, memory_size=args.memory_size,
                                workspace_size=args.workspace_size,
                                insertion_layer=args.insertion_layer).to(args.device)
+    profiler.mark("model_loaded", parameters=sum(p.numel() for p in model.parameters()))
     if args.checkpointing:
         base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     audit = model.parameter_audit()
     expected = 2516756480
     if audit["original"]["total"] != expected:
         raise RuntimeError(f"Unexpected unique parameter count: {audit['original']['total']}")
-    args.output.mkdir(parents=True, exist_ok=True)
     def context():
         return (torch.autocast(args.device, dtype=torch.bfloat16)
                 if args.dtype == "bfloat16" else nullcontext())
@@ -174,6 +208,9 @@ def main():
         momentum=args.momentum, ns_steps=args.ns_steps,
         block_size=args.block_size, weight_decay=args.weight_decay)
     first_gradient_audit = None
+    update_reports = []
+    processed_tokens = 0
+    supervised_tokens = 0
     started = time.monotonic()
     model.train()
     if args.device == "cuda":
@@ -183,13 +220,17 @@ def main():
     cursor = 0
     losses = []
     for step in range(args.steps):
+        profiler.mark("update_start", step=step + 1)
+        update_started = time.monotonic()
         optimizer.zero_grad(set_to_none=True)
         selected = []
+        selected_ids = []
         for _ in range(args.grad_accum):
             if cursor == len(order):
                 random.shuffle(order)
                 cursor = 0
             selected.append(encoded_train[order[cursor]])
+            selected_ids.append(train_rows[order[cursor]]["id"])
             cursor += 1
         counts = [int((b["labels"][:, 1:] != -100).sum()) for b in selected]
         total = sum(counts)
@@ -203,17 +244,35 @@ def main():
                     raise RuntimeError("Nonfinite loss; aborting this candidate")
                 loss.backward()
                 accumulated += float(loss.detach())
+                profiler.mark("backward_complete", step=step + 1, tokens=tokens)
             finally:
                 model.release_context()
         if step == 0:
             first_gradient_audit = model.gradient_audit()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
         optimizer.step()
+        profiler.mark("optimizer_step_complete", step=step + 1)
+        update_elapsed = time.monotonic() - update_started
+        step_tokens = sum(int(batch["input_ids"].numel()) for batch in selected)
+        processed_tokens += step_tokens
+        supervised_tokens += total
+        update_reports.append({"step": step + 1, "example_ids": selected_ids,
+                               "processed_tokens": step_tokens, "supervised_tokens": total,
+                               "train_response_nll_before_update": accumulated,
+                               "elapsed_seconds": update_elapsed,
+                               "processed_tokens_per_second": step_tokens / update_elapsed})
         losses.append(accumulated)
         print(json.dumps({"step": step + 1, "train_nll": accumulated}), flush=True)
+    training_elapsed = sum(x["elapsed_seconds"] for x in update_reports)
+    optimizer_audit = optimizer.audit() if optimizer is not None else None
+    if optimizer is not None:
+        optimizer.zero_grad(set_to_none=True)
     model.eval()
+    profiler.mark("evaluation_start")
+    evaluation_started = time.monotonic()
     dev_sum = 0.0
     dev_tokens = 0
+    reload_expected = None
     with torch.no_grad():
         for batch in encoded_dev:
             count = int((batch["labels"][:, 1:] != -100).sum())
@@ -222,18 +281,30 @@ def main():
                     result = model(**device_batch(batch))
                 dev_sum += float(result.loss) * count
                 dev_tokens += count
+                if args.verify_reload and reload_expected is None:
+                    reload_expected = result.logits.detach().cpu()
             finally:
                 model.release_context()
     if args.device == "cuda":
         torch.cuda.synchronize()
     elif args.device == "mps":
         torch.mps.synchronize()
-    report = {"status": "completed_local_training_run", "model_lock": lock,
+    profiler.mark("evaluation_complete", dev_response_nll=dev_sum / dev_tokens)
+    report = {"status": "completed_local_baseline" if args.regime == "baseline" else "completed_local_training_run", "model_lock": lock,
               "parameters": audit, "parameter_dtype": "float32", "compute_dtype": args.dtype,
               "device": args.device, "steps": args.steps, "seed": args.seed,
               "grad_accum": args.grad_accum, "max_length": args.max_length,
               "checkpointing": args.checkpointing,
-              "optimizer": optimizer.audit() if optimizer is not None else None,
+              "optimizer": optimizer_audit,
+              "arguments": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
+              "actual_sequence_lengths": {"minimum": min(actual_lengths), "maximum": max(actual_lengths)},
+              "train_updates": update_reports,
+              "processed_train_tokens": processed_tokens, "supervised_train_tokens": supervised_tokens,
+              "dev_supervised_tokens": dev_tokens,
+              "training_update_seconds": training_elapsed,
+              "evaluation_seconds": time.monotonic() - evaluation_started,
+              "processed_train_tokens_per_second": processed_tokens / training_elapsed if training_elapsed else None,
+              "cpu_fallback_enabled": False,
               "train_examples": len(train_rows), "dev_examples": len(dev_rows),
               "data_sha256": hashlib.sha256(args.data.read_bytes()).hexdigest(),
               "dev_sha256": hashlib.sha256(args.dev.read_bytes()).hexdigest(),
@@ -251,11 +322,53 @@ def main():
                               "Weight export only; optimizer/RNG resume checkpoint is not implemented",
                               "Muon8bit is a portable project experiment, not a validated paper reproduction",
                               "This runner is text-only; it does not train a VLM"]}
-    model.save_pretrained(args.output / "checkpoint", manifest=report)
-    tokenizer.save_pretrained(args.output / "checkpoint" / "base")
-    (args.output / "run_report.json").write_text(json.dumps(report, indent=2) + "\n")
-    print(json.dumps({"report": str(args.output / "run_report.json"),
-                      "dev_response_nll": report["dev_response_nll"]}))
+    if args.regime != "baseline":
+        # Release optimizer/graph/gradient buffers before serializing FP32 weights.
+        del optimizer
+        if args.steps:
+            del output, loss
+        del result
+        gc.collect()
+        if args.device == "mps":
+            torch.mps.empty_cache()
+        profiler.mark("export_start")
+        model.save_pretrained(args.output / "checkpoint", manifest=report)
+        tokenizer.save_pretrained(args.output / "checkpoint" / "base")
+        profiler.mark("export_complete")
+        report["checkpoint_exported"] = True
+        if args.verify_reload:
+            del model, base
+            gc.collect()
+            if args.device == "mps":
+                torch.mps.empty_cache()
+            elif args.device == "cuda":
+                torch.cuda.empty_cache()
+            profiler.mark("reload_start")
+            reloaded_base = AutoModelForCausalLM.from_pretrained(
+                args.output / "checkpoint" / "base", local_files_only=True,
+                trust_remote_code=False, torch_dtype=torch.float32,
+                attn_implementation="eager", use_safetensors=True)
+            reloaded = LlamaMemoryAdapter(reloaded_base, args.regime,
+                                         memory_size=args.memory_size, workspace_size=args.workspace_size,
+                                         insertion_layer=args.insertion_layer)
+            if reloaded.augmented:
+                reloaded.load_sidecars(args.output / "checkpoint" / "sidecars.safetensors")
+            reloaded = reloaded.to(args.device).eval()
+            with torch.no_grad():
+                try:
+                    with context():
+                        actual = reloaded(**device_batch(encoded_dev[0])).logits.detach().cpu()
+                finally:
+                    reloaded.release_context()
+            torch.testing.assert_close(actual, reload_expected, rtol=1e-5, atol=1e-6)
+            report["reload_verification"] = {
+                "status": "passed", "dev_example_id": dev_rows[0]["id"],
+                "compared_logit_elements": actual.numel(), "rtol": 1e-5, "atol": 1e-6,
+                "maximum_absolute_logit_difference": float((actual - reload_expected).abs().max())}
+            profiler.mark("reload_verified")
+    else:
+        report["checkpoint_exported"] = False
+    return report
 
 
 if __name__ == "__main__":

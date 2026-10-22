@@ -15,7 +15,7 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish delivered CPU/tiny-Llama tests from real pretrained-model integration. No MiniCPM weights, GPU training or Replica fidelity result was run for this bundle.
+4. Distinguish the original delivered CPU/tiny-Llama evidence from subsequent native execution. The original bundle had no pretrained result; the current Mac now has a native MiniCPM5 baseline and two-update full D0 Muon preflight with measured memory and verified tensor changes/reload. Its constant-zero generation failure is preserved. Read the current execution state and do not infer cognition, convergence or Replica fidelity from the preflight.
 
 ## First session: do concrete work
 

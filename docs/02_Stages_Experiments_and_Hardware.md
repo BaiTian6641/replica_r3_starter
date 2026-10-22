@@ -1,6 +1,6 @@
 # 02 - Two stages, explicit controls, measured hardware
 
-**Current setup review: 22 October 2026 (America/Chicago). Original bundle planning label: 23 October 2026. All proposed budgets and acceptance margins require preregistration; none are model-quality results from this bundle.**
+**Current native preflight review: 22 October 2026 (America/Chicago). Original bundle planning label: 23 October 2026. All proposed budgets and acceptance margins require preregistration; the native measurements below establish short-run execution only.**
 
 ## 1. The two-stage program
 
@@ -36,7 +36,7 @@ Retain R2 names in reports so work remains comparable:
 | D3 | Original + reader/workspace | LoRA | Trained | Is parameter-efficient co-adaptation sufficient? |
 | D4 | Original | LoRA | None | Does LoRA alone explain D3? |
 
-The starter runner implements baseline, full, modules_only and full_augmented. D3/D4 are specified next work; no LoRA trainer is claimed in this package. B0/B1 need task/generation evaluation beyond the provided NLL runner.
+The starter runner implements baseline, full, modules_only and full_augmented. D3/D4 are specified next work; no LoRA trainer is claimed in this package. B0/B1 need broader task/generation evaluation beyond the short fixture checks.
 
 Begin with D0/D1/D2. Give all arms the same eligible examples, evidence, tools and response targets. The first implementation leaves source text in every prompt; augmented models also receive a trainable representation of that same information. Later compare an internal-memory-only condition and an equal-token-budget text retrieval condition.
 
@@ -58,7 +58,7 @@ Proposed initial training budget is **8-32M processed tokens per trained arm**, 
 
 | Setting | Proposed initial search | Rationale |
 |---|---|---|
-| Sequence length | 256 for preflight; 512 then 1024 | Find a feasible representative update before scaling activations |
+| Sequence length | 256 ceiling for preflight; then actual 256, 512 and 1024 | Completed native fixtures were 55 tokens; longer activation loads remain unmeasured |
 | Microbatch | 1 | Clear per-episode causal/state ownership |
 | Effective batch | 8-32 episodes via accumulation | Increase only after profiling and loss normalization checks |
 | Muon original-matrix LR | 1e-3 provisional smoke default; retune before campaigns | Muon has a different update scale from AdamW |
@@ -166,21 +166,46 @@ The all-Muon column is an arithmetic lower bound, not this model's actual optimi
 
 The [sealed snapshot tensor inventory](../reports/minicpm5_snapshot_inventory.json) now confirms **1,981,808,640 Muon parameters and 534,947,840 auxiliary AdamW parameters**, totaling 2,516,756,480. With this FP32-resident layout, weights, gradients and persistent optimizer tensors alone require **26.40 GB / 24.59 GiB**, before new modules, activations and temporary buffers. This is shape-based arithmetic from the actual checkpoint, not a measured training peak.
 
-**Mac Studio:** unified memory is shared by the OS, applications and training; the full 64 GiB is not an isolated GPU allocation. The smaller persistent optimizer state is a reason to measure feasibility, not evidence that the full model will fit or train efficiently.
+**Mac Studio:** unified memory is shared by the OS, applications and training; the full 64 GiB is not an isolated GPU allocation. The native D0 preflight below fit at the measured 55-token workload with a sampled MPS driver peak of **29.15 GiB**. Longer sequences, accumulation and sustained runs need separate profiles.
 
 **Later 24 GB Blackwell SFF:** the current FP32-resident full-text state budget already exceeds this card's capacity. Full D0/D2 requires a tested offload/sharding adapter or a separately validated lower-residency layout, while retaining Muon 8-bit and the full trainable scope. Begin CUDA qualification with the tiny model; module-only remains a separately labelled control. An inference device map does not provide training-aware offload. [DeepSpeed ZeRO-Offload](https://www.deepspeed.ai/tutorials/zero-offload/) is a possible later adapter, not an installed or validated capability of this runner.
 
 ## 9. Mac Studio first-run protocol
 
-Use the current Mac as the first training and development machine. Establish CPU numerical checks, then run a tiny MPS model with the selected Muon 8-bit optimizer before downloading and loading the full checkpoint. Confirm that gradients and updates occur in both the Muon matrices and any trainable auxiliary AdamW tensors. Record block size, momentum/scales dtypes, eligible parameter names/counts and optimizer bytes with the run.
+Use the current Mac as the first training and development machine. CPU numerical checks and tiny MPS D0/D1/D2 updates were followed by the native pretrained baseline and D0 preflight on 22 October 2026. Confirm gradients and updates in both the Muon matrices and trainable auxiliary AdamW tensors for each new workload. Record block size, momentum/scales dtypes, eligible parameter names/counts and optimizer bytes with the run.
 
-Start pretrained feasibility at microbatch 1 and sequence length 256, progressing to 512 only after a representative update fits. Keep another teacher model out of memory during profiling. Record available memory, MPS allocation, memory pressure, swap, throughput and save/reload behavior. Preserve OS memory safeguards. Higher-order fast-state training and custom kernels need separate backend checks. See [PyTorch MPS backend](https://docs.pytorch.org/docs/2.14/notes/mps.html).
+The native preflight used microbatch 1, accumulation 1 and a configured maximum length of 256; every encoded fixture was actually **55 tokens**. Profile genuine 256-token examples before progressing to 512. Keep another teacher model out of memory during profiling. Record available memory, MPS allocation, memory pressure, swap, throughput and save/reload behavior. Preserve OS memory safeguards. Higher-order fast-state training and custom kernels need separate backend checks. See [PyTorch MPS backend](https://docs.pytorch.org/docs/2.14/notes/mps.html).
+
+### Native baseline and full D0 preflight: measured 22 October 2026
+
+The [experiment record](../reports/minicpm5_mps_experiment_20261022.json), [baseline report](../reports/minicpm5_mps_baseline_report.json) and [D0 report](../reports/minicpm5_mps_preflight_report.json) use the sealed `openbmb/MiniCPM5-2B` revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`, all **2,516,756,480** original parameters, FP32 parameters/compute and MPS without CPU fallback. The environment was PyTorch 2.14.1, Transformers 5.20.2 and safetensors 0.8.0. Both runs used seed 17 and the same 16 deterministic development fixtures with 32 supervised response tokens.
+
+| Measurement | Native frozen baseline | Native full D0 preflight |
+|---|---:|---:|
+| Optimizer updates | 0 | 2 |
+| Original trainable parameters | 0 | 2,516,756,480 |
+| Actual sequence length | 55 | 55 |
+| Development response-only NLL | 15.011792898 | 1.572720953 |
+| Strict generation matches, same 16 fixtures / 256 new-token cap | 0/16 | 2/16, all answers `0` |
+| Sampled peak MPS allocated memory | 9.41 GiB | 24.74 GiB |
+| Sampled peak MPS driver memory | 10.07 GiB | 29.15 GiB |
+| Process-lifetime peak RSS | 14.49 GiB | 14.52 GiB |
+
+D0 used nonreentrant activation checkpointing, Muon LR `1e-3`, auxiliary AdamW LR `1e-5`, momentum `0.95`, five Newton-Schulz steps, 2048-element INT8 momentum blocks and weight decay `0.01`. All 294 eligible matrices (1,981,808,640 parameters) used Muon; the other 87 tensors (534,947,840 parameters) used auxiliary AdamW. Recorded persistent optimizer tensors occupied 6,265,262,080 bytes. Each update processed one 55-token example with two supervised target tokens: **110 processed tokens and four supervised tokens total**, taking **47.764 seconds**, or **2.303 processed tokens/second**. The profiled process, including loading, evaluation, export and reload, took **64.228 seconds**.
+
+All **381 original tensors had nonzero gradients** in the first update. The [independent saved-checkpoint comparison](../reports/minicpm5_mps_preflight_checkpoint_audit.json) found changes in all 381 tensors, including input embeddings and output head, with the native names/shapes preserved. Export/reload compared 7,180,800 logits from one development example and observed a maximum absolute difference of **0.0**. This establishes the full native D0 trainable scope and that export/reload path; it does not establish resumable optimizer or scheduler state.
+
+Memory samples were taken every 0.25 seconds; sampled peaks can miss shorter transients. Process RSS and MPS driver memory overlap in unified memory and **must not be added**. The RSS high-water mark includes the process lifetime, including CPU loading. Host swap usage was 1,562.69 MiB at both the start and end of each run; unchanged endpoints do not measure intervening swap activity. The host memory-pressure command reported 93% free at preflight start and 72% at its end. These are endpoint diagnostics, not a continuous pressure trace.
+
+The matched [baseline generation report](../reports/minicpm5_mps_generation_baseline_256_report.json) and [D0 generation report](../reports/minicpm5_mps_generation_D0_256_report.json) used the same 16 development examples, 53-token prompts, native source chat template with thinking disabled, greedy cached decoding and a maximum of 256 new tokens. The baseline had 0/16 strict matches; eight responses reached the cap and eight ended by EOS. D0 had 2/16 strict matches, but **every completion was `0` followed by EOS**, two generated tokens each. This is constant-answer collapse, not learned XOR or generalization. The lower response NLL is consistent with learning response formatting/EOS and the constant answer; it does not establish independent task improvement.
+
+These results are infrastructure observations on a tiny, templated fixture set after only four supervised tokens. They are not evidence of generalization, architecture benefit, retention or autonomous learning. Native D1/D2 augmented training, realistic sequence lengths, long runs, resumable state, a scheduler, MLX parity and later CUDA/offload qualification remain separate work.
 
 The common initial implementation is PyTorch, making the eventual CUDA comparison an explicit backend experiment with the same optimizer equations. MLX remains an optional later port. Apple's unified-memory behavior is described in the [MLX documentation](https://ml-explore.github.io/mlx/build/html/usage/unified_memory.html), but that does not establish parity for this project's custom optimizer or modules.
 
 For a future MLX port, audit the whole parameter tree: [MLX-LM lora.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/lora.py) freezes the model and, for its full mode, unfreezes selected transformer blocks. Choosing all blocks does not necessarily unfreeze embeddings, final norm and output head. Call that full_blocks until the inventory proves full_text. Use nonquantized source/converted weights for full-weight training; a 4-bit inference conversion is not automatically equivalent. [MLX-VLM V4.7 support](https://github.com/Blaizzy/mlx-vlm/blob/main/mlx_vlm/models/minicpmv4_7/README.md) does not establish this project's custom-module or full-multimodal gradient support.
 
-Consult the [runbook](03_Implementation_and_Runbook.md) and current setup reports for commands and observed checks. A tiny smoke update validates that execution path only. Native pretrained MiniCPM5 quality, realistic full-model peak memory, later Blackwell execution and V4.7 multimodal training require their own measurements.
+Consult the [runbook](03_Implementation_and_Runbook.md) for commands and observed checks. The native baseline and two full D0 updates validate the measured short-fixture execution path. Broader MiniCPM5 quality, representative long-sequence peak memory, later Blackwell execution and V4.7 multimodal training require their own measurements.
 
 ## 10. The scale-up decision
 

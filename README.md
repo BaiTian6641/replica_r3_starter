@@ -21,6 +21,20 @@ The project implements an experimental eager PyTorch Muon path with INT8 blockwi
 
 Current checks and limits are recorded in [execution state](execution_state.md), [Mac validation](reports/validation_macos_setup.json) and [tiny MPS optimizer smoke](reports/muon8bit_mps_smoke.json). These checks do not establish pretrained-model fit or convergence. The [runbook](docs/03_Implementation_and_Runbook.md) contains acquisition, baseline and preflight commands; the later CUDA build and hardware must be qualified on the Blackwell machine.
 
+## Native MiniCPM5 Mac preflight — 22 October 2026
+
+The pinned native model now completed its baseline and **two full D0 updates with Muon 8-bit on MPS**, with microbatch 1, FP32 weights/compute and activation checkpointing. All **381 original tensors** changed, including embeddings and the output head; exported/reloaded logits matched exactly.
+
+| Measurement | Original baseline | Two-update D0 preflight |
+|---|---:|---:|
+| Response-only dev NLL, 16 fixture rows | 15.011793 | 1.572721 |
+| Sampled peak MPS tensor allocation | 9.41 GiB | 24.74 GiB |
+| Sampled peak MPS driver allocation | 10.07 GiB | 29.15 GiB |
+| Training update time | — | 47.76 seconds |
+| Strict generation matches, 256-new-token cap | 0/16 | 2/16; all answers were `0` |
+
+The examples are **55 tokens**, despite a configured 256-token ceiling. Only four response/EOS tokens were supervised across the two updates. The trained model collapsed to always answering `0`; its 2/16 result equals a constant-zero control, so the loss drop does not demonstrate XOR learning. This establishes a short full-scope training path. MPS peaks are sampled every 0.25 seconds; driver and process RSS overlap in unified memory. See [raw results and limits](reports/minicpm5_mps_experiment_20261022.json) and [the updated runbook](docs/03_Implementation_and_Runbook.md).
+
 ## Start here
 
 | Read | Purpose |
@@ -42,7 +56,7 @@ Current checks and limits are recorded in [execution state](execution_state.md),
 
 The offline deterministic demonstration exercises records, a fixed symbolic procedure compiler, independent numerical checks, publication, rejection, restart and rollback. It explicitly reports that no neural self-improvement was evaluated. See [the demo report](reports/contract_demo.json). A separate [bundle integrity report](reports/bundle_validation.json) checks source preservation, tested-code hashes, local links, file syntax and the diagram atlas.
 
-**Not yet measured:** pretrained MiniCPM training, GPU or M2 Ultra fit/speed, architecture-quality gains, actual VLM integration, a learned autonomous director, ten-cycle neural improvement, large-model transfer or personal-replica fidelity.
+**Not measured in the original bundle:** pretrained MiniCPM training, GPU or M2 Ultra fit/speed, architecture-quality gains, actual VLM integration, a learned autonomous director, ten-cycle neural improvement, large-model transfer or personal-replica fidelity. The native Mac baseline/D0 preflight above is subsequent execution evidence; the other research outcomes remain unmeasured.
 
 ## Quickstart without model weights
 

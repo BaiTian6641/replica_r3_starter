@@ -1,14 +1,16 @@
 {
   "schema_version": "replica.model_roster.v1",
   "reviewed_on": "2026-10-23",
-  "model_weights_loaded_here": false,
+  "model_weights_loaded_here": true,
   "models": [
     {
       "repo_id": "openbmb/MiniCPM5-2B",
       "role": "stage1_text_full_tuning",
       "architecture": "LlamaForCausalLM",
-      "revision": null,
-      "status": "metadata_verified_execution_unrun",
+      "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "status": "native_MPS_baseline_and_two_update_D0_full_preflight_completed",
+      "execution_scope": "FP32; microbatch 1; actual length 55; Muon8bit; export/reload and all381 tensor changes verified; D1/D2 native unrun",
+      "execution_report": "reports/minicpm5_mps_experiment_20261022.json",
       "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B"
     },
     {

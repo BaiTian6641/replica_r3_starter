@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "status": "native_baseline_and_full_D0_preflight_completed_with_negative_task_result",
+  "assembled_at": "2026-10-22T20:22:36.095780+00:00",
+  "local_date": "2026-10-22",
+  "timezone": "America/Chicago",
+  "model": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "original_parameters": 2516756480,
+    "source_sealed_lock": "configs/minicpm5_sealed_lock.local.json"
+  },
+  "hardware": {
+    "machine": "Apple Mac Studio M2 Ultra",
+    "unified_memory_bytes": 68719476736,
+    "device": "mps",
+    "cpu_fallback": false,
+    "cpu_cores": 24,
+    "gpu_cores": 60
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.4",
+    "pytest": "9.1.1"
+  },
+  "baseline": {
+    "report": "reports/minicpm5_mps_baseline_report.json",
+    "dev_response_nll": 15.0117928981781,
+    "dev_examples": 16,
+    "dev_supervised_tokens": 32,
+    "memory": {
+      "sample_interval_seconds": 0.25,
+      "all_phase_peaks_bytes": {
+        "rss_peak_process_lifetime_bytes": 15559720960,
+        "rss_peak_sampled_bytes": 9902030848,
+        "mps_allocated_peak_sampled_bytes": 10104704256,
+        "mps_driver_peak_sampled_bytes": 10815700992
+      },
+      "all_phase_peaks_GiB": {
+        "rss_peak_process_lifetime_bytes": 14.491119384765625,
+        "rss_peak_sampled_bytes": 9.22198486328125,
+        "mps_allocated_peak_sampled_bytes": 9.410739183425903,
+        "mps_driver_peak_sampled_bytes": 10.072906494140625
+      },
+      "host_swap_used_start_bytes": 1638599229,
+      "host_swap_used_end_bytes": 1638599229,
+      "host_swap_used_endpoint_delta_bytes": 0,
+      "host_memory_free_percent_start": 93.0,
+      "host_memory_free_percent_end": 76.0,
+      "process_profile_elapsed_seconds": 6.252773958956823,
+      "mps_recommended_max_memory_bytes": 55662788608,
+      "telemetry_errors": []
+    }
+  },
+  "full_preflight": {
+    "report": "reports/minicpm5_mps_preflight_report.json",
+    "checkpoint_audit": "reports/minicpm5_mps_preflight_checkpoint_audit.json",
+    "checkpoint_directory": "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint",
+    "regime": "full_D0",
+    "optimizer": "muon8bit",
+    "weights_and_gradients_dtype": "float32",
+    "compute_dtype": "float32",
+    "steps": 2,
+    "microbatch": 1,
+    "grad_accum": 1,
+    "activation_checkpointing": true,
+    "configured_max_length": 256,
+    "actual_sequence_length": 55,
+    "processed_train_tokens": 110,
+    "supervised_train_tokens_including_EOS": 4,
+    "train_example_ids": [
+      "train-w4-m7-x0",
+      "train-w4-m7-x7"
+    ],
+    "training_update_seconds": 47.76357612386346,
+    "processed_tokens_per_second": 2.303010137154329,
+    "dev_response_nll": 1.5727209532633424,
+    "nonzero_first_update_gradient_tensors": 381,
+    "original_tensors_changed": 381,
+    "changed_elements": 2508857725,
+    "embedding_changed": true,
+    "output_head_changed": true,
+    "optimizer_persistent_state_bytes": 6265262080,
+    "optimizer_state_bytes_by_dtype": {
+      "torch.int8": 1981808640,
+      "torch.float32": 4283453440
+    },
+    "reload_verification": {
+      "status": "passed",
+      "dev_example_id": "dev-w5-m2-x0",
+      "compared_logit_elements": 7180800,
+      "rtol": 1e-05,
+      "atol": 1e-06,
+      "maximum_absolute_logit_difference": 0.0
+    },
+    "memory": {
+      "sample_interval_seconds": 0.25,
+      "all_phase_peaks_bytes": {
+        "rss_peak_process_lifetime_bytes": 15590211584,
+        "rss_peak_sampled_bytes": 9694199808,
+        "mps_allocated_peak_sampled_bytes": 26562368768,
+        "mps_driver_peak_sampled_bytes": 31300698112
+      },
+      "all_phase_peaks_GiB": {
+        "rss_peak_process_lifetime_bytes": 14.519515991210938,
+        "rss_peak_sampled_bytes": 9.028427124023438,
+        "mps_allocated_peak_sampled_bytes": 24.738133668899536,
+        "mps_driver_peak_sampled_bytes": 29.151046752929688
+      },
+      "host_swap_used_start_bytes": 1638599229,
+      "host_swap_used_end_bytes": 1638599229,
+      "host_swap_used_endpoint_delta_bytes": 0,
+      "host_memory_free_percent_start": 93.0,
+      "host_memory_free_percent_end": 72.0,
+      "process_profile_elapsed_seconds": 64.22809600015171,
+      "mps_recommended_max_memory_bytes": 55662788608,
+      "telemetry_errors": []
+    }
+  },
+  "generation": {
+    "prompt_contract": "Same source tokenizer/template and identical 53-token prompts; enable_thinking=False; greedy cached decoding",
+    "baseline_32_token_pilot": "reports/minicpm5_mps_generation_baseline_32_pilot_report.json",
+    "baseline_256": {
+      "report": "reports/minicpm5_mps_generation_baseline_256_report.json",
+      "examples": 16,
+      "strict_correct": 0,
+      "strict_task_accuracy": 0.0,
+      "max_new_tokens": 256,
+      "eos_terminated_examples": 8,
+      "token_capped_examples": 8,
+      "generated_tokens": 2815,
+      "generation_seconds": 57.81232020887546,
+      "memory": {
+        "sample_interval_seconds": 0.25,
+        "all_phase_peaks_bytes": {
+          "rss_peak_process_lifetime_bytes": 15585296384,
+          "rss_peak_sampled_bytes": 3923525632,
+          "mps_allocated_peak_sampled_bytes": 10107573504,
+          "mps_driver_peak_sampled_bytes": 10815750144
+        },
+        "all_phase_peaks_GiB": {
+          "rss_peak_process_lifetime_bytes": 14.514938354492188,
+          "rss_peak_sampled_bytes": 3.6540679931640625,
+          "mps_allocated_peak_sampled_bytes": 9.413411378860474,
+          "mps_driver_peak_sampled_bytes": 10.072952270507812
+        },
+        "host_swap_used_start_bytes": 1638599229,
+        "host_swap_used_end_bytes": 1638599229,
+        "host_swap_used_endpoint_delta_bytes": 0,
+        "host_memory_free_percent_start": 90.0,
+        "host_memory_free_percent_end": 73.0,
+        "process_profile_elapsed_seconds": 62.19258000003174,
+        "mps_recommended_max_memory_bytes": 55662788608,
+        "telemetry_errors": []
+      }
+    },
+    "D0_256": {
+      "report": "reports/minicpm5_mps_generation_D0_256_report.json",
+      "examples": 16,
+      "strict_correct": 2,
+      "strict_task_accuracy": 0.125,
+      "max_new_tokens": 256,
+      "eos_terminated_examples": 16,
+      "token_capped_examples": 0,
+      "generated_tokens": 32,
+      "generation_seconds": 1.6633261281531304,
+      "memory": {
+        "sample_interval_seconds": 0.25,
+        "all_phase_peaks_bytes": {
+          "rss_peak_process_lifetime_bytes": 595738624,
+          "rss_peak_sampled_bytes": 595705856,
+          "mps_allocated_peak_sampled_bytes": 10081194496,
+          "mps_driver_peak_sampled_bytes": 10765418496
+        },
+        "all_phase_peaks_GiB": {
+          "rss_peak_process_lifetime_bytes": 0.5548248291015625,
+          "rss_peak_sampled_bytes": 0.5547943115234375,
+          "mps_allocated_peak_sampled_bytes": 9.388844013214111,
+          "mps_driver_peak_sampled_bytes": 10.026077270507812
+        },
+        "host_swap_used_start_bytes": 1638599229,
+        "host_swap_used_end_bytes": 1638599229,
+        "host_swap_used_endpoint_delta_bytes": 0,
+        "host_memory_free_percent_start": 91.0,
+        "host_memory_free_percent_end": 73.0,
+        "process_profile_elapsed_seconds": 12.0447387911845,
+        "mps_recommended_max_memory_bytes": 55662788608,
+        "telemetry_errors": []
+      }
+    },
+    "all_D0_completions": "0",
+    "constant_zero_control_correct": 2,
+    "interpretation": "The D0 export collapses to constant zero. Its 2/16 score equals a constant-answer control; no learned XOR or generalization result."
+  },
+  "code_parent_commit": "68d94a2",
+  "runs_used_instrumented_working_tree": true,
+  "code_sha256_at_report_assembly": {
+    "scripts/audit_checkpoint.py": "7f49ed3b43075e2732ae49d797c11b5693305611b02dfb8c3764bb99770cc27a",
+    "scripts/evaluate_text.py": "fe149e807613ba81525dff78bef975a213319b919b00bea835057471b8e94941",
+    "scripts/train_text.py": "a0d664d54177a0cc0dd1b5515bcb1e76ce201572f41f88baabf840595b856cf3",
+    "src/replica_lab/__init__.py": "fea2eb9e656cda45f4aeef8e0756ecc35a8ddcbe256f00092c5a95bffced68c4",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/learning.py": "b6412e1afe46ca8096a640c85ea93105c8d3c0439b90a0101d34e83a453f4942",
+    "src/replica_lab/memory.py": "f722bac5fb7863af8c5176f6daca55296ae1fcbee5dae1317b79488fc4618724",
+    "src/replica_lab/model_adapter.py": "4d4ffcccb5457d8219d33b15b746cfdd000044afee3b98d271b23e456504ee78",
+    "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+    "src/replica_lab/optimizers.py": "881d09ef2f45f79088bb15854a9a35c284e0a9878dc26886244855700bfaf5ba",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0"
+  },
+  "data_sha256": {
+    "train": "2a64dfbdc64653e079ec9061460c606d35aa184b3d370011acb8616c52fef670",
+    "dev": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855"
+  },
+  "limits": [
+    "Only 55 actual training tokens per microbatch; 256 was a ceiling, not tested context capacity.",
+    "Only 2 updates and 4 supervised response/EOS tokens; no convergence, retention, architecture or neural self-improvement claim.",
+    "MPS peaks sampled at 0.25s; short-lived peaks can be missed; process RSS and MPS driver counters overlap and must not be added.",
+    "Swap measured at endpoints only; unchanged occupancy does not prove no intervening swapping.",
+    "Timing includes synchronization, gradient audit and profiling; not an optimized throughput benchmark.",
+    "Original and D0 generation use the same explicit greedy empty-think mode; not upstream benchmark reproduction.",
+    "Optimizer/RNG/scheduler/data-cursor resume remains unimplemented; no candidate was promoted.",
+    "Native D1/D2, VLM, CUDA and long-context/sustained fit remain unrun."
+  ]
+}

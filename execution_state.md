@@ -1,39 +1,48 @@
-# Execution state — Mac setup complete
+# Execution state — native Mac baseline and D0 preflight completed
 
 Date: 22 October 2026, America/Chicago. Branch: `main`.
+Code parent: `68d94a2` (Mac setup). This experiment used the instrumented working tree saved in the commit containing this note; source hashes and raw evidence are in [the experiment record](reports/minicpm5_mps_experiment_20261022.json) and [current validation](reports/validation_native_preflight.json). No remote or push was added.
 
-Initial repository commit: `3e01be9` (the supplied workspace plus initial core-check report). The setup changes are in the commit containing this entry; `git log -1` identifies it. Exact checked code/environment bytes are bound by [the current validation report](reports/validation_macos_setup.json). No remote was configured or push performed.
+## Current checkpoint and gate
 
-## Current accepted state and decision
+No developmental checkpoint or learning candidate was accepted/promoted. The pinned original remains `openbmb/MiniCPM5-2B` at `f97400052a43d642bbc6e9975e2397e3ae6a6b52`; source and selected-file seal are unchanged. The experimental two-update D0 export is in `runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base`, with native FP32 weights, tokenizer and adapter manifest. It is not resumable training state.
 
-- No trained or accepted model checkpoint/learning manifest exists yet. The pinned original source is acquired, not instantiated or trained.
-- Current machine: Apple Mac Studio M2 Ultra, arm64, 24 CPU cores, 60 GPU cores, **64 GiB unified memory**, macOS 26.6.2. [Inventory](reports/hardware_macos_m2_ultra.json).
-- Installed local `.venv`: Python 3.12.14, PyTorch 2.14.1, Transformers 5.20.2, safetensors 0.8.0, NumPy 2.5.4, pytest 9.1.1, jsonschema 4.26.0; direct/transitive dependencies pinned by `uv.lock`. MPS availability and real backward execution confirmed.
-- User-selected experiment: **Muon 8-bit on macOS MPS first, then NVIDIA RTX PRO 4000 Blackwell SFF Edition (24 GB)**. Use the same portable project equations on both backends; qualify the later CUDA build/driver/device separately.
-- Eligible hidden 2D matrices use blockwise linear INT8 momentum (2048 entries/block, FP32 scales), FP32 dequantization and Newton-Schulz arithmetic. Embeddings/head/learned slot queries/other tensors use FP32 AdamW groups. FP32 weights/gradients remain fully eligible under D0/D2. Separate original/new Muon and AdamW rates are provisional and need tuning. All-AdamW is an explicit comparison.
-- Source model: `openbmb/MiniCPM5-2B`, immutable revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Complete 11-file snapshot in ignored `checkpoints/minicpm5_source` (about 4.7 GiB); acquisition receipt beside it. [Metadata lock](configs/minicpm5_metadata_lock.local.json), [selected-file seal](configs/minicpm5_sealed_lock.local.json).
+P0 setup and the **plain native D0 feasibility path** are complete: original forward/NLL and cached generation, two full updates, measured memory, export/reload and actual saved tensor changes. Native augmented D1/D2, representative longer contexts and a useful task-learning result remain incomplete.
 
-## Commands and observed evidence
+Current machine remains Mac Studio M2 Ultra (24 CPU / 60 GPU cores, 64 GiB unified memory). Python 3.12.14, torch 2.14.1, Transformers 5.20.2, safetensors 0.8.0; locked environment unchanged. MPS ran FP32 without CPU fallback; no memory safeguards were changed.
 
-1. `python3 scripts/check_core.py --output reports/core_checks_macos_initial.json`: **23 passed**, no failures/errors/skips. Standalone fixture validator: **48 rows**, six source-family groups.
-2. `UV_CACHE_DIR=/private/tmp/replica-r3-uv-cache uv sync --locked --extra neural --extra test`: installed/reconciled the isolated pinned environment. Python package requirement raised to 3.12 because pinned NumPy requires it; standalone core scripts still work with Python 3.11.
-3. `.venv/bin/python -m pytest tests -q --junitxml=reports/tests_macos_setup.xml > reports/test_output_macos_setup.txt 2>&1`: **70 passed**, zero failures/errors/skips; [raw output](reports/test_output_macos_setup.txt), [JUnit](reports/tests_macos_setup.xml). Three schemas and all 48 fixture rows additionally validated against schemas/hashes.
-4. `.venv/bin/python scripts/smoke_training.py --device mps --optimizer muon8bit --output reports/muon8bit_mps_smoke_final.json`: **passed**, three updates each for D0 full, D1 modules_only and D2 full_augmented, with nonreentrant checkpointing and model export/reload. Final report moved to [muon8bit_mps_smoke.json](reports/muon8bit_mps_smoke.json); the earlier smoke is preserved separately. Full arms changed embeddings/head; D1 kept original weights unchanged. Only tiny random Llama weights were executed. MPS allocation counters are current values, not peaks.
-5. `UV_CACHE_DIR=/private/tmp/replica-r3-uv-cache sh scripts/setup_macos.sh`: **passed end to end**, including locked environment, inventory, core/fixture checks, all 70 tests and another fresh MPS smoke. [Complete setup output](reports/setup_macos_output.txt). The desktop sandbox sometimes hides MPS/sysctl; final inventory and MPS checks ran with host hardware access, without CPU fallback.
-6. `.venv/bin/python scripts/run_contract_demo.py --output runs/contract_demo_macos_setup_01`: **passed**, three symbolic cycles, restart/rollback and harmful-candidate rejection. Raw report stays in the ignored run directory. `model_learning_evaluated=false`.
-7. `pin_model.py`, `download_model.py`, `seal_snapshot.py` and `inspect_snapshot.py` ran successfully at the source revision above. [Tensor-header inventory](reports/minicpm5_snapshot_inventory.json): **2,516,756,480 parameters**, split into 1,981,808,640 Muon and 534,947,840 auxiliary AdamW parameters. Weights were hashed and their headers inspected; no native pretrained forward/backward was run.
-8. `.venv/bin/python scripts/validate_bundle.py --validation-report reports/validation_macos_setup.json --output reports/bundle_validation_macos_setup.json`: current syntax/link/source/hash consistency check; [report](reports/bundle_validation_macos_setup.json). The validator prunes local environments, model/cache/run/private data and accepts separate current test evidence.
+## Measured results
 
-The original reports, seven R2 source files and architecture assets remain preserved. The original execution note and delivery hash list are archived as [starter execution state](reports/execution_state_starter.md) and [starter manifest](reports/starter_MANIFEST.sha256); `MANIFEST.sha256` describes the current tracked delivery.
+| Measure | Frozen original | Full D0 preflight |
+|---|---:|---:|
+| Dev response NLL (16 rows / 32 response+EOS tokens) | 15.011792898 | 1.572720953 |
+| Training updates | 0 | 2 |
+| Training sequence length actually executed | — | 55 tokens; configured ceiling 256 |
+| Processed / supervised training tokens | 0 / 0 | 110 / 4 |
+| Two update time | — | 47.764 s; 2.303 processed tokens/s |
+| Sampled MPS tensor allocation peak | 9.41 GiB | 24.74 GiB |
+| Sampled MPS driver allocation peak | 10.07 GiB | 29.15 GiB |
+| Process-lifetime peak RSS | 14.49 GiB | 14.52 GiB |
+| Swap occupancy at both endpoints | 1,562.69 MiB | 1,562.69 MiB |
+| Strict generation, greedy / 256 new tokens | 0/16 | 2/16; always answered `0` |
 
-## Implemented, tested and unrun
+The D0 optimizer was the project Muon 8-bit reference: INT8 matrix momentum in 2048-element blocks, FP32 scales and Newton-Schulz arithmetic, momentum 0.95, five NS steps, no Nesterov, Muon base LR 0.001, auxiliary FP32 AdamW LR 0.00001 and weight decay 0.01. All 2,516,756,480 original parameters were eligible, with 381 nonzero-gradient tensors and no missing gradients. CPU source/export comparison (source BF16 promoted to FP32) confirms changes in **all 381 original tensors**, including embeddings/head, without name/shape changes. Reload reproduced **7,180,800 logits exactly** (max difference 0.0).
 
-Implemented/tested: existing software/numerical contracts; portable Muon 8-bit routing/math/state serialization; CPU reference comparisons; tiny actual MPS updates and model reload; reproducible Mac setup; immutable source acquisition, selected-file seal and header inventory. INT8 optimizer-state continuation is tested independently; the training runner does not yet persist optimizer/RNG/data cursor state.
+Memory counters were sampled every 0.25 seconds through load, training, evaluation, export and reload. MPS peaks can miss transients. RSS and MPS driver allocation overlap in unified memory and must not be added. Swap occupancy was measured at endpoints only; unchanged occupancy does not prove no intervening swap traffic. Timings include synchronization, profiling and gradient auditing.
 
-Not trained/evaluated: native pretrained generation/NLL/task baselines, full-size MPS updates/peak memory/throughput, CUDA execution, offload/sharding, VLM integration, learned director, ten-cycle neural learning, large-model ports or Replica fidelity. The symbolic demo and tiny-model tests do not establish these results.
+**Negative task result:** the initial 32-new-token pilot capped all 16 original-model outputs. At the matched 256-token budget, the original got 0/16 strict integer-only matches (eight capped, eight EOS); D0 emitted `0` plus EOS for every example and got 2/16, equal to an always-zero control. The loss drop does not establish learned XOR, broad improvement or convergence. Only four response/EOS training tokens were supervised. Keep this failed task behavior visible; do not promote the preflight artifact based on NLL.
 
-## Next smallest gate
+## Commands and raw evidence
 
-P0 and the local setup portion of P1 are complete. Next: instantiate the sealed native checkpoint on this Mac, establish original-model generation/task and response-NLL baselines, then run a two-update full-scope preflight at microbatch 1 / sequence length 256 with memory-pressure/swap monitoring and export/reload. Keep long campaigns pending resumable state and a scheduler. Use new output directories.
+- Baseline: `.venv/bin/python scripts/train_text.py --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json --data data/fixtures/train.jsonl --dev data/fixtures/dev.jsonl --output runs/minicpm5_mps_baseline_20261022_01 --regime baseline --device mps --dtype float32 --steps 0 --grad-accum 1 --max-length 256`. [Report](reports/minicpm5_mps_baseline_report.json), [raw memory](reports/minicpm5_mps_baseline_memory_samples.jsonl).
+- D0: same model/data paths, `--output runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01 --regime full --device mps --dtype float32 --optimizer muon8bit --steps 2 --grad-accum 1 --max-length 256 --lr-muon-base 0.001 --lr-base 0.00001 --block-size 2048 --checkpointing --verify-reload`. [Report](reports/minicpm5_mps_preflight_report.json), [raw memory](reports/minicpm5_mps_preflight_memory_samples.jsonl).
+- Generation: `scripts/evaluate_text.py` with the same source lock and dev data, `--device mps --max-examples 16 --max-new-tokens 256 --max-length 256`; separate parent and D0 output directories, with `--exported-base runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base` for D0. [Parent](reports/minicpm5_mps_generation_baseline_256_report.json), [D0](reports/minicpm5_mps_generation_D0_256_report.json), [32-token pilot](reports/minicpm5_mps_generation_baseline_32_pilot_report.json).
+- Saved weights: `scripts/audit_checkpoint.py --source-path checkpoints/minicpm5_source --source-lock configs/minicpm5_sealed_lock.local.json --exported-base runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base --output reports/minicpm5_mps_preflight_checkpoint_audit.json`. [381-tensor audit](reports/minicpm5_mps_preflight_checkpoint_audit.json).
+- `.venv/bin/python -m pytest tests -q --junitxml=reports/tests_native_preflight_code.xml > reports/test_output_native_preflight_code.txt 2>&1`: **94 passed**, zero failures/errors/skips. [Raw output](reports/test_output_native_preflight_code.txt), [JUnit](reports/tests_native_preflight_code.xml). Added tests cover telemetry units/availability guards, generation scoring/export provenance and bounded CPU weight comparisons. Existing schema/48-fixture validation remains unchanged and was rechecked.
+- `.venv/bin/python scripts/validate_bundle.py --validation-report reports/validation_native_preflight.json --output reports/bundle_validation_native_preflight.json`: [current syntax/link/source/hash report](reports/bundle_validation_native_preflight.json). Original bundle/setup reports and all seven R2 documents remain preserved.
 
-For the later Blackwell SFF, the current FP32-resident source weights + gradients + persistent mixed optimizer tensors require **26,399,313,920 bytes (26.40 GB / 24.59 GiB)** before new modules, activations, temporary buffers and allocator overhead. This layout exceeds the 24 GB card. P2 must implement tested offload/sharding or separately qualify a lower-residency layout while retaining the selected Muon algorithm and full D0/D2 parameter scope. No driver changes or CUDA fit claim was made here.
+## Next smallest work
+
+First diagnose the constant-answer failure with balanced tiny-overfit examples and generation-based controls; use the current native parent and a separately named candidate. Then qualify real 256-token episodes and native D1/D2. Add scheduler/optimizer/RNG/data-cursor checkpoints and interruption equivalence before long training; current export/reload verifies weights only. No further training campaign was started in this work package.
+
+The later RTX PRO 4000 Blackwell SFF remains untested. The current full FP32 mixed-optimizer persistent state alone is 26.40 GB / 24.59 GiB, before activations and temporaries; it needs P2 offload/sharding or a separately validated residency change on the 24 GB device. Preserve Muon 8-bit and complete D0/D2 scope. VLM, autonomous director, retention, large-model transfer and Replica fidelity remain unrun.

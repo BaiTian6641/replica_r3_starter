@@ -1,0 +1,101 @@
+{
+  "status": "passed",
+  "validated_at": "2026-10-22T20:27:25.956738+00:00",
+  "python": "3.12.14",
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.4",
+    "pytest": "9.1.1",
+    "jsonschema": "4.26.0"
+  },
+  "execution_device": "CPU unit tests plus separately measured native MPS baseline/full D0/generation",
+  "pytest_command": ".venv/bin/python -m pytest tests -q --junitxml=reports/tests_native_preflight_code.xml > reports/test_output_native_preflight_code.txt 2>&1",
+  "pytest_exit_code": 0,
+  "pytest": {
+    "tests": 94,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 94,
+    "pytest_seconds": 2.418
+  },
+  "schemas": {
+    "count": 3,
+    "status": "all_valid"
+  },
+  "fixtures": {
+    "total": 48,
+    "files": [
+      {
+        "path": "data/fixtures/train.jsonl",
+        "rows": 32,
+        "schema_valid": true,
+        "manifest_hash_matches": true
+      },
+      {
+        "path": "data/fixtures/dev.jsonl",
+        "rows": 16,
+        "schema_valid": true,
+        "manifest_hash_matches": true
+      }
+    ],
+    "authentic_personal_records": 0
+  },
+  "native_experiment": "reports/minicpm5_mps_experiment_20261022.json",
+  "pretrained_MPS_baseline_and_D0_updates_run": true,
+  "export_reload_verified": true,
+  "cuda_experiment_run": false,
+  "general_model_quality_gain_established": false,
+  "negative_task_result": "D0 generated constant zero for all 16 development cases, matching the always-zero control.",
+  "scope": "Numerical/software checks plus native baseline and two-update full D0 backend/memory/export preflight; no convergence or generalization claim",
+  "tested_file_sha256": {
+    "scripts/audit_checkpoint.py": "7f49ed3b43075e2732ae49d797c11b5693305611b02dfb8c3764bb99770cc27a",
+    "scripts/check_core.py": "ff7230472ac23918451a4faf9018bdd60c6647a56f8ebc9480fdc26cbc0ede2d",
+    "scripts/download_model.py": "4e63111a056b727dd649f91839a466ad24711c7d1c90cd6bfc10b5875816b4b2",
+    "scripts/evaluate_text.py": "fe149e807613ba81525dff78bef975a213319b919b00bea835057471b8e94941",
+    "scripts/inspect_snapshot.py": "3bfbe30410b059a2026544221319088f04700f4745a4033630a8f43adf3ee408",
+    "scripts/inventory.py": "27de2593464a171acf962253a8106ef5c1dd0375d3ceea609a27fed6f9ffea24",
+    "scripts/make_fixtures.py": "544b9ffa1e6cee6a5690ee954a421dc7ee54c2121ecf9a2b4a2d13a4382f8478",
+    "scripts/pin_model.py": "6de90c53e52eca40b9a2970592bca897c02d7f605754f533ef071cdfe8da23c3",
+    "scripts/render_diagrams.py": "03bbd84e96ea593235eb015395f86354180fda7189471ae94e466a5981775b33",
+    "scripts/run_contract_demo.py": "7f7859f742174a20dbdf795d5cc261870627580089b1f78473336fa5d72d51cb",
+    "scripts/seal_snapshot.py": "47dba2c14eed2d703ce61a1f15e4414f7632cc2c721ae9bf86d639622de458fb",
+    "scripts/smoke_training.py": "3dd0db7406663d9510f9c82ae97adf1780f117723ff7ced695fb3ac16676d1a9",
+    "scripts/train_text.py": "a0d664d54177a0cc0dd1b5515bcb1e76ce201572f41f88baabf840595b856cf3",
+    "scripts/validate_bundle.py": "8242a1e815a8623994bb1f08e798eb156f09d0b0ca3d8b63aa34a0beecf890b3",
+    "scripts/validate_data.py": "3356ebe4e218ae398d1e297a48e11782dd17a6906f9d5faa64ec6c3f513445ff",
+    "src/replica_lab/__init__.py": "fea2eb9e656cda45f4aeef8e0756ecc35a8ddcbe256f00092c5a95bffced68c4",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/learning.py": "b6412e1afe46ca8096a640c85ea93105c8d3c0439b90a0101d34e83a453f4942",
+    "src/replica_lab/memory.py": "f722bac5fb7863af8c5176f6daca55296ae1fcbee5dae1317b79488fc4618724",
+    "src/replica_lab/model_adapter.py": "4d4ffcccb5457d8219d33b15b746cfdd000044afee3b98d271b23e456504ee78",
+    "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+    "src/replica_lab/optimizers.py": "881d09ef2f45f79088bb15854a9a35c284e0a9878dc26886244855700bfaf5ba",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "tests/test_checkpoint_audit.py": "e770a191b6e1a7c892b1b2c67976979ada66a20ade8193ba32a4467e72c9fb41",
+    "tests/test_contracts.py": "fd51d166da5f042b23abc00045a0807504b87f28fce5cef71c973453b92d12cb",
+    "tests/test_evaluate_text.py": "181f53731110800bf5a814780bc6c35cc5db21c3f482051b95bc9678b348b86f",
+    "tests/test_learning.py": "d4ddf437ad5b2719d021bf15fde66fdf8f91420c652557a6f25206a9bea8ae21",
+    "tests/test_memory.py": "e0123d019f5d7d4ae344cc63ce76860329d96c97005a0c8932ce4764900d2265",
+    "tests/test_model_adapter.py": "3e0030746173976aa8e8c301fa6fe4eb3198009ee9852153507fe47e159bc915",
+    "tests/test_model_lock.py": "5c1303cfcfd006d4b144072e26b5677543b1620be076ac2820fd3393bdcc8950",
+    "tests/test_neural.py": "dec9c988403bd5f2860d2122492f30df0f1cc8223cafdef83e8d2761af231303",
+    "tests/test_optimizers.py": "f3908947036326c04b34a108eb114e1a8b0605b222ef5947ee82740b8b7cef2d",
+    "tests/test_profiling.py": "c71c30a621e17ba9942b901ca19eaa2858a93418f143c027ae2c2cba1c85d409",
+    "pyproject.toml": "4e832e228c3be320111b4c5213d7d786252aba6e3aefc6410a5e5016df1c279c",
+    "requirements-neural.txt": "2e4fecaaed90fa45f4fb5ef6a2689a32ef4606b2ed976a0348885ac3a9955610",
+    "uv.lock": "fdc9752ad23b543d0d04d2a5c347f20d86741eb1112df38b5eb52458f7c858cb",
+    ".python-version": "f50159fad3f4319868eb38717b91d55843c41e9803014c8de05e116a6d0bcfdc",
+    "scripts/setup_macos.sh": "7a6a3c943947fd4f9d16ec33fb9856e7453bdb43fc993b0bb46bb48334e31c9c"
+  },
+  "logs": {
+    "junit": "reports/tests_native_preflight_code.xml",
+    "output": "reports/test_output_native_preflight_code.txt"
+  },
+  "historical_reports_preserved": [
+    "reports/validation.json",
+    "reports/validation_macos_setup.json"
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "status": "completed_local_baseline",
+  "model_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "baseline",
+    "original": {
+      "total": 2516756480,
+      "trainable": 0,
+      "tensor_count": 381,
+      "trainable_dtypes": []
+    },
+    "new": {
+      "total": 0,
+      "trainable": 0,
+      "tensor_count": 0,
+      "trainable_dtypes": []
+    }
+  },
+  "parameter_dtype": "float32",
+  "compute_dtype": "float32",
+  "device": "mps",
+  "steps": 0,
+  "seed": 17,
+  "grad_accum": 1,
+  "max_length": 256,
+  "checkpointing": false,
+  "optimizer": null,
+  "arguments": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "data": "data/fixtures/train.jsonl",
+    "dev": "data/fixtures/dev.jsonl",
+    "output": "runs/minicpm5_mps_baseline_20261022_01",
+    "regime": "baseline",
+    "device": "mps",
+    "dtype": "float32",
+    "optimizer": "muon8bit",
+    "steps": 0,
+    "grad_accum": 1,
+    "max_length": 256,
+    "lr_base": 1e-05,
+    "lr_new": 0.0001,
+    "lr_muon_base": 0.001,
+    "lr_muon_new": 0.001,
+    "momentum": 0.95,
+    "ns_steps": 5,
+    "block_size": 2048,
+    "weight_decay": 0.01,
+    "seed": 17,
+    "memory_size": 64,
+    "workspace_size": 64,
+    "insertion_layer": -1,
+    "checkpointing": false,
+    "verify_reload": false
+  },
+  "actual_sequence_lengths": {
+    "minimum": 55,
+    "maximum": 55
+  },
+  "train_updates": [],
+  "processed_train_tokens": 0,
+  "supervised_train_tokens": 0,
+  "dev_supervised_tokens": 32,
+  "training_update_seconds": 0,
+  "evaluation_seconds": 1.2604267080314457,
+  "processed_train_tokens_per_second": null,
+  "cpu_fallback_enabled": false,
+  "train_examples": 32,
+  "dev_examples": 16,
+  "data_sha256": "2a64dfbdc64653e079ec9061460c606d35aa184b3d370011acb8616c52fef670",
+  "dev_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+  "dev_response_nll": 15.0117928981781,
+  "first_update_gradient_audit": null,
+  "elapsed_seconds": 1.2620317081455141,
+  "cuda_peak_allocated_bytes": null,
+  "mps_current_allocated_bytes": 10104251136,
+  "mps_driver_allocated_bytes": 10815684608,
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "limitations": [
+    "Single device, no optimizer offload or distributed sharding",
+    "Dev NLL is not held-out task success or self-improvement evidence",
+    "No autoregressive cached generation integration",
+    "Weight export only; optimizer/RNG resume checkpoint is not implemented",
+    "Muon8bit is a portable project experiment, not a validated paper reproduction",
+    "This runner is text-only; it does not train a VLM"
+  ],
+  "checkpoint_exported": false,
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-22T20:14:25.001546+00:00",
+    "ended_at": "2026-10-22T20:14:31.254498+00:00",
+    "elapsed_seconds": 6.252773958956823,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 28,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15559720960,
+      "rss_peak_sampled_bytes": 9902030848,
+      "mps_allocated_peak_sampled_bytes": 10104704256,
+      "mps_driver_peak_sampled_bytes": 10815700992
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-22T20:14:25.012520+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 93%",
+      "memory_free_percent": 93.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-22T20:14:31.142236+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 76%",
+      "memory_free_percent": 76.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "data_encoded",
+        "timestamp": "2026-10-22T20:14:28.026286+00:00",
+        "elapsed_seconds": 3.0244760839268565,
+        "seconds_since_previous_mark": 3.0244760839268565,
+        "synchronize_seconds": 5.37489540874958e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T20:14:28.026207+00:00",
+          "elapsed_seconds": 3.0244910418987274,
+          "phase": "data_encoded",
+          "rss_peak_process_lifetime_bytes": 478281728,
+          "rss_current_bytes": 335872000,
+          "rss_measurement_age_seconds": 0.9515656670555472,
+          "mps_allocated_bytes": 0,
+          "mps_driver_bytes": 393216
+        },
+        "fields": {
+          "train_examples": 32,
+          "dev_examples": 16,
+          "minimum_sequence_length": 55,
+          "maximum_sequence_length": 55
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-22T20:14:29.785069+00:00",
+        "elapsed_seconds": 4.783214666880667,
+        "seconds_since_previous_mark": 1.7587385829538107,
+        "synchronize_seconds": 1.1999858543276787e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T20:14:29.784959+00:00",
+          "elapsed_seconds": 4.783231416950002,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15559720960,
+          "rss_current_bytes": 9902030848,
+          "rss_measurement_age_seconds": 0.6253064579796046,
+          "mps_allocated_bytes": 10075415040,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": 2516756480
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "evaluation_start",
+        "timestamp": "2026-10-22T20:14:29.788940+00:00",
+        "elapsed_seconds": 4.787148250034079,
+        "seconds_since_previous_mark": 0.003933583153411746,
+        "synchronize_seconds": 1.791166141629219e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T20:14:29.788888+00:00",
+          "elapsed_seconds": 4.787152291974053,
+          "phase": "evaluation_start",
+          "rss_peak_process_lifetime_bytes": 15559720960,
+          "rss_current_bytes": 9902030848,
+          "rss_measurement_age_seconds": 0.6292109999340028,
+          "mps_allocated_bytes": 10075415040,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {}
+      },
+      {
+        "type": "phase",
+        "phase": "evaluation_complete",
+        "timestamp": "2026-10-22T20:14:31.049304+00:00",
+        "elapsed_seconds": 6.047422125004232,
+        "seconds_since_previous_mark": 1.260273874970153,
+        "synchronize_seconds": 1.959037035703659e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T20:14:31.049174+00:00",
+          "elapsed_seconds": 6.047444334020838,
+          "phase": "evaluation_complete",
+          "rss_peak_process_lifetime_bytes": 15559720960,
+          "rss_current_bytes": 9902030848,
+          "rss_measurement_age_seconds": 1.8895189170725644,
+          "mps_allocated_bytes": 10104251136,
+          "mps_driver_bytes": 10815684608
+        },
+        "fields": {
+          "dev_response_nll": 15.0117928981781
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  }
+}

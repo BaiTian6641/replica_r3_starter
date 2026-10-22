@@ -1,6 +1,6 @@
 # 06 - Primary sources and evidence limits
 
-**Current workstation/optimizer setup review: 22 October 2026 (America/Chicago). Original bundle review label: 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
+**Current native preflight review: 22 October 2026 (America/Chicago). Original bundle review label: 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
 
 ## 1. Research-to-design references
 
@@ -33,7 +33,7 @@ The full combined architecture is a project synthesis. A component's published s
 - [MiniCPM-V-4.7-35B-A3B official card](https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B), [configuration](https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B/blob/main/config.json), [OpenBMB VLM repository](https://github.com/OpenBMB/MiniCPM-V).
 - [Gemma 4 official card](https://ai.google.dev/gemma/docs/core/model_card_4), [26B-A4B-it checkpoint](https://huggingface.co/google/gemma-4-26B-A4B-it).
 
-The MiniCPM5 total count used in memory arithmetic is 2,516,756,480 from its card/config-compatible inventory, not exactly 2B. R3's tiny-model tests use a randomly initialized small Llama and do not verify pretrained weight quality. The V4.7 port remains planned.
+The MiniCPM5 total count is 2,516,756,480 from its sealed tensor inventory, not exactly 2B. The native MPS baseline and full D0 preflight instantiated the pinned pretrained revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`; their short fixture results do not establish broader pretrained quality. R3's earlier tiny-model tests use a randomly initialized small Llama. The V4.7 port remains planned.
 
 ## 3. Datasets
 
@@ -74,13 +74,21 @@ The selected project optimizer is portable eager PyTorch Muon 8-bit on macOS MPS
 
 Historical bundle evidence is recorded in [validation.json](../reports/validation.json) and [test output](../reports/test_output.txt); preserve their recorded dates, counts and runtime versions. Current workstation setup evidence is recorded separately in the [runbook](03_Implementation_and_Runbook.md) and setup reports. Tests cover record/identity/data contracts, temporal correction and deletion, numerical null paths, gradients, causal prompt support, state isolation, native tiny-Llama integration, parameter scope and serialization. [The deterministic demo report](../reports/contract_demo.json) covers software publication/restart/rejection/rollback.
 
-The current Mac setup adds [70 passing tests](../reports/validation_macos_setup.json), [tiny MPS D0/D1/D2 updates with Muon 8-bit and export/reload](../reports/muon8bit_mps_smoke.json), and a [sealed checkpoint tensor-header inventory](../reports/minicpm5_snapshot_inventory.json). The downloaded source snapshot was not instantiated or trained. The optimizer tests include stock AdamW/Muon comparisons, independent SVD direction checks, quantization error, exact routing and INT8 state continuation; they do not reproduce paper convergence results.
+The initial Mac setup adds [70 passing tests](../reports/validation_macos_setup.json), [tiny MPS D0/D1/D2 updates with Muon 8-bit and export/reload](../reports/muon8bit_mps_smoke.json), and a [sealed checkpoint tensor-header inventory](../reports/minicpm5_snapshot_inventory.json). The optimizer tests include stock AdamW/Muon comparisons, independent SVD direction checks, quantization error, exact routing and INT8 state continuation; they do not reproduce paper convergence results.
+
+The subsequent [native MiniCPM5 experiment record](../reports/minicpm5_mps_experiment_20261022.json) contains a [frozen baseline](../reports/minicpm5_mps_baseline_report.json) and [two-update full D0 Muon 8-bit preflight](../reports/minicpm5_mps_preflight_report.json) on the M2 Ultra / 64 GiB Mac using FP32 parameters/compute and MPS without CPU fallback. All 2,516,756,480 original parameters were trainable in D0; all 381 tensors had nonzero first-update gradients. The [saved-checkpoint audit](../reports/minicpm5_mps_preflight_checkpoint_audit.json) independently found changes in every original tensor, including embeddings/head, and matching native names/shapes. Export/reload produced a maximum absolute logit difference of 0.0 over 7,180,800 values from one development example.
+
+On 16 deterministic development fixtures, response-only NLL was **15.011792898** before tuning and **1.572720953** afterward. The preflight processed **110 tokens**, with only **four supervised target tokens**, in **47.764 seconds** across two updates (**2.303 processed tokens/second**). Its configured length ceiling was 256, but every fixture was actually **55 tokens**; this does not test 256-token activation memory. This NLL result is an infrastructure check on a tiny known grammar, not a held-out task, generalization, retention or autonomous-learning result.
+
+Matched greedy generation used the same 16 examples, identical 53-token prompts and source chat template with thinking disabled, cached decoding and a **256-new-token cap**. The [baseline](../reports/minicpm5_mps_generation_baseline_256_report.json) scored **0/16** strict matches, with eight capped responses and eight EOS endings. The [D0 export](../reports/minicpm5_mps_generation_D0_256_report.json) scored **2/16**, but all 16 completions were the constant **`0` followed by EOS**, two tokens each. This negative finding is answer collapse, not learned XOR. It prevents treating the NLL drop or raw accuracy change as independent task improvement; the behavior is consistent with learning response formatting/EOS and a constant answer.
+
+At 0.25-second sampling, baseline peak MPS allocated/driver memory was **9.41 / 10.07 GiB**, versus **24.74 / 29.15 GiB** for D0. D0's process-lifetime peak RSS was **14.52 GiB** and overlaps MPS unified-memory counters; these values must not be added. Sampling may miss transient peaks. Host swap was **1,562.69 MiB** at both run endpoints; this does not establish that no swap activity occurred between them. The detailed phase profile, dtype/state bytes, hashes, environment and measurement limits are retained in the reports and [hardware guide](02_Stages_Experiments_and_Hardware.md).
 
 The following remain **unrun**:
 
-- Native pretrained MiniCPM5 loading/training and task-quality evaluation.
+- Native pretrained MiniCPM5 D1/D2 augmented training and broader task-quality evaluation.
 - CUDA full fine-tuning, sharding or optimizer offload.
-- Native pretrained full-model M2 Ultra / MPS training and MLX parity measurements.
+- Representative long-sequence or sustained native MPS full training, complete optimizer/scheduler resume and MLX parity measurements.
 - Actual V4.7 multimodal integration and full-VLM gradient tests.
 - A learned autonomous curriculum/director operating through multiple neural updates.
 - Ten-cycle model learning, broad transfer or source-person fidelity.
