@@ -1,6 +1,6 @@
 # Native sidecar qualification design
 
-Prepared 22 October 2026 for [S2.1](../stages/03_Native_Architecture_Study.md). This package prepares a forward/backward/serialization gate; it does not claim that the native experiment has run or that S2.1 augmented generation is complete.
+Prepared 22 October 2026 for [S2.1](../stages/03_Native_Architecture_Study.md). The [actual native 256-token qualification](20261022_Native_Adapter_Qualification.md) now passed forward/backward/serialization checks on MPS; [the tracked report](../../reports/minicpm5_native_adapter_qualification256_report.json) contains the measured evidence. S2.1 augmented generation remains incomplete.
 
 After capacity jobs finish, run one native process:
 
@@ -20,6 +20,6 @@ Workspace inputs are the encoder's fixed prompt prefix; support inputs come only
 
 Default qualification performs one nonreentrant checkpointed backward in each regime without optimizer updates. It checks finite output-projection gradients, D1 frozen gradients/D2 full gradient coverage, native block recomputation, one-time writer/workspace construction and unchanged owned context through backward. Context and gradients are then released. `--skip-backward` explicitly marks this native subgate unrun.
 
-The final D2 export contains a deterministic nonzero sidecar probe, making export/reload equivalence observable rather than hidden behind zero branches. This is a diagnostic artifact, not a trained candidate. CPU tiny-native tests verify parity, perturbation sensitivity, scope, causality, recomputation and nonzero-sidecar roundtrip without model downloads or accelerator work. Full native execution is a separate root-owned run.
+The final D2 export contains a deterministic nonzero sidecar probe, making export/reload equivalence observable rather than hidden behind zero branches. This is a diagnostic artifact, not a trained candidate. CPU tiny-native tests verify parity, perturbation sensitivity, scope, causality, recomputation and nonzero-sidecar roundtrip without model downloads or accelerator work. The completed root-owned native run used the actual 256-token capacity example and performed no optimizer updates; its memory profile does not establish full D2 training fit.
 
 Augmented autoregressive context reconstruction and generation remain unsupported by the existing adapter. This script does not implement them. After forward qualification, complete that S2.1 gate before interpreting native D1/D2 task generations or launching a mechanism comparison.

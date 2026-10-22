@@ -18,7 +18,7 @@
     "updates": 2,
     "changed_original_tensors": 381,
     "outcome": "constant zero on all16 development generations; 2/16 equals constant-zero control; no checkpoint promoted",
-    "fit_limit": "historical two-update D0 only; subsequent balanced overfit and native continuation are recorded separately; actual 256/512, native D1/D2 and VLM remain unqualified"
+    "fit_limit": "Historical 55-token negative only. Subsequent balanced overfit/native continuation and actual256/512 D0 capacity are recorded separately; D2 capacity, augmented generation/optimization and VLM remain unqualified."
   },
   "independence": {
     "roles": [
@@ -65,7 +65,7 @@
       "acceptance_gate": "Existing 55-token native baseline and full D0 evidence is preserved. A clean locked setup can run offline checks, validate fixtures and reproduce native load with the same model/template hashes.",
       "resources": "M2 Ultra 64 GiB; Python 3.12.14; torch 2.14.1/transformers 5.20.2; one model resident. No reacquisition or environment upgrade needed for this task.",
       "on_failure": "Stop on seal or version mismatch; identify the changed file/environment before proceeding. Preserve original reports and user changes.",
-      "next_smallest_task": "Record the current commit and sealed revision in the new balanced-overfit run manifest.",
+      "next_smallest_task": "Reuse the current sealed source/template/environment and bind their hashes in the next augmented-generation/learning report; do not reacquire or repeat setup.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
@@ -86,7 +86,7 @@
       "acceptance_gate": "Historical four supervised tokens and constant-zero control are accounted for, and mask/template/target-coverage checks are inspected. Eight-class training generation now succeeds under the bundle. Exact causal attribution to balancing, rate, accumulation, warmup or decay remains unisolated.",
       "resources": "CPU file/token audits first; at most one short source/D0 MPS evaluation if an unresolved prefix or mask hypothesis requires it.",
       "on_failure": "Preserve the historical failure and do not infer that two updates demonstrate an intrinsic Muon defect. Any future causal-factor claim requires a separate controlled ablation; the successful bundled remediation does not supply it.",
-      "next_smallest_task": "Carry the answer-coverage and mask checks into the actual 256-token workload; preserve the historical failure and the bundled-intervention limitation.",
+      "next_smallest_task": "Retain the bundled-fix caveat and per-update answer coverage in the upcoming D1 tiny-overfit diagnostic.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
@@ -110,7 +110,7 @@
       "acceptance_gate": "Passed the scoped tiny-overfit gate: all eight training answer classes 0\u20137 correct at both updates 4 and 8, full-text scope, finite gradients, accepted checkpoint/export/reload with zero compared-logit difference, and sampled MPS memory fit. Native continuation is separately qualified under S0.4. Independent export-generation checks and broader development transfer/control conclusions belong to the final result record, not this memorization gate.",
       "resources": "Measured MPS full-text run: microbatch 1, accumulation 8, actual length 55, checkpointing and eight completed updates under declared 64 cap. Sampled peak MPS allocation 24.88 GiB and driver 29.18 GiB at 0.25-second cadence; counters overlap RSS and are not additive. This is not 256-token capacity.",
       "on_failure": "Retain the historical collapse and all control/development failures. A later artifact or transfer failure narrows the conclusion without erasing the 8/8 training observation. Do not credit any single variable in the bundled intervention without ablation.",
-      "next_smallest_task": "Review the independent exported-checkpoint generation summary when complete, then move to S0.5 actual 256-token capacity without claiming broader transfer.",
+      "next_smallest_task": "Use this eight-class diagnostic for D1 after prompt-fixed augmented generation parity; retain its memorization-only interpretation.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
@@ -129,50 +129,59 @@
         "reports/tests_balanced_training_code.xml",
         "reports/minicpm5_balanced_mask1_chunk02_report.json",
         "reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json",
-        "reports/minicpm5_balanced_overfit_experiment_20261022.json"
+        "reports/minicpm5_balanced_overfit_experiment_20261022.json",
+        "reports/capacity_readiness_experiment_20261022.json"
       ],
       "interface": "Completed-update trainer boundary -> atomic model/runtime checkpoint with byte receipt -> contract-bound optimizer/model/RNG/data/schedule restore. Native inference export is separate; an interrupted partial accumulation restarts from the last completed checkpoint.",
       "acceptance_gate": "Native short continuation 8\u219212 is qualified with contract/receipt validation, full-scope finite updates, correct next cursor/schedule and retained eight-class training answers; export/reload compared logits match exactly. Tiny CPU uninterrupted-versus-resumed exact equivalence and MPS optimizer/RNG tests pass. No full-size uninterrupted-versus-split numerical equivalence experiment was run, so no such claim is made.",
       "resources": "Measured one fresh-process native MPS continuation of four completed updates after checkpoint 8. Save/restore/runtime memory is recorded separately in the continuation report; use one full-size process at a time.",
       "on_failure": "A weights-only reload is not resume. Resume only at completed-update checkpoints; no mid-accumulation gradient buffer recovery is claimed. Quantify any MPS numerical tolerance while keeping cursor/schedule compatibility exact.",
-      "next_smallest_task": "Proceed to S0.5 actual 256-token profiling using the qualified completed-update checkpoint path. Run a full-size uninterrupted-versus-split numerical comparison separately if a later result requires that stronger guarantee.",
+      "next_smallest_task": "Reuse the completed-update checkpoint path for D1 and later D2. Full-size uninterrupted-versus-split numerical equivalence remains a separate unmeasured experiment.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
       "id": "S0.5",
       "title": "Measure genuine 256-token and 512-token full training capacity",
-      "status": "ready_actual_256_capacity_next",
+      "status": "D0_actual_256_512_qualified_D2_capacity_pending",
       "depends_on": [
         "S0.3",
         "S0.4"
       ],
-      "task": "Generate varied episodes whose native encoded sequence lengths actually reach 256 and then 512 without padding-only inflation or answer truncation. Profile D0 forward/backward/update, accumulation, evaluation, state save and reload, then repeat for the selected D2 configuration.",
+      "task": "Qualified actual 256-token and 512-token D0 full-text workloads, each from the sealed original with two updates split 1\u2192fresh-process resume 2. Accumulation 8 covers all eight answers in every update. All 381 original tensors have nonzero gradients and independent saved-checkpoint changes, and export/reload maximum compared-logit difference is 0. Guard traces pass. The corresponding D2 optimizer/update/capacity path is still pending, so the complete stage is not finished.",
       "artifacts": [
-        "planned: capacity workload manifest with length and supervised-token histograms",
-        "planned: per-regime 256/512 memory samples and throughput reports"
+        "reports/capacity_readiness_experiment_20261022.json",
+        "reports/minicpm5_capacity256_chunk01_report.json",
+        "reports/minicpm5_capacity256_chunk02_report.json",
+        "reports/minicpm5_capacity512_chunk01_report.json",
+        "reports/minicpm5_capacity512_chunk02_report.json",
+        "reports/minicpm5_capacity256_checkpoint_audit_20261022.json",
+        "reports/minicpm5_capacity512_checkpoint_audit_20261022.json",
+        "planned: matching D2 actual 256/512 capacity reports"
       ],
       "interface": "Tokenizer/template length audit -> bounded trainer -> profiler phase events. Compare allocated/driver/RSS counters with host pressure/swap; identify overlap and sampling cadence.",
-      "acceptance_gate": "Each claimed length is reached by real encoded content. Full scope, finite updates, qualified restart and export pass with declared headroom, no fallback and no sustained memory-pressure/swap-growth breach. D0 success alone does not qualify D2.",
-      "resources": "Mac 64 GiB; run 256 before 512, one model resident, microbatch 1/checkpointing first. Declare a conservative pressure/driver-memory stop threshold before starting; retain OS safeguards.",
+      "acceptance_gate": "D0 portion passes at both real encoded lengths: full 381-tensor gradients/changes including embeddings/head, resumed second update, exact compared-logit reload and no observed guard breach. Two short updates do not establish sustained training or task quality. Keep the overall gate partial until native D2 performs optimizer updates and the same declared length/guard/restart checks.",
+      "resources": "Measured D0 live/driver sampled peaks: 256 tokens 24.956/29.094 GiB; 512 tokens 25.295/29.063 GiB. Driver cap 40 GiB, swap-growth cap 512 MiB, minimum host-free 15%, sustained-host criterion 3 samples. All four whole traces passed with no observed growth from 1,562.69 MiB system swap. Samples can miss transients; driver and RSS overlap.",
       "on_failure": "Stop and preserve the failing profile. Reduce length/accumulation or add tested residency changes without freezing hidden layers. Do not extrapolate from the historical 55-token result.",
-      "next_smallest_task": "Create the 256-token workload and verify actual lengths with the pinned tokenizer before allocating the full model.",
+      "next_smallest_task": "Qualify prompt-fixed augmented generation, run D1 tiny overfit, then execute a bounded full-scope D2 capacity/update preflight to finish the remaining S0.5 portion.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
       "id": "S1.1",
       "title": "Freeze provenance, roles and causal episode contracts",
-      "status": "ready_cpu",
+      "status": "bounded_contract_implemented",
       "depends_on": [],
-      "task": "Define rich source/episode manifests and explicit export to the existing eight-field training JSONL. Assign source/world/persona/decision families and train/dev/calibration/promotion/audit roles before teacher expansion; preserve event time, observation time, ownership and allowed uses.",
+      "task": "Implemented a strict immutable canonical episode and deterministic eight-field SFT export with source/group/split binding, event versus observation time, current use/privacy permissions, source versus agent ownership, explicit oracle separation, late corrections and tombstones. Complete-release auditing binds declared duplicate source bytes to one family/split and preserves event bytes. The bounded contract has 47 passing targeted CPU tests; it is not a data factory.",
       "artifacts": [
-        "planned: source intake manifests and adapter contracts",
-        "planned: group/role/causal-cutoff validator report"
+        "src/replica_lab/episodes.py",
+        "tests/test_episodes.py",
+        "schemas/episodes/episode.schema.json",
+        "docs/experiments/episode_contract_design.md"
       ],
-      "interface": "Canonical source records -> episode adapter -> exact trainer export; evaluator-only labels are separate from prompt/memory channels. Shared schema changes require integration-owner review.",
-      "acceptance_gate": "Validators detect cross-role descendants, future observations, answer/evidence annotation leaks and unauthorized records. Every admitted row has source hashes, role, group and independent verification evidence.",
-      "resources": "CPU and local files; first one synthetic source family. Keep downloaded public data quarantined and private archives local.",
+      "interface": "Trusted intake -> Episode/validate_episode -> complete-release audit_episode_families -> host-reviewed verifier/byte-bound VerificationReceipt -> input_view/export_sft. Target-bearing purposes are training/evaluation/teacher only; audit requires explicit local_evaluation. Preserve rich source/receipt/export-purpose manifest beside lossy SFT.",
+      "acceptance_gate": "Implemented and tested structural/temporal/ownership/purpose boundaries, explicit oracle exclusion, source-hash family binding, immutable event history and verifier receipt binding. Source hashes/authority/consent are trusted declarations, not raw-byte authentication. Ordinary observations may legitimately contain answer facts; semantic gold laundering requires trusted adapter/verifier review. No public corpus or 2k release is admitted by these checks.",
+      "resources": "CPU-only 47 targeted tests and one documented fictional late-correction fixture; no authentic biography, downloaded data or model execution. Three top-level schemas remain unchanged; the episode schema is nested.",
       "on_failure": "Quarantine unsupported or ambiguous records; never repair missing biography/license/split information by invention.",
-      "next_smallest_task": "Write one canonical episode example and its exact export mapping, including a late-arriving correction.",
+      "next_smallest_task": "Build S1.2 source-bound synthetic packet/register worlds and a separately reviewed oracle, audit a small complete slice, then scale toward the proposed 2,000 targets.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -191,7 +200,7 @@
       "acceptance_gate": "All admitted labels pass their independent verifier; no duplicate world across roles; target/length/action histograms and rejected cases reported. Review at least 20 cases in each critical category as an operational sample, not proof of zero error.",
       "resources": "CPU solvers first; external teacher only with eligible data and logged model/prompt/cost. No audit material or real personal data sent by default.",
       "on_failure": "Fix the generator/solver or drop a failing category. Preserve rejection samples and recompute derived hashes; avoid scaling defective examples.",
-      "next_smallest_task": "Implement one exact bit/packet or register-map task family with counterexamples that a constant answer cannot pass.",
+      "next_smallest_task": "Implement a source-bound synthetic packet/register family with independent executable oracle, explicit raw-source hashes, causal unknown/ask/correction cases and complete-release lineage audit; inspect a small slice before scaling to 2,000.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -258,33 +267,35 @@
     {
       "id": "S2.1",
       "title": "Qualify native wrapper bypass and generation",
-      "status": "pending",
+      "status": "partial_native256_forward_backward_qualified_generation_pending",
       "depends_on": [
         "S0.3",
         "S1.4"
       ],
-      "task": "Test the reader/workspace wrapper at real MiniCPM5 dimensions with null branches against native logits and generation. Implement augmented inference with correctly reconstructed support/prompt context; re-prefill is acceptable before cache optimization.",
+      "task": "Qualified native MiniCPM5 reader/workspace null-logit parity, nonzero branch sensitivity, checkpoint backward/context lifetime, target/workspace causal separation, source-feature refresh and export/reload on an actual 256-token batch. D1 has zero trainable original parameters/no original gradients; D2 has nonzero gradients in all 381 originals. The 895,490 new parameters span 48 tensors; only the two zero-initialized output projections have nonzero first-backward gradients as expected. No optimizer update or augmented generation ran.",
       "artifacts": [
-        "planned: native bypass/parity report",
-        "planned: augmented generation path and context-lifetime tests"
+        "reports/minicpm5_native_adapter_qualification256_report.json",
+        "reports/minicpm5_native_adapter_qualification256_memory_samples.jsonl",
+        "planned: prompt-fixed augmented generation parity report"
       ],
       "interface": "LlamaMemoryAdapter -> original complete decoder block + per-batch support/workspace context -> strict evaluator; native names and checkpoint compatibility preserved.",
-      "acceptance_gate": "Null path matches native within declared tolerance; no target text in workspace, no source feature reuse after writer updates, and checkpoint recomputation has no side effects. Context survives backward and is released afterward.",
-      "resources": "CPU/tiny tests followed by one bounded native MPS sample. Use initial 64-wide, 4-slot, 2-step configuration before dimension search.",
+      "acceptance_gate": "Forward/backward/export portion passes at native dimensions and actual 256 tokens, with scoped D1/D2 gradients and causal/context checks. Entire S2.1 remains partial until augmented generation holds prompt-derived workspace/support fixed across answer decoding and matches native generation on the null path. Initial projection gradients alone do not establish upstream learning or successful optimizer updates.",
+      "resources": "Measured one native MPS batch with 64-wide memory/workspace, 4 slots, 2 workspace steps and 895,490 new parameters / 48 tensors. No training campaign or native D1/D2 optimizer capacity qualification is claimed.",
       "on_failure": "Keep base path intact and repair parity/context lifetime before training new modules. Do not optimize KV caching until correctness holds.",
-      "next_smallest_task": "Run a real-dimension null-branch forward and compare native logits under identical masks/template.",
+      "next_smallest_task": "Implement and verify prompt-fixed augmented generation parity against the native null path before D1 tiny overfit.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
       "id": "S2.2",
       "title": "Overfit native D1 new modules with frozen original tensors",
-      "status": "pending",
+      "status": "pending_native_D1_optimizer_overfit",
       "depends_on": [
         "S2.1",
         "S0.4"
       ],
-      "task": "Train only reader/writer/workspace modules on the balanced diagnostic with original parameters frozen. Initialize branch output projections to zero and upstream factors normally; keep frozen downstream layers in the autograd graph.",
+      "task": "Train only the 48 new reader/writer/workspace tensors on the balanced eight-class diagnostic after prompt-fixed generation parity. Native initial D1 backward has qualified frozen-original ownership and two nonzero output-projection gradients; later upstream gradients, optimizer updates, generated overfit answers and checkpoint continuation remain unrun.",
       "artifacts": [
+        "reports/minicpm5_native_adapter_qualification256_report.json",
         "planned: D1 scope, gradient and generation reports",
         "planned: D1 native checkpoint/export/reload audit"
       ],
@@ -292,20 +303,21 @@
       "acceptance_gate": "New output projections receive initial gradients and upstream branch receives later gradients; originals do not change. Nonconstant correct diagnostic generations and restart/reload work or a clearly recorded D1 learning failure.",
       "resources": "One MPS run with matched diagnostic examples and explicit new-module rates; new-module training still stores frozen original weights and backward activations.",
       "on_failure": "Diagnose gradients, null initialization and frozen-autograd paths. Do not unfreeze layers while retaining the D1 label.",
-      "next_smallest_task": "Audit optimizer membership and a first/second-step gradient trace through the native frozen decoder.",
+      "next_smallest_task": "After S2.1 prompt-fixed generation parity, run a bounded D1 tiny-overfit update sequence with original hashes fixed, first/later new-gradient audits and generated answer checks.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
       "id": "S2.3",
       "title": "Overfit and profile native D2 full augmented training",
-      "status": "pending",
+      "status": "pending_native_D2_optimizer_and_capacity",
       "depends_on": [
         "S2.1",
         "S0.4",
         "S0.5"
       ],
-      "task": "Train all original parameters plus the same D1 modules from a declared parent, with separate original/new Muon/AdamW rates. Repeat the balanced diagnostic and actual 256/512-token capacity checks for the chosen module size.",
+      "task": "Native D2 initial forward/backward is qualified with all 381 original gradient tensors and the same 48 new tensors, but no optimizer update has run. After D1 diagnostic/generation readiness, perform full-augmented update/capacity qualification and then balanced overfit, with separate original/new Muon/AdamW rates and declared parent.",
       "artifacts": [
+        "reports/minicpm5_native_adapter_qualification256_report.json",
         "planned: D2 changed-tensor and optimizer scope reports",
         "planned: D2 capacity/generation/restart reports"
       ],
@@ -313,8 +325,11 @@
       "acceptance_gate": "All intended groups receive finite gradients and verified changes; none omitted or double-owned. Diagnostic generation, causal inputs, memory bounds and restart pass. Full D0 fit never substitutes for this D2 result.",
       "resources": "One native MPS job; microbatch 1/checkpointing initially. Count added modules, support encodings, workspace steps, logits and optimizer temporaries.",
       "on_failure": "Stop on pressure/scope/parity failure. Use a smaller declared module configuration or tested residency change without freezing original layers.",
-      "next_smallest_task": "Generate the exact native D2 parameter inventory and compare it against D0 originals plus D1 additions.",
-      "document": "docs/stages/03_Native_Architecture_Study.md"
+      "next_smallest_task": "Use the measured 895,490-parameter/48-tensor additions for a bounded D2 optimizer/update capacity preflight; do not substitute the successful D0 length profile.",
+      "document": "docs/stages/03_Native_Architecture_Study.md",
+      "dependency_gate_notes": {
+        "S0.5": "Requires the qualified D0 actual256/512 subgate, not the later D2 portion. This stage performs D2 optimizer-capacity checks and closes that remaining S0.5 portion."
+      }
     },
     {
       "id": "S2.4",
@@ -793,5 +808,107 @@
       "original_tensors_with_nonzero_gradients": 381,
       "export_reload_max_absolute_logit_difference": 0.0
     }
+  },
+  "native_capacity_observation": {
+    "status": "D0_actual_256_512_qualified_D2_capacity_pending",
+    "summary_report": "reports/capacity_readiness_experiment_20261022.json",
+    "regime": "D0_full_text_only",
+    "fresh_parent_per_length": true,
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "updates_per_length": 2,
+    "execution": "one update, completed-update checkpoint, fresh-process resume for second update",
+    "grad_accum": 8,
+    "per_update_answer_coverage": "all eight answer classes once",
+    "parameter_and_compute_dtype": "float32",
+    "original_trainable_parameters": 2516756480,
+    "nonzero_original_gradient_tensors": 381,
+    "export_reload_maximum_logit_difference": 0.0,
+    "length_profiles": {
+      "256": {
+        "actual_encoded_tokens": 256,
+        "sampled_peak_mps_allocated_gib": 24.956,
+        "sampled_peak_mps_driver_gib": 29.094,
+        "chunk_reports": [
+          "reports/minicpm5_capacity256_chunk01_report.json",
+          "reports/minicpm5_capacity256_chunk02_report.json"
+        ],
+        "memory_samples": [
+          "reports/minicpm5_capacity256_chunk01_memory_samples.jsonl",
+          "reports/minicpm5_capacity256_chunk02_memory_samples.jsonl"
+        ],
+        "saved_checkpoint_audit": "reports/minicpm5_capacity256_checkpoint_audit_20261022.json",
+        "original_saved_tensors_changed": 381
+      },
+      "512": {
+        "actual_encoded_tokens": 512,
+        "sampled_peak_mps_allocated_gib": 25.295,
+        "sampled_peak_mps_driver_gib": 29.063,
+        "chunk_reports": [
+          "reports/minicpm5_capacity512_chunk01_report.json",
+          "reports/minicpm5_capacity512_chunk02_report.json"
+        ],
+        "memory_samples": [
+          "reports/minicpm5_capacity512_chunk01_memory_samples.jsonl",
+          "reports/minicpm5_capacity512_chunk02_memory_samples.jsonl"
+        ],
+        "saved_checkpoint_audit": "reports/minicpm5_capacity512_checkpoint_audit_20261022.json",
+        "original_saved_tensors_changed": 381
+      }
+    },
+    "guard_policy": {
+      "driver_limit_gib": 40,
+      "swap_growth_limit_mib": 512,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3,
+      "all_four_chunk_traces_passed": true,
+      "observed_swap_growth_bytes": 0,
+      "baseline_swap_used_mib": 1562.69
+    },
+    "limits": [
+      "two short updates per length; not sustained training or a quality result",
+      "no D2 optimizer/capacity qualification",
+      "no full-size uninterrupted-versus-split equivalence experiment",
+      "sampled guards can miss transients; driver and RSS overlap"
+    ]
+  },
+  "native_adapter_observation": {
+    "status": "partial_S2_1_native_256_forward_backward_qualified",
+    "report": "reports/minicpm5_native_adapter_qualification256_report.json",
+    "actual_sequence_tokens": 256,
+    "new_parameters": 895490,
+    "new_tensors": 48,
+    "D1_original_trainable_parameters": 0,
+    "D1_original_gradient_tensors": 0,
+    "D2_original_nonzero_gradient_tensors": 381,
+    "new_nonzero_first_backward_tensors": 2,
+    "interpretation": "Two nonzero new gradients are zero-initialized output projections; upstream branch learning after an optimizer step is unmeasured.",
+    "passed": [
+      "native null-logit parity",
+      "checkpoint backward/context lifetime",
+      "target-to-workspace causal separation",
+      "source features rebuilt after writer change",
+      "nonzero branch sensitivity",
+      "native export/reload"
+    ],
+    "not_run": [
+      "optimizer updates",
+      "prompt-fixed augmented generation parity",
+      "D1 tiny overfit",
+      "D2 full-augmented update/capacity"
+    ]
+  },
+  "episode_contract_observation": {
+    "status": "bounded_S1_1_implemented",
+    "module": "src/replica_lab/episodes.py",
+    "schema": "schemas/episodes/episode.schema.json",
+    "design": "docs/experiments/episode_contract_design.md",
+    "tests": "tests/test_episodes.py",
+    "targeted_cpu_tests_passed": 47,
+    "scope": "trusted declared-source metadata, strict causal episode, purpose/role gates, immutable lineage audit and exact eight-field export",
+    "limits": [
+      "source authenticity/raw-byte binding and verifier review belong to intake/host",
+      "explicit oracle channels excluded; semantic laundering is not automatically detected",
+      "no CLI, public ingestion or2k/20k factory implemented"
+    ]
   }
 }

@@ -1,0 +1,192 @@
+{
+  "status": "passed_capacity_receipts_runtime_and_complete_trace_review",
+  "scope": "All four completed-update receipts, INT8/FP32 storage, cursor/schedule/history and recorded guard traces; no full-size continuous-versus-split reference",
+  "256_chunk01": {
+    "checkpoint": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001",
+    "receipt_sha256": "8aa8e8e52681476183932d79f13b6ca205bf9312b4ad9cfab85c11644da98c37",
+    "receipt_verified": true,
+    "completed_steps": 1,
+    "contract_sha256": "70720f98ef76c296e644169ff2279f5048da8ebeb286db4551e012a5ee84f50f",
+    "optimizer_tensor_counts_by_dtype": {
+      "torch.int8": 294,
+      "torch.float32": 468
+    },
+    "optimizer_bytes_by_dtype": {
+      "torch.int8": 1981808640,
+      "torch.float32": 4283453440
+    },
+    "rng_devices": [
+      "cpu",
+      "mps"
+    ],
+    "schedule_state": {
+      "completed_steps": 1,
+      "base_rates": [
+        0.0001,
+        0.0001
+      ]
+    },
+    "next_step": 1,
+    "guard_whole_trace_review": {
+      "policy": {
+        "driver_limit_bytes": 42949672960,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15,
+        "sustained_host_samples": 3
+      },
+      "baseline": {
+        "swap_used_bytes": 1638599229,
+        "memory_free_percent": 89.0
+      },
+      "host_samples": 27,
+      "driver_samples": 224,
+      "peak_driver_bytes": 31239864320,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 54.0,
+      "stop_reason": null
+    },
+    "watchdog_peak_equal_to_complete_trace": true,
+    "guard_version_note": "256 ran original a4958d3 watchdog; complete traces independently rechecked after final-drain fix"
+  },
+  "256_chunk02": {
+    "checkpoint": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002",
+    "receipt_sha256": "156acbb3944a4066be25160a1435ed14a8641712ded85f2ace009b73bc5525c8",
+    "receipt_verified": true,
+    "completed_steps": 2,
+    "contract_sha256": "70720f98ef76c296e644169ff2279f5048da8ebeb286db4551e012a5ee84f50f",
+    "optimizer_tensor_counts_by_dtype": {
+      "torch.int8": 294,
+      "torch.float32": 468
+    },
+    "optimizer_bytes_by_dtype": {
+      "torch.int8": 1981808640,
+      "torch.float32": 4283453440
+    },
+    "rng_devices": [
+      "cpu",
+      "mps"
+    ],
+    "schedule_state": {
+      "completed_steps": 2,
+      "base_rates": [
+        0.0001,
+        0.0001
+      ]
+    },
+    "next_step": 2,
+    "guard_whole_trace_review": {
+      "policy": {
+        "driver_limit_bytes": 42949672960,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15,
+        "sustained_host_samples": 3
+      },
+      "baseline": {
+        "swap_used_bytes": 1638599229,
+        "memory_free_percent": 90.0
+      },
+      "host_samples": 33,
+      "driver_samples": 263,
+      "peak_driver_bytes": 31206309888,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 51.0,
+      "stop_reason": null
+    },
+    "watchdog_peak_equal_to_complete_trace": true,
+    "guard_version_note": "256 ran original a4958d3 watchdog; complete traces independently rechecked after final-drain fix"
+  },
+  "512_chunk01": {
+    "checkpoint": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001",
+    "receipt_sha256": "c943eef66d69e2724fe3077c078edf0f715cb61394c1a76ac1c9d7f149d8d7a6",
+    "receipt_verified": true,
+    "completed_steps": 1,
+    "contract_sha256": "f0279aa3164f3471f76f879aa64e2b063c5c64fda9382d187e3728cb76c3ba7f",
+    "optimizer_tensor_counts_by_dtype": {
+      "torch.int8": 294,
+      "torch.float32": 468
+    },
+    "optimizer_bytes_by_dtype": {
+      "torch.int8": 1981808640,
+      "torch.float32": 4283453440
+    },
+    "rng_devices": [
+      "cpu",
+      "mps"
+    ],
+    "schedule_state": {
+      "completed_steps": 1,
+      "base_rates": [
+        0.0001,
+        0.0001
+      ]
+    },
+    "next_step": 1,
+    "guard_whole_trace_review": {
+      "policy": {
+        "driver_limit_bytes": 42949672960,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15,
+        "sustained_host_samples": 3
+      },
+      "baseline": {
+        "swap_used_bytes": 1638599229,
+        "memory_free_percent": 90.0
+      },
+      "host_samples": 32,
+      "driver_samples": 245,
+      "peak_driver_bytes": 31206309888,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 52.0,
+      "stop_reason": null
+    },
+    "watchdog_peak_equal_to_complete_trace": true,
+    "guard_version_note": "8ce2444 repaired final-drain watchdog with implementation hashes"
+  },
+  "512_chunk02": {
+    "checkpoint": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002",
+    "receipt_sha256": "f0e89d479100902e0884e2c6e739c7679c0da053567133bfaebbffb992aa2d65",
+    "receipt_verified": true,
+    "completed_steps": 2,
+    "contract_sha256": "f0279aa3164f3471f76f879aa64e2b063c5c64fda9382d187e3728cb76c3ba7f",
+    "optimizer_tensor_counts_by_dtype": {
+      "torch.int8": 294,
+      "torch.float32": 468
+    },
+    "optimizer_bytes_by_dtype": {
+      "torch.int8": 1981808640,
+      "torch.float32": 4283453440
+    },
+    "rng_devices": [
+      "cpu",
+      "mps"
+    ],
+    "schedule_state": {
+      "completed_steps": 2,
+      "base_rates": [
+        0.0001,
+        0.0001
+      ]
+    },
+    "next_step": 2,
+    "guard_whole_trace_review": {
+      "policy": {
+        "driver_limit_bytes": 42949672960,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15,
+        "sustained_host_samples": 3
+      },
+      "baseline": {
+        "swap_used_bytes": 1638599229,
+        "memory_free_percent": 90.0
+      },
+      "host_samples": 39,
+      "driver_samples": 292,
+      "peak_driver_bytes": 31206309888,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 50.0,
+      "stop_reason": null
+    },
+    "watchdog_peak_equal_to_complete_trace": true,
+    "guard_version_note": "8ce2444 repaired final-drain watchdog with implementation hashes"
+  }
+}

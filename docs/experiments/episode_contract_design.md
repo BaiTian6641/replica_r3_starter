@@ -16,6 +16,8 @@ Source identity, consent/use permissions and `source.sha256` are **declared trus
 
 Corpus auditing must run on the complete proposed release before exporting individual rows; isolated per-episode validation cannot see cross-file hash/lineage conflicts. Treating identical declared bytes as one split/family is a conservative binding rule, not proof that the declared digest matches a raw artifact. The host still owns who can invoke evaluation, audit sealing, exposure logs and permission configuration. An explicit evaluation purpose is a local API boundary, not user authentication or permission to feed audit cases to a learner.
 
+The eight-field export is intentionally a lossy trainer format. Preserve the canonical episodes, verification receipts and declared export purpose beside it in the release manifest. A flattened `verified:true` means the receipt's task check passed; it does not carry consent, authorize a new use, or permit an evaluation export to be reused for training.
+
 An observed source fact can legitimately contain the answer. For example, an earlier measurement saying “the output was 7” is valid evidence for a later question. There is no answer-substring filter. Structurally marked gold/oracle fields are excluded, but **a paraphrased gold label misrepresented as an ordinary observation cannot be detected automatically**. A trusted adapter, source review and an independent task verifier must prevent that semantic laundering. The unknown/ask actions are structural target categories; deciding that an answer is truly unknown still requires the verifier.
 
 ## Chronology, corrections, deletion and eligibility

@@ -6,20 +6,22 @@ The current fictional fixtures are useful contracts, not a representative traini
 
 Roles are train, dev, calibration, promotion and audit. Learning-policy reward also needs its own exposure boundary. Split original sources/worlds/personas/decision families before all teacher derivatives. An observed source can naturally contain the needed fact; an oracle answer/evidence-location annotation copied into memory is leakage. Event time and observation time are separate.
 
+The bounded S1.1 contract is implemented with **47 targeted CPU tests**: immutable causal episodes, explicit-purpose export, audit-only evaluation access, source/event lineage checks, late corrections, tombstones and current permission revocation. Source metadata/hash authority remains trusted intake, and semantic gold laundering is not detected automatically. Preserve canonical provenance, receipts and declared export purpose beside flattened SFT. This supplies the interface for S1.2; no CLI, public ingestion or 2,000-target factory is claimed. [Contract design and exact example](../experiments/episode_contract_design.md).
+
 The 2k/20k counts and 8–32M processed-token budget are proposed caps. Admission depends on exact source terms, complete response lengths and actual Mac profiles. An external benchmark is not a curriculum pool. Development generations diagnose formatting, cap failures and constant answers; promotion is an independently controlled selection process; final audit is sealed until final reporting.
 
 ## S1.1 — Freeze provenance, roles and causal episode contracts
 
-**Status:** `ready_cpu`. **Dependencies:** none; can start independently.
+**Status:** `bounded_contract_implemented`. **Dependencies:** none; can start independently.
 
-Define rich source/episode manifests and explicit export to the existing eight-field training JSONL. Assign source/world/persona/decision families and train/dev/calibration/promotion/audit roles before teacher expansion; preserve event time, observation time, ownership and allowed uses.
+Implemented a strict immutable canonical episode and deterministic eight-field SFT export with source/group/split binding, event versus observation time, current use/privacy permissions, source versus agent ownership, explicit oracle separation, late corrections and tombstones. Complete-release auditing binds declared duplicate source bytes to one family/split and preserves event bytes. The bounded contract has 47 passing targeted CPU tests; it is not a data factory.
 
-- **Artifact:** planned: source intake manifests and adapter contracts; planned: group/role/causal-cutoff validator report.
-- **Interface:** Canonical source records -> episode adapter -> exact trainer export; evaluator-only labels are separate from prompt/memory channels. Shared schema changes require integration-owner review.
-- **Test gate:** Validators detect cross-role descendants, future observations, answer/evidence annotation leaks and unauthorized records. Every admitted row has source hashes, role, group and independent verification evidence.
-- **Resources:** CPU and local files; first one synthetic source family. Keep downloaded public data quarantined and private archives local.
+- **Artifact:** src/replica_lab/episodes.py; tests/test_episodes.py; schemas/episodes/episode.schema.json; docs/experiments/episode_contract_design.md.
+- **Interface:** Trusted intake -> Episode/validate_episode -> complete-release audit_episode_families -> host-reviewed verifier/byte-bound VerificationReceipt -> input_view/export_sft. Target-bearing purposes are training/evaluation/teacher only; audit requires explicit local_evaluation. Preserve rich source/receipt/export-purpose manifest beside lossy SFT.
+- **Test gate:** Implemented and tested structural/temporal/ownership/purpose boundaries, explicit oracle exclusion, source-hash family binding, immutable event history and verifier receipt binding. Source hashes/authority/consent are trusted declarations, not raw-byte authentication. Ordinary observations may legitimately contain answer facts; semantic gold laundering requires trusted adapter/verifier review. No public corpus or 2k release is admitted by these checks.
+- **Resources:** CPU-only 47 targeted tests and one documented fictional late-correction fixture; no authentic biography, downloaded data or model execution. Three top-level schemas remain unchanged; the episode schema is nested.
 - **Failure policy:** Quarantine unsupported or ambiguous records; never repair missing biography/license/split information by invention.
-- **Next smallest task:** Write one canonical episode example and its exact export mapping, including a late-arriving correction.
+- **Next smallest task:** Build S1.2 source-bound synthetic packet/register worlds and a separately reviewed oracle, audit a small complete slice, then scale toward the proposed 2,000 targets.
 
 ## S1.2 — Release a 2,000-target solver-backed infrastructure slice
 
@@ -32,7 +34,7 @@ Generate independent microengineering worlds plus temporal correction, unknown/a
 - **Test gate:** All admitted labels pass their independent verifier; no duplicate world across roles; target/length/action histograms and rejected cases reported. Review at least 20 cases in each critical category as an operational sample, not proof of zero error.
 - **Resources:** CPU solvers first; external teacher only with eligible data and logged model/prompt/cost. No audit material or real personal data sent by default.
 - **Failure policy:** Fix the generator/solver or drop a failing category. Preserve rejection samples and recompute derived hashes; avoid scaling defective examples.
-- **Next smallest task:** Implement one exact bit/packet or register-map task family with counterexamples that a constant answer cannot pass.
+- **Next smallest task:** Implement a source-bound synthetic packet/register family with independent executable oracle, explicit raw-source hashes, causal unknown/ask/correction cases and complete-release lineage audit; inspect a small slice before scaling to 2,000.
 
 ## S1.3 — Qualify one public training adapter and independent benchmark
 

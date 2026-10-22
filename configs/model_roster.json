@@ -8,9 +8,9 @@
       "role": "stage1_text_full_tuning",
       "architecture": "LlamaForCausalLM",
       "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
-      "status": "native_MPS_balanced_tiny_overfit_and_completed_update_resume_qualified",
-      "execution_scope": "FP32 all2,516,756,480 parameters; balanced accumulation8, actual55tokens; train8/8 dev14/16 at8; native resume8to12; both exports all381changed and reloadexact; longer/D1/D2 unrun",
-      "execution_report": "reports/minicpm5_balanced_overfit_experiment_20261022.json",
+      "status": "native_MPS_D0_actual256_512_capacity_and_sidecar_forward_backward_qualified",
+      "execution_scope": "All2,516,756,480 original parameters; D0 actual256/512 length, accumulation8, two updates and fresh resume per length; all381 changed/reloadexact. D1/D2 native null-parity/backward/causality qualified at256 with895,490 new parameters; no optimizer updates or augmented generation in that probe.",
+      "execution_report": "reports/capacity_readiness_experiment_20261022.json",
       "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B"
     },
     {

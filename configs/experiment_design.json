@@ -22,7 +22,7 @@
     "weight_decay": 0,
     "hyperparameters_status": "Balanced tiny-memorization diagnostic only; not selected for production SFT or D1/D2 quality comparisons",
     "full_model_fit_verified": true,
-    "verified_fit_scope": "M2 Ultra MPS FP32 plain D0; balanced accumulation8; actual sequence55; eight-update memorization and later native continuation; longer/D1/D2 unqualified",
+    "verified_fit_scope": "M2 Ultra MPS FP32 plain D0; accumulation8; actual256 and512; two updates and fresh-process resume per length; D2 optimizer capacity/sustained runs unqualified",
     "execution_report": "reports/minicpm5_balanced_overfit_experiment_20261022.json",
     "historical_two_update_preflight": {
       "muon_lr_base": 0.001,
@@ -31,7 +31,8 @@
       "report": "reports/minicpm5_mps_experiment_20261022.json"
     },
     "lr_policy": "RMS-aligned Muon defaults inherit corresponding auxiliary AdamW rates; distinct explicit overrides remain supported",
-    "warmup_steps": 2
+    "warmup_steps": 2,
+    "capacity_execution_report": "reports/capacity_readiness_experiment_20261022.json"
   },
   "stage1_required": [
     "B0",

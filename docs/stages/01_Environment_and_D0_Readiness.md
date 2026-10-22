@@ -8,6 +8,15 @@ The declared successful intervention combines answer-balanced accumulation of ei
 
 This is training-case memorization evidence. Independent exported-checkpoint generation review and broader development transfer/control interpretation remain separate; no generalization claim follows. Native continuation is qualified, while **full-size uninterrupted-versus-split numerical equivalence is unmeasured**. Exact equivalence is proven only by the tiny CPU experiment. [Native continuation report](../../reports/minicpm5_balanced_mask1_chunk02_report.json), [update-12 generations](../../reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json).
 
+The next D0 capacity milestone is now measured at **actual 256 and 512 encoded tokens**. Each length starts from the sealed original and completes two full-text updates as **1→fresh-process resume 2**, accumulation 8 with all eight answer classes per update. All 381 original tensors receive nonzero gradients; independent saved-checkpoint audits show all 381 changed including embeddings/head at both lengths. Export/reload compared logits match exactly. [256 audit](../../reports/minicpm5_capacity256_checkpoint_audit_20261022.json), [512 audit](../../reports/minicpm5_capacity512_checkpoint_audit_20261022.json), [capacity summary](../../reports/capacity_readiness_experiment_20261022.json).
+
+| Actual length | Sampled peak MPS allocation | Sampled peak driver allocation |
+|---|---:|---:|
+| 256 tokens | 24.956 GiB | 29.094 GiB |
+| 512 tokens | 25.295 GiB | 29.063 GiB |
+
+All four whole-run guard traces passed the declared 40 GiB driver / 512 MiB swap-growth / 15% minimum-free policy, with a three-host-sample sustained criterion. No sampled system swap growth was observed from 1,562.69 MiB. Driver/RSS overlap; sampling can miss transients. These are short **D0-only** capacity results, not sustained training, task quality or D2 fit. Native D2 capacity remains the unfinished part of S0.5.
+
 Existing reproducible entry points remain:
 
 ```bash
@@ -31,7 +40,7 @@ Reuse the existing Git history, Python lock, sealed checkpoint and source templa
 - **Test gate:** Existing 55-token native baseline and full D0 evidence is preserved. A clean locked setup can run offline checks, validate fixtures and reproduce native load with the same model/template hashes.
 - **Resources:** M2 Ultra 64 GiB; Python 3.12.14; torch 2.14.1/transformers 5.20.2; one model resident. No reacquisition or environment upgrade needed for this task.
 - **Failure policy:** Stop on seal or version mismatch; identify the changed file/environment before proceeding. Preserve original reports and user changes.
-- **Next smallest task:** Record the current commit and sealed revision in the new balanced-overfit run manifest.
+- **Next smallest task:** Reuse the current sealed source, template and locked environment; bind their hashes in the next augmented-generation/learning report rather than repeating acquisition.
 
 ## S0.2 — Diagnose the constant-zero failure
 
@@ -44,7 +53,7 @@ Completed the historical sampling/target-mask/template diagnosis and preserved t
 - **Test gate:** Historical four supervised tokens and constant-zero control are accounted for, and mask/template/target-coverage checks are inspected. Eight-class training generation now succeeds under the bundle. Exact causal attribution to balancing, rate, accumulation, warmup or decay remains unisolated.
 - **Resources:** CPU file/token audits first; at most one short source/D0 MPS evaluation if an unresolved prefix or mask hypothesis requires it.
 - **Failure policy:** Preserve the historical failure and do not infer that two updates demonstrate an intrinsic Muon defect. Any future causal-factor claim requires a separate controlled ablation; the successful bundled remediation does not supply it.
-- **Next smallest task:** Carry the answer-coverage and mask checks into the actual 256-token workload; preserve the historical failure and the bundled-intervention limitation.
+- **Next smallest task:** Retain the bundled-fix caveat and per-update answer coverage in the upcoming D1 tiny-overfit diagnostic.
 
 ## S0.3 — Run balanced full-text tiny overfit and verify generated answers
 
@@ -57,7 +66,7 @@ Accepted the native full-text tiny-overfit run from the sealed original: 8/8 str
 - **Test gate:** Passed the scoped tiny-overfit gate: all eight training answer classes 0–7 correct at both updates 4 and 8, full-text scope, finite gradients, accepted checkpoint/export/reload with zero compared-logit difference, and sampled MPS memory fit. Native continuation is separately qualified under S0.4. Independent export-generation checks and broader development transfer/control conclusions belong to the final result record, not this memorization gate.
 - **Resources:** Measured MPS full-text run: microbatch 1, accumulation 8, actual length 55, checkpointing and eight completed updates under declared 64 cap. Sampled peak MPS allocation 24.88 GiB and driver 29.18 GiB at 0.25-second cadence; counters overlap RSS and are not additive. This is not 256-token capacity.
 - **Failure policy:** Retain the historical collapse and all control/development failures. A later artifact or transfer failure narrows the conclusion without erasing the 8/8 training observation. Do not credit any single variable in the bundled intervention without ablation.
-- **Next smallest task:** Review the independent exported-checkpoint generation summary when complete, then move to S0.5 actual 256-token capacity without claiming broader transfer.
+- **Next smallest task:** Use this eight-class diagnostic for D1 after prompt-fixed augmented generation parity; retain its memorization-only interpretation.
 
 ## S0.4 — Make full-text training resumable
 
@@ -65,22 +74,22 @@ Accepted the native full-text tiny-overfit run from the sealed original: 8/8 str
 
 Qualified full-size pretrained fresh-process continuation from completed update 8 through 12 with strict training-contract and byte-receipt acceptance, restored mixed optimizer/RNG/cursor/schedule state, nonzero gradients in all 381 original tensors, 8/8 training generations with eight distinct answers at 12, and checkpoint/export/reload maximum logit difference 0. Checkpoints remain completed-update boundaries with gradients cleared; mid-accumulation resume is unsupported.
 
-- **Artifact:** src/replica_lab/training_state.py; src/replica_lab/checkpointing.py; tests/test_checkpointing.py; tests/test_training_state.py; reports/tests_balanced_training_code.xml; reports/minicpm5_balanced_mask1_chunk02_report.json; reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json; reports/minicpm5_balanced_overfit_experiment_20261022.json.
+- **Artifact:** src/replica_lab/training_state.py; src/replica_lab/checkpointing.py; tests/test_checkpointing.py; tests/test_training_state.py; reports/tests_balanced_training_code.xml; reports/minicpm5_balanced_mask1_chunk02_report.json; reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json; reports/minicpm5_balanced_overfit_experiment_20261022.json; reports/capacity_readiness_experiment_20261022.json.
 - **Interface:** Completed-update trainer boundary -> atomic model/runtime checkpoint with byte receipt -> contract-bound optimizer/model/RNG/data/schedule restore. Native inference export is separate; an interrupted partial accumulation restarts from the last completed checkpoint.
 - **Test gate:** Native short continuation 8→12 is qualified with contract/receipt validation, full-scope finite updates, correct next cursor/schedule and retained eight-class training answers; export/reload compared logits match exactly. Tiny CPU uninterrupted-versus-resumed exact equivalence and MPS optimizer/RNG tests pass. No full-size uninterrupted-versus-split numerical equivalence experiment was run, so no such claim is made.
 - **Resources:** Measured one fresh-process native MPS continuation of four completed updates after checkpoint 8. Save/restore/runtime memory is recorded separately in the continuation report; use one full-size process at a time.
 - **Failure policy:** A weights-only reload is not resume. Resume only at completed-update checkpoints; no mid-accumulation gradient buffer recovery is claimed. Quantify any MPS numerical tolerance while keeping cursor/schedule compatibility exact.
-- **Next smallest task:** Proceed to S0.5 actual 256-token profiling using the qualified completed-update checkpoint path. Run a full-size uninterrupted-versus-split numerical comparison separately if a later result requires that stronger guarantee.
+- **Next smallest task:** Reuse the completed-update checkpoint path for D1 and later D2. Full-size uninterrupted-versus-split numerical equivalence remains a separate unmeasured experiment.
 
 ## S0.5 — Measure genuine 256-token and 512-token full training capacity
 
-**Status:** `ready_actual_256_capacity_next`. **Dependencies:** S0.3, S0.4.
+**Status:** `D0_actual_256_512_qualified_D2_capacity_pending`. **Dependencies:** S0.3, S0.4.
 
-Generate varied episodes whose native encoded sequence lengths actually reach 256 and then 512 without padding-only inflation or answer truncation. Profile D0 forward/backward/update, accumulation, evaluation, state save and reload, then repeat for the selected D2 configuration.
+Qualified actual 256-token and 512-token D0 full-text workloads, each from the sealed original with two updates split 1→fresh-process resume 2. Accumulation 8 covers all eight answers in every update. All 381 original tensors have nonzero gradients and independent saved-checkpoint changes, and export/reload maximum compared-logit difference is 0. Guard traces pass. The corresponding D2 optimizer/update/capacity path is still pending, so the complete stage is not finished.
 
-- **Artifact:** planned: capacity workload manifest with length and supervised-token histograms; planned: per-regime 256/512 memory samples and throughput reports.
+- **Artifact:** reports/capacity_readiness_experiment_20261022.json; reports/minicpm5_capacity256_chunk01_report.json; reports/minicpm5_capacity256_chunk02_report.json; reports/minicpm5_capacity512_chunk01_report.json; reports/minicpm5_capacity512_chunk02_report.json; reports/minicpm5_capacity256_checkpoint_audit_20261022.json; reports/minicpm5_capacity512_checkpoint_audit_20261022.json; planned: matching D2 actual 256/512 capacity reports.
 - **Interface:** Tokenizer/template length audit -> bounded trainer -> profiler phase events. Compare allocated/driver/RSS counters with host pressure/swap; identify overlap and sampling cadence.
-- **Test gate:** Each claimed length is reached by real encoded content. Full scope, finite updates, qualified restart and export pass with declared headroom, no fallback and no sustained memory-pressure/swap-growth breach. D0 success alone does not qualify D2.
-- **Resources:** Mac 64 GiB; run 256 before 512, one model resident, microbatch 1/checkpointing first. Declare a conservative pressure/driver-memory stop threshold before starting; retain OS safeguards.
+- **Test gate:** D0 portion passes at both real encoded lengths: full 381-tensor gradients/changes including embeddings/head, resumed second update, exact compared-logit reload and no observed guard breach. Two short updates do not establish sustained training or task quality. Keep the overall gate partial until native D2 performs optimizer updates and the same declared length/guard/restart checks.
+- **Resources:** Measured D0 live/driver sampled peaks: 256 tokens 24.956/29.094 GiB; 512 tokens 25.295/29.063 GiB. Driver cap 40 GiB, swap-growth cap 512 MiB, minimum host-free 15%, sustained-host criterion 3 samples. All four whole traces passed with no observed growth from 1,562.69 MiB system swap. Samples can miss transients; driver and RSS overlap.
 - **Failure policy:** Stop and preserve the failing profile. Reduce length/accumulation or add tested residency changes without freezing hidden layers. Do not extrapolate from the historical 55-token result.
-- **Next smallest task:** Create the 256-token workload and verify actual lengths with the pinned tokenizer before allocating the full model.
+- **Next smallest task:** Qualify prompt-fixed augmented generation, run D1 tiny overfit, then execute a bounded full-scope D2 capacity/update preflight to finish the remaining S0.5 portion.

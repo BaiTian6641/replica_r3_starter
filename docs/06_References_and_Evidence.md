@@ -2,7 +2,9 @@
 
 **Current native preflight review: 22 October 2026 (America/Chicago). Original bundle review label: 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
 
-The subsequent [balanced-overfit record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) supersedes the collapse as the current diagnostic result while preserving its failure evidence: full native Muon 8-bit reached eight distinct correct training answers at updates 4 and 8, independently verified from the export; development generation scored 14/16. Fresh-process continuation through update 12 retained train 8/8 and scored dev 13/16. All 381 original tensors changed in both exports. Completed-update optimizer/RNG/data/schedule continuation is qualified; full-size uninterrupted-versus-resumed equivalence remains unmeasured. The current suite has 169 passing tests. These are tiny synthetic results, not general quality or Replica fidelity evidence.
+The subsequent [balanced-overfit record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) supersedes the collapse as the current diagnostic result while preserving its failure evidence: full native Muon 8-bit reached eight distinct correct training answers at updates 4 and 8, independently verified from the export; development generation scored 14/16. Fresh-process continuation through update 12 retained train 8/8 and scored dev 13/16. All 381 original tensors changed in both exports. Completed-update optimizer/RNG/data/schedule continuation is qualified; full-size uninterrupted-versus-resumed equivalence remains unmeasured. That milestone passed 169 tests; the subsequent readiness suite has 246 passing tests. These are tiny synthetic results, not general quality or Replica fidelity evidence.
+
+The [subsequent capacity/readiness record](../reports/capacity_readiness_experiment_20261022.json) qualifies bounded actual 256/512-token full D0 updates with native restart, all-original-tensor changes and exact reload. A separate 256-token D1/D2 sidecar probe qualifies null parity, causal context, checkpointed backward and nonzero-sidecar export/reload, with no optimizer updates or augmented generation. These measurements do not close D2 optimizer capacity or architecture-quality gates. The new causal episode contract is bounded trusted-intake infrastructure, not an admitted public or personal dataset.
 
 The [dated research review](stages/07_Research_Evidence_20261022.md) records primary sources, version-specific release limitations, optimizer RMS alignment, the separate official ms-swift environment and the bounded TAIS project-name search. The [33-substage roadmap](stages/00_Master_Roadmap.md) turns that review into dependencies and acceptance gates. Version 3 of the Muon paper reports up to 62% optimizer-state savings under its experiments; that is not a whole-training-memory claim or a validation of this portable implementation.
 
@@ -92,7 +94,7 @@ The following remain **unrun**:
 
 - Native pretrained MiniCPM5 D1/D2 augmented training and broader task-quality evaluation.
 - CUDA full fine-tuning, sharding or optimizer offload.
-- Representative long-sequence or sustained native MPS full training, full-size uninterrupted/resumed numerical equivalence and MLX parity measurements.
+- Representative natural-data or sustained native MPS training beyond the measured two-update synthetic 256/512 runs, full-size uninterrupted/resumed numerical equivalence and MLX parity measurements.
 - Actual V4.7 multimodal integration and full-VLM gradient tests.
 - A learned autonomous curriculum/director operating through multiple neural updates.
 - Ten-cycle model learning, broad transfer or source-person fidelity.

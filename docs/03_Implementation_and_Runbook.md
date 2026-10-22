@@ -2,7 +2,7 @@
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
-**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic now generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Native D1/D2, longer-context trials and broader independent evaluation remain separate checks. Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md) and [consolidated experiment record](../reports/minicpm5_balanced_overfit_experiment_20261022.json).
+**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Actual 256-token and 512-token D0 short capacity screens also passed, each with two updates split across native restart. Native D1/D2 forward/backward qualification passed at 256; augmented optimizer training, cached generation and broader evaluation remain separate gates. Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md), [learning result record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) and [capacity qualification](experiments/20261022_Capacity_Qualification.md).
 
 ## 1. What the delivered code actually does
 
@@ -13,7 +13,7 @@
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |
 | neural.py | Learned record pooling, residual reader, recurrent prompt workspace, functional linear fast state | Simplified project modules, not a reproduced research architecture |
 | model_adapter.py | One complete native Llama block wrapper; explicit trainable scope; safe base/sidecar export | Training-only text adapter; no native generation cache, VLM or distributed support |
-| train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native baseline and eight-update full D0 measured; no offload or distributed training |
+| train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native D0 overfit and short actual 256/512 capacity measured; no offload or distributed training |
 | evaluate_text.py | Greedy native cached generation and strict fixture task scoring for source or plain D0 export | Does not supply augmented generation or broad benchmark accuracy |
 | profiling.py | Periodic MPS allocation/driver samples, process RSS, synchronized phase timing and host swap/pressure endpoints | Sampled MPS peaks can miss transients; unified-memory counters overlap |
 | audit_checkpoint.py | Stream source/export CPU comparisons after dtype normalization | Saved-weight changes do not imply every element received a nonzero gradient |
@@ -23,6 +23,9 @@
 | setup_macos.sh / smoke_training.py | Locked environment; tiny MPS D0/D1/D2 forward/backward/update and export/reload | Does not establish full-size model fit, quality or training-run resume |
 | run_contract_demo.py | Observe/store/compile/evaluate/publish/restart/reject/rollback on deterministic XOR fixtures | Fixed symbolic compiler and curriculum; no LLM learning claim |
 | make_fixtures.py | 32 train + 16 dev solver-verified synthetic examples | Plumbing data only |
+| make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
+| capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
+| qualify_native_adapter.py | Native 256-token D1/D2 null-branch, causality, sensitivity and nonreentrant forward/backward checks | No optimizer updates or augmented generation; D2 capacity remains unqualified |
 | pin_model.py / seal_snapshot.py | Resolve metadata revision; seal exact local snapshot bytes | Local hashing is not an independent publisher signature |
 | download_model.py | Acquire complete snapshot at the existing immutable metadata lock; retain receipt | No weight execution; weights and download caches are ignored by Git |
 | inspect_snapshot.py | Verify seal and count actual checkpoint tensor shapes; estimate optimizer mixture bytes | Reads headers without model execution; arithmetic is not a measured memory peak |
@@ -235,7 +238,60 @@ Independent CPU [update-8](../reports/minicpm5_balanced_chunk01_checkpoint_audit
   --device mps --max-examples 16 --max-new-tokens 256 --max-length 256
 ~~~
 
-Balancing, effective batch, rate, warmup, weight decay and training exposure changed together. The [diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md) records plausible contributors and the limit on causal attribution. Next measure evidence/retention controls, actual 256-token episodes and native D1/D2 under the [S0 readiness gates](stages/01_Environment_and_D0_Readiness.md); full-size uninterrupted-versus-resumed equivalence still requires a separate control.
+Balancing, effective batch, rate, warmup, weight decay and training exposure changed together. The [diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md) records plausible contributors and the limit on causal attribution. The actual-length screen below is a separate capacity experiment from the same sealed source; it leaves this eight-update learning winner unchanged. Evidence/retention controls and native D1/D2 training remain separate under the [S0 readiness gates](stages/01_Environment_and_D0_Readiness.md); full-size uninterrupted-versus-resumed equivalence still requires a separate control.
+
+### Actual 256-token and 512-token D0 capacity and restart
+
+The [preregistered design](../configs/capacity_design.json) completed two full-scope FP32 MPS updates per length, one before and one after a fresh-process native checkpoint restore. Every accumulated update covered answers `0..7` once. Full train/dev sequences were exactly 256 or 512 tokens, with no padding-only inflation or truncation. All 381 original tensors had nonzero finite gradients, and independent [256](../reports/minicpm5_capacity256_checkpoint_audit_20261022.json)/[512](../reports/minicpm5_capacity512_checkpoint_audit_20261022.json) audits found changes in all original tensors with names/shapes preserved. All four export/reload comparisons matched exactly. No CPU fallback or allocator change occurred.
+
+| Actual length | Two-update time | Processed / supervised tokens | Maximum sampled live / driver memory | Profiled fresh / resumed process times |
+|---:|---:|---:|---:|---:|
+| 256 | 44.988 s | 4,096 / 32 | 24.956 / 29.094 GiB | 53.279 / 64.238 s |
+| 512 | 50.945 s | 8,192 / 32 | 25.295 / 29.063 GiB | 61.850 / 76.586 s |
+
+The 40 GiB driver, sustained 512 MiB host-swap-growth and sustained 15% host-free thresholds were not breached. Host swap occupancy remained 1,562.69 MiB in the sampled readings. The first two guards used an earlier exit loop; complete original JSONL was independently rechecked after an exit-race fix, confirming no actual breach. The fix preceded 512. See [per-process reports, phase timings, original samples and guard review](experiments/20261022_Capacity_Qualification.md). Resumed trainer totals include restored update history; process-profile times and peaks describe only the current process. Do not add cumulative chunk training times or overlapping memory counters.
+
+The workloads already exist under [capacity_256](../data/diagnostics/capacity_256/) and [capacity_512](../data/diagnostics/capacity_512/). The builder refuses overwrite; use a fresh `--output-root` when rebuilding. To reproduce the measured settings with new report/checkpoint paths, define this function in bash or zsh:
+
+~~~bash
+capacity_pair() {
+  local length="$1"
+  local first="runs/minicpm5_capacity${length}_full_muon8bit_chunk01_next"
+  local second="runs/minicpm5_capacity${length}_full_muon8bit_chunk02_next"
+  local -a common
+  common=(
+    --model-path checkpoints/minicpm5_source
+    --model-lock configs/minicpm5_sealed_lock.local.json
+    --data "data/diagnostics/capacity_${length}/train.jsonl"
+    --dev "data/diagnostics/capacity_${length}/dev.jsonl"
+    --regime full --device mps --dtype float32 --optimizer muon8bit
+    --sampling answer_balanced --steps 2 --grad-accum 8 --max-length "$length"
+    --lr-muon-base 0.0001 --lr-base 0.0001
+    --lr-muon-new 0.0001 --lr-new 0.0001
+    --warmup-steps 2 --lr-schedule constant --weight-decay 0 --seed 17
+    --checkpoint-every 1 --checkpointing --verify-reload
+  )
+  .venv/bin/python scripts/run_capacity_preflight.py \
+    --report "reports/minicpm5_capacity${length}_chunk01_guard_next.json" \
+    --driver-limit-gib 40 --swap-growth-limit-mib 512 \
+    --minimum-free-percent 15 --sustained-host-samples 3 \
+    -- "${common[@]}" --output "$first" --stop-after 1 || return
+  .venv/bin/python scripts/run_capacity_preflight.py \
+    --report "reports/minicpm5_capacity${length}_chunk02_guard_next.json" \
+    --driver-limit-gib 40 --swap-growth-limit-mib 512 \
+    --minimum-free-percent 15 --sustained-host-samples 3 \
+    -- "${common[@]}" --output "$second" --stop-after 2 \
+    --resume-from "$first/training_checkpoint_0001"
+}
+
+capacity_pair 256
+# Review the completed 256 reports, receipts, gradients and guard samples first.
+capacity_pair 512
+~~~
+
+These jobs disable generation and measure capacity, not quality. Keep one full-size model resident. A wrapper success alone is insufficient: apply the design's scope, exact-length, finite-update, checkpoint/reload, guard and saved-weight audit gates before advancing to the next length.
+
+The [separate native adapter qualification](../reports/minicpm5_native_adapter_qualification256_report.json) passed one 256-token D1/D2 null-parity, causality, sensitivity and nonreentrant forward/backward check, with no optimizer updates or generation. The next interface task is cached/uncached augmented generation parity using past-only support and prompt workspace, including export/reload, EOS and context release. Qualify that interface before repeating this guarded screen for D2; full augmented training capacity and broad task learning remain unmeasured.
 
 ## 5. Interfaces the next coding agent must preserve
 
