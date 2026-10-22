@@ -1,0 +1,1325 @@
+{
+  "format_version": 1,
+  "inventory_date": "2026-10-22",
+  "created_at_utc": "2026-10-22T22:43:38.573120+00:00",
+  "workspace_root": "/Users/flare/replica_r3_starter",
+  "purpose": "Retention inventory plus verified archival of small runtime metadata. Checkpoint deletion candidates are marked for manual cleanup; no deletion was performed.",
+  "training_status": "PAUSED",
+  "deletions_performed": false,
+  "payloads_moved_or_modified": false,
+  "source_preserved": true,
+  "source_path": "checkpoints/minicpm5_source",
+  "source_download_required": false,
+  "method": {
+    "sizes": "Sum of regular-file logical st_size values; directory entries excluded. Sources, runs and reports are inventoried with mutually exclusive file selections.",
+    "hashing": "SHA-256 only of the 32 small archived metadata JSON files. No model weights/runtime payloads were hashed or loaded.",
+    "deduplication": "Not performed. Same-sized files are not asserted to be byte-identical.",
+    "space_estimates": "Logical sizes are not guaranteed reclaimed physical space; APFS shared/cloned extents may overlap.",
+    "scope": "checkpoints/minicpm5_source, runs, and reports. This new inventory file is excluded from the snapshot totals to avoid self-reference. Other workspace files are outside this storage inventory.",
+    "symlinks": "No symlink payload contents followed.",
+    "candidate_semantics": "Candidate status is a proposal only. Archives preserve receipts/provenance, not weights/optimizer/RNG payloads; deletion removes the corresponding resume capability. No deletion is performed or implied by this inventory."
+  },
+  "totals_nonoverlapping": {
+    "all_inventoried": {
+      "logical_bytes": 407971637433,
+      "file_count": 714,
+      "logical_gib": 379.953195744
+    },
+    "by_status": {
+      "KEEP": {
+        "logical_bytes": 215360700307,
+        "file_count": 559,
+        "entry_count": 44,
+        "logical_gib": 200.570281881
+      },
+      "DELETE_ELIGIBLE_NOT_DELETED": {
+        "logical_bytes": 192610937126,
+        "file_count": 155,
+        "entry_count": 16,
+        "logical_gib": 179.382913863
+      }
+    },
+    "by_root": {
+      "checkpoints/minicpm5_source": {
+        "logical_bytes": 5043810740,
+        "file_count": 36,
+        "logical_gib": 4.697414804
+      },
+      "runs": {
+        "logical_bytes": 402920940398,
+        "file_count": 459,
+        "logical_gib": 375.249367578
+      },
+      "reports_excluding_this_inventory": {
+        "logical_bytes": 6886295,
+        "file_count": 219,
+        "logical_gib": 0.006413362
+      }
+    }
+  },
+  "metadata_archive": {
+    "path": "reports/checkpoint_metadata_archive_20261022",
+    "file_count": 32,
+    "logical_bytes": 128336,
+    "all_copies_sha256_verified": true,
+    "source_files_modified": false,
+    "records": [
+      {
+        "source_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/checkpoint_receipt.json",
+        "logical_bytes": 3215,
+        "source_sha256": "2e91da24acee9d7c0a8693722767c655e525fd4da83eac535b8579f3af332ee1",
+        "archive_sha256": "2e91da24acee9d7c0a8693722767c655e525fd4da83eac535b8579f3af332ee1",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/adapter_manifest.json",
+        "logical_bytes": 4572,
+        "source_sha256": "8e1b5b97ae5edad72248599e97df8c1b254a8b89df083e9bc5e2aa7f14418a04",
+        "archive_sha256": "8e1b5b97ae5edad72248599e97df8c1b254a8b89df083e9bc5e2aa7f14418a04",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+        "logical_bytes": 3214,
+        "source_sha256": "8aa8e8e52681476183932d79f13b6ca205bf9312b4ad9cfab85c11644da98c37",
+        "archive_sha256": "8aa8e8e52681476183932d79f13b6ca205bf9312b4ad9cfab85c11644da98c37",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/adapter_manifest.json",
+        "logical_bytes": 4572,
+        "source_sha256": "768f45d2bc45bd67903e14168f5c83d204bd028656015f010bc2b808e1c16928",
+        "archive_sha256": "768f45d2bc45bd67903e14168f5c83d204bd028656015f010bc2b808e1c16928",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+        "logical_bytes": 3214,
+        "source_sha256": "156acbb3944a4066be25160a1435ed14a8641712ded85f2ace009b73bc5525c8",
+        "archive_sha256": "156acbb3944a4066be25160a1435ed14a8641712ded85f2ace009b73bc5525c8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/adapter_manifest.json",
+        "logical_bytes": 4572,
+        "source_sha256": "768f45d2bc45bd67903e14168f5c83d204bd028656015f010bc2b808e1c16928",
+        "archive_sha256": "768f45d2bc45bd67903e14168f5c83d204bd028656015f010bc2b808e1c16928",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+        "logical_bytes": 3214,
+        "source_sha256": "c943eef66d69e2724fe3077c078edf0f715cb61394c1a76ac1c9d7f149d8d7a6",
+        "archive_sha256": "c943eef66d69e2724fe3077c078edf0f715cb61394c1a76ac1c9d7f149d8d7a6",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/adapter_manifest.json",
+        "logical_bytes": 4572,
+        "source_sha256": "aa4e6454f2a00194d88ad97b18b7fd926c2468798bc72f3f625a8e6e7e161b47",
+        "archive_sha256": "aa4e6454f2a00194d88ad97b18b7fd926c2468798bc72f3f625a8e6e7e161b47",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+        "logical_bytes": 3214,
+        "source_sha256": "f0e89d479100902e0884e2c6e739c7679c0da053567133bfaebbffb992aa2d65",
+        "archive_sha256": "f0e89d479100902e0884e2c6e739c7679c0da053567133bfaebbffb992aa2d65",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/adapter_manifest.json",
+        "logical_bytes": 4572,
+        "source_sha256": "aa4e6454f2a00194d88ad97b18b7fd926c2468798bc72f3f625a8e6e7e161b47",
+        "archive_sha256": "aa4e6454f2a00194d88ad97b18b7fd926c2468798bc72f3f625a8e6e7e161b47",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+        "logical_bytes": 3423,
+        "source_sha256": "778624efa786869affac90f3a029ae46e9d0ad77009b875f102aaf7e4055acba",
+        "archive_sha256": "778624efa786869affac90f3a029ae46e9d0ad77009b875f102aaf7e4055acba",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "6f0ce615ab75399e13dc2e7dbcd4ba8ebaebf63aacb7108d2eb8096e8c09b3c1",
+        "archive_sha256": "6f0ce615ab75399e13dc2e7dbcd4ba8ebaebf63aacb7108d2eb8096e8c09b3c1",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "e74e95f433ce9a5209c828d95fbd587e41bceceb2e74c3fb3a3ccfe8ade6cd73",
+        "archive_sha256": "e74e95f433ce9a5209c828d95fbd587e41bceceb2e74c3fb3a3ccfe8ade6cd73",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "37d3fb9a2fecb8179aad463e58d4d76533b235cc612a71a4b733e27b9ad1c671",
+        "archive_sha256": "37d3fb9a2fecb8179aad463e58d4d76533b235cc612a71a4b733e27b9ad1c671",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "9540bf137e35f752879be4ba7e749ae01568e088789abab204874eb360d0ba41",
+        "archive_sha256": "9540bf137e35f752879be4ba7e749ae01568e088789abab204874eb360d0ba41",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "70409ba2fb6d39ae27fa1ef332d4bd69ccd0d84750a31d213556d9097c870f1c",
+        "archive_sha256": "70409ba2fb6d39ae27fa1ef332d4bd69ccd0d84750a31d213556d9097c870f1c",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "ab9e3afb02b0ca774d55ec46810916a97f7ea213b3e85d4182b734061e0ff967",
+        "archive_sha256": "ab9e3afb02b0ca774d55ec46810916a97f7ea213b3e85d4182b734061e0ff967",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/checkpoint_receipt.json",
+        "logical_bytes": 3424,
+        "source_sha256": "cee0699133bfd32068475fa6d170c76794d538a52b1479f12352ec2e0e5cc526",
+        "archive_sha256": "cee0699133bfd32068475fa6d170c76794d538a52b1479f12352ec2e0e5cc526",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/adapter_manifest.json",
+        "logical_bytes": 4705,
+        "source_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "archive_sha256": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+        "logical_bytes": 3421,
+        "source_sha256": "e048d39448d87449cdc7e02d559afed8092bf1a737ae70ba779333afa8d2c925",
+        "archive_sha256": "e048d39448d87449cdc7e02d559afed8092bf1a737ae70ba779333afa8d2c925",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json",
+        "logical_bytes": 4703,
+        "source_sha256": "dcac0165951613700944ff3db75fabdcb5a951ecd457d832481590465891179d",
+        "archive_sha256": "dcac0165951613700944ff3db75fabdcb5a951ecd457d832481590465891179d",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/checkpoint_receipt.json",
+        "logical_bytes": 3422,
+        "source_sha256": "3355787197f3952c9a6c1fec2224c9aabca029e1784223571816aea8255339c7",
+        "archive_sha256": "3355787197f3952c9a6c1fec2224c9aabca029e1784223571816aea8255339c7",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/adapter_manifest.json",
+        "logical_bytes": 4703,
+        "source_sha256": "dcac0165951613700944ff3db75fabdcb5a951ecd457d832481590465891179d",
+        "archive_sha256": "dcac0165951613700944ff3db75fabdcb5a951ecd457d832481590465891179d",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/checkpoint_receipt.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/checkpoint_receipt.json",
+        "logical_bytes": 3422,
+        "source_sha256": "65f0bf48f0b9dda201e06d9ed5c533c00a3e3a07f6ac59b2aab2785c0312cf01",
+        "archive_sha256": "65f0bf48f0b9dda201e06d9ed5c533c00a3e3a07f6ac59b2aab2785c0312cf01",
+        "verified_identical": true
+      },
+      {
+        "source_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/adapter_manifest.json",
+        "archive_path": "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/adapter_manifest.json",
+        "logical_bytes": 4703,
+        "source_sha256": "dcac0165951613700944ff3db75fabdcb5a951ecd457d832481590465891179d",
+        "archive_sha256": "dcac0165951613700944ff3db75fabdcb5a951ecd457d832481590465891179d",
+        "verified_identical": true
+      }
+    ]
+  },
+  "retention_entries": [
+    {
+      "path": "checkpoints/minicpm5_source",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Sealed immutable original MiniCPM5 source; preserve locally and never download again.",
+      "logical_bytes": 5043810740,
+      "file_count": 36,
+      "logical_gib": 4.697414804,
+      "immutable_source": true,
+      "download_again": false
+    },
+    {
+      "path": "runs/contract_demo_macos_setup_01",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 27562,
+      "file_count": 7,
+      "logical_gib": 2.5669e-05
+    },
+    {
+      "path": "runs/minicpm5_D1_lr1e2_step28_dev_generation_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 137104,
+      "file_count": 4,
+      "logical_gib": 0.000127688
+    },
+    {
+      "path": "runs/minicpm5_D1_lr1e2_step28_train_generation_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 83323,
+      "file_count": 4,
+      "logical_gib": 7.7601e-05
+    },
+    {
+      "path": "runs/minicpm5_D1_lr1e3_step64_dev_generation_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 149338,
+      "file_count": 4,
+      "logical_gib": 0.000139082
+    },
+    {
+      "path": "runs/minicpm5_D1_lr1e3_step64_train_generation_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 89273,
+      "file_count": 4,
+      "logical_gib": 8.3142e-05
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10080598117,
+      "file_count": 8,
+      "logical_gib": 9.388288592,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Superseded by the protected successful lr1e-2 update28 export and resumable checkpoint.",
+      "logical_bytes": 10081650160,
+      "file_count": 10,
+      "logical_gib": 9.389268383,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_superseded_runtime",
+      "completed_steps": 8,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e2_chunk01_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 352197,
+      "file_count": 5,
+      "logical_gib": 0.000328009,
+      "excluded_subtrees": [
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/checkpoint",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Selected D1 lr1e-2 update28 inference export.",
+      "logical_bytes": 10080661661,
+      "file_count": 8,
+      "logical_gib": 9.388347772,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Superseded by the protected successful lr1e-2 update28 export and resumable checkpoint.",
+      "logical_bytes": 10081660593,
+      "file_count": 10,
+      "logical_gib": 9.3892781,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_superseded_runtime",
+      "completed_steps": 16,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e2_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Superseded by the protected successful lr1e-2 update28 export and resumable checkpoint.",
+      "logical_bytes": 10081669489,
+      "file_count": 10,
+      "logical_gib": 9.389286385,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_superseded_runtime",
+      "completed_steps": 24,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e2_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Selected D1 lr1e-2 update28 resumable runtime.",
+      "logical_bytes": 10081673905,
+      "file_count": 10,
+      "logical_gib": 9.389290498,
+      "artifact_kind": "resumable_training_checkpoint"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 817961,
+      "file_count": 8,
+      "logical_gib": 0.000761786,
+      "excluded_subtrees": [
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10080598135,
+      "file_count": 8,
+      "logical_gib": 9.388288609,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081650164,
+      "file_count": 10,
+      "logical_gib": 9.389268387,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 8,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk01_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 351472,
+      "file_count": 5,
+      "logical_gib": 0.000327334,
+      "excluded_subtrees": [
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/checkpoint",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Sole failed D1 lr1e-3 update64 final inference export; preserve negative evidence.",
+      "logical_bytes": 10080792547,
+      "file_count": 8,
+      "logical_gib": 9.388469669,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081661237,
+      "file_count": 10,
+      "logical_gib": 9.3892787,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 16,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081671669,
+      "file_count": 10,
+      "logical_gib": 9.389288415,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 24,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081682101,
+      "file_count": 10,
+      "logical_gib": 9.389298131,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 32,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081692469,
+      "file_count": 10,
+      "logical_gib": 9.389307787,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 40,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081702965,
+      "file_count": 10,
+      "logical_gib": 9.389317562,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 48,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081713397,
+      "file_count": 10,
+      "logical_gib": 9.389327277,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 56,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed negative lr1e-3 arm; its final update64 inference export is protected as negative evidence. This runtime is no longer needed for the paused experiment.",
+      "logical_bytes": 10081723637,
+      "file_count": 10,
+      "logical_gib": 9.389336814,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D1_negative_arm_runtime",
+      "completed_steps": 64,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_D1_lr1e3_chunk02_report.json",
+        "reports/validation_D1_runtime_20261022.json",
+        "reports/minicpm5_D1_checkpoint_audit_20261022.json",
+        "reports/native_augmented_D1_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_D1_Diagnostic.md",
+        "docs/experiments/20261022_D1_Fixed_Context_Protocol.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 2184625,
+      "file_count": 17,
+      "logical_gib": 0.002034591,
+      "excluded_subtrees": [
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Current D2 capacity256 chunk01 is not yet documented/archived; preserve all evidence and artifacts.",
+      "logical_bytes": 26427886280,
+      "file_count": 21,
+      "logical_gib": 24.612887092
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Current D2 capacity256 chunk02 is not yet documented/archived; preserve all evidence and artifacts.",
+      "logical_bytes": 26427908456,
+      "file_count": 21,
+      "logical_gib": 24.612907745
+    },
+    {
+      "path": "runs/minicpm5_augmented_generation_qualification256_20261022/adapter_export",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10080559993,
+      "file_count": 8,
+      "logical_gib": 9.388253086,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_augmented_generation_qualification256_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 67442,
+      "file_count": 3,
+      "logical_gib": 6.281e-05,
+      "excluded_subtrees": [
+        "runs/minicpm5_augmented_generation_qualification256_20261022/adapter_export"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_balanced_chunk01_export_dev_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 135555,
+      "file_count": 4,
+      "logical_gib": 0.000126245
+    },
+    {
+      "path": "runs/minicpm5_balanced_chunk01_export_train_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 82402,
+      "file_count": 4,
+      "logical_gib": 7.6743e-05
+    },
+    {
+      "path": "runs/minicpm5_balanced_chunk02_export_dev_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 135515,
+      "file_count": 4,
+      "logical_gib": 0.000126208
+    },
+    {
+      "path": "runs/minicpm5_balanced_chunk02_export_train_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 81834,
+      "file_count": 4,
+      "logical_gib": 7.6214e-05
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Selected D0 update8 run, including its inference export, resumable runtime and all raw evidence.",
+      "logical_bytes": 26420076243,
+      "file_count": 21,
+      "logical_gib": 24.605613428
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10077038914,
+      "file_count": 7,
+      "logical_gib": 9.384973826,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed update12 resume probe; selected update8 export and resumable checkpoint are protected. This is not the selected model.",
+      "logical_bytes": 16342512509,
+      "file_count": 9,
+      "logical_gib": 15.220150826,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D0_resume_probe",
+      "completed_steps": 12,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_balanced_mask1_chunk02_report.json",
+        "reports/minicpm5_balanced_mask1_chunk02_training_checkpoint_0012_receipt.json",
+        "reports/minicpm5_balanced_chunk02_checkpoint_audit.json",
+        "reports/minicpm5_balanced_checkpoint_validation.json",
+        "reports/minicpm5_balanced_overfit_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/02_Stages_Experiments_and_Hardware.md",
+        "docs/03_Implementation_and_Runbook.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 353909,
+      "file_count": 4,
+      "logical_gib": 0.000329603,
+      "excluded_subtrees": [
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10077004715,
+      "file_count": 7,
+      "logical_gib": 9.384941976,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed documented native full-fine-tuning capacity probe; run-level evidence and its inference export are retained. No planned resume requires this optimizer/RNG copy.",
+      "logical_bytes": 16342486140,
+      "file_count": 9,
+      "logical_gib": 15.220126268,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D0_capacity_probe",
+      "completed_steps": 1,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_capacity256_chunk01_report.json",
+        "reports/minicpm5_capacity256_chunk01_training_checkpoint_0001_receipt.json",
+        "reports/minicpm5_capacity256_checkpoint_audit_20261022.json",
+        "reports/validation_capacity_runtime_20261022.json",
+        "reports/capacity_readiness_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_Capacity_Qualification.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 149295,
+      "file_count": 3,
+      "logical_gib": 0.000139042,
+      "excluded_subtrees": [
+        "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint",
+        "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10077006459,
+      "file_count": 7,
+      "logical_gib": 9.3849436,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed documented native full-fine-tuning capacity probe; run-level evidence and its inference export are retained. No planned resume requires this optimizer/RNG copy.",
+      "logical_bytes": 16342487228,
+      "file_count": 9,
+      "logical_gib": 15.220127281,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D0_capacity_probe",
+      "completed_steps": 2,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_capacity256_chunk02_report.json",
+        "reports/minicpm5_capacity256_chunk02_training_checkpoint_0002_receipt.json",
+        "reports/minicpm5_capacity256_checkpoint_audit_20261022.json",
+        "reports/validation_capacity_runtime_20261022.json",
+        "reports/capacity_readiness_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_Capacity_Qualification.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 165014,
+      "file_count": 3,
+      "logical_gib": 0.000153681,
+      "excluded_subtrees": [
+        "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint",
+        "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10077004721,
+      "file_count": 7,
+      "logical_gib": 9.384941981,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed documented native full-fine-tuning capacity probe; run-level evidence and its inference export are retained. No planned resume requires this optimizer/RNG copy.",
+      "logical_bytes": 16342486140,
+      "file_count": 9,
+      "logical_gib": 15.220126268,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D0_capacity_probe",
+      "completed_steps": 1,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_capacity512_chunk01_report.json",
+        "reports/minicpm5_capacity512_chunk01_training_checkpoint_0001_receipt.json",
+        "reports/minicpm5_capacity512_checkpoint_audit_20261022.json",
+        "reports/validation_capacity_runtime_20261022.json",
+        "reports/capacity_readiness_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_Capacity_Qualification.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 156407,
+      "file_count": 3,
+      "logical_gib": 0.000145665,
+      "excluded_subtrees": [
+        "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint",
+        "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10077006461,
+      "file_count": 7,
+      "logical_gib": 9.384943602,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002",
+      "selection": "entire_tree",
+      "status": "DELETE_ELIGIBLE_NOT_DELETED",
+      "reason": "Completed documented native full-fine-tuning capacity probe; run-level evidence and its inference export are retained. No planned resume requires this optimizer/RNG copy.",
+      "logical_bytes": 16342487228,
+      "file_count": 9,
+      "logical_gib": 15.220127281,
+      "artifact_kind": "resumable_training_checkpoint",
+      "experiment_kind": "D0_capacity_probe",
+      "completed_steps": 2,
+      "metadata_archive_verified": true,
+      "metadata_archive": [
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+        "reports/checkpoint_metadata_archive_20261022/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/adapter_manifest.json"
+      ],
+      "archive_evidence": [
+        "reports/minicpm5_capacity512_chunk02_report.json",
+        "reports/minicpm5_capacity512_chunk02_training_checkpoint_0002_receipt.json",
+        "reports/minicpm5_capacity512_checkpoint_audit_20261022.json",
+        "reports/validation_capacity_runtime_20261022.json",
+        "reports/capacity_readiness_experiment_20261022.json"
+      ],
+      "documentation": [
+        "docs/experiments/20261022_Capacity_Qualification.md"
+      ],
+      "resume_capability_would_be_lost": true,
+      "payload_hashes_recomputed_this_inventory": false,
+      "marked_for_manual_cleanup": true
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 174707,
+      "file_count": 3,
+      "logical_gib": 0.000162709,
+      "excluded_subtrees": [
+        "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint",
+        "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_mps_baseline_20261022_01",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 27011,
+      "file_count": 3,
+      "logical_gib": 2.5156e-05
+    },
+    {
+      "path": "runs/minicpm5_mps_generation_D0_256_20261022_01",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 135504,
+      "file_count": 4,
+      "logical_gib": 0.000126198
+    },
+    {
+      "path": "runs/minicpm5_mps_generation_baseline_20261022_01",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 160537,
+      "file_count": 4,
+      "logical_gib": 0.000149512
+    },
+    {
+      "path": "runs/minicpm5_mps_generation_baseline_256_20261022_01",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Run-level raw evidence / generation outputs / contract demo; retain all files.",
+      "logical_bytes": 291556,
+      "file_count": 4,
+      "logical_gib": 0.000271533
+    },
+    {
+      "path": "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Sole historical collapsed D0 final inference export; preserve negative evidence.",
+      "logical_bytes": 10077000506,
+      "file_count": 7,
+      "logical_gib": 9.384938056,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 143859,
+      "file_count": 3,
+      "logical_gib": 0.000133979,
+      "excluded_subtrees": [
+        "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint"
+      ]
+    },
+    {
+      "path": "runs/minicpm5_native_adapter_qualification256_20261022/adapter_export",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "Inference / diagnostic export retained conservatively; not marked for deletion in this inventory.",
+      "logical_bytes": 10080559967,
+      "file_count": 8,
+      "logical_gib": 9.388253062,
+      "artifact_kind": "inference_export"
+    },
+    {
+      "path": "runs/minicpm5_native_adapter_qualification256_20261022",
+      "selection": "files_outside_payload_subtrees",
+      "status": "KEEP",
+      "reason": "Retain every run-level raw report, profile, answer, log, guard, launch-failure trace and other evidence outside payload subtrees.",
+      "logical_bytes": 60578,
+      "file_count": 3,
+      "logical_gib": 5.6418e-05,
+      "excluded_subtrees": [
+        "runs/minicpm5_native_adapter_qualification256_20261022/adapter_export"
+      ]
+    },
+    {
+      "path": "runs",
+      "selection": "direct_files_only",
+      "status": "KEEP",
+      "reason": "All direct run-root logs, memory guards and launch traces, including the initial D1 guard argument launch failure.",
+      "logical_bytes": 112212,
+      "file_count": 27,
+      "logical_gib": 0.000104506
+    },
+    {
+      "path": "reports",
+      "selection": "entire_tree",
+      "status": "KEEP",
+      "reason": "All archived experimental reports, profiles, answers, audits and the newly verified small checkpoint metadata archive; excludes this inventory document itself.",
+      "logical_bytes": 6886295,
+      "file_count": 219,
+      "logical_gib": 0.006413362
+    }
+  ],
+  "protected_selected_artifacts": [
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022",
+      "scope": "entire_run",
+      "selection": "D0 selected update8"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint",
+      "scope": "entire_child",
+      "selection": "D1 selected update28 export"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028",
+      "scope": "entire_child",
+      "selection": "D1 selected update28 runtime"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022",
+      "scope": "entire_run",
+      "selection": "D2 incomplete documentation/archive"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022",
+      "scope": "entire_run",
+      "selection": "D2 incomplete documentation/archive"
+    }
+  ],
+  "preserved_negative_exports": [
+    "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint",
+    "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint"
+  ],
+  "inference_exports_marked_for_deletion": [],
+  "preserved_work_in_progress": [
+    "docs/experiments/20261022_Checkpoint_Storage.md",
+    "scripts/compact_identical_checkpoints.py",
+    "scripts/validate_d2_experiment.py",
+    "src/replica_lab/runtime_pilot.py",
+    "tests/test_checkpoint_compaction.py"
+  ],
+  "assertions": {
+    "candidate_count_16": true,
+    "candidate_logical_bytes_192610937126": true,
+    "all_32_metadata_copies_verified": true,
+    "candidate_paths_still_present": true,
+    "nonoverlapping_file_partition": true,
+    "source_exists": true,
+    "selected_and_D2_paths_excluded_from_candidates": true,
+    "all_inference_exports_kept": true,
+    "all_run_level_raw_evidence_kept": true,
+    "no_model_instantiation_or_gpu_work": true,
+    "no_git_operations": true,
+    "no_deletions": true
+  }
+}

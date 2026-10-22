@@ -53,6 +53,13 @@ See [D1 results](docs/experiments/20261022_D1_Diagnostic.md), [generation qualif
 
 ## Start here
 
+Model sources and experiment checkpoints are **local, ignored artifacts**. They
+have never been included in the available Git history. Keep and reuse
+`checkpoints/minicpm5_source`; normal checks are offline. The [Git and retention
+policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md) documents the
+commit guard and marked cleanup candidates. No local checkpoints are deleted
+by Git maintenance.
+
 | Read | Purpose |
 |---|---|
 | [System design](docs/01_System_Design.md) | Full objective, state ownership, native/parallel components and research distinctions |

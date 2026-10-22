@@ -1,0 +1,69 @@
+{
+  "format_version": 1,
+  "completed_steps": 40,
+  "run_contract": {
+    "format_version": 1,
+    "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+    "dev_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+    "batch_plan_sha256": "dfb7e2ffb1c2bd11089bef4a923027bbb6bf94b221fb44f707e7b4c8e2d549ce",
+    "settings": {
+      "regime": "modules_only",
+      "device": "mps",
+      "dtype": "float32",
+      "optimizer": "muon8bit",
+      "steps": 64,
+      "grad_accum": 8,
+      "max_length": 256,
+      "lr_base": 0.0001,
+      "lr_new": 0.001,
+      "lr_muon_base": 0.0001,
+      "lr_muon_new": 0.001,
+      "momentum": 0.95,
+      "ns_steps": 5,
+      "block_size": 2048,
+      "weight_decay": 0.0,
+      "seed": 17,
+      "memory_size": 64,
+      "workspace_size": 64,
+      "insertion_layer": -1,
+      "checkpointing": true,
+      "sampling": "answer_balanced",
+      "lr_schedule": "constant",
+      "warmup_steps": 2,
+      "min_lr_ratio": 0.2,
+      "generation_every": 4,
+      "generation_max_new_tokens": 8,
+      "stop_on_train_perfect": true
+    },
+    "packages": {
+      "torch": "2.14.1",
+      "transformers": "5.20.2",
+      "safetensors": "0.8.0"
+    },
+    "implementation_sha256": {
+      "scripts/train_text.py": "1c43d12a7bd891e5934b25eb274ffe7bfb38e3a68f0917a69349759c0c0cd599",
+      "src/replica_lab/model_adapter.py": "bc563a86e7373ab5fbddd6a378aaea6feb8073f045f8f632dc642bef0b8b309d",
+      "src/replica_lab/optimizers.py": "e5bf4d3ed11bcc35d0a52372cb8a76faf07c689e45ba9a59dd0c423f2618fbd6",
+      "src/replica_lab/curriculum.py": "616b4b3fd95b188c030d3750150b246d68d7a59db26cd125b4cb2d16c41d0c88",
+      "src/replica_lab/training_tools.py": "6e5ebb1d95a7165ce587fa1335372dd78055e9a8ae51f7979806682159cfddd7",
+      "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+      "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+      "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+      "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+      "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92"
+    }
+  },
+  "contract_sha256": "88132a66e79f98be8c95d869ab25c40d290617f8a4ed37fc7a8ea553571c11b5",
+  "files_sha256": {
+    "adapter_manifest.json": "adf9298ff64e3426a9c8369dc74cace281ae8efa04b46b652f6730c4301bfca8",
+    "base/chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+    "base/config.json": "4e1fcb1d384ca436e3580fade2e4fc177360289fd6fbee21da08bc9b26d42683",
+    "base/generation_config.json": "adc7aa3114cfbd03e9d7bab506d82a17231131c33027cc6296c2afe01dad6392",
+    "base/model.safetensors": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+    "base/tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+    "base/tokenizer_config.json": "5378dcce33a455cfa6a7cd4a5ab54511e787b84b7334ec2d04e54b1d5a1a3cb4",
+    "runtime.pt": "6ead964312817a9a7a41ce9c922b2b4291460c63b99b2801a317a06ae0fd8a53",
+    "sidecars.safetensors": "1fcc9f56bfba9d09df7f492445f608c3140270ab6393274bac492242bdeb42ef"
+  }
+}

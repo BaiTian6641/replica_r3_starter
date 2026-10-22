@@ -2,6 +2,8 @@
 
 Resume the existing TAIS Obsidian / Replica work. Preserve the objective and all established constraints. Do not restart the project.
 
+**Storage maintenance / pause:** model construction is paused at the user's request. Git/storage maintenance does not resume training. Original model bytes at `checkpoints/minicpm5_source` must be reused, never reacquired routinely. They and `runs/` stay outside Git. Follow [checkpoint retention and Git hygiene](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md); deletion candidates are marked, not deleted. Preserve selected D0/D1 artifacts and recent undocumented D2 runs. New model downloads require an explicit intentional `--allow-network` invocation; normal source checks remain offline.
+
 Read execution_state.md, recent commits, git status, the last raw run report, AGENT_START.md and the relevant work package in docs/03_Implementation_and_Runbook.md. Distinguish tested code from proposed work and pretrained-model experiments from fixture tests.
 
 Preserve the setup choice: experimental Muon 8-bit on the M2 Ultra Mac Studio (64 GiB), then the later RTX PRO 4000 Blackwell SFF (24 GB). Auxiliary FP32 AdamW keeps embeddings/head/slot queries eligible. Reuse the locked environment, sealed original and completed checkpoints; do not reacquire another revision or silently substitute AdamW. Preserve the historical constant-zero failure and the successful eight-update tiny-overfit result (export train 8/8, dev 14/16); its diagnostic checkpoint remains selected. No architecture or post-freeze learning candidate was promoted. CUDA full-text residency still needs the separate P2 path.

@@ -1,0 +1,75 @@
+{
+  "status": "passed_no_large_or_model_objects_in_available_git_history",
+  "audited_at_utc": "2026-10-22T22:47:11.454392+00:00",
+  "baseline_commit": "9bc719b57cf0b9af06810c733ff82221a788d994",
+  "scope": "All stored Git objects, all local refs/reflogs and every available commit tree, before staging maintenance files.",
+  "stored_objects": {
+    "count": 619,
+    "types": {
+      "blob": 466,
+      "tree": 134,
+      "commit": 19
+    },
+    "unreachable_object_count": 0,
+    "largest_blob": {
+      "oid": "66ed58979b996fd01b5d96cf9513d456fb4be96a",
+      "type": "blob",
+      "bytes": 887469
+    },
+    "blob_count_over_1_mib": 0,
+    "blob_count_over_project_50_mib_limit": 0
+  },
+  "available_history": {
+    "commit_count": 19,
+    "artifact_path_occurrences": []
+  },
+  "baseline_tracked_tree": {
+    "file_count": 377,
+    "logical_bytes": 9565829,
+    "largest_file": {
+      "path": "reports/minicpm5_D1_lr1e3_chunk02_memory_samples.jsonl",
+      "oid": "66ed58979b996fd01b5d96cf9513d456fb4be96a",
+      "bytes": 887469
+    }
+  },
+  "git_directory": {
+    "logical_bytes": 3292569,
+    "allocated_bytes": 4829184,
+    "count_objects": [
+      "count: 505",
+      "size: 3.20 MiB",
+      "in-pack: 114",
+      "packs: 1",
+      "size-pack: 1.21 MiB",
+      "prune-packable: 0",
+      "garbage: 0",
+      "size-garbage: 0 bytes"
+    ]
+  },
+  "lfs": {
+    "pointer_blob_oids": [],
+    "config_entries": [],
+    "local_object_storage_present": false,
+    "gitattributes_in_current_or_available_history": false
+  },
+  "remotes": [],
+  "artifact_cached_removal": {
+    "command": "git rm -r --cached --ignore-unmatch -- checkpoints runs models .cache .hf_cache .venv",
+    "removed_index_paths": [],
+    "working_files_deleted": false,
+    "reason": "These artifact roots were already untracked and ignored."
+  },
+  "protection": {
+    "gitignore": ".gitignore",
+    "index_guard": "scripts/check_git_artifacts.py",
+    "pre_commit_hook": ".githooks/pre-commit",
+    "local_hooks_path": ".githooks",
+    "max_blob_bytes": 52428800,
+    "limit_authority": "Local project policy"
+  },
+  "history_rewrite_performed": false,
+  "lfs_migration_performed": false,
+  "checkpoint_deletion_performed": false,
+  "model_run_performed": false,
+  "model_download_performed": false
+}

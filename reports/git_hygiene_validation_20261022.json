@@ -1,0 +1,519 @@
+{
+  "status": "passed_scoped_git_and_source_reuse_maintenance",
+  "validated_at_utc": "2026-10-22T22:52:00.418147+00:00",
+  "scope": "Git artifact/index protection, offline original-source reuse, small metadata archives, marked retention candidates and changed documentation. No model training/generation or unfinished D2/runtime validation.",
+  "tests": {
+    "command": ".venv/bin/python -m pytest tests/test_git_artifacts.py tests/test_download_reuse.py -q --junitxml=reports/tests_git_hygiene_20261022.xml",
+    "tests": 92,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "xunit": "reports/tests_git_hygiene_20261022.xml",
+    "output": "reports/test_output_git_hygiene_20261022.txt"
+  },
+  "git_baseline_audit": "reports/git_artifact_audit_20261022.json",
+  "tracked_index_snapshot": {
+    "status": "passed",
+    "scope": "tracked",
+    "max_blob_bytes": 52428800,
+    "checked_files": 420,
+    "largest_checked_blob_bytes": 887469,
+    "violations": [],
+    "working_files_changed": false
+  },
+  "index_snapshot_timing": "After maintenance staging; before adding this validation report and regenerating MANIFEST.sha256. The pre-commit hook checks the final staged blobs again.",
+  "actual_original_source_reuse": {
+    "report": "reports/source_reuse_verification_20261022.json",
+    "passed": true,
+    "source_files_unchanged": 36,
+    "sealed_files_verified": 9,
+    "model_loaded": false,
+    "network_used": false
+  },
+  "retention_checks": {
+    "marked_directories": 16,
+    "marked_logical_bytes": 192610937126,
+    "all_marked_paths_still_present": true,
+    "source_and_selected_and_negative_and_D2_artifacts_protected": true,
+    "candidate_sizes_matched": true,
+    "candidate_documentation_and_evidence_present": true,
+    "archived_metadata_files": 32,
+    "archived_metadata_bytes": 128336,
+    "archive_sha256_matches_originals": true,
+    "deletions_performed": false
+  },
+  "documentation_links_checked": [
+    {
+      "document": "README.md",
+      "target": "configs/hardware_profiles.json"
+    },
+    {
+      "document": "README.md",
+      "target": "configs/experiment_design.json"
+    },
+    {
+      "document": "README.md",
+      "target": "uv.lock"
+    },
+    {
+      "document": "README.md",
+      "target": "execution_state.md"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/validation_macos_setup.json"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/muon8bit_mps_smoke.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/03_Implementation_and_Runbook.md"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/minicpm5_mps_experiment_20261022.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/03_Implementation_and_Runbook.md"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/minicpm5_balanced_overfit_experiment_20261022.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/experiments/20261022_Constant_Zero_Diagnosis.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/stages/00_Master_Roadmap.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/stages/07_Research_Evidence_20261022.md"
+    },
+    {
+      "document": "README.md",
+      "target": "configs/stage_plan.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/experiments/20261022_D1_Diagnostic.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/experiments/20261022_Augmented_Generation.md"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/native_augmented_D1_experiment_20261022.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/experiments/20261022_Episode_Slice.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/experiments/20261022_Cognitive_Contracts.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/01_System_Design.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/02_Stages_Experiments_and_Hardware.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/03_Implementation_and_Runbook.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/04_Datasets_and_Generation.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/05_Replica_Protocol.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/06_References_and_Evidence.md"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/07_Architecture_Diagrams.md"
+    },
+    {
+      "document": "README.md",
+      "target": "diagrams/Replica_R3_Architecture_Atlas.pdf"
+    },
+    {
+      "document": "README.md",
+      "target": "AGENT_START.md"
+    },
+    {
+      "document": "README.md",
+      "target": "AGENT_CONTINUE.md"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/validation.json"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/test_output.txt"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/contract_demo.json"
+    },
+    {
+      "document": "README.md",
+      "target": "reports/bundle_validation.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/03_Implementation_and_Runbook.md"
+    },
+    {
+      "document": "AGENT_START.md",
+      "target": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md"
+    },
+    {
+      "document": "AGENT_CONTINUE.md",
+      "target": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/checkpoint_retention_inventory_20261022.json"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/execution_state_capacity_readiness_20261022.txt"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_Apple_Accelerators.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_Augmented_Generation.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/native_augmented_D1_experiment_20261022.json"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_D1_Diagnostic.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/minicpm5_D1_checkpoint_audit_20261022.json"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/validation_D1_runtime_20261022.json"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_Cognitive_Contracts.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_Episode_Slice.md"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/test_output_augmented_d1_20261022.txt"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "reports/validation_augmented_D1_20261022.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../README.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "01_System_Design.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "02_Stages_Experiments_and_Hardware.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/hardware_macos_m2_ultra.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/validation_macos_setup.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_experiment_20261022.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../configs/hardware_profiles.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../execution_state.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_D1_Diagnostic.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "stages/00_Master_Roadmap.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Constant_Zero_Diagnosis.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_overfit_experiment_20261022.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Capacity_Qualification.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../configs/minicpm5_metadata_lock.local.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Git_and_Checkpoint_Hygiene.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../configs/minicpm5_sealed_lock.local.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_snapshot_inventory.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_experiment_20261022.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_preflight_checkpoint_audit.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_baseline_memory_samples.jsonl"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_preflight_memory_samples.jsonl"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_generation_baseline_256_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_mps_generation_D0_256_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../configs/tiny_overfit_design.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_mask1_chunk01_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_mask1_chunk01_generation_step0004.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_mask1_chunk01_generation_step0008.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_mask1_chunk01_training_checkpoint_0008_receipt.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_mask1_chunk02_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_chunk01_export_train_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_chunk01_export_dev_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_chunk02_export_train_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_chunk02_export_dev_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_chunk01_checkpoint_audit.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_balanced_chunk02_checkpoint_audit.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Constant_Zero_Diagnosis.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "stages/01_Environment_and_D0_Readiness.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../configs/capacity_design.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_capacity256_checkpoint_audit_20261022.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_capacity512_checkpoint_audit_20261022.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Capacity_Qualification.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../data/diagnostics/capacity_256/"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../data/diagnostics/capacity_512/"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../reports/minicpm5_native_adapter_qualification256_report.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../schemas/learning_proposal.schema.json"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "../templates/experiment_report.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Apple_Accelerators.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Augmented_Generation.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_D1_Fixed_Context_Protocol.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_D1_Diagnostic.md"
+    },
+    {
+      "document": "docs/03_Implementation_and_Runbook.md",
+      "target": "experiments/20261022_Episode_Slice.md#commands-and-checks"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../reports/git_artifact_audit_20261022.json"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../.gitignore"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../scripts/check_git_artifacts.py"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../.githooks/pre-commit"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../reports/source_reuse_verification_20261022.json"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../reports/checkpoint_retention_inventory_20261022.json"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../reports/checkpoint_delete_candidates_20261022.txt"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "../../reports/git_hygiene_validation_20261022.json"
+    }
+  ],
+  "subject_files_sha256": {
+    ".gitignore": "51c51a75f0de011eef69b98290dce5c6306f58a711a5427af307a5b705c102e3",
+    ".githooks/pre-commit": "d89ad4953975ac7407e11cc9bf2f35f6d14352b43febcb20c249da4f3e1eeaa8",
+    "scripts/check_git_artifacts.py": "d379833ade7ccaa331452cfb6ddc25b7cd2b4d3e833374753b9bb65ed4164dad",
+    "scripts/download_model.py": "c3db40eecaa7559c5f31b9d45f0518119457f582120d9cca937ee6c3e7e64cfe",
+    "tests/test_git_artifacts.py": "d4692b9bf42819adb846809078ffd3618e318fedab868dda6cccfa0b5bd13830",
+    "tests/test_download_reuse.py": "fc4b1a14490aa563ce8e9de5de3aabd2792ba4a9c7d64a99f23757b537379ad8",
+    "README.md": "1a483d171f3c2617ed05e4fc7a3b5649728fa431436d2fdbf3f52dfd8598ef3b",
+    "AGENT_START.md": "442049601133f0ce8612891c3aef4b52d297417ec53249de4e73530e8a9bb5e5",
+    "AGENT_CONTINUE.md": "5591b67c8d92ec936e4549494aa1e5cd60b5ed64b5cf83faf52d047fef7eba0c",
+    "execution_state.md": "a7fd6294c2065444c18bc8d7b28b8602c397c93751bdfbc3f9071fda406b88c4",
+    "docs/03_Implementation_and_Runbook.md": "be3812942f7ecbaf08d661036b3c674ebddb54cb97345341975103db7dce422b",
+    "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md": "fb3d81c538eedb3235b6bbe3dbf5f63ae03ec0728fb9ae609bdd795c463b2d29",
+    "reports/git_artifact_audit_20261022.json": "478f19c70bb0a9afe7878db6aa1122740e248f765ad35ea0210218527718fa16",
+    "reports/checkpoint_retention_inventory_20261022.json": "1d356f3a92eb83bd15ab2b90aefa1a2b5e1ea7aec6c5e0a11986987c8f8c175b",
+    "reports/checkpoint_delete_candidates_20261022.txt": "eb9328ada6fde73b689391d88345efc8e360270a0a34168ee0443f1f5107dc50",
+    "reports/source_reuse_verification_20261022.json": "5a6194fcd62670790503d8ddba2447c02d76e51c84d1476666f577a8615705d5",
+    "reports/test_output_git_hygiene_20261022.txt": "22da464e25c6d870d83acbda507e5f4d9c275d85aa25405719cade49b2c70805",
+    "reports/tests_git_hygiene_20261022.xml": "de167131570c148cc02ab2d5e1f253eb4d2df1f87a416ac6a2c47d400625038a"
+  },
+  "paused_drafts_excluded_from_index": [
+    "docs/experiments/20261022_Checkpoint_Storage.md",
+    "scripts/compact_identical_checkpoints.py",
+    "scripts/validate_d2_experiment.py",
+    "src/replica_lab/runtime_pilot.py",
+    "tests/test_checkpoint_compaction.py"
+  ],
+  "training_status": "PAUSED",
+  "checkpoint_payloads_deleted_or_moved": false,
+  "model_downloads": 0,
+  "model_runs": 0,
+  "history_rewrite_performed": false
+}

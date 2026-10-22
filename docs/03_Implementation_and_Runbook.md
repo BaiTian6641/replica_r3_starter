@@ -74,13 +74,21 @@ Inventory the intended machine:
 
 The second command fetches public metadata and config only. It resolves the current requested branch to a full immutable revision. It fails on unavailable metadata rather than replacing the model. The initial setup already wrote [minicpm5_metadata_lock.local.json](../configs/minicpm5_metadata_lock.local.json); keep that lock for this experiment, rather than re-resolving `main`.
 
-Download the complete checkpoint at that exact revision (the helper records acquisition and resumes the same revision):
+Reuse the existing sealed source offline. This validates local bytes and does
+not download another copy or rewrite its acquisition receipt:
 
 ~~~bash
-.venv/bin/python scripts/download_model.py --model-lock configs/minicpm5_metadata_lock.local.json --output checkpoints/minicpm5_source
+.venv/bin/python scripts/download_model.py --model-lock configs/minicpm5_metadata_lock.local.json --sealed-lock configs/minicpm5_sealed_lock.local.json --output checkpoints/minicpm5_source
 ~~~
 
-Then seal the downloaded bytes:
+Only an intentional initial acquisition or repair uses `--allow-network`; it
+is unnecessary on this machine. Missing/corrupt sources fail offline instead
+of fetching automatically. Preserve the original source and consult
+[the retention policy](experiments/20261022_Git_and_Checkpoint_Hygiene.md) before
+cleaning experiments. The source, run weights and caches are ignored by Git.
+
+Only initial acquisition needs the following sealing step. Keep the existing
+seal for subsequent runs:
 
 ~~~bash
 .venv/bin/python scripts/seal_snapshot.py --snapshot checkpoints/minicpm5_source --input-lock configs/minicpm5_metadata_lock.local.json --output-lock configs/minicpm5_sealed_lock.local.json
