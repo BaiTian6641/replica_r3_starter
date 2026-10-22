@@ -1,0 +1,1243 @@
+{
+  "schema_version": 1,
+  "device": "mps",
+  "started_at": "2026-10-22T23:40:09.080229+00:00",
+  "ended_at": "2026-10-22T23:42:43.993038+00:00",
+  "elapsed_seconds": 154.91286908299662,
+  "sample_interval_seconds": 0.25,
+  "rss_sample_interval_seconds": 2.0,
+  "sample_count": 630,
+  "memory": {
+    "rss_peak_process_lifetime_bytes": 14860173312,
+    "rss_peak_sampled_bytes": 14700429312,
+    "mps_allocated_peak_sampled_bytes": 28618611456,
+    "mps_driver_peak_sampled_bytes": 31348015104
+  },
+  "mps_recommended_max_memory_bytes": 55662788608,
+  "host_start": {
+    "timestamp": "2026-10-22T23:40:09.091216+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 3072.00M  used = 1530.69M  free = 1541.31M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 3221225472,
+      "used_bytes": 1605044797,
+      "free_bytes": 1616180674
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 88%",
+    "memory_free_percent": 88.0
+  },
+  "host_end": {
+    "timestamp": "2026-10-22T23:42:43.883915+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 3072.00M  used = 1530.69M  free = 1541.31M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 3221225472,
+      "used_bytes": 1605044797,
+      "free_bytes": 1616180674
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 70%",
+    "memory_free_percent": 70.0
+  },
+  "phases": [
+    {
+      "type": "phase",
+      "phase": "data_encoded",
+      "timestamp": "2026-10-22T23:40:20.476661+00:00",
+      "elapsed_seconds": 11.396222291979939,
+      "seconds_since_previous_mark": 11.396222291979939,
+      "synchronize_seconds": 8.875038474798203e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:20.476579+00:00",
+        "elapsed_seconds": 11.396234082989395,
+        "phase": "data_encoded",
+        "rss_peak_process_lifetime_bytes": 479346688,
+        "rss_current_bytes": 337477632,
+        "rss_measurement_age_seconds": 0.9982475419528782,
+        "mps_allocated_bytes": 0,
+        "mps_driver_bytes": 393216
+      },
+      "fields": {
+        "train_examples": 8,
+        "dev_examples": 16,
+        "minimum_sequence_length": 55,
+        "maximum_sequence_length": 55
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "model_loaded",
+      "timestamp": "2026-10-22T23:40:23.015735+00:00",
+      "elapsed_seconds": 13.935300457989797,
+      "seconds_since_previous_mark": 2.5390781660098583,
+      "synchronize_seconds": 1.2999866157770157e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:23.015656+00:00",
+        "elapsed_seconds": 13.935313832946122,
+        "phase": "model_loaded",
+        "rss_peak_process_lifetime_bytes": 479346688,
+        "rss_current_bytes": 459046912,
+        "rss_measurement_age_seconds": 1.3757420838810503,
+        "mps_allocated_bytes": 10078997504,
+        "mps_driver_bytes": 10746200064
+      },
+      "fields": {
+        "parameters": 2517651970
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "runtime_restored",
+      "timestamp": "2026-10-22T23:40:24.283650+00:00",
+      "elapsed_seconds": 15.20317987492308,
+      "seconds_since_previous_mark": 1.2678794169332832,
+      "synchronize_seconds": 1.100008375942707e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:24.283535+00:00",
+        "elapsed_seconds": 15.203195416834205,
+        "phase": "runtime_restored",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 14700429312,
+        "rss_measurement_age_seconds": 0.5256725419312716,
+        "mps_allocated_bytes": 16362070016,
+        "mps_driver_bytes": 17238982656
+      },
+      "fields": {
+        "completed_steps": 4
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "update_start",
+      "timestamp": "2026-10-22T23:40:24.284737+00:00",
+      "elapsed_seconds": 15.204356541857123,
+      "seconds_since_previous_mark": 0.001176666934043169,
+      "synchronize_seconds": 1.2498348951339722e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:24.284707+00:00",
+        "elapsed_seconds": 15.204359999857843,
+        "phase": "update_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 14700429312,
+        "rss_measurement_age_seconds": 0.5268167089670897,
+        "mps_allocated_bytes": 16362070016,
+        "mps_driver_bytes": 17238982656
+      },
+      "fields": {
+        "step": 5
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:25.148076+00:00",
+      "elapsed_seconds": 16.067666416987777,
+      "seconds_since_previous_mark": 0.8633098751306534,
+      "synchronize_seconds": 5.00003807246685e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:25.148018+00:00",
+        "elapsed_seconds": 16.067676041973755,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 14700429312,
+        "rss_measurement_age_seconds": 1.3901359168812633,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 28109996032
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:25.451461+00:00",
+      "elapsed_seconds": 16.371012541931123,
+      "seconds_since_previous_mark": 0.3033461249433458,
+      "synchronize_seconds": 8.417060598731041e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:25.451367+00:00",
+        "elapsed_seconds": 16.371030332986265,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 14700429312,
+        "rss_measurement_age_seconds": 1.6934953751042485,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:25.726857+00:00",
+      "elapsed_seconds": 16.646418791962788,
+      "seconds_since_previous_mark": 0.27540625003166497,
+      "synchronize_seconds": 6.334157660603523e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:25.726771+00:00",
+        "elapsed_seconds": 16.646433416986838,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 14700429312,
+        "rss_measurement_age_seconds": 1.9688963750377297,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:26.014129+00:00",
+      "elapsed_seconds": 16.933693791972473,
+      "seconds_since_previous_mark": 0.28727500000968575,
+      "synchronize_seconds": 1.091696321964264e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:26.014048+00:00",
+        "elapsed_seconds": 16.93371312483214,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4121559040,
+        "rss_measurement_age_seconds": 0.10262066684663296,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:26.341745+00:00",
+      "elapsed_seconds": 17.261266582878307,
+      "seconds_since_previous_mark": 0.32757279090583324,
+      "synchronize_seconds": 8.375151082873344e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:26.341620+00:00",
+        "elapsed_seconds": 17.26128474995494,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4121559040,
+        "rss_measurement_age_seconds": 0.4301942498423159,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:26.618062+00:00",
+      "elapsed_seconds": 17.5375899579376,
+      "seconds_since_previous_mark": 0.2763233750592917,
+      "synchronize_seconds": 6.041955202817917e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:26.617943+00:00",
+        "elapsed_seconds": 17.537608791841194,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4121559040,
+        "rss_measurement_age_seconds": 0.7065139168407768,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:26.894965+00:00",
+      "elapsed_seconds": 17.81448687496595,
+      "seconds_since_previous_mark": 0.2768969170283526,
+      "synchronize_seconds": 6.749993190169334e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:26.894838+00:00",
+        "elapsed_seconds": 17.81451312499121,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4121559040,
+        "rss_measurement_age_seconds": 0.9834190828260034,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:27.171803+00:00",
+      "elapsed_seconds": 18.091334791854024,
+      "seconds_since_previous_mark": 0.2768479168880731,
+      "synchronize_seconds": 1.100008375942707e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:27.171686+00:00",
+        "elapsed_seconds": 18.091353291878477,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4121559040,
+        "rss_measurement_age_seconds": 1.260259083006531,
+        "mps_allocated_bytes": 26470036736,
+        "mps_driver_bytes": 29183737856
+      },
+      "fields": {
+        "step": 5,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "optimizer_step_complete",
+      "timestamp": "2026-10-22T23:40:45.032856+00:00",
+      "elapsed_seconds": 35.89275524998084,
+      "seconds_since_previous_mark": 17.801420458126813,
+      "synchronize_seconds": 0.0005516668315976858,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:44.973085+00:00",
+        "elapsed_seconds": 35.892771624960005,
+        "phase": "optimizer_step_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 0,
+        "mps_allocated_bytes": 26470034432,
+        "mps_driver_bytes": 31241043968
+      },
+      "fields": {
+        "step": 5
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "update_start",
+      "timestamp": "2026-10-22T23:40:45.033971+00:00",
+      "elapsed_seconds": 35.953615207923576,
+      "seconds_since_previous_mark": 0.06085995794273913,
+      "synchronize_seconds": 6.875023245811462e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:45.033942+00:00",
+        "elapsed_seconds": 35.953619457781315,
+        "phase": "update_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 0.06083975010551512,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 31241043968
+      },
+      "fields": {
+        "step": 6
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:45.316143+00:00",
+      "elapsed_seconds": 36.235728832893074,
+      "seconds_since_previous_mark": 0.2821136249694973,
+      "synchronize_seconds": 9.541865438222885e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:45.316058+00:00",
+        "elapsed_seconds": 36.23574124998413,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 0.34296575002372265,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:45.594112+00:00",
+      "elapsed_seconds": 36.513667582999915,
+      "seconds_since_previous_mark": 0.2779387501068413,
+      "synchronize_seconds": 8.458038792014122e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:45.593999+00:00",
+        "elapsed_seconds": 36.51368633285165,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 0.6209177090786397,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:45.871790+00:00",
+      "elapsed_seconds": 36.79135049995966,
+      "seconds_since_previous_mark": 0.27768291695974767,
+      "synchronize_seconds": 6.4158812165260315e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:45.871684+00:00",
+        "elapsed_seconds": 36.79136954178102,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 0.8986032090615481,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:46.149480+00:00",
+      "elapsed_seconds": 37.069043499883264,
+      "seconds_since_previous_mark": 0.27769299992360175,
+      "synchronize_seconds": 7.082941010594368e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:46.149374+00:00",
+        "elapsed_seconds": 37.0690616669599,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 1.1762914170976728,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:46.426874+00:00",
+      "elapsed_seconds": 37.346439957851544,
+      "seconds_since_previous_mark": 0.2773964579682797,
+      "synchronize_seconds": 6.875023245811462e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:46.426770+00:00",
+        "elapsed_seconds": 37.34645829186775,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 1.4536892920732498,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:46.704660+00:00",
+      "elapsed_seconds": 37.62422304181382,
+      "seconds_since_previous_mark": 0.2777830839622766,
+      "synchronize_seconds": 6.749993190169334e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:46.704553+00:00",
+        "elapsed_seconds": 37.62424112483859,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4122558464,
+        "rss_measurement_age_seconds": 1.7314721250440925,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:47.049873+00:00",
+      "elapsed_seconds": 37.90226179198362,
+      "seconds_since_previous_mark": 0.27803875016979873,
+      "synchronize_seconds": 8.292030543088913e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:46.982591+00:00",
+        "elapsed_seconds": 37.902278999798,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123787264,
+        "rss_measurement_age_seconds": 0,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:40:47.327422+00:00",
+      "elapsed_seconds": 38.24695612490177,
+      "seconds_since_previous_mark": 0.3446943329181522,
+      "synchronize_seconds": 2.174987457692623e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:40:47.327285+00:00",
+        "elapsed_seconds": 38.24697441677563,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123787264,
+        "rss_measurement_age_seconds": 0.3447022079490125,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 6,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "optimizer_step_complete",
+      "timestamp": "2026-10-22T23:41:05.034909+00:00",
+      "elapsed_seconds": 55.95448970794678,
+      "seconds_since_previous_mark": 17.707533583045006,
+      "synchronize_seconds": 0.0005744169466197491,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:05.034798+00:00",
+        "elapsed_seconds": 55.954506207956,
+        "phase": "optimizer_step_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124131328,
+        "rss_measurement_age_seconds": 1.022480458021164,
+        "mps_allocated_bytes": 26469903360,
+        "mps_driver_bytes": 31241043968
+      },
+      "fields": {
+        "step": 6
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "update_start",
+      "timestamp": "2026-10-22T23:41:05.035594+00:00",
+      "elapsed_seconds": 55.95525624998845,
+      "seconds_since_previous_mark": 0.0007665420416742563,
+      "synchronize_seconds": 1.3748649507761002e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:05.035560+00:00",
+        "elapsed_seconds": 55.955260041868314,
+        "phase": "update_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124131328,
+        "rss_measurement_age_seconds": 1.0232235831208527,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 31241043968
+      },
+      "fields": {
+        "step": 7
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:05.311450+00:00",
+      "elapsed_seconds": 56.231047791894525,
+      "seconds_since_previous_mark": 0.2757915419060737,
+      "synchronize_seconds": 5.707843229174614e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:05.311355+00:00",
+        "elapsed_seconds": 56.23106195777655,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124131328,
+        "rss_measurement_age_seconds": 1.2990364581346512,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:05.591434+00:00",
+      "elapsed_seconds": 56.511019208002836,
+      "seconds_since_previous_mark": 0.2799714161083102,
+      "synchronize_seconds": 1.995800994336605e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:05.591326+00:00",
+        "elapsed_seconds": 56.51103633292951,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124131328,
+        "rss_measurement_age_seconds": 1.57900904212147,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31339610112
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:05.869045+00:00",
+      "elapsed_seconds": 56.7886170418933,
+      "seconds_since_previous_mark": 0.2775978338904679,
+      "synchronize_seconds": 7.292022928595543e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:05.868925+00:00",
+        "elapsed_seconds": 56.78863404178992,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124131328,
+        "rss_measurement_age_seconds": 1.8566075831186026,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:06.206621+00:00",
+      "elapsed_seconds": 57.12177658290602,
+      "seconds_since_previous_mark": 0.3331595410127193,
+      "synchronize_seconds": 4.566693678498268e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:06.206558+00:00",
+        "elapsed_seconds": 57.12627891683951,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124442624,
+        "rss_measurement_age_seconds": 0.06779091712087393,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:06.484023+00:00",
+      "elapsed_seconds": 57.403648416977376,
+      "seconds_since_previous_mark": 0.2818718340713531,
+      "synchronize_seconds": 4.499917849898338e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:06.483953+00:00",
+        "elapsed_seconds": 57.40365875000134,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124442624,
+        "rss_measurement_age_seconds": 0.34516508411616087,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:06.761770+00:00",
+      "elapsed_seconds": 57.681371916783974,
+      "seconds_since_previous_mark": 0.27772349980659783,
+      "synchronize_seconds": 6.00004568696022e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:06.761678+00:00",
+        "elapsed_seconds": 57.68138758279383,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124442624,
+        "rss_measurement_age_seconds": 0.6228967921342701,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:07.042112+00:00",
+      "elapsed_seconds": 57.96169408294372,
+      "seconds_since_previous_mark": 0.28032216615974903,
+      "synchronize_seconds": 7.1660615503787994e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:07.042000+00:00",
+        "elapsed_seconds": 57.96171108284034,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124442624,
+        "rss_measurement_age_seconds": 0.9032279590610415,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:07.318294+00:00",
+      "elapsed_seconds": 58.23786837491207,
+      "seconds_since_previous_mark": 0.27617429196834564,
+      "synchronize_seconds": 7.667113095521927e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:07.318175+00:00",
+        "elapsed_seconds": 58.2378880828619,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124442624,
+        "rss_measurement_age_seconds": 1.1794020000379533,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 7,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "optimizer_step_complete",
+      "timestamp": "2026-10-22T23:41:24.890856+00:00",
+      "elapsed_seconds": 75.81043095793575,
+      "seconds_since_previous_mark": 17.572562583023682,
+      "synchronize_seconds": 0.0005899998359382153,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:24.890717+00:00",
+        "elapsed_seconds": 75.8104502079077,
+        "phase": "optimizer_step_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124672000,
+        "rss_measurement_age_seconds": 1.7365535411518067,
+        "mps_allocated_bytes": 26469903360,
+        "mps_driver_bytes": 31249432576
+      },
+      "fields": {
+        "step": 7
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "update_start",
+      "timestamp": "2026-10-22T23:41:24.891572+00:00",
+      "elapsed_seconds": 75.81125974981114,
+      "seconds_since_previous_mark": 0.0008287918753921986,
+      "synchronize_seconds": 1.8749851733446121e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:24.891540+00:00",
+        "elapsed_seconds": 75.8112629998941,
+        "phase": "update_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124672000,
+        "rss_measurement_age_seconds": 1.7373493751510978,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 31249432576
+      },
+      "fields": {
+        "step": 8
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:25.238455+00:00",
+      "elapsed_seconds": 76.0943227079697,
+      "seconds_since_previous_mark": 0.28306295815855265,
+      "synchronize_seconds": 5.458015948534012e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:25.174608+00:00",
+        "elapsed_seconds": 76.09433937491849,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 0,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:25.526939+00:00",
+      "elapsed_seconds": 76.44655487500131,
+      "seconds_since_previous_mark": 0.352232167031616,
+      "synchronize_seconds": 1.8832972273230553e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:25.526841+00:00",
+        "elapsed_seconds": 76.44657245790586,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 0.35223808395676315,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:25.803608+00:00",
+      "elapsed_seconds": 76.72328658285551,
+      "seconds_since_previous_mark": 0.27673170785419643,
+      "synchronize_seconds": 3.6670826375484467e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:25.803567+00:00",
+        "elapsed_seconds": 76.7232932918705,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 0.6289448339957744,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:26.083475+00:00",
+      "elapsed_seconds": 77.00310062477365,
+      "seconds_since_previous_mark": 0.27981404191814363,
+      "synchronize_seconds": 5.58304600417614e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:26.083383+00:00",
+        "elapsed_seconds": 77.0031152497977,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 0.9087715421337634,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:26.361263+00:00",
+      "elapsed_seconds": 77.28089312487282,
+      "seconds_since_previous_mark": 0.2777925000991672,
+      "synchronize_seconds": 5.291076377034187e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:26.361176+00:00",
+        "elapsed_seconds": 77.28090666700155,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 1.1865634589921683,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:26.639224+00:00",
+      "elapsed_seconds": 77.55885824980214,
+      "seconds_since_previous_mark": 0.2779651249293238,
+      "synchronize_seconds": 4.834029823541641e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:26.639140+00:00",
+        "elapsed_seconds": 77.55887083290145,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 1.4645263750571758,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:26.916990+00:00",
+      "elapsed_seconds": 77.83659187494777,
+      "seconds_since_previous_mark": 0.27773362514562905,
+      "synchronize_seconds": 6.207963451743126e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:26.916875+00:00",
+        "elapsed_seconds": 77.83660883293487,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4123967488,
+        "rss_measurement_age_seconds": 1.7422689590603113,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "backward_complete",
+      "timestamp": "2026-10-22T23:41:27.265073+00:00",
+      "elapsed_seconds": 78.11348270787857,
+      "seconds_since_previous_mark": 0.2768908329308033,
+      "synchronize_seconds": 5.95790334045887e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:27.193766+00:00",
+        "elapsed_seconds": 78.11349999997765,
+        "phase": "backward_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124442624,
+        "rss_measurement_age_seconds": 0,
+        "mps_allocated_bytes": 26469905664,
+        "mps_driver_bytes": 31347998720
+      },
+      "fields": {
+        "step": 8,
+        "tokens": 2
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "optimizer_step_complete",
+      "timestamp": "2026-10-22T23:41:44.765452+00:00",
+      "elapsed_seconds": 95.6850869578775,
+      "seconds_since_previous_mark": 17.571604249998927,
+      "synchronize_seconds": 0.0005491659976541996,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:44.765349+00:00",
+        "elapsed_seconds": 95.68510408280417,
+        "phase": "optimizer_step_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124491776,
+        "rss_measurement_age_seconds": 0.4936689999885857,
+        "mps_allocated_bytes": 26469903360,
+        "mps_driver_bytes": 31249432576
+      },
+      "fields": {
+        "step": 8
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "training_generation_start",
+      "timestamp": "2026-10-22T23:41:44.766853+00:00",
+      "elapsed_seconds": 95.68656608299352,
+      "seconds_since_previous_mark": 0.001479125116020441,
+      "synchronize_seconds": 1.666136085987091e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:44.766824+00:00",
+        "elapsed_seconds": 95.68656974984333,
+        "phase": "training_generation_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124491776,
+        "rss_measurement_age_seconds": 0.49512670817784965,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 31249432576
+      },
+      "fields": {
+        "step": 8
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "training_generation_complete",
+      "timestamp": "2026-10-22T23:41:45.827094+00:00",
+      "elapsed_seconds": 96.74677999992855,
+      "seconds_since_previous_mark": 1.0602139169350266,
+      "synchronize_seconds": 4.332978278398514e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:45.827040+00:00",
+        "elapsed_seconds": 96.7467929997947,
+        "phase": "training_generation_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124491776,
+        "rss_measurement_age_seconds": 1.5553578750696033,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 31318704128
+      },
+      "fields": {
+        "step": 8,
+        "accuracy": 1.0
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "resume_checkpoint_start",
+      "timestamp": "2026-10-22T23:41:46.034149+00:00",
+      "elapsed_seconds": 96.95382595784031,
+      "seconds_since_previous_mark": 0.20704595791175961,
+      "synchronize_seconds": 4.708068445324898e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:41:46.034096+00:00",
+        "elapsed_seconds": 96.95384749979712,
+        "phase": "resume_checkpoint_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 4124491776,
+        "rss_measurement_age_seconds": 1.7624054171610624,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 18408407040
+      },
+      "fields": {
+        "step": 8
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "resume_checkpoint_complete",
+      "timestamp": "2026-10-22T23:42:11.517155+00:00",
+      "elapsed_seconds": 122.43686933279969,
+      "seconds_since_previous_mark": 25.48304337495938,
+      "synchronize_seconds": 1.2666918337345123e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:11.517099+00:00",
+        "elapsed_seconds": 122.43688141694292,
+        "phase": "resume_checkpoint_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5080940544,
+        "rss_measurement_age_seconds": 1.6443439580034465,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 18339201024
+      },
+      "fields": {
+        "step": 8
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "evaluation_start",
+      "timestamp": "2026-10-22T23:42:11.518890+00:00",
+      "elapsed_seconds": 122.43863595789298,
+      "seconds_since_previous_mark": 0.0017666250932961702,
+      "synchronize_seconds": 1.4167744666337967e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:11.518863+00:00",
+        "elapsed_seconds": 122.43863974977285,
+        "phase": "evaluation_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5080940544,
+        "rss_measurement_age_seconds": 1.6460934160277247,
+        "mps_allocated_bytes": 16390906368,
+        "mps_driver_bytes": 18339201024
+      },
+      "fields": {}
+    },
+    {
+      "type": "phase",
+      "phase": "evaluation_complete",
+      "timestamp": "2026-10-22T23:42:12.780552+00:00",
+      "elapsed_seconds": 123.7002397920005,
+      "seconds_since_previous_mark": 1.2616038341075182,
+      "synchronize_seconds": 6.207963451743126e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:12.780469+00:00",
+        "elapsed_seconds": 123.70025216694921,
+        "phase": "evaluation_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5065342976,
+        "rss_measurement_age_seconds": 0.7909737080335617,
+        "mps_allocated_bytes": 16419742464,
+        "mps_driver_bytes": 18408472576
+      },
+      "fields": {
+        "dev_response_nll": 0.5554944296329098
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "export_start",
+      "timestamp": "2026-10-22T23:42:12.896748+00:00",
+      "elapsed_seconds": 123.81645087478682,
+      "seconds_since_previous_mark": 0.11621108278632164,
+      "synchronize_seconds": 6.083166226744652e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:12.896679+00:00",
+        "elapsed_seconds": 123.81646154192276,
+        "phase": "export_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5065342976,
+        "rss_measurement_age_seconds": 0.9071846250444651,
+        "mps_allocated_bytes": 10078997504,
+        "mps_driver_bytes": 10816716800
+      },
+      "fields": {}
+    },
+    {
+      "type": "phase",
+      "phase": "export_complete",
+      "timestamp": "2026-10-22T23:42:41.886772+00:00",
+      "elapsed_seconds": 152.74323808285408,
+      "seconds_since_previous_mark": 28.926787208067253,
+      "synchronize_seconds": 1.574982888996601e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:41.823437+00:00",
+        "elapsed_seconds": 152.74325562478043,
+        "phase": "export_complete",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5128683520,
+        "rss_measurement_age_seconds": 0,
+        "mps_allocated_bytes": 10078997504,
+        "mps_driver_bytes": 10747510784
+      },
+      "fields": {}
+    },
+    {
+      "type": "phase",
+      "phase": "reload_start",
+      "timestamp": "2026-10-22T23:42:42.213851+00:00",
+      "elapsed_seconds": 153.1335492078215,
+      "seconds_since_previous_mark": 0.39031112496741116,
+      "synchronize_seconds": 1.0916031897068024e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:42.213744+00:00",
+        "elapsed_seconds": 153.13356583286077,
+        "phase": "reload_start",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5128683520,
+        "rss_measurement_age_seconds": 0.3903136251028627,
+        "mps_allocated_bytes": 0,
+        "mps_driver_bytes": 1703936
+      },
+      "fields": {}
+    },
+    {
+      "type": "phase",
+      "phase": "reload_verified",
+      "timestamp": "2026-10-22T23:42:43.812607+00:00",
+      "elapsed_seconds": 154.73231445788406,
+      "seconds_since_previous_mark": 1.59876525006257,
+      "synchronize_seconds": 7.082941010594368e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:42:43.812509+00:00",
+        "elapsed_seconds": 154.73233137489296,
+        "phase": "reload_verified",
+        "rss_peak_process_lifetime_bytes": 14860173312,
+        "rss_current_bytes": 5128683520,
+        "rss_measurement_age_seconds": 1.9890758330002427,
+        "mps_allocated_bytes": 10078997504,
+        "mps_driver_bytes": 10825170944
+      },
+      "fields": {}
+    }
+  ],
+  "errors": [],
+  "notes": [
+    "All memory values are bytes; GiB = bytes / 2**30.",
+    "MPS and RSS sampled peaks may miss transient allocations.",
+    "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+    "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+    "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+  ]
+}

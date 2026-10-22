@@ -1,0 +1,461 @@
+{
+  "schema_version": 1,
+  "device": "mps",
+  "started_at": "2026-10-22T23:45:42.305120+00:00",
+  "ended_at": "2026-10-22T23:45:53.863988+00:00",
+  "elapsed_seconds": 11.558776000048965,
+  "sample_interval_seconds": 0.25,
+  "rss_sample_interval_seconds": 2.0,
+  "sample_count": 60,
+  "memory": {
+    "rss_peak_process_lifetime_bytes": 596492288,
+    "rss_peak_sampled_bytes": 596459520,
+    "mps_allocated_peak_sampled_bytes": 10107314432,
+    "mps_driver_peak_sampled_bytes": 11815763968
+  },
+  "mps_recommended_max_memory_bytes": 55662788608,
+  "host_start": {
+    "timestamp": "2026-10-22T23:45:42.317233+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 3072.00M  used = 1530.69M  free = 1541.31M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 3221225472,
+      "used_bytes": 1605044797,
+      "free_bytes": 1616180674
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 88%",
+    "memory_free_percent": 88.0
+  },
+  "host_end": {
+    "timestamp": "2026-10-22T23:45:53.848026+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 3072.00M  used = 1530.69M  free = 1541.31M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 3221225472,
+      "used_bytes": 1605044797,
+      "free_bytes": 1616180674
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 70%",
+    "memory_free_percent": 70.0
+  },
+  "phases": [
+    {
+      "type": "phase",
+      "phase": "snapshot_validated",
+      "timestamp": "2026-10-22T23:45:49.731136+00:00",
+      "elapsed_seconds": 7.425804540980607,
+      "seconds_since_previous_mark": 7.425804540980607,
+      "synchronize_seconds": 2.008303999900818e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:49.731061+00:00",
+        "elapsed_seconds": 7.425816957838833,
+        "phase": "snapshot_validated",
+        "rss_peak_process_lifetime_bytes": 345636864,
+        "rss_current_bytes": 345636864,
+        "rss_measurement_age_seconds": 1.1825773329474032,
+        "mps_allocated_bytes": 0,
+        "mps_driver_bytes": 393216
+      },
+      "fields": {}
+    },
+    {
+      "type": "phase",
+      "phase": "model_loaded",
+      "timestamp": "2026-10-22T23:45:52.645317+00:00",
+      "elapsed_seconds": 10.339996374910697,
+      "seconds_since_previous_mark": 2.91419183393009,
+      "synchronize_seconds": 1.016608439385891e-05,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:52.645248+00:00",
+        "elapsed_seconds": 10.340008040890098,
+        "phase": "model_loaded",
+        "rss_peak_process_lifetime_bytes": 478658560,
+        "rss_current_bytes": 460767232,
+        "rss_measurement_age_seconds": 1.953197792172432,
+        "mps_allocated_bytes": 10078997504,
+        "mps_driver_bytes": 10746200064
+      },
+      "fields": {
+        "parameter_count": 2516756480
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:52.646278+00:00",
+      "elapsed_seconds": 10.341001166030765,
+      "seconds_since_previous_mark": 0.0010047911200672388,
+      "synchronize_seconds": 1.5420373529195786e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:52.646251+00:00",
+        "elapsed_seconds": 10.34100537491031,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 478658560,
+        "rss_current_bytes": 460767232,
+        "rss_measurement_age_seconds": 1.9541894171852618,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10746200064
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x0"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:52.977022+00:00",
+      "elapsed_seconds": 10.67171408305876,
+      "seconds_since_previous_mark": 0.330712917027995,
+      "synchronize_seconds": 6.20819628238678e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:52.976968+00:00",
+        "elapsed_seconds": 10.67173104104586,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 595836928,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.24145575007423759,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x0",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:52.977572+00:00",
+      "elapsed_seconds": 10.67229637503624,
+      "seconds_since_previous_mark": 0.0005822919774800539,
+      "synchronize_seconds": 1.4170072972774506e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:52.977546+00:00",
+        "elapsed_seconds": 10.672300665872172,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 595836928,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.2420172500424087,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x1"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.098883+00:00",
+      "elapsed_seconds": 10.793579166056588,
+      "seconds_since_previous_mark": 0.12128279102034867,
+      "synchronize_seconds": 2.5830231606960297e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.098830+00:00",
+        "elapsed_seconds": 10.793588500004262,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 595968000,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.36331266607157886,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x1",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:53.099385+00:00",
+      "elapsed_seconds": 10.794088749913499,
+      "seconds_since_previous_mark": 0.0005095838569104671,
+      "synchronize_seconds": 2.499902620911598e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.099339+00:00",
+        "elapsed_seconds": 10.794095874996856,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 595968000,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.36381258303299546,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x2"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.221280+00:00",
+      "elapsed_seconds": 10.915977374883369,
+      "seconds_since_previous_mark": 0.12188862496986985,
+      "synchronize_seconds": 2.499902620911598e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.221228+00:00",
+        "elapsed_seconds": 10.915988499997184,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 596017152,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.4857111661694944,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x2",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:53.221801+00:00",
+      "elapsed_seconds": 10.916510165901855,
+      "seconds_since_previous_mark": 0.000532791018486023,
+      "synchronize_seconds": 2.2081658244132996e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.221760+00:00",
+        "elapsed_seconds": 10.916516915895045,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 596017152,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.48623454105108976,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x3"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.344613+00:00",
+      "elapsed_seconds": 11.039307832950726,
+      "seconds_since_previous_mark": 0.12279766704887152,
+      "synchronize_seconds": 2.4579931050539017e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.344559+00:00",
+        "elapsed_seconds": 11.03931895783171,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 596033536,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.6090425411239266,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x3",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:53.345100+00:00",
+      "elapsed_seconds": 11.039821249898523,
+      "seconds_since_previous_mark": 0.0005134169477969408,
+      "synchronize_seconds": 1.5830155462026596e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.345070+00:00",
+        "elapsed_seconds": 11.039825957966968,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 596033536,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.6095427081454545,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x4"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.468734+00:00",
+      "elapsed_seconds": 11.163417124887928,
+      "seconds_since_previous_mark": 0.12359587498940527,
+      "synchronize_seconds": 2.62516550719738e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.468668+00:00",
+        "elapsed_seconds": 11.163430040935054,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 596049920,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.7331546251662076,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x4",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:53.469225+00:00",
+      "elapsed_seconds": 11.163936582859606,
+      "seconds_since_previous_mark": 0.0005194579716771841,
+      "synchronize_seconds": 1.6659032553434372e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.469185+00:00",
+        "elapsed_seconds": 11.163941249949858,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 596049920,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.7336580830160528,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x5"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.591226+00:00",
+      "elapsed_seconds": 11.285923958057538,
+      "seconds_since_previous_mark": 0.12198737519793212,
+      "synchronize_seconds": 2.4170149117708206e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.591175+00:00",
+        "elapsed_seconds": 11.28593458305113,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 596049920,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.8556602080352604,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x5",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:53.591722+00:00",
+      "elapsed_seconds": 11.28644545795396,
+      "seconds_since_previous_mark": 0.0005214998964220285,
+      "synchronize_seconds": 1.7918646335601807e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.591694+00:00",
+        "elapsed_seconds": 11.286450374871492,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 596049920,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.8561670000199229,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x6"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.713366+00:00",
+      "elapsed_seconds": 11.408059665933251,
+      "seconds_since_previous_mark": 0.12161420797929168,
+      "synchronize_seconds": 2.3329630494117737e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.713310+00:00",
+        "elapsed_seconds": 11.408077375032008,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 596066304,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.9778010409791023,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x6",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_start",
+      "timestamp": "2026-10-22T23:45:53.713941+00:00",
+      "elapsed_seconds": 11.408652999904007,
+      "seconds_since_previous_mark": 0.0005933339707553387,
+      "synchronize_seconds": 1.6659032553434372e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.713901+00:00",
+        "elapsed_seconds": 11.408657790860161,
+        "phase": "generation_start",
+        "rss_peak_process_lifetime_bytes": 596066304,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 0.9783747910987586,
+        "mps_allocated_bytes": 10078998272,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x7"
+      }
+    },
+    {
+      "type": "phase",
+      "phase": "generation_finished",
+      "timestamp": "2026-10-22T23:45:53.833807+00:00",
+      "elapsed_seconds": 11.52846537483856,
+      "seconds_since_previous_mark": 0.1198123749345541,
+      "synchronize_seconds": 2.624932676553726e-06,
+      "memory_sample": {
+        "type": "sample",
+        "timestamp": "2026-10-22T23:45:53.833717+00:00",
+        "elapsed_seconds": 11.528482915833592,
+        "phase": "generation_finished",
+        "rss_peak_process_lifetime_bytes": 596082688,
+        "rss_current_bytes": 580173824,
+        "rss_measurement_age_seconds": 1.0982161660213023,
+        "mps_allocated_bytes": 10078998784,
+        "mps_driver_bytes": 10824122368
+      },
+      "fields": {
+        "example_id": "train-w4-m1-x7",
+        "generated_tokens": 2,
+        "task_correct": true
+      }
+    }
+  ],
+  "errors": [],
+  "notes": [
+    "All memory values are bytes; GiB = bytes / 2**30.",
+    "MPS and RSS sampled peaks may miss transient allocations.",
+    "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+    "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+    "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+  ]
+}

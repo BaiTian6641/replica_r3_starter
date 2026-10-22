@@ -1,0 +1,571 @@
+{
+  "status": "qualified_bounded_native_D2_capacity_and_tiny_memorization",
+  "recorded_at_utc": "2026-10-22T23:47:44.132183+00:00",
+  "preregistration_commit": "ada8440",
+  "protocol": "docs/experiments/20261022_D2_Protocol.md",
+  "launch_plan": "configs/d2_resume_plan_20261022.json",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "hardware": "Mac Studio M2 Ultra 24CPU/60GPU,64GiB unified memory",
+  "native_model_compute": "MPS GPU FP32 only; CPU fallback disabled; native jobs serialized",
+  "neural_engine_execution": false,
+  "parameter_scope": {
+    "regime": "full_augmented",
+    "original_parameters": 2516756480,
+    "original_tensors": 381,
+    "added_parameters": 895490,
+    "added_tensors": 48,
+    "original_frozen_tensors": 0,
+    "optimizer_state_tensor_bytes": 6266291904,
+    "groups": {
+      "original_muon_tensors": 294,
+      "original_adamw_tensors": 87,
+      "added_muon_tensors": 16,
+      "added_adamw_tensors": 32
+    }
+  },
+  "initialization": "Each capacity length and tiny starts from same immutable local sealed source; within-pair continuation uses its own retained completed-update checkpoint. Selected D0/D1 remain comparison artifacts.",
+  "code_boundaries": {
+    "capacity256": "Historical9bc719b verified against actual Git objects; existing receipts unchanged; completed pair reused without GPU rerun",
+    "capacity512_and_tiny": "Storage-aware training source pins in launch plan unchanged across all four new processes",
+    "evaluation": "Standalone tested watchdog; existing training watchdog unchanged"
+  },
+  "experiments": {
+    "capacity256": {
+      "status": "qualified_bounded_capacity",
+      "fresh_parent": "sealed_original",
+      "runs": [
+        {
+          "report": "reports/minicpm5_D2_capacity256_chunk01_report.json",
+          "guard": "reports/minicpm5_D2_capacity256_chunk01_guard.json",
+          "start_step": 0,
+          "end_step": 1,
+          "actual_sequence_lengths": {
+            "minimum": 256,
+            "maximum": 256
+          },
+          "profiled_seconds": 59.73308829194866,
+          "memory": {
+            "rss_peak_process_lifetime_bytes": 15587475456,
+            "rss_peak_sampled_bytes": 10110976000,
+            "mps_allocated_peak_sampled_bytes": 28722829056,
+            "mps_driver_peak_sampled_bytes": 31215894528
+          },
+          "reload_verification": {
+            "status": "passed",
+            "dev_example_id": "capacity-256-dev-world-0",
+            "compared_logit_elements": 33423360,
+            "rtol": 1e-05,
+            "atol": 1e-06,
+            "maximum_absolute_logit_difference": 0.0
+          },
+          "checkpoint_receipts": [
+            {
+              "path": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001",
+              "step": 1,
+              "receipt_sha256": "b3343def4c243d4076269800aa58495a345d1be38a923560ec672660c168775d"
+            }
+          ]
+        },
+        {
+          "report": "reports/minicpm5_D2_capacity256_chunk02_report.json",
+          "guard": "reports/minicpm5_D2_capacity256_chunk02_guard.json",
+          "start_step": 1,
+          "end_step": 2,
+          "actual_sequence_lengths": {
+            "minimum": 256,
+            "maximum": 256
+          },
+          "profiled_seconds": 74.00892604188994,
+          "memory": {
+            "rss_peak_process_lifetime_bytes": 14884110336,
+            "rss_peak_sampled_bytes": 13011828736,
+            "mps_allocated_peak_sampled_bytes": 28723862272,
+            "mps_driver_peak_sampled_bytes": 31215894528
+          },
+          "reload_verification": {
+            "status": "passed",
+            "dev_example_id": "capacity-256-dev-world-0",
+            "compared_logit_elements": 33423360,
+            "rtol": 1e-05,
+            "atol": 1e-06,
+            "maximum_absolute_logit_difference": 0.0
+          },
+          "checkpoint_receipts": [
+            {
+              "path": "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002",
+              "step": 2,
+              "receipt_sha256": "532d87f7ef4826dfad84be3572c45f213af4d123c54cb8c90c3987d87a308e37"
+            }
+          ]
+        }
+      ],
+      "completed_updates": 2,
+      "processed_sequence_tokens": 4096,
+      "supervised_tokens": 32,
+      "unique_training_update_seconds": 45.681054207962006,
+      "profiled_process_seconds": 133.7420143338386,
+      "peak_memory": {
+        "rss_peak_process_lifetime_bytes": 15587475456,
+        "rss_peak_sampled_bytes": 13011828736,
+        "mps_allocated_peak_sampled_bytes": 28723862272,
+        "mps_driver_peak_sampled_bytes": 31215894528
+      },
+      "runtime_validation": "reports/validation_D2_capacity256_20261022.json",
+      "full_payload_bytes_rehashed_by_metadata_validator": false
+    },
+    "capacity512": {
+      "status": "qualified_bounded_capacity",
+      "fresh_parent": "sealed_original",
+      "runs": [
+        {
+          "report": "reports/minicpm5_D2_capacity512_chunk01_report.json",
+          "guard": "reports/minicpm5_D2_capacity512_chunk01_guard.json",
+          "start_step": 0,
+          "end_step": 1,
+          "actual_sequence_lengths": {
+            "minimum": 512,
+            "maximum": 512
+          },
+          "profiled_seconds": 95.72596825007349,
+          "memory": {
+            "rss_peak_process_lifetime_bytes": 15559655424,
+            "rss_peak_sampled_bytes": 9971777536,
+            "mps_allocated_peak_sampled_bytes": 28857046784,
+            "mps_driver_peak_sampled_bytes": 31215894528
+          },
+          "reload_verification": {
+            "status": "passed",
+            "dev_example_id": "capacity-512-dev-world-0",
+            "compared_logit_elements": 66846720,
+            "rtol": 1e-05,
+            "atol": 1e-06,
+            "maximum_absolute_logit_difference": 0.0
+          },
+          "checkpoint_receipts": [
+            {
+              "path": "runs/minicpm5_D2_capacity512_chunk01_20261022/training_checkpoint_0001",
+              "step": 1,
+              "receipt_sha256": "d77f5e31193536f3c1e67405b35aef1aa497b80836815770598cc6091f5e8d70"
+            }
+          ]
+        },
+        {
+          "report": "reports/minicpm5_D2_capacity512_chunk02_report.json",
+          "guard": "reports/minicpm5_D2_capacity512_chunk02_guard.json",
+          "start_step": 1,
+          "end_step": 2,
+          "actual_sequence_lengths": {
+            "minimum": 512,
+            "maximum": 512
+          },
+          "profiled_seconds": 105.24835104099475,
+          "memory": {
+            "rss_peak_process_lifetime_bytes": 14890156032,
+            "rss_peak_sampled_bytes": 10626973696,
+            "mps_allocated_peak_sampled_bytes": 28858080000,
+            "mps_driver_peak_sampled_bytes": 32298024960
+          },
+          "reload_verification": {
+            "status": "passed",
+            "dev_example_id": "capacity-512-dev-world-0",
+            "compared_logit_elements": 66846720,
+            "rtol": 1e-05,
+            "atol": 1e-06,
+            "maximum_absolute_logit_difference": 0.0
+          },
+          "checkpoint_receipts": [
+            {
+              "path": "runs/minicpm5_D2_capacity512_chunk02_20261022/training_checkpoint_0002",
+              "step": 2,
+              "receipt_sha256": "5e1d96369544b22521c9e5d369347e68b93c51d7da0bccdcfe27bd5ec0e3f8eb"
+            }
+          ]
+        }
+      ],
+      "completed_updates": 2,
+      "processed_sequence_tokens": 8192,
+      "supervised_tokens": 32,
+      "unique_training_update_seconds": 52.32811520807445,
+      "profiled_process_seconds": 200.97431929106824,
+      "peak_memory": {
+        "rss_peak_process_lifetime_bytes": 15559655424,
+        "rss_peak_sampled_bytes": 10626973696,
+        "mps_allocated_peak_sampled_bytes": 28858080000,
+        "mps_driver_peak_sampled_bytes": 32298024960
+      },
+      "runtime_validation": "reports/validation_D2_capacity512_20261022.json",
+      "full_payload_bytes_rehashed_by_metadata_validator": false
+    },
+    "tiny": {
+      "status": "qualified_balanced_tiny_memorization_scope_resume",
+      "fresh_parent": "sealed_original",
+      "runs": [
+        {
+          "report": "reports/minicpm5_D2_tiny_chunk01_report.json",
+          "guard": "reports/minicpm5_D2_tiny_chunk01_guard.json",
+          "start_step": 0,
+          "end_step": 4,
+          "actual_sequence_lengths": {
+            "minimum": 55,
+            "maximum": 55
+          },
+          "profiled_seconds": 144.64384429203346,
+          "memory": {
+            "rss_peak_process_lifetime_bytes": 15560196096,
+            "rss_peak_sampled_bytes": 9787244544,
+            "mps_allocated_peak_sampled_bytes": 28618480384,
+            "mps_driver_peak_sampled_bytes": 31348015104
+          },
+          "reload_verification": {
+            "status": "passed",
+            "dev_example_id": "dev-w5-m2-x0",
+            "compared_logit_elements": 7180800,
+            "rtol": 1e-05,
+            "atol": 1e-06,
+            "maximum_absolute_logit_difference": 0.0
+          },
+          "checkpoint_receipts": [
+            {
+              "path": "runs/minicpm5_D2_tiny_chunk01_20261022/training_checkpoint_0004",
+              "step": 4,
+              "receipt_sha256": "704ded0f5354faacc6b721b237ff1278c6600777aba8e76bc64a2b6d8d8267e8"
+            }
+          ]
+        },
+        {
+          "report": "reports/minicpm5_D2_tiny_chunk02_report.json",
+          "guard": "reports/minicpm5_D2_tiny_chunk02_guard.json",
+          "start_step": 4,
+          "end_step": 8,
+          "actual_sequence_lengths": {
+            "minimum": 55,
+            "maximum": 55
+          },
+          "profiled_seconds": 154.91286908299662,
+          "memory": {
+            "rss_peak_process_lifetime_bytes": 14860173312,
+            "rss_peak_sampled_bytes": 14700429312,
+            "mps_allocated_peak_sampled_bytes": 28618611456,
+            "mps_driver_peak_sampled_bytes": 31348015104
+          },
+          "reload_verification": {
+            "status": "passed",
+            "dev_example_id": "dev-w5-m2-x0",
+            "compared_logit_elements": 7180800,
+            "rtol": 1e-05,
+            "atol": 1e-06,
+            "maximum_absolute_logit_difference": 0.0
+          },
+          "checkpoint_receipts": [
+            {
+              "path": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008",
+              "step": 8,
+              "receipt_sha256": "973a3b241a060d08eace8b0c9afb8245262ecc478cdfad13e63f74471546fc8b"
+            }
+          ]
+        }
+      ],
+      "completed_updates": 8,
+      "processed_sequence_tokens": 3520,
+      "supervised_tokens": 128,
+      "unique_training_update_seconds": 160.7402580822818,
+      "profiled_process_seconds": 299.5567133750301,
+      "peak_memory": {
+        "rss_peak_process_lifetime_bytes": 15560196096,
+        "rss_peak_sampled_bytes": 14700429312,
+        "mps_allocated_peak_sampled_bytes": 28618611456,
+        "mps_driver_peak_sampled_bytes": 31348015104
+      },
+      "runtime_validation": "reports/validation_D2_tiny_20261022.json",
+      "full_payload_bytes_rehashed_by_metadata_validator": false,
+      "stop_reason": "two_consecutive_perfect_training_generation_checks",
+      "training_generations": [
+        {
+          "step": 4,
+          "correct": 8,
+          "examples": 8,
+          "distinct_responses": 8,
+          "eos": 8,
+          "cap_hits": 0
+        },
+        {
+          "step": 8,
+          "correct": 8,
+          "examples": 8,
+          "distinct_responses": 8,
+          "eos": 8,
+          "cap_hits": 0
+        }
+      ]
+    }
+  },
+  "independent_saved_export_evaluation": [
+    {
+      "split": "train",
+      "correct": 8,
+      "examples": 8,
+      "all_eos": true,
+      "capped": 0,
+      "distinct_responses": 8,
+      "generation_cap": 256,
+      "guard_replay": {
+        "path": "/Users/flare/replica_r3_starter/runs/minicpm5_D2_tiny_export_train_generation_20261022_guard.json",
+        "sha256": "b215a05abf6d36518e82d7b257bfe3958b51c51fe35de7c6f7cf17568ac69345",
+        "host_trace_sha256": "dbcd32979b23bdea98a3772a3f62398ba1b2cccd0b85703e8677d675765ed7de",
+        "profile_trace_sha256": "d4843286e33f6112a75973e4c4a4885fa9a9a8f28a48f03f1ba507279a5e5451",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "current_workspace",
+          "historical_commit": null,
+          "verified_files": 3,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1605044797,
+          "memory_free_percent": 88.0
+        },
+        "host_samples": 7,
+        "driver_samples": 78,
+        "peak_driver_bytes": 11815763968,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 70.0,
+        "stop_reason": null
+      },
+      "memory": {
+        "rss_peak_process_lifetime_bytes": 596492288,
+        "rss_peak_sampled_bytes": 596459520,
+        "mps_allocated_peak_sampled_bytes": 10107314432,
+        "mps_driver_peak_sampled_bytes": 11815763968
+      },
+      "profiled_seconds": 11.558776000048965,
+      "generation_report": "reports/minicpm5_D2_tiny_export_train_generation_report_20261022.json",
+      "answers": "reports/minicpm5_D2_tiny_export_train_answers_20261022.jsonl",
+      "wrong_ids": []
+    },
+    {
+      "split": "dev",
+      "correct": 14,
+      "examples": 16,
+      "all_eos": true,
+      "capped": 0,
+      "distinct_responses": 8,
+      "generation_cap": 256,
+      "guard_replay": {
+        "path": "/Users/flare/replica_r3_starter/runs/minicpm5_D2_tiny_export_dev_generation_20261022_guard.json",
+        "sha256": "e3b900cd51fbc3b1b5be519a229f6ca960d69a76387292922a170e660dfe2841",
+        "host_trace_sha256": "d6507c356610dc7b5eb8b77328d329105e0e9d5d6dc91f0b02a3bf6367be10cc",
+        "profile_trace_sha256": "22166e23d8bdc1a6cf5caf91f23bb20d16ee55d33b412ca6d21af8514c412a4e",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "current_workspace",
+          "historical_commit": null,
+          "verified_files": 3,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1605044797,
+          "memory_free_percent": 88.0
+        },
+        "host_samples": 8,
+        "driver_samples": 114,
+        "peak_driver_bytes": 11815763968,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 70.0,
+        "stop_reason": null
+      },
+      "memory": {
+        "rss_peak_process_lifetime_bytes": 596328448,
+        "rss_peak_sampled_bytes": 596295680,
+        "mps_allocated_peak_sampled_bytes": 10107314688,
+        "mps_driver_peak_sampled_bytes": 11815763968
+      },
+      "profiled_seconds": 12.422035540919751,
+      "generation_report": "reports/minicpm5_D2_tiny_export_dev_generation_report_20261022.json",
+      "answers": "reports/minicpm5_D2_tiny_export_dev_answers_20261022.jsonl",
+      "wrong_ids": [
+        "dev-w5-m2-x5",
+        "dev-w5-m6-x7"
+      ]
+    }
+  ],
+  "source_reuse": {
+    "status": "passed_original_source_unchanged",
+    "at_utc": "2026-10-22T23:46:55.510224+00:00",
+    "preflight": "reports/D2_resume_preflight_20261022.json",
+    "file_inventory_metadata_identical": true,
+    "original_files": 36,
+    "source_receipt_sha256": "d2a58260d3e7d476b26a5fffa2ca55d397dbe1ee8391456945cb4c5e4e5e4f11",
+    "receipt_bytes_and_metadata_unchanged": true,
+    "sealed_snapshot_verification": {
+      "status": "reused_local_sealed_snapshot",
+      "repo_id": "openbmb/MiniCPM5-2B",
+      "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "snapshot": "checkpoints/minicpm5_source",
+      "receipt_path": "checkpoints/minicpm5_source.download.json",
+      "receipt_preserved": true,
+      "network_used": false,
+      "verified_files": 9,
+      "selected_inventory_suffixes": [
+        ".jinja",
+        ".json",
+        ".model",
+        ".safetensors"
+      ]
+    },
+    "downloads_during_package": 0,
+    "source_path": "checkpoints/minicpm5_source",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "free_disk_after_bytes": 501175521280,
+    "observed_free_disk_decrease_bytes": 65529311232,
+    "disk_observation_limit": "System-wide observed change includes new learned weights/runtime states and other activity; not a physical extent/accounting proof."
+  },
+  "token_accounting": "reports/D2_token_accounting_20261022.json",
+  "costs": {
+    "all_three_evidence_chains_including_reused256": {
+      "completed_updates": 12,
+      "processed_sequence_tokens": 15808,
+      "supervised_tokens": 192,
+      "unique_training_update_seconds": 258.74942749831825,
+      "profiled_process_seconds": 634.2730469999369
+    },
+    "new_training_this_resumption_only": {
+      "completed_updates": 10,
+      "processed_sequence_tokens": 11712,
+      "supervised_tokens": 160,
+      "unique_training_update_seconds": 213.06837329035625,
+      "profiled_process_seconds": 500.5310326660983
+    },
+    "saved_export_evaluation_profiled_seconds": 23.980811540968716,
+    "timing_boundary": "Resumed histories are cumulative and counted once. Whole profiler lifetimes include checkpoint/save/reload; update seconds include training updates only. Audit/tokenization/preflight/unit-test time is additional, not claimed included."
+  },
+  "accepted_developmental_parent_changed": false,
+  "previous_selected_D0_diagnostic": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base",
+  "preserved_D1_memorization_export": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint",
+  "D2_diagnostic_export": "runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint",
+  "tests": "reports/validation_D2_code_20261022.json",
+  "limits": [
+    "Eight training and16 reused synthetic development cases; not independent held-out transfer or general quality.",
+    "No fair D0/D1/D2 rate/compute/parameter comparison or useful architecture-benefit claim.",
+    "All381 native tensors changed and all48 sidecars changed; not every element is required to change.",
+    "Metadata validators inspect receipt inventories/small bytes/headers/mmap state and exact guard traces; separate source-normalized native and sidecar audits bind weight values/SHAs. Metadata mode does not rehash every large native/runtime payload.",
+    "Sampled memory can miss transients; MPS/RSS overlap. Host swap/pressure and free-disk deltas are system-wide.",
+    "Native fresh-process continuation verified, not full-size uninterrupted-versus-split numerical equivalence.",
+    "Sustained training, retention, learning loop, authentic Replica fidelity, VLM,ANE and Blackwell remain unqualified."
+  ],
+  "next_gate": "S2.4 predeclare fair same-information D0/D1/D2 and capacity/compute controls; S1.2 independent source-family expansion remains needed before quality claims.",
+  "artifact_sha256": {
+    "configs/d2_resume_plan_20261022.json": "0c90b6b4b1e31d4fd96cfeb8aeacb03c32ef36d874e54023ff4e44e4f0a8ce60",
+    "docs/experiments/20261022_D2_Protocol.md": "f5b0782d1a7331ea23bed6953c1fbe32207a42641582088e7ea7e7d44df06512",
+    "reports/D2_capacity512_chunk01_launch_20261022.json": "dc425b6ebf07be3aa7b9233cd50b5622bf2865e1d769de9f60ea11e56bd18507",
+    "reports/D2_capacity512_chunk02_launch_20261022.json": "ab8b345d0bb886a593f9cf4740ddccfabc1766c2134d4293501d15eec3255779",
+    "reports/D2_resume_preflight_20261022.json": "f3de60a0f0a851aade8b797bdd9206d83b1721bd99fa9f39246a32f8e9d1fd45",
+    "reports/D2_saved_export_evaluation_plan_20261022.json": "d21a68bb5f3827e7da3f6e7f39427bdf94cbb6928f265f522a1090c7cd0c0134",
+    "reports/D2_source_reuse_final_20261022.json": "c289ab3b9df204acd7550f06e8c8553ab058f350add5ded7933d00303a1b590c",
+    "reports/D2_tiny_chunk01_launch_20261022.json": "eaa1d6c6b39e3c2cff3b1f8944bab68865bb857d6039377a454a711a29b94e3b",
+    "reports/D2_tiny_chunk02_launch_20261022.json": "0339fc54b7948e17bbcf30df4c7dfc2918ece9b8379dcd4d3af6ea6524b8e51d",
+    "reports/D2_token_accounting_20261022.json": "4516dcb6e362ad8ff402d2caef730a638d7c4f45828bba0b2aa3dd51ec8975a1",
+    "reports/minicpm5_D2_capacity256_checkpoint_audit_20261022.json": "ea9dc37629e93951a78e0917cf2830dd1b7c8a6d35c69a17069374734e90c860",
+    "reports/minicpm5_D2_capacity256_chunk01_checkpoint_adapter_manifest.json": "f79ed2c0722244d05a3d1298b848d14c991de8e732887234b2b68ac88f375964",
+    "reports/minicpm5_D2_capacity256_chunk01_checkpoint_audit_20261022.json": "d6608150e4146ddf1cd8621319933e34da0c1bd7e3ee0ecdbc30e9d0dcf1307e",
+    "reports/minicpm5_D2_capacity256_chunk01_guard.json": "33179349849900fe0a4cf6ae5f55c7c7c088b03ef531c0144b39b45a64a44fcf",
+    "reports/minicpm5_D2_capacity256_chunk01_guard_child.log": "373445b372bc97ef93780d3c6bf3d66cb4e29012420516378d6835b20918dd73",
+    "reports/minicpm5_D2_capacity256_chunk01_guard_host_samples.jsonl": "fd04786c2c2a74a4f202b7f33bad2dec9406d9b46a2aacfb36aadcb7becae7df",
+    "reports/minicpm5_D2_capacity256_chunk01_memory_profile.json": "4b2d9690192c77a0cc973444202488721bfe84a0fa21bded3e83a6484b8143c5",
+    "reports/minicpm5_D2_capacity256_chunk01_memory_samples.jsonl": "b65e76f68ba5476d08b1d83d395d1bdbb8533fc3b277df43022f15b1170dce95",
+    "reports/minicpm5_D2_capacity256_chunk01_report.json": "b6141d2439b3c60b4458e0baf8ecd871845c02f617e44293ed317c13e0b21d92",
+    "reports/minicpm5_D2_capacity256_chunk01_training_checkpoint_0001_adapter_manifest.json": "2c2429fe59b61ac4ffdfdbdf4fd8b2d05f8879d67d98f65a1d7c4c4b9b5efb43",
+    "reports/minicpm5_D2_capacity256_chunk01_training_checkpoint_0001_checkpoint_receipt.json": "b3343def4c243d4076269800aa58495a345d1be38a923560ec672660c168775d",
+    "reports/minicpm5_D2_capacity256_chunk02_checkpoint_adapter_manifest.json": "794c7c7f33d2d7c92637590cfb2c822b453716d05da1ea7c2c097d3bb1c6aed0",
+    "reports/minicpm5_D2_capacity256_chunk02_guard.json": "4211927c54fb13b9860023f01adc9564c0636533e6786ae847adc4c02531018c",
+    "reports/minicpm5_D2_capacity256_chunk02_guard_child.log": "e5074e66d4ab124ee29515d0451c74a97a7377ca6b04acae8e42f08c01cce18e",
+    "reports/minicpm5_D2_capacity256_chunk02_guard_host_samples.jsonl": "6f375280b55001abf3c7f7d3fd81f404d85209f3bb7b7ba22e41efee854d7e9f",
+    "reports/minicpm5_D2_capacity256_chunk02_memory_profile.json": "e803cbe71f26c6060facc4f1ae8f07ea36e4db6c80d3e6bdd36e1ba0c7d06083",
+    "reports/minicpm5_D2_capacity256_chunk02_memory_samples.jsonl": "db4a607f276285b008d56749d6e5a5a6cd6322dcda68e0c1e2902a07a0a2a86a",
+    "reports/minicpm5_D2_capacity256_chunk02_report.json": "4b3287f6b5d9e513f54ce43e15836975efa3a65df377922847b9590c0017aec5",
+    "reports/minicpm5_D2_capacity256_chunk02_training_checkpoint_0002_adapter_manifest.json": "2c2429fe59b61ac4ffdfdbdf4fd8b2d05f8879d67d98f65a1d7c4c4b9b5efb43",
+    "reports/minicpm5_D2_capacity256_chunk02_training_checkpoint_0002_checkpoint_receipt.json": "532d87f7ef4826dfad84be3572c45f213af4d123c54cb8c90c3987d87a308e37",
+    "reports/minicpm5_D2_capacity256_sidecar_audit_20261022.json": "b9e70c7578e05b02a68d6c225219b961365783eddaceebcfe28b622a6bb0b6b0",
+    "reports/minicpm5_D2_capacity512_checkpoint_audit_20261022.json": "95557818c45b1b93473d0bb6fd6cf8951c6d3ad1572a9ff55199d630a651ed9e",
+    "reports/minicpm5_D2_capacity512_chunk01_checkpoint_adapter_manifest.json": "7ab039ebfa4d5386ef163c8ccbed3a6d09882a516130974e73708d8d92445547",
+    "reports/minicpm5_D2_capacity512_chunk01_checkpoint_audit_20261022.json": "02a6b2e66cf6da4fa701235ec033f4ad693b2819b5af1bc44cccf84eccdcafff",
+    "reports/minicpm5_D2_capacity512_chunk01_guard.json": "a56df86c4f9c7f5a9a1461e0f12f7039b7ec0e1f45f2e700efdaebea5e45f02e",
+    "reports/minicpm5_D2_capacity512_chunk01_guard_child.log": "b486b4e193dee2ebafdd250d91ade7536f52ef2ccf66a66ce99b8798a011ebfb",
+    "reports/minicpm5_D2_capacity512_chunk01_guard_host_samples.jsonl": "23e9ddab1b953e207b017709faa87b63c1ee881dacccc814c8fd7db80108082f",
+    "reports/minicpm5_D2_capacity512_chunk01_memory_profile.json": "37c6c9249614d01de514ce6b3f143d658e69b2a8711562e5a78ce6b009eb2cbc",
+    "reports/minicpm5_D2_capacity512_chunk01_memory_samples.jsonl": "2fdf111a01839c47bbe983c3f1843f066ff22cb0d6b57e889d852e16362cd9ec",
+    "reports/minicpm5_D2_capacity512_chunk01_report.json": "491e80f728a85e97e182162392fbf3001554c6d98be183dcfa0d9a06f770f04f",
+    "reports/minicpm5_D2_capacity512_chunk01_training_checkpoint_0001_adapter_manifest.json": "20a4f75760052bf8919321f1abd823b46d16765d5c00b1c182b15a0d50b17159",
+    "reports/minicpm5_D2_capacity512_chunk01_training_checkpoint_0001_checkpoint_receipt.json": "d77f5e31193536f3c1e67405b35aef1aa497b80836815770598cc6091f5e8d70",
+    "reports/minicpm5_D2_capacity512_chunk02_checkpoint_adapter_manifest.json": "038513cc99a455dfe859c73b05eabef155bce51f5bf5dd0a09d193ebb81801dc",
+    "reports/minicpm5_D2_capacity512_chunk02_guard.json": "432b5fa738bcb5779acfc6f26c9ee0c27e1cac93e10ed824ea629cfff33476de",
+    "reports/minicpm5_D2_capacity512_chunk02_guard_child.log": "6a3ae29284fc9539fad1f2ca3612dad3b1a40524e98636a3383deb8564111169",
+    "reports/minicpm5_D2_capacity512_chunk02_guard_host_samples.jsonl": "d2228704bdcddaa1b800ebc40562c9af7e40f3188232b3b63b867c6e06e08825",
+    "reports/minicpm5_D2_capacity512_chunk02_memory_profile.json": "00e66d65814e5dfea2dc8c64d5bec6e79fcb82d149248417120bcf20f80311b7",
+    "reports/minicpm5_D2_capacity512_chunk02_memory_samples.jsonl": "f0f3136c727c6f7b1aafe5a9f6f51f77e4cc81bcecfc1b86fae4354f3367ae7f",
+    "reports/minicpm5_D2_capacity512_chunk02_report.json": "2e6f2635be3f95de63ec2bd53dd64512e499d4093d02ef7faaf1890ef7c19cae",
+    "reports/minicpm5_D2_capacity512_chunk02_training_checkpoint_0002_adapter_manifest.json": "3548a12a3990a28cbd1c1b09ead778facf2ccba52d268dbe54acbfdc17d6f3cb",
+    "reports/minicpm5_D2_capacity512_chunk02_training_checkpoint_0002_checkpoint_receipt.json": "5e1d96369544b22521c9e5d369347e68b93c51d7da0bccdcfe27bd5ec0e3f8eb",
+    "reports/minicpm5_D2_capacity512_sidecar_audit_20261022.json": "af7046bd711dfaf39127c345c5f4aff4ea6e37dabe9f7822dfc0e6045df7e84c",
+    "reports/minicpm5_D2_tiny_checkpoint_audit_20261022.json": "2a560e3078a23ab5effb4e22d0dab5284f9f9541191a8d963be32fdf3dcddf88",
+    "reports/minicpm5_D2_tiny_chunk01_checkpoint_adapter_manifest.json": "47fbf6a99d5aa5d790b61d1c9aabe129d65c99c26d67a084ce7fb183febe8e01",
+    "reports/minicpm5_D2_tiny_chunk01_checkpoint_audit_20261022.json": "14f0c4bee221b62aeb5390896ca5bd7d4ce3f3567061b8a7d9825345296d2a4a",
+    "reports/minicpm5_D2_tiny_chunk01_generation_step0004.json": "5fe8cad14113708ff0ead5c82c8fd426615fb55bbd74ed9b78d770223e96c065",
+    "reports/minicpm5_D2_tiny_chunk01_guard.json": "1eb3288ad9d94cca1b80b0f93b01a94c1a681955fb0b765977481afb257a84c8",
+    "reports/minicpm5_D2_tiny_chunk01_guard_child.log": "ba0eb27eda94d29a7354948bd1465d5ff7768e54e5ec62deab8031b8f92de796",
+    "reports/minicpm5_D2_tiny_chunk01_guard_host_samples.jsonl": "a390433e082a2ffbab679fb4c636efce2f8d2545a4313e9abf7d830fb416b7fe",
+    "reports/minicpm5_D2_tiny_chunk01_memory_profile.json": "e69f3f0d8365eab896a487582bf0e69ee3450ecb4d9a55354c521a0b3f9821ee",
+    "reports/minicpm5_D2_tiny_chunk01_memory_samples.jsonl": "81e25bb9e6c76fbdda1aca1b25658e563b12dfe14704ab747f7ccd9662d9bec1",
+    "reports/minicpm5_D2_tiny_chunk01_report.json": "8c6461c13c32e8c23364dcdcac07db2d4e3ba0a9b59077754f7677b0f0bf1c56",
+    "reports/minicpm5_D2_tiny_chunk01_training_checkpoint_0004_adapter_manifest.json": "a2a57c9c0fb857e77ddcf957c7d4165176b004373e47893eac1204811bf9d449",
+    "reports/minicpm5_D2_tiny_chunk01_training_checkpoint_0004_checkpoint_receipt.json": "704ded0f5354faacc6b721b237ff1278c6600777aba8e76bc64a2b6d8d8267e8",
+    "reports/minicpm5_D2_tiny_chunk02_checkpoint_adapter_manifest.json": "43d6585feba6bee3a40da00e47a9453598136289d864009a71d709c50df293b5",
+    "reports/minicpm5_D2_tiny_chunk02_generation_step0008.json": "b19b9c10095b1460dcd9b511ed2f4e70ecc12efaffc0e5b87a8f2e39fa8f8d00",
+    "reports/minicpm5_D2_tiny_chunk02_guard.json": "51f1789f8d8a112b45fcad81d390c084120e91624369a74dde43b7d18b9ce2da",
+    "reports/minicpm5_D2_tiny_chunk02_guard_child.log": "2039ce6ac53318a488870542edc9eed0ee29c3cc854d3768ead701f2154eb643",
+    "reports/minicpm5_D2_tiny_chunk02_guard_host_samples.jsonl": "2d2fa474176372fb3592c8a9ab251e743d9736d2b40e35cb13bbebbcb29b4d45",
+    "reports/minicpm5_D2_tiny_chunk02_memory_profile.json": "a60f0838c424adb4bf7626a7f6384905ca563a942e1e3cc604f9dd8fea7ee9c5",
+    "reports/minicpm5_D2_tiny_chunk02_memory_samples.jsonl": "aab1351a8305361e0df07688c4d38cc3d330b0442b21293897e6a4aad73c1872",
+    "reports/minicpm5_D2_tiny_chunk02_report.json": "57be23a3103a7c81cf2dadd0b72d6ba2b751cc4a60ca20dc75dad1387a33f4b3",
+    "reports/minicpm5_D2_tiny_chunk02_training_checkpoint_0008_adapter_manifest.json": "a05b1428418fa487b07d2284bc5cc7cb136ff456de6be0d19d13372ee76cca38",
+    "reports/minicpm5_D2_tiny_chunk02_training_checkpoint_0008_checkpoint_receipt.json": "973a3b241a060d08eace8b0c9afb8245262ecc478cdfad13e63f74471546fc8b",
+    "reports/minicpm5_D2_tiny_export_dev_answers_20261022.jsonl": "b2a58378d991541f8723421f3d33a09897f7f1011bc00074610b988f2f76624a",
+    "reports/minicpm5_D2_tiny_export_dev_generation_report_20261022.json": "53d3a0baa006f58e8e54e67e597dbae0382087d261e0c842b3bd4d894f7ac9a9",
+    "reports/minicpm5_D2_tiny_export_dev_guard_20261022.json": "e3b900cd51fbc3b1b5be519a229f6ca960d69a76387292922a170e660dfe2841",
+    "reports/minicpm5_D2_tiny_export_dev_guard_child_20261022.log": "0600c0598b6f487e7dc63fa81d0f08719ad68c7b6b721ce2216cdccf65cecc69",
+    "reports/minicpm5_D2_tiny_export_dev_guard_host_samples_20261022.jsonl": "d6507c356610dc7b5eb8b77328d329105e0e9d5d6dc91f0b02a3bf6367be10cc",
+    "reports/minicpm5_D2_tiny_export_dev_memory_samples_20261022.jsonl": "22166e23d8bdc1a6cf5caf91f23bb20d16ee55d33b412ca6d21af8514c412a4e",
+    "reports/minicpm5_D2_tiny_export_dev_profile_summary_20261022.json": "091968cc51c41b4c450d480d0dd0e14f2bde946e8e8c5c7e136145dab766ddc0",
+    "reports/minicpm5_D2_tiny_export_train_answers_20261022.jsonl": "53c31f4a92e3490c8308af61e2fbbdea090fa0768d52872edc20ecc9b224296f",
+    "reports/minicpm5_D2_tiny_export_train_generation_report_20261022.json": "811f0f67c055634b07d844167350db69ff4b19cc1dcbd4f4a5fa4ebf0582857d",
+    "reports/minicpm5_D2_tiny_export_train_guard_20261022.json": "b215a05abf6d36518e82d7b257bfe3958b51c51fe35de7c6f7cf17568ac69345",
+    "reports/minicpm5_D2_tiny_export_train_guard_child_20261022.log": "34ba08dbcc01cc2e41750185fcb6c958d250e082da343798cecfadb07f967d7b",
+    "reports/minicpm5_D2_tiny_export_train_guard_host_samples_20261022.jsonl": "dbcd32979b23bdea98a3772a3f62398ba1b2cccd0b85703e8677d675765ed7de",
+    "reports/minicpm5_D2_tiny_export_train_memory_samples_20261022.jsonl": "d4843286e33f6112a75973e4c4a4885fa9a9a8f28a48f03f1ba507279a5e5451",
+    "reports/minicpm5_D2_tiny_export_train_profile_summary_20261022.json": "72514d540ccd6be1e8f12fc78a58f83dde7d92760068d83ec80bfd7f8e9604b5",
+    "reports/minicpm5_D2_tiny_sidecar_audit_20261022.json": "5f086a014d9717d967c857202bef63fc566bdb624779784367994beab8d4056f",
+    "reports/test_output_D2_resume_20261022.txt": "9960606f8285fd01b6eb79a5dd54d8c95ae2cd2ed93eeac339fa83b9560494b5",
+    "reports/tests_D2_resume_20261022.xml": "f36d64111c7939213d456f35e0e952f952ffbb7272f11e13a5a8f49256d3ac53",
+    "reports/validation_D2_capacity256_20261022.json": "6b798f595fcf6aa173323601f88e454e864b9910963a03bd32029a4148ce84df",
+    "reports/validation_D2_capacity512_20261022.json": "2b39c2a6ba49d5182d786e1bcc2ed2ca9218287fd4d5723accae7a84f45b54ce",
+    "reports/validation_D2_code_20261022.json": "042a742549b36bea56f247dcbdddab9b00c986a239e98a2599102ecc8e8ea572",
+    "reports/validation_D2_saved_answers_20261022.json": "93f3b0b9be40681200b32de44240d9394ca110e311c9a76f13ba31961f48b3ed",
+    "reports/validation_D2_tiny_20261022.json": "4ba279fd1007cc743193d18c91a41c53f0d4318f6deb60cfd09a28b188b954a4",
+    "scripts/run_d2_stage.py": "07e7fb4c23c355bf4dadf3b49954359021ddf4c05923cefdf86fb1693a005164",
+    "scripts/run_generation_preflight.py": "937ecb82b301401500e6c35e704a73679231a9191a75d671c9d10936cd8e3722",
+    "scripts/validate_d2_experiment.py": "fbd6da1e16cf50f06462195ae838ccc6c7b990a5cd299e031752601a4727de7f",
+    "tests/test_d2_validation.py": "45077f5450443e8d1c0e5a9cfce280e655daa861bbacf5d1c1fc1f17671da6bd",
+    "tests/test_generation_guard_runner.py": "e61e8b14a3d5335747b4c9180f34ee5cbf2804765774ba4a5f8a70e0f7785c48"
+  }
+}

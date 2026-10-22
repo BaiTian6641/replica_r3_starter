@@ -1,0 +1,1427 @@
+{
+  "status": "completed_native_generation_preflight",
+  "device": "mps",
+  "parameter_dtype": "float32",
+  "compute_dtype": "float32",
+  "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+  "model_lock_path": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+  "tokenizer_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+  "data_path": "/Users/flare/replica_r3_starter/data/fixtures/dev.jsonl",
+  "data_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+  "seed": 17,
+  "max_examples": 16,
+  "max_new_tokens": 256,
+  "max_length": 256,
+  "decoding": {
+    "do_sample": false,
+    "num_beams": 1,
+    "use_cache": false,
+    "enable_thinking": false,
+    "context": "fixed_original_prompt_and_support"
+  },
+  "examples": [
+    {
+      "id": "dev-w5-m2-x0",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "2",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "c4560234b9ba1980fcbae4e0bef4d3a38a6c0db837f70a41e9704fb57245b534",
+      "generated_token_ids": [
+        39,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "2</s>",
+      "completion": "2",
+      "elapsed_seconds": 0.31392708304338157,
+      "exact_text_match": true,
+      "predicted_integer": 2,
+      "expected_integer": 2,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m2-x1",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "3",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "e2e13b85e4e5bff6e8c6751379ffeab633395912be3fba544044b5450f780ad0",
+      "generated_token_ids": [
+        40,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "3</s>",
+      "completion": "3",
+      "elapsed_seconds": 0.12168279197067022,
+      "exact_text_match": true,
+      "predicted_integer": 3,
+      "expected_integer": 3,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m2-x2",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "0",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "8ac30acdc69e5cdc0060cf23244a40a10ad0040957db116e4b10a71a697ed5e7",
+      "generated_token_ids": [
+        37,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "0</s>",
+      "completion": "0",
+      "elapsed_seconds": 0.12118791695684195,
+      "exact_text_match": true,
+      "predicted_integer": 0,
+      "expected_integer": 0,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m2-x3",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "1",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "17c4d47d501f256459a11ece533005625a87d37491371ed570caa1d9acc00541",
+      "generated_token_ids": [
+        38,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "1</s>",
+      "completion": "1",
+      "elapsed_seconds": 0.12291333288885653,
+      "exact_text_match": true,
+      "predicted_integer": 1,
+      "expected_integer": 1,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m2-x4",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "6",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "e5c28ac87478eb0a64a760d32a1efcafe27854ccadd0be8cd6a54462e2babe05",
+      "generated_token_ids": [
+        43,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "6</s>",
+      "completion": "6",
+      "elapsed_seconds": 0.12155912490561604,
+      "exact_text_match": true,
+      "predicted_integer": 6,
+      "expected_integer": 6,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m2-x5",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "7",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "0273920163af33c0d1e66d4880f5a7b6431edf887d0e94160d6d99f2cf5b7c4e",
+      "generated_token_ids": [
+        40,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "3</s>",
+      "completion": "3",
+      "elapsed_seconds": 0.12276804191060364,
+      "exact_text_match": false,
+      "predicted_integer": 3,
+      "expected_integer": 7,
+      "strict_integer_match": false,
+      "task_correct": false
+    },
+    {
+      "id": "dev-w5-m2-x6",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "4",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "794f4d534ff65028f1329023025996457584932bed861d1db337571f772feec3",
+      "generated_token_ids": [
+        41,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "4</s>",
+      "completion": "4",
+      "elapsed_seconds": 0.12154887500219047,
+      "exact_text_match": true,
+      "predicted_integer": 4,
+      "expected_integer": 4,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m2-x7",
+      "group_id": "xor-width-5-mask-2",
+      "source_ids": [
+        "fixture://xor/width-5/mask-2"
+      ],
+      "expected": "5",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "89fbab8a4570ac0084bdf9d5502fc4e34d38752344cd9d50b7f6d79aa821e962",
+      "generated_token_ids": [
+        42,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "5</s>",
+      "completion": "5",
+      "elapsed_seconds": 0.12118108384311199,
+      "exact_text_match": true,
+      "predicted_integer": 5,
+      "expected_integer": 5,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x0",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "6",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "bb2bae6a2a0ea7b1045772577ee1a1021d6948998e49b918b293be9779567346",
+      "generated_token_ids": [
+        43,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "6</s>",
+      "completion": "6",
+      "elapsed_seconds": 0.12134616682305932,
+      "exact_text_match": true,
+      "predicted_integer": 6,
+      "expected_integer": 6,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x1",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "7",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "e1cfb5bd282265b06077d2fb20215c2d46e556b280ef105ccb4f9b4f7c7bad03",
+      "generated_token_ids": [
+        44,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "7</s>",
+      "completion": "7",
+      "elapsed_seconds": 0.12158091692253947,
+      "exact_text_match": true,
+      "predicted_integer": 7,
+      "expected_integer": 7,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x2",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "4",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "3d7fa5ea1ffdae481c8e9cdb3b45a20725c195d196c4ce32b1198de3dcf17b09",
+      "generated_token_ids": [
+        41,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "4</s>",
+      "completion": "4",
+      "elapsed_seconds": 0.127994499867782,
+      "exact_text_match": true,
+      "predicted_integer": 4,
+      "expected_integer": 4,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x3",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "5",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "eff53b46f88eb4b5f2f2650a9c4edfd5b462aad6100db12bfdd63bfaa98ceb60",
+      "generated_token_ids": [
+        42,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "5</s>",
+      "completion": "5",
+      "elapsed_seconds": 0.12123637483455241,
+      "exact_text_match": true,
+      "predicted_integer": 5,
+      "expected_integer": 5,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x4",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "2",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "690b569e51d86ff9b75b003822b3684247550754152ff223618d973acfeff5b6",
+      "generated_token_ids": [
+        39,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "2</s>",
+      "completion": "2",
+      "elapsed_seconds": 0.12097504106350243,
+      "exact_text_match": true,
+      "predicted_integer": 2,
+      "expected_integer": 2,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x5",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "3",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "ea0aa62330b1c5d079260631de58736aca1654c4e0d8dbd755400683816527ee",
+      "generated_token_ids": [
+        40,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "3</s>",
+      "completion": "3",
+      "elapsed_seconds": 0.12090366682969034,
+      "exact_text_match": true,
+      "predicted_integer": 3,
+      "expected_integer": 3,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x6",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "0",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "a2f1d50d03fe159dcd77d1e1b59030b7c6bcc214f8353651aa77f009bdf49557",
+      "generated_token_ids": [
+        37,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "0</s>",
+      "completion": "0",
+      "elapsed_seconds": 0.12107412493787706,
+      "exact_text_match": true,
+      "predicted_integer": 0,
+      "expected_integer": 0,
+      "strict_integer_match": true,
+      "task_correct": true
+    },
+    {
+      "id": "dev-w5-m6-x7",
+      "group_id": "xor-width-5-mask-6",
+      "source_ids": [
+        "fixture://xor/width-5/mask-6"
+      ],
+      "expected": "1",
+      "prompt_tokens": 53,
+      "prompt_token_ids_sha256": "11cf5df6111b2baef046304092f32fd088cfdc412bd659bafc3c634577ca5ab9",
+      "generated_token_ids": [
+        40,
+        1
+      ],
+      "generated_tokens": 2,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "raw_completion": "3</s>",
+      "completion": "3",
+      "elapsed_seconds": 0.12090141582302749,
+      "exact_text_match": false,
+      "predicted_integer": 3,
+      "expected_integer": 1,
+      "strict_integer_match": false,
+      "task_correct": false
+    }
+  ],
+  "implementation_sha256": {
+    "scripts/evaluate_text.py": "010f33197f83b1691d443e11e7b0af51954f3752bf6f1ec69657b2068d7b8ad4",
+    "scripts/train_text.py": "e98b3807048f4deeb69e697dd6f960f712523c7ab8351252e0f8879d8521be3a",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92",
+    "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+    "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624"
+  },
+  "evaluated_split": "dev",
+  "evaluation_role": "development_fixture_preflight",
+  "limitations": [
+    "Small synthetic XOR development-fixture preflight, not general quality",
+    "Only the first declared development examples are evaluated",
+    "Augmented exports use fixed-context uncached generation; plain exports use native caching",
+    "Memory peaks are sampled; profiler records interval and counter semantics"
+  ],
+  "model_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "export_provenance": {
+    "base_path": "/Users/flare/replica_r3_starter/runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint/base",
+    "regime": "full_augmented",
+    "adapter_manifest_sha256": "43d6585feba6bee3a40da00e47a9453598136289d864009a71d709c50df293b5",
+    "sidecars_sha256": "820a6d5ae075211e39e77a71b7163316bdd104210560d125e3c390bcc9f7d321",
+    "files_sha256": {
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "4e1fcb1d384ca436e3580fade2e4fc177360289fd6fbee21da08bc9b26d42683",
+      "generation_config.json": "adc7aa3114cfbd03e9d7bab506d82a17231131c33027cc6296c2afe01dad6392",
+      "model.safetensors": "11265632c350e07f5781c16c23d9560c1c63524d036a5c84c8f0297410560625",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "5378dcce33a455cfa6a7cd4a5ab54511e787b84b7334ec2d04e54b1d5a1a3cb4"
+    }
+  },
+  "available_examples": 16,
+  "available_dev_examples": 16,
+  "effective_chat_template_sha256": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+  "parameters": {
+    "regime": "full_augmented",
+    "original": {
+      "total": 2516756480,
+      "trainable": 2516756480,
+      "tensor_count": 381,
+      "trainable_dtypes": [
+        "torch.float32"
+      ]
+    },
+    "new": {
+      "total": 895490,
+      "trainable": 895490,
+      "tensor_count": 48,
+      "trainable_dtypes": [
+        "torch.float32"
+      ]
+    }
+  },
+  "parameter_count": 2516756480,
+  "parameter_dtypes": [
+    "torch.float32"
+  ],
+  "parameter_devices": [
+    "mps"
+  ],
+  "native_use_cache": false,
+  "generation_config": {
+    "max_length": null,
+    "max_new_tokens": 256,
+    "min_length": null,
+    "min_new_tokens": null,
+    "early_stopping": null,
+    "max_time": null,
+    "stop_strings": null,
+    "do_sample": false,
+    "num_beams": 1,
+    "use_mtp": null,
+    "use_cache": false,
+    "cache_implementation": null,
+    "cache_config": null,
+    "max_cache_len": null,
+    "temperature": null,
+    "top_k": null,
+    "top_p": null,
+    "min_p": null,
+    "top_h": null,
+    "typical_p": null,
+    "epsilon_cutoff": null,
+    "eta_cutoff": null,
+    "repetition_penalty": null,
+    "encoder_repetition_penalty": null,
+    "length_penalty": null,
+    "no_repeat_ngram_size": null,
+    "bad_words_ids": null,
+    "renormalize_logits": null,
+    "forced_bos_token_id": null,
+    "forced_eos_token_id": null,
+    "remove_invalid_values": null,
+    "exponential_decay_length_penalty": null,
+    "suppress_tokens": null,
+    "begin_suppress_tokens": null,
+    "sequence_bias": null,
+    "token_healing": null,
+    "guidance_scale": null,
+    "watermarking_config": null,
+    "num_return_sequences": null,
+    "output_attentions": false,
+    "output_hidden_states": false,
+    "output_scores": null,
+    "output_logits": null,
+    "return_dict_in_generate": null,
+    "pad_token_id": 1,
+    "bos_token_id": 0,
+    "eos_token_id": [
+      1,
+      130073
+    ],
+    "encoder_no_repeat_ngram_size": null,
+    "decoder_start_token_id": null,
+    "is_assistant": null,
+    "num_assistant_tokens": null,
+    "num_assistant_tokens_schedule": null,
+    "assistant_confidence_threshold": null,
+    "prompt_lookup_num_tokens": null,
+    "max_matching_ngram_size": null,
+    "assistant_early_exit": null,
+    "assistant_lookbehind": null,
+    "target_lookbehind": null,
+    "assistant_ensemble_weight": null,
+    "speculation_type": null,
+    "compile_config": null,
+    "disable_compile": null,
+    "continuous_batching_config": null,
+    "low_memory": null,
+    "penalty_alpha": null,
+    "dola_layers": null,
+    "diversity_penalty": null,
+    "num_beam_groups": null,
+    "constraints": null,
+    "force_words_ids": null,
+    "prefill_chunk_size": null,
+    "_from_model_config": true,
+    "transformers_version": "5.20.2"
+  },
+  "evaluated_examples": 16,
+  "task_correct": 14,
+  "fixture_task_accuracy": 0.875,
+  "exact_text_accuracy": 0.875,
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "elapsed_seconds": 12.360985333099961,
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-22T23:46:08.525765+00:00",
+    "ended_at": "2026-10-22T23:46:20.947913+00:00",
+    "elapsed_seconds": 12.422035540919751,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 80,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 596328448,
+      "rss_peak_sampled_bytes": 596295680,
+      "mps_allocated_peak_sampled_bytes": 10107314688,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-22T23:46:08.537594+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1530.69M  free = 1541.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1605044797,
+        "free_bytes": 1616180674
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 88%",
+      "memory_free_percent": 88.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-22T23:46:20.930693+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1530.69M  free = 1541.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1605044797,
+        "free_bytes": 1616180674
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 70%",
+      "memory_free_percent": 70.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "snapshot_validated",
+        "timestamp": "2026-10-22T23:46:15.968865+00:00",
+        "elapsed_seconds": 7.442852250067517,
+        "seconds_since_previous_mark": 7.442852250067517,
+        "synchronize_seconds": 2.9082875698804855e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:15.968768+00:00",
+          "elapsed_seconds": 7.442875290988013,
+          "phase": "snapshot_validated",
+          "rss_peak_process_lifetime_bytes": 343785472,
+          "rss_current_bytes": 343785472,
+          "rss_measurement_age_seconds": 1.1889472499024123,
+          "mps_allocated_bytes": 0,
+          "mps_driver_bytes": 393216
+        },
+        "fields": {}
+      },
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-22T23:46:18.737468+00:00",
+        "elapsed_seconds": 10.211490374989808,
+        "seconds_since_previous_mark": 2.7686381249222904,
+        "synchronize_seconds": 9.750016033649445e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:18.737402+00:00",
+          "elapsed_seconds": 10.21150220790878,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 477806592,
+          "rss_current_bytes": 460226560,
+          "rss_measurement_age_seconds": 1.8109663748182356,
+          "mps_allocated_bytes": 10078997504,
+          "mps_driver_bytes": 10746200064
+        },
+        "fields": {
+          "parameter_count": 2516756480
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:18.738092+00:00",
+        "elapsed_seconds": 10.212113624904305,
+        "seconds_since_previous_mark": 0.0006232499144971371,
+        "synchronize_seconds": 3.7918798625469208e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:18.738025+00:00",
+          "elapsed_seconds": 10.212125916033983,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 477806592,
+          "rss_current_bytes": 460226560,
+          "rss_measurement_age_seconds": 1.8115892498753965,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10746200064
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x0"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.066223+00:00",
+        "elapsed_seconds": 10.527111208066344,
+        "seconds_since_previous_mark": 0.3149975831620395,
+        "synchronize_seconds": 2.9169023036956787e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.053022+00:00",
+          "elapsed_seconds": 10.527123332954943,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595378176,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x0",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.068430+00:00",
+        "elapsed_seconds": 10.542484999867156,
+        "seconds_since_previous_mark": 0.015373791800811887,
+        "synchronize_seconds": 6.459187716245651e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.068394+00:00",
+          "elapsed_seconds": 10.542490750085562,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595378176,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.01536145806312561,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x1"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.190797+00:00",
+        "elapsed_seconds": 10.664839833043516,
+        "seconds_since_previous_mark": 0.12235483317635953,
+        "synchronize_seconds": 2.2919848561286926e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.190750+00:00",
+          "elapsed_seconds": 10.664851374924183,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595509248,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.1377228330820799,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x1",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.191269+00:00",
+        "elapsed_seconds": 10.665334291057661,
+        "seconds_since_previous_mark": 0.0004944580141454935,
+        "synchronize_seconds": 1.6670674085617065e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.191242+00:00",
+          "elapsed_seconds": 10.665339000057429,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595509248,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.1382054160349071,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x2"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.313111+00:00",
+        "elapsed_seconds": 10.787141500040889,
+        "seconds_since_previous_mark": 0.12180720898322761,
+        "synchronize_seconds": 2.708984538912773e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.313052+00:00",
+          "elapsed_seconds": 10.787154708057642,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595574784,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.26002895808778703,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x2",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.313585+00:00",
+        "elapsed_seconds": 10.787648750003427,
+        "seconds_since_previous_mark": 0.0005072499625384808,
+        "synchronize_seconds": 1.8749851733446121e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.313557+00:00",
+          "elapsed_seconds": 10.787653540959582,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595574784,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.2605205001309514,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x3"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.437209+00:00",
+        "elapsed_seconds": 10.911240415880457,
+        "seconds_since_previous_mark": 0.1235916658770293,
+        "synchronize_seconds": 2.5830231606960297e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.437150+00:00",
+          "elapsed_seconds": 10.911258250009269,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595623936,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.38413120806217194,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x3",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.437713+00:00",
+        "elapsed_seconds": 10.911777500063181,
+        "seconds_since_previous_mark": 0.0005370841827243567,
+        "synchronize_seconds": 1.4579854905605316e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.437685+00:00",
+          "elapsed_seconds": 10.911781915929168,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595623936,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.38464845810085535,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x4"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.559921+00:00",
+        "elapsed_seconds": 11.033955249935389,
+        "seconds_since_previous_mark": 0.12217774987220764,
+        "synchronize_seconds": 2.7921050786972046e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.559865+00:00",
+          "elapsed_seconds": 11.033967457944527,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595656704,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.5068406250793487,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x4",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.560396+00:00",
+        "elapsed_seconds": 11.034450666047633,
+        "seconds_since_previous_mark": 0.0004954161122441292,
+        "synchronize_seconds": 1.584179699420929e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.560358+00:00",
+          "elapsed_seconds": 11.034455250017345,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595656704,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.5073220829945058,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x5"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.683913+00:00",
+        "elapsed_seconds": 11.157948750071228,
+        "seconds_since_previous_mark": 0.12349808402359486,
+        "synchronize_seconds": 5.084089934825897e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.683858+00:00",
+          "elapsed_seconds": 11.1579605829902,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.6308323750272393,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x5",
+          "generated_tokens": 2,
+          "task_correct": false
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.684579+00:00",
+        "elapsed_seconds": 11.15862370794639,
+        "seconds_since_previous_mark": 0.000674957875162363,
+        "synchronize_seconds": 2.3748725652694702e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.684532+00:00",
+          "elapsed_seconds": 11.158630958059803,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.6314988750964403,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x6"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.806840+00:00",
+        "elapsed_seconds": 11.280865374952555,
+        "seconds_since_previous_mark": 0.12224166700616479,
+        "synchronize_seconds": 2.7918722480535507e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.806775+00:00",
+          "elapsed_seconds": 11.280885040992871,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.7537583750672638,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x6",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.807341+00:00",
+        "elapsed_seconds": 11.281395624857396,
+        "seconds_since_previous_mark": 0.0005302499048411846,
+        "synchronize_seconds": 1.8330756574869156e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.807303+00:00",
+          "elapsed_seconds": 11.281400125008076,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.7542670830152929,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x7"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:19.929132+00:00",
+        "elapsed_seconds": 11.403175540966913,
+        "seconds_since_previous_mark": 0.12177991610951722,
+        "synchronize_seconds": 2.5830231606960297e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.929084+00:00",
+          "elapsed_seconds": 11.40318562486209,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.8760559160728008,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m2-x7",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:19.930246+00:00",
+        "elapsed_seconds": 11.404310500016436,
+        "seconds_since_previous_mark": 0.0011349590495228767,
+        "synchronize_seconds": 1.7909333109855652e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:19.930217+00:00",
+          "elapsed_seconds": 11.40431462507695,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.8771812501363456,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x0"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.052362+00:00",
+        "elapsed_seconds": 11.526388125028461,
+        "seconds_since_previous_mark": 0.12207762501202524,
+        "synchronize_seconds": 2.874992787837982e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.052298+00:00",
+          "elapsed_seconds": 11.526400750037283,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.9992805831134319,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x0",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.052937+00:00",
+        "elapsed_seconds": 11.526997499866411,
+        "seconds_since_previous_mark": 0.000609374837949872,
+        "synchronize_seconds": 1.6670674085617065e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.052904+00:00",
+          "elapsed_seconds": 11.527002665912732,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 0.9998700830619782,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x1"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.175123+00:00",
+        "elapsed_seconds": 11.649161832872778,
+        "seconds_since_previous_mark": 0.12216433300636709,
+        "synchronize_seconds": 1.158309169113636e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.175070+00:00",
+          "elapsed_seconds": 11.649170791031793,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.122048957971856,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x1",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.175625+00:00",
+        "elapsed_seconds": 11.649691457860172,
+        "seconds_since_previous_mark": 0.0005296249873936176,
+        "synchronize_seconds": 1.6249250620603561e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.175598+00:00",
+          "elapsed_seconds": 11.649695625063032,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 595673088,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.1225622911006212,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x2"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.304264+00:00",
+        "elapsed_seconds": 11.778295041061938,
+        "seconds_since_previous_mark": 0.12860358320176601,
+        "synchronize_seconds": 2.4170149117708206e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.304204+00:00",
+          "elapsed_seconds": 11.778306416003034,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 596230144,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.2511795409955084,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x2",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.304727+00:00",
+        "elapsed_seconds": 11.778788540977985,
+        "seconds_since_previous_mark": 0.0004934999160468578,
+        "synchronize_seconds": 1.3329554349184036e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.304695+00:00",
+          "elapsed_seconds": 11.778793375007808,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 596230144,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.2516615830827504,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x3"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.426520+00:00",
+        "elapsed_seconds": 11.900575041072443,
+        "seconds_since_previous_mark": 0.12178650009445846,
+        "synchronize_seconds": 1.8749851733446121e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.426482+00:00",
+          "elapsed_seconds": 11.900582832982764,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.3734515409450978,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x3",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.426949+00:00",
+        "elapsed_seconds": 11.90101912501268,
+        "seconds_since_previous_mark": 0.00044408394023776054,
+        "synchronize_seconds": 1.5830155462026596e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.426925+00:00",
+          "elapsed_seconds": 11.901023207930848,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.3738892499823123,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x4"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.548666+00:00",
+        "elapsed_seconds": 12.022687416058034,
+        "seconds_since_previous_mark": 0.12166829104535282,
+        "synchronize_seconds": 2.3748725652694702e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.548596+00:00",
+          "elapsed_seconds": 12.02269862499088,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.4955745830666274,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x4",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.549196+00:00",
+        "elapsed_seconds": 12.023260332876816,
+        "seconds_since_previous_mark": 0.0005729168187826872,
+        "synchronize_seconds": 1.500127837061882e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.549167+00:00",
+          "elapsed_seconds": 12.023264833027497,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.4961316660046577,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x5"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.670737+00:00",
+        "elapsed_seconds": 12.144775165943429,
+        "seconds_since_previous_mark": 0.12151483306661248,
+        "synchronize_seconds": 2.4170149117708206e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.670682+00:00",
+          "elapsed_seconds": 12.144782999996096,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.617652083048597,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x5",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.671271+00:00",
+        "elapsed_seconds": 12.145337041001767,
+        "seconds_since_previous_mark": 0.0005618750583380461,
+        "synchronize_seconds": 1.4998950064182281e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.671243+00:00",
+          "elapsed_seconds": 12.145341207971796,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.6182075410615653,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x6"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.793009+00:00",
+        "elapsed_seconds": 12.26703504100442,
+        "seconds_since_previous_mark": 0.1216980000026524,
+        "synchronize_seconds": 2.7918722480535507e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.792943+00:00",
+          "elapsed_seconds": 12.267046333057806,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.7399189160205424,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x6",
+          "generated_tokens": 2,
+          "task_correct": true
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_start",
+        "timestamp": "2026-10-22T23:46:20.793499+00:00",
+        "elapsed_seconds": 12.267564582871273,
+        "seconds_since_previous_mark": 0.0005295418668538332,
+        "synchronize_seconds": 1.458916813135147e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.793470+00:00",
+          "elapsed_seconds": 12.267568832961842,
+          "phase": "generation_start",
+          "rss_peak_process_lifetime_bytes": 596312064,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.7404354161117226,
+          "mps_allocated_bytes": 10078998272,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x7"
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "generation_finished",
+        "timestamp": "2026-10-22T23:46:20.915158+00:00",
+        "elapsed_seconds": 12.389156874967739,
+        "seconds_since_previous_mark": 0.12159229209646583,
+        "synchronize_seconds": 7.1658287197351456e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-22T23:46:20.915066+00:00",
+          "elapsed_seconds": 12.38917970797047,
+          "phase": "generation_finished",
+          "rss_peak_process_lifetime_bytes": 596328448,
+          "rss_current_bytes": 595378176,
+          "rss_measurement_age_seconds": 1.8620791661087424,
+          "mps_allocated_bytes": 10078998784,
+          "mps_driver_bytes": 10824122368
+        },
+        "fields": {
+          "example_id": "dev-w5-m6-x7",
+          "generated_tokens": 2,
+          "task_correct": false
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  }
+}

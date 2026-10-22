@@ -2,7 +2,7 @@
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
-**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Actual 256-token and 512-token D0 short capacity screens also passed, each with two updates split across native restart. Native D1/D2 fixed-context uncached generation now passes at 256. The bounded D1 memorization gate passes at 1e-2 after a preserved 1e-3 failure: saved train 8/8 and dev 2/16, all originals unchanged. D2 optimizer/capacity, augmented caching and broader evaluation remain separate gates. See the [D1 result](experiments/20261022_D1_Diagnostic.md). Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md), [learning result record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) and [capacity qualification](experiments/20261022_Capacity_Qualification.md).
+**Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Actual 256-token and 512-token D0 short capacity screens also passed, each with two updates split across native restart. Native D1/D2 fixed-context uncached generation now passes at 256. The bounded D1 memorization gate passes at 1e-2 after a preserved 1e-3 failure: saved train 8/8 and dev 2/16, all originals unchanged. D2 actual 256/512-token capacity and fresh-process restart now pass; its balanced tiny-overfit run stops at update 8 with 8/8 at updates 4 and 8; independent saved-export scoring confirms train 8/8 and dev 14/16, all EOS. See the [D2 qualification record](experiments/20261022_D2_Results.md). Augmented caching and broader evaluation remain separate gates. See the [D1 result](experiments/20261022_D1_Diagnostic.md). Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md), [learning result record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) and [capacity qualification](experiments/20261022_Capacity_Qualification.md).
 
 ## 1. What the delivered code actually does
 
@@ -13,7 +13,8 @@
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |
 | neural.py | Learned record pooling, residual reader, recurrent prompt workspace, functional linear fast state | Simplified project modules, not a reproduced research architecture |
 | model_adapter.py / generation.py | Native Llama block wrapper; explicit trainable scope; safe base/sidecar export; original-prompt-fixed uncached generation | Batch-one text reference; no augmented KV cache, VLM or distributed support |
-| train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native D0 capacity and D1 tiny memorization/restart measured; no D2 optimizer capacity, offload or distributed training |
+| train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native D0/D2 actual256/512 capacity and restart measured; D1/D2 tiny memorization and saved answers measured; no offload or distributed training |
+| run_d2_stage.py / validate_d2_experiment.py | Pinned offline MPS launches, exclusive worker lock, strict completed-update resume/optimizer/guard/generation audits | Launch completion is not task acceptance; metadata-mode validation leaves large payload rehashing explicit |
 | evaluate_text.py | Strict greedy fixture scoring: native cached source/D0 or `--exported-adapter` with fixed-context uncached sidecars | Fixture evaluation does not establish broad benchmark accuracy |
 | profiling.py | Periodic MPS allocation/driver samples, process RSS, synchronized phase timing and host swap/pressure endpoints | Sampled MPS peaks can miss transients; unified-memory counters overlap |
 | audit_checkpoint.py | Stream source/export CPU comparisons after dtype normalization | Saved-weight changes do not imply every element received a nonzero gradient |
@@ -25,10 +26,11 @@
 | make_fixtures.py | 32 train + 16 dev solver-verified synthetic examples | Plumbing data only |
 | make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
 | capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
-| qualify_native_adapter.py | Native 256-token D1/D2 null-branch, causality, sensitivity and nonreentrant forward/backward checks | No optimizer updates or augmented generation; D2 capacity remains unqualified |
+| run_generation_preflight.py | Standalone offline MPS evaluator watchdog; driver/host thresholds and final trace drain | Sampled operational guard; original training watchdog stays unchanged |
+| qualify_native_adapter.py | Native 256-token D1/D2 null-branch, causality, sensitivity and nonreentrant forward/backward checks | This probe performs no optimizer updates or generation; separate D2 capacity runs now qualify actual256/512 |
 | qualify_augmented_generation.py | Native uncached D1/D2 token/logit parity, fixed context, branch sensitivity and nonzero-sidecar reload | One fixture; no learning, quality or KV-cache claim |
 | pin_model.py / seal_snapshot.py | Resolve metadata revision; seal exact local snapshot bytes | Local hashing is not an independent publisher signature |
-| download_model.py | Acquire complete snapshot at the existing immutable metadata lock; retain receipt | No weight execution; weights and download caches are ignored by Git |
+| download_model.py | Verify/reuse the sealed original offline by default; intentional initial acquisition requires `--allow-network` | No routine download or receipt rewrite; weights and caches are ignored by Git |
 | inspect_snapshot.py | Verify seal and count actual checkpoint tensor shapes; estimate optimizer mixture bytes | Reads headers without model execution; arithmetic is not a measured memory peak |
 | inventory.py | Read-only environment/hardware report | Does not set drivers, select a GPU or establish fit |
 
@@ -110,6 +112,27 @@ The initial setup acquired revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52` i
 ~~~
 
 Its current FP32 full-text weights/gradients/optimizer-state arithmetic is 26.40 GB / 24.59 GiB before activations and temporaries. Therefore the later 24 GB Blackwell full-scope experiment needs P2 offload/sharding or a separately qualified residency change. The same Muon algorithm can first be tested on CUDA with the tiny smoke model.
+
+### Reuse the offline experiment template
+
+The completed [D2 launch plan](../configs/d2_resume_plan_20261022.json) is the
+reference for future bounded runs. It pins source/data/code/rates, completed-update
+resume, memory stops and fresh output paths. This command prints a pinned
+command without executing it:
+
+~~~bash
+.venv/bin/python scripts/run_d2_stage.py --stage tiny_chunk01
+~~~
+
+The historical outputs already exist, so `--run` refuses to overwrite them.
+For a new experiment, declare a new plan and new output/report paths while
+keeping `checkpoints/minicpm5_source` and its sealed lock. Keep all offline
+flags, MPS FP32, CPU fallback disabled, one native job, and the declared
+scope/guard/audit contract. Resume only within the same exact training contract.
+A new rate, source, dataset or code contract is a new declared experiment.
+The [saved-export evaluation plan](../reports/D2_saved_export_evaluation_plan_20261022.json)
+and `scripts/run_generation_preflight.py` show independent guarded train/dev
+answer checks. Normal experiment launches never use `--allow-network`.
 
 ## 4. A real-model preflight, not the main experiment
 
@@ -305,7 +328,7 @@ capacity_pair 512
 
 These jobs disable generation and measure capacity, not quality. Keep one full-size model resident. A wrapper success alone is insufficient: apply the design's scope, exact-length, finite-update, checkpoint/reload, guard and saved-weight audit gates before advancing to the next length.
 
-The [separate native adapter qualification](../reports/minicpm5_native_adapter_qualification256_report.json) passed one 256-token D1/D2 null-parity, causality, sensitivity and nonreentrant forward/backward check, with no optimizer updates or generation. The next interface task is cached/uncached augmented generation parity using past-only support and prompt workspace, including export/reload, EOS and context release. Qualify that interface before repeating this guarded screen for D2; full augmented training capacity and broad task learning remain unmeasured.
+The [separate native adapter qualification](../reports/minicpm5_native_adapter_qualification256_report.json) passed one 256-token D1/D2 null-parity, causality, sensitivity and nonreentrant forward/backward check, with no optimizer updates or generation. Subsequent fixed-context uncached generation parity, D2 actual256/512 capacity and balanced tiny memorization now pass with saved-export and completed-update audits. See the [D2 results](experiments/20261022_D2_Results.md). Augmented KV caching, useful architectural benefit and broad task learning remain separate open gates.
 
 ## 5. Interfaces the next coding agent must preserve
 
@@ -351,7 +374,7 @@ Exit: source lock, model inventory, real native forward/backward/generation repo
 
 Implement optional training-aware CPU optimizer offload or FSDP/ZeRO sharding while keeping the existing loss and parameter registry. Follow current [DeepSpeed offload](https://www.deepspeed.ai/tutorials/zero-offload/) or [OpenBMB's full-tuning guide](https://github.com/OpenBMB/MiniCPM/blob/main/docs/finetune/ms_swift.md) as the starting reference. Do not pass an inference device map into distributed training.
 
-The selected single-device Muon 8-bit setup now has tiny-model tests and a measured native balanced eight-update D0 path at actual sequence length 55. Configurable warmup/constant/cosine scheduling and completed-update model/optimizer/RNG/data-cursor checkpoints are implemented. Tiny CPU exact restart and MPS mixed-state tests pass; native fresh-process continuation from updates 8 to 12 completed with perfect training generation and exact export/reload. Offload/sharding, longer-context/D2 fit and full-size uninterrupted-versus-resumed equivalence remain unqualified. Saved-weight changes are audited separately against the source; qualify the custom wrapper under any later partitioner and test differentiable inner updates separately.
+The selected single-device Muon 8-bit setup now has tiny-model tests and a measured native balanced eight-update D0 path at actual sequence length 55. Configurable warmup/constant/cosine scheduling and completed-update model/optimizer/RNG/data-cursor checkpoints are implemented. Tiny CPU exact restart and MPS mixed-state tests pass; native fresh-process continuation from updates 8 to 12 completed with perfect training generation and exact export/reload. D0/D2 actual256/512 bounded fit is now qualified separately. Offload/sharding, lengths above512, sustained workloads and full-size uninterrupted-versus-resumed equivalence remain unqualified. Saved-weight changes are audited separately against the source; qualify the custom wrapper under any later partitioner and test differentiable inner updates separately.
 
 Exit: D0 and D2 perform real full-scope updates on the intended hardware without silent freezing; interrupted/resumed runs have documented numerical tolerance.
 

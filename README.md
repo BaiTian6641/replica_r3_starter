@@ -47,9 +47,9 @@ Read the [collapse diagnosis](docs/experiments/20261022_Constant_Zero_Diagnosis.
 
 Full D0 Muon 8-bit now passes bounded **actual 256-token and 512-token** training, each with two answer-balanced updates, a fresh-process checkpoint continuation, and exact export/reload. Both saved exports changed all 381 original tensors. Peak sampled MPS driver memory was **29.09 GiB / 29.06 GiB**; no declared host-pressure or swap-growth threshold was breached. These are short capacity measurements, not sustained-training or new task-quality results. The original eight-update learning checkpoint remains selected.
 
-Native D1/D2 fixed-context uncached generation matches native tokens and logits exactly at 256 tokens. D1 trains only 895,490 new parameters in 48 tensors: the initial rate of 1e-3 fails through 64 updates; a predeclared fresh rate of 1e-2 reaches 8/8 at updates 24 and 28. Its saved export scores train 8/8 and dev 2/16, with all answers ending in EOS and all 381 original tensors unchanged. Successful-arm MPS live/driver peaks are 9.467/11.113 GiB at 55 actual tokens. This establishes tiny memorization. Useful memory benefit and broad transfer remain unproven. The current suite has **290 passing tests**. A new source-bound slice supplies 20 episodes from ten worlds, raw-byte/span hashes and independent chronological solver checks; only four train/four dev cases are exported.
+Native D1/D2 fixed-context uncached generation matches native tokens and logits exactly at 256 tokens. D1 trains only 895,490 new parameters in 48 tensors: the initial rate of 1e-3 fails through 64 updates; a predeclared fresh rate of 1e-2 reaches 8/8 at updates 24 and 28. Its saved export scores train 8/8 and dev 2/16, with all answers ending in EOS and all 381 original tensors unchanged. Successful-arm MPS live/driver peaks are 9.467/11.113 GiB at 55 actual tokens. This establishes tiny memorization. Useful memory benefit and broad transfer remain unproven. The earlier D1 suite had **290 passing tests**; see the current [execution state](execution_state.md) for subsequent validation. A new source-bound slice supplies 20 episodes from ten worlds, raw-byte/span hashes and independent chronological solver checks; only four train/four dev cases are exported.
 
-See [D1 results](docs/experiments/20261022_D1_Diagnostic.md), [generation qualification](docs/experiments/20261022_Augmented_Generation.md), [consolidated evidence](reports/native_augmented_D1_experiment_20261022.json), [source-bound slice](docs/experiments/20261022_Episode_Slice.md) and [cognitive contracts](docs/experiments/20261022_Cognitive_Contracts.md). Next qualify actual 256-token D2 optimizer/capacity, then its overfit; expand source families and the early host-loop pilot in parallel. Retention, frozen-loop, VLM, Replica and Blackwell remain separate gates.
+See [D1 results](docs/experiments/20261022_D1_Diagnostic.md), [generation qualification](docs/experiments/20261022_Augmented_Generation.md), [consolidated evidence](reports/native_augmented_D1_experiment_20261022.json), [source-bound slice](docs/experiments/20261022_Episode_Slice.md) and [cognitive contracts](docs/experiments/20261022_Cognitive_Contracts.md). D2 actual 256/512-token optimizer/capacity and fresh-process restart now pass, with sampled driver peaks 29.07/30.08 GiB. D2 then reaches 8/8 training answers at updates 4 and 8; independent saved export scores train 8/8 and dev 14/16, all EOS. See the [D2 qualification record](docs/experiments/20261022_D2_Results.md). Expand source families and the early host-loop pilot alongside the later fair architecture study. Retention, frozen-loop, VLM, Replica and Blackwell remain separate gates.
 
 ## Start here
 
@@ -59,8 +59,9 @@ have never been included in the available Git history. Keep and reuse
 policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md) documents the
 commit guard and marked cleanup candidates. The [authorized checkpoint cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md)
 retired the 16 marked old runtime states, preserved selected results, and enables
-automatic sharing of identical native weights in future local saves. Training
-remains paused.
+automatic sharing of identical native weights in future local saves. The user
+subsequently resumed the bounded D2 GPU package. Every experiment reuses this
+one sealed source offline; a new run never downloads another original model.
 
 | Read | Purpose |
 |---|---|

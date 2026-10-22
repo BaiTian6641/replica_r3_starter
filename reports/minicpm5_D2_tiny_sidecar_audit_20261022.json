@@ -1,0 +1,497 @@
+{
+  "status": "passed_D2_sidecar_continuation_and_export_runtime_byte_audit",
+  "audited_at_utc": "2026-10-22T23:44:05.190689+00:00",
+  "comparison_device": "cpu",
+  "model_instantiated": false,
+  "gpu_executed": false,
+  "network_used": false,
+  "torch_num_threads": 4,
+  "scope": "Bounded file/value verification only, no model computation",
+  "step1_runtime_checkpoint": "runs/minicpm5_D2_tiny_chunk01_20261022/training_checkpoint_0004",
+  "step2_runtime_checkpoint": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008",
+  "final_export": "runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint",
+  "interval": "4_to_8",
+  "tensor_count": 48,
+  "parameter_count": 895490,
+  "changed_tensor_count": 48,
+  "changed_elements": 895401,
+  "all_tensors_finite": true,
+  "largest_individual_tensor_bytes": 524288,
+  "sidecar_sha256": {
+    "step4": "9eca780bf405ae8539dd7ec03a9bc63b304672e2245c74f1860d3cc7af46f60f",
+    "step8": "820a6d5ae075211e39e77a71b7163316bdd104210560d125e3c390bcc9f7d321",
+    "export": "820a6d5ae075211e39e77a71b7163316bdd104210560d125e3c390bcc9f7d321"
+  },
+  "final_export_vs_step8_runtime": {
+    "base/model.safetensors": {
+      "export_sha256": "11265632c350e07f5781c16c23d9560c1c63524d036a5c84c8f0297410560625",
+      "runtime_sha256": "11265632c350e07f5781c16c23d9560c1c63524d036a5c84c8f0297410560625",
+      "byte_identical": true,
+      "bytes": 10067069720
+    },
+    "sidecars.safetensors": {
+      "export_sha256": "820a6d5ae075211e39e77a71b7163316bdd104210560d125e3c390bcc9f7d321",
+      "runtime_sha256": "820a6d5ae075211e39e77a71b7163316bdd104210560d125e3c390bcc9f7d321",
+      "byte_identical": true,
+      "bytes": 3586800
+    }
+  },
+  "all_compared_export_runtime_weights_byte_identical": true,
+  "native_source_audit": "reports/minicpm5_D2_tiny_checkpoint_audit_20261022.json",
+  "native_source_audit_sha256": "2a560e3078a23ab5effb4e22d0dab5284f9f9541191a8d963be32fdf3dcddf88",
+  "native_original_tensor_count": 381,
+  "native_original_changed_tensors": 381,
+  "tensors": {
+    "memory_reader.attention.in_proj_bias": {
+      "shape": [
+        192
+      ],
+      "parameters": 192,
+      "changed_elements": 192,
+      "maximum_absolute_delta": 0.0019618081860244274,
+      "dtype": "float32"
+    },
+    "memory_reader.attention.in_proj_weight": {
+      "shape": [
+        192,
+        64
+      ],
+      "parameters": 12288,
+      "changed_elements": 12288,
+      "maximum_absolute_delta": 0.004034191370010376,
+      "dtype": "float32"
+    },
+    "memory_reader.attention.out_proj.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.001972659956663847,
+      "dtype": "float32"
+    },
+    "memory_reader.attention.out_proj.weight": {
+      "shape": [
+        64,
+        64
+      ],
+      "parameters": 4096,
+      "changed_elements": 4096,
+      "maximum_absolute_delta": 0.00215236097574234,
+      "dtype": "float32"
+    },
+    "memory_reader.gate_logit": {
+      "shape": [],
+      "parameters": 1,
+      "changed_elements": 1,
+      "maximum_absolute_delta": 0.0018974477425217628,
+      "dtype": "float32"
+    },
+    "memory_reader.memory_norm.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.001899708528071642,
+      "dtype": "float32"
+    },
+    "memory_reader.memory_norm.weight": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.001939535140991211,
+      "dtype": "float32"
+    },
+    "memory_reader.output_projection.weight": {
+      "shape": [
+        2048,
+        64
+      ],
+      "parameters": 131072,
+      "changed_elements": 131072,
+      "maximum_absolute_delta": 0.003843077924102545,
+      "dtype": "float32"
+    },
+    "memory_reader.query_norm.bias": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2048,
+      "maximum_absolute_delta": 4.3260784877929837e-05,
+      "dtype": "float32"
+    },
+    "memory_reader.query_norm.weight": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2004,
+      "maximum_absolute_delta": 0.00017845630645751953,
+      "dtype": "float32"
+    },
+    "memory_reader.query_projection.weight": {
+      "shape": [
+        64,
+        2048
+      ],
+      "parameters": 131072,
+      "changed_elements": 131072,
+      "maximum_absolute_delta": 0.0047038826160132885,
+      "dtype": "float32"
+    },
+    "support_writer.attention.in_proj_bias": {
+      "shape": [
+        192
+      ],
+      "parameters": 192,
+      "changed_elements": 192,
+      "maximum_absolute_delta": 0.001948273042216897,
+      "dtype": "float32"
+    },
+    "support_writer.attention.in_proj_weight": {
+      "shape": [
+        192,
+        64
+      ],
+      "parameters": 12288,
+      "changed_elements": 12288,
+      "maximum_absolute_delta": 0.003629341721534729,
+      "dtype": "float32"
+    },
+    "support_writer.attention.out_proj.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0020584354642778635,
+      "dtype": "float32"
+    },
+    "support_writer.attention.out_proj.weight": {
+      "shape": [
+        64,
+        64
+      ],
+      "parameters": 4096,
+      "changed_elements": 4096,
+      "maximum_absolute_delta": 0.002082616090774536,
+      "dtype": "float32"
+    },
+    "support_writer.input_norm.bias": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2048,
+      "maximum_absolute_delta": 0.0017563886940479279,
+      "dtype": "float32"
+    },
+    "support_writer.input_norm.weight": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2048,
+      "maximum_absolute_delta": 0.0017814040184020996,
+      "dtype": "float32"
+    },
+    "support_writer.input_projection.weight": {
+      "shape": [
+        64,
+        2048
+      ],
+      "parameters": 131072,
+      "changed_elements": 131070,
+      "maximum_absolute_delta": 0.0031829297076910734,
+      "dtype": "float32"
+    },
+    "support_writer.output_norm.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0019059297628700733,
+      "dtype": "float32"
+    },
+    "support_writer.output_norm.weight": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0019355416297912598,
+      "dtype": "float32"
+    },
+    "support_writer.slot_queries": {
+      "shape": [
+        4,
+        64
+      ],
+      "parameters": 256,
+      "changed_elements": 256,
+      "maximum_absolute_delta": 0.00196350971236825,
+      "dtype": "float32"
+    },
+    "workspace.encoder.attention.in_proj_bias": {
+      "shape": [
+        192
+      ],
+      "parameters": 192,
+      "changed_elements": 192,
+      "maximum_absolute_delta": 0.00249597174115479,
+      "dtype": "float32"
+    },
+    "workspace.encoder.attention.in_proj_weight": {
+      "shape": [
+        192,
+        64
+      ],
+      "parameters": 12288,
+      "changed_elements": 12287,
+      "maximum_absolute_delta": 0.0037906132638454437,
+      "dtype": "float32"
+    },
+    "workspace.encoder.attention.out_proj.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0024920832365751266,
+      "dtype": "float32"
+    },
+    "workspace.encoder.attention.out_proj.weight": {
+      "shape": [
+        64,
+        64
+      ],
+      "parameters": 4096,
+      "changed_elements": 4096,
+      "maximum_absolute_delta": 0.0017553716897964478,
+      "dtype": "float32"
+    },
+    "workspace.encoder.input_norm.bias": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2048,
+      "maximum_absolute_delta": 0.002343500964343548,
+      "dtype": "float32"
+    },
+    "workspace.encoder.input_norm.weight": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2047,
+      "maximum_absolute_delta": 0.002375364303588867,
+      "dtype": "float32"
+    },
+    "workspace.encoder.input_projection.weight": {
+      "shape": [
+        64,
+        2048
+      ],
+      "parameters": 131072,
+      "changed_elements": 131071,
+      "maximum_absolute_delta": 0.004049924202263355,
+      "dtype": "float32"
+    },
+    "workspace.encoder.output_norm.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0024015456438064575,
+      "dtype": "float32"
+    },
+    "workspace.encoder.output_norm.weight": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0023320913314819336,
+      "dtype": "float32"
+    },
+    "workspace.encoder.slot_queries": {
+      "shape": [
+        4,
+        64
+      ],
+      "parameters": 256,
+      "changed_elements": 256,
+      "maximum_absolute_delta": 0.002484132768586278,
+      "dtype": "float32"
+    },
+    "workspace.reader.attention.in_proj_bias": {
+      "shape": [
+        192
+      ],
+      "parameters": 192,
+      "changed_elements": 192,
+      "maximum_absolute_delta": 0.0023436304181814194,
+      "dtype": "float32"
+    },
+    "workspace.reader.attention.in_proj_weight": {
+      "shape": [
+        192,
+        64
+      ],
+      "parameters": 12288,
+      "changed_elements": 12288,
+      "maximum_absolute_delta": 0.003843054175376892,
+      "dtype": "float32"
+    },
+    "workspace.reader.attention.out_proj.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.002402629004791379,
+      "dtype": "float32"
+    },
+    "workspace.reader.attention.out_proj.weight": {
+      "shape": [
+        64,
+        64
+      ],
+      "parameters": 4096,
+      "changed_elements": 4096,
+      "maximum_absolute_delta": 0.0020818859338760376,
+      "dtype": "float32"
+    },
+    "workspace.reader.gate_logit": {
+      "shape": [],
+      "parameters": 1,
+      "changed_elements": 1,
+      "maximum_absolute_delta": 0.001943021547049284,
+      "dtype": "float32"
+    },
+    "workspace.reader.memory_norm.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0023990580812096596,
+      "dtype": "float32"
+    },
+    "workspace.reader.memory_norm.weight": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0024285316467285156,
+      "dtype": "float32"
+    },
+    "workspace.reader.output_projection.weight": {
+      "shape": [
+        2048,
+        64
+      ],
+      "parameters": 131072,
+      "changed_elements": 131072,
+      "maximum_absolute_delta": 0.0041159456595778465,
+      "dtype": "float32"
+    },
+    "workspace.reader.query_norm.bias": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2048,
+      "maximum_absolute_delta": 5.1856426580343395e-05,
+      "dtype": "float32"
+    },
+    "workspace.reader.query_norm.weight": {
+      "shape": [
+        2048
+      ],
+      "parameters": 2048,
+      "changed_elements": 2026,
+      "maximum_absolute_delta": 0.0001169443130493164,
+      "dtype": "float32"
+    },
+    "workspace.reader.query_projection.weight": {
+      "shape": [
+        64,
+        2048
+      ],
+      "parameters": 131072,
+      "changed_elements": 131072,
+      "maximum_absolute_delta": 0.006645957939326763,
+      "dtype": "float32"
+    },
+    "workspace.recurrent.bias_hh": {
+      "shape": [
+        192
+      ],
+      "parameters": 192,
+      "changed_elements": 192,
+      "maximum_absolute_delta": 0.0023167356848716736,
+      "dtype": "float32"
+    },
+    "workspace.recurrent.bias_ih": {
+      "shape": [
+        192
+      ],
+      "parameters": 192,
+      "changed_elements": 192,
+      "maximum_absolute_delta": 0.002408437430858612,
+      "dtype": "float32"
+    },
+    "workspace.recurrent.weight_hh": {
+      "shape": [
+        192,
+        64
+      ],
+      "parameters": 12288,
+      "changed_elements": 12284,
+      "maximum_absolute_delta": 0.0032682009041309357,
+      "dtype": "float32"
+    },
+    "workspace.recurrent.weight_ih": {
+      "shape": [
+        192,
+        64
+      ],
+      "parameters": 12288,
+      "changed_elements": 12274,
+      "maximum_absolute_delta": 0.003666311502456665,
+      "dtype": "float32"
+    },
+    "workspace.workspace_norm.bias": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.002390563953667879,
+      "dtype": "float32"
+    },
+    "workspace.workspace_norm.weight": {
+      "shape": [
+        64
+      ],
+      "parameters": 64,
+      "changed_elements": 64,
+      "maximum_absolute_delta": 0.0024144649505615234,
+      "dtype": "float32"
+    }
+  },
+  "limitations": [
+    "Exact bytes are checked for native weights and sidecars, not differing provenance manifests",
+    "Checkpoint file audit does not prove full-native uninterrupted-versus-resumed equivalence",
+    "Saved changes establish scope, not useful task learning"
+  ]
+}

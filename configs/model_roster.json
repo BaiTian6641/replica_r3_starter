@@ -8,10 +8,11 @@
       "role": "stage1_text_full_tuning",
       "architecture": "LlamaForCausalLM",
       "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
-      "status": "native_MPS_D0_actual256_512_capacity_and_sidecar_forward_backward_qualified",
-      "execution_scope": "All2,516,756,480 original parameters; D0 actual256/512 length, accumulation8, two updates and fresh resume per length; all381 changed/reloadexact. D1/D2 native null-parity/backward/causality qualified at256 with895,490 new parameters; no optimizer updates or augmented generation in that probe.",
+      "status": "native_MPS_D0_D2_capacity_and_D1_D2_tiny_memorization_qualified",
+      "execution_scope": "All2,516,756,480 original parameters; D0/D2 actual256/512 length, accumulation8, two updates and fresh resume per length; all381 changed/reloadexact. D2 also trains895,490 new parameters in48tensors. D1 eight-class tiny memorization qualified; useful architecture benefit and broad quality unqualified. D2 tiny stops8 after8/8 at4and8; independent saved train8/8 and reused dev14/16, allEOS. No useful architecture-gain claim.",
       "execution_report": "reports/capacity_readiness_experiment_20261022.json",
-      "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B"
+      "source_url": "https://huggingface.co/openbmb/MiniCPM5-2B",
+      "local_source_policy": "Reuse immutable checkpoints/minicpm5_source and its sealed lock offline for every experiment; no routine reacquisition or per-run source copy."
     },
     {
       "repo_id": "openbmb/MiniCPM-V-4.7-1B",

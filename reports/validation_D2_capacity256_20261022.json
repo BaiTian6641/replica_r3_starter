@@ -1,0 +1,420 @@
+{
+  "status": "passed",
+  "requested_runs": [
+    "runs/minicpm5_D2_capacity256_chunk01_20261022",
+    "runs/minicpm5_D2_capacity256_chunk02_20261022"
+  ],
+  "validation_options": {
+    "verify_payload_bytes": false,
+    "historical_code_ref": "9bc719b",
+    "original_audits": [
+      "reports/minicpm5_D2_capacity256_chunk01_checkpoint_audit_20261022.json",
+      "reports/minicpm5_D2_capacity256_checkpoint_audit_20261022.json"
+    ]
+  },
+  "validated_at_utc": "2026-10-22T23:39:02.410819+00:00",
+  "validation_scope": "CPU receipt metadata/small files, safetensor headers, mmap runtime metadata, bounded sidecar values and exact recorded guard replay",
+  "validator_sha256": "fbd6da1e16cf50f06462195ae838ccc6c7b990a5cd299e031752601a4727de7f",
+  "runs": [
+    {
+      "status": "passed",
+      "run": "runs/minicpm5_D2_capacity256_chunk01_20261022",
+      "report_sha256": "b6141d2439b3c60b4458e0baf8ecd871845c02f617e44293ed317c13e0b21d92",
+      "contract_sha256": "8b2d9e751cca822552ff6bd6711b1a6351bb5f53dc09db3d88608b631c41ead6",
+      "start_step": 0,
+      "completed_steps": 1,
+      "maximum_step_budget": 2,
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "checkpoint": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001",
+      "receipt_sha256": "b3343def4c243d4076269800aa58495a345d1be38a923560ec672660c168775d",
+      "validated_checkpoint_scope": "final_completed_update_checkpoint_in_each_process",
+      "checkpoint_logical_bytes": 16347130065,
+      "checkpoint_byte_verification": {
+        "mode": "metadata_headers_and_small_files",
+        "all_receipt_bytes_verified": false,
+        "unhashed_payloads": [
+          "base/model.safetensors",
+          "runtime.pt",
+          "sidecars.safetensors"
+        ]
+      },
+      "implementation_provenance": {
+        "mode": "historical_git_objects",
+        "historical_commit": "9bc719b57cf0b9af06810c733ff82221a788d994",
+        "verified_files": 10,
+        "current_workspace_mismatches": [
+          "scripts/train_text.py",
+          "src/replica_lab/model_adapter.py"
+        ]
+      },
+      "checkpoint_weight_receipt_sha256": {
+        "base/model.safetensors": "f24bd93946524f9d04c53445638d5dd483972fd5aafe0061eb18fca51fb8fa80",
+        "sidecars.safetensors": "69dfcd41ca9159c4333ff56564b39b5249a982b7872214a2fa97e4b17e090a0d"
+      },
+      "scope_and_optimizer_headers": {
+        "original_tensors": 381,
+        "original_parameters": 2516756480,
+        "new_tensors": 48,
+        "new_parameters": 895490,
+        "groups": [
+          {
+            "scope": "original",
+            "algorithm": "muon8bit",
+            "tensors": 294,
+            "parameters": 1981808640
+          },
+          {
+            "scope": "original",
+            "algorithm": "adamw",
+            "tensors": 87,
+            "parameters": 534947840
+          },
+          {
+            "scope": "new",
+            "algorithm": "muon8bit",
+            "tensors": 16,
+            "parameters": 876544
+          },
+          {
+            "scope": "new",
+            "algorithm": "adamw",
+            "tensors": 32,
+            "parameters": 18946
+          }
+        ],
+        "state_tensor_bytes": 6266291904,
+        "state_bytes_by_dtype": {
+          "torch.int8": 1982685184,
+          "torch.float32": 4283606720
+        }
+      },
+      "current_rates": [
+        5e-05,
+        5e-05,
+        0.0005,
+        0.0005
+      ],
+      "runtime": {
+        "next_step": 1,
+        "schedule_completed_steps": 1,
+        "base_rates": [
+          0.0001,
+          0.0001,
+          0.001,
+          0.001
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "update_history_length": 1,
+        "histories_equal_run_report": true
+      },
+      "gradient_checks": [
+        {
+          "step": 1,
+          "original_nonzero": 381,
+          "new_nonzero": 2
+        }
+      ],
+      "generation": {
+        "checks": [],
+        "first_two_perfect_check_step": null
+      },
+      "stop_reason": "process_chunk_completed",
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "capacity-256-dev-world-0",
+        "compared_logit_elements": 33423360,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D2_capacity256_chunk01_20261022_guard.json",
+        "sha256": "33179349849900fe0a4cf6ae5f55c7c7c088b03ef531c0144b39b45a64a44fcf",
+        "host_trace_sha256": "fd04786c2c2a74a4f202b7f33bad2dec9406d9b46a2aacfb36aadcb7becae7df",
+        "profile_trace_sha256": "b65e76f68ba5476d08b1d83d395d1bdbb8533fc3b277df43022f15b1170dce95",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "historical_git_objects",
+          "historical_commit": "9bc719b57cf0b9af06810c733ff82221a788d994",
+          "verified_files": 2,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1638599229,
+          "memory_free_percent": 89.0
+        },
+        "host_samples": 31,
+        "driver_samples": 238,
+        "peak_driver_bytes": 31215894528,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 52.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 15587475456,
+        "rss_peak_sampled_bytes": 10110976000,
+        "mps_allocated_peak_sampled_bytes": 28722829056,
+        "mps_driver_peak_sampled_bytes": 31215894528
+      },
+      "resume_from": null,
+      "source_weight_values_checked": false,
+      "source_weight_expectation": "D2 trains all original tensors; independent streaming changed-value audit required"
+    },
+    {
+      "status": "passed",
+      "run": "runs/minicpm5_D2_capacity256_chunk02_20261022",
+      "report_sha256": "4b3287f6b5d9e513f54ce43e15836975efa3a65df377922847b9590c0017aec5",
+      "contract_sha256": "8b2d9e751cca822552ff6bd6711b1a6351bb5f53dc09db3d88608b631c41ead6",
+      "start_step": 1,
+      "completed_steps": 2,
+      "maximum_step_budget": 2,
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "checkpoint": "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002",
+      "receipt_sha256": "532d87f7ef4826dfad84be3572c45f213af4d123c54cb8c90c3987d87a308e37",
+      "validated_checkpoint_scope": "final_completed_update_checkpoint_in_each_process",
+      "checkpoint_logical_bytes": 16347131345,
+      "checkpoint_byte_verification": {
+        "mode": "metadata_headers_and_small_files",
+        "all_receipt_bytes_verified": false,
+        "unhashed_payloads": [
+          "base/model.safetensors",
+          "runtime.pt",
+          "sidecars.safetensors"
+        ]
+      },
+      "implementation_provenance": {
+        "mode": "historical_git_objects",
+        "historical_commit": "9bc719b57cf0b9af06810c733ff82221a788d994",
+        "verified_files": 10,
+        "current_workspace_mismatches": [
+          "scripts/train_text.py",
+          "src/replica_lab/model_adapter.py"
+        ]
+      },
+      "checkpoint_weight_receipt_sha256": {
+        "base/model.safetensors": "4e0029278ea43aa1b8509b4dbb8cb2a6b55dc6ca772e44107fff1cd683361c43",
+        "sidecars.safetensors": "ee90af5d45563bc48be3411044d742274f111cb1544cd383c1d47dcfd507eeb9"
+      },
+      "scope_and_optimizer_headers": {
+        "original_tensors": 381,
+        "original_parameters": 2516756480,
+        "new_tensors": 48,
+        "new_parameters": 895490,
+        "groups": [
+          {
+            "scope": "original",
+            "algorithm": "muon8bit",
+            "tensors": 294,
+            "parameters": 1981808640
+          },
+          {
+            "scope": "original",
+            "algorithm": "adamw",
+            "tensors": 87,
+            "parameters": 534947840
+          },
+          {
+            "scope": "new",
+            "algorithm": "muon8bit",
+            "tensors": 16,
+            "parameters": 876544
+          },
+          {
+            "scope": "new",
+            "algorithm": "adamw",
+            "tensors": 32,
+            "parameters": 18946
+          }
+        ],
+        "state_tensor_bytes": 6266291904,
+        "state_bytes_by_dtype": {
+          "torch.int8": 1982685184,
+          "torch.float32": 4283606720
+        }
+      },
+      "current_rates": [
+        0.0001,
+        0.0001,
+        0.001,
+        0.001
+      ],
+      "runtime": {
+        "next_step": 2,
+        "schedule_completed_steps": 2,
+        "base_rates": [
+          0.0001,
+          0.0001,
+          0.001,
+          0.001
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "update_history_length": 2,
+        "histories_equal_run_report": true
+      },
+      "gradient_checks": [
+        {
+          "step": 1,
+          "original_nonzero": 381,
+          "new_nonzero": 2
+        },
+        {
+          "step": 2,
+          "original_nonzero": 381,
+          "new_nonzero": 48
+        }
+      ],
+      "generation": {
+        "checks": [],
+        "first_two_perfect_check_step": null
+      },
+      "stop_reason": "step_budget_completed",
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "capacity-256-dev-world-0",
+        "compared_logit_elements": 33423360,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D2_capacity256_chunk02_20261022_guard.json",
+        "sha256": "4211927c54fb13b9860023f01adc9564c0636533e6786ae847adc4c02531018c",
+        "host_trace_sha256": "6f375280b55001abf3c7f7d3fd81f404d85209f3bb7b7ba22e41efee854d7e9f",
+        "profile_trace_sha256": "db4a607f276285b008d56749d6e5a5a6cd6322dcda68e0c1e2902a07a0a2a86a",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "historical_git_objects",
+          "historical_commit": "9bc719b57cf0b9af06810c733ff82221a788d994",
+          "verified_files": 2,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1638599229,
+          "memory_free_percent": 90.0
+        },
+        "host_samples": 38,
+        "driver_samples": 285,
+        "peak_driver_bytes": 31215894528,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 49.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 14884110336,
+        "rss_peak_sampled_bytes": 13011828736,
+        "mps_allocated_peak_sampled_bytes": 28723862272,
+        "mps_driver_peak_sampled_bytes": 31215894528
+      },
+      "resume_from": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001",
+      "source_weight_values_checked": false,
+      "source_weight_expectation": "D2 trains all original tensors; independent streaming changed-value audit required"
+    }
+  ],
+  "sidecar_continuation": [
+    {
+      "before": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001/sidecars.safetensors",
+      "after": "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002/sidecars.safetensors",
+      "tensor_count": 48,
+      "changed_tensor_count": 48,
+      "maximum_absolute_delta_by_tensor": {
+        "memory_reader.attention.in_proj_bias": 0.0007177044171839952,
+        "memory_reader.attention.in_proj_weight": 0.0004768967628479004,
+        "memory_reader.attention.out_proj.bias": 0.0007206850568763912,
+        "memory_reader.attention.out_proj.weight": 0.00019881874322891235,
+        "memory_reader.gate_logit": 0.0007394407293759286,
+        "memory_reader.memory_norm.bias": 0.0007126911077648401,
+        "memory_reader.memory_norm.weight": 0.0007241964340209961,
+        "memory_reader.output_projection.weight": 0.00034387013874948025,
+        "memory_reader.query_norm.bias": 1.4450169146584813e-05,
+        "memory_reader.query_norm.weight": 0.00011467933654785156,
+        "memory_reader.query_projection.weight": 0.0013197623193264008,
+        "support_writer.attention.in_proj_bias": 0.0007380439783446491,
+        "support_writer.attention.in_proj_weight": 0.00020786374807357788,
+        "support_writer.attention.out_proj.bias": 0.0007407899247482419,
+        "support_writer.attention.out_proj.weight": 0.0001074671745300293,
+        "support_writer.input_norm.bias": 0.0006861301371827722,
+        "support_writer.input_norm.weight": 0.0006847381591796875,
+        "support_writer.input_projection.weight": 0.00023297546431422234,
+        "support_writer.output_norm.bias": 0.0007128041470423341,
+        "support_writer.output_norm.weight": 0.0007179379463195801,
+        "support_writer.slot_queries": 0.0007316041737794876,
+        "workspace.encoder.attention.in_proj_bias": 0.00074071652488783,
+        "workspace.encoder.attention.in_proj_weight": 0.00028615444898605347,
+        "workspace.encoder.attention.out_proj.bias": 0.0007417965680360794,
+        "workspace.encoder.attention.out_proj.weight": 0.00013744086027145386,
+        "workspace.encoder.input_norm.bias": 0.0007003676728345454,
+        "workspace.encoder.input_norm.weight": 0.0007082223892211914,
+        "workspace.encoder.input_projection.weight": 0.0002323213266208768,
+        "workspace.encoder.output_norm.bias": 0.0007204669527709484,
+        "workspace.encoder.output_norm.weight": 0.0007266998291015625,
+        "workspace.encoder.slot_queries": 0.0007358407601714134,
+        "workspace.reader.attention.in_proj_bias": 0.0007217185338959098,
+        "workspace.reader.attention.in_proj_weight": 0.0005148798227310181,
+        "workspace.reader.attention.out_proj.bias": 0.0007208961760625243,
+        "workspace.reader.attention.out_proj.weight": 0.0003430470824241638,
+        "workspace.reader.gate_logit": 0.000739639566745609,
+        "workspace.reader.memory_norm.bias": 0.0007135585765354335,
+        "workspace.reader.memory_norm.weight": 0.0007278919219970703,
+        "workspace.reader.output_projection.weight": 0.0003431580844335258,
+        "workspace.reader.query_norm.bias": 2.5573639504727907e-05,
+        "workspace.reader.query_norm.weight": 8.606910705566406e-05,
+        "workspace.reader.query_projection.weight": 0.0015378203243017197,
+        "workspace.recurrent.bias_hh": 0.0007181316614151001,
+        "workspace.recurrent.bias_ih": 0.0007213130593299866,
+        "workspace.recurrent.weight_hh": 0.0005302168428897858,
+        "workspace.recurrent.weight_ih": 0.00024188309907913208,
+        "workspace.workspace_norm.bias": 0.0007115815533325076,
+        "workspace.workspace_norm.weight": 0.0007240176200866699
+      },
+      "both_files_receipt_hash_verified": true
+    }
+  ],
+  "bound_original_value_audits": [
+    {
+      "path": "reports/minicpm5_D2_capacity256_chunk01_checkpoint_audit_20261022.json",
+      "sha256": "d6608150e4146ddf1cd8621319933e34da0c1bd7e3ee0ecdbc30e9d0dcf1307e",
+      "run": "runs/minicpm5_D2_capacity256_chunk01_20261022",
+      "changed_tensor_count": 381,
+      "receipt_digest_binding": true
+    },
+    {
+      "path": "reports/minicpm5_D2_capacity256_checkpoint_audit_20261022.json",
+      "sha256": "ea9dc37629e93951a78e0917cf2830dd1b7c8a6d35c69a17069374734e90c860",
+      "run": "runs/minicpm5_D2_capacity256_chunk02_20261022",
+      "changed_tensor_count": 381,
+      "receipt_digest_binding": true
+    }
+  ],
+  "declared_protocol_chains_complete": true,
+  "original_value_audit_status": "complete",
+  "full_payload_bytes_verified": false,
+  "model_instantiated": false,
+  "gpu_executed": false,
+  "native_tensor_value_comparisons_performed": false,
+  "limitations": [
+    "Does not establish native uninterrupted-versus-resumed numerical equivalence",
+    "Native original tensor values require separately byte-bound streaming audits; sidecars only are compared here",
+    "Default metadata mode does not rehash native weights/runtime; use --verify-payload-bytes for full receipt verification",
+    "Declared source/data metadata and local receipts are not publisher authentication",
+    "Sampled guards can miss transients; host metrics are system-wide; MPS/RSS overlap",
+    "Generation checks are training diagnostics, not independent generalization scores"
+  ]
+}

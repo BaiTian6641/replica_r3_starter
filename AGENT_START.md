@@ -2,12 +2,13 @@
 
 **Current authorization:** the user resumed bounded D2 MPS experiments after
 storage cleanup. Follow [D2 resumption](docs/experiments/20261022_D2_Resume.md);
-older pause notes below describe the completed maintenance period. Reuse the
-existing sealed MiniCPM5-2B source offline and preserve selected results.
+the results in [D2 qualification](docs/experiments/20261022_D2_Results.md) record
+the accepted gates. Reuse the existing sealed MiniCPM5-2B source offline and
+preserve selected results.
 
 Copy this complete instruction to the coding agent working in the actual project repository.
 
-**Existing workspace storage rule:** reuse `checkpoints/minicpm5_source` and its immutable seal; a fresh experiment loads local bytes and does not download a fresh model. Native training and generation are currently paused by the user. Do not restart them as part of Git/storage maintenance. Source checkpoints, experiment weights, optimizer state and caches stay outside Git; follow [the retention inventory and Git policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md). Acquisition examples below are initial-setup history; only an intentional missing-source acquisition/repair may use `--allow-network`. Preserve all selected and undocumented artifacts. The [applied cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md) supersedes the old marked-only storage snapshot; keep training paused.
+**Existing workspace storage rule:** reuse `checkpoints/minicpm5_source` and its immutable seal; a fresh experiment loads local bytes and does not download a fresh model. Source checkpoints, experiment weights, optimizer state and caches stay outside Git; follow [the retention inventory and Git policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md). Acquisition examples below are initial-setup history; only an intentional missing-source acquisition/repair may use `--allow-network`. Preserve all selected and undocumented artifacts. The [applied cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md) supersedes the old marked-only storage snapshot. The user subsequently resumed the bounded D2 package.
 
 ## Mission
 
@@ -22,17 +23,17 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. The current Mac has a sealed MiniCPM5 baseline, preserved collapse, successful eight-update tiny overfit, actual 256/512-token full D0 training/restart, and native 256-token D1/D2 forward/backward/export checks. Current checks total 246 tests. D1/D2 optimizer learning, augmented generation, broad quality and Replica fidelity remain unmeasured. Read execution_state.md and docs/stages/00_Master_Roadmap.md; next qualify fixed-context augmented generation and D1 tiny overfit, with S1.2 source-bound data in parallel.
+4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1 tiny memorization are already qualified. Read execution_state.md and the dated D2 results for the latest completed optimizer/capacity, restart and generation gates. The current suite passes 479 tests with one restricted-context MPS skip. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
 
 ## First session: do concrete work
 
-For continuation after the capacity milestone, follow execution_state.md: actual 256/512 D0 training/restart and native 256-token D1/D2 null-parity/backward/export checks are measured, and the current suite has 246 passing tests. Augmented generation, D1/D2 learning and D2 optimizer capacity remain unrun. The next package is prompt-fixed augmented generation parity followed by D1 tiny overfit; do not repeat acquisition, collapse diagnosis or completed D0 capacity. The eight-update diagnostic winner remains selected. The reviewed episode contract is bounded infrastructure; release-level source/purpose/verification admission is still required before a corpus campaign.
+For continuation, follow execution_state.md and the latest accepted raw evidence. Do not repeat acquisition, collapse diagnosis or completed D0/D1/D2 gates. The D0 eight-update diagnostic remains selected; D2 infrastructure results do not promote a developmental model. The reviewed episode contract is bounded infrastructure; release-level source/purpose/verification admission is still required before a corpus campaign.
 
 Run the dependency-free core checks and fixture validator. If numerical dependencies are available, run the existing suite once. Record the exact commands/results; fix a concrete failing contract before expanding scope. Do not rewrite passing components just to match your preferred style.
 
 Inventory the small workstation and Mac separately, without changing drivers. Identify GPU UUIDs, per-device memory, dtype support, host/unified-memory availability, OS and framework versions. Do not assume the small workstation is a previous machine from older plans.
 
-Resolve openbmb/MiniCPM5-2B to an immutable revision; acquire and seal the complete native snapshot. Keep tokenizer/template provenance. Do not swap to a Base/SFT sibling or another model silently. The production runner requires native Llama metadata and the actual 2,516,756,480 original-parameter inventory.
+The original acquisition/sealing step is complete: reuse `checkpoints/minicpm5_source`, revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Keep its tokenizer/template provenance. Offline verification is the default; a missing or corrupt source must fail without downloading. Do not swap to a Base/SFT sibling or another model silently. The production runner requires native Llama metadata and the actual 2,516,756,480 original-parameter inventory.
 
 Establish native generation/task and response-NLL baselines. Then run the smallest real forward/backward/update and export/reload check. Use the actual hardware constraints:
 

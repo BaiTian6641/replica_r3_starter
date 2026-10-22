@@ -1,0 +1,83 @@
+{
+  "status": "declared_before_saved_export_evaluation",
+  "declared_at_utc": "2026-10-22T23:43:14.047516+00:00",
+  "source": "checkpoints/minicpm5_source",
+  "export": "runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint",
+  "protocol": "docs/experiments/20261022_D2_Protocol.md",
+  "cap": 256,
+  "cap_basis": "all8 final online training answers terminate with EOS at update8; same cap256 for train and dev",
+  "training_report_sha256": "57be23a3103a7c81cf2dadd0b72d6ba2b751cc4a60ca20dc75dad1387a33f4b3",
+  "evaluations": [
+    {
+      "split": "train",
+      "examples": 8,
+      "output": "runs/minicpm5_D2_tiny_export_train_generation_20261022",
+      "guard_report": "runs/minicpm5_D2_tiny_export_train_generation_20261022_guard.json",
+      "arguments": [
+        "--model-path",
+        "checkpoints/minicpm5_source",
+        "--model-lock",
+        "configs/minicpm5_sealed_lock.local.json",
+        "--exported-adapter",
+        "runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint",
+        "--data",
+        "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+        "--split",
+        "train",
+        "--output",
+        "runs/minicpm5_D2_tiny_export_train_generation_20261022",
+        "--device",
+        "mps",
+        "--max-examples",
+        "8",
+        "--max-new-tokens",
+        "256",
+        "--max-length",
+        "256",
+        "--seed",
+        "17"
+      ]
+    },
+    {
+      "split": "dev",
+      "examples": 16,
+      "output": "runs/minicpm5_D2_tiny_export_dev_generation_20261022",
+      "guard_report": "runs/minicpm5_D2_tiny_export_dev_generation_20261022_guard.json",
+      "arguments": [
+        "--model-path",
+        "checkpoints/minicpm5_source",
+        "--model-lock",
+        "configs/minicpm5_sealed_lock.local.json",
+        "--exported-adapter",
+        "runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint",
+        "--data",
+        "data/fixtures/dev.jsonl",
+        "--split",
+        "dev",
+        "--output",
+        "runs/minicpm5_D2_tiny_export_dev_generation_20261022",
+        "--device",
+        "mps",
+        "--max-examples",
+        "16",
+        "--max-new-tokens",
+        "256",
+        "--max-length",
+        "256",
+        "--seed",
+        "17"
+      ]
+    }
+  ],
+  "native_compute": "MPS GPU FP32 only; CPU fallback disabled; serialized native jobs; source offline",
+  "evaluation_watchdog": "scripts/run_generation_preflight.py",
+  "watchdog_sha256": "937ecb82b301401500e6c35e704a73679231a9191a75d671c9d10936cd8e3722",
+  "watchdog_policy": {
+    "driver_limit_gib": 40,
+    "swap_growth_limit_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "driver_poll_seconds": 0.25,
+    "host_poll_seconds": 2
+  }
+}

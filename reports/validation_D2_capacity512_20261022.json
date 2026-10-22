@@ -1,0 +1,414 @@
+{
+  "status": "passed",
+  "requested_runs": [
+    "runs/minicpm5_D2_capacity512_chunk01_20261022",
+    "runs/minicpm5_D2_capacity512_chunk02_20261022"
+  ],
+  "validation_options": {
+    "verify_payload_bytes": false,
+    "historical_code_ref": null,
+    "original_audits": [
+      "reports/minicpm5_D2_capacity512_chunk01_checkpoint_audit_20261022.json",
+      "reports/minicpm5_D2_capacity512_checkpoint_audit_20261022.json"
+    ]
+  },
+  "validated_at_utc": "2026-10-22T23:39:01.906732+00:00",
+  "validation_scope": "CPU receipt metadata/small files, safetensor headers, mmap runtime metadata, bounded sidecar values and exact recorded guard replay",
+  "validator_sha256": "fbd6da1e16cf50f06462195ae838ccc6c7b990a5cd299e031752601a4727de7f",
+  "runs": [
+    {
+      "status": "passed",
+      "run": "runs/minicpm5_D2_capacity512_chunk01_20261022",
+      "report_sha256": "491e80f728a85e97e182162392fbf3001554c6d98be183dcfa0d9a06f770f04f",
+      "contract_sha256": "df029896eb3962db5ca820f65d28cc7b3de28dd4013b311860e97306265c5117",
+      "start_step": 0,
+      "completed_steps": 1,
+      "maximum_step_budget": 2,
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "checkpoint": "runs/minicpm5_D2_capacity512_chunk01_20261022/training_checkpoint_0001",
+      "receipt_sha256": "d77f5e31193536f3c1e67405b35aef1aa497b80836815770598cc6091f5e8d70",
+      "validated_checkpoint_scope": "final_completed_update_checkpoint_in_each_process",
+      "checkpoint_logical_bytes": 16347130993,
+      "checkpoint_byte_verification": {
+        "mode": "metadata_headers_and_small_files",
+        "all_receipt_bytes_verified": false,
+        "unhashed_payloads": [
+          "base/model.safetensors",
+          "runtime.pt",
+          "sidecars.safetensors"
+        ]
+      },
+      "implementation_provenance": {
+        "mode": "current_workspace",
+        "historical_commit": null,
+        "verified_files": 11,
+        "current_workspace_mismatches": []
+      },
+      "checkpoint_weight_receipt_sha256": {
+        "base/model.safetensors": "00753e573d0f6514aff1198d0551c256260b2a55583899431e4ff0b4a13714c1",
+        "sidecars.safetensors": "2768e811cff85d69d6671e35b20f59d46b1345a1e62b158fd66e6c2e45317d2f"
+      },
+      "scope_and_optimizer_headers": {
+        "original_tensors": 381,
+        "original_parameters": 2516756480,
+        "new_tensors": 48,
+        "new_parameters": 895490,
+        "groups": [
+          {
+            "scope": "original",
+            "algorithm": "muon8bit",
+            "tensors": 294,
+            "parameters": 1981808640
+          },
+          {
+            "scope": "original",
+            "algorithm": "adamw",
+            "tensors": 87,
+            "parameters": 534947840
+          },
+          {
+            "scope": "new",
+            "algorithm": "muon8bit",
+            "tensors": 16,
+            "parameters": 876544
+          },
+          {
+            "scope": "new",
+            "algorithm": "adamw",
+            "tensors": 32,
+            "parameters": 18946
+          }
+        ],
+        "state_tensor_bytes": 6266291904,
+        "state_bytes_by_dtype": {
+          "torch.int8": 1982685184,
+          "torch.float32": 4283606720
+        }
+      },
+      "current_rates": [
+        5e-05,
+        5e-05,
+        0.0005,
+        0.0005
+      ],
+      "runtime": {
+        "next_step": 1,
+        "schedule_completed_steps": 1,
+        "base_rates": [
+          0.0001,
+          0.0001,
+          0.001,
+          0.001
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "update_history_length": 1,
+        "histories_equal_run_report": true
+      },
+      "gradient_checks": [
+        {
+          "step": 1,
+          "original_nonzero": 381,
+          "new_nonzero": 2
+        }
+      ],
+      "generation": {
+        "checks": [],
+        "first_two_perfect_check_step": null
+      },
+      "stop_reason": "process_chunk_completed",
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "capacity-512-dev-world-0",
+        "compared_logit_elements": 66846720,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D2_capacity512_chunk01_20261022_guard.json",
+        "sha256": "a56df86c4f9c7f5a9a1461e0f12f7039b7ec0e1f45f2e700efdaebea5e45f02e",
+        "host_trace_sha256": "23e9ddab1b953e207b017709faa87b63c1ee881dacccc814c8fd7db80108082f",
+        "profile_trace_sha256": "2fdf111a01839c47bbe983c3f1843f066ff22cb0d6b57e889d852e16362cd9ec",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "current_workspace",
+          "historical_commit": null,
+          "verified_files": 2,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15.0,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1605044797,
+          "memory_free_percent": 89.0
+        },
+        "host_samples": 49,
+        "driver_samples": 400,
+        "peak_driver_bytes": 31215894528,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 51.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 15559655424,
+        "rss_peak_sampled_bytes": 9971777536,
+        "mps_allocated_peak_sampled_bytes": 28857046784,
+        "mps_driver_peak_sampled_bytes": 31215894528
+      },
+      "resume_from": null,
+      "source_weight_values_checked": false,
+      "source_weight_expectation": "D2 trains all original tensors; independent streaming changed-value audit required"
+    },
+    {
+      "status": "passed",
+      "run": "runs/minicpm5_D2_capacity512_chunk02_20261022",
+      "report_sha256": "2e6f2635be3f95de63ec2bd53dd64512e499d4093d02ef7faaf1890ef7c19cae",
+      "contract_sha256": "df029896eb3962db5ca820f65d28cc7b3de28dd4013b311860e97306265c5117",
+      "start_step": 1,
+      "completed_steps": 2,
+      "maximum_step_budget": 2,
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "checkpoint": "runs/minicpm5_D2_capacity512_chunk02_20261022/training_checkpoint_0002",
+      "receipt_sha256": "5e1d96369544b22521c9e5d369347e68b93c51d7da0bccdcfe27bd5ec0e3f8eb",
+      "validated_checkpoint_scope": "final_completed_update_checkpoint_in_each_process",
+      "checkpoint_logical_bytes": 16347132273,
+      "checkpoint_byte_verification": {
+        "mode": "metadata_headers_and_small_files",
+        "all_receipt_bytes_verified": false,
+        "unhashed_payloads": [
+          "base/model.safetensors",
+          "runtime.pt",
+          "sidecars.safetensors"
+        ]
+      },
+      "implementation_provenance": {
+        "mode": "current_workspace",
+        "historical_commit": null,
+        "verified_files": 11,
+        "current_workspace_mismatches": []
+      },
+      "checkpoint_weight_receipt_sha256": {
+        "base/model.safetensors": "915a19f63382e5ede8c1cc71498f1d112554a0d062a607029fd9146ec8b20f6a",
+        "sidecars.safetensors": "307e2dd7acdff11063f35119df79c7d652db7c410fd1b49d37d30c8f1c43a5b7"
+      },
+      "scope_and_optimizer_headers": {
+        "original_tensors": 381,
+        "original_parameters": 2516756480,
+        "new_tensors": 48,
+        "new_parameters": 895490,
+        "groups": [
+          {
+            "scope": "original",
+            "algorithm": "muon8bit",
+            "tensors": 294,
+            "parameters": 1981808640
+          },
+          {
+            "scope": "original",
+            "algorithm": "adamw",
+            "tensors": 87,
+            "parameters": 534947840
+          },
+          {
+            "scope": "new",
+            "algorithm": "muon8bit",
+            "tensors": 16,
+            "parameters": 876544
+          },
+          {
+            "scope": "new",
+            "algorithm": "adamw",
+            "tensors": 32,
+            "parameters": 18946
+          }
+        ],
+        "state_tensor_bytes": 6266291904,
+        "state_bytes_by_dtype": {
+          "torch.int8": 1982685184,
+          "torch.float32": 4283606720
+        }
+      },
+      "current_rates": [
+        0.0001,
+        0.0001,
+        0.001,
+        0.001
+      ],
+      "runtime": {
+        "next_step": 2,
+        "schedule_completed_steps": 2,
+        "base_rates": [
+          0.0001,
+          0.0001,
+          0.001,
+          0.001
+        ],
+        "rng_devices": [
+          "cpu",
+          "mps"
+        ],
+        "update_history_length": 2,
+        "histories_equal_run_report": true
+      },
+      "gradient_checks": [
+        {
+          "step": 1,
+          "original_nonzero": 381,
+          "new_nonzero": 2
+        },
+        {
+          "step": 2,
+          "original_nonzero": 381,
+          "new_nonzero": 48
+        }
+      ],
+      "generation": {
+        "checks": [],
+        "first_two_perfect_check_step": null
+      },
+      "stop_reason": "step_budget_completed",
+      "reload_verification": {
+        "status": "passed",
+        "dev_example_id": "capacity-512-dev-world-0",
+        "compared_logit_elements": 66846720,
+        "rtol": 1e-05,
+        "atol": 1e-06,
+        "maximum_absolute_logit_difference": 0.0
+      },
+      "guard": {
+        "path": "runs/minicpm5_D2_capacity512_chunk02_20261022_guard.json",
+        "sha256": "432b5fa738bcb5779acfc6f26c9ee0c27e1cac93e10ed824ea629cfff33476de",
+        "host_trace_sha256": "d2228704bdcddaa1b800ebc40562c9af7e40f3188232b3b63b867c6e06e08825",
+        "profile_trace_sha256": "f0f3136c727c6f7b1aafe5a9f6f51f77e4cc81bcecfc1b86fae4354f3367ae7f",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "current_workspace",
+          "historical_commit": null,
+          "verified_files": 2,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15.0,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1605044797,
+          "memory_free_percent": 88.0
+        },
+        "host_samples": 53,
+        "driver_samples": 433,
+        "peak_driver_bytes": 32298024960,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 47.0,
+        "stop_reason": null
+      },
+      "profile_memory": {
+        "rss_peak_process_lifetime_bytes": 14890156032,
+        "rss_peak_sampled_bytes": 10626973696,
+        "mps_allocated_peak_sampled_bytes": 28858080000,
+        "mps_driver_peak_sampled_bytes": 32298024960
+      },
+      "resume_from": "runs/minicpm5_D2_capacity512_chunk01_20261022/training_checkpoint_0001",
+      "source_weight_values_checked": false,
+      "source_weight_expectation": "D2 trains all original tensors; independent streaming changed-value audit required"
+    }
+  ],
+  "sidecar_continuation": [
+    {
+      "before": "runs/minicpm5_D2_capacity512_chunk01_20261022/training_checkpoint_0001/sidecars.safetensors",
+      "after": "runs/minicpm5_D2_capacity512_chunk02_20261022/training_checkpoint_0002/sidecars.safetensors",
+      "tensor_count": 48,
+      "changed_tensor_count": 48,
+      "maximum_absolute_delta_by_tensor": {
+        "memory_reader.attention.in_proj_bias": 0.0007226849556900561,
+        "memory_reader.attention.in_proj_weight": 0.0003849118947982788,
+        "memory_reader.attention.out_proj.bias": 0.0007244978914968669,
+        "memory_reader.attention.out_proj.weight": 0.00022602826356887817,
+        "memory_reader.gate_logit": 0.0007401563925668597,
+        "memory_reader.memory_norm.bias": 0.0007167149451561272,
+        "memory_reader.memory_norm.weight": 0.0007283687591552734,
+        "memory_reader.output_projection.weight": 0.0003286958672106266,
+        "memory_reader.query_norm.bias": 1.6082734873634763e-05,
+        "memory_reader.query_norm.weight": 0.00011724233627319336,
+        "memory_reader.query_projection.weight": 0.0013648285530507565,
+        "support_writer.attention.in_proj_bias": 0.0007388945086859167,
+        "support_writer.attention.in_proj_weight": 0.00020070374011993408,
+        "support_writer.attention.out_proj.bias": 0.0007411227561533451,
+        "support_writer.attention.out_proj.weight": 8.18353146314621e-05,
+        "support_writer.input_norm.bias": 0.0006919839652255177,
+        "support_writer.input_norm.weight": 0.0006922483444213867,
+        "support_writer.input_projection.weight": 0.00020343251526355743,
+        "support_writer.output_norm.bias": 0.0007160326349548995,
+        "support_writer.output_norm.weight": 0.0007232427597045898,
+        "support_writer.slot_queries": 0.0007325075566768646,
+        "workspace.encoder.attention.in_proj_bias": 0.0007413447019644082,
+        "workspace.encoder.attention.in_proj_weight": 0.00027041882276535034,
+        "workspace.encoder.attention.out_proj.bias": 0.0007423289935104549,
+        "workspace.encoder.attention.out_proj.weight": 0.00013554096221923828,
+        "workspace.encoder.input_norm.bias": 0.0007089454447850585,
+        "workspace.encoder.input_norm.weight": 0.0007175207138061523,
+        "workspace.encoder.input_projection.weight": 0.00019901804625988007,
+        "workspace.encoder.output_norm.bias": 0.0007267415057867765,
+        "workspace.encoder.output_norm.weight": 0.0007302761077880859,
+        "workspace.encoder.slot_queries": 0.0007377457804977894,
+        "workspace.reader.attention.in_proj_bias": 0.0007242711144499481,
+        "workspace.reader.attention.in_proj_weight": 0.0006208866834640503,
+        "workspace.reader.attention.out_proj.bias": 0.0007262130966410041,
+        "workspace.reader.attention.out_proj.weight": 0.00027263909578323364,
+        "workspace.reader.gate_logit": 0.0007403969066217542,
+        "workspace.reader.memory_norm.bias": 0.000719625735655427,
+        "workspace.reader.memory_norm.weight": 0.0007299184799194336,
+        "workspace.reader.output_projection.weight": 0.0003674864419735968,
+        "workspace.reader.query_norm.bias": 3.26217086694669e-05,
+        "workspace.reader.query_norm.weight": 0.0001722574234008789,
+        "workspace.reader.query_projection.weight": 0.0011404063552618027,
+        "workspace.recurrent.bias_hh": 0.0007213577628135681,
+        "workspace.recurrent.bias_ih": 0.0007258802652359009,
+        "workspace.recurrent.weight_hh": 0.0005459599196910858,
+        "workspace.recurrent.weight_ih": 0.000211276113986969,
+        "workspace.workspace_norm.bias": 0.0007169006858021021,
+        "workspace.workspace_norm.weight": 0.0007247328758239746
+      },
+      "both_files_receipt_hash_verified": true
+    }
+  ],
+  "bound_original_value_audits": [
+    {
+      "path": "reports/minicpm5_D2_capacity512_chunk01_checkpoint_audit_20261022.json",
+      "sha256": "02a6b2e66cf6da4fa701235ec033f4ad693b2819b5af1bc44cccf84eccdcafff",
+      "run": "runs/minicpm5_D2_capacity512_chunk01_20261022",
+      "changed_tensor_count": 381,
+      "receipt_digest_binding": true
+    },
+    {
+      "path": "reports/minicpm5_D2_capacity512_checkpoint_audit_20261022.json",
+      "sha256": "95557818c45b1b93473d0bb6fd6cf8951c6d3ad1572a9ff55199d630a651ed9e",
+      "run": "runs/minicpm5_D2_capacity512_chunk02_20261022",
+      "changed_tensor_count": 381,
+      "receipt_digest_binding": true
+    }
+  ],
+  "declared_protocol_chains_complete": true,
+  "original_value_audit_status": "complete",
+  "full_payload_bytes_verified": false,
+  "model_instantiated": false,
+  "gpu_executed": false,
+  "native_tensor_value_comparisons_performed": false,
+  "limitations": [
+    "Does not establish native uninterrupted-versus-resumed numerical equivalence",
+    "Native original tensor values require separately byte-bound streaming audits; sidecars only are compared here",
+    "Default metadata mode does not rehash native weights/runtime; use --verify-payload-bytes for full receipt verification",
+    "Declared source/data metadata and local receipts are not publisher authentication",
+    "Sampled guards can miss transients; host metrics are system-wide; MPS/RSS overlap",
+    "Generation checks are training diagnostics, not independent generalization scores"
+  ]
+}

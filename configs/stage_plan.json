@@ -18,7 +18,7 @@
     "updates": 2,
     "changed_original_tensors": 381,
     "outcome": "constant zero on all16 development generations; 2/16 equals constant-zero control; no checkpoint promoted",
-    "fit_limit": "Historical 55-token negative only. Subsequent balanced overfit/native continuation and actual256/512 D0 capacity are recorded separately; D2 capacity, augmented generation/optimization and VLM remain unqualified."
+    "fit_limit": "Historical 55-token constant-zero negative only. Later D0 balanced overfit/continuation, actual 256/512 D0/D2 bounded capacity, native fixed-context generation and D1 memorization are recorded separately. D2 bounded memorization, scope, capacity and restart pass, with independent train 8/8 and reused dev 14/16. Useful architecture gain is not established. Useful gain, VLM and larger ports remain unqualified."
   },
   "independence": {
     "roles": [
@@ -110,7 +110,7 @@
       "acceptance_gate": "Passed the scoped tiny-overfit gate: all eight training answer classes 0\u20137 correct at both updates 4 and 8, full-text scope, finite gradients, accepted checkpoint/export/reload with zero compared-logit difference, and sampled MPS memory fit. Native continuation is separately qualified under S0.4. Independent export-generation checks and broader development transfer/control conclusions belong to the final result record, not this memorization gate.",
       "resources": "Measured MPS full-text run: microbatch 1, accumulation 8, actual length 55, checkpointing and eight completed updates under declared 64 cap. Sampled peak MPS allocation 24.88 GiB and driver 29.18 GiB at 0.25-second cadence; counters overlap RSS and are not additive. This is not 256-token capacity.",
       "on_failure": "Retain the historical collapse and all control/development failures. A later artifact or transfer failure narrows the conclusion without erasing the 8/8 training observation. Do not credit any single variable in the bundled intervention without ablation.",
-      "next_smallest_task": "Use this eight-class diagnostic for D1 after prompt-fixed augmented generation parity; retain its memorization-only interpretation.",
+      "next_smallest_task": "Reuse accepted D0/D1/D2 diagnostics for S2.4 preregistration; keep memorization, reused-development scores and useful architectural gain distinct.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
@@ -142,12 +142,12 @@
     {
       "id": "S0.5",
       "title": "Measure genuine 256-token and 512-token full training capacity",
-      "status": "D0_actual_256_512_qualified_D2_capacity_pending",
+      "status": "qualified_D0_D2_actual_256_512_bounded_capacity",
       "depends_on": [
         "S0.3",
         "S0.4"
       ],
-      "task": "Qualified actual 256-token and 512-token D0 full-text workloads, each from the sealed original with two updates split 1\u2192fresh-process resume 2. Accumulation 8 covers all eight answers in every update. All 381 original tensors have nonzero gradients and independent saved-checkpoint changes, and export/reload maximum compared-logit difference is 0. Guard traces pass. The corresponding D2 optimizer/update/capacity path is still pending, so the complete stage is not finished.",
+      "task": "Qualified actual256/512-token D0 full-text and D2 full-augmented workloads, each from the sealed original with two updates split1 to fresh-process resume2. Accumulation8 covers all eight answers once per update. All381 originals have nonzero gradients and saved changes including embeddings/head. D2 additionally owns all48 new tensors: nonzero gradients open2 to48 by update2, and all48 change in continuation. Export/reload maximum compared-logit differences are0 and complete guard traces pass. This closes the bounded two-update capacity gate, not sustained training or useful learning.",
       "artifacts": [
         "reports/capacity_readiness_experiment_20261022.json",
         "reports/minicpm5_capacity256_chunk01_report.json",
@@ -156,13 +156,19 @@
         "reports/minicpm5_capacity512_chunk02_report.json",
         "reports/minicpm5_capacity256_checkpoint_audit_20261022.json",
         "reports/minicpm5_capacity512_checkpoint_audit_20261022.json",
-        "planned: matching D2 actual 256/512 capacity reports"
+        "docs/experiments/20261022_D2_Results.md",
+        "reports/validation_D2_capacity256_20261022.json",
+        "reports/validation_D2_capacity512_20261022.json",
+        "reports/minicpm5_D2_capacity256_checkpoint_audit_20261022.json",
+        "reports/minicpm5_D2_capacity512_checkpoint_audit_20261022.json",
+        "reports/minicpm5_D2_capacity256_sidecar_audit_20261022.json",
+        "reports/minicpm5_D2_capacity512_sidecar_audit_20261022.json"
       ],
       "interface": "Tokenizer/template length audit -> bounded trainer -> profiler phase events. Compare allocated/driver/RSS counters with host pressure/swap; identify overlap and sampling cadence.",
-      "acceptance_gate": "D0 portion passes at both real encoded lengths: full 381-tensor gradients/changes including embeddings/head, resumed second update, exact compared-logit reload and no observed guard breach. Two short updates do not establish sustained training or task quality. Keep the overall gate partial until native D2 performs optimizer updates and the same declared length/guard/restart checks.",
-      "resources": "Measured D0 live/driver sampled peaks: 256 tokens 24.956/29.094 GiB; 512 tokens 25.295/29.063 GiB. Driver cap 40 GiB, swap-growth cap 512 MiB, minimum host-free 15%, sustained-host criterion 3 samples. All four whole traces passed with no observed growth from 1,562.69 MiB system swap. Samples can miss transients; driver and RSS overlap.",
+      "acceptance_gate": "Both D0 and D2 actual lengths pass full scope, completed-update continuation, exact compared-logit reload and clean sampled guards. D2 independent metadata/header/optimizer/RNG/history/guard validation and separately byte-bound streaming native/sidecar value audits pass under their historical/current code contracts. Metadata-mode runtime checks do not rehash every large payload. Full-native uninterrupted-versus-split equivalence and task quality remain separate.",
+      "resources": "D0 sampled live/driver GiB:256=24.956/29.094,512=25.295/29.063. D2:256=26.751/29.072,512=26.876/30.080. Driver cap40GiB, swap-growth cap512MiB, minimum host-free15%, sustained-host criterion3samples; all eight D0/D2 capacity traces pass with zero observed swap growth. Samples can miss transients; RSS and driver overlap.",
       "on_failure": "Stop and preserve the failing profile. Reduce length/accumulation or add tested residency changes without freezing hidden layers. Do not extrapolate from the historical 55-token result.",
-      "next_smallest_task": "Qualify prompt-fixed augmented generation, run D1 tiny overfit, then execute a bounded full-scope D2 capacity/update preflight to finish the remaining S0.5 portion.",
+      "next_smallest_task": "Reuse accepted capacity and D2 tiny evidence for S2.4 planning without repeating completed gates or rewriting historical contracts.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
@@ -283,9 +289,9 @@
       ],
       "interface": "LlamaMemoryAdapter -> original complete decoder block + per-batch support/workspace context -> strict evaluator; native names and checkpoint compatibility preserved.",
       "acceptance_gate": "Native forward/backward/export and original-prompt-fixed uncached generation pass at the bounded tested configuration. KV caching, concurrency, useful memory benefit and optimizer learning are separate gates.",
-      "resources": "Measured one native MPS batch with 64-wide memory/workspace, 4 slots, 2 workspace steps and 895,490 new parameters / 48 tensors. No training campaign or native D1/D2 optimizer capacity qualification is claimed.",
+      "resources": "This original compatibility probe measured one native MPS batch with64-wide memory/workspace,4slots,2workspace steps and895,490 added parameters/48tensors. Subsequent optimizer/capacity evidence belongs to S2.2/S2.3.",
       "on_failure": "Keep base path intact and repair parity/context lifetime before training new modules. Do not optimize KV caching until correctness holds.",
-      "next_smallest_task": "Run the bounded D1 optimizer/overfit diagnostic; retain the uncached path as the generation reference.",
+      "next_smallest_task": "Retain qualified uncached fixed-context generation as the saved-export D2 reference; KV caching is a separate unqualified optimization.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
@@ -308,32 +314,46 @@
       "acceptance_gate": "Bounded scope, later upstream gradients, nonconstant correct training generations, restart/reload and unchanged original weights pass. The failed rate and poor dev transfer remain explicit; architecture and retention gates remain open.",
       "resources": "Four serial MPS FP32 processes, 55 actual tokens, B8; 64 + 28 updates across two rates. Successful-arm sampled live/driver peaks 9.467/11.113 GiB; optimizer state 1,029,824 bytes. Total training-update time across both arms is 151.002 s; complete trainer processes total 445.953 s, including both rate searches and checkpoint/generation overhead.",
       "on_failure": "Diagnose gradients, null initialization and frozen-autograd paths. Do not unfreeze layers while retaining the D1 label.",
-      "next_smallest_task": "Qualify D2 full-augmented optimizer updates and memory at actual length 256 before its own tiny-overfit run; retain D1's poor transfer for the later fair study.",
+      "next_smallest_task": "Use completed D2 evidence in the preregistered S2.4 study; retain D1 poor transfer and all search costs.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
       "id": "S2.3",
       "title": "Overfit and profile native D2 full augmented training",
-      "status": "pending_native_D2_optimizer_and_capacity",
+      "status": "qualified_bounded_scope_memorization_capacity_resume",
       "depends_on": [
         "S2.1",
         "S0.4",
         "S0.5"
       ],
-      "task": "Native D2 initial forward/backward is qualified with all 381 original gradient tensors and the same 48 new tensors, but no optimizer update has run. After D1 diagnostic/generation readiness, perform full-augmented update/capacity qualification and then balanced overfit, with separate original/new Muon/AdamW rates and declared parent.",
+      "task": "D2 capacity passes at actual 256/512 tokens: two full-augmented updates per length with fresh-process continuation, all 381 original saved tensors changed, added gradients opening 2 to 48, all 48 sidecars changed, exact reload and independent capacity audits. Historical/current contracts stay distinct. Fresh-source tiny then completes 0 to 4 to 8 at original/new peak rates 1e-4/1e-3. Checks 4 and 8 each produce 8/8 strict answers, eight distinct responses, all EOS and no caps; it stops at 8 under the declared rule. Final independent tiny scope/runtime and saved-value audits pass. Saved-export cap256 generation confirms train 8/8 and reused dev 14/16, all24 EOS/no caps. Both381 original saved inventories change; all48 sidecars change over4 to8. Bounded infrastructure only: useful architecture gain and retention remain pending.",
       "artifacts": [
-        "reports/minicpm5_native_adapter_qualification256_report.json",
-        "planned: D2 changed-tensor and optimizer scope reports",
-        "planned: D2 capacity/generation/restart reports"
+        "docs/experiments/20261022_D2_Protocol.md",
+        "docs/experiments/20261022_D2_Results.md",
+        "configs/d2_resume_plan_20261022.json",
+        "reports/validation_D2_capacity256_20261022.json",
+        "reports/validation_D2_capacity512_20261022.json",
+        "native/sidecar saved audits and archived trainer/profile/guard records linked in D2 results",
+        "reports/minicpm5_D2_tiny_chunk01_report.json",
+        "reports/minicpm5_D2_tiny_chunk02_report.json",
+        "reports/minicpm5_D2_tiny_chunk01_generation_step0004.json",
+        "reports/minicpm5_D2_tiny_chunk02_generation_step0008.json",
+        "reports/validation_D2_tiny_20261022.json",
+        "reports/validation_D2_saved_answers_20261022.json",
+        "reports/minicpm5_D2_tiny_checkpoint_audit_20261022.json",
+        "reports/minicpm5_D2_tiny_sidecar_audit_20261022.json",
+        "reports/D2_source_reuse_final_20261022.json",
+        "reports/D2_token_accounting_20261022.json",
+        "reports/native_augmented_D2_experiment_20261022.json"
       ],
       "interface": "full_augmented registry -> original/new named groups -> native wrapper and augmented export/reload; full-text scope includes embeddings/head.",
-      "acceptance_gate": "All intended groups receive finite gradients and verified changes; none omitted or double-owned. Diagnostic generation, causal inputs, memory bounds and restart pass. Full D0 fit never substitutes for this D2 result.",
-      "resources": "One native MPS job; microbatch 1/checkpointing initially. Count added modules, support encodings, workspace steps, logits and optimizer temporaries.",
+      "acceptance_gate": "Passed capacity scope/continuation/memory at both lengths, two consecutive 8/8 tiny checks with eight distinct EOS-ended answers at4 and8, independent saved train8/8/dev14/16 cap256, all381 original saved tensors changed and48 sidecars changed, exact reload, and complete independent tiny runtime/guard/source checks. S2.4 useful gain and held-out retention remain pending; no full-native continuous/split equivalence or model promotion.",
+      "resources": "Serial MPS FP32, microbatch 1, accumulation 8 and checkpointing. Capacity live/driver GiB: 256=26.751/29.072; 512=26.876/30.080. Persistent optimizer state 6,266,291,904 bytes. Tiny actual length 55/ceiling 256 stops at 8: 160.7403 unique update seconds, 299.5567 profiled trainer seconds, live/driver peaks 26.6532/29.1951 GiB. Clean sampled guards; generation every 4 and checkpoints every 16 plus forced boundaries. Preserve 110 GiB prelaunch tiny disk headroom.",
       "on_failure": "Stop on pressure/scope/parity failure. Use a smaller declared module configuration or tested residency change without freezing original layers.",
-      "next_smallest_task": "Use the measured 895,490-parameter/48-tensor additions for a bounded D2 optimizer/update capacity preflight; do not substitute the successful D0 length profile.",
+      "next_smallest_task": "After S1.5, preregister the S2.4 equal-information, parameter/compute and retention matrix, grouped data, margins and per-arm rate/search budgets. D2 dev14/16 alone is not an architecture advantage over D0.",
       "document": "docs/stages/03_Native_Architecture_Study.md",
       "dependency_gate_notes": {
-        "S0.5": "Requires the qualified D0 actual256/512 subgate, not the later D2 portion. This stage performs D2 optimizer-capacity checks and closes that remaining S0.5 portion."
+        "S0.5": "Initially admitted through the completed D0 length subgate; this stage has now produced accepted D2 actual256/512 capacity and closes the remaining S0.5 portion. IDs and dependencies are unchanged."
       }
     },
     {
@@ -815,7 +835,7 @@
     }
   },
   "native_capacity_observation": {
-    "status": "D0_actual_256_512_qualified_D2_capacity_pending",
+    "status": "qualified_D0_actual_256_512_historical_capacity",
     "summary_report": "reports/capacity_readiness_experiment_20261022.json",
     "regime": "D0_full_text_only",
     "fresh_parent_per_length": true,
@@ -871,9 +891,9 @@
     },
     "limits": [
       "two short updates per length; not sustained training or a quality result",
-      "no D2 optimizer/capacity qualification",
       "no full-size uninterrupted-versus-split equivalence experiment",
-      "sampled guards can miss transients; driver and RSS overlap"
+      "sampled guards can miss transients; driver and RSS overlap",
+      "This object retains D0-only profiles; accepted D2 capacity is recorded separately in native_D2_observation."
     ]
   },
   "native_adapter_observation": {
@@ -886,7 +906,7 @@
     "D1_original_gradient_tensors": 0,
     "D2_original_nonzero_gradient_tensors": 381,
     "new_nonzero_first_backward_tensors": 2,
-    "interpretation": "Two nonzero new gradients are zero-initialized output projections; upstream branch learning after an optimizer step is unmeasured.",
+    "interpretation": "This historical pre-optimizer probe found two nonzero added gradients in zero-initialized output projections. Later D1/D2 optimizer runs establish all48 added gradients by update2 and are recorded separately.",
     "passed": [
       "native null-logit parity",
       "checkpoint backward/context lifetime",
@@ -901,7 +921,7 @@
       "D1 tiny overfit",
       "D2 full-augmented update/capacity"
     ],
-    "observation_scope": "Historical pre-optimizer qualification; subsequent generation and D1 evidence are recorded separately above."
+    "observation_scope": "Historical pre-optimizer qualification; subsequent native generation, D1 memorization and D2 optimizer/capacity are recorded separately. not_run describes only the original probe."
   },
   "episode_contract_observation": {
     "status": "bounded_S1_1_implemented",
@@ -965,5 +985,121 @@
     ],
     "full_S3_1_selected_architecture_dependency_unchanged": "S2.5",
     "contract": "docs/experiments/20261022_Cognitive_Contracts.md"
+  },
+  "native_D2_observation": {
+    "status": "qualified_bounded_scope_memorization_capacity_resume",
+    "document": "docs/experiments/20261022_D2_Results.md",
+    "protocol": "docs/experiments/20261022_D2_Protocol.md",
+    "launch_plan": "configs/d2_resume_plan_20261022.json",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "fresh_sealed_parent_per_length_and_tiny": true,
+    "original_trainable_parameters": 2516756480,
+    "original_tensors": 381,
+    "new_trainable_parameters": 895490,
+    "new_tensors": 48,
+    "optimizer_state_tensor_bytes": 6266291904,
+    "optimizer_state_bytes_by_dtype": {
+      "torch.int8": 1982685184,
+      "torch.float32": 4283606720
+    },
+    "capacity_updates_per_length": 2,
+    "fresh_process_continuation": "completed update1 to update2",
+    "nonzero_new_gradient_tensors_by_update": {
+      "1": 2,
+      "2": 48
+    },
+    "original_saved_tensors_changed_at_both_boundaries": 381,
+    "sidecar_tensors_changed_during_each_continuation": 48,
+    "length_profiles": {
+      "256": {
+        "actual_encoded_tokens": 256,
+        "sampled_peak_mps_allocated_gib": 26.7512,
+        "sampled_peak_mps_driver_gib": 29.0721,
+        "compared_logits_per_reload": 33423360,
+        "maximum_compared_logit_difference": 0.0,
+        "unique_update_seconds": 45.681054207962006,
+        "profiled_process_seconds": 133.7420143338386,
+        "runtime_validation": "reports/validation_D2_capacity256_20261022.json",
+        "code_binding": "historical9bc719b; receipts unchanged"
+      },
+      "512": {
+        "actual_encoded_tokens": 512,
+        "sampled_peak_mps_allocated_gib": 26.8762,
+        "sampled_peak_mps_driver_gib": 30.0799,
+        "compared_logits_per_reload": 66846720,
+        "maximum_compared_logit_difference": 0.0,
+        "unique_update_seconds": 52.32811520807445,
+        "profiled_process_seconds": 200.97431929106824,
+        "runtime_validation": "reports/validation_D2_capacity512_20261022.json",
+        "code_binding": "storage-aware current implementation pinned in launch plan"
+      }
+    },
+    "all_four_capacity_guard_traces_passed": true,
+    "sampled_swap_growth_bytes": 0,
+    "runtime_validation_scope": "receipt metadata/small files, safetensor headers, mmap optimizer/RNG/cursor/history, sidecar values and exact guard replay; separately byte-bound native streaming value audits; metadata mode does not rehash every native/runtime payload",
+    "full_native_continuous_split_equivalence_measured": false,
+    "tiny": {
+      "status": "qualified_bounded_memorization_scope_resume",
+      "actual_sequence_tokens": 55,
+      "maximum_updates": 64,
+      "first_process_stop_after": 4,
+      "generation_every": 4,
+      "checkpoint_every": 16,
+      "original_peak_rate": 0.0001,
+      "new_peak_rate": 0.001,
+      "stopping_rule": "First two consecutive 8/8 strict-answer checks with eight distinct responses; EOS/cap status separate; otherwise maximum 64 with no rate escalation.",
+      "saved_export_train_dev_scores": {
+        "train_correct": 8,
+        "train_examples": 8,
+        "dev_correct": 14,
+        "dev_examples": 16,
+        "all24_ended_by_eos": true,
+        "capped_responses": 0,
+        "generation_cap": 256,
+        "independent_validation": "reports/validation_D2_saved_answers_20261022.json"
+      },
+      "completed_updates": 8,
+      "fresh_process_continuation": "completed update 4 to update 8",
+      "perfect_checks": [
+        4,
+        8
+      ],
+      "training_answers_correct_per_check": 8,
+      "distinct_answers_per_check": 8,
+      "eos_endings_per_check": 8,
+      "capped_responses_per_check": 0,
+      "stop_reason": "two_consecutive_perfect_training_generation_checks",
+      "unique_update_seconds": 160.7402580822818,
+      "profiled_trainer_process_seconds": 299.5567133750301,
+      "processed_sequence_tokens": 3520,
+      "supervised_tokens": 128,
+      "sampled_peak_mps_allocated_gib": 26.6532,
+      "sampled_peak_mps_driver_gib": 29.1951,
+      "compared_logits_per_reload": 7180800,
+      "maximum_compared_logit_difference": 0.0,
+      "sampled_swap_growth_bytes": 0,
+      "independent_scope_runtime_audits_passed": true,
+      "runtime_validation": "reports/validation_D2_tiny_20261022.json",
+      "original_saved_tensors_changed_at_updates4_and8": 381,
+      "sidecar_tensors_changed_4_to8": 48,
+      "sidecar_changed_elements_4_to8": 895401,
+      "profiled_independent_evaluation_seconds": 23.980811540968716
+    },
+    "useful_architecture_gain_established": false,
+    "model_promoted": false,
+    "summary_report": "reports/native_augmented_D2_experiment_20261022.json",
+    "source_unchanged": {
+      "report": "reports/D2_source_reuse_final_20261022.json",
+      "files_metadata_unchanged": 36,
+      "sealed_selected_inventory_hashes_verified": 9,
+      "acquisition_receipt_unchanged": true,
+      "downloads": 0
+    },
+    "token_view_accounting": "reports/D2_token_accounting_20261022.json",
+    "code_validation": {
+      "report": "reports/validation_D2_code_20261022.json",
+      "passed": 479,
+      "restricted_context_mps_skips": 1
+    }
   }
 }

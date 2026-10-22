@@ -1,0 +1,106 @@
+{
+  "status": "passed",
+  "at_utc": "2026-10-22T23:46:53.063932+00:00",
+  "method": "Independent whole-response ASCII-integer parsing, original fixture ID/target binding, EOS/cap review, export weight SHA binding, and exact sampled guard trace replay. No model construction.",
+  "evaluations": [
+    {
+      "split": "train",
+      "correct": 8,
+      "examples": 8,
+      "all_eos": true,
+      "capped": 0,
+      "distinct_responses": 8,
+      "generation_cap": 256,
+      "guard_replay": {
+        "path": "/Users/flare/replica_r3_starter/runs/minicpm5_D2_tiny_export_train_generation_20261022_guard.json",
+        "sha256": "b215a05abf6d36518e82d7b257bfe3958b51c51fe35de7c6f7cf17568ac69345",
+        "host_trace_sha256": "dbcd32979b23bdea98a3772a3f62398ba1b2cccd0b85703e8677d675765ed7de",
+        "profile_trace_sha256": "d4843286e33f6112a75973e4c4a4885fa9a9a8f28a48f03f1ba507279a5e5451",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "current_workspace",
+          "historical_commit": null,
+          "verified_files": 3,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1605044797,
+          "memory_free_percent": 88.0
+        },
+        "host_samples": 7,
+        "driver_samples": 78,
+        "peak_driver_bytes": 11815763968,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 70.0,
+        "stop_reason": null
+      },
+      "memory": {
+        "rss_peak_process_lifetime_bytes": 596492288,
+        "rss_peak_sampled_bytes": 596459520,
+        "mps_allocated_peak_sampled_bytes": 10107314432,
+        "mps_driver_peak_sampled_bytes": 11815763968
+      },
+      "profiled_seconds": 11.558776000048965,
+      "generation_report": "reports/minicpm5_D2_tiny_export_train_generation_report_20261022.json",
+      "answers": "reports/minicpm5_D2_tiny_export_train_answers_20261022.jsonl",
+      "wrong_ids": []
+    },
+    {
+      "split": "dev",
+      "correct": 14,
+      "examples": 16,
+      "all_eos": true,
+      "capped": 0,
+      "distinct_responses": 8,
+      "generation_cap": 256,
+      "guard_replay": {
+        "path": "/Users/flare/replica_r3_starter/runs/minicpm5_D2_tiny_export_dev_generation_20261022_guard.json",
+        "sha256": "e3b900cd51fbc3b1b5be519a229f6ca960d69a76387292922a170e660dfe2841",
+        "host_trace_sha256": "d6507c356610dc7b5eb8b77328d329105e0e9d5d6dc91f0b02a3bf6367be10cc",
+        "profile_trace_sha256": "22166e23d8bdc1a6cf5caf91f23bb20d16ee55d33b412ca6d21af8514c412a4e",
+        "exact_replay": true,
+        "implementation_provenance": {
+          "mode": "current_workspace",
+          "historical_commit": null,
+          "verified_files": 3,
+          "current_workspace_mismatches": []
+        },
+        "policy": {
+          "driver_limit_bytes": 42949672960,
+          "swap_growth_limit_bytes": 536870912,
+          "minimum_free_percent": 15,
+          "sustained_host_samples": 3
+        },
+        "baseline": {
+          "swap_used_bytes": 1605044797,
+          "memory_free_percent": 88.0
+        },
+        "host_samples": 8,
+        "driver_samples": 114,
+        "peak_driver_bytes": 11815763968,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 70.0,
+        "stop_reason": null
+      },
+      "memory": {
+        "rss_peak_process_lifetime_bytes": 596328448,
+        "rss_peak_sampled_bytes": 596295680,
+        "mps_allocated_peak_sampled_bytes": 10107314688,
+        "mps_driver_peak_sampled_bytes": 11815763968
+      },
+      "profiled_seconds": 12.422035540919751,
+      "generation_report": "reports/minicpm5_D2_tiny_export_dev_generation_report_20261022.json",
+      "answers": "reports/minicpm5_D2_tiny_export_dev_answers_20261022.jsonl",
+      "wrong_ids": [
+        "dev-w5-m2-x5",
+        "dev-w5-m6-x7"
+      ]
+    }
+  ]
+}

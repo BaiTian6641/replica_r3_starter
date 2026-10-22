@@ -2,12 +2,13 @@
 
 **Current authorization:** the user resumed bounded D2 MPS experiments after
 storage cleanup. Follow [D2 resumption](docs/experiments/20261022_D2_Resume.md);
-older pause notes below describe the completed maintenance period. Reuse the
-existing sealed MiniCPM5-2B source offline and preserve selected results.
+the results in [D2 qualification](docs/experiments/20261022_D2_Results.md) record
+the accepted gates. Reuse the existing sealed MiniCPM5-2B source offline and
+preserve selected results.
 
 Resume the existing TAIS Obsidian / Replica work. Preserve the objective and all established constraints. Do not restart the project.
 
-**Storage maintenance / pause:** model construction is paused at the user's request. Git/storage maintenance does not resume training. Original model bytes at `checkpoints/minicpm5_source` must be reused, never reacquired routinely. They and `runs/` stay outside Git. Follow [checkpoint retention and Git hygiene](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md); the 16 marked old runtime directories have now been retired by the [authorized cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md). Preserve selected D0/D1 artifacts and recent undocumented D2 runs. New model downloads require an explicit intentional `--allow-network` invocation; normal source checks remain offline.
+**Storage rule:** original model bytes at `checkpoints/minicpm5_source` must be reused, never reacquired routinely. They and `runs/` stay outside Git. Follow [checkpoint retention and Git hygiene](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md); the 16 marked old runtime directories were retired by the [authorized cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md). Preserve selected D0/D1 artifacts and D2 evidence. New model downloads require an explicit intentional `--allow-network` invocation; normal source checks remain offline. The earlier maintenance pause was superseded by the user's D2 resume instruction.
 
 Read execution_state.md, recent commits, git status, the last raw run report, AGENT_START.md and the relevant work package in docs/03_Implementation_and_Runbook.md. Distinguish tested code from proposed work and pretrained-model experiments from fixture tests.
 
@@ -16,11 +17,11 @@ sharing. Read [applied storage and disk measurements](docs/experiments/20261022_
 The pool was seeded from retained native snapshots; sidecars and runtime state
 remain independent. Preserve the BF16 original and strict historical runtime
 code contracts. Pool garbage collection is separate explicit work. Storage
-maintenance does not authorize resuming native training or generation.
+maintenance alone does not authorize unrelated training campaigns.
 
 Preserve the setup choice: experimental Muon 8-bit on the M2 Ultra Mac Studio (64 GiB), then the later RTX PRO 4000 Blackwell SFF (24 GB). Auxiliary FP32 AdamW keeps embeddings/head/slot queries eligible. Reuse the locked environment, sealed original and completed checkpoints; do not reacquire another revision or silently substitute AdamW. Preserve the historical constant-zero failure and the successful eight-update tiny-overfit result (export train 8/8, dev 14/16); its diagnostic checkpoint remains selected. No architecture or post-freeze learning candidate was promoted. CUDA full-text residency still needs the separate P2 path.
 
-Current branch is `codex/augmented-generation-d1`. Native 256/512-token D0 capacity already passes. Fixed-context native D1/D2 generation has exact token/logit parity and nonzero-sidecar reload. D1 tiny memorization passes at 1e-2: train 8/8 at updates 24 and 28, saved train 8/8 and dev 2/16, all 381 originals unchanged, fresh-process resume 8→28. Preserve the failed 1e-3/64-update arm. Successful D1 driver peak is 11.113 GiB at 55 actual tokens; D2 capacity and useful memory benefit remain unqualified. The source-bound S1.2 slice contains 20 episodes from ten worlds, four train/four dev exports, and exposed audit fixtures; the 2k release and sealed audit remain pending. The historical D1 suite passed 290 tests; the storage change passes 446 tests with one restricted-context MPS skip. Read execution_state.md and reports/native_augmented_D1_experiment_20261022.json. Next run bounded native D2 optimizer/capacity at actual 256 tokens under S2.3; extend independent data families and early host-loop preparation in parallel. Reuse completed D0/D1 gates.
+Current branch is `codex/d2-capacity-runtime-pilot`. S0.5 bounded D0/D2 actual 256/512 capacity and S2.3 D2 tiny memorization/scope/restart now pass. D2 stops at update 8 after 8/8 at updates 4 and 8; saved-export train 8/8 and dev 14/16, all EOS at cap 256. All 381 originals and 48 added tensors change; all recorded guards pass. D1 memorization and its failed arm remain preserved. The suite passes 479 tests with one restricted-context MPS skip. Source and acquisition receipt are unchanged, with zero downloads. Read execution_state.md and reports/native_augmented_D2_experiment_20261022.json. Next prepare S2.4 fair D0/D1/D2 controls and expand independent S1 data/evaluation prerequisites; do not repeat completed diagnostics or launch the 20k campaign. Useful gain, retention and full learning-loop integration remain pending.
 
 **Hardware requirement:** native model training and generation on this Mac must use `--device mps`, with CPU fallback disabled. CPU is for host I/O, data/weight verification and small contract tests. Neural Engine execution requires a separately qualified backend; do not describe MPS as ANE or silently substitute CPU model execution. See docs/experiments/20261022_Apple_Accelerators.md.
 

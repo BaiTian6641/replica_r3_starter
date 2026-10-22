@@ -1,0 +1,235 @@
+{
+  "status": "verified_offline_token_accounting",
+  "source": "checkpoints/minicpm5_source",
+  "method": "Re-encode fixed train rows using unchanged train_text.encode_row and the sealed local tokenizer, no model construction. Each completed balanced update visits every row once. Counts are logical input tokens, not FLOPs; native sequence counters exclude added support/workspace input views, which are reported separately. Evaluation/generation/validation passes are additional work.",
+  "datasets": [
+    {
+      "name": "capacity256",
+      "data": "data/diagnostics/capacity_256/train.jsonl",
+      "data_sha256": "565cea6a279f6ff1a4dc89c82f0e19f45f3339604e1a103280e412e3a08c0504",
+      "completed_updates": 2,
+      "rows": [
+        {
+          "id": "capacity-256-train-world-0",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-1",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-2",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-3",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-4",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-5",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-6",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-256-train-world-7",
+          "native_sequence_tokens": 256,
+          "prompt_workspace_input_tokens": 254,
+          "source_writer_input_tokens": 197,
+          "supervised_tokens": 2
+        }
+      ],
+      "per_update": {
+        "native_sequence_tokens": 2048,
+        "prompt_workspace_input_tokens": 2032,
+        "source_writer_input_tokens": 1576,
+        "supervised_tokens": 16
+      },
+      "unique_training_totals": {
+        "native_sequence_tokens": 4096,
+        "prompt_workspace_input_tokens": 4064,
+        "source_writer_input_tokens": 3152,
+        "supervised_tokens": 32
+      }
+    },
+    {
+      "name": "capacity512",
+      "data": "data/diagnostics/capacity_512/train.jsonl",
+      "data_sha256": "133b2f343e7cc2e18abf446b0fe500387840b5e79fe22a12099699216df914c1",
+      "completed_updates": 2,
+      "rows": [
+        {
+          "id": "capacity-512-train-world-0",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-1",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-2",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-3",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-4",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-5",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-6",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "capacity-512-train-world-7",
+          "native_sequence_tokens": 512,
+          "prompt_workspace_input_tokens": 510,
+          "source_writer_input_tokens": 453,
+          "supervised_tokens": 2
+        }
+      ],
+      "per_update": {
+        "native_sequence_tokens": 4096,
+        "prompt_workspace_input_tokens": 4080,
+        "source_writer_input_tokens": 3624,
+        "supervised_tokens": 16
+      },
+      "unique_training_totals": {
+        "native_sequence_tokens": 8192,
+        "prompt_workspace_input_tokens": 8160,
+        "source_writer_input_tokens": 7248,
+        "supervised_tokens": 32
+      }
+    },
+    {
+      "name": "tiny",
+      "data": "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+      "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+      "completed_updates": 8,
+      "rows": [
+        {
+          "id": "train-w4-m1-x0",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x1",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x2",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x3",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x4",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x5",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x6",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        },
+        {
+          "id": "train-w4-m1-x7",
+          "native_sequence_tokens": 55,
+          "prompt_workspace_input_tokens": 53,
+          "source_writer_input_tokens": 14,
+          "supervised_tokens": 2
+        }
+      ],
+      "per_update": {
+        "native_sequence_tokens": 440,
+        "prompt_workspace_input_tokens": 424,
+        "source_writer_input_tokens": 112,
+        "supervised_tokens": 16
+      },
+      "unique_training_totals": {
+        "native_sequence_tokens": 3520,
+        "prompt_workspace_input_tokens": 3392,
+        "source_writer_input_tokens": 896,
+        "supervised_tokens": 128
+      }
+    }
+  ]
+}

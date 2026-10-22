@@ -21,7 +21,7 @@
       "max_length_ceiling": 512,
       "updates": 2,
       "export_reload_verified": true,
-      "full_augmented_fit_verified": false,
+      "full_augmented_fit_verified": true,
       "report": "reports/capacity_readiness_experiment_20261022.json",
       "native_resume_from_step": 1,
       "training_actual_tokens": 512,
@@ -36,6 +36,36 @@
         "actual_tokens": 55,
         "updates": 8,
         "native_resume_end": 12
+      },
+      "full_augmented_D2": {
+        "report": "reports/native_augmented_D2_experiment_20261022.json",
+        "actual_sequence_lengths": [
+          256,
+          512
+        ],
+        "updates_per_length": 2,
+        "grad_accum": 8,
+        "native_resume_from_step": 1,
+        "export_reload_verified": true,
+        "full_size_continuous_vs_resume_equivalence": false,
+        "sampled_driver_peak_bytes": 32298024960,
+        "scope": "bounded two-update capacity per length, not sustained training or useful task quality",
+        "tiny_diagnostic": {
+          "actual_sequence_tokens": 55,
+          "completed_updates": 8,
+          "fresh_process_resume": {
+            "from": 4,
+            "to": 8
+          },
+          "train_correct": 8,
+          "train_examples": 8,
+          "dev_correct": 14,
+          "dev_examples": 16,
+          "all_eos": true,
+          "generation_cap": 256,
+          "sampled_driver_peak_bytes": 31348015104,
+          "scope": "tiny memorization and reused development fixtures, not useful architecture benefit"
+        }
       }
     },
     "cpu_fallback": false
