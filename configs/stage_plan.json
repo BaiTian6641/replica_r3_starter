@@ -3,7 +3,7 @@
   "kind": "research_execution_plan_not_trainer_config",
   "reviewed_on": "2026-10-22",
   "timezone": "America/Chicago",
-  "status_authority": "execution_state.md and immutable raw experiment reports; active entries do not claim success",
+  "status_authority": "execution_state.md and immutable raw experiment reports; each completed gate retains its exact measured scope",
   "project_identity": "Local TAIS Obsidian / Replica R3 synthesis; exact-name public search found no matching authoritative project on review date",
   "model": {
     "repo_id": "openbmb/MiniCPM5-2B",
@@ -18,7 +18,7 @@
     "updates": 2,
     "changed_original_tensors": 381,
     "outcome": "constant zero on all16 development generations; 2/16 equals constant-zero control; no checkpoint promoted",
-    "fit_limit": "short D0 only; actual 256/512, native D1/D2, resume and VLM unqualified"
+    "fit_limit": "historical two-update D0 only; subsequent balanced overfit and native continuation are recorded separately; actual 256/512, native D1/D2 and VLM remain unqualified"
   },
   "independence": {
     "roles": [
@@ -71,73 +71,77 @@
     {
       "id": "S0.2",
       "title": "Diagnose the constant-zero failure",
-      "status": "diagnosed_bundled_remediation_observed",
+      "status": "complete",
       "depends_on": [
         "S0.1"
       ],
-      "task": "Audit the historical two selected rows, target/EOS masks and native generation boundary, and preserve the short constant-zero negative. The balanced eight-class run now removes constant-zero behavior on its training cases; report its sampler, accumulation, rate, warmup and weight-decay changes as a declared bundled intervention rather than isolated causal factors.",
+      "task": "Completed the historical sampling/target-mask/template diagnosis and preserved the short constant-zero negative. A declared bundled intervention now learns the eight training answers; balancing, accumulation, rates, warmup and decay changed together, so no individual causal factor is isolated.",
       "artifacts": [
         "reports/minicpm5_mps_preflight_report.json",
-        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json",
-        "data/diagnostics/tiny_overfit_mask1/selection_manifest.json"
+        "reports/minicpm5_balanced_mask1_chunk01_report.json",
+        "data/diagnostics/tiny_overfit_mask1/selection_manifest.json",
+        "reports/minicpm5_balanced_overfit_experiment_20261022.json"
       ],
       "interface": "Raw train export + encoded examples + strict generation report -> diagnosis; evaluator must preserve raw completions and EOS/cap reasons.",
       "acceptance_gate": "Historical four supervised tokens and constant-zero control are accounted for, and mask/template/target-coverage checks are inspected. Eight-class training generation now succeeds under the bundle. Exact causal attribution to balancing, rate, accumulation, warmup or decay remains unisolated.",
       "resources": "CPU file/token audits first; at most one short source/D0 MPS evaluation if an unresolved prefix or mask hypothesis requires it.",
       "on_failure": "Preserve the historical failure and do not infer that two updates demonstrate an intrinsic Muon defect. Any future causal-factor claim requires a separate controlled ablation; the successful bundled remediation does not supply it.",
-      "next_smallest_task": "Complete checkpoint/export and development/control review of the successful bundled run before assigning broader scope.",
+      "next_smallest_task": "Carry the answer-coverage and mask checks into the actual 256-token workload; preserve the historical failure and the bundled-intervention limitation.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
       "id": "S0.3",
       "title": "Run balanced full-text tiny overfit and verify generated answers",
-      "status": "training_generation_subgate_passed_acceptance_pending",
+      "status": "tiny_overfit_passed",
       "depends_on": [
         "S0.2"
       ],
-      "task": "The native full-text run from the sealed original generated all eight tiny-overfit training answers correctly, with eight distinct classes 0–7, at updates 4 and 8. Each accumulated update covers every answer class once. The declared bundle uses accumulation 8, matched Muon/auxiliary AdamW base rates 1e-4, two-update warmup and zero decay; the 64-update cap stopped at 8 after two perfect checks. Complete artifact acceptance and evaluate development/control cases separately.",
+      "task": "Accepted the native full-text tiny-overfit run from the sealed original: 8/8 strict training answers and eight classes 0\u20137 at updates 4 and 8. Every accumulated update covers each answer once. The declared bundle uses accumulation 8, matched Muon/auxiliary AdamW base rates 1e-4, warmup 2 and zero decay; the 64-update cap stopped at 8. Native checkpoint/export/reload and measured 55-token memory fit pass; broader transfer remains unqualified.",
       "artifacts": [
         "data/diagnostics/tiny_overfit_mask1/train.jsonl",
         "data/diagnostics/tiny_overfit_mask1/selection_manifest.json",
-        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0004.json",
-        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0008.json",
-        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json",
-        "pending: final checkpoint/export/reload acceptance and memory review"
+        "reports/minicpm5_balanced_mask1_chunk01_generation_step0004.json",
+        "reports/minicpm5_balanced_mask1_chunk01_generation_step0008.json",
+        "reports/minicpm5_balanced_mask1_chunk01_report.json",
+        "reports/minicpm5_balanced_mask1_chunk01_memory_samples.jsonl",
+        "reports/minicpm5_balanced_overfit_experiment_20261022.json"
       ],
       "interface": "Existing eight-field trainer export -> full regime -> native saved export -> unchanged strict generation parser. Record per-update target coverage, effective batch and all optimizer group rates.",
-      "acceptance_gate": "Generation subgate observed: 8/8 strict greedy matches with all eight answer classes 0–7 at both updates 4 and 8, each ending in EOS. Overall acceptance still requires final full-scope/checkpoint/export/reload and memory review. Fresh-process native resume is S0.4; development transfer and controls are independent and not established by overfit exactness.",
-      "resources": "Completed one bounded MPS full-text run: microbatch 1, accumulation 8, actual length 55, activation checkpointing, eight completed updates under a declared 64-update cap. Final memory acceptance remains under review; this is not a 256-token workload.",
+      "acceptance_gate": "Passed the scoped tiny-overfit gate: all eight training answer classes 0\u20137 correct at both updates 4 and 8, full-text scope, finite gradients, accepted checkpoint/export/reload with zero compared-logit difference, and sampled MPS memory fit. Native continuation is separately qualified under S0.4. Independent export-generation checks and broader development transfer/control conclusions belong to the final result record, not this memorization gate.",
+      "resources": "Measured MPS full-text run: microbatch 1, accumulation 8, actual length 55, checkpointing and eight completed updates under declared 64 cap. Sampled peak MPS allocation 24.88 GiB and driver 29.18 GiB at 0.25-second cadence; counters overlap RSS and are not additive. This is not 256-token capacity.",
       "on_failure": "Retain the historical collapse and all control/development failures. A later artifact or transfer failure narrows the conclusion without erasing the 8/8 training observation. Do not credit any single variable in the bundled intervention without ablation.",
-      "next_smallest_task": "Finish the saved-checkpoint/export/reload and memory audit, then verify generated answers from the export and a fresh-process native resume.",
+      "next_smallest_task": "Review the independent exported-checkpoint generation summary when complete, then move to S0.5 actual 256-token capacity without claiming broader transfer.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
       "id": "S0.4",
       "title": "Make full-text training resumable",
-      "status": "tiny_resume_proven_native_pending",
+      "status": "native_continuation_qualified",
       "depends_on": [
         "S0.3"
       ],
-      "task": "Checkpoint model, mixed Muon/AdamW optimizer tensors, schedule/warmup, RNGs, data order/cursor, completed update/token counts and exact parent/config hashes only between completed optimizer updates with gradients cleared. Tiny real CPU resume equivalence and MPS optimizer/RNG tests pass; qualify a fresh-process native pretrained continuation next. Mid-accumulation checkpoints/resume are unsupported.",
+      "task": "Qualified full-size pretrained fresh-process continuation from completed update 8 through 12 with strict training-contract and byte-receipt acceptance, restored mixed optimizer/RNG/cursor/schedule state, nonzero gradients in all 381 original tensors, 8/8 training generations with eight distinct answers at 12, and checkpoint/export/reload maximum logit difference 0. Checkpoints remain completed-update boundaries with gradients cleared; mid-accumulation resume is unsupported.",
       "artifacts": [
         "src/replica_lab/training_state.py",
         "src/replica_lab/checkpointing.py",
         "tests/test_checkpointing.py",
         "tests/test_training_state.py",
         "reports/tests_balanced_training_code.xml",
-        "pending: fresh-process native pretrained resume report"
+        "reports/minicpm5_balanced_mask1_chunk02_report.json",
+        "reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json",
+        "reports/minicpm5_balanced_overfit_experiment_20261022.json"
       ],
       "interface": "Completed-update trainer boundary -> atomic model/runtime checkpoint with byte receipt -> contract-bound optimizer/model/RNG/data/schedule restore. Native inference export is separate; an interrupted partial accumulation restarts from the last completed checkpoint.",
-      "acceptance_gate": "Tiny CPU continuous versus interrupted/resumed next-update equivalence and MPS mixed-optimizer/RNG restoration tests have passed. Native pretrained resume still must consume identical next example IDs and schedule, retain INT8/FP32 states, produce finite full-scope updates and meet declared loss/weight tolerance in a fresh process. Reject source/group/data/config mismatches and incomplete checkpoints.",
-      "resources": "Existing CPU/tiny MPS evidence precedes a bounded native MPS continuation. Measure save/restore host/MPS peaks and disk bytes. Do not run another full-size model concurrently.",
+      "acceptance_gate": "Native short continuation 8\u219212 is qualified with contract/receipt validation, full-scope finite updates, correct next cursor/schedule and retained eight-class training answers; export/reload compared logits match exactly. Tiny CPU uninterrupted-versus-resumed exact equivalence and MPS optimizer/RNG tests pass. No full-size uninterrupted-versus-split numerical equivalence experiment was run, so no such claim is made.",
+      "resources": "Measured one fresh-process native MPS continuation of four completed updates after checkpoint 8. Save/restore/runtime memory is recorded separately in the continuation report; use one full-size process at a time.",
       "on_failure": "A weights-only reload is not resume. Resume only at completed-update checkpoints; no mid-accumulation gradient buffer recovery is claimed. Quantify any MPS numerical tolerance while keeping cursor/schedule compatibility exact.",
-      "next_smallest_task": "Load the completed-update native checkpoint in a fresh process, validate its byte receipt/contract and execute the next bounded full update with recorded cursor/schedule.",
+      "next_smallest_task": "Proceed to S0.5 actual 256-token profiling using the qualified completed-update checkpoint path. Run a full-size uninterrupted-versus-split numerical comparison separately if a later result requires that stronger guarantee.",
       "document": "docs/stages/01_Environment_and_D0_Readiness.md"
     },
     {
       "id": "S0.5",
       "title": "Measure genuine 256-token and 512-token full training capacity",
-      "status": "pending",
+      "status": "ready_actual_256_capacity_next",
       "depends_on": [
         "S0.3",
         "S0.4"
@@ -710,11 +714,11 @@
     }
   ],
   "balanced_overfit_observation": {
-    "status": "training_generation_subgate_passed_acceptance_pending",
-    "run_report": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json",
+    "status": "tiny_overfit_passed",
+    "run_report": "reports/minicpm5_balanced_mask1_chunk01_report.json",
     "generation_reports": [
-      "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0004.json",
-      "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/train_generation_step_0008.json"
+      "reports/minicpm5_balanced_mask1_chunk01_generation_step0004.json",
+      "reports/minicpm5_balanced_mask1_chunk01_generation_step0008.json"
     ],
     "fresh_source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
     "training_examples": 8,
@@ -738,24 +742,56 @@
     "declared_bundled_intervention": {
       "regime": "full",
       "grad_accum": 8,
-      "per_update_answer_coverage": "each class 0–7 exactly once",
+      "per_update_answer_coverage": "each class 0\u20137 exactly once",
       "lr_muon_base": 0.0001,
       "lr_adamw_base": 0.0001,
       "warmup_updates": 2,
       "weight_decay": 0.0
     },
-    "interpretation": "Constant-zero behavior is absent on these eight training cases under the bundled intervention. This does not isolate any individual causal factor or establish generalization.",
+    "interpretation": "Constant-zero behavior is absent on these eight training cases under the bundled intervention. Tiny-overfit artifacts/export/reload and 55-token memory fit are accepted. This does not isolate any individual causal factor or establish broader development transfer.",
     "acceptance_pending": [
-      "final checkpoint/export/reload acceptance",
-      "memory review",
-      "fresh-process native pretrained resume",
-      "development/control evaluation"
-    ]
+      "broader transfer, retention and evidence controls beyond the reused tiny development set"
+    ],
+    "final_result_reference": "reports/minicpm5_balanced_overfit_experiment_20261022.json",
+    "sampled_peak_mps_allocated_gib": 24.88,
+    "sampled_peak_mps_driver_gib": 29.18,
+    "memory_sample_interval_seconds": 0.25,
+    "memory_evidence": "reports/minicpm5_balanced_mask1_chunk01_memory_samples.jsonl",
+    "independent_export_generation": {
+      "step8": {
+        "train_correct": 8,
+        "train_count": 8,
+        "dev_correct": 14,
+        "dev_count": 16
+      },
+      "step12_resume_probe": {
+        "train_correct": 8,
+        "train_count": 8,
+        "dev_correct": 13,
+        "dev_count": 16
+      },
+      "dev_new_token_cap": 256,
+      "train_new_token_cap": 8,
+      "development_role": "reused synthetic development; not sealed audit"
+    }
   },
   "resume_observation": {
     "checkpoint_boundary": "between completed optimizer updates with gradients cleared; mid-accumulation resume unsupported",
-    "tested": "tiny real CPU model checkpoint/next-update equivalence and MPS mixed-optimizer/RNG restoration tests",
+    "tested": "Tiny real CPU model exact uninterrupted-versus-resumed equivalence, MPS mixed-optimizer/RNG restoration tests, and full-size pretrained fresh-process continuation from update 8 through 12.",
     "test_evidence": "reports/tests_balanced_training_code.xml",
-    "not_yet_proven": "native pretrained MiniCPM5 fresh-process resumed training equivalence"
+    "not_yet_proven": "Full-size uninterrupted-versus-split numerical equivalence; only the tiny CPU experiment establishes exact equivalence.",
+    "status": "native_continuation_qualified",
+    "native_report": "reports/minicpm5_balanced_mask1_chunk02_report.json",
+    "native_generation_report": "reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json",
+    "native_continuation": {
+      "start_update": 8,
+      "end_update": 12,
+      "fresh_process": true,
+      "receipt_and_strict_contract_accepted": true,
+      "strict_training_answers_correct": 8,
+      "distinct_training_answers": 8,
+      "original_tensors_with_nonzero_gradients": 381,
+      "export_reload_max_absolute_logit_difference": 0.0
+    }
   }
 }

@@ -19,7 +19,7 @@ source .venv/bin/activate
 
 The project implements an experimental eager PyTorch Muon path with INT8 blockwise momentum and FP32 scales/temporary arithmetic. Embeddings, the output head, learned slot queries and other ineligible tensors use auxiliary FP32 AdamW groups. Weights and gradients remain FP32. `--optimizer muon8bit` is the trainer default; `--optimizer adamw` selects the explicit comparison. This quantizes optimizer momentum, not model weights.
 
-Current checks and limits are recorded in [execution state](execution_state.md), [Mac validation](reports/validation_macos_setup.json) and [tiny MPS optimizer smoke](reports/muon8bit_mps_smoke.json). These checks do not establish pretrained-model fit or convergence. The [runbook](docs/03_Implementation_and_Runbook.md) contains acquisition, baseline and preflight commands; the later CUDA build and hardware must be qualified on the Blackwell machine.
+Current checks and limits are recorded in [execution state](execution_state.md), [Mac validation](reports/validation_macos_setup.json) and [tiny MPS optimizer smoke](reports/muon8bit_mps_smoke.json). These setup checks are supplemented by the native experiments below; broader convergence remains unmeasured. The [runbook](docs/03_Implementation_and_Runbook.md) contains acquisition, baseline and preflight commands; the later CUDA build and hardware must be qualified on the Blackwell machine.
 
 ## Native MiniCPM5 Mac preflight — 22 October 2026
 
@@ -34,6 +34,14 @@ The pinned native model now completed its baseline and **two full D0 updates wit
 | Strict generation matches, 256-new-token cap | 0/16 | 2/16; all answers were `0` |
 
 The examples are **55 tokens**, despite a configured 256-token ceiling. Only four response/EOS tokens were supervised across the two updates. The trained model collapsed to always answering `0`; its 2/16 result equals a constant-zero control, so the loss drop does not demonstrate XOR learning. This establishes a short full-scope training path. MPS peaks are sampled every 0.25 seconds; driver and process RSS overlap in unified memory. See [raw results and limits](reports/minicpm5_mps_experiment_20261022.json) and [the updated runbook](docs/03_Implementation_and_Runbook.md).
+
+## Balanced tiny overfit and resumable fine-tuning — 22 October 2026
+
+A fresh full-parameter run from the sealed MiniCPM5 parent fixed constant-zero behavior on the eight selected training fixtures: **8/8 correct, eight distinct answers, at updates 4 and 8**. Every update accumulated all eight answer classes once. Matched RMS-aligned Muon/auxiliary AdamW rates of `1e-4`, two-update warmup and zero decay form a memorization diagnostic, not a production SFT recipe. The original failed preflight remains recorded above.
+
+The eight-update run took 192.29 seconds including checkpoint/export/reload; sampled MPS live/driver peaks were 24.88/29.18 GiB. Full model, mixed optimizer, RNG, schedule and data-cursor checkpoints now support contract-bound continuation at completed-update boundaries. Tiny real-model interrupted continuation matches uninterrupted CPU training exactly; full-size native continuation and separate export generation are recorded in the final [experiment record](reports/minicpm5_balanced_overfit_experiment_20261022.json). Independent saved-export generation confirms **train 8/8 and dev 14/16** at update 8; the native continuation probe reaches update 12 with train 8/8 and dev 13/16. The dev cap matches the earlier 256-token evaluation. Training exactness is a memorization result; these 16 reused synthetic dev cases do not establish broad transfer or general retention. All 169 current tests pass.
+
+Read the [collapse diagnosis](docs/experiments/20261022_Constant_Zero_Diagnosis.md), [33-substage roadmap](docs/stages/00_Master_Roadmap.md), [dated primary-source review](docs/stages/07_Research_Evidence_20261022.md) and [machine-readable plan](configs/stage_plan.json). Each substage specifies dependencies, artifacts, acceptance checks, resources and failure handling. The project defined in this workspace remains the design authority; the public search did not identify a matching authoritative TAIS Obsidian / Replica project.
 
 ## Start here
 
@@ -88,7 +96,7 @@ The primary text target is openbmb/MiniCPM5-2B, whose actual total is 2,516,756,
 
 ## Important implementation scope
 
-The provided model adapter is training-only, single-device and text-only. It supports baseline, full, modules_only and full_augmented. It does not provide optimizer offload, distributed sharding, generation caching, optimizer/RNG resume or a VLM adapter. The linear fast-state primitive is tested separately and is not attached to the pretrained-model training path.
+The provided model adapter is training-only, single-device and text-only. It supports baseline, full, modules_only and full_augmented. It supports contract-bound optimizer/RNG/data/schedule continuation at completed updates and native cached generation for the plain D0 model. Optimizer offload, distributed sharding, cached generation for augmented D1/D2 and a VLM adapter remain planned. The linear fast-state primitive is tested separately and is not attached to the pretrained-model training path.
 
 A 24 GB GPU needs an additional offload/sharding implementation for conventional full MiniCPM5 AdamW tuning. The selected Muon experiment reduces persistent momentum storage but retains FP32 AdamW for the large embedding/head tensors; full-model fit still requires measurement and may need offload/sharding.
 

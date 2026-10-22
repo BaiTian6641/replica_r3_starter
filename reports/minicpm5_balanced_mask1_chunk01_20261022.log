@@ -1,0 +1,19 @@
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+W1022 15:46:33.979000 48460 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 855.20it/s]Loading weights:  48%|████▊     | 184/381 [00:00<00:00, 891.49it/s]Loading weights:  72%|███████▏  | 274/381 [00:00<00:00, 859.92it/s]Loading weights:  95%|█████████▍| 361/381 [00:00<00:00, 844.70it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 867.72it/s]
+{"step": 1, "train_nll": 14.649566411972046, "answer_nll": 12.145769655704498, "eos_nll": 17.15336322784424, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 2, "train_nll": 8.632944881916046, "answer_nll": 0.083578444638988, "eos_nll": 17.182310938835144, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 3, "train_nll": 2.042008489370346, "answer_nll": 1.2745330426841974, "eos_nll": 2.809483990073204, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 4, "train_nll": 0.0028212446413817815, "answer_nll": 0.0055942709232112975, "eos_nll": 4.8188569280682714e-05, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+[transformers] The following generation flags are not valid and may be ignored: ['top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[transformers] Passing `generation_config` together with generation-related arguments=({'use_cache', 'max_new_tokens', 'do_sample'}) is deprecated and will be removed in future versions. Please pass either a `generation_config` object OR all generation parameters explicitly, but not both.
+{"step": 4, "train_generation_accuracy": 1.0, "distinct_responses": 8}
+{"step": 5, "train_nll": 4.492658481680678e-06, "answer_nll": 8.165753733635484e-06, "eos_nll": 8.195632359431215e-07, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 6, "train_nll": 9.536713290181353e-07, "answer_nll": 1.6540229896833125e-06, "eos_nll": 2.533196576948171e-07, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 7, "train_nll": 4.3958392659249057e-07, "answer_nll": 8.046620543211702e-07, "eos_nll": 7.450579708745408e-08, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 8, "train_nll": 5.215399041524904e-07, "answer_nll": 1.0281786471111332e-06, "eos_nll": 1.4901160305669237e-08, "answer_histogram": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1}}
+{"step": 8, "train_generation_accuracy": 1.0, "distinct_responses": 8}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:02<00:00,  2.20s/it]Writing model shards: 100%|██████████| 1/1 [00:02<00:00,  2.20s/it]
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:02<00:00,  2.09s/it]Writing model shards: 100%|██████████| 1/1 [00:02<00:00,  2.09s/it]
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 5163.28it/s]
+{"report": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/run_report.json", "dev_response_nll": 0.5467625267319762}

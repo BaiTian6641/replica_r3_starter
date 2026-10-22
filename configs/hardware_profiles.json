@@ -12,17 +12,22 @@
     "optimizer": "muon8bit",
     "microbatch": 1,
     "initial_max_length": 256,
-    "grad_accum": 1,
+    "grad_accum": 8,
     "checkpointing": true,
     "full_model_fit_verified": true,
     "verified_fit_scope": {
       "regime": "full_D0",
       "actual_sequence_length": 55,
       "max_length_ceiling": 256,
-      "updates": 2,
+      "updates": 12,
       "export_reload_verified": true,
       "full_augmented_fit_verified": false,
-      "report": "reports/minicpm5_mps_experiment_20261022.json"
+      "report": "reports/minicpm5_balanced_overfit_experiment_20261022.json",
+      "initial_balanced_run_updates": 8,
+      "native_resume_from_step": 8,
+      "training_actual_tokens": 55,
+      "full_size_continuous_vs_resume_equivalence": false,
+      "sampled_driver_peak_bytes": 31331155968
     },
     "cpu_fallback": false
   },

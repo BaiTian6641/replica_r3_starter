@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Offline native MiniCPM5 greedy generation on verified development fixtures.
+"""Offline native MiniCPM5 greedy generation on verified train or dev fixtures.
 
 This small functional preflight measures fixture task completion, not general
 model quality. The training-only memory adapter is deliberately bypassed; only
 the original sealed parent or a plain D0 full-tuning export can be evaluated.
+Training-split scoring is explicitly a tiny memorization diagnostic, not held-out
+accuracy. Only prompt IDs, never gold response tokens, reach model generation.
 """
 from __future__ import annotations
 
@@ -59,7 +61,32 @@ def exported_inventory(directory: Path, source_config: dict, lock: dict) -> dict
             "files_sha256": {p.relative_to(directory).as_posix(): file_sha256(p) for p in relevant}}
 
 
-def main() -> None:
+def evaluation_metadata(split: str, available_examples: int | None = None) -> dict:
+    """Label memorization and development scores without implying transfer."""
+    if split not in {"train", "dev"}:
+        raise ValueError("Evaluation split must be train or dev")
+    training = split == "train"
+    metadata = {
+        "evaluated_split": split,
+        "evaluation_role": "tiny_training_memorization" if training else "development_fixture_preflight",
+        "limitations": [
+            ("Training-set tiny memorization diagnostic, not held-out accuracy or general quality"
+             if training else "Small synthetic XOR development-fixture preflight, not general quality"),
+            f"Only the first declared {'training' if training else 'development'} examples are evaluated",
+            "Native cached generation covers the parent and plain D0 export only",
+            "Memory peaks are sampled; profiler records interval and counter semantics",
+        ],
+    }
+    if available_examples is not None:
+        if type(available_examples) is not int or available_examples < 1:
+            raise ValueError("Available example count must be a positive integer")
+        metadata["available_examples"] = available_examples
+        if not training:
+            metadata["available_dev_examples"] = available_examples
+    return metadata
+
+
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model-path", type=Path, required=True,
                         help="Original sealed native source, including its tokenizer")
@@ -67,6 +94,8 @@ def main() -> None:
     parser.add_argument("--exported-base", type=Path,
                         help="Optional checkpoint/base from a plain D0 full-tuning run")
     parser.add_argument("--data", type=Path, required=True)
+    parser.add_argument("--split", choices=("train", "dev"), default="dev",
+                        help="Training scores are tiny memorization diagnostics; default: dev")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", choices=("cpu", "cuda", "mps"), default="mps")
     parser.add_argument("--max-examples", type=int, default=4)
@@ -74,6 +103,11 @@ def main() -> None:
     parser.add_argument("--max-length", type=int, default=256,
                         help="Same full prompt-plus-reference budget used by the trainer")
     parser.add_argument("--seed", type=int, default=17)
+    return parser
+
+
+def main() -> None:
+    parser = build_parser()
     args = parser.parse_args()
     if min(args.max_examples, args.max_new_tokens) < 1 or args.max_length < 8:
         parser.error("Example/token budgets must be positive and max-length must be at least 8")
@@ -98,10 +132,7 @@ def main() -> None:
               "max_new_tokens": args.max_new_tokens, "max_length": args.max_length,
               "decoding": {"do_sample": False, "num_beams": 1, "use_cache": True,
                            "enable_thinking": False}, "examples": [],
-              "limitations": ["Small synthetic XOR development-fixture preflight, not general quality",
-                              "Only the first declared development examples are evaluated",
-                              "Native cached generation covers the parent and plain D0 export only",
-                              "Memory peaks are sampled; profiler records interval and counter semantics"]}
+              **evaluation_metadata(args.split)}
     profiler = RunProfiler(args.device, args.output, sample_interval=0.25)
     profiler.start()
     started = time.monotonic()
@@ -118,9 +149,9 @@ def main() -> None:
             report["export_provenance"] = exported_inventory(args.exported_base, source_config, lock)
             model_path = args.exported_base
         profiler.mark("snapshot_validated")
-        all_rows = load_rows(args.data, "dev")
+        all_rows = load_rows(args.data, args.split)
         rows = all_rows[:args.max_examples]
-        report["available_dev_examples"] = len(all_rows)
+        report.update(evaluation_metadata(args.split, len(all_rows)))
         torch.manual_seed(args.seed)
         tokenizer = AutoTokenizer.from_pretrained(args.model_path, local_files_only=True,
                                                    trust_remote_code=False)

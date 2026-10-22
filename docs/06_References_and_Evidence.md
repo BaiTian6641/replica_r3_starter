@@ -2,6 +2,10 @@
 
 **Current native preflight review: 22 October 2026 (America/Chicago). Original bundle review label: 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
 
+The subsequent [balanced-overfit record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) supersedes the collapse as the current diagnostic result while preserving its failure evidence: full native Muon 8-bit reached eight distinct correct training answers at updates 4 and 8, independently verified from the export; development generation scored 14/16. Fresh-process continuation through update 12 retained train 8/8 and scored dev 13/16. All 381 original tensors changed in both exports. Completed-update optimizer/RNG/data/schedule continuation is qualified; full-size uninterrupted-versus-resumed equivalence remains unmeasured. The current suite has 169 passing tests. These are tiny synthetic results, not general quality or Replica fidelity evidence.
+
+The [dated research review](stages/07_Research_Evidence_20261022.md) records primary sources, version-specific release limitations, optimizer RMS alignment, the separate official ms-swift environment and the bounded TAIS project-name search. The [33-substage roadmap](stages/00_Master_Roadmap.md) turns that review into dependencies and acceptance gates. Version 3 of the Muon paper reports up to 62% optimizer-state savings under its experiments; that is not a whole-training-memory claim or a validation of this portable implementation.
+
 ## 1. Research-to-design references
 
 | ID | Primary source and code | What it supports here | Boundary |
@@ -22,7 +26,7 @@
 | R14 | [Persona vectors](https://www.anthropic.com/research/persona-vectors) | Possible drift diagnostics | Trait directions are not complete identity |
 | R15 | [Memory of Amortized Contexts](https://arxiv.org/abs/2403.04317); [author code](https://github.com/jihoontack/MAC) | Learned context interfaces | Requires learned alignment, not arbitrary tensor interchange |
 | R16 | [LongMem](https://arxiv.org/abs/2306.07174); [author code](https://github.com/Victorwz/LongMem) | Memory readers with frozen representations | Base/writer changes invalidate old representation assumptions |
-| R17 | [Effective Quantization of Muon Optimizer States, arXiv:2509.23106](https://arxiv.org/abs/2509.23106) | Motivation for blockwise linear 8-bit Muon momentum | This project implements a portable experiment, not a reproduction of the paper's training results |
+| R17 | [Effective Quantization of Muon Optimizer States, v3](https://arxiv.org/abs/2509.23106v3) | Motivation for blockwise linear 8-bit Muon momentum | This project implements a portable experiment, not a reproduction of the paper's training results |
 
 The full combined architecture is a project synthesis. A component's published success does not prove that combining all components will work. Unofficial Titans/HOPE implementations are not presented as author-maintained trainers in this starter.
 
@@ -88,7 +92,7 @@ The following remain **unrun**:
 
 - Native pretrained MiniCPM5 D1/D2 augmented training and broader task-quality evaluation.
 - CUDA full fine-tuning, sharding or optimizer offload.
-- Representative long-sequence or sustained native MPS full training, complete optimizer/scheduler resume and MLX parity measurements.
+- Representative long-sequence or sustained native MPS full training, full-size uninterrupted/resumed numerical equivalence and MLX parity measurements.
 - Actual V4.7 multimodal integration and full-VLM gradient tests.
 - A learned autonomous curriculum/director operating through multiple neural updates.
 - Ten-cycle model learning, broad transfer or source-person fidelity.

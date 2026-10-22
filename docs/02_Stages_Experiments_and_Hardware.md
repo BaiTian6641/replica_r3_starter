@@ -2,6 +2,8 @@
 
 **Current native preflight review: 22 October 2026 (America/Chicago). Original bundle planning label: 23 October 2026. All proposed budgets and acceptance margins require preregistration; the native measurements below establish short-run execution only.**
 
+Use the [detailed substage roadmap](stages/00_Master_Roadmap.md) for dependencies, artifacts, resource limits and exit gates. The [constant-zero diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md) preserves the failed preflight and the successful eight-class training diagnostic separately.
+
 ## 1. The two-stage program
 
 Stage I is a small-model laboratory with three concurrent tracks: architecture/training, verified experience learning, and authentic Replica data. Stage II ports only useful mechanisms to the larger models. The small models remain regression and rapid-experiment platforms afterward.
@@ -61,8 +63,8 @@ Proposed initial training budget is **8-32M processed tokens per trained arm**, 
 | Sequence length | 256 ceiling for preflight; then actual 256, 512 and 1024 | Completed native fixtures were 55 tokens; longer activation loads remain unmeasured |
 | Microbatch | 1 | Clear per-episode causal/state ownership |
 | Effective batch | 8-32 episodes via accumulation | Increase only after profiling and loss normalization checks |
-| Muon original-matrix LR | 1e-3 provisional smoke default; retune before campaigns | Muon has a different update scale from AdamW |
-| Muon new-matrix LR | 1e-3 provisional smoke default; separate search | New interfaces need their own search |
+| Muon original-matrix LR | Inherits corresponding original auxiliary LR unless explicitly overridden; diagnostic `1e-4` | RMS-aligned update scale supports a matched-rate starting point; tune before campaigns |
+| Muon new-matrix LR | Inherits corresponding new auxiliary LR unless explicitly overridden; diagnostic `1e-4` | New interfaces still need their own search |
 | Auxiliary AdamW LR, original/new | 1e-5 / 1e-4 provisional defaults | Embeddings, output head, 1D and other ineligible tensors remain trainable |
 | AdamW comparison LR, original/new | 5e-6, 1e-5, 2e-5 / 1e-4, 3e-4 | Retained as an explicit comparison arm |
 | LoRA LR, later arm | 1e-5, 3e-5, 1e-4 | Not assumed identical to full-tuning optimum |
@@ -75,7 +77,9 @@ These are proposed starting points. The selected optimizer is the project's expe
 
 The portable eager PyTorch implementation stores Muon momentum in blockwise INT8, then dequantizes and orthogonalizes in FP32 using Newton-Schulz steps. Model parameters and gradients remain FP32 in the initial path, and auxiliary AdamW moments remain FP32. It is a project experiment inspired by [Effective Quantization of Muon Optimizer States](https://arxiv.org/abs/2509.23106), not a reproduced paper result or a claim of native fused-kernel speed. PyTorch's [Muon documentation](https://docs.pytorch.org/docs/2.14/generated/torch.optim.Muon.html) provides the matrix-eligibility reference; stock `torch.optim.Muon` is not itself this 8-bit optimizer. Installing bitsandbytes or torchao does not turn their AdamW implementations into Muon 8-bit.
 
-Retain `adamw` as an explicitly selected numerical comparison. Retune Muon base/new learning rates rather than copying AdamW values. The trainer still needs a scheduler and complete resumable state before long campaigns; its short default run is an infrastructure check, not a converged training recipe.
+Retain `adamw` as an explicitly selected numerical comparison. This implementation uses the RMS-aligned Muon adjustment `0.2 * sqrt(max(rows, columns))`; [PyTorch's Muon documentation](https://docs.pytorch.org/docs/2.14/generated/torch.optim.Muon.html) explains that this adjustment supports reusing AdamW-tuned rates. Muon rates now inherit the corresponding auxiliary rates when omitted, replacing the historical implicit `1e-3` setting. The matched `1e-4` diagnostic below is a declared memorization recipe, not a campaign optimum.
+
+The trainer now implements configurable warmup, constant/cosine schedules and contract-bound completed-update checkpoints containing model, optimizer, RNG, schedule and data-cursor state. Tiny CPU interrupted/resumed training matches exactly; MPS mixed-optimizer/RNG restoration tests also pass. A fresh-process native checkpoint continuation from updates 8 to 12 completed, retaining 8/8 correct training generation. This establishes the measured native continuation path; full-size numerical equivalence against an uninterrupted control remains untested. Mid-accumulation checkpoints, offload and distributed training are unsupported.
 
 For every run, record eligible parameter names, unique trainable count, nonzero gradients, changed tensors, optimizer dtypes and effective loss normalization. During full augmented tuning, a writer must use current candidate embeddings; stale cached features are invalid unless deliberately labelled frozen-teacher targets.
 
@@ -166,7 +170,7 @@ The all-Muon column is an arithmetic lower bound, not this model's actual optimi
 
 The [sealed snapshot tensor inventory](../reports/minicpm5_snapshot_inventory.json) now confirms **1,981,808,640 Muon parameters and 534,947,840 auxiliary AdamW parameters**, totaling 2,516,756,480. With this FP32-resident layout, weights, gradients and persistent optimizer tensors alone require **26.40 GB / 24.59 GiB**, before new modules, activations and temporary buffers. This is shape-based arithmetic from the actual checkpoint, not a measured training peak.
 
-**Mac Studio:** unified memory is shared by the OS, applications and training; the full 64 GiB is not an isolated GPU allocation. The native D0 preflight below fit at the measured 55-token workload with a sampled MPS driver peak of **29.15 GiB**. Longer sequences, accumulation and sustained runs need separate profiles.
+**Mac Studio:** unified memory is shared by the OS, applications and training; the full 64 GiB is not an isolated GPU allocation. The historical native D0 preflight below fit at the measured 55-token workload with a sampled MPS driver peak of **29.15 GiB**. The balanced eight-update run, accumulating eight 55-token examples per update, reached **29.18 GiB**. Longer sequences, larger effective batches and sustained runs need separate profiles.
 
 **Later 24 GB Blackwell SFF:** the current FP32-resident full-text state budget already exceeds this card's capacity. Full D0/D2 requires a tested offload/sharding adapter or a separately validated lower-residency layout, while retaining Muon 8-bit and the full trainable scope. Begin CUDA qualification with the tiny model; module-only remains a separately labelled control. An inference device map does not provide training-aware offload. [DeepSpeed ZeRO-Offload](https://www.deepspeed.ai/tutorials/zero-offload/) is a possible later adapter, not an installed or validated capability of this runner.
 
@@ -199,13 +203,48 @@ Memory samples were taken every 0.25 seconds; sampled peaks can miss shorter tra
 
 The matched [baseline generation report](../reports/minicpm5_mps_generation_baseline_256_report.json) and [D0 generation report](../reports/minicpm5_mps_generation_D0_256_report.json) used the same 16 development examples, 53-token prompts, native source chat template with thinking disabled, greedy cached decoding and a maximum of 256 new tokens. The baseline had 0/16 strict matches; eight responses reached the cap and eight ended by EOS. D0 had 2/16 strict matches, but **every completion was `0` followed by EOS**, two generated tokens each. This is constant-answer collapse, not learned XOR or generalization. The lower response NLL is consistent with learning response formatting/EOS and the constant answer; it does not establish independent task improvement.
 
-These results are infrastructure observations on a tiny, templated fixture set after only four supervised tokens. They are not evidence of generalization, architecture benefit, retention or autonomous learning. Native D1/D2 augmented training, realistic sequence lengths, long runs, resumable state, a scheduler, MLX parity and later CUDA/offload qualification remain separate work.
+These historical results are infrastructure observations on a tiny, templated fixture set after only four supervised tokens. They are not evidence of generalization, architecture benefit, retention or autonomous learning. Native D1/D2 augmented training, realistic sequence lengths, long runs, MLX parity and later CUDA/offload qualification remain separate work. Scheduler and completed-update state support were added for the next diagnostic below.
+
+### Balanced full D0 tiny overfit: measured 22 October 2026
+
+The [preregistered design](../configs/tiny_overfit_design.json) restarts from the same sealed original rather than continuing the collapsed candidate. It selects eight solver-rechecked width-4/mask-1 training rows, one for each answer `0..7`, and accumulates all eight in every update. Muon and auxiliary AdamW both use peak LR `1e-4`, two-update warmup (`5e-5`, then `1e-4`), constant scheduling and zero weight decay. Momentum, block size, five FP32 Newton–Schulz iterations, full original parameter scope and nonreentrant activation checkpointing are retained.
+
+The [completed chunk-01 report](../reports/minicpm5_balanced_mask1_chunk01_report.json) records **8/8 strict correct training generations with eight distinct answers at both updates 4 and 8**. Every completion contains one answer token followed by EOS, within the eight-new-token budget. The 64-update cap stopped at eight after the second perfect check. All 2,516,756,480 original parameters were trainable in FP32 on MPS, and all 381 original tensors had nonzero first-update gradients. [Detailed diagnosis and answer table](experiments/20261022_Constant_Zero_Diagnosis.md), [consolidated experiment record](../reports/minicpm5_balanced_overfit_experiment_20261022.json).
+
+| Measurement | Balanced eight-update D0 diagnostic |
+|---|---:|
+| Actual prompt + target length | 55 tokens |
+| Microbatch / effective examples per update | 1 / 8 |
+| Processed / supervised training tokens | 3,520 / 128 |
+| Update time / processed training tokens per second | 157.701 s / 22.321 |
+| Full profiled process, including checkpoint/export/reload | 192.287 s |
+| Sampled peak live MPS allocations / driver memory | 24.88 / 29.18 GiB |
+| Process-lifetime / sampled peak RSS | 14.49 / 8.63 GiB |
+| Host swap used, start → end | 1,562.69 → 1,562.69 MiB |
+| Dev answer NLL / EOS NLL | 1.093525 / approximately `7.45e-9` |
+| Dev combined response NLL | 0.546763 |
+| Native export/reload maximum absolute logit difference | 0.0 across 7,180,800 logits |
+
+The completed-update checkpoint at step 8 includes a byte receipt and optimizer/runtime state; native export/reload passed independently. The [completed chunk-02 continuation](../reports/minicpm5_balanced_mask1_chunk02_report.json) restored it in a fresh process and completed updates 9–12, retaining 8/8 strict correct training answers and eight distinct responses at update 12. Export/reload again matched exactly. The resumed process took 121.582 seconds including restore/checkpoint/export/reload, with 80.355 additional update seconds; cumulative training totals are 238.056 update seconds, 5,280 processed tokens and 192 supervised tokens. Sampled live MPS/driver peaks were 24.83/29.18 GiB, process-lifetime RSS 13.87 GiB, and swap endpoints remained 1,562.69 MiB. No full-size uninterrupted-versus-resumed equivalence control was run.
+
+Separate fresh-process native generation from both saved exports completed:
+
+| Saved export | Training strict correct, 8-new-token cap | Development strict correct, 256-new-token cap |
+|---|---:|---:|
+| Selected original, update 8 | [8/8](../reports/minicpm5_balanced_chunk01_export_train_report.json) | [14/16 (87.5%)](../reports/minicpm5_balanced_chunk01_export_dev_report.json) |
+| Resume probe, update 12 | [8/8](../reports/minicpm5_balanced_chunk02_export_train_report.json) | [13/16 (81.25%)](../reports/minicpm5_balanced_chunk02_export_dev_report.json) |
+
+All 48 completions across these four evaluations contained one answer token plus EOS, with no token-budget caps. Development uses the same 16 width-5/mask-2-or-6 rows and the same 256-new-token cap as the historical parent/collapsed comparisons. Its source families are distinct from training, but this tiny synthetic development set has been reused during investigation; it is not a sealed audit or evidence of broad generalization. Independent CPU checkpoint audits found changes in all 381 original tensors, including embedding/head, with native names/shapes preserved for [update 8](../reports/minicpm5_balanced_chunk01_checkpoint_audit.json) and [update 12](../reports/minicpm5_balanced_chunk02_checkpoint_audit.json).
+
+The declared stopping rule selects the original eight-update artifact before these development scores; update 12 is a resume probe, not a new selected winner. Its dev response NLL worsened to 1.232098 (answer 2.464197, EOS 0.0), consistent with the need to measure development behavior separately from training memorization. The combined intervention removes constant-zero output and improves this fixture score; balancing, accumulation, rates, warmup, weight decay and exposure changed together, so their individual causal contributions remain unisolated. Broader transfer and retention require new independent evidence.
+
+The same sampling limits apply: 0.25-second memory samples can miss transients; process RSS and driver allocations overlap; unchanged swap endpoints do not measure intervening traffic. This is a 55-token training result, not a genuine 256-token capacity measurement. See [S0 readiness and restart gates](stages/01_Environment_and_D0_Readiness.md) and the [runbook](03_Implementation_and_Runbook.md) before expanding the campaign.
 
 The common initial implementation is PyTorch, making the eventual CUDA comparison an explicit backend experiment with the same optimizer equations. MLX remains an optional later port. Apple's unified-memory behavior is described in the [MLX documentation](https://ml-explore.github.io/mlx/build/html/usage/unified_memory.html), but that does not establish parity for this project's custom optimizer or modules.
 
 For a future MLX port, audit the whole parameter tree: [MLX-LM lora.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/lora.py) freezes the model and, for its full mode, unfreezes selected transformer blocks. Choosing all blocks does not necessarily unfreeze embeddings, final norm and output head. Call that full_blocks until the inventory proves full_text. Use nonquantized source/converted weights for full-weight training; a 4-bit inference conversion is not automatically equivalent. [MLX-VLM V4.7 support](https://github.com/Blaizzy/mlx-vlm/blob/main/mlx_vlm/models/minicpmv4_7/README.md) does not establish this project's custom-module or full-multimodal gradient support.
 
-Consult the [runbook](03_Implementation_and_Runbook.md) for commands and observed checks. The native baseline and two full D0 updates validate the measured short-fixture execution path. Broader MiniCPM5 quality, representative long-sequence peak memory, later Blackwell execution and V4.7 multimodal training require their own measurements.
+Consult the [runbook](03_Implementation_and_Runbook.md) for commands and observed checks. The native baseline, historical two-update D0 path and balanced eight-update overfit establish short-fixture execution and training memorization. Broader MiniCPM5 quality, representative long-sequence peak memory, later Blackwell execution and V4.7 multimodal training require their own measurements.
 
 ## 10. The scale-up decision
 

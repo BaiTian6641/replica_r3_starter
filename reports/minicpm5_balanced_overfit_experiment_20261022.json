@@ -1,0 +1,440 @@
+{
+  "status": "completed_balanced_tiny_overfit_and_native_continuation",
+  "recorded_at_utc": "2026-10-22T20:56:36.892526+00:00",
+  "training_implementation_commit": "a0dc150",
+  "roadmap_commit": "1814914",
+  "source_parent": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "unchanged": true
+  },
+  "hardware": "Mac Studio Apple M2 Ultra,24 CPU/60 GPU cores,64 GiB unified memory",
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0",
+    "uv_lock_sha256": "fdc9752ad23b543d0d04d2a5c347f20d86741eb1112df38b5eb52458f7c858cb"
+  },
+  "training_scope": {
+    "original_parameters": 2516756480,
+    "original_tensors": 381,
+    "all_trainable": true,
+    "all_original_tensors_changed_in_both_exports": true,
+    "microbatch": 1,
+    "gradient_accumulation": 8,
+    "actual_sequence_tokens": 55,
+    "maximum_length_ceiling": 256,
+    "device": "mps",
+    "parameter_dtype": "float32",
+    "compute_dtype": "float32",
+    "cpu_fallback": false,
+    "activation_checkpointing": true
+  },
+  "optimizer": {
+    "name": "project_experimental_muon8bit",
+    "muon_parameters": 1981808640,
+    "auxiliary_adamw_parameters": 534947840,
+    "block_size": 2048,
+    "momentum": 0.95,
+    "newton_schulz_steps": 5,
+    "nesterov": false,
+    "muon_and_adamw_base_rates": 0.0001,
+    "warmup_updates": 2,
+    "schedule": "constant",
+    "weight_decay": 0.0,
+    "rms_alignment": "0.2 * sqrt(max(matrix dimensions))",
+    "state_tensor_bytes": 6265262080,
+    "state_bytes_by_dtype": {
+      "torch.int8": 1981808640,
+      "torch.float32": 4283453440
+    },
+    "paper_reproduction_claim": false
+  },
+  "diagnosis": {
+    "direct_prior_observations": [
+      "Two original updates saw answers 7 then 0, four supervised answer/EOS tokens total",
+      "All 16 prior development generations emitted 0 followed by EOS",
+      "Half of original supervised tokens were EOS; aggregate NLL did not establish answer correctness"
+    ],
+    "additional_hypothesis": "RMS-aligned Muon rate1e-3 vsAdamW1e-5 was100x; excessive relative matrix movement is plausible, not causally established",
+    "intervention": "Fresh sealed parent, eight solver-rechecked rows, every update all answers0..7 once, accumulation8, matched1e-4 rates,warmup2,WD0,generation-based stopping",
+    "causal_limit": "Multiple factors changed together; no single-factor causal attribution"
+  },
+  "selection": {
+    "winner": "chunk01_step8",
+    "rule": "Declared two consecutive perfect eight-class training generation checks, at4 and8; stopped before observing dev generation",
+    "resume_probe": "chunk02 steps9to12 qualifies continuation; not a replacement winner",
+    "overall_declared_update_cap": 64,
+    "maximum_actual_step": 12,
+    "unique_updates_executed": 12,
+    "tiny_overfit_generalization_claim": false
+  },
+  "chunk01": {
+    "start_step": 0,
+    "completed_steps": 8,
+    "new_updates": 8,
+    "stop_reason": "two_consecutive_perfect_training_generation_checks",
+    "cumulative_processed_train_tokens": 3520,
+    "cumulative_supervised_train_tokens": 128,
+    "cumulative_training_update_seconds": 157.70077820913866,
+    "current_process_profile_seconds": 192.28676183405332,
+    "memory_bytes": {
+      "rss_peak_process_lifetime_bytes": 15559901184,
+      "rss_peak_sampled_bytes": 9270919168,
+      "mps_allocated_peak_sampled_bytes": 26713363456,
+      "mps_driver_peak_sampled_bytes": 31331155968
+    },
+    "host_start": {
+      "timestamp": "2026-10-22T20:46:30.988699+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 91%",
+      "memory_free_percent": 91.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-22T20:49:43.183702+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 69%",
+      "memory_free_percent": 69.0
+    },
+    "dev_response_nll": 0.5467625267319762,
+    "dev_answer_nll": 1.0935250516013073,
+    "dev_eos_nll": 7.450580152834618e-09,
+    "generation_checks": [
+      {
+        "step": 4,
+        "task_correct": 8,
+        "evaluated_examples": 8,
+        "distinct_responses": 8
+      },
+      {
+        "step": 8,
+        "task_correct": 8,
+        "evaluated_examples": 8,
+        "distinct_responses": 8
+      }
+    ],
+    "first_current_process_update_gradient_audit": {
+      "original": {
+        "eligible_tensors": 381,
+        "gradient_tensors": 381,
+        "nonzero_gradient_tensors": 381,
+        "missing_gradient_names": []
+      },
+      "new": {
+        "eligible_tensors": 0,
+        "gradient_tensors": 0,
+        "nonzero_gradient_tensors": 0,
+        "missing_gradient_names": []
+      }
+    },
+    "reload_verification": {
+      "status": "passed",
+      "dev_example_id": "dev-w5-m2-x0",
+      "compared_logit_elements": 7180800,
+      "rtol": 1e-05,
+      "atol": 1e-06,
+      "maximum_absolute_logit_difference": 0.0
+    }
+  },
+  "chunk02_resume_probe": {
+    "start_step": 8,
+    "completed_steps": 12,
+    "new_updates": 4,
+    "stop_reason": "two_consecutive_perfect_training_generation_checks",
+    "cumulative_processed_train_tokens": 5280,
+    "cumulative_supervised_train_tokens": 192,
+    "cumulative_training_update_seconds": 238.05605691624805,
+    "current_process_profile_seconds": 121.58166400017217,
+    "memory_bytes": {
+      "rss_peak_process_lifetime_bytes": 14889779200,
+      "rss_peak_sampled_bytes": 14741848064,
+      "mps_allocated_peak_sampled_bytes": 26663056384,
+      "mps_driver_peak_sampled_bytes": 31330058240
+    },
+    "host_start": {
+      "timestamp": "2026-10-22T20:50:29.483487+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-22T20:52:30.936081+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1562.69M  free = 1509.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1638599229,
+        "free_bytes": 1582626242
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 71%",
+      "memory_free_percent": 71.0
+    },
+    "dev_response_nll": 1.2320984194244564,
+    "dev_answer_nll": 2.464196838848913,
+    "dev_eos_nll": 0.0,
+    "generation_checks": [
+      {
+        "step": 4,
+        "task_correct": 8,
+        "evaluated_examples": 8,
+        "distinct_responses": 8
+      },
+      {
+        "step": 8,
+        "task_correct": 8,
+        "evaluated_examples": 8,
+        "distinct_responses": 8
+      },
+      {
+        "step": 12,
+        "task_correct": 8,
+        "evaluated_examples": 8,
+        "distinct_responses": 8
+      }
+    ],
+    "first_current_process_update_gradient_audit": {
+      "original": {
+        "eligible_tensors": 381,
+        "gradient_tensors": 381,
+        "nonzero_gradient_tensors": 381,
+        "missing_gradient_names": []
+      },
+      "new": {
+        "eligible_tensors": 0,
+        "gradient_tensors": 0,
+        "nonzero_gradient_tensors": 0,
+        "missing_gradient_names": []
+      }
+    },
+    "reload_verification": {
+      "status": "passed",
+      "dev_example_id": "dev-w5-m2-x0",
+      "compared_logit_elements": 7180800,
+      "rtol": 1e-05,
+      "atol": 1e-06,
+      "maximum_absolute_logit_difference": 0.0
+    }
+  },
+  "resume_increment": {
+    "new_updates": 4,
+    "processed_tokens": 1760,
+    "supervised_tokens": 64,
+    "training_update_seconds": 80.35527870710939,
+    "profiler_seconds": 121.58166400017217
+  },
+  "independent_saved_export_generation": {
+    "chunk01": {
+      "train": {
+        "report": "reports/minicpm5_balanced_chunk01_export_train_report.json",
+        "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+        "role": "tiny_training_memorization",
+        "correct": 8,
+        "examples": 8,
+        "accuracy": 1.0,
+        "max_new_tokens": 8,
+        "distinct_completions": 8,
+        "ended_by_eos": 8,
+        "token_budget_hits": 0,
+        "errors": []
+      },
+      "dev": {
+        "report": "reports/minicpm5_balanced_chunk01_export_dev_report.json",
+        "data_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+        "role": "development_fixture_preflight",
+        "correct": 14,
+        "examples": 16,
+        "accuracy": 0.875,
+        "max_new_tokens": 256,
+        "distinct_completions": 8,
+        "ended_by_eos": 16,
+        "token_budget_hits": 0,
+        "errors": [
+          {
+            "id": "dev-w5-m2-x5",
+            "expected": "7",
+            "completion": "3",
+            "generated_token_ids": [
+              40,
+              1
+            ]
+          },
+          {
+            "id": "dev-w5-m6-x7",
+            "expected": "1",
+            "completion": "3",
+            "generated_token_ids": [
+              40,
+              1
+            ]
+          }
+        ]
+      }
+    },
+    "chunk02": {
+      "train": {
+        "report": "reports/minicpm5_balanced_chunk02_export_train_report.json",
+        "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+        "role": "tiny_training_memorization",
+        "correct": 8,
+        "examples": 8,
+        "accuracy": 1.0,
+        "max_new_tokens": 8,
+        "distinct_completions": 8,
+        "ended_by_eos": 8,
+        "token_budget_hits": 0,
+        "errors": []
+      },
+      "dev": {
+        "report": "reports/minicpm5_balanced_chunk02_export_dev_report.json",
+        "data_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+        "role": "development_fixture_preflight",
+        "correct": 13,
+        "examples": 16,
+        "accuracy": 0.8125,
+        "max_new_tokens": 256,
+        "distinct_completions": 8,
+        "ended_by_eos": 16,
+        "token_budget_hits": 0,
+        "errors": [
+          {
+            "id": "dev-w5-m2-x5",
+            "expected": "7",
+            "completion": "3",
+            "generated_token_ids": [
+              40,
+              1
+            ]
+          },
+          {
+            "id": "dev-w5-m6-x2",
+            "expected": "4",
+            "completion": "6",
+            "generated_token_ids": [
+              43,
+              1
+            ]
+          },
+          {
+            "id": "dev-w5-m6-x7",
+            "expected": "1",
+            "completion": "3",
+            "generated_token_ids": [
+              40,
+              1
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "matched_development_comparison": {
+    "parent": {
+      "correct": 0,
+      "examples": 16,
+      "report": "reports/minicpm5_mps_generation_baseline_256_report.json"
+    },
+    "historical_collapsed_candidate": {
+      "correct": 2,
+      "examples": 16,
+      "all_constant_zero": true,
+      "report": "reports/minicpm5_mps_generation_D0_256_report.json"
+    },
+    "balanced_step8": {
+      "correct": 14,
+      "examples": 16
+    },
+    "resume_step12": {
+      "correct": 13,
+      "examples": 16
+    },
+    "all_use_same_source_template_prompt_ids_and_greedy_256_new_token_cap": true,
+    "development_reused": true,
+    "sealed_audit": false
+  },
+  "checkpoint_validation_report": "reports/minicpm5_balanced_checkpoint_validation.json",
+  "resume_evidence": {
+    "fresh_process_native_pretrained_steps8to12": true,
+    "tiny_real_native_CPU_uninterrupted_vs_resumed_exact": true,
+    "MPS_mixed_optimizer_RNG_unit_tests": true,
+    "full_size_MPS_uninterrupted_vs_resumed_equivalence_measured": false,
+    "supported_boundary": "Completed optimizer updates, gradients cleared; no mid-accumulation restoration",
+    "single_device_same_contract_only": true
+  },
+  "tests": {
+    "passed": 169,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "output": "reports/test_output_balanced_overfit_final.txt",
+    "junit": "reports/tests_balanced_overfit_final.xml"
+  },
+  "data_validation": "reports/validation_balanced_data.json",
+  "limitations": [
+    "Eight tiny training rows and 16 reused synthetic development rows; no broad XOR, retention, novel algorithm acquisition or Replica fidelity claim",
+    "Format adaptation and pre-existing XOR ability may contribute",
+    "Actual 55-token workload; actual 256/512 capacity and native D1/D2 unrun",
+    "MPS sampled peaks can miss transients; RSS/driver counters overlap and must not be added",
+    "Unchanged endpoint swap occupancy does not prove no swap traffic",
+    "Native resumed report token/time histories are cumulative; process memory/duration cover the current process only",
+    "Paper-scale convergence, stock/fused 8-bit Muon parity, CUDA/Blackwell, VLM, learned autonomous loop and large ports unmeasured"
+  ],
+  "next_stage": "S0.5 actual256-token capacity, then512; S1 independent solvers/data/evaluation and authentic Replica collection may proceed inparallel",
+  "roadmap": "docs/stages/00_Master_Roadmap.md",
+  "research_register": "docs/stages/07_Research_Evidence_20261022.md",
+  "artifact_policy": "Large weights and runtime stay in ignored runs/; compact raw reports, byte receipts, source/data hashes and audits are tracked",
+  "evidence_sha256": {
+    "reports/minicpm5_balanced_checkpoint_validation.json": "43920a32461e6151ac0e3030b0d16b6b98b307863bb024b4abdbbf9d32b9ce35",
+    "reports/minicpm5_balanced_chunk01_checkpoint_audit.json": "0c6a83008afb5b334f3f754ea539be6181571d8537c29317c203faa6509a8033",
+    "reports/minicpm5_balanced_chunk01_export_dev_20261022.log": "596e722e471c139a348c5376ef8f766cd6c714f2067aee3c4cf47f792c8040c7",
+    "reports/minicpm5_balanced_chunk01_export_dev_generations.jsonl": "a7318f36145b264ecdaa2d52481ae01c06aebf120db6ca10e0cd56d17468f662",
+    "reports/minicpm5_balanced_chunk01_export_dev_memory_samples.jsonl": "2e86c905c29a01a2d40121250cc1d86343dbbdf5fe9f59d8b306a95022cce65d",
+    "reports/minicpm5_balanced_chunk01_export_dev_report.json": "137b65329a37127f8252f2a21b2eec20964a3a09ad3d2b24618d89894b56986b",
+    "reports/minicpm5_balanced_chunk01_export_train_20261022.log": "7e4e013e55bf2dcbd5051486d32ae1770912c11e859aaedaa25002d414690fa6",
+    "reports/minicpm5_balanced_chunk01_export_train_generations.jsonl": "eaf98f88500e1255b2c47cc669824f1729e577a602b0364a4852f836da08a806",
+    "reports/minicpm5_balanced_chunk01_export_train_memory_samples.jsonl": "011f5cbfaf8d69549220a8c7de207c1807ef316ae5beb7543abb871c0ac70f31",
+    "reports/minicpm5_balanced_chunk01_export_train_report.json": "3bc114f3222f447abb8223fa6834eb1a3395be349bd86dd1edec77e0dd467949",
+    "reports/minicpm5_balanced_chunk02_checkpoint_audit.json": "2ca79b7596228d1188f47b4d595ed199ba1073bb6613f5411a9484d96b5d987f",
+    "reports/minicpm5_balanced_chunk02_export_dev_20261022.log": "6c80048f67b7d1aef656ff8dfe8b0493fa05b8e73abbb02d6553e8ad78cc2630",
+    "reports/minicpm5_balanced_chunk02_export_dev_generations.jsonl": "9893f704504f56997172f754bb41dd30825161f217e065e4e55f39d0438174ec",
+    "reports/minicpm5_balanced_chunk02_export_dev_memory_samples.jsonl": "e1eb3bb7ceb657d127fb4c543649bbd80d8de8da34fd689e610ead1bf09dfd44",
+    "reports/minicpm5_balanced_chunk02_export_dev_report.json": "9415ccc5bbe01d6b4dad011bdd61ec3740579027687fc7495201918c1f8e5c74",
+    "reports/minicpm5_balanced_chunk02_export_train_20261022.log": "763e252a29f384c5454a219496ea7bce6f9fbef9420d034e404f14ff4afab9d0",
+    "reports/minicpm5_balanced_chunk02_export_train_generations.jsonl": "dbc9f565e2e54d431139f43a8baf06723c7b225cd73f13de949773abb15c0bac",
+    "reports/minicpm5_balanced_chunk02_export_train_memory_samples.jsonl": "015f525da7620b14bfc07fe58dd55287f71edb2edfd0b503aed7c2835a0214ec",
+    "reports/minicpm5_balanced_chunk02_export_train_report.json": "9f4acd410ddeedd1fda99bda2e111a339d44d6029863b37b9c95baa6f4f1f70c",
+    "reports/minicpm5_balanced_mask1_chunk01_20261022.log": "4f58be42026574af2c70d5b28b5b746b2afa394a23063bcc9de4e070117c5e0e",
+    "reports/minicpm5_balanced_mask1_chunk01_generation_step0004.json": "153a632393223516c97647984dd4f44b30fc783a2e2f34cab8367d66c154a0ef",
+    "reports/minicpm5_balanced_mask1_chunk01_generation_step0008.json": "5665c69377ab0b0a04bd7e1be72057cec5c586faab680bd0e6b68a73442b174e",
+    "reports/minicpm5_balanced_mask1_chunk01_memory_samples.jsonl": "11e519de814671116e8d1b72d1ddadcec871f1fce819d81a68be78f87f628cdd",
+    "reports/minicpm5_balanced_mask1_chunk01_report.json": "617119b5a35add49d741ec8e48d5f12feb024d276c4f82eb28165788a5f022a0",
+    "reports/minicpm5_balanced_mask1_chunk01_training_checkpoint_0008_receipt.json": "3dd723084eebfb1e3a5c1da215c4d7efa8f6d9759afa4155037fac3fcc7f7de8",
+    "reports/minicpm5_balanced_mask1_chunk02_20261022.log": "f6dcbb53edacdbe45497b5f14b7b03451894a6a3fb77a01d1f758a084394f980",
+    "reports/minicpm5_balanced_mask1_chunk02_generation_step0012.json": "cee108b0a7ee187a7a6870350fe5e4e27ef92906cbb410ab7149c9c304456894",
+    "reports/minicpm5_balanced_mask1_chunk02_memory_samples.jsonl": "8697c29ee171e1a837bbdb0bb06277f22b027ee7f7f861961aa24b7064c1d7ca",
+    "reports/minicpm5_balanced_mask1_chunk02_report.json": "d47a5b01820c132fc2765e34847c1138ecf0ccc74fbfae6c12cdd286582168d4",
+    "reports/minicpm5_balanced_mask1_chunk02_training_checkpoint_0012_receipt.json": "2e91da24acee9d7c0a8693722767c655e525fd4da83eac535b8579f3af332ee1",
+    "reports/test_output_balanced_overfit_final.txt": "9f50592a623bbbc7b6151d2aca36464ba01cb3b3a2f7e5ad83b945c22e9f4b0f",
+    "reports/tests_balanced_overfit_final.xml": "7e3c7d54285915437800045024774c4ba7870d8af8a79ebc2737f3820f90cf5b",
+    "reports/validation_balanced_data.json": "2ca0e210d9fe9ed8219997b14d972ddea48c1373e341576ac75446d3ef828106"
+  }
+}

@@ -3,24 +3,35 @@
   "optimizer_experiment": {
     "selected": "muon8bit",
     "implementation": "replica_lab.optimizers portable eager reference",
-    "platform_order": ["mac_m2_ultra_64gb", "rtx_pro_4000_blackwell_sff"],
+    "platform_order": [
+      "mac_m2_ultra_64gb",
+      "rtx_pro_4000_blackwell_sff"
+    ],
     "quantized_state": "eligible hidden 2D matrix momentum only",
     "momentum_dtype": "int8",
     "scale_dtype": "float32",
     "block_size": 2048,
     "auxiliary_optimizer": "AdamW FP32 for embeddings, output head and other ineligible tensors",
     "reference_comparator": "adamw",
-    "muon_lr_base": 0.001,
-    "muon_lr_new": 0.001,
-    "adamw_lr_base": 0.00001,
+    "muon_lr_base": 0.0001,
+    "muon_lr_new": 0.0001,
+    "adamw_lr_base": 0.0001,
     "adamw_lr_new": 0.0001,
     "momentum": 0.95,
     "newton_schulz_steps": 5,
-    "weight_decay": 0.01,
-    "hyperparameters_status": "provisional preflight values; retune before model-quality comparisons",
+    "weight_decay": 0,
+    "hyperparameters_status": "Balanced tiny-memorization diagnostic only; not selected for production SFT or D1/D2 quality comparisons",
     "full_model_fit_verified": true,
-    "verified_fit_scope": "M2 Ultra MPS FP32 plain D0; two updates; microbatch 1; actual sequence 55; other scopes unverified",
-    "execution_report": "reports/minicpm5_mps_experiment_20261022.json"
+    "verified_fit_scope": "M2 Ultra MPS FP32 plain D0; balanced accumulation8; actual sequence55; eight-update memorization and later native continuation; longer/D1/D2 unqualified",
+    "execution_report": "reports/minicpm5_balanced_overfit_experiment_20261022.json",
+    "historical_two_update_preflight": {
+      "muon_lr_base": 0.001,
+      "adamw_lr_base": 1e-05,
+      "weight_decay": 0.01,
+      "report": "reports/minicpm5_mps_experiment_20261022.json"
+    },
+    "lr_policy": "RMS-aligned Muon defaults inherit corresponding auxiliary AdamW rates; distinct explicit overrides remain supported",
+    "warmup_steps": 2
   },
   "stage1_required": [
     "B0",
