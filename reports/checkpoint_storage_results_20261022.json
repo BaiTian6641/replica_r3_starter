@@ -1,0 +1,105 @@
+{
+  "status": "completed_checkpoint_storage_maintenance_training_paused",
+  "recorded_at_utc": "2026-10-22T23:18:45.420904+00:00",
+  "cleanup_report": "reports/checkpoint_cleanup_apply_20261022.json",
+  "pool_seed_report": "reports/checkpoint_weight_pool_seed_20261022.json",
+  "deleted_runtime_directories": 16,
+  "archived_small_metadata_files": 32,
+  "retained_weights_deduplicated": 9,
+  "seeded_pool_versions": 10,
+  "logical_retired_bytes": 192610937126,
+  "logical_retained_weight_bytes_shared": 90603627480,
+  "measured_free_space": {
+    "before_bytes": 283494817792,
+    "after_bytes": 566706405376,
+    "net_increase_bytes": 283211587584,
+    "before_gib": 264.0251235961914,
+    "after_gib": 527.7864685058594,
+    "net_increase_gib": 263.76134490966797,
+    "phases": [
+      {
+        "phase": "Before cleanup",
+        "total_bytes": 994662584320,
+        "used_bytes": 711167766528,
+        "free_bytes": 283494817792,
+        "df_k": [
+          "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+          "/dev/disk3s5   971350180 670421820 276850408    71% 1189751 2768504080    0%   /System/Volumes/Data"
+        ]
+      },
+      {
+        "phase": "After nine retained-file clones",
+        "total_bytes": 994662584320,
+        "used_bytes": 620583170048,
+        "free_bytes": 374079414272,
+        "df_k": [
+          "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+          "/dev/disk3s5   971350180 581960300 365311928    62% 1193435 3653119280    0%   /System/Volumes/Data"
+        ]
+      },
+      {
+        "phase": "After old-directory deletion and verification",
+        "total_bytes": 994662584320,
+        "used_bytes": 427954307072,
+        "free_bytes": 566708277248,
+        "df_k": [
+          "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+          "/dev/disk3s5   971350180 393846176 553426052    42% 1196639 5534260520    0%   /System/Volumes/Data"
+        ]
+      },
+      {
+        "phase": "After pool seeding",
+        "total_bytes": 994662584320,
+        "used_bytes": 427956178944,
+        "free_bytes": 566706405376,
+        "df_k": [
+          "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+          "/dev/disk3s5   971350180 393848004 553424224    42% 1196678 5534242240    0%   /System/Volumes/Data"
+        ]
+      }
+    ],
+    "note": "Observed filesystem free-space delta including pool seeding; background activity and APFS snapshots can affect values. Logical duplicate file sizes are not extra physical allocation."
+  },
+  "preservation": {
+    "original_sealed_source_verified_before_and_after": true,
+    "source_receipt_preserved": true,
+    "retained_training_receipts_verified_before_and_after": [
+      "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/checkpoint_receipt.json",
+      "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001/checkpoint_receipt.json",
+      "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002/checkpoint_receipt.json",
+      "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json"
+    ],
+    "other_protected_file_identities_unchanged": true,
+    "canonical_identities_unchanged_during_pool_seed": true,
+    "selected_D0_and_D1_retained": true,
+    "negative_exports_retained": true,
+    "recent_D2_runs_retained": true
+  },
+  "pytest": {
+    "command": ".venv/bin/python -m pytest -q --junitxml=reports/tests_checkpoint_storage_20261022.xml",
+    "passed": 446,
+    "skipped": 1,
+    "failed": 0,
+    "errors": 0,
+    "skip_details": [
+      {
+        "test": "tests.test_training_state.test_interrupted_training_matches_uninterrupted_with_rng_batches[mps]",
+        "reason": "MPS unavailable in this execution context"
+      }
+    ],
+    "xunit": "reports/tests_checkpoint_storage_20261022.xml",
+    "output": "reports/test_output_checkpoint_storage_20261022.txt"
+  },
+  "future_saves": {
+    "backend": "APFS clonefile with full-file SHA256 pool",
+    "pool": "runs/.checkpoint_storage",
+    "checkpoint_layout_self_contained": true,
+    "distinct_versions_separate": true,
+    "ordinary_serialization_still_required": true,
+    "pool_gc": "separate explicit operation",
+    "old_runtime_contracts": "preserved, no silent migration"
+  },
+  "training_status": "PAUSED",
+  "pretrained_model_runs": 0,
+  "downloads": 0
+}

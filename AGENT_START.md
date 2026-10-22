@@ -2,7 +2,7 @@
 
 Copy this complete instruction to the coding agent working in the actual project repository.
 
-**Existing workspace storage rule:** reuse `checkpoints/minicpm5_source` and its immutable seal; a fresh experiment loads local bytes and does not download a fresh model. Native training and generation are currently paused by the user. Do not restart them as part of Git/storage maintenance. Source checkpoints, experiment weights, optimizer state and caches stay outside Git; follow [the retention inventory and Git policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md). Acquisition examples below are initial-setup history; only an intentional missing-source acquisition/repair may use `--allow-network`. Preserve all selected and undocumented artifacts.
+**Existing workspace storage rule:** reuse `checkpoints/minicpm5_source` and its immutable seal; a fresh experiment loads local bytes and does not download a fresh model. Native training and generation are currently paused by the user. Do not restart them as part of Git/storage maintenance. Source checkpoints, experiment weights, optimizer state and caches stay outside Git; follow [the retention inventory and Git policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md). Acquisition examples below are initial-setup history; only an intentional missing-source acquisition/repair may use `--allow-network`. Preserve all selected and undocumented artifacts. The [applied cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md) supersedes the old marked-only storage snapshot; keep training paused.
 
 ## Mission
 

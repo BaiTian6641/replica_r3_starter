@@ -279,6 +279,8 @@ class LlamaMemoryAdapter(nn.Module):
         finally:
             if wrapped is not None:
                 self.base.model.layers[self.insertion_layer] = wrapped
+        from .checkpoint_storage import deduplicate_native_weights
+        checkpoint_storage = deduplicate_native_weights(directory / "base")
         if self.augmented:
             weights = {}
             for prefix in ("support_writer", "memory_reader", "workspace"):
@@ -288,6 +290,7 @@ class LlamaMemoryAdapter(nn.Module):
         record = {"format_version": 1, "regime": self.regime,
                   "adapter_settings": self.settings, "parameters": self.parameter_audit(),
                   "generation_cache_supported": False,
+                  "checkpoint_storage": checkpoint_storage,
                   "training_scope": "text_only", "run": manifest or {}}
         (directory / "adapter_manifest.json").write_text(json.dumps(record, indent=2) + "\n")
 

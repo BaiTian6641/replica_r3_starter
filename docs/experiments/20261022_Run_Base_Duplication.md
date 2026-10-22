@@ -1,5 +1,9 @@
 # Repeated native backbones in run checkpoints
 
+**Current status:** [cleanup and future-save sharing](20261022_Checkpoint_Cleanup_Applied.md)
+have now been applied with the user's authorization. The inventory totals below
+are the pre-cleanup logical snapshot, not the current physical allocation.
+
 22 October 2026, America/Chicago. Training remains paused. This audit reads
 checkpoint bytes and writes reports only; it does not delete, replace, clone,
 load or download model artifacts.
@@ -105,21 +109,15 @@ D0/D2 groups. It remains a paused draft; this audit does not apply or broaden it
 Physical recovery has not been measured. Existing APFS sharing, snapshots and
 open files can make recovered space smaller than the logical upper bound.
 
-## Work before resuming model experiments
+## Completed storage work and remaining experiment work
 
-1. Retain this hash inventory and the existing cleanup evidence. Keep marked
-   paths present until the corresponding storage operation is performed.
-2. For retained checkpoints, prepare exact-hash groups for APFS file cloning,
-   preserving the original source, independent sidecars and optimizer/RNG state.
-   Verify receipt inventories and loader compatibility after each replacement.
-3. Change future checkpoint publication to reuse a verified immutable FP32
-   backbone for frozen D1 saves, and one native weight snapshot per completed
-   update for full fine-tuning. Use independent copy-on-write files before
-   receipt publication. Different learned updates require different snapshots.
-4. Validate that writer change on tiny files and then with the selected local
-   checkpoint on MPS when experiments resume. No new source download is needed.
-   Record logical size and actual free-space changes separately.
+The [applied cleanup](20261022_Checkpoint_Cleanup_Applied.md) retires the 16 old
+runtime directories, shares the nine retained duplicates through verified APFS
+clones, and enables automatic hash-based native-weight sharing for future saves.
+The original source and selected results remain intact. No training resumed.
 
-No checkpoint payload is changed by this documentation or audit. Storage
-sharing and the future writer change remain work to execute before further
-large checkpoint-producing experiments.
+Native MPS model reload/generation is not repeated during this storage pause.
+Historical resumable checkpoints retain their strict original implementation
+contract; use that implementation or a separately qualified migration when
+experiments resume. Pool garbage collection and the later CUDA filesystem
+backend remain separate, explicit work.

@@ -1,5 +1,9 @@
 # Git artifacts, source reuse and checkpoint retention
 
+**Current status:** the subsequent [authorized cleanup](20261022_Checkpoint_Cleanup_Applied.md)
+applied the 16-directory retirement and verified weight sharing. The findings
+and initial marking below describe the preceding maintenance snapshot.
+
 22 October 2026, America/Chicago. This maintenance package does not resume
 model training, generation, checkpoint compaction or deletion.
 

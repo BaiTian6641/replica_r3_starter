@@ -1,20 +1,21 @@
 # Execution state — fixed-context generation and native D1 memorization
 
 **Storage maintenance / user pause:** D2/runtime construction remains paused.
-The checkpoint paths were already outside Git and have no large blobs in the
-available history. Original source bytes must be reused offline. See the
-[Git/retention policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md) and
-[marked inventory](reports/checkpoint_retention_inventory_20261022.json).
-No local checkpoint has been deleted or compacted. Preserve the two recent
-D2 capacity runs until their evidence is archived and reviewed after resumption.
+The [authorized storage cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md)
+deleted the 16 previously marked old runtime directories and replaced nine
+retained duplicate weights with verified independent APFS clones. The original
+source, selected D0 update-8 and D1 update-28 results, final negatives, recent D2
+capacity runs and raw evidence remain intact. All four retained training
+receipts and the nine-file original source seal verify. No model was run.
 
-Repeated native weights within `runs/` have been verified separately from Git: 35
-files form 10 exact byte groups, with 25 redundant copies (234.39 GiB logical).
-See [run checkpoint storage](docs/experiments/20261022_Run_Base_Duplication.md).
-The checkpoint writer currently repeats full FP32 backbones for frozen D1 and
-for runtime/export pairs. On resumption, follow that document's storage work
-before producing further large checkpoints. Dedup-only marks preserve existing
-paths and bytes; no model payload has been deleted, shared or replaced.
+Git continues to exclude weights, runs and caches. The earlier retention and
+35-file hash inventories are historical snapshots; use the cleanup journal for
+current state. Future saves under `runs/` now share identical native weights
+through the SHA-addressed APFS pool. Normal serialization still needs temporary
+space; unique pool versions require separate explicit garbage collection.
+The new writer helper is bound into future run implementation hashes. Existing
+runtime contracts keep their original code fingerprints and require that
+implementation or a separately qualified migration for exact continuation.
 
 22 October 2026, America/Chicago. Branch `codex/augmented-generation-d1`; no remote or push configured. Code/protocol: `8df6a0b`; cognitive contracts: `0f36b3f`; conditional rate protocol: `8271520`; source-bound episode slice: `5766768`. The final evidence commit follows. [Previous capacity state](reports/execution_state_capacity_readiness_20261022.txt) is preserved.
 

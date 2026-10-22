@@ -240,7 +240,8 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                     for name in ("scripts/train_text.py", "src/replica_lab/model_adapter.py",
                                  "src/replica_lab/optimizers.py", "src/replica_lab/curriculum.py",
                                  "src/replica_lab/training_tools.py", "src/replica_lab/training_state.py",
-                                 "src/replica_lab/checkpointing.py", "src/replica_lab/evaluation.py",
+                                 "src/replica_lab/checkpointing.py", "src/replica_lab/checkpoint_storage.py",
+                                 "src/replica_lab/evaluation.py",
                                  "src/replica_lab/neural.py", "src/replica_lab/generation.py")}}
     resume_receipt = validate_training_checkpoint(args.resume_from, contract) if args.resume_from else None
     tokenizer = AutoTokenizer.from_pretrained(args.model_path, local_files_only=True,

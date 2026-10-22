@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "validated_at": "2026-10-22T23:19:16.624950+00:00",
+  "scope": "File integrity, syntax and delivery consistency; no model-quality evaluation",
+  "validation_evidence_source": "reports/validation_checkpoint_storage_20261022.json",
+  "checks": {
+    "required_files": 15,
+    "docs_count": 7,
+    "prompts_count": 8,
+    "schemas_count": 3,
+    "json_files_parsed": 170,
+    "python_files_parsed": 71,
+    "current_document_local_links": 383,
+    "archived_sources_hashed": 7,
+    "tested_files_hash_matched": 69,
+    "recorded_test_run": {
+      "command": ".venv/bin/python -m pytest -q --junitxml=reports/tests_checkpoint_storage_20261022.xml",
+      "passed": 446,
+      "skipped": 1,
+      "failed": 0,
+      "errors": 0,
+      "skip_details": [
+        {
+          "test": "tests.test_training_state.test_interrupted_training_matches_uninterrupted_with_rng_batches[mps]",
+          "reason": "MPS unavailable in this execution context"
+        }
+      ],
+      "xunit": "reports/tests_checkpoint_storage_20261022.xml",
+      "output": "reports/test_output_checkpoint_storage_20261022.txt"
+    },
+    "tests_rerun_by_this_script": false,
+    "diagram_sets": 8,
+    "pdf_pages": "not checked; install pypdf to check page count"
+  },
+  "failures": [],
+  "archival_link_check_excluded": "reference/r2; source bytes verified separately"
+}

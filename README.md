@@ -57,8 +57,10 @@ Model sources and experiment checkpoints are **local, ignored artifacts**. They
 have never been included in the available Git history. Keep and reuse
 `checkpoints/minicpm5_source`; normal checks are offline. The [Git and retention
 policy](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md) documents the
-commit guard and marked cleanup candidates. No local checkpoints are deleted
-by Git maintenance.
+commit guard and marked cleanup candidates. The [authorized checkpoint cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md)
+retired the 16 marked old runtime states, preserved selected results, and enables
+automatic sharing of identical native weights in future local saves. Training
+remains paused.
 
 | Read | Purpose |
 |---|---|

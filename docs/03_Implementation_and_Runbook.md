@@ -85,7 +85,12 @@ Only an intentional initial acquisition or repair uses `--allow-network`; it
 is unnecessary on this machine. Missing/corrupt sources fail offline instead
 of fetching automatically. Preserve the original source and consult
 [the retention policy](experiments/20261022_Git_and_Checkpoint_Hygiene.md) before
-cleaning experiments. The source, run weights and caches are ignored by Git.
+cleaning experiments. The source, run weights and caches are ignored by Git. See the
+[applied storage record](experiments/20261022_Checkpoint_Cleanup_Applied.md) for
+current retired paths, observed free space and automatic future weight sharing.
+On this Mac, saves under `runs/` publish verified COW pool entries before their
+receipts; keep transient serialization headroom and preserve unique pool versions
+until explicit garbage collection. Existing runtime code contracts remain strict.
 
 Only initial acquisition needs the following sealing step. Keep the existing
 seal for subsequent runs:
