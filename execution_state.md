@@ -8,6 +8,14 @@ available history. Original source bytes must be reused offline. See the
 No local checkpoint has been deleted or compacted. Preserve the two recent
 D2 capacity runs until their evidence is archived and reviewed after resumption.
 
+Repeated native weights within `runs/` have been verified separately from Git: 35
+files form 10 exact byte groups, with 25 redundant copies (234.39 GiB logical).
+See [run checkpoint storage](docs/experiments/20261022_Run_Base_Duplication.md).
+The checkpoint writer currently repeats full FP32 backbones for frozen D1 and
+for runtime/export pairs. On resumption, follow that document's storage work
+before producing further large checkpoints. Dedup-only marks preserve existing
+paths and bytes; no model payload has been deleted, shared or replaced.
+
 22 October 2026, America/Chicago. Branch `codex/augmented-generation-d1`; no remote or push configured. Code/protocol: `8df6a0b`; cognitive contracts: `0f36b3f`; conditional rate protocol: `8271520`; source-bound episode slice: `5766768`. The final evidence commit follows. [Previous capacity state](reports/execution_state_capacity_readiness_20261022.txt) is preserved.
 
 **Native S2.1 fixed-context uncached generation and S2.2 bounded D1 memorization now pass.** The successful D1 sidecars produce 8/8 training answers, but only 2/16 reused synthetic development answers. This is a training-infrastructure result, not useful memory benefit, broad transfer or self-improvement. The existing plain D0 update-8 checkpoint remains the selected learning diagnostic; no developmental model or post-freeze candidate is promoted.

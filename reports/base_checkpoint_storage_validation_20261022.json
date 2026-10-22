@@ -1,0 +1,49 @@
+{
+  "status": "passed_checkpoint_storage_audit_consistency",
+  "validated_at_utc": "2026-10-22T23:01:47.515773+00:00",
+  "full_file_hash_audit": {
+    "report": "reports/base_checkpoint_duplication_audit_20261022.json",
+    "weight_files": 35,
+    "full_file_bytes": 352347440200,
+    "current_checkpoint_receipt_claims_matched": 20,
+    "different_hash_groups": 10,
+    "model_loaded": false
+  },
+  "consistency_checks": {
+    "all_current_file_identities_match_hashed_files": true,
+    "group_sizes": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      18
+    ],
+    "all_candidate_and_canonical_hashes_match": true,
+    "candidate_count": 25,
+    "overlap_with_prior_directory_cleanup_files": 16,
+    "qualification_exports_have_zero_optimizer_updates": true,
+    "local_documentation_links_checked": 31
+  },
+  "subject_files_sha256": {
+    "scripts/audit_checkpoint_storage.py": "7be2d0aae7d420770ffa6b27efd8996918281c2621178cf4d39774c2e069e1e6",
+    "reports/base_checkpoint_duplication_audit_20261022.json": "147b9bb999b18692049f2ae4dd6a2be5f501631bf4386a591f8895b380cb9043",
+    "reports/base_checkpoint_dedup_candidates_20261022.json": "298da34a17255ca72d4b91e42e0170c2218f96eccb88d2872eefa82b7d41c249",
+    "docs/experiments/20261022_Run_Base_Duplication.md": "464f2c161a969640a87a5ed82a55dd9f28162f66501eea6fd7210e474cf8cc82",
+    "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md": "cadc325949f616b3d654b1b2160c5400c05934f4ac0a09e7ae4199c7193059d8",
+    "AGENT_CONTINUE.md": "537d8fae0874d3cd3f4d9c066793088b56b8ef71d55091cbc7ea1439e1f17e4a",
+    "execution_state.md": "9270a02b9863e7c9d314e379d40e52be9e301f8896ff9136bd753b9c61651e4e"
+  },
+  "training_status": "PAUSED",
+  "checkpoint_payloads_changed": false,
+  "physical_space_recovery_measured": false,
+  "checkpoint_deletions": 0,
+  "checkpoint_replacements": 0,
+  "downloads": 0,
+  "model_runs": 0,
+  "note": "Actual full-file hash verification is the validation for this read-only script. No model run, APFS clone apply or repeated whole-project test suite is claimed."
+}

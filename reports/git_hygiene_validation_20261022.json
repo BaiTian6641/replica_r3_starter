@@ -1,6 +1,6 @@
 {
   "status": "passed_scoped_git_and_source_reuse_maintenance",
-  "validated_at_utc": "2026-10-22T22:52:00.418147+00:00",
+  "validated_at_utc": "2026-10-22T23:02:14.269677+00:00",
   "scope": "Git artifact/index protection, offline original-source reuse, small metadata archives, marked retention candidates and changed documentation. No model training/generation or unfinished D2/runtime validation.",
   "tests": {
     "command": ".venv/bin/python -m pytest tests/test_git_artifacts.py tests/test_download_reuse.py -q --junitxml=reports/tests_git_hygiene_20261022.xml",
@@ -16,7 +16,7 @@
     "status": "passed",
     "scope": "tracked",
     "max_blob_bytes": 52428800,
-    "checked_files": 420,
+    "checked_files": 426,
     "largest_checked_blob_bytes": 887469,
     "violations": [],
     "working_files_changed": false
@@ -192,12 +192,20 @@
       "target": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md"
     },
     {
+      "document": "AGENT_CONTINUE.md",
+      "target": "docs/experiments/20261022_Run_Base_Duplication.md"
+    },
+    {
       "document": "execution_state.md",
       "target": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md"
     },
     {
       "document": "execution_state.md",
       "target": "reports/checkpoint_retention_inventory_20261022.json"
+    },
+    {
+      "document": "execution_state.md",
+      "target": "docs/experiments/20261022_Run_Base_Duplication.md"
     },
     {
       "document": "execution_state.md",
@@ -481,6 +489,10 @@
     },
     {
       "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
+      "target": "20261022_Run_Base_Duplication.md"
+    },
+    {
+      "document": "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md",
       "target": "../../reports/git_hygiene_validation_20261022.json"
     }
   ],
@@ -493,10 +505,10 @@
     "tests/test_download_reuse.py": "fc4b1a14490aa563ce8e9de5de3aabd2792ba4a9c7d64a99f23757b537379ad8",
     "README.md": "1a483d171f3c2617ed05e4fc7a3b5649728fa431436d2fdbf3f52dfd8598ef3b",
     "AGENT_START.md": "442049601133f0ce8612891c3aef4b52d297417ec53249de4e73530e8a9bb5e5",
-    "AGENT_CONTINUE.md": "5591b67c8d92ec936e4549494aa1e5cd60b5ed64b5cf83faf52d047fef7eba0c",
-    "execution_state.md": "a7fd6294c2065444c18bc8d7b28b8602c397c93751bdfbc3f9071fda406b88c4",
+    "AGENT_CONTINUE.md": "537d8fae0874d3cd3f4d9c066793088b56b8ef71d55091cbc7ea1439e1f17e4a",
+    "execution_state.md": "9270a02b9863e7c9d314e379d40e52be9e301f8896ff9136bd753b9c61651e4e",
     "docs/03_Implementation_and_Runbook.md": "be3812942f7ecbaf08d661036b3c674ebddb54cb97345341975103db7dce422b",
-    "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md": "fb3d81c538eedb3235b6bbe3dbf5f63ae03ec0728fb9ae609bdd795c463b2d29",
+    "docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md": "cadc325949f616b3d654b1b2160c5400c05934f4ac0a09e7ae4199c7193059d8",
     "reports/git_artifact_audit_20261022.json": "478f19c70bb0a9afe7878db6aa1122740e248f765ad35ea0210218527718fa16",
     "reports/checkpoint_retention_inventory_20261022.json": "1d356f3a92eb83bd15ab2b90aefa1a2b5e1ea7aec6c5e0a11986987c8f8c175b",
     "reports/checkpoint_delete_candidates_20261022.txt": "eb9328ada6fde73b689391d88345efc8e360270a0a34168ee0443f1f5107dc50",

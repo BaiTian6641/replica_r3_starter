@@ -1,0 +1,258 @@
+{
+  "status": "DEDUP_REVIEW_ONLY_NOT_APPLIED",
+  "created_at_utc": "2026-10-22T23:01:13.739793+00:00",
+  "audit_report": "reports/base_checkpoint_duplication_audit_20261022.json",
+  "audit_report_sha256": "147b9bb999b18692049f2ae4dd6a2be5f501631bf4386a591f8895b380cb9043",
+  "action": "Preserve each existing file path and exact bytes while sharing storage with its hash-identical canonical file; no file removal or replacement is performed by this list.",
+  "candidate_count": 25,
+  "totals": {
+    "weight_files": 35,
+    "logical_weight_bytes": 352347440200,
+    "distinct_weight_byte_groups": 10,
+    "frozen_source_values_fp32_files": 18,
+    "duplicate_files_beyond_one_per_group": 25,
+    "duplicate_logical_bytes_upper_bound": 251676743000,
+    "overlap_with_prior_directory_cleanup": {
+      "files": 16,
+      "logical_bytes": 161073115520
+    },
+    "additional_dedup_outside_prior_cleanup": {
+      "files": 9,
+      "logical_bytes": 90603627480
+    },
+    "prior_directory_cleanup_logical_bytes": 192610937126,
+    "combined_nonoverlapping_cleanup_and_dedup_upper_bound": 283214564606
+  },
+  "original_source_excluded": true,
+  "sidecars_and_runtime_state_excluded": true,
+  "physical_space_recovery_measured": false,
+  "checkpoint_deletions": 0,
+  "checkpoint_replacements": 0,
+  "candidates": [
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/checkpoint/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/checkpoint/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "modules_only"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D2_capacity256_chunk01_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "f24bd93946524f9d04c53445638d5dd483972fd5aafe0061eb18fca51fb8fa80",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full_augmented"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D2_capacity256_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "4e0029278ea43aa1b8509b4dbb8cb2a6b55dc6ca772e44107fff1cd683361c43",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full_augmented"
+    },
+    {
+      "path": "runs/minicpm5_augmented_generation_qualification256_20261022/adapter_export/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full_augmented"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "020cf2e7d04969faa9cdbf93f8cddb6e411178a983fe7bc13c6071e9274d3801",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "5ea38b6041ec266066756a19e153e35589c0ca4a3e2ffb0444caa69aa48f07ba",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "31996264995136065a17dbed9fa3d2ffc138ab22b108140e328a3379a9fd31a0",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "9dc9dd8ae65be77dae2f4c776716b7c82c78a4b41a426b0092e883843b44423e",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "118ea8c81d3eebc3d463bc342a0721875e355f321b5f774061b7e5560d1cd321",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": true,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full"
+    },
+    {
+      "path": "runs/minicpm5_native_adapter_qualification256_20261022/adapter_export/base/model.safetensors",
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "verified_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "logical_bytes": 10067069720,
+      "covered_by_prior_directory_cleanup": false,
+      "retention": "KEEP_PATH_AND_EXACT_BYTES",
+      "regime": "full_augmented"
+    }
+  ]
+}

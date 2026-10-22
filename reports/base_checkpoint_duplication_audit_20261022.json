@@ -1,0 +1,942 @@
+{
+  "status": "verified_exact_weight_duplicates_no_checkpoint_mutation",
+  "started_at_utc": "2026-10-22T22:58:20.294317+00:00",
+  "completed_at_utc": "2026-10-22T23:00:43.168310+00:00",
+  "elapsed_seconds": 142.887,
+  "implementation_sha256": "7be2d0aae7d420770ffa6b27efd8996918281c2621178cf4d39774c2e069e1e6",
+  "method": {
+    "scope": "runs/*/{checkpoint,training_checkpoint_NNNN,adapter_export}/base/model*.safetensors present at audit time",
+    "hash": "SHA-256 of every full file; compare with local checkpoint receipt when available",
+    "workers": 2,
+    "stream_chunk_bytes_per_worker": 8388608,
+    "model_or_tensor_libraries_used": false
+  },
+  "source": {
+    "path": "checkpoints/minicpm5_source",
+    "preserved": true,
+    "metadata_unchanged": true,
+    "downloaded": false,
+    "note": "Original BF16 source and saved FP32 bases have different bytes/dtypes. Prior numerical comparison is in reports/minicpm5_D1_checkpoint_audit_20261022.json."
+  },
+  "frozen_source_values_fp32_group_sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+  "totals": {
+    "weight_files": 35,
+    "logical_weight_bytes": 352347440200,
+    "distinct_weight_byte_groups": 10,
+    "frozen_source_values_fp32_files": 18,
+    "duplicate_files_beyond_one_per_group": 25,
+    "duplicate_logical_bytes_upper_bound": 251676743000,
+    "overlap_with_prior_directory_cleanup": {
+      "files": 16,
+      "logical_bytes": 161073115520
+    },
+    "additional_dedup_outside_prior_cleanup": {
+      "files": 9,
+      "logical_bytes": 90603627480
+    },
+    "prior_directory_cleanup_logical_bytes": 192610937126,
+    "combined_nonoverlapping_cleanup_and_dedup_upper_bound": 283214564606
+  },
+  "groups": [
+    {
+      "sha256": "020cf2e7d04969faa9cdbf93f8cddb6e411178a983fe7bc13c6071e9274d3801",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "file_count": 18,
+      "duplicate_count": 17,
+      "paths": [
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_augmented_generation_qualification256_20261022/adapter_export/base/model.safetensors",
+        "runs/minicpm5_native_adapter_qualification256_20261022/adapter_export/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/base/model.safetensors",
+        "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "118ea8c81d3eebc3d463bc342a0721875e355f321b5f774061b7e5560d1cd321",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "31996264995136065a17dbed9fa3d2ffc138ab22b108140e328a3379a9fd31a0",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "4e0029278ea43aa1b8509b4dbb8cb2a6b55dc6ca772e44107fff1cd683361c43",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_D2_capacity256_chunk02_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_D2_capacity256_chunk02_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "5ea38b6041ec266066756a19e153e35589c0ca4a3e2ffb0444caa69aa48f07ba",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "921f19064fffc5a5f8b91457341b5860c30fb69a966e132eaa3f75077cc52bcb",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base/model.safetensors",
+      "file_count": 1,
+      "duplicate_count": 0,
+      "paths": [
+        "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "9dc9dd8ae65be77dae2f4c776716b7c82c78a4b41a426b0092e883843b44423e",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/base/model.safetensors"
+      ]
+    },
+    {
+      "sha256": "f24bd93946524f9d04c53445638d5dd483972fd5aafe0061eb18fca51fb8fa80",
+      "bytes_per_file": 10067069720,
+      "canonical_path": "runs/minicpm5_D2_capacity256_chunk01_20261022/checkpoint/base/model.safetensors",
+      "file_count": 2,
+      "duplicate_count": 1,
+      "paths": [
+        "runs/minicpm5_D2_capacity256_chunk01_20261022/checkpoint/base/model.safetensors",
+        "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001/base/model.safetensors"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9676152,
+        "size": 10067069720,
+        "mtime_ns": 1792706977503090203,
+        "ctime_ns": 1792706977541115060,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": null,
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9676122,
+        "size": 10067069720,
+        "mtime_ns": 1792706966999324331,
+        "ctime_ns": 1792706966999470872,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9677255,
+        "size": 10067069720,
+        "mtime_ns": 1792707088436280730,
+        "ctime_ns": 1792707088436415396,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": null,
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0016/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9676911,
+        "size": 10067069720,
+        "mtime_ns": 1792707035092660026,
+        "ctime_ns": 1792707035092794775,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0024/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9677074,
+        "size": 10067069720,
+        "mtime_ns": 1792707059558705612,
+        "ctime_ns": 1792707059558838486,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9677202,
+        "size": 10067069720,
+        "mtime_ns": 1792707077379486470,
+        "ctime_ns": 1792707077379630844,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9672599,
+        "size": 10067069720,
+        "mtime_ns": 1792706639621152767,
+        "ctime_ns": 1792706639621325307,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": null,
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9672559,
+        "size": 10067069720,
+        "mtime_ns": 1792706629049716414,
+        "ctime_ns": 1792706629049852330,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9675646,
+        "size": 10067069720,
+        "mtime_ns": 1792706897632876121,
+        "ctime_ns": 1792706897633003995,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": null,
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0016/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9673009,
+        "size": 10067069720,
+        "mtime_ns": 1792706701786771393,
+        "ctime_ns": 1792706701786902308,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0024/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9673384,
+        "size": 10067069720,
+        "mtime_ns": 1792706732991871959,
+        "ctime_ns": 1792706733000673897,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0032/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9673742,
+        "size": 10067069720,
+        "mtime_ns": 1792706764097992016,
+        "ctime_ns": 1792706764098134723,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0040/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9674109,
+        "size": 10067069720,
+        "mtime_ns": 1792706794865297924,
+        "ctime_ns": 1792706794865443340,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0048/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9674492,
+        "size": 10067069720,
+        "mtime_ns": 1792706825429877179,
+        "ctime_ns": 1792706825430054220,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0056/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9674854,
+        "size": 10067069720,
+        "mtime_ns": 1792706855917458561,
+        "ctime_ns": 1792706855926674287,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/training_checkpoint_0064/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9675145,
+        "size": 10067069720,
+        "mtime_ns": 1792706886619411763,
+        "ctime_ns": 1792706886619552470,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "regime": "modules_only",
+      "original_trainable_parameters": 0,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9680528,
+        "size": 10067069720,
+        "mtime_ns": 1792707865049740465,
+        "ctime_ns": 1792707865049831214,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "f24bd93946524f9d04c53445638d5dd483972fd5aafe0061eb18fca51fb8fa80",
+      "receipt_sha256_claim": null,
+      "regime": "full_augmented",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9680481,
+        "size": 10067069720,
+        "mtime_ns": 1792707846688271673,
+        "ctime_ns": 1792707846688426505,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "f24bd93946524f9d04c53445638d5dd483972fd5aafe0061eb18fca51fb8fa80",
+      "receipt_sha256_claim": "f24bd93946524f9d04c53445638d5dd483972fd5aafe0061eb18fca51fb8fa80",
+      "regime": "full_augmented",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D2_capacity256_chunk01_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9680784,
+        "size": 10067069720,
+        "mtime_ns": 1792707969463695333,
+        "ctime_ns": 1792707969463819082,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "4e0029278ea43aa1b8509b4dbb8cb2a6b55dc6ca772e44107fff1cd683361c43",
+      "receipt_sha256_claim": null,
+      "regime": "full_augmented",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9680738,
+        "size": 10067069720,
+        "mtime_ns": 1792707950119827223,
+        "ctime_ns": 1792707950119926931,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "4e0029278ea43aa1b8509b4dbb8cb2a6b55dc6ca772e44107fff1cd683361c43",
+      "receipt_sha256_claim": "4e0029278ea43aa1b8509b4dbb8cb2a6b55dc6ca772e44107fff1cd683361c43",
+      "regime": "full_augmented",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D2_capacity256_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_augmented_generation_qualification256_20261022/adapter_export/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9672044,
+        "size": 10067069720,
+        "mtime_ns": 1792706547208202118,
+        "ctime_ns": 1792706547208305324,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": null,
+      "regime": "full_augmented",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9660163,
+        "size": 10067069720,
+        "mtime_ns": 1792702172257315022,
+        "ctime_ns": 1792702172257447313,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "020cf2e7d04969faa9cdbf93f8cddb6e411178a983fe7bc13c6071e9274d3801",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9660110,
+        "size": 10067069720,
+        "mtime_ns": 1792702157138134255,
+        "ctime_ns": 1792702157138330545,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "020cf2e7d04969faa9cdbf93f8cddb6e411178a983fe7bc13c6071e9274d3801",
+      "receipt_sha256_claim": "020cf2e7d04969faa9cdbf93f8cddb6e411178a983fe7bc13c6071e9274d3801",
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9664419,
+        "size": 10067069720,
+        "mtime_ns": 1792702343858675332,
+        "ctime_ns": 1792702343858810831,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "5ea38b6041ec266066756a19e153e35589c0ca4a3e2ffb0444caa69aa48f07ba",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/training_checkpoint_0012/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9664385,
+        "size": 10067069720,
+        "mtime_ns": 1792702328432455859,
+        "ctime_ns": 1792702328432592900,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "5ea38b6041ec266066756a19e153e35589c0ca4a3e2ffb0444caa69aa48f07ba",
+      "receipt_sha256_claim": "5ea38b6041ec266066756a19e153e35589c0ca4a3e2ffb0444caa69aa48f07ba",
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9667559,
+        "size": 10067069720,
+        "mtime_ns": 1792704377351522811,
+        "ctime_ns": 1792704377351644645,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "31996264995136065a17dbed9fa3d2ffc138ab22b108140e328a3379a9fd31a0",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/training_checkpoint_0001/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9667456,
+        "size": 10067069720,
+        "mtime_ns": 1792704362160654507,
+        "ctime_ns": 1792704362160795466,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "31996264995136065a17dbed9fa3d2ffc138ab22b108140e328a3379a9fd31a0",
+      "receipt_sha256_claim": "31996264995136065a17dbed9fa3d2ffc138ab22b108140e328a3379a9fd31a0",
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9667751,
+        "size": 10067069720,
+        "mtime_ns": 1792704469288307085,
+        "ctime_ns": 1792704469288447919,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "9dc9dd8ae65be77dae2f4c776716b7c82c78a4b41a426b0092e883843b44423e",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/training_checkpoint_0002/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9667712,
+        "size": 10067069720,
+        "mtime_ns": 1792704453971478458,
+        "ctime_ns": 1792704453971631709,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "9dc9dd8ae65be77dae2f4c776716b7c82c78a4b41a426b0092e883843b44423e",
+      "receipt_sha256_claim": "9dc9dd8ae65be77dae2f4c776716b7c82c78a4b41a426b0092e883843b44423e",
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9668109,
+        "size": 10067069720,
+        "mtime_ns": 1792704606156516549,
+        "ctime_ns": 1792704606156678132,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "118ea8c81d3eebc3d463bc342a0721875e355f321b5f774061b7e5560d1cd321",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/training_checkpoint_0001/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9668062,
+        "size": 10067069720,
+        "mtime_ns": 1792704586219450539,
+        "ctime_ns": 1792704586219617206,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "118ea8c81d3eebc3d463bc342a0721875e355f321b5f774061b7e5560d1cd321",
+      "receipt_sha256_claim": "118ea8c81d3eebc3d463bc342a0721875e355f321b5f774061b7e5560d1cd321",
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9668313,
+        "size": 10067069720,
+        "mtime_ns": 1792704713645652970,
+        "ctime_ns": 1792704713645804429,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/training_checkpoint_0002/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9668268,
+        "size": 10067069720,
+        "mtime_ns": 1792704694249697265,
+        "ctime_ns": 1792704694249839432,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966",
+      "receipt_sha256_claim": "08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966",
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": true,
+      "canonical_path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    },
+    {
+      "path": "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9645024,
+        "size": 10067069720,
+        "mtime_ns": 1792700203867634822,
+        "ctime_ns": 1792700203878259472,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "921f19064fffc5a5f8b91457341b5860c30fb69a966e132eaa3f75077cc52bcb",
+      "receipt_sha256_claim": null,
+      "regime": "full",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "action": "KEEP_ONE_CANONICAL_WEIGHT_FILE"
+    },
+    {
+      "path": "runs/minicpm5_native_adapter_qualification256_20261022/adapter_export/base/model.safetensors",
+      "identity": {
+        "dev": 16777231,
+        "ino": 9668467,
+        "size": 10067069720,
+        "mtime_ns": 1792704793153850394,
+        "ctime_ns": 1792704793153958061,
+        "nlink": 1,
+        "blocks": 19662248
+      },
+      "sha256": "07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8",
+      "receipt_sha256_claim": null,
+      "regime": "full_augmented",
+      "original_trainable_parameters": 2516756480,
+      "dtypes": [
+        "F32"
+      ],
+      "covered_by_prior_directory_cleanup": false,
+      "canonical_path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors",
+      "action": "DEDUP_ONLY_PRESERVE_PATH_AND_BYTES"
+    }
+  ],
+  "limitations": [
+    "Logical totals do not measure unique APFS extents or guaranteed physical recovery.",
+    "Dedup-only candidates must keep existing paths and exact bytes for current loaders/receipts; do not delete their base files.",
+    "Only weight bytes are compared for sharing. Sidecars and optimizer/RNG state stay independent.",
+    "Do not add dedup totals to the prior cleanup total without subtracting the recorded overlap.",
+    "Equal filename, length or source-lock provenance alone does not prove equal current weights."
+  ],
+  "checkpoint_and_source_metadata_unchanged": true,
+  "checkpoint_deletions": 0,
+  "checkpoint_replacements": 0,
+  "downloads": 0,
+  "model_runs": 0,
+  "training_status": "PAUSED"
+}

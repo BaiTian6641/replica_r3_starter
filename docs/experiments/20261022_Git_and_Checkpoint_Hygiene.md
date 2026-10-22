@@ -104,6 +104,12 @@ backup. Logical byte totals are estimates of removable file content, not
 promised physical recovery on APFS with snapshots or shared extents. This
 package does not apply the previously drafted compaction tool.
 
+The subsequent [run-backbone duplication audit](20261022_Run_Base_Duplication.md)
+checks repeated native weights inside retained checkpoints as well. Its
+dedup-only candidates must preserve file paths and bytes. Those logical totals
+overlap this whole-directory cleanup list; use the audit's nonoverlapping
+calculation instead of adding the two headline totals.
+
 Training and the paused D2/runtime construction work remain paused until the
 user resumes them. Unfinished source drafts are preserved separately from this
 maintenance commit.
