@@ -6,7 +6,7 @@ The current fictional fixtures are useful contracts, not a representative traini
 
 Roles are train, dev, calibration, promotion and audit. Learning-policy reward also needs its own exposure boundary. Split original sources/worlds/personas/decision families before all teacher derivatives. An observed source can naturally contain the needed fact; an oracle answer/evidence-location annotation copied into memory is leakage. Event time and observation time are separate.
 
-The bounded S1.1 contract is implemented with **47 targeted CPU tests**: immutable causal episodes, explicit-purpose export, audit-only evaluation access, source/event lineage checks, late corrections, tombstones and current permission revocation. Source metadata/hash authority remains trusted intake, and semantic gold laundering is not detected automatically. Preserve canonical provenance, receipts and declared export purpose beside flattened SFT. This supplies the interface for S1.2; no CLI, public ingestion or 2,000-target factory is claimed. [Contract design and exact example](../experiments/episode_contract_design.md).
+The bounded S1.1 contract is implemented with **47 targeted CPU tests**: immutable causal episodes, explicit-purpose export, audit-only evaluation access, source/event lineage checks, late corrections, tombstones and current permission revocation. Preserve canonical provenance, receipts and declared export purpose beside flattened SFT. A new S1.2 CLI now creates and validates a **20-episode, ten-world source-bound synthetic slice**, with exact raw-source/span hashes and independent chronology/XOR/ask/unknown checks. Only four train and four dev cases are exported. This is infrastructure preparation, not public ingestion or the 2,000-target release. The exposed audit-role fixtures are not a sealed final audit. [Contract design](../experiments/episode_contract_design.md), [slice result](../experiments/20261022_Episode_Slice.md).
 
 The 2k/20k counts and 8–32M processed-token budget are proposed caps. Admission depends on exact source terms, complete response lengths and actual Mac profiles. An external benchmark is not a curriculum pool. Development generations diagnose formatting, cap failures and constant answers; promotion is an independently controlled selection process; final audit is sealed until final reporting.
 
@@ -25,16 +25,16 @@ Implemented a strict immutable canonical episode and deterministic eight-field S
 
 ## S1.2 — Release a 2,000-target solver-backed infrastructure slice
 
-**Status:** `pending`. **Dependencies:** S1.1.
+**Status:** `partial_source_bound_20_episode_fixture`. **Dependencies:** S1.1.
 
 Generate independent microengineering worlds plus temporal correction, unknown/ask and tool-recovery cases. Compute answers/actions with solvers before teacher verbalization. Balance target/action categories and split complete worlds/rule families before derivatives.
 
-- **Artifact:** planned: data release manifest with generator/solver/code hashes; planned: 2,000-target train/dev exports and stratified review report.
+- **Artifact:** data/diagnostics/episode_slice_v1/manifest.json; scripts/make_episode_slice.py; tests/test_episode_slice.py; docs/experiments/20261022_Episode_Slice.md; planned: 2,000-target exports and stratified review report.
 - **Interface:** World generator -> executable oracle -> optional teacher candidates (verified false) -> independent validator -> admitted exports.
 - **Test gate:** All admitted labels pass their independent verifier; no duplicate world across roles; target/length/action histograms and rejected cases reported. Review at least 20 cases in each critical category as an operational sample, not proof of zero error.
 - **Resources:** CPU solvers first; external teacher only with eligible data and logged model/prompt/cost. No audit material or real personal data sent by default.
 - **Failure policy:** Fix the generator/solver or drop a failing category. Preserve rejection samples and recompute derived hashes; avoid scaling defective examples.
-- **Next smallest task:** Implement a source-bound synthetic packet/register family with independent executable oracle, explicit raw-source hashes, causal unknown/ask/correction cases and complete-release lineage audit; inspect a small slice before scaling to 2,000.
+- **Next smallest task:** Review the implemented 20-episode register slice, then add independent task families and tool-recovery cases with role/length/action accounting before scaling toward 2,000. Exposed audit fixtures cannot become the sealed scientific audit.
 
 ## S1.3 — Qualify one public training adapter and independent benchmark
 
