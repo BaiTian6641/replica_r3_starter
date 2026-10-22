@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TAIS Replica causal episode v1",
+  "description": "Canonical local intake before exact eight-field SFT export. Runtime additionally checks chronology, event availability, supersession ownership, source/branch binding, current permissions and cross-episode family inheritance. This schema does not authenticate sources, compare declared source hashes to raw bytes, establish consent or detect semantically disguised oracle information.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "group_id",
+    "split",
+    "subject_id",
+    "branch_id",
+    "parent_episode_id",
+    "privacy",
+    "permissions",
+    "query",
+    "sources",
+    "events",
+    "target",
+    "evaluator"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "replica.episode.v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "group_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "split": {
+      "type": "string",
+      "enum": [
+        "train",
+        "dev",
+        "calibration",
+        "promotion",
+        "audit"
+      ]
+    },
+    "subject_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "branch_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "parent_episode_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "privacy": {
+      "type": "string",
+      "enum": [
+        "public",
+        "private"
+      ]
+    },
+    "permissions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "local_retrieval",
+          "local_training",
+          "local_evaluation",
+          "external_teacher",
+          "sharing"
+        ]
+      }
+    },
+    "query": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "prompt"
+      ],
+      "properties": {
+        "at": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "group_id",
+          "split",
+          "sha256",
+          "subject_id",
+          "branch_id",
+          "actor_id",
+          "kind",
+          "privacy",
+          "permissions"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "group_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "split": {
+            "type": "string",
+            "enum": [
+              "train",
+              "dev",
+              "calibration",
+              "promotion",
+              "audit"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "subject_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "branch_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "actor_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "human_source",
+              "world_evidence",
+              "agent_experience",
+              "inference",
+              "synthetic"
+            ]
+          },
+          "privacy": {
+            "type": "string",
+            "enum": [
+              "public",
+              "private"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "local_retrieval",
+                "local_training",
+                "local_evaluation",
+                "external_teacher",
+                "sharing"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "source_id",
+          "event_time",
+          "observed_at",
+          "operation",
+          "replaces_event_id",
+          "channel",
+          "text"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "event_time": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "observed_at": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "observe",
+              "correct",
+              "tombstone"
+            ]
+          },
+          "replaces_event_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "evaluator_only"
+            ]
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "observe"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "replaces_event_id": {
+                  "type": "null"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "replaces_event_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "operation": {
+                  "const": "tombstone"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "text": {
+                  "const": ""
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "response",
+        "support_event_ids"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "answer",
+            "ask",
+            "unknown"
+          ]
+        },
+        "response": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "support_event_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "answer"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "support_event_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "oracle"
+      ],
+      "properties": {
+        "oracle": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}
