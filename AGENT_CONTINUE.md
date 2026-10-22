@@ -1,5 +1,10 @@
 # Coding-agent continuation instruction
 
+**Current authorization:** the user resumed bounded D2 MPS experiments after
+storage cleanup. Follow [D2 resumption](docs/experiments/20261022_D2_Resume.md);
+older pause notes below describe the completed maintenance period. Reuse the
+existing sealed MiniCPM5-2B source offline and preserve selected results.
+
 Resume the existing TAIS Obsidian / Replica work. Preserve the objective and all established constraints. Do not restart the project.
 
 **Storage maintenance / pause:** model construction is paused at the user's request. Git/storage maintenance does not resume training. Original model bytes at `checkpoints/minicpm5_source` must be reused, never reacquired routinely. They and `runs/` stay outside Git. Follow [checkpoint retention and Git hygiene](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md); the 16 marked old runtime directories have now been retired by the [authorized cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md). Preserve selected D0/D1 artifacts and recent undocumented D2 runs. New model downloads require an explicit intentional `--allow-network` invocation; normal source checks remain offline.

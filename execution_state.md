@@ -1,5 +1,10 @@
 # Execution state — fixed-context generation and native D1 memorization
 
+**Current authorization:** the user resumed bounded D2 MPS experiments after
+storage cleanup. Follow [D2 resumption](docs/experiments/20261022_D2_Resume.md);
+older pause notes below describe the completed maintenance period. Reuse the
+existing sealed MiniCPM5-2B source offline and preserve selected results.
+
 **Storage maintenance / user pause:** D2/runtime construction remains paused.
 The [authorized storage cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md)
 deleted the 16 previously marked old runtime directories and replaced nine
