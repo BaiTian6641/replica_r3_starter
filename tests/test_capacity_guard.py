@@ -99,3 +99,41 @@ def test_guard_interrupt_reaps_a_live_child():
         if child.poll() is None:
             child.kill()
             child.wait(timeout=5)
+
+
+def test_relative_output_is_bound_to_child_workspace(monkeypatch, tmp_path):
+    script = load_script()
+    monkeypatch.chdir(tmp_path)
+    _, output = script.training_arguments(["--device", "mps", "--output", "runs/test"])
+    assert output == (script.ROOT / "runs/test").resolve()
+
+
+def test_final_profile_write_at_child_exit_cannot_hide_a_driver_breach(monkeypatch, tmp_path):
+    script = load_script()
+    report, output = tmp_path / "guard.json", tmp_path / "run"
+    monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(sys, "argv", ["guard", "--report", str(report), "--",
+                                    "--device", "mps", "--output", str(output)])
+    monkeypatch.setattr(script, "host_reading", baseline)
+    class ExitsAfterFinalWrite:
+        returncode = 0
+        def __init__(self, *args, **kwargs):
+            output.mkdir()
+            self.profile = output / "profile_samples.jsonl"
+            self.profile.write_text(json.dumps({"mps_driver_bytes": 1024**3}) + "\n")
+            self.written = False
+        def poll(self):
+            if not self.written:
+                with self.profile.open("a") as stream:
+                    stream.write(json.dumps({"mps_driver_bytes": 41 * 1024**3}) + "\n")
+                self.written = True
+            return 0
+        def wait(self, **kwargs):
+            return 0
+    monkeypatch.setattr(script.subprocess, "Popen", ExitsAfterFinalWrite)
+    assert script.main() == 1
+    result = json.loads(report.read_text())
+    assert result["status"] == "stopped_or_failed"
+    assert result["guard"]["peak_driver_bytes"] == 41 * 1024**3
+    assert result["guard"]["stop_reason"] == "sampled_mps_driver_limit"
+    assert result["child_exit_code"] == 0

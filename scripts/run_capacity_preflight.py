@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 import signal
@@ -40,7 +41,8 @@ def training_arguments(arguments):
         return arguments[position + 1]
     if value("--device") != "mps":
         raise ValueError("This Mac capacity guard requires --device mps")
-    return arguments, Path(value("--output")).resolve()
+    output = Path(value("--output"))
+    return arguments, (output if output.is_absolute() else ROOT / output).resolve()
 
 
 def stop_child(child):
@@ -86,6 +88,9 @@ def main():
               "command": command, "output": str(output), "child_log": str(log_path),
               "host_samples": str(host_path), "host_poll_seconds": 2,
               "profile_poll_seconds": 0.25, "missing_driver_sample_timeout_seconds": 30,
+              "implementation_sha256": {
+                  name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                  for name in ("scripts/run_capacity_preflight.py", "src/replica_lab/capacity_guard.py")},
               "notes": ["Sampled limits can miss transients and cannot guarantee no OOM",
                         "Host swap/pressure are system-wide, not attributable to this process",
                         "MPS driver and RSS counters overlap; do not add them",
@@ -101,24 +106,28 @@ def main():
         guard = CapacityGuard(policy, baseline)
         if guard.stop_reason:
             raise RuntimeError(guard.stop_reason)
+        def drain_profile():
+            nonlocal offset, tail, last_driver_at
+            profile = output / "profile_samples.jsonl"
+            if not profile.exists():
+                return
+            with profile.open() as stream:
+                stream.seek(offset)
+                tail += stream.read()
+                offset = stream.tell()
+            lines = tail.split("\n")
+            tail = lines.pop()
+            for line in lines:
+                event = json.loads(line)
+                before = guard.driver_samples
+                guard.observe_profile(event)
+                if guard.driver_samples > before:
+                    last_driver_at = time.monotonic()
         with log_path.open("x") as log, host_path.open("x") as host:
             child = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
             next_host = started
             while True:
-                profile = output / "profile_samples.jsonl"
-                if profile.exists():
-                    with profile.open() as stream:
-                        stream.seek(offset)
-                        tail += stream.read()
-                        offset = stream.tell()
-                    lines = tail.split("\n")
-                    tail = lines.pop()
-                    for line in lines:
-                        event = json.loads(line)
-                        before = guard.driver_samples
-                        guard.observe_profile(event)
-                        if guard.driver_samples > before:
-                            last_driver_at = time.monotonic()
+                drain_profile()
                 now = time.monotonic()
                 if now >= next_host:
                     reading = host_reading()
@@ -137,6 +146,12 @@ def main():
                     break
                 time.sleep(0.25)
             report["child_exit_code"] = child.wait()
+            # Child exit is observed after the preceding read. Consume its
+            # final writes before claiming that every recorded peak was below
+            # the limit, including when the process itself returned success.
+            drain_profile()
+            if tail.strip() and guard.stop_reason is None:
+                guard.stop_reason = "incomplete_final_profile_record"
         if guard.driver_samples == 0 and guard.stop_reason is None:
             guard.stop_reason = "mps_driver_telemetry_missing"
         report["status"] = ("completed_within_declared_sampled_limits"
