@@ -2,15 +2,110 @@
   "format": "replica.retention.policy.v1",
   "declared_at_utc": "2026-10-23",
   "entries": [
-    {"path": "checkpoints/minicpm5_source", "action": "preserve", "reason": "sealed original model source"},
-    {"path": "runs/e1_e2_native_attempt02_20261023/selected_extension", "action": "preserve", "reason": "selected E2 parent extension"},
-    {"path": "runs/e3_set_attempt03_20261023/selected_extension", "action": "preserve", "reason": "selected E3 core/action extension"},
-    {"path": "runs/e2_retrieval_attempt03_20261023/selected_extension", "action": "preserve", "reason": "opt-in reranker candidate"},
-    {"path": "runs/e3_policy_head_attempt03_20261023/policy_head", "action": "preserve", "reason": "rejected policy-head diagnostic"},
-    {"path": "src/replica_lab/runtime_pilot.py", "action": "preserve", "reason": "protected untracked user file; never stage"},
-    {"path": "runs/e2_cross_rerank_attempt01", "action": "deletion_candidate", "reason": "rejected cross-template reranker; its report is retained"},
-    {"path": "runs/e2_cross_rerank_attempt02", "action": "deletion_candidate", "reason": "rejected higher-budget reranker; its report is retained"},
-    {"path": "runs/e3_set_large_attempt01/selected_extension", "action": "deletion_candidate", "reason": "rejected large-family action extension; raw report retained"},
-    {"path": "runs/e3_dagger_attempt01/selected_extension", "action": "deletion_candidate", "reason": "diagnostic DAgger extension; result was negative"}
+    {
+      "path": "checkpoints/minicpm5_source",
+      "action": "preserve",
+      "reason": "sealed original model source"
+    },
+    {
+      "path": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+      "action": "preserve",
+      "reason": "selected E2 parent extension"
+    },
+    {
+      "path": "runs/e3_set_attempt03_20261023/selected_extension",
+      "action": "preserve",
+      "reason": "selected E3 core/action extension"
+    },
+    {
+      "path": "runs/e2_retrieval_attempt03_20261023/selected_extension",
+      "action": "preserve",
+      "reason": "opt-in reranker candidate"
+    },
+    {
+      "path": "runs/e3_policy_head_attempt03_20261023/policy_head",
+      "action": "preserve",
+      "reason": "rejected policy-head diagnostic"
+    },
+    {
+      "path": "src/replica_lab/runtime_pilot.py",
+      "action": "preserve",
+      "reason": "protected untracked user file; never stage"
+    },
+    {
+      "path": "runs/e2_cross_rerank_attempt01",
+      "action": "deletion_candidate",
+      "reason": "rejected cross-template reranker; its report is retained"
+    },
+    {
+      "path": "runs/e2_cross_rerank_attempt02",
+      "action": "deletion_candidate",
+      "reason": "rejected higher-budget reranker; its report is retained"
+    },
+    {
+      "path": "runs/e3_set_large_attempt01/selected_extension",
+      "action": "deletion_candidate",
+      "reason": "rejected large-family action extension; raw report retained"
+    },
+    {
+      "path": "runs/e3_dagger_attempt01/selected_extension",
+      "action": "deletion_candidate",
+      "reason": "diagnostic DAgger extension; result was negative"
+    },
+    {
+      "path": "data/e2_capacity256",
+      "action": "preserve",
+      "reason": "256-unit synthetic capacity bank"
+    },
+    {
+      "path": "data/e2_capacity512",
+      "action": "preserve",
+      "reason": "512-unit synthetic capacity bank"
+    },
+    {
+      "path": "data/e2_capacity1024",
+      "action": "preserve",
+      "reason": "1024-unit synthetic capacity bank"
+    },
+    {
+      "path": "data/e2_capacity2048",
+      "action": "preserve",
+      "reason": "2048-unit synthetic capacity bank"
+    },
+    {
+      "path": "data/e2_capacity4096",
+      "action": "preserve",
+      "reason": "4096-unit synthetic capacity bank"
+    },
+    {
+      "path": "data/e2_capacity8192",
+      "action": "deletion_candidate",
+      "reason": "guard-boundary probe data; failure report retained"
+    },
+    {
+      "path": "reports/e2_capacity4096_selected_attempt01",
+      "action": "preserve",
+      "reason": "selected 4096-unit capacity evidence"
+    },
+    {
+      "path": "reports/e2_capacity8192_selected_attempt01",
+      "action": "preserve",
+      "reason": "8192 guard-boundary evidence"
+    },
+    {
+      "path": "reports/e3_candidate_order_canonical_attempt02",
+      "action": "preserve",
+      "reason": "candidate-order canonical evidence"
+    },
+    {
+      "path": "reports/e3_candidate_order_shuffled_attempt02",
+      "action": "preserve",
+      "reason": "candidate-order shuffled evidence"
+    },
+    {
+      "path": "reports/e3_candidate_restart2_process2",
+      "action": "preserve",
+      "reason": "filtered restart evidence"
+    }
   ]
 }
