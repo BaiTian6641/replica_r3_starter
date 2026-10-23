@@ -1,0 +1,21 @@
+{
+  "format": "replica.c13.checked_proposals.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Versioned registry of actual candidate comparisons and promotion decisions; no synthetic labels.",
+  "minimums": {"independent_source_groups": 8, "accepted": 10, "rejected_or_deferred": 10},
+  "proposals": [
+    {"proposal_id": "e5-procedure-repair", "target_kind": "procedure", "source_group": "procedure", "outcome": "accepted", "source_report": "reports/e5_procedure_20261023/report.json"},
+    {"proposal_id": "e5-reranker-opt-in", "target_kind": "record", "source_group": "retrieval", "outcome": "accepted_opt_in", "source_report": "reports/e5_neural_candidate_attempt02_20261023/run_report.json"},
+    {"proposal_id": "pointer-copy-opt-in", "target_kind": "record", "source_group": "pointer", "outcome": "accepted_opt_in", "source_report": "reports/e2_pointer_publication_attempt04/report.json"},
+    {"proposal_id": "pointer-context-opt-in", "target_kind": "record", "source_group": "pointer_context", "outcome": "accepted_opt_in", "source_report": "reports/e2_pointer_context_publication_attempt02/report.json"},
+    {"proposal_id": "candidate-repair-ranking", "target_kind": "policy", "source_group": "candidate_ranking", "outcome": "accepted_opt_in", "source_report": "reports/e3_candidate_order_canonical_attempt02/run_report.json"},
+    {"proposal_id": "e2-reader-deferred", "target_kind": "neural", "source_group": "reader", "outcome": "deferred", "source_report": "reports/e2_reader_attempt03_20261023/run_report.json"},
+    {"proposal_id": "e4-delayed-use-rejected", "target_kind": "neural", "source_group": "fast_memory", "outcome": "rejected", "source_report": "reports/e4_delayed_use_attempt03_20261023/run_report.json"},
+    {"proposal_id": "e2-copy-rejected", "target_kind": "neural", "source_group": "copy", "outcome": "rejected", "source_report": "reports/e2_copy_head_attempt02/run_report.json"},
+    {"proposal_id": "cross-rerank-rejected", "target_kind": "record", "source_group": "retrieval_cross", "outcome": "rejected", "source_report": "reports/e2_cross_rerank_attempt02/run_report.json"},
+    {"proposal_id": "large-action-rejected", "target_kind": "neural", "source_group": "action_large", "outcome": "rejected", "source_report": "reports/e3_set_large_attempt01/run_report.json"},
+    {"proposal_id": "dagger-rejected", "target_kind": "neural", "source_group": "action_dagger", "outcome": "rejected", "source_report": "reports/e3_dagger_attempt01/run_report.json"},
+    {"proposal_id": "answer-ranking-rejected", "target_kind": "record", "source_group": "answer", "outcome": "rejected", "source_report": "reports/e2_candidate_answer_independent_model_attempt01/run_report.json"},
+    {"proposal_id": "d2-action-rejected", "target_kind": "neural", "source_group": "action_d2", "outcome": "rejected", "source_report": "reports/e3_d2_action_bf16_eval768_attempt01/run_report.json"}
+  ]
+}

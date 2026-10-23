@@ -82,3 +82,16 @@ This is a **policy audit**, not learned-selector accuracy or a capability
 result. It confirms the intended no-update/proposal/defer behavior on actual
 counters and preserves the distinction between a proposal and a trained update.
 `tests/test_c13_director_audit.py` covers the success and neural-threshold paths.
+
+## Checked-proposal sufficiency gate
+
+`configs/c13_checked_proposals_v1.json` records 13 actual candidate comparisons
+from reported experiments (procedure, retrieval, pointer, reader, fast memory,
+copy, cross-rerank, action families, answer ranking and D2). It contains no
+synthetic labels. The declared minimum for a learned selector is 8 independent
+source groups and at least 10 accepted and 10 rejected/deferred proposals.
+
+Current counts are **13 groups, 5 accepted, 8 rejected/deferred**, so the gate
+returns `defer_insufficient_checked_proposals`. No selector weights were trained
+and nothing was published. This is a data-sufficiency decision, not a failed
+optimization experiment.

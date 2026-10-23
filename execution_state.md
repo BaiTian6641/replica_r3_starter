@@ -423,6 +423,13 @@ invalidation. It is admission-only: the adapter still re-prefills, no native
 cache is reused and existing native scripts remain serialized by the exclusive
 worker lock. See [request scheduler](docs/architecture/14_Request_Scheduler.md).
 
+**C13 checked-proposal gate (23 October).** A versioned registry now records
+13 actual candidate comparisons with no synthetic labels. It has 13 independent
+source groups, **5 accepted and 8 rejected/deferred**, below the declared 10/10
+minimum, so the learned selector is deferred and no weights were trained. See
+[learning director](docs/architecture/13_Learning_Director.md); report:
+`reports/c13_checked_proposals_audit_20261023.json`.
+
 **C13 actual-outcome audit (23 October).** Six historical summaries were
 reviewed by the deterministic director: accepted procedure -> no update; large
 action failure -> neural proposal; retrieval failure -> record proposal; smaller
