@@ -216,7 +216,7 @@ def build_initial_state(tools, args):
                           for index, text in enumerate(tools.constraints)),
         subgoals=(), claims=(), evidence=(), obligations=(), actions=(), outcomes=(),
         notes=(), budget=budget,
-        binding={"component_versions": component_versions(),
+        binding={**component_versions(),
                  "case_format": "replica.e3.fixture.v1"},
         allowed_tools=tuple(tools.allowed_tools), revision=0)
 
