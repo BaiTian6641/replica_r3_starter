@@ -1,0 +1,22 @@
+W1023 08:43:18.191000 35205 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 85/381 [00:00<00:00, 829.38it/s]Loading weights:  46%|████▌     | 175/381 [00:00<00:00, 855.25it/s]Loading weights:  69%|██████▊   | 261/381 [00:00<00:00, 835.52it/s]Loading weights:  91%|█████████▏| 348/381 [00:00<00:00, 831.47it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 859.55it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_service.py", line 93, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_service.py", line 84, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_service.py", line 46, in execute
+    candidate_unit=unit).answer(req)
+                         ^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/answer.py", line 48, in answer
+    pointer: PointerAnswer = self.session.pointer_answer(
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 376, in pointer_answer
+    token_ids, token_mask, candidate_mask, provenance = self.copy_candidates(
+                                                        ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 366, in copy_candidates
+    token_ids = torch.tensor([candidates], dtype=torch.long, device=self.device)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: expected sequence of length 4 at dim 2 (got 5)

@@ -40,6 +40,14 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer candidate units (23 October).** On a second untouched family,
+token and whole-word candidate enumeration both scored **2/12**. Whole-word
+candidates removed truncated copies (`saff`→`saffron`) but still selected wrong
+source values, so query/source scoring is the bottleneck. The first attempt
+failed on punctuation-gap spans exceeding the bound; the builder now requires
+contiguous tokens. No training; opt-in only. See
+[pointer units](docs/experiments/20261023_E2_Pointer_Units_Results.md).
+
 **E2 pointer fresh consumer (23 October).** The published pointer was evaluated
 on 12 untouched-value cases without training: **3/12** exact, complete
 provenance, exact-source fallback pass. Misses include partial subword copies

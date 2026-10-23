@@ -350,6 +350,9 @@ class MemorySession:
                     if len(token_indices) > spec.max_span:
                         break
                     start, stop = token_indices[0], token_indices[-1] + 1
+                    # A punctuation gap must not become part of a copied span.
+                    if stop - start != len(token_indices):
+                        break
                     spans_to_score.append((start, stop))
             spans_to_score = sorted(set(spans_to_score))
         for start, stop in spans_to_score:
