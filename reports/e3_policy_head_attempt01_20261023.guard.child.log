@@ -1,0 +1,24 @@
+W1023 07:09:52.007000 20318 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 882.32it/s]Loading weights:  47%|████▋     | 180/381 [00:00<00:00, 865.85it/s]Loading weights:  70%|███████   | 267/381 [00:00<00:00, 840.23it/s]Loading weights:  92%|█████████▏| 352/381 [00:00<00:00, 827.35it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 854.32it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 270, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 258, in main
+    profiler.start(); execute(a,profiler,report)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 184, in execute
+    head,audit=train_head(model,rows,protocol); report['head_training']=audit
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 101, in train_head
+    loss=torch.nn.functional.cross_entropy(head(tf,ws,valid),y)
+                                           ^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/heads.py", line 98, in forward
+    raise ValueError(f'task_features must have shape [1, {self.spec.task_features}]')
+ValueError: task_features must have shape [1, 24]

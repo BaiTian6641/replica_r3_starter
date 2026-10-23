@@ -1,0 +1,13 @@
+W1023 07:05:17.709000 19499 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 868.11it/s]Loading weights:  46%|████▌     | 175/381 [00:00<00:00, 864.41it/s]Loading weights:  69%|██████▉   | 262/381 [00:00<00:00, 849.55it/s]Loading weights:  91%|█████████ | 347/381 [00:00<00:00, 849.59it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 863.95it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_probe.py", line 185, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_probe.py", line 175, in main
+    profiler.start(); execute(a,profiler,report)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_probe.py", line 120, in execute
+    scope=scopes[item['case_id']],task=item['task_graph'],
+                                       ~~~~^^^^^^^^^^^^^^
+KeyError: 'task_graph'

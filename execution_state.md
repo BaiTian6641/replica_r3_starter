@@ -49,6 +49,14 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 mixed fresh-process restart (23 October).** Process 1 read and observed
+evaluator exit 1, then stopped at the declared step limit; process 2 resumed the
+same journal and ledger, applied exactly one `set_constant(POLL_ATTEMPTS=7)`,
+passed the independent evaluator, and did not replay completed actions. All
+**12/12** acceptance checks pass on one copied synthetic case. Attempt 1 used
+`mode=full` and repeated `read`; it is preserved. See
+[restart results](docs/experiments/20261023_E3_Mixed_Restart_Results.md).
+
 **E3 mixed-outcome policy head (23 October).** On the fresh four-case mixed
 family, actual model actions completed **4/4** held-out episodes under
 kind-conditioned generation and **4/4** no-head controls; repairs were applied

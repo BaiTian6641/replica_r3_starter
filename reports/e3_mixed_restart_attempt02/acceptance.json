@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "checks": {
+    "process1_nonzero_test": true,
+    "process1_two_decisions": true,
+    "process1_incomplete": true,
+    "process1_no_repair": true,
+    "process2_completed": true,
+    "process2_independent_pass": true,
+    "process2_single_repair": true,
+    "process2_no_completed_action_replay": true,
+    "workspace_matches_repair": true,
+    "evaluator_unmodified": true,
+    "no_malformed_or_false_claims": true,
+    "journal_state_complete": true
+  },
+  "process1": {
+    "success": false,
+    "decisions": 2,
+    "tool_calls": 2
+  },
+  "process2": {
+    "success": true,
+    "decisions": 4,
+    "tool_calls": 4
+  },
+  "repairs": [
+    {
+      "arguments": {
+        "name": "POLL_ATTEMPTS",
+        "value": 7
+      },
+      "tool": "set_constant"
+    }
+  ],
+  "claims": "One copied synthetic case; fresh-process continuation only."
+}

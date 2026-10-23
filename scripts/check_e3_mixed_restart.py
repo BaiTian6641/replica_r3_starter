@@ -9,7 +9,9 @@ sys.path.insert(0,str(ROOT/'scripts'))
 def load(path): return json.loads(Path(path).read_text())
 
 def tool_name(item):
-    action=item.get('action') or {}; return action.get('tool') if action.get('kind')=='invoke_tool' else None
+    action=item.get('action') or {}
+    args=action.get('args') or {}
+    return args.get('tool') if action.get('kind')=='invoke_tool' else None
 
 def receipt_exit(item):
     outcome=item.get('outcome') or {}; result=outcome.get('result') or {}

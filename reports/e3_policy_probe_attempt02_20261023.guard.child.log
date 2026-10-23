@@ -1,0 +1,17 @@
+W1023 07:05:37.298000 19614 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 884.65it/s]Loading weights:  47%|████▋     | 180/381 [00:00<00:00, 874.43it/s]Loading weights:  70%|███████   | 268/381 [00:00<00:00, 826.81it/s]Loading weights:  93%|█████████▎| 355/381 [00:00<00:00, 839.32it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 857.04it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_probe.py", line 188, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_probe.py", line 178, in main
+    profiler.start(); execute(a,profiler,report)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_probe.py", line 122, in execute
+    req=session.prepare(prompt_ids=ids,prompt_mask=mask,query=item['goal'],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 202, in prepare
+    self.index.verify_selection(selection, expected_scope=scope)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/index.py", line 191, in verify_selection
+    raise ValueError("retrieval selection is stale or belongs to another ledger")
+ValueError: retrieval selection is stale or belongs to another ledger

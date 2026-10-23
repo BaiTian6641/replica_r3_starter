@@ -1,0 +1,40 @@
+W1023 07:10:19.628000 20459 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 890.60it/s]Loading weights:  48%|████▊     | 184/381 [00:00<00:00, 851.18it/s]Loading weights:  71%|███████   | 270/381 [00:00<00:00, 836.17it/s]Loading weights:  95%|█████████▍| 361/381 [00:00<00:00, 845.67it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 863.55it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 270, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 258, in main
+    profiler.start(); execute(a,profiler,report)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 211, in execute
+    result,_=run_episode(fixtures/case_id,args.output/'episodes'/case_id,session=session,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 380, in run_episode
+    summary = runtime.run(proposer, max_decisions=budget.max_decisions)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 882, in run
+    item = self.decide(proposer)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 413, in decide
+    output = proposer(request)
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_policy_head.py", line 43, in __call__
+    probe=self.session.prepare(prompt_ids=ids,prompt_mask=mask,query=self.goal,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 250, in prepare
+    core = self.adapter.build_core_state(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 213, in build_core_state
+    workspace, valid = self.core(sense_tokens, sense_valid, memory_slots, memory_valid,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/core.py", line 166, in forward
+    workspace = workspace + previous
+                ~~~~~~~~~~^~~~~~~~~~
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, mps:0 and cpu!
