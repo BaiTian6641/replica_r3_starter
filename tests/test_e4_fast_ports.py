@@ -81,3 +81,17 @@ def test_fast_extension_v2_roundtrip(tmp_path):
     restored.load_extension(destination)
     actual = logits(restored, fast_frame(restored, enabled_branches=('memory', 'fast'), value=1.0))
     torch.testing.assert_close(actual, expected, atol=0, rtol=0)
+
+
+def test_fast_write_projection_is_finite_normalized_and_differentiable():
+    adapter = tiny_adapter(fast_memory=SPEC).train()
+    embeddings = torch.randn(1, 3, adapter.base.config.hidden_size, requires_grad=False)
+    keys, values = adapter.fast_write_encoder(embeddings)
+    assert keys.shape == (1, 3, SPEC.key_size)
+    assert values.shape == (1, 3, SPEC.value_size)
+    assert torch.isfinite(keys).all() and torch.isfinite(values).all()
+    assert torch.allclose(keys.norm(dim=-1), torch.ones(1, 3), atol=1e-5)
+    loss = (values.square().mean() + keys.square().mean())
+    loss.backward()
+    assert adapter.fast_write_encoder.key_projection.weight.grad is not None
+    assert adapter.fast_write_encoder.value_projection.weight.grad is not None

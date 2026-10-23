@@ -1,0 +1,88 @@
+{
+  "format": "replica.e4.delayed_use.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Learned fast write projection plus native read ports on source pages observed before a later query; controls and persisted-image reload separate wiring from delayed-use benefit.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "parent_role": "E2 extension initialization and regression reference; fast write/read parameters are fresh.",
+  "dataset": {
+    "root": "data/e4_delayed",
+    "records_sha256": "9a2ee61310fdf17fadd178c0b9ff36f6e097c54e7b55b226344b6e3fccf0d7f2",
+    "queries_sha256": "3f2f3688fdadf51024163af399ca991c07db1bdcc66a371dec6ff5a316ffb4f9",
+    "manifest_sha256": "d636a1f2b048f0f8fad44698aaf73ef1b1bf5813ffffa9a3387f55eef6bc4ca4"
+  },
+  "splits": {
+    "train": 24,
+    "dev": 6,
+    "heldout": 8
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "learning_rate": 0.1,
+    "decay": 0.0,
+    "max_update_norm": 1.0,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable": [
+      "fast_write_encoder",
+      "fast_ports"
+    ],
+    "feature_producer": "frozen native input-token embeddings of the observed source page",
+    "write_schedule": "one observed source page -> one deferred commit; query/action never enters the write",
+    "optimizer": "muon8bit",
+    "lr_new": 0.02,
+    "lr_muon_new": 0.02,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "updates": 32,
+    "examples_per_update": 4,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "seed": 20261023,
+    "loss": "response-only next-token cross entropy on answer plus EOS; prompt prefix masked",
+    "selection": "empty record bank; only the committed fast state supplies the observation"
+  },
+  "evaluation": {
+    "dev_cases": 6,
+    "heldout_cases": 8,
+    "train_cases": 24,
+    "arms": [
+      "correct_observation",
+      "shuffled_observation",
+      "zero_state",
+      "fast_disabled"
+    ],
+    "generation": {
+      "max_new_tokens": 6,
+      "greedy": true
+    },
+    "metric": "exact stripped answer; raw generated token IDs and answers retained",
+    "restart": "persist the first held-out observation image, load it into a fresh FastMemorySession, and compare the generated answer/state digest"
+  },
+  "decision_rule": {
+    "accept": "correct held-out exact accuracy strictly above shuffled, zero and disabled controls, with dev not below disabled",
+    "reject": "no positive held-out gain or dev regression",
+    "defer": "control-ambiguous result"
+  },
+  "budget": {
+    "model_loads": 1,
+    "extension_reloads": 1,
+    "optimizer_updates": 32,
+    "eval_generations": 96,
+    "checkpoint_saves": 1,
+    "fast_state_images": 1
+  },
+  "stop_conditions": [
+    "capacity guard failure",
+    "nonfinite loss or state",
+    "no held-out correct-state answer at update 32"
+  ],
+  "retention": "Keep parent extension, candidate extension, raw prompts/answers, persisted fast image and failure evidence. No base copy or download.",
+  "claims": "Learned read-side delayed use on synthetic source pages; fixed token-embedding writer; no general memory or personal-fidelity claim."
+}

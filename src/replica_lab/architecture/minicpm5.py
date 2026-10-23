@@ -22,8 +22,8 @@ from .contracts import (ComponentManifest, CoreState, DecisionFrame, FastMemoryR
                         fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
-from .ports import (FastMemoryAccessPort, MemoryAccessPort, SensePort,
-                    WorkspaceAccessPort)
+from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
+                    SensePort, WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 
 
@@ -55,9 +55,10 @@ class MiniCPM5Adapter(nn.Module):
                                          sorted(set((*self.ports.injection_layers, self.ports.observer_layer)))})
         self.reranker = TrainableRecordReranker(d)
         self.core = self.ff_core = self.workspace_ports = self.task_head = None
-        self.fast_ports = None
+        self.fast_ports = self.fast_write_encoder = None
         if manifest.fast_memory is not None:
             spec = manifest.fast_memory
+            self.fast_write_encoder = FastWriteEncoder(h, spec.key_size, spec.value_size)
             self.fast_ports = nn.ModuleDict({
                 str(i): FastMemoryAccessPort(h, spec.heads, spec.key_size,
                                              spec.value_size)
@@ -125,12 +126,39 @@ class MiniCPM5Adapter(nn.Module):
         return fingerprint(self._core_component_stamp())
 
     def fast_producer_key(self):
-        if self.fast_ports is None:
+        if self.fast_ports is None or self.fast_write_encoder is None:
             raise ValueError('Manifest declares no fast memory')
         return fingerprint({'features': self.producer_key(),
+                            'fast_write_encoder': [(n, id(p), p._version, str(p.dtype),
+                                                    str(p.device), p.data_ptr())
+                                                   for n, p in self.fast_write_encoder.named_parameters()],
                             'fast_ports': [(n, id(p), p._version, str(p.dtype),
                                             str(p.device), p.data_ptr())
                                            for n, p in self.fast_ports.named_parameters()]})
+
+    def encode_fast_observation(self, text, tokenizer, *, max_tokens: int = 256):
+        """Encode one actual source page into fast-memory keys/values.
+
+        The host must call this only for observed source/tool text, never for a
+        generated proposal or a supervision target. The base embedding is a
+        frozen feature producer; only the declared write projection is learned.
+        No model forward, answer suffix or future observation is accepted.
+        """
+        if self.fast_write_encoder is None:
+            raise ValueError('Manifest declares no fast write encoder')
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError('A nonempty observed source page is required')
+        if type(max_tokens) is not int or not 0 < max_tokens <= 256:
+            raise ValueError('max_tokens must be in 1..256')
+        ids = tokenizer(text, add_special_tokens=False)['input_ids']
+        if not ids:
+            raise ValueError('Observed source page produced no tokens')
+        token_ids = torch.tensor([ids[:max_tokens]], dtype=torch.long,
+                                 device=self.base.get_input_embeddings().weight.device)
+        embeddings = self.base.get_input_embeddings()(token_ids)
+        mask = torch.ones(1, token_ids.shape[1], dtype=torch.bool,
+                          device=token_ids.device)
+        return self.fast_write_encoder(embeddings, mask)
 
     def build_core_state(self, sense: SenseFrame, memory: MemoryRead, task_features,
                          *, task_digest: str, revision: int, previous: CoreState | None = None,
@@ -221,7 +249,7 @@ class MiniCPM5Adapter(nn.Module):
         if self.core is not None:
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
         if self.fast_ports is not None:
-            prefixes += ['fast_ports']
+            prefixes += ['fast_write_encoder', 'fast_ports']
         for prefix in prefixes:
             yield from ((f'{prefix}.{n}', p) for n, p in getattr(self, prefix).named_parameters())
 
@@ -235,7 +263,7 @@ class MiniCPM5Adapter(nn.Module):
         if self.core is not None:
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
         if self.fast_ports is not None:
-            prefixes += ['fast_ports']
+            prefixes += ['fast_write_encoder', 'fast_ports']
         return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
                 for prefix in prefixes}
 

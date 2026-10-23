@@ -142,6 +142,41 @@ class SensePort(nn.Module):
         return summary.masked_fill(~available.unsqueeze(-1), 0), available
 
 
+class FastWriteEncoder(nn.Module):
+    """Project source-token features into one fast-memory key/value chunk.
+
+    This is a learned global write projection, not a per-branch state owner.
+    Inputs are frozen native token embeddings of an *observed* source page;
+    generated answers and teacher targets are never accepted here. Keys are
+    normalized for the linear associative update. Values are bounded with tanh
+    so a single long source page cannot create unbounded state magnitudes.
+    """
+
+    def __init__(self, hidden_size: int, key_size: int = 64,
+                 value_size: int = 64) -> None:
+        super().__init__()
+        if min(hidden_size, key_size, value_size) < 1:
+            raise ValueError('positive fast-write dimensions required')
+        self.hidden_size, self.key_size, self.value_size = (
+            hidden_size, key_size, value_size)
+        self.input_norm = nn.LayerNorm(hidden_size)
+        self.key_projection = nn.Linear(hidden_size, key_size, bias=False)
+        self.value_projection = nn.Linear(hidden_size, value_size, bias=False)
+
+    def forward(self, embeddings: Tensor, mask: Tensor | None = None) -> tuple[Tensor, Tensor]:
+        _hidden(embeddings, self.hidden_size, 'embeddings')
+        if not bool(torch.isfinite(embeddings).all()):
+            raise ValueError('embeddings must be finite')
+        if mask is not None and tuple(mask.shape) != tuple(embeddings.shape[:2]):
+            raise ValueError('fast-write mask must match [batch, positions]')
+        source = self.input_norm(embeddings)
+        if mask is not None:
+            source = source.masked_fill(~mask.to(embeddings.device).bool().unsqueeze(-1), 0)
+        keys = F.normalize(self.key_projection(source).float(), dim=-1, eps=1e-6)
+        values = torch.tanh(self.value_projection(source)).float()
+        return keys.to(embeddings.dtype), values.to(embeddings.dtype)
+
+
 class FastMemoryAccessPort(nn.Module):
     """Independent gated read of one committed fast-associative snapshot.
 
