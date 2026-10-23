@@ -1,0 +1,36 @@
+{
+  "allowed_tools": [
+    "read_file",
+    "write_file",
+    "run_test"
+  ],
+  "case_id": "heldout_timeout_04",
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "Change exactly one numeric constant; leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit, and test."
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "format": "replica.e3.fixture.v1",
+  "goal": "A connectivity policy check on workspace/app_settings.py fails. Examine the file, run the evaluator test for the exact requirement, apply the smallest compliant change, and confirm with a final test run.",
+  "reference_repair": {
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nCONNECT_TIMEOUT_MS = 2500\nMAX_RETRIES = 3\nBACKOFF_SECONDS = 0.5\n",
+    "path": "workspace/app_settings.py"
+  },
+  "role": "heldout",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "variant": {
+    "actual_value": 500,
+    "constant": "CONNECT_TIMEOUT_MS",
+    "description": "connect timeout under the network policy floor",
+    "expected_value": 2500
+  },
+  "workspace_entry": "workspace/app_settings.py",
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ]
+}

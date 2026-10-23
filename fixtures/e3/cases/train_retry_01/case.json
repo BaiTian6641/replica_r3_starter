@@ -1,0 +1,36 @@
+{
+  "allowed_tools": [
+    "read_file",
+    "write_file",
+    "run_test"
+  ],
+  "case_id": "train_retry_01",
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "Change exactly one numeric constant; leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit, and test."
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "format": "replica.e3.fixture.v1",
+  "goal": "The integration policy test against the service configuration in workspace/app_settings.py is failing. Inspect the file, run the evaluator test to see the policy requirement, apply the smallest change that satisfies it, and run the test again to confirm.",
+  "reference_repair": {
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nRETRY_ATTEMPTS = 5\nBACKOFF_SECONDS = 0.4\nREQUEST_TIMEOUT_MS = 1200\n",
+    "path": "workspace/app_settings.py"
+  },
+  "role": "train",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "variant": {
+    "actual_value": 2,
+    "constant": "RETRY_ATTEMPTS",
+    "description": "retry attempts sit below the policy floor for outbound calls",
+    "expected_value": 5
+  },
+  "workspace_entry": "workspace/app_settings.py",
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ]
+}

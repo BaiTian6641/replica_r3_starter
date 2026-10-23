@@ -1,0 +1,36 @@
+{
+  "allowed_tools": [
+    "read_file",
+    "write_file",
+    "run_test"
+  ],
+  "case_id": "dev_retry_03",
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "Change exactly one numeric constant; leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit, and test."
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "format": "replica.e3.fixture.v1",
+  "goal": "The evaluator test for the client settings in workspace/app_settings.py currently fails. Inspect the configuration, run the test to learn the required policy bound, change only what is needed, and rerun the test so it passes.",
+  "reference_repair": {
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nMAX_RETRIES = 4\nREQUEST_TIMEOUT_MS = 8000\nBACKOFF_SECONDS = 0.3\n",
+    "path": "workspace/app_settings.py"
+  },
+  "role": "dev",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "variant": {
+    "actual_value": 1,
+    "constant": "MAX_RETRIES",
+    "description": "max retries below the resilience policy minimum",
+    "expected_value": 4
+  },
+  "workspace_entry": "workspace/app_settings.py",
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ]
+}

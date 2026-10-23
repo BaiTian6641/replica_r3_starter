@@ -1,0 +1,36 @@
+{
+  "allowed_tools": [
+    "read_file",
+    "write_file",
+    "run_test"
+  ],
+  "case_id": "train_timeout_02",
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "Change exactly one numeric constant; leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit, and test."
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "format": "replica.e3.fixture.v1",
+  "goal": "A policy test reports that the HTTP configuration in workspace/app_settings.py violates the deployment policy. Read the file, run the evaluator test, make the minimal edit that clears the violation, and verify with a rerun.",
+  "reference_repair": {
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nREQUEST_TIMEOUT_MS = 9000\nRETRY_ATTEMPTS = 3\nBACKOFF_SECONDS = 0.2\n",
+    "path": "workspace/app_settings.py"
+  },
+  "role": "train",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "variant": {
+    "actual_value": 1500,
+    "constant": "REQUEST_TIMEOUT_MS",
+    "description": "request timeout is under the policy floor for slow endpoints",
+    "expected_value": 9000
+  },
+  "workspace_entry": "workspace/app_settings.py",
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ]
+}

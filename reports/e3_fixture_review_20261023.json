@@ -1,0 +1,399 @@
+{
+  "audit": {
+    "checks": [
+      {
+        "evidence": "exact top-level keys and types; variant values are JSON numbers; reference_repair has exactly path/content",
+        "item": "schema exactness",
+        "result": "pass"
+      },
+      {
+        "evidence": "validator family roles counter and tests",
+        "item": "role coverage 2 train / 1 dev / 2 heldout / 1 interrupted",
+        "result": "pass"
+      },
+      {
+        "evidence": "validator family target_pairs map; tests",
+        "item": "unique case ids, constants, expected values and target pairs",
+        "result": "pass"
+      },
+      {
+        "evidence": "pre-repair exits 1, post-repair exits 0 for all six cases in isolated temp copies",
+        "item": "each case starts failing and the reference repair passes",
+        "result": "pass"
+      },
+      {
+        "evidence": "validator AST comparison plus per-case destructive mutation probes",
+        "item": "reference repair preserves both non-target constants",
+        "result": "pass"
+      },
+      {
+        "evidence": "12 non-target mutation probes (two per case) all exit nonzero and name the changed constant",
+        "item": "destructive rewrites fail",
+        "result": "pass"
+      },
+      {
+        "evidence": "text and numeric-token checks per case",
+        "item": "expected bound absent from goal, constraints, description and workspace",
+        "result": "pass"
+      },
+      {
+        "evidence": "runtime path tests reject bare, absolute, ../ and workspace/../ spellings; workspace/evaluator/* is not the host evaluator",
+        "item": "evaluator and case.json unreachable by read_file/write_file",
+        "result": "pass"
+      },
+      {
+        "evidence": "import allowlist ast/importlib/pathlib/unittest; no exec/eval/compile/__import__, no exec_module, no runpy",
+        "item": "evaluator stdlib-only",
+        "result": "pass"
+      },
+      {
+        "evidence": "per-file < 2048 bytes, family 21612 bytes < 40 KiB; no symlinks or __pycache__/.pyc/.DS_Store in fixture source; empty runtime .host_tmp scratch dirs are ignored",
+        "item": "no symlinks, no generated files, size bounds",
+        "result": "pass"
+      },
+      {
+        "evidence": "target pairs unique; no target pair assignment or expected-value token in any other case prompt/workspace (heldout_timeout_04 non-target MAX_RETRIES changed 4 -> 3 to remove the one overlap)",
+        "item": "no cross-case transfer of target constant/value pairs",
+        "result": "pass"
+      },
+      {
+        "evidence": "all six evaluators cleanly fail (FAILED (failures=1)) on missing file, syntax error, non-numeric, renamed, deleted, extra constant, extra function, duplicate target, os._exit(0) and __ge__ override",
+        "item": "evaluator robustness / fail closed",
+        "result": "pass"
+      },
+      {
+        "evidence": "evaluators run in isolated temp copies; validator hashes the family before/after and reports committed_unchanged=true; tests re-hash before/after",
+        "item": "validator isolation and committed fixture integrity",
+        "result": "pass"
+      },
+      {
+        "evidence": "files list generated from the working tree; ReportTest re-verifies bytes and sha256 for every entry",
+        "item": "report matches actual file sha256s",
+        "result": "pass"
+      }
+    ],
+    "commands": [
+      {
+        "command": ".venv/bin/python scripts/verify_e3_fixtures.py",
+        "result": "exit 0; 6/6 cases passed; 6 pre-repair exits nonzero; 6 post-repair exits 0; 12 destructive mutation probes nonzero; committed_unchanged=true; 0.82s wall"
+      },
+      {
+        "command": ".venv/bin/python -m unittest tests/test_e3_fixtures.py",
+        "result": "28/28 pass in 8.470s (8.79s wall); no skips"
+      }
+    ],
+    "contracts": {
+      "bound_source": "the required target bound is observable only through the assertion message of a real run_test/verify_success invocation",
+      "case_paths": "case.json workspace_files, workspace_entry and reference_repair.path are case-root-relative (\"workspace/app_settings.py\"); RuntimeComplete normalizes both spellings on disk",
+      "model_paths": "read_file/write_file accept only workspace/...; evaluator/ and case.json are outside model read and write authority"
+    },
+    "fixes": [
+      {
+        "change": "evaluators parse literal assignments with ast and never execute the workspace file",
+        "rationale": "the prior importlib path executed model-written code; os._exit(0) and a __ge__ override made the evaluator exit zero, and extra constants/statements/duplicate assignments were accepted"
+      },
+      {
+        "change": "heldout_timeout_04 MAX_RETRIES 4 -> 3 in workspace, reference repair and evaluator",
+        "rationale": "the old value duplicated dev_retry_03 target pair MAX_RETRIES=4, a cross-case target-pair transfer; the heldout target CONNECT_TIMEOUT_MS=2500 and role are unchanged"
+      },
+      {
+        "change": "heldout_retry_05 variant actual/expected values changed from JSON strings to JSON numbers",
+        "rationale": "schema exactness; the evaluator comparison and reference repair are unchanged"
+      },
+      {
+        "change": "validator rewritten for exact schema/types, reference-repair semantics, cross-case isolation, configured evaluator path, timeout handling and before/after family hashing",
+        "rationale": "the prior validator hardcoded evaluator/test_policy.py, accepted string variant values, and only inferred non-target preservation from the post-repair run"
+      },
+      {
+        "change": "tests expanded from 11 to 28",
+        "rationale": "cover malformed/evaluator fail-closed behavior, runtime path authority, cross-case transfer, symlinks, unsafe paths and report hash consistency"
+      }
+    ],
+    "kind": "independent audit of the existing E3 fixture family",
+    "scope": "fixtures/e3/cases, scripts/verify_e3_fixtures.py, tests/test_e3_fixtures.py and runtime read/write path authority"
+  },
+  "cases": [
+    {
+      "actual_value": 1,
+      "case_id": "dev_retry_03",
+      "constant": "MAX_RETRIES",
+      "destructive_mutations": [
+        {
+          "constant": "REQUEST_TIMEOUT_MS",
+          "exit": 1,
+          "named": true
+        },
+        {
+          "constant": "BACKOFF_SECONDS",
+          "exit": 1,
+          "named": true
+        }
+      ],
+      "evaluator_sha256": "7faa1561b887ddbfec3b8dd4596eecc10c4515238df0691e253e5a6f70e2f4d0",
+      "expected_value": 4,
+      "post_repair_exit": 0,
+      "pre_repair_exit": 1,
+      "role": "dev",
+      "workspace_sha256": "cfad9a23bf94c7f0a1dd06b30f10401ddd6833efd5f08085948b6ad97d646d47"
+    },
+    {
+      "actual_value": 0.1,
+      "case_id": "heldout_retry_05",
+      "constant": "BACKOFF_SECONDS",
+      "destructive_mutations": [
+        {
+          "constant": "RETRY_ATTEMPTS",
+          "exit": 1,
+          "named": true
+        },
+        {
+          "constant": "REQUEST_TIMEOUT_MS",
+          "exit": 1,
+          "named": true
+        }
+      ],
+      "evaluator_sha256": "93c4398b7693ae5bad1c7916aafa5832f0cc83e1a2e27dad90bf442b39f64a34",
+      "expected_value": 1.5,
+      "post_repair_exit": 0,
+      "pre_repair_exit": 1,
+      "role": "heldout",
+      "workspace_sha256": "c17ddc594d2f97f50a165fe0c356716a611e89e72c8df6ef0d7aacd3016a4fb9"
+    },
+    {
+      "actual_value": 500,
+      "case_id": "heldout_timeout_04",
+      "constant": "CONNECT_TIMEOUT_MS",
+      "destructive_mutations": [
+        {
+          "constant": "MAX_RETRIES",
+          "exit": 1,
+          "named": true
+        },
+        {
+          "constant": "BACKOFF_SECONDS",
+          "exit": 1,
+          "named": true
+        }
+      ],
+      "evaluator_sha256": "5bc459551f77e536a69ea8d0837b67a037445a2797cdc5a31bb6ebf6665c8f3a",
+      "expected_value": 2500,
+      "post_repair_exit": 0,
+      "pre_repair_exit": 1,
+      "role": "heldout",
+      "workspace_sha256": "1326ddb5103ced75548304bc14bd0623386035f3d3e35be6b0fc870aeacd3cd8"
+    },
+    {
+      "actual_value": 3,
+      "case_id": "interrupted_retry_06",
+      "constant": "POLL_ATTEMPTS",
+      "destructive_mutations": [
+        {
+          "constant": "BACKOFF_SECONDS",
+          "exit": 1,
+          "named": true
+        },
+        {
+          "constant": "REQUEST_TIMEOUT_MS",
+          "exit": 1,
+          "named": true
+        }
+      ],
+      "evaluator_sha256": "f72d8be55395b014b6d63d3a5e11bd561a82f3e96b8c2d722714df13c1c638bf",
+      "expected_value": 8,
+      "post_repair_exit": 0,
+      "pre_repair_exit": 1,
+      "role": "interrupted",
+      "workspace_sha256": "8e88226ca599e19db3526d107e3e8daab206b27e9c102f393a7d78b52edc6a49"
+    },
+    {
+      "actual_value": 2,
+      "case_id": "train_retry_01",
+      "constant": "RETRY_ATTEMPTS",
+      "destructive_mutations": [
+        {
+          "constant": "BACKOFF_SECONDS",
+          "exit": 1,
+          "named": true
+        },
+        {
+          "constant": "REQUEST_TIMEOUT_MS",
+          "exit": 1,
+          "named": true
+        }
+      ],
+      "evaluator_sha256": "1e92b18296577af7a8935ae94287a84262ecd1bfbdc607703f084ea73a7f5a45",
+      "expected_value": 5,
+      "post_repair_exit": 0,
+      "pre_repair_exit": 1,
+      "role": "train",
+      "workspace_sha256": "cad340e596e4b3d97ee7275b9523d95598104a0d5eb57b44d0beebc7eb2187ff"
+    },
+    {
+      "actual_value": 1500,
+      "case_id": "train_timeout_02",
+      "constant": "REQUEST_TIMEOUT_MS",
+      "destructive_mutations": [
+        {
+          "constant": "RETRY_ATTEMPTS",
+          "exit": 1,
+          "named": true
+        },
+        {
+          "constant": "BACKOFF_SECONDS",
+          "exit": 1,
+          "named": true
+        }
+      ],
+      "evaluator_sha256": "575d88fd353e91506bc41606e36a0036cb7405e062401cccddd6f0ddd42f8593",
+      "expected_value": 9000,
+      "post_repair_exit": 0,
+      "pre_repair_exit": 1,
+      "role": "train",
+      "workspace_sha256": "21b19d7278437ab4debb52685a9e2e1294125b79781e4b0d5466ee4ac89ad580"
+    }
+  ],
+  "date": "2026-10-23",
+  "established": [
+    "six exposed cases with exact schema and roles 2 train / 1 dev / 2 heldout / 1 interrupted",
+    "every case starts failing and its reference repair makes the independent evaluator pass in an isolated copy",
+    "reference repairs change only the target constant and preserve both non-target constants; destructive rewrites fail",
+    "evaluators are stdlib-only, do not execute or import workspace code, and fail closed with a unittest failure (not an ambiguous crash) on malformed workspaces",
+    "evaluator/ and case.json are outside model read/write authority; only real run_test output discloses the required bound",
+    "no expected value or reference-repair content is reachable from the prompt or workspace text",
+    "size bounds and symlink/generated-file checks hold; the validator never mutates the committed fixture family"
+  ],
+  "files": [
+    {
+      "bytes": 1408,
+      "path": "fixtures/e3/cases/dev_retry_03/case.json",
+      "sha256": "9917ebdc4fc82e1ee628f7aad7384a9e0e0bb712b4a8dd9964fbfefc8c361649"
+    },
+    {
+      "bytes": 2028,
+      "path": "fixtures/e3/cases/dev_retry_03/evaluator/test_policy.py",
+      "sha256": "7faa1561b887ddbfec3b8dd4596eecc10c4515238df0691e253e5a6f70e2f4d0"
+    },
+    {
+      "bytes": 143,
+      "path": "fixtures/e3/cases/dev_retry_03/workspace/app_settings.py",
+      "sha256": "cfad9a23bf94c7f0a1dd06b30f10401ddd6833efd5f08085948b6ad97d646d47"
+    },
+    {
+      "bytes": 1419,
+      "path": "fixtures/e3/cases/heldout_retry_05/case.json",
+      "sha256": "199664cdd03e8024226a8dd65031d1622a30a8a867a79c1553da2141bf7b2d3a"
+    },
+    {
+      "bytes": 2030,
+      "path": "fixtures/e3/cases/heldout_retry_05/evaluator/test_policy.py",
+      "sha256": "93c4398b7693ae5bad1c7916aafa5832f0cc83e1a2e27dad90bf442b39f64a34"
+    },
+    {
+      "bytes": 145,
+      "path": "fixtures/e3/cases/heldout_retry_05/workspace/app_settings.py",
+      "sha256": "c17ddc594d2f97f50a165fe0c356716a611e89e72c8df6ef0d7aacd3016a4fb9"
+    },
+    {
+      "bytes": 1407,
+      "path": "fixtures/e3/cases/heldout_timeout_04/case.json",
+      "sha256": "ef3ebfcf6f3c8768de9c92e07277b3914862b031b5455c125b0508ea1bcbd2e3"
+    },
+    {
+      "bytes": 2028,
+      "path": "fixtures/e3/cases/heldout_timeout_04/evaluator/test_policy.py",
+      "sha256": "5bc459551f77e536a69ea8d0837b67a037445a2797cdc5a31bb6ebf6665c8f3a"
+    },
+    {
+      "bytes": 142,
+      "path": "fixtures/e3/cases/heldout_timeout_04/workspace/app_settings.py",
+      "sha256": "1326ddb5103ced75548304bc14bd0623386035f3d3e35be6b0fc870aeacd3cd8"
+    },
+    {
+      "bytes": 1434,
+      "path": "fixtures/e3/cases/interrupted_retry_06/case.json",
+      "sha256": "4bebf1e18e7c6f8a6c49cdb38f9a183d72ff893e93261c6351e75a13ed63bc36"
+    },
+    {
+      "bytes": 2029,
+      "path": "fixtures/e3/cases/interrupted_retry_06/evaluator/test_policy.py",
+      "sha256": "f72d8be55395b014b6d63d3a5e11bd561a82f3e96b8c2d722714df13c1c638bf"
+    },
+    {
+      "bytes": 144,
+      "path": "fixtures/e3/cases/interrupted_retry_06/workspace/app_settings.py",
+      "sha256": "8e88226ca599e19db3526d107e3e8daab206b27e9c102f393a7d78b52edc6a49"
+    },
+    {
+      "bytes": 1460,
+      "path": "fixtures/e3/cases/train_retry_01/case.json",
+      "sha256": "7a5eed5b20aca86c732783633677f23e8e1e4f3c54b82c683c06a12e3f1fcd73"
+    },
+    {
+      "bytes": 2031,
+      "path": "fixtures/e3/cases/train_retry_01/evaluator/test_policy.py",
+      "sha256": "1e92b18296577af7a8935ae94287a84262ecd1bfbdc607703f084ea73a7f5a45"
+    },
+    {
+      "bytes": 146,
+      "path": "fixtures/e3/cases/train_retry_01/workspace/app_settings.py",
+      "sha256": "cad340e596e4b3d97ee7275b9523d95598104a0d5eb57b44d0beebc7eb2187ff"
+    },
+    {
+      "bytes": 1441,
+      "path": "fixtures/e3/cases/train_timeout_02/case.json",
+      "sha256": "eb3d8bbbf090b206e8c75116030154f1f9c41e0637cd4a33eea93a0b6f2940a5"
+    },
+    {
+      "bytes": 2031,
+      "path": "fixtures/e3/cases/train_timeout_02/evaluator/test_policy.py",
+      "sha256": "575d88fd353e91506bc41606e36a0036cb7405e062401cccddd6f0ddd42f8593"
+    },
+    {
+      "bytes": 146,
+      "path": "fixtures/e3/cases/train_timeout_02/workspace/app_settings.py",
+      "sha256": "21b19d7278437ab4debb52685a9e2e1294125b79781e4b0d5466ee4ac89ad580"
+    },
+    {
+      "bytes": 28746,
+      "path": "scripts/verify_e3_fixtures.py",
+      "sha256": "78928968e50ebc503bff41f5f33c33566544add002c776e7179b88237c911368"
+    },
+    {
+      "bytes": 24918,
+      "path": "tests/test_e3_fixtures.py",
+      "sha256": "59f96c1972f27e378125743dc1fa03a3ee8a4e369688ae871fa9d8ab6d709f7d"
+    }
+  ],
+  "format": "replica.e3.fixture.v1",
+  "leak_checks": {
+    "cross_case_transfer": "target (constant, expected) pairs are unique; no target pair assignment or expected-value token appears in another case prompt/workspace. The only overlap (dev_retry_03 target MAX_RETRIES=4 also present as a non-target in heldout_timeout_04) was removed by changing that non-target to 3.",
+    "evaluator_and_case_json_reachable": "absent: read_file/write_file require a workspace/... model path and reject traversal/absolute paths; runtime tests cover the negative cases",
+    "expected_value_in_own_goal_constraints_description_and_workspace": "absent for all six cases (validator text + numeric-token checks)",
+    "expected_value_source": "real run_test/verify_success output only; the below-bound assertion message names the target and minimum",
+    "reference_repair_content_model_reachable": "absent: reference_repair lives in case.json, outside model read/write authority; its content is compared against prompt and workspace text",
+    "unrelated_constant_values_in_evaluator": "the two preserved values are hardcoded but already visible in the workspace; no new information is exposed",
+    "workspace_cannot_read_evaluator_during_run_test": "evaluators never import or execute workspace code; they parse literal AST assignments, so model code cannot inspect the evaluator or exit the process"
+  },
+  "not_established": [
+    "exposed development fixtures: heldout_* cases live on disk and are only role-labelled; there is no sealed holdout",
+    "no generalization or learned-benefit claim: six small fixture cases and role labels cannot establish transfer, capability promotion or statistical superiority",
+    "no native MPS execution validated these fixtures end-to-end in this audit; no model was loaded and no native task episode was run"
+  ],
+  "report": "e3_fixture_review_20261023",
+  "residual_risks": [
+    "the fixture family is exposed on disk; a training pipeline could read any case, so heldout labels do not create a sealed evaluation set",
+    "scripts/run_e3_task.py and scripts/run_e3_qualification.py can operate on case directories directly; native runs must use a host-owned copy or workspace edits and .host_tmp scratch can appear under fixtures/e3/cases. The validator ignores empty .host_tmp scratch and hashes only fixture source files; the report excludes scratch.",
+    "the bound is disclosed by the evaluator assertion message through real run_test output; a model can still decline to run the test or guess below/above the floor",
+    "small numeric separations (for example 1 vs 4 and 3 vs 8) leave little room to distinguish reasoning from guessing",
+    "runtime path normalization and the model-facing workspace/... contract are owned by RuntimeComplete; this audit exercises the current working tree but not native runs"
+  ],
+  "reviewed_at_utc": "2026-10-23T05:24:36Z",
+  "tests": {
+    "command": ".venv/bin/python -m unittest tests/test_e3_fixtures.py",
+    "result": "28/28 pass in 8.470s (8.79s wall); no skips"
+  },
+  "validator": {
+    "command": ".venv/bin/python scripts/verify_e3_fixtures.py",
+    "result": "exit 0; 6/6 cases; 0.82s wall; committed_unchanged=true; family_bytes=21612"
+  }
+}
