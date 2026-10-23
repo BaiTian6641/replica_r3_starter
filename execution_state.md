@@ -290,6 +290,13 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 constrained action decoding (23 October).** Adding token-level masking of
+redundant `read`/`run_test` strings to the runtime guard was aborted at the
+predeclared smoke: banning `read` produced `.read` and malformed/unauthorized
+JSON, **0/1** completion, no repair selected, no false success. This is an
+interface/decoding defect; the remaining cases were not run. See
+[constrained-action results](docs/experiments/20261023_E3_Constrained_Action_Results.md).
+
 **E3 action-space guard (23 October).** A general no-progress guard (deny a
 repeated read of an unchanged file and a repeated test after failure) was tested
 on a fresh four-case `set_constant` family. Guard and control both completed

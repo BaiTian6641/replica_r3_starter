@@ -1,0 +1,49 @@
+{
+  "format": "replica.e3_constraint.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "cases": [
+    {
+      "case_id": "constraint_heldout_drain_01",
+      "role": "heldout",
+      "source_group": "constraint_a",
+      "constant": "DRAIN_TIMEOUT_S",
+      "actual": 0.4,
+      "expected": 2.4
+    },
+    {
+      "case_id": "constraint_heldout_shard_02",
+      "role": "heldout",
+      "source_group": "constraint_b",
+      "constant": "SHARD_COUNT",
+      "actual": 2,
+      "expected": 8
+    },
+    {
+      "case_id": "constraint_heldout_window_03",
+      "role": "heldout",
+      "source_group": "constraint_c",
+      "constant": "WINDOW_MS",
+      "actual": 300,
+      "expected": 1800
+    },
+    {
+      "case_id": "constraint_dev_lease_04",
+      "role": "dev",
+      "source_group": "constraint_dev",
+      "constant": "LEASE_TTL_S",
+      "actual": 0.6,
+      "expected": 4.0
+    }
+  ],
+  "splits": {
+    "heldout": [
+      "constraint_heldout_drain_01",
+      "constraint_heldout_shard_02",
+      "constraint_heldout_window_03"
+    ],
+    "dev": [
+      "constraint_dev_lease_04"
+    ]
+  }
+}

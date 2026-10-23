@@ -1,0 +1,78 @@
+{
+  "format": "replica.e3.constrained_action.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Compare runtime action guard against guard plus logit masking of redundant action strings on a fresh set_constant family; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures_root": "fixtures/e3_constrained/cases",
+  "manifest_sha256": "b665e5706190239f5acfeac6a0965613d286f0153978e3303e5fffc236724c2b",
+  "cases": [
+    {
+      "case_id": "constraint_heldout_drain_01",
+      "role": "heldout",
+      "source_group": "constraint_a",
+      "constant": "DRAIN_TIMEOUT_S",
+      "actual": 0.4,
+      "expected": 2.4
+    },
+    {
+      "case_id": "constraint_heldout_shard_02",
+      "role": "heldout",
+      "source_group": "constraint_b",
+      "constant": "SHARD_COUNT",
+      "actual": 2,
+      "expected": 8
+    },
+    {
+      "case_id": "constraint_heldout_window_03",
+      "role": "heldout",
+      "source_group": "constraint_c",
+      "constant": "WINDOW_MS",
+      "actual": 300,
+      "expected": 1800
+    },
+    {
+      "case_id": "constraint_dev_lease_04",
+      "role": "dev",
+      "source_group": "constraint_dev",
+      "constant": "LEASE_TTL_S",
+      "actual": 0.6,
+      "expected": 4.0
+    }
+  ],
+  "roles": {
+    "heldout": [
+      "constraint_heldout_drain_01",
+      "constraint_heldout_shard_02",
+      "constraint_heldout_window_03"
+    ],
+    "dev": [
+      "constraint_dev_lease_04"
+    ]
+  },
+  "arms": {
+    "guard": {
+      "action_guard": true,
+      "constrain_actions": false
+    },
+    "constrained": {
+      "action_guard": true,
+      "constrain_actions": true
+    }
+  },
+  "budgets": {
+    "decisions": 7,
+    "tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "checkpoint_saves": 0
+  },
+  "acceptance": {
+    "constrained_improves": "constrained heldout completions > guard",
+    "report": "independent evaluator; no host choice of repair or arguments"
+  },
+  "claims": "Constrained interface only; no training or general policy claim."
+}

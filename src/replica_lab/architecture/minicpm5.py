@@ -533,10 +533,22 @@ class MiniCPM5Adapter(nn.Module):
             loss.register_hook(check_backward)
         return CausalLMOutputWithPast(loss=loss, logits=logits, past_key_values=None)
 
-    def generate_action(self, request: RequestContext, *, verify, max_new_tokens=16, eos_token_id=None):
-        """Raw greedy proposal. Host verification runs before each outward segment/token."""
+    def generate_action(self, request: RequestContext, *, verify, max_new_tokens=16,
+                        eos_token_id=None, banned_token_ids=None):
+        """Raw greedy proposal. Host verification runs before each outward segment/token.
+
+        ``banned_token_ids`` is an interface constraint used only for a declared
+        action-space experiment; it masks tokens, never supplies a repair value.
+        """
         if type(max_new_tokens) is not int or max_new_tokens <= 0:
             raise ValueError('Positive generation budget required')
+        banned = () if banned_token_ids is None else tuple(banned_token_ids)
+        if any(type(token) is not int or token < 0
+               or token >= self.base.config.vocab_size for token in banned):
+            raise ValueError('Banned token IDs must be within the LM vocabulary')
+        banned = tuple(sorted(set(banned)))
+        if banned and len(banned) >= self.base.config.vocab_size:
+            raise ValueError('Cannot ban the entire LM vocabulary')
         request.assert_ready()
         stops = self.base.config.eos_token_id if eos_token_id is None else eos_token_id
         stops = set(stops if isinstance(stops, (tuple, list)) else ([] if stops is None else [stops]))
@@ -549,9 +561,13 @@ class MiniCPM5Adapter(nn.Module):
                 for _ in range(max_new_tokens):
                     verify(request)
                     output = self.forward_with_frame(ids, request.frame, attention_mask=mask, logits_to_keep=1)
-                    if not bool(torch.isfinite(output.logits).all()):
+                    logits = output.logits[:, -1]
+                    if banned:
+                        logits = logits.clone()
+                        logits[:, list(banned)] = -1e30
+                    if not bool(torch.isfinite(logits).all()):
                         raise ValueError('Nonfinite generation logits')
-                    token = output.logits[:, -1].argmax(-1, keepdim=True)
+                    token = logits.argmax(-1, keepdim=True)
                     ids = torch.cat((ids, token), dim=1)
                     mask = torch.cat((mask, torch.ones_like(token, dtype=torch.bool)), dim=1)
                     if token.item() in stops:

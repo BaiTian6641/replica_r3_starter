@@ -51,6 +51,7 @@ class ProposalRequest:
     task_digest: str
     revision: int
     fast_state: Any | None = None
+    forbidden_action_strings: tuple[str, ...] = ()
 
     def __post_init__(self):
         if not isinstance(self.prompt_text, str) or not self.prompt_text:
@@ -67,6 +68,9 @@ class ProposalRequest:
         if type(self.prompt_token_budget) is not int or self.prompt_token_budget <= 0 \
                 or type(self.generated_token_budget) is not int or self.generated_token_budget <= 0:
             raise ValueError('Token budgets must be positive integers')
+        if not isinstance(self.forbidden_action_strings, tuple) or any(
+                not isinstance(item, str) or not item for item in self.forbidden_action_strings):
+            raise ValueError('forbidden action strings must be nonempty text')
         if not isinstance(self.task_digest, str) or not self.task_digest:
             raise ValueError('task_digest binding required')
         if type(self.revision) is not int or self.revision < 0:
@@ -154,7 +158,8 @@ class TaskRuntime:
                  max_proposal_bytes: int = MAX_PROPOSAL_BYTES,
                  workspace_width: int = DEFAULT_WORKSPACE_WIDTH,
                  shuffled_workspace: CoreState | None = None,
-                 identity=None, fast_memory=None, action_guard=False):
+                 identity=None, fast_memory=None, action_guard=False,
+                 constrain_actions=False):
         if mode not in MODES:
             raise ValueError(f'Unknown runtime mode: {mode!r}')
         self.tools = tools
@@ -177,6 +182,7 @@ class TaskRuntime:
                 raise ValueError('identity must be an IdentityContext or None')
         self.identity = identity
         self.action_guard = bool(action_guard)
+        self.constrain_actions = bool(constrain_actions)
         if fast_memory is not None and not hasattr(fast_memory, 'observe'):
             raise ValueError('fast_memory must expose observe() and snapshot()')
         self.fast_memory = fast_memory
@@ -472,9 +478,19 @@ class TaskRuntime:
         self.last_workspace_discard = discard_reason
         features = state.features()
         prompt = self._build_prompt(state)
+        forbidden = ()
+        if self.action_guard and self.constrain_actions:
+            guard = self._guard_state(state)
+            values = []
+            if guard['reads_since_mutation']:
+                values.extend(('read',))
+            if guard['failed_test_since_mutation']:
+                values.extend(('run_test',))
+            forbidden = tuple(values)
         request = ProposalRequest(prompt, features, previous_workspace, self.mode,
                                   self.max_prompt_tokens, self.generated_token_budget,
-                                  state.digest, state.revision, self.fast_state)
+                                  state.digest, state.revision, self.fast_state,
+                                  forbidden)
         output = proposer(request)
         if not isinstance(output, ProposalOutput):
             raise ValueError('Proposer must return a ProposalOutput')
@@ -1204,8 +1220,12 @@ class SessionProposer:
                       identity_enabled=self.identity_enabled)
         leased = self.session.prepare(**kwargs)
         try:
-            result = self.session.generate(leased,
-                                           max_new_tokens=request.generated_token_budget)
+            banned = set()
+            for text in request.forbidden_action_strings:
+                banned.update(self.tokenizer(text, add_special_tokens=False)['input_ids'])
+            result = self.session.generate(
+                leased, max_new_tokens=request.generated_token_budget,
+                banned_token_ids=tuple(sorted(banned)) if banned else None)
             self.session.verify(leased)
             prompt_length = int(leased.frame.sense.prompt_ids.shape[1])
             new_ids = tuple(int(token) for token in result[0, prompt_length:].tolist())

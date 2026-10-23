@@ -150,6 +150,8 @@ def build_parser():
                         help="Admit one deterministic host policy record for the case scope")
     parser.add_argument("--action-guard", action="store_true",
                         help="Enable the general no-progress read/test guard; the model still selects tool and arguments")
+    parser.add_argument("--constrain-actions", action="store_true",
+                        help="With --action-guard, mask redundant action strings from decoding")
     return parser
 
 
@@ -319,7 +321,7 @@ def execute(args, tools, case, report):
         tools, journal, workspace_store=workspace_store, mode=args.mode,
         max_prompt_tokens=args.max_prompt_tokens,
         generated_token_budget=args.max_new_tokens, shuffled_workspace=shuffled,
-        action_guard=args.action_guard)
+        action_guard=args.action_guard, constrain_actions=args.constrain_actions)
     if not journal.initialize_done():
         runtime.initialize(build_initial_state(tools, args))
     recovered = runtime.recover()
