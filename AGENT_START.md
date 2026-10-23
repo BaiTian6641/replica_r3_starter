@@ -18,7 +18,7 @@ Earlier `write_file` and `set_constant` families remain preserved negatives
 success head is still **untrained and uncalibrated**. E2 novel-value reading
 remains 0/16, E4 delayed use was rejected (0/8 held-out; compositional 1/8 with
 no control gain), E5 procedure publication/rollback passes, and C16 identity
-conditioning awaits authentic permitted source. Full suite **1125 passed / 21
+conditioning awaits authentic permitted source. Full suite **1126 passed / 21
 subtests**. No active native job; no base copy, download or Neural Engine claim.
 
 **E3 narrower repair (23 October):** fresh `set_constant` family passes
