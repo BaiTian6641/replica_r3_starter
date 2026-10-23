@@ -33,6 +33,13 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E2 record-token copy head (23 October).** Added optional exact-token
+`CopyRead` frames and an independently gated copy head, plus loader/serialization
+paths. Trained only the copy head on fresh novel-value data; copy-enabled and
+disabled answers were identical, held-out accuracy **0/16** both, and training
+loss did not descend. The interface tests pass; the candidate is **rejected**.
+See [copy-head results](docs/experiments/20261023_E2_Copy_Head_Results.md).
+
 **E3 pooled success head (23 October).** The runtime summary contract is 24
 task features plus one pooled 256-wide workspace; the old full-slot reshape was
 replaced with a matching pooled monitor. Trained on 18 actual outcomes (14

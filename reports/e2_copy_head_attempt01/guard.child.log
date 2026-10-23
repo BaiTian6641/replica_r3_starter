@@ -1,0 +1,12 @@
+W1023 07:49:23.481000 27452 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_copy_head.py", line 147, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_copy_head.py", line 138, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_copy_head.py", line 60, in execute
+    model,tok,lock=load_local_mps(args.model_path,args.model_lock,profiler=profiler,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: load_local_mps() got an unexpected keyword argument 'copy'

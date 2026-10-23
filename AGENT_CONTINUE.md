@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E2 record-token copy head (23 October):** interface/null/serialization pass;
+copy-enabled and disabled both 0/16; rejected. See
+[copy-head results](docs/experiments/20261023_E2_Copy_Head_Results.md).
+
 **E3 pooled success head (23 October):** trained on 18 actual outcomes,
 case-heldout 0.8125 vs 0.7778 majority, Brier 0.342; uncalibrated and
 unpublished, no authority. See [results](docs/experiments/20261023_E3_Success_Head_Results.md).
