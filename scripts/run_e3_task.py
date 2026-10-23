@@ -148,6 +148,8 @@ def build_parser():
     parser.add_argument("--seed", type=int, default=17)
     parser.add_argument("--seed-policy", action=argparse.BooleanOptionalAction, default=True,
                         help="Admit one deterministic host policy record for the case scope")
+    parser.add_argument("--action-guard", action="store_true",
+                        help="Enable the general no-progress read/test guard; the model still selects tool and arguments")
     return parser
 
 

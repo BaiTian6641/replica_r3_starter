@@ -290,6 +290,14 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 action-space guard (23 October).** A general no-progress guard (deny a
+repeated read of an unchanged file and a repeated test after failure) was tested
+on a fresh four-case `set_constant` family. Guard and control both completed
+**0/4**; the model emitted `read` repeatedly, with the guard denying reads but
+not changing action selection. No false success, no repair selected. This closes
+the prompt-only guard path and supports an action-selection, not interface,
+diagnosis. See [guard results](docs/experiments/20261023_E3_Action_Guard_Results.md).
+
 **C17 request admission (23 October).** A single-job `RequestScheduler` now
 binds each admitted operation to request/task/revision/evidence/branch/producer
 identity, refuses a second concurrent admission, and supports explicit host
