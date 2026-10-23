@@ -2,6 +2,7 @@
 """Bounded full-augmented D2 action diagnostic (no export on rejection)."""
 from __future__ import annotations
 import argparse
+from contextlib import nullcontext
 from dataclasses import asdict
 from datetime import datetime, timezone
 import hashlib, importlib.metadata, json, os, sys, time, traceback
@@ -86,18 +87,26 @@ def execute(args,protocol,report,profiler):
       lr_muon_base=alignment['lr_muon_base'],lr_muon_new=alignment['lr_muon_new'],weight_decay=alignment['weight_decay'])
     if opt is None: raise RuntimeError('optimizer has no trainable parameters')
     report['optimizer_initial']=opt.audit(); model.train(); updates=[]
+    compute=protocol['training'].get('compute_dtype','float32')
+    if compute not in ('float32','bf16'):
+        raise ValueError('compute_dtype must be float32 or bf16')
+    amp = (torch.autocast('mps', dtype=torch.bfloat16)
+           if compute == 'bf16' else nullcontext())
+    report['compute_dtype']=compute
     for update in range(1,int(alignment['updates'])+1):
         opt.zero_grad(set_to_none=True); total=0.0
         for off in range(int(alignment['examples_per_update'])):
             ex=examples[(2*(update-1)+off)%len(examples)]
             cid=ex['case_id']; action_ids,mask,labels,prompt_tokens=build_action_batch(tok,ex,'mps')
-            with session.training_request(prompt_ids=action_ids[:,:prompt_tokens],prompt_mask=mask[:,:prompt_tokens],
-                    query=ex['goal'],scope=scopes[cid],task=ex['task_graph'],selection=selection_for_case(cid),
-                    task_features=ex['task_features'],task_digest=ex['task_digest'],revision=ex['revision'],
-                    previous_core=None,core_impl='recurrent',enabled_branches=('memory','workspace'),
-                    train_core=True,train_sense=True) as request:
-                output=session.forward(request,action_ids,labels=labels,attention_mask=mask)
-                loss=output.loss/int(alignment['examples_per_update']); total+=float(loss.detach()); session.backward(request,loss)
+            with amp:
+                with session.training_request(prompt_ids=action_ids[:,:prompt_tokens],prompt_mask=mask[:,:prompt_tokens],
+                        query=ex['goal'],scope=scopes[cid],task=ex['task_graph'],selection=selection_for_case(cid),
+                        task_features=ex['task_features'],task_digest=ex['task_digest'],revision=ex['revision'],
+                        previous_core=None,core_impl='recurrent',enabled_branches=('memory','workspace'),
+                        train_core=True,train_sense=True) as request:
+                    output=session.forward(request,action_ids,labels=labels,attention_mask=mask)
+                    loss=output.loss/int(alignment['examples_per_update']); total+=float(loss.detach())
+                session.backward(request,loss)
             del output,loss,action_ids,mask,labels
         norm=float(torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad],alignment['gradient_clip'],error_if_nonfinite=True))
         ratio=min(1.0,update/int(alignment['warmup_updates']))
