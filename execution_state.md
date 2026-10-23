@@ -40,6 +40,14 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer record scope (23 October).** On a third untouched family, the
+same pointer weights with whole-word candidates scored **10/12** when restricted
+to the top lexical record versus **3/12** across all selected records. The two
+misses were entity-name spans inside the correct record. This identifies source
+selection as the dominant fresh-copy bottleneck; it remains opt-in and exact
+text remains default. See
+[record-scope results](docs/experiments/20261023_E2_Pointer_Record_Scope_Results.md).
+
 **E2 pointer candidate units (23 October).** On a second untouched family,
 token and whole-word candidate enumeration both scored **2/12**. Whole-word
 candidates removed truncated copies (`saff`→`saffron`) but still selected wrong
