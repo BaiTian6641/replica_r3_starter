@@ -9,7 +9,7 @@ for k in ('HF_HUB_OFFLINE','TRANSFORMERS_OFFLINE','HF_DATASETS_OFFLINE'):os.envi
 os.environ['PYTORCH_ENABLE_MPS_FALLBACK']='0'
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(ROOT/'scripts'))
 from run_e3_qualification import admit_policy, canonical, component_binding, initial_state
-from replica_lab.runtime.candidate_actions import build_action_menu
+from replica_lab.runtime.candidate_actions import CandidateReranker, build_action_menu
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--device',choices=['mps'],default='mps')
@@ -70,16 +70,12 @@ def execute(args,protocol,report,prof):
    if ids.shape[1]>int(protocol['evaluation']['prompt_tokens']):raise ValueError('candidate prompt exceeds budget')
    scores=[]
    if args.selection=='model':
-    sel=session.index.retrieve(tools.goal,**asdict(scope),limit=1)
+    retrieval=session.index.retrieve(tools.goal,**asdict(scope),limit=1)
     task=TaskGraph(cid,tools.goal,state_digest=runtime.state.digest,revision=runtime.state.revision)
-    request=session.prepare(prompt_ids=ids,prompt_mask=torch.ones_like(ids,dtype=torch.bool),query=tools.goal,scope=scope,task=task,selection=sel,task_features=runtime.state.features(),task_digest=runtime.state.digest,revision=runtime.state.revision,previous_core=None,core_impl='recurrent',enabled_branches=('memory','workspace'))
-    try:
-     with torch.no_grad():
-      for c in cands:
-       raw=canonical(c);target=tok(raw,add_special_tokens=False)['input_ids']+[tok.eos_token_id];t=torch.tensor([target],dtype=torch.long,device='mps');all_ids=torch.cat((ids,t),dim=1);mask=torch.ones_like(all_ids,dtype=torch.bool);labels=all_ids.clone();labels[:,:ids.shape[1]]=-100
-       out=session.forward(request,all_ids,labels=labels,attention_mask=mask);scores.append(float(out.loss.detach()))
-    finally:request.release()
-    best=min(range(len(cands)),key=lambda i:(scores[i],i))
+    picked=CandidateReranker(session,tok).select(prompt_ids=ids,prompt_mask=torch.ones_like(ids,dtype=torch.bool),
+      candidates=cands,query=tools.goal,scope=scope,task=task,task_features=runtime.state.features(),
+      task_digest=runtime.state.digest,revision=runtime.state.revision,selection=retrieval)
+    scores=list(picked.scores);best=picked.chosen_index
    else:
     best=rng.randrange(len(cands))
    chosen=cands[best];raw=canonical(chosen);score_rows.append({'step':len(traces)+1,'candidates':cands,'scores':scores,'chosen':best});prof.mark('candidate_choice',case=cid,step=len(traces)+1,chosen=best,score=scores[best] if scores else None)
