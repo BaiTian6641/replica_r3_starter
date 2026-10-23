@@ -19,9 +19,11 @@ def test_capacity32_manifest_and_spans():
             # A tokenizer is needed only to split source spans; use the sealed tokenizer.
             from transformers import AutoTokenizer
             tok=AutoTokenizer.from_pretrained(ROOT/'checkpoints/minicpm5_source',local_files_only=True,trust_remote_code=False)
-            class Adapter: pass
+            from types import SimpleNamespace
             class Session(MemorySession):
-                def __init__(self): self.ledger=ledger; self.tokenizer=tok; self._cache={}
+                def __init__(self):
+                    self.ledger=ledger; self.tokenizer=tok; self._cache={}
+                    self.adapter=SimpleNamespace(ports=SimpleNamespace(source_tokens=128))
             session=Session()
             spans=session.spans(records)
             assert len(spans)==32
