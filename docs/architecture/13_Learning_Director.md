@@ -65,3 +65,20 @@ authority and does not read evaluator gold.
 `tests/test_learning_cycle.py` covers success/no-update, repeated-read and
 malformed mapping, procedure proposal, low-label deferral and the summary
 adapter. This is an integration boundary, not a trained or calibrated director.
+
+## Actual-outcome audit
+
+`configs/c13_director_audit_v1.json` maps six historical outcome summaries
+(the original free-form action family, large family, DAgger, partial restart,
+accepted procedure and retrieval failure) through the deterministic director.
+The audit produced:
+
+- accepted procedure → `no_update`;
+- large action family (9 attempts) → neural proposal;
+- retrieval failure → record proposal;
+- smaller action/DAgger/restart outcomes → defer (neural labels insufficient).
+
+This is a **policy audit**, not learned-selector accuracy or a capability
+result. It confirms the intended no-update/proposal/defer behavior on actual
+counters and preserves the distinction between a proposal and a trained update.
+`tests/test_c13_director_audit.py` covers the success and neural-threshold paths.

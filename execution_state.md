@@ -423,6 +423,14 @@ invalidation. It is admission-only: the adapter still re-prefills, no native
 cache is reused and existing native scripts remain serialized by the exclusive
 worker lock. See [request scheduler](docs/architecture/14_Request_Scheduler.md).
 
+**C13 actual-outcome audit (23 October).** Six historical summaries were
+reviewed by the deterministic director: accepted procedure -> no update; large
+action failure -> neural proposal; retrieval failure -> record proposal; smaller
+action/DAgger/restart cases deferred for insufficient labels. This is a policy
+audit, not learned-selector accuracy. See
+[learning director](docs/architecture/13_Learning_Director.md). Report:
+`reports/c13_director_audit_20261023.json`.
+
 **C13 outcome-to-proposal adapter (23 October).** `runtime/learning_cycle.py`
 now turns an actual runtime summary into one bounded director review, with
 success→no-update, repeated-read/malformed→action and receipted failure→procedure
