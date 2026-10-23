@@ -1,0 +1,14 @@
+{
+  "format": "replica.c13.director_audit.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Run the deterministic director over actual historical outcome summaries; this is not a learned-selector evaluation.",
+  "budget": {"max_cost_units": 10000, "min_repeated_failures": 2, "min_neural_attempts": 8},
+  "observations": [
+    {"id": "e3_set_constant_free_form", "task_family": "set_constant", "failure_class": "action", "attempts": 7, "successes": 0, "source_event_ids": ["e3_set_constant_attempt03", "heldout_06_08"], "verified_receipts": 0, "cost_units": 120.0},
+    {"id": "e3_large_action_family", "task_family": "set_constant_large", "failure_class": "action", "attempts": 9, "successes": 0, "source_event_ids": ["e3_set_large_attempt01", "heldout_large"], "verified_receipts": 0, "cost_units": 200.0},
+    {"id": "e3_dagger_action", "task_family": "set_constant_dagger", "failure_class": "action", "attempts": 5, "successes": 0, "source_event_ids": ["e3_dagger_attempt01", "heldout_dagger"], "verified_receipts": 0, "cost_units": 80.0},
+    {"id": "e3_candidate_restart_partial", "task_family": "set_constant_restart", "failure_class": "action", "attempts": 5, "successes": 0, "source_event_ids": ["e3_candidate_restart_process2", "case_01"], "verified_receipts": 0, "cost_units": 30.0},
+    {"id": "e5_procedure_success", "task_family": "set_constant_procedure", "failure_class": "procedure", "attempts": 3, "successes": 3, "source_event_ids": ["e5_procedure_20261023", "heldout_06_08"], "verified_receipts": 3, "cost_units": 4.0},
+    {"id": "e2_retrieval_failures", "task_family": "retrieval", "failure_class": "retrieval", "attempts": 4, "successes": 1, "source_event_ids": ["e2_cross_template_retrieval", "heldout"], "verified_receipts": 0, "cost_units": 25.0}
+  ]
+}
