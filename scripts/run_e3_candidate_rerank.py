@@ -21,6 +21,7 @@ def main():
  p.add_argument('--max-steps',type=int,default=None)
  p.add_argument('--resume',action='store_true')
  p.add_argument('--resume-from',type=Path)
+ p.add_argument('--shuffle-candidates',action='store_true')
  a=p.parse_args()
  if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
  a.output.mkdir(parents=True,exist_ok=True)
@@ -83,6 +84,7 @@ def execute(args,protocol,report,prof):
   for step in range(limit):
    if runtime.state.is_complete(runtime.verifier):break
    cands=list(build_action_menu(tools,runtime.state))
+   if args.shuffle_candidates:rng.shuffle(cands)
    prompt=runtime._build_prompt(runtime.state)+'\nCANDIDATE ACTIONS (host enumerates; model scores or random control selects):\n'+'\n'.join('- '+canonical(c) for c in cands)
    ids=encode_prompt(tok,prompt,'mps')
    if ids.shape[1]>int(protocol['evaluation']['prompt_tokens']):raise ValueError('candidate prompt exceeds budget')

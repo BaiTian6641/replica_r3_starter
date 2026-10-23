@@ -1,0 +1,38 @@
+{
+  "format": "replica.e3_candidate_order.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "cases": [
+    {
+      "case_id": "order_heldout_01",
+      "role": "heldout",
+      "source_group": "order_a",
+      "constant": "MAX_WORKERS",
+      "actual": 2,
+      "expected": 12
+    },
+    {
+      "case_id": "order_heldout_02",
+      "role": "heldout",
+      "source_group": "order_b",
+      "constant": "HEARTBEAT_MS",
+      "actual": 250,
+      "expected": 1700
+    },
+    {
+      "case_id": "order_heldout_03",
+      "role": "heldout",
+      "source_group": "order_c",
+      "constant": "BUFFER_MS",
+      "actual": 200,
+      "expected": 1600
+    }
+  ],
+  "splits": {
+    "heldout": [
+      "order_heldout_01",
+      "order_heldout_02",
+      "order_heldout_03"
+    ]
+  }
+}
