@@ -1,0 +1,63 @@
+{
+  "format": "replica.e2.reader_candidate.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Targeted E2 reader candidate: answer-loss training on source-separated synthetic values, with parent/candidate held-out evaluation. The earlier diagnostic localized the bottleneck to writer/reader encoding.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e2_reader",
+    "records_sha256": "052016479b16e7d509caca36ea554b139bebf51c04e19d3e37439a72f6005776",
+    "queries_sha256": "0f4bb983de27a0f1900eb94139df1622f32e1de69c176a57e9713feda2a00f55",
+    "manifest_sha256": "85cb19ed2a04f775cb0cc184b62db3d68d134b581791d0f2551b872ce286d92f"
+  },
+  "splits": {
+    "train": 24,
+    "dev": 6,
+    "heldout": 10
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable": [
+      "record_writer",
+      "memory_ports"
+    ],
+    "optimizer": "muon8bit",
+    "lr_new": 0.01,
+    "lr_muon_new": 0.01,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "updates": 16,
+    "examples_per_update": 4,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "seed": 20261023,
+    "example_order": "deterministic round-robin over sorted train cases",
+    "loss": "response-only next-token cross entropy on answer plus EOS; prompt prefix masked",
+    "train_sense": false,
+    "selection": "lexical eligible records, limit 16, bank cap 16 units"
+  },
+  "evaluation": {
+    "dev_cases": 6,
+    "heldout_cases": 10,
+    "generation": {
+      "max_new_tokens": 8,
+      "greedy": true
+    },
+    "metric": "exact stripped answer; retrieval selected IDs preserved; parent/candidate paired"
+  },
+  "decision_rule": {
+    "accept": "candidate held-out exact accuracy above parent and dev not below parent",
+    "reject": "candidate held-out below parent or dev loss",
+    "defer": "otherwise"
+  },
+  "budget": {
+    "model_loads": 1,
+    "extension_reloads": 1,
+    "optimizer_updates": 16,
+    "eval_generations": 34,
+    "checkpoint_saves": 1
+  },
+  "retention": "Keep parent extension, candidate extension, raw prompts/answers and all failures. No base copy or download.",
+  "claims": "Exposed synthetic reader candidate; no generalization, calibrated confidence or task-action claim."
+}
