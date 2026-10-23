@@ -1,0 +1,48 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-23T12:33:34.150883+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_e3_mixed_core_controls.py",
+    "--device",
+    "mps",
+    "--output",
+    "runs/e3_mixed_core_controls_attempt02"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/e3_mixed_core_controls_attempt02",
+  "child_log": "reports/e3_mixed_core_controls_attempt02.guard.child.log",
+  "host_samples": "reports/e3_mixed_core_controls_attempt02.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "fe5aebd57a82580fc1fdc9454e9ea6784bb185eafe93687f62dd43ca1cb6ebb1",
+    "src/replica_lab/capacity_guard.py": "a29a24b87344e9613b687c0eb3cdd10ffa621081bf80aee1d493dcdeb22220d8"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 181.103277457878,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 42949672960,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1537935933,
+      "memory_free_percent": 90.0
+    },
+    "host_samples": 88,
+    "driver_samples": 701,
+    "peak_driver_bytes": 11815763968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 71.0,
+    "stop_reason": null
+  }
+}

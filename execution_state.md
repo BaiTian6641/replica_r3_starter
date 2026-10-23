@@ -33,6 +33,14 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 core controls (23 October).** On one fresh repair/pass pair with exact
+constant evidence, the full core/workspace path completed **2/2**, while
+core-disabled, feed-forward and extra-inference controls each completed only the
+pass case (**1/2**), failing the repair with rejected false stop claims. The
+signal is bounded to n=2 and does not establish recurrent-core superiority.
+Attempt 1 used a 640-token cap and failed after full episodes; preserved. See
+[core-control results](docs/experiments/20261023_E3_Mixed_Core_Controls_Results.md).
+
 **E3 exact-constant prompt evidence (23 October).** A host-read line now lists
 the current workspace constant names/current values (never the expected bound or
 a proposed repair) when `set_constant` is allowed. On a new four-case family

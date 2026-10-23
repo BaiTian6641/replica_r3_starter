@@ -1,0 +1,13 @@
+{
+  "schema_version": "replica.validation.e3_core_controls.v1",
+  "date_utc": "2026-10-23",
+  "full_suite": {"command": ".venv/bin/python -m pytest -q", "result": "1128 passed, 21 subtests passed", "exit_code": 0},
+  "report": "reports/e3_mixed_core_controls_attempt02/run_report.json",
+  "attempt1": "reports/e3_mixed_core_controls_attempt01/failure_report.json",
+  "cases": ["prompt_heldout_repair_01", "prompt_heldout_pass_03"],
+  "modes": {"full": "2/2", "core_disabled": "1/2", "ff_core": "1/2", "extra_inference": "1/2"},
+  "repair_case_success": {"full": true, "core_disabled": false, "ff_core": false, "extra_inference": false},
+  "recurrent_specific_benefit": false,
+  "costs": {"profiled_wall_seconds": 178.53, "peak_driver_gib": 11.0, "optimizer_updates": 0},
+  "scope": "Two fresh synthetic cases; no general-capability claim."
+}

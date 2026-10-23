@@ -1,0 +1,24 @@
+W1023 07:32:18.462000 24642 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 86/381 [00:00<00:00, 851.00it/s]Loading weights:  45%|████▌     | 172/381 [00:00<00:00, 853.79it/s]Loading weights:  68%|██████▊   | 258/381 [00:00<00:00, 842.27it/s]Loading weights:  90%|█████████ | 343/381 [00:00<00:00, 843.64it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 855.60it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_mixed_core_controls.py", line 81, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_mixed_core_controls.py", line 72, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_mixed_core_controls.py", line 40, in execute
+    result,_=run_episode(fixtures/case_id,args.output/'episodes'/mode/case_id,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 380, in run_episode
+    summary = runtime.run(proposer, max_decisions=budget.max_decisions)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 895, in run
+    item = self.decide(proposer)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 426, in decide
+    output = proposer(request)
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 1029, in __call__
+    raise ValueError('Prompt exceeds the declared token budget; narrow the prompt')
+ValueError: Prompt exceeds the declared token budget; narrow the prompt

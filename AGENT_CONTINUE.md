@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 core controls (23 October):** full path 2/2 vs core-disabled/FF/extra
+1/2 each on a fresh repair/pass pair; repair-specific signal, no recurrent-core
+superiority. See [core-control results](docs/experiments/20261023_E3_Mixed_Core_Controls_Results.md).
+
 **E3 exact-constant prompt evidence (23 October):** 4/4 fresh completions
 with host-read current names/values (no expected bound); narrower interface, not
 general capability. See [prompt evidence results](docs/experiments/20261023_E3_Prompt_Evidence_Results.md).
