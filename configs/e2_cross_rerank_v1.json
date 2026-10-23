@@ -1,0 +1,49 @@
+{
+  "format": "replica.e2.cross_rerank.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Train a fresh reranker on varied-template retrieval and evaluate held-out top1/top4; no answer generation.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e2_cross_rerank",
+    "records_sha256": "43001180a342dbaa50c5ef0e50f7e25792f70a81332acf71e64ceb1ec6270163",
+    "queries_sha256": "1ddbb90a245ca496cb656f1df305add489bd8e439e131fd6eb9fdaf59b568c5e",
+    "manifest_sha256": "591579260721921ba2de0c5f307203720b4d65ac01f07ee4d8ee3fc311d811b8"
+  },
+  "training": {
+    "trainable": [
+      "reranker",
+      "sense_ports.13"
+    ],
+    "updates": 8,
+    "examples_per_update": 8,
+    "lr_new": 0.001,
+    "lr_muon_new": 0.001,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "gradient_clip": 1.0,
+    "seed": 20261023,
+    "selection": "lexical eligible pool, 16-unit bank",
+    "loss": "session.ranking_loss"
+  },
+  "evaluation": {
+    "dev": 4,
+    "heldout": 8,
+    "arms": [
+      "lexical",
+      "rerank"
+    ],
+    "metric": "record top1/top4"
+  },
+  "decision_rule": {
+    "accept_opt_in": "rerank heldout top1 > lexical and dev not below lexical",
+    "reject": "otherwise"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 8,
+    "cases": 12,
+    "checkpoint_saves": 1
+  },
+  "claims": "Retrieval-only candidate; no default change."
+}
