@@ -3,17 +3,21 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the 8192-unit guard boundary; documentation follows.
-- Full suite at the code HEAD: **1171 passed, 21 subtests**.
+- Base HEAD before this package: `fd9ea17`; code commit `6e8ec34` adds the
+  capacity, action-menu and scheduler corrections; documentation follows.
+- Full suite after this package: **1211 passed, 21 subtests** in 147.24 s.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
-  unmodified; generated guard logs were removed. No native job is active.
+  unmodified. No native job is active.
+- The 8192-unit 48.08 GiB boundary and 4096-unit 30.59 GiB peak were measured
+  with the pre-fix inference harness. Writer/sense now run under
+  `torch.no_grad()`; corrected inference must be remeasured.
 
 ## Selected artifacts
 
 - Sealed original: `checkpoints/minicpm5_source` (revision
   `f97400052a43d642bbc6e9975e2397e3ae6a6b52`), unchanged.
 - E2 parent extension: `runs/e1_e2_native_attempt02_20261023/selected_extension`
-  (v1; used for the 32-unit capacity migration).
+  (v1; used for the 32/64/128/256/512/1024/4096-unit capacity migrations).
 - E3 accepted core/action extension:
   `runs/e3_set_attempt03_20261023/selected_extension` (v2).
 - E3 mixed family artifact:
@@ -30,7 +34,8 @@
 ## Last passed gates
 
 - E1/E2 native interfaces, eligibility, exact fallback and selected-extension
-  32-unit capacity (via validated `ports.max_units`-only migration).
+  capacity through **4096 units** (via validated `ports.max_units`-only
+  migrations); 8192 remains an attempted guard boundary, not a pass.
 - E3 engineering: real actions, independent evaluator, journal, restart,
   stale-workspace rejection, mixed-family 4/4.
 - C16 persistent identity store and optional native identity reader: null,
@@ -73,17 +78,20 @@
 
 ## Next executable action
 
-Choose **one** new action-policy mechanism, declare a fresh family and protocol
-before execution, and do not reuse the exposed guard cases for tuning:
+First, remeasure the corrected inference capacity path with `torch.no_grad()`
+enabled for the writer/sense producers; do not continue using the old 48.08 GiB
+number as the configuration limit. Then implement the first native-memory arm in
+[the research cross-check](../architecture/15_Research_Crosscheck_and_Backbone_Plan.md):
 
-- a trained D1/D2 action-policy candidate with an explicit optimizer/residency
-  plan and independent held-out evaluation, or
-- a genuinely different action representation with fresh supervision; do not
-  repeat the prompt guard or token-mask interface.
+- one GDN-2-lite memory block at ports 13/27, shared workspace/state, private
+  state control, learned writer from observed bytes only;
+- modules-only training with explicit optimizer groups, 32-64 updates, bounded
+  prompt/generation and the existing 40 GiB / 512 MiB / 15% guards;
+- fresh held-out delayed-use/correction/restart evaluation against zero,
+  shuffled, disabled and private-state controls.
 
-Require actual independent task completions, 0 false success claims, restart
-continuation, and measured tool/token/memory costs. A failed arm must preserve
-raw traces and not be reported as a general action-policy capability.
+Do not repeat free-form E3 action arms or claim a paper reproduction from a
+sidecar. A failed arm must preserve raw traces and remain a measured negative.
 
 ## External dependencies
 

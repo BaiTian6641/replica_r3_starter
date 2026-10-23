@@ -1,14 +1,27 @@
 # Execution state — E2/E3/C16/E4/E5 integrated build
 
-**Latest verified package (23 October 2026 UTC).** Full suite **1125 passed /
-21 subtests**. The connected E3 mixed-outcome family now has **4/4
+**Authoritative current snapshot (23 October 2026 UTC).** Full suite **1211
+passed / 21 subtests** in **147.24 s**. No active native job. Branch
+`codex/d2-capacity-runtime-pilot`; base commit `fd9ea17` before the current
+documentation/defect package. The connected E3 mixed-outcome family has **4/4
 head-conditioned and 4/4 no-head completions**, and the copied-case
-fresh-process restart passes **12/12** acceptance checks. Earlier write_file and
-set_constant negatives remain preserved; this is a bounded synthetic result, not
-general capability. E2 retrieval/capacity, C16 identity contracts, E4 fast
+fresh-process restart passes **12/12** acceptance checks. The action-kind head
+is rejected (no measured benefit). The success head has a diagnostic fit on 18
+actual outcomes but remains **uncalibrated, unpublished and without success
+authority**. E2 retrieval/capacity, C16 identity contracts, E4 fast
 memory/artifacts (delayed-use candidate rejected), and E5 procedure plus opt-in
-reranker remain as recorded. No active native job. See the
-[E2/E3/E4/E5 handoff](docs/experiments/20261023_Handoff_E2_E3_E4.md).
+reranker remain as recorded. See the
+[research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
+and [E2/E3/E4/E5 handoff](docs/experiments/20261023_Handoff_E2_E3_E4.md).
+
+**Current-package corrections.** (1) The capacity inference harness now runs the
+record writer and sense pass under `torch.no_grad()`; the old 8192-unit 48.08 GiB
+boundary is historical evidence and correctly configured inference must be
+remeasured. (2) Action menus now parse host-read numeric string constants; the
+`set_train_retry_01` fixture exposes three constant candidates instead of zero.
+(3) `RequestScheduler` refuses a request invalidated before admission, before
+any operation runs. (4) Status fields below are reconciled; 16 units is the
+retrieval/answer workload, while 4096 units is the separate capacity maximum.
 
 **Current work — integrated E2/E3/C13/C16/C17 with measured boundaries (23 October
 2026 UTC).** The shared width-256/eight-slot/two-iteration core, independent
@@ -19,9 +32,10 @@ repairs/passing evaluators, 0 malformed actions and 0 false success claims. The
 action-kind head is rejected (no measured benefit). Fresh-process continuation
 passes **12/12**: process 1 observed exit 1 and stopped; process 2 resumed the
 same journal/ledger, repaired once, passed the evaluator and did not replay
-completed actions. The success head remains **untrained/uncalibrated**; no
-general capability, confidence or personal-fidelity claim. The sealed source
-is unchanged and no native job is active.
+completed actions. The success head has a **diagnostic fit** on 18 actual
+outcomes but remains **uncalibrated, unpublished and without success
+authority**; no general capability, confidence or personal-fidelity claim. The
+sealed source is unchanged and no native job is active.
 
 **E2 reader candidate (23 October).** A D1 candidate trained `record_writer` and
 both memory readers with answer loss on 24 source-separated cases. Loss fell
@@ -47,16 +61,21 @@ Lexical remains default; the existing reranker remains opt-in. See
 [cross-template rerank](docs/experiments/20261023_E2_Cross_Template_Rerank_Results.md).
 
 **E2 8192-unit guard boundary (23 October).** A single-point 8192-unit probe
-hit the capacity guard during source-writer processing at **48.08 GiB** sampled
-peak, above the 40 GiB policy; no update or checkpoint. The selected-weight
-maximum remains **4096 units**; 8192 is measured as a boundary, not a pass. See
+with the pre-fix inference harness hit the capacity guard during source-writer
+processing at **48.08 GiB** sampled peak, above the 40 GiB policy; no update or
+checkpoint. The selected-weight maximum remains **4096 units**; 8192 is measured
+as a boundary, not a pass. The harness now runs writer/sense under
+`torch.no_grad()`; corrected inference must be remeasured before treating 48.08
+GiB as the configuration's limit. See
 [capacity results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 
 **E2 4096-unit selected capacity (23 October).** The selected extension passed
 all 12 inference/modules-only backward points on a fresh 4096-unit bank: peak
 driver **30.59 GiB**, **559.4 s**, zero swap growth, 28 gradient tensors. No base
-save/optimizer update. Tested ladder: 32/64/128/256/512/1024/2048/4096; 8192 was
-not run because it is expected to exceed 40 GiB. Capacity only. See
+save/optimizer update. Tested ladder: 32/64/128/256/512/1024/4096; 8192 was
+attempted separately and stopped by the guard, not qualified. The 4096 peak
+predates the no-grad correction; the pass remains valid for its workload, while
+the true inference peak needs remeasurement. Capacity only. See
 [capacity results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 
 **E2 1024-unit selected capacity (23 October).** The selected extension passed
@@ -544,10 +563,13 @@ violations are zero, corrections/superseded records are filtered, and the long
 record's fact span is included. Reranking remains **opt-in**; lexical remains
 the default; dense is not preferred.
 
-The largest actually qualified capacity path is **16 units / 2,043 source tokens
-/ 256 prompt tokens / 8 generated tokens**, plus a modules-only 16-unit backward.
-All 12 schedule points completed; peak sampled driver memory **12.51 GiB**, zero
-observed swap growth, 69% minimum free. D2 capacity was not declared or run.
+The largest actually qualified retrieval/answer path is **16 units / 2,043
+source tokens / 256 prompt tokens / 8 generated tokens**, plus a modules-only
+16-unit backward. This is the retrieval workload, not the later capacity
+maximum; the selected extension was separately qualified through **4096 units**
+(see the current snapshot above). All 12 schedule points completed; peak sampled
+driver memory **12.51 GiB**, zero observed swap growth, 69% minimum free. D2
+capacity was not declared or run.
 See [E2 results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 Validation for this increment: full suite **1091 passed / 21 subtests**, E2
 dataset tests 3 passed; receipt
@@ -555,8 +577,8 @@ dataset tests 3 passed; receipt
 
 **Open:** held-out configuration repair, correct action selection/arguments,
 full-core plan continuation, success-head training/calibration, novel-value
-E2 writer/reader transfer, ranking quality and broad capacity beyond the
-qualified 16-unit/256-token workload. These are
+E2 writer/reader transfer, ranking quality, and a post-fix inference
+remeasurement of the 4096/8192 capacity boundary. These are
 exposed synthetic fixtures, not a generalization result. Do not retune this
 held-out set. A future narrower repair-tool arm or new held-out cases must be a
 new preregistered study.

@@ -15,11 +15,13 @@ evaluator and did not replay completed actions.
 
 Earlier `write_file` and `set_constant` families remain preserved negatives
 (0/8 and 0/7); the bounded mixed success is not a general capability claim. The
-success head is still **untrained and uncalibrated**. E2 novel-value reading
-remains 0/16, E4 delayed use was rejected (0/8 held-out; compositional 1/8 with
-no control gain), E5 procedure publication/rollback passes, and C16 identity
-conditioning awaits authentic permitted source. Full suite **1126 passed / 21
-subtests**. No active native job; no base copy, download or Neural Engine claim.
+success head has a **diagnostic fit** on 18 actual outcomes but remains
+**uncalibrated, unpublished and without success authority**. E2 novel-value
+reading remains 0/16, E4 delayed use was rejected (0/8 held-out; compositional
+1/8 with no control gain), E5 procedure publication/rollback passes, and C16
+identity conditioning awaits authentic permitted source. Full suite **1211
+passed / 21 subtests**. No active native job; no base copy, download or Neural
+Engine claim.
 
 **E3 narrower repair (23 October):** fresh `set_constant` family passes
 all engineering checks but scores **0/7**; the model repeats `read` despite
@@ -151,25 +153,29 @@ fidelity evaluation exists. See
 recall@1 **0.75** lexical/dense and **0.50** learned rerank; each slot arm answers
 **0/6**, oracle slots **0/4**, and exact text **3/3**. The novel-value
 writer/reader path is the bottleneck; eligibility and long-chunk inclusion pass.
-Largest actually exercised capacity: **16 units / 2,043 source tokens / 256
-prompt tokens / 8 generated tokens** plus modules-only 16-unit backward, at
-**12.51 GiB** peak driver, zero swap. Reranking stays opt-in; lexical is the
-default. D2 capacity was not run. See
+Largest actually exercised retrieval/answer workload: **16 units / 2,043 source
+tokens / 256 prompt tokens / 8 generated tokens** plus modules-only 16-unit
+backward, at **12.51 GiB** peak driver, zero swap. Capacity is separate: the
+selected extension passed **4096 units** at 30.59 GiB; 8192 was attempted with
+the pre-fix inference harness and stopped by the guard at 48.08 GiB. The harness
+now runs writer/sense under `torch.no_grad()`, so corrected inference must be
+remeasured. Reranking stays opt-in; lexical is the default. D2 capacity was not
+run. See
 [E2 results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 
 **Open:** configuration repair, correct action/argument selection, full-core
-plan continuation, success-head training/calibration, novel-value E2
-writer/reader transfer, ranking quality and capacity beyond the qualified
-16-unit/256-token workload. Do not retune the held-out set. Next is either a
-separately preregistered narrower repair-tool study with fresh cases or a
-writer/reader improvement arm. No broad corpus campaign or model promotion is
-admitted.
+plan continuation, success-head calibration, novel-value E2 writer/reader
+transfer, ranking quality, and a post-fix inference remeasurement of the
+4096/8192 boundary. Do not retune the held-out set. Next is either a separately
+preregistered native-memory block (GDN-2-lite plus learned writer) with fresh
+cases or a writer/reader improvement arm. No broad corpus campaign or model
+promotion is admitted.
 
-Validation: integrated full suite **1081 passed / 21 subtests**; E3-focused
-suite **157 passed**. Attempt 1 (parity order), attempt 2 (EOS-as-second-JSON
-parser) and the interrupted pre-check (nested binding) are preserved; attempt 3
-is accepted. Source seal and the protected untracked runtime draft remain
-unchanged.
+Validation: integrated full suite **1208 passed / 21 subtests**; E3-focused
+suite **157 passed** at its last recorded run. Attempt 1 (parity order), attempt
+2 (EOS-as-second-JSON parser) and the interrupted pre-check (nested binding) are
+preserved; attempt 3 is accepted. Source seal and the protected untracked
+runtime draft remain unchanged.
 
 **Storage rule:** reuse `checkpoints/minicpm5_source` revision
 `f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Preserve the selected earlier D0/D1/D2

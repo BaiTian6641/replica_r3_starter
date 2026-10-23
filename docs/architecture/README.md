@@ -1,6 +1,6 @@
 # Replica architecture research and design
 
-**Reviewed 22 October 2026, America/Chicago / 23 October UTC.** This is the
+**Reviewed 22-23 October 2026, America/Chicago / 23 October UTC.** This is the
 current detailed design for rebuilding the research starter into the intended
 model-integrated system. It follows the user's request to prioritize the real
 architecture over further isolated short-answer probes.
@@ -16,10 +16,11 @@ validation model; MiniCPM-V-4.7-1B is the second, with its own native port.
 [E3 set_constant negative](../experiments/20261023_E3_Set_Constant_Results.md),
 [C16 identity](09_Replica_Identity_Interface.md),
 [E4 fast memory](10_Fast_Memory_Reference.md),
-[E4 artifacts](11_Runtime_Artifacts.md), [C13 director](13_Learning_Director.md), [C17 scheduler](14_Request_Scheduler.md) and
-[E5 procedure](../experiments/20261023_E5_Procedure_Results.md) record the
-connected code and measured limits. The research chapters below remain the
-design baseline.
+[E4 artifacts](11_Runtime_Artifacts.md), [C13 director](13_Learning_Director.md), [C17 scheduler](14_Request_Scheduler.md),
+[E5 procedure](../experiments/20261023_E5_Procedure_Results.md) and the
+[research cross-check and backbone plan](15_Research_Crosscheck_and_Backbone_Plan.md)
+record the connected code, measured limits and the next native-memory plan. The
+research chapters below remain the design baseline.
 
 ## Read in this order
 
@@ -31,6 +32,7 @@ design baseline.
 | [4. Semi-cognition, learning and Replica](04_Semi_Cognition_Learning_and_Replica.md) | TAIS inheritance, task/core/action loop, capability, real candidate learning and personal identity integration |
 | [5. Implementation sequence](05_Implementation_Sequence.md) | Six connected build packages, code migration, training/evaluation and hardware plan |
 | [6. Research decisions](06_Research_Decisions.md) | Primary sources, distinctions, adaptation choices and unresolved questions |
+| [Research cross-check and backbone plan](15_Research_Crosscheck_and_Backbone_Plan.md) | Current implementation versus Titans/uTTT/MemT/HOPE/Engram/Mem-T, missing mechanisms, and the MiniCPM5/VLM modification sequence |
 
 Each detailed chapter contains block diagrams alongside component inputs,
 outputs, state ownership, training/update cadence and use. The

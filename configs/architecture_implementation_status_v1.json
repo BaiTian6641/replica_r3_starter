@@ -3,9 +3,10 @@
   "updated_at_utc": "2026-10-23",
   "design": "configs/architecture_design_v1.json",
   "documentation": "docs/architecture/08_E3_Implementation.md",
+  "research_crosscheck": "docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md",
   "E1": "implemented_native_interfaces_qualified",
   "E2": "implemented_selected_4096_unit_capacity_via_validated_migration;8192_measured_guard_boundary; retrieval_reader_novel_value_open",
-  "E3": "engineering_and_restart_passed; free_form_action_negative; candidate_ranking_positive_narrow_opt_in",
+  "E3": "engineering_and_restart_passed; bounded_mixed_family_4/4_with_and_without_head; free_form_action_negative; candidate_ranking_positive_narrow_opt_in",
   "E4": "implemented_reference_fast_memory_and_typed_artifacts_learned_delayed_use_rejected_native_ports_untrained",
   "E5": "procedure_and_neural_reranker_candidates_evaluated_opt_in",
   "E6": "native_VLM_unrun",
@@ -14,7 +15,7 @@
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
     "C03": "exact temporal record ledger; task/action integration through the E3 runtime",
     "C04": "pointer context opt-in repeats 12/12 on two in-template families; cross-template top-record test confounded by lexical top1 7/12; no default",
-    "C05": "lexical/dense/rerank cross-template negative; selected extension passes 32/64/128/256/512/1024/2048/4096-unit synthetic capacity via validated migration; quality open",
+    "C05": "lexical/dense/rerank cross-template negative; selected extension passes 32/64/128/256/512/1024/4096-unit synthetic capacity via validated migration; quality open",
     "C08": "authorized goal, conditions, constraints, claims, obligations, exact journal; restart reconstruction passes 12/12 on a copied mixed repair",
     "C09": "core/workspace and action head; bounded mixed family 4/4 with and without head; full path 2/2 vs 1/2 for core-disabled/FF/extra controls; no recurrent-specific benefit",
     "C10": "candidate ranking 17/17 (15/15 heldout) across four fresh repair families; canonical/shuffled both 3/3; random 0/11; answer ranking negative; free-form negative",
@@ -32,16 +33,16 @@
   "selected_extension": "runs/e3_native_attempt03_20261023/selected_extension",
   "original_source": "checkpoints/minicpm5_source",
   "scope_limits": [
-    "E3 engineering checks pass; all 8 model-driven episodes failed independent task completion",
+    "E3 original exposed arm: all 8 model-driven episodes failed independent task completion; later bounded mixed family completed 4/4 with and 4/4 without the action-kind head",
     "full-core arm repeated read; workspace-zero arm wrote an invalid repair; no success declared",
-    "success head untrained: 8 actual outcomes, all negative",
-    "fresh-process restart reconstructed state and rejected stale workspace; task did not complete",
+    "success head: initial 8 outcomes were single-class; a later diagnostic fit used 18 actual outcomes (14 positive / 4 negative), is uncalibrated and unpublished, and has no success authority",
+    "original fresh-process restart reconstructed state and rejected stale workspace but did not complete; later copied mixed repair passes 12/12 acceptance checks",
     "exposed synthetic fixtures, no held-out generalization",
     "parent E2 extension is initialization and regression reference, not a capability baseline",
     "no cognition/self-improvement/personal-fidelity claim",
     "E2 retrieval held-out recall@1 0.75 lexical/dense, 0.50 rerank; answer accuracy 0/6 all slot arms",
     "oracle correct-record slots 0/4 held-out; exact text 3/3; writer/reader novel-value encoding is the bottleneck",
-    "largest qualified capacity workload 16 units, 2043 source tokens, 256 prompt, 8 generated; modules-only 16-unit backward",
+    "largest qualified retrieval/answer workload 16 units, 2043 source tokens, 256 prompt, 8 generated; capacity is separately qualified through 4096 units",
     "D2 capacity not run; full configured maximum not claimed as exercised",
     "reranking remains opt-in; lexical remains default",
     "set_constant arm: 0/7 episodes, repeated read; teacher loss 0.015 but evaluation action selection fails",
@@ -95,7 +96,7 @@
     "E2 cross-template reranker top1 1/12, below lexical 7/12; no template transfer",
     "cross-template trained rerankers rejected: 4/8 then 1/8 heldout vs lexical 5/8; supervision/representation failure",
     "C16 native identity reader attached with zero-init null parity and v3 manifest; untrained, no authentic slot encoder or runtime conditioning",
-    "32-unit architecture-capacity arm passed (random ports, no parent); selected-weight E2 extension remains capped at 16 units",
+    "32-unit architecture-capacity arm passed (random ports, no parent); selected-weight E2 extension passed 32/64/128/256/512/1024/4096 units via the validated max_units-only migration",
     "32-unit capacity uses the synthetic 128-token bank and a max_units-only migration; no quality or larger-source-length claim",
     "E3 action-space guard did not improve action selection: guard 0/4 vs control 0/4; model repeated read",
     "constrained action-token masking aborted at smoke: model emitted .read/malformed JSON, 0/1; interface defect",
@@ -116,8 +117,8 @@
     "selected extension passes 256-unit synthetic capacity (13.50 GiB, 43.4 s, zero swap); no quality claim",
     "selected extension passes 512-unit synthetic capacity (14.62 GiB, 76.0 s, zero swap); ladder closed at tested maximum, no quality claim",
     "selected extension passes 1024-unit synthetic capacity (16.90 GiB, 142.6 s, zero swap); no quality or longer-source claim",
-    "selected extension passes 4096-unit synthetic capacity (30.59 GiB, 559.4 s, zero swap); 8192 not run due expected guard breach",
-    "8192-unit selected-weight probe exceeded guard at 48.08 GiB during source writer; selected maximum remains 4096"
+    "selected extension passes 4096-unit synthetic capacity (30.59 GiB, 559.4 s, zero swap); 8192 was attempted with the pre-fix inference harness and stopped by the guard at 48.08 GiB",
+    "the 8192-unit boundary and 4096-unit peak were measured before the inference harness wrapped writer/sense in torch.no_grad; correctly configured inference must be remeasured, and the selected tested maximum remains 4096"
   ],
   "retrieval_result": "reports/e2_retrieval_attempt03_20261023/run_report.json",
   "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",
@@ -125,7 +126,7 @@
   "new_scope_limits": [
     "E2 retrieval held-out recall@1 0.75 lexical/dense, 0.50 rerank; answer accuracy 0/6 all slot arms",
     "oracle correct-record slots 0/4 held-out; exact text 3/3; writer/reader novel-value encoding is the bottleneck",
-    "largest qualified capacity workload 16 units, 2043 source tokens, 256 prompt, 8 generated; modules-only 16-unit backward",
+    "largest qualified retrieval/answer workload 16 units, 2043 source tokens, 256 prompt, 8 generated; capacity is separately qualified through 4096 units",
     "D2 capacity not run; full configured maximum not claimed as exercised",
     "reranking remains opt-in; lexical remains default"
   ],
@@ -227,9 +228,9 @@
       "designed": true,
       "implemented": true,
       "integrated": false,
-      "trained": "not trained (single class)",
-      "evaluated": "not calibrated",
-      "qualified": "none"
+      "trained": "diagnostic fit on 18 actual outcomes (14 positive / 4 negative)",
+      "evaluated": "case-heldout 0.8125 vs 0.7778 majority; Brier 0.342; uncalibrated and unpublished",
+      "qualified": "none; no success authority"
     },
     "C12": {
       "description": "typed artifacts and procedure candidate",
@@ -243,20 +244,20 @@
     "C13": {
       "description": "learning director",
       "designed": true,
-      "implemented": false,
-      "integrated": false,
-      "trained": "none",
-      "evaluated": "none",
-      "qualified": "none"
+      "implemented": "deterministic director, runtime-summary adapter and audit",
+      "integrated": "proposal boundary; no publish/execute authority",
+      "trained": "none; learned selector deferred at 5 accepted / 8 rejected vs 10/10 minimum",
+      "evaluated": "actual-outcome audit only; no learned-selector accuracy",
+      "qualified": "deterministic proposal gating only"
     },
     "C14": {
       "description": "candidate trainer/evaluator",
       "designed": true,
-      "implemented": "procedure path",
+      "implemented": "procedure path; isolated neural candidate experiments",
       "integrated": "procedure",
-      "trained": "no neural training",
-      "evaluated": "procedure evaluated",
-      "qualified": "neural candidate pending"
+      "trained": "attempted E2/E4/E5 candidates; no accepted neural candidate",
+      "evaluated": "procedure 3/3; rejected reader/delayed-use/copy candidates; reranker opt-in",
+      "qualified": "procedure only; neural candidate pending"
     },
     "C15": {
       "description": "extension manifest, artifact catalog and publication/rollback",

@@ -196,8 +196,11 @@ paths and one guarded job at a time.
 
 The retrieval run trains only the reranker and block-13 sensor through
 `ranking_loss`; it does not use answer loss for hard top-k. The capacity run
-ascends 1→16 units and 64→256 prompt tokens for inference and modules-only
-backward, with no optimizer step. Results and retained failures are recorded in
+ascends units and prompt tokens for inference and modules-only backward, with no
+optimizer step. Inference producers now run under `torch.no_grad()`; the older
+8192-unit 48.08 GiB boundary was measured before that correction and must not be
+treated as the correctly configured inference limit. Results and retained
+failures are recorded in
 [the E2 report](experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 Reranking remains opt-in and lexical remains the default.
 

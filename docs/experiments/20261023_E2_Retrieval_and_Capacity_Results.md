@@ -13,6 +13,15 @@ diagnostic answers **0/4**; exact source text answers **3/3**. The bottleneck is
 the record writer/reader encoding, not eligibility, retrieval availability,
 prompt format or decoder capacity.
 
+**Inference-harness correction (23 October 2026).** The capacity points in this
+report were measured before the record writer and sense pass were wrapped in
+`torch.no_grad()` in `scripts/run_e2_capacity.py`. The 8192-unit guard stop at
+48.08 GiB is real for that pre-fix harness but does not establish the limit of
+correctly configured inference; the 4096-unit pass remains valid for its tested
+workload. Corrected inference remeasurement is pending. The 16-unit path is the
+retrieval/answer workload; it is not the selected capacity maximum. See the
+[research cross-check](../architecture/15_Research_Crosscheck_and_Backbone_Plan.md).
+
 ## 1. Dataset and separation
 
 `data/e2_retrieval` contains **13 cases / 49 records**, source-separated by
