@@ -297,6 +297,13 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 bf16 full-backbone D2 action (23 October).** A declared bf16-compute
+residency variant completed 8 full-scope updates at **39.10 GiB** peak, then
+completed **0/4 held-out and 0/2 dev** episodes; every episode repeated `read`.
+No export was written. This closes the full-backbone action hypothesis as well
+as the residency route for this interface. See
+[D2 action results](docs/experiments/20261023_E3_D2_Action_Results.md).
+
 **E3 D2 action residency (23 October).** The full-backbone action diagnostic
 was stopped by the capacity guard at the first backward: **40.68 GiB** sampled
 peak against a 40 GiB limit, with no optimizer update, checkpoint or held-out

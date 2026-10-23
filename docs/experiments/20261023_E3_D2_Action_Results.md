@@ -22,3 +22,18 @@ None is claimed. The action-selection negative results from modules-only familie
 remain unchanged.
 Evidence: [failure report](../../reports/e3_d2_action_attempt01/failure_report.json),
 [guard](../../reports/e3_d2_action_attempt01/guard.json).
+
+## bf16-compute residency follow-up
+
+A separately declared bf16-compute variant kept FP32 parameters/optimizer state
+and used the same fresh family. It completed all **8 updates** and stayed under
+the guard: sampled peak **39.10 GiB**. The 640-token evaluation budget was too
+small for the runtime prompt, so a separate 768-token evaluation protocol was
+declared; no task text was removed.
+
+**Result: 0/4 held-out and 0/2 dev completions.** Every episode selected `read`
+seven times; no false success was accepted. Training loss was unstable
+(0.016 → 1.16 → … → 0.63), and the model still did not select `set_constant`.
+No export was written. This is a full-backbone action-selection negative, not a
+residency or parser result.
+Evidence: [report](../../reports/e3_d2_action_bf16_eval768_attempt01/run_report.json).
