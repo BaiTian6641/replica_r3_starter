@@ -81,7 +81,7 @@ def execute(args,profiler,report):
         opt.zero_grad(set_to_none=True); loss=torch.zeros((),device='mps')
         for q,scores,feats,target,cand,cmask in train:
             bias=head(feats).reshape(-1)
-            loss=loss+torch.nn.functional.cross_entropy((scores+bias).unsqueeze(0),torch.tensor([target],device='mps'))
+            loss=loss+torch.nn.functional.cross_entropy(scores+bias,torch.tensor([target],device='mps'))
         loss=loss/len(train); loss.backward(); opt.step(); losses.append(float(loss.detach()))
         if step%100==0: profiler.mark('context_update',step=step,loss=losses[-1])
     head.eval()
