@@ -297,6 +297,14 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 large supervised action family (23 October).** A fresh 12-train /
+3-dev / 6-heldout family trained modules-only to teacher loss **0.0276**, yet
+full-model episodes completed **0/9** and always emitted `read`; all controls
+failed. Peak **16.78 GiB**, 470 s, 32 updates, 37.6 MB extension, no base save.
+This closes the larger-supervision hypothesis for the current interface; action
+representation/policy is the remaining failure. See
+[large-family results](docs/experiments/20261023_E3_Large_Action_Family_Results.md).
+
 **E3 constrained action decoding (23 October).** Adding token-level masking of
 redundant `read`/`run_test` strings to the runtime guard was aborted at the
 predeclared smoke: banning `read` produced `.read` and malformed/unauthorized
