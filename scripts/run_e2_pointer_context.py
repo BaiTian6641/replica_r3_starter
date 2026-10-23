@@ -80,7 +80,7 @@ def execute(args,profiler,report):
     for step in range(1,int(protocol['training']['updates'])+1):
         opt.zero_grad(set_to_none=True); loss=torch.zeros((),device='mps')
         for q,scores,feats,target,cand,cmask in train:
-            bias=head(feats).squeeze(0)
+            bias=head(feats).reshape(-1)
             loss=loss+torch.nn.functional.cross_entropy((scores+bias).unsqueeze(0),torch.tensor([target],device='mps'))
         loss=loss/len(train); loss.backward(); opt.step(); losses.append(float(loss.detach()))
         if step%100==0: profiler.mark('context_update',step=step,loss=losses[-1])
@@ -89,7 +89,7 @@ def execute(args,profiler,report):
     parent_rows=[]; candidate_rows=[]
     with torch.no_grad():
         for q,scores,feats,_,cand,cmask in eval_rows:
-            pi=int(scores.argmax().item()); ci=int((scores+head(feats).squeeze(0)).argmax().item())
+            pi=int(scores.argmax().item()); ci=int((scores+head(feats).reshape(-1)).argmax().item())
             parent_rows.append({'case_id':q['case_id'],'text':decode_idx(cand,cmask,pi),
                 'expected':q['expected_answer'],'correct':decode_idx(cand,cmask,pi).casefold()==q['expected_answer'].casefold()})
             candidate_rows.append({'case_id':q['case_id'],'text':decode_idx(cand,cmask,ci),
