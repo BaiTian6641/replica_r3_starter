@@ -22,7 +22,7 @@ def exclusive_mps_worker(root):
 
 
 def load_local_mps(model_path, lock_path, *, profiler=None, core=None,
-                   fast_memory=None):
+                   fast_memory=None, copy=None):
     """Never acquire weights; check exact sealed bytes before native loading."""
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -44,7 +44,7 @@ def load_local_mps(model_path, lock_path, *, profiler=None, core=None,
                        if k.startswith(('tokenizer', 'special_tokens', 'chat_template'))}
     manifest = ComponentManifest(lock['revision'], fingerprint(lock['snapshot_files_sha256']),
         fingerprint(tokenizer_files), lock['config_sha256'], native_abi_digest(), PortSpec(),
-        core=core, fast_memory=fast_memory)
+        core=core, fast_memory=fast_memory, copy=copy)
     tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True, trust_remote_code=False)
     if not tokenizer.is_fast:
         raise ValueError('Source span provenance requires native fast tokenizer offsets')
