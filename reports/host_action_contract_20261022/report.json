@@ -1,0 +1,207 @@
+{
+  "schema_version": "replica.host_action_contract.v1",
+  "kind": "deterministic_early_S3_1_host_contract_preparation",
+  "status": "passed",
+  "checks": {
+    "actual_success_and_matching_answer": true,
+    "duplicate_does_not_spend_tool_budget": true,
+    "restart_preserves_goal_receipt_and_spent_budget": true,
+    "revocation_precedes_duplicate_answer_and_receipt_release": true,
+    "old_receipt_cannot_authorize_new_epoch_answer": true,
+    "actual_missing_tool_failure_recorded": true,
+    "actual_malformed_tool_failure_recorded": true,
+    "model_forged_receipt_rejected": true,
+    "model_value_alone_cannot_release_answer": true,
+    "wrong_scope_rejected_before_actual_tool": true,
+    "tool_budget_denial_recorded": true,
+    "decision_budget_denial_recorded": true
+  },
+  "binding": {
+    "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+    "identity_mode": "assistant_for_source",
+    "subject_id": "fictional-subject",
+    "branch_id": "replica-a",
+    "agent_id": "fixture-agent",
+    "goal": "Compute INPUT XOR MASK using observed registers.",
+    "purpose": "local_evaluation",
+    "observation_cutoff": 10,
+    "allowed_source_ids": [
+      "input",
+      "mask"
+    ],
+    "max_decisions": 8,
+    "max_tool_calls": 2
+  },
+  "actual_success": {
+    "detail": {
+      "receipt": {
+        "action_id": "verify",
+        "epoch": 1,
+        "error": null,
+        "host_provenance": {
+          "agent_id": "fixture-agent",
+          "branch_id": "replica-a",
+          "epoch": 1,
+          "identity_mode": "assistant_for_source",
+          "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+          "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+          "subject_id": "fictional-subject"
+        },
+        "inputs": [
+          {
+            "branch_id": "source",
+            "eligible": true,
+            "observed_at": 1,
+            "purpose": "local_evaluation",
+            "revision": 1,
+            "sha256": "be1bfec88e2388dffe54e7c5041402c70ad51274b26d61985d46f1f21d16d2ba",
+            "source_id": "input",
+            "subject_id": "fictional-subject",
+            "text": "INPUT=37"
+          },
+          {
+            "branch_id": "source",
+            "eligible": true,
+            "observed_at": 1,
+            "purpose": "local_evaluation",
+            "revision": 1,
+            "sha256": "4cc52321e873490974613ba990934ef62824cd55e3299cc6ae3bfcb9fac3af8d",
+            "source_id": "mask",
+            "subject_id": "fictional-subject",
+            "text": "MASK=12"
+          }
+        ],
+        "tool": "register_xor8.v1",
+        "value": 41
+      },
+      "receipt_id": "be03066c2ec4298fe027c6954ed2591d8f82b52a28d864801d6e542f24e7f5a3"
+    },
+    "host_provenance": {
+      "agent_id": "fixture-agent",
+      "branch_id": "replica-a",
+      "epoch": 1,
+      "identity_mode": "assistant_for_source",
+      "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+      "subject_id": "fictional-subject"
+    },
+    "kind": "verify",
+    "status": "ok"
+  },
+  "actual_failures": {
+    "missing": {
+      "detail": {
+        "receipt": {
+          "action_id": "verify",
+          "epoch": 1,
+          "error": "missing_register",
+          "host_provenance": {
+            "agent_id": "fixture-agent",
+            "branch_id": "replica-a",
+            "epoch": 1,
+            "identity_mode": "assistant_for_source",
+            "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+            "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+            "subject_id": "fictional-subject"
+          },
+          "inputs": [
+            {
+              "branch_id": "source",
+              "eligible": true,
+              "observed_at": 1,
+              "purpose": "local_evaluation",
+              "revision": 1,
+              "sha256": "be1bfec88e2388dffe54e7c5041402c70ad51274b26d61985d46f1f21d16d2ba",
+              "source_id": "input",
+              "subject_id": "fictional-subject",
+              "text": "INPUT=37"
+            }
+          ],
+          "tool": "register_xor8.v1",
+          "value": null
+        },
+        "receipt_id": "38304996a780c55ff79a7b3ec6032c0b7713bb50fe591c042d33640706161476"
+      },
+      "host_provenance": {
+        "agent_id": "fixture-agent",
+        "branch_id": "replica-a",
+        "epoch": 1,
+        "identity_mode": "assistant_for_source",
+        "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+        "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+        "subject_id": "fictional-subject"
+      },
+      "kind": "verify",
+      "status": "tool_error"
+    },
+    "malformed": {
+      "detail": {
+        "receipt": {
+          "action_id": "verify",
+          "epoch": 1,
+          "error": "malformed_register",
+          "host_provenance": {
+            "agent_id": "fixture-agent",
+            "branch_id": "replica-a",
+            "epoch": 1,
+            "identity_mode": "assistant_for_source",
+            "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+            "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+            "subject_id": "fictional-subject"
+          },
+          "inputs": [
+            {
+              "branch_id": "source",
+              "eligible": true,
+              "observed_at": 1,
+              "purpose": "local_evaluation",
+              "revision": 1,
+              "sha256": "4bcd4c2cc0db2e50a83def8267bc049f92c763c5e739f8fc6c622d8550ee0642",
+              "source_id": "input",
+              "subject_id": "fictional-subject",
+              "text": "INPUT=256\nMASK=12"
+            }
+          ],
+          "tool": "register_xor8.v1",
+          "value": null
+        },
+        "receipt_id": "319018717c73f10214bc1ad5f9c1e0908347e5741ae8118030155af18e857986"
+      },
+      "host_provenance": {
+        "agent_id": "fixture-agent",
+        "branch_id": "replica-a",
+        "epoch": 1,
+        "identity_mode": "assistant_for_source",
+        "model_manifest_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+        "policy_sha256": "d47cceea201a751226ff33ee6ddba73c6ca86c4eed683aa6815a7f660828a49e",
+        "subject_id": "fictional-subject"
+      },
+      "kind": "verify",
+      "status": "tool_error"
+    }
+  },
+  "files_sha256": {
+    "budget_failures.jsonl": "4eff5d8ac6423eb05f53cb67158b6bf762cf63f3bb5bddad3155a91cc42f7121",
+    "malformed_tool_failure.jsonl": "611513d9332f397dea7a51d47f49d404ea33e2065235c56db2e8e6dc8aea2a19",
+    "missing_tool_failure.jsonl": "6bf2becc592874e418916486f5abd69c8238fe0a7883d8a010c200d00f2ce481",
+    "success_after_invalidation.jsonl": "55d07bb60b81bfc853bdb999d236dd93a1b5e718e25fcffca45f2d9f6f2f63fb",
+    "success_before_restart.jsonl": "c7f6e1757017f2297aaf5de271ede5b71f1943a1d4040add2a7c819cac248352"
+  },
+  "implementation_sha256": {
+    "/Users/flare/replica_r3_starter/scripts/check_host_action_contract.py": "0858058885e775997f19081f3529686bc00ae682dbf386c3d3e137503ff58ef0",
+    "/Users/flare/replica_r3_starter/src/replica_lab/host_action_contract.py": "8934b598993bbe623a24a7a1ea1142958aa79fd70fb0b8a4eb3e2014e82b560a"
+  },
+  "model_loaded": false,
+  "model_actions_evaluated": false,
+  "neural_learning_evaluated": false,
+  "selected_architecture_integrated": false,
+  "S3_1_complete": false,
+  "limitations": [
+    "Host input/authentication and revocation synchronization are caller-owned.",
+    "Restart uses a caller-retained trusted head; external trust-store persistence is absent.",
+    "Binding is a declaration; its local lock hash does not execute or attest a model.",
+    "Historical source bytes remain in journals; no erasure or neural unlearning.",
+    "Pure local tool only; no concurrent effects, streaming or neural cache."
+  ]
+}

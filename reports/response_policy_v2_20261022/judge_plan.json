@@ -1,0 +1,36 @@
+{
+  "schema_version": "replica.semantic_judge_plan.v1",
+  "declared_at_utc": "2026-10-23T01:12:32.216008+00:00",
+  "judge_agent": "/root/response_semantic_judge",
+  "fresh_context": true,
+  "fork_turns": "none",
+  "model_override": null,
+  "model_version_and_sampling_not_assumed": true,
+  "rubric_path": "configs/response_policy_judge_rubric_v1.json",
+  "rubric_sha256": "0241c3eab7914798e19f6ebaec872c75c015d5496fbfc0ca4b333cffc6d83074",
+  "case_order_seed": 311,
+  "construction": "Shuffle the original sixteen selected case indices with Python random.Random(311); enumerate J01 through J16 in shuffled order. Keep the original ID mapping in a separate file withheld from the judge.",
+  "packet_case_keys": [
+    "opaque_id",
+    "canonical_query",
+    "observations",
+    "evaluated_prompt",
+    "response"
+  ],
+  "response_text": "Use the native backend completion field unedited; it removes only an actual terminal EOS from raw token IDs. Preserve raw_completion/token IDs in native evidence.",
+  "excluded_fields": [
+    "expected",
+    "target",
+    "expected_action",
+    "expected_response",
+    "fixed_scores",
+    "prior_answers_or_grades",
+    "model_identity",
+    "original_case_id_mapping"
+  ],
+  "packet_files": "packet.json and input_manifest.json will be created after the native job; only packet.json and the rubric may be read by the judge.",
+  "judge_output_path": "reports/response_policy_v2_20261022/judge_semantic_raw.json",
+  "judge_output": "Per-case independently_derived_expected canonical answer string, semantic_correct/instruction_compliant/evidence_grounded booleans, judgment_category correct/incorrect/ambiguous as a semantic category, rationale and confidence_low_medium_high. No solver/scorer imports or gold lookup.",
+  "initial_rubric_review": "Agent read only the rubric and reported readiness; clarified before generation that category is semantic and format-only violations are separate.",
+  "reporting": "Retain raw judge verdicts unchanged. Root joins opaque IDs afterward, preserves strict and semantic metrics and appends a separate reconciliation for disagreements."
+}

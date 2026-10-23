@@ -1,0 +1,46 @@
+{
+  "schema_version": "replica.response_semantic_judge_rubric.v1",
+  "declared_at_utc": "2026-10-23T01:03:21.633065+00:00",
+  "status": "predeclared_before_native_generation",
+  "judge": "One fresh-context subagent, no model override; no runtime/API model download. Judge model/version/sampling not assumed.",
+  "input_allowlist": [
+    "opaque case ID",
+    "canonical public task query",
+    "eligible observed source texts",
+    "v2 prompt including its response contract",
+    "raw generated completion"
+  ],
+  "input_exclusions": [
+    "gold expected response/action",
+    "fixed scorer scores",
+    "prior baseline answers or grades",
+    "arm/model labels",
+    "source oracle annotations"
+  ],
+  "case_order_seed": 311,
+  "process": "Read only the prepared judge packet and this rubric. Independently solve each query from observed evidence. Do not read evaluation reports, gold, source manifests or previous experiments. Write per-case reasoning and judgment; do not use or import fixed solvers/scorers.",
+  "criteria": {
+    "semantic_correct": "True only when the response communicates one clear correct result or appropriate missing-field decision without material falsehood or contradictory alternatives. Explanation or harmless formatting differences alone need not make the semantic result wrong.",
+    "instruction_compliant": "Separately assess the requested one-line form and permitted response grammar, including missing-name ordering.",
+    "evidence_grounded": "Reject invented/default values, claims that observed fields are absent, and unsupported conclusions.",
+    "ambiguity": "Conflicting alternatives or an unclear final decision are ambiguous rather than silently interpreted favorably.",
+    "independent_expected": "Derive the correct result/missing decision from the provided evidence and public query only; include derivation in rationale."
+  },
+  "output_per_case": [
+    "opaque_id",
+    "independently_derived_expected",
+    "semantic_correct",
+    "instruction_compliant",
+    "evidence_grounded",
+    "judgment_category",
+    "rationale",
+    "confidence_low_medium_high"
+  ],
+  "judgment_categories": [
+    "correct",
+    "incorrect",
+    "ambiguous"
+  ],
+  "reporting": "Publish raw judgments and packet/rubric hashes, then map opaque IDs back to original case IDs. Report semantic and strict scores separately, including disagreements. Root may append a reconciliation without overwriting the original judgment.",
+  "limitations": "One agent on sixteen reused development worlds; a semantic review is not a calibrated external benchmark, independent scientific audit or model-promotion gate."
+}

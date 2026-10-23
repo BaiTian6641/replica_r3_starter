@@ -1,0 +1,96 @@
+{
+  "schema_version": "replica.response_policy_contract.v2",
+  "declared_at_utc": "2026-10-23T01:03:21.632504+00:00",
+  "status": "predeclared_before_native_generation",
+  "projection": "canonical_prompt_plus_separator_plus_public_query_policy_instruction_v2",
+  "projection_inputs": [
+    "family",
+    "canonical_query",
+    "static_contract_only"
+  ],
+  "forbidden_projection_inputs": [
+    "target",
+    "expected_action",
+    "expected_response",
+    "oracle",
+    "observed_values",
+    "observed_missingness"
+  ],
+  "append_separator": "\n\n",
+  "joiner": "\n",
+  "common_prefix": "Response contract v2: Return one line only, without explanation. Do not invent values.",
+  "evidence_instruction": "Read the observed RULE and FACT JSON records as given inputs.",
+  "required_items_template": "Required items, in order: {field_order}.",
+  "answer_template": "If all required items are present, output {answer_format}",
+  "missing_policy_templates": {
+    "unknown": "If any required item is absent, output UNKNOWN alone.",
+    "ask": "If any required item is absent, output Please provide NAME. Replace NAME with only the absent item names, in the required-item order, separated by comma-space."
+  },
+  "family_formats": {
+    "register_xor8": {
+      "answer_format": "only the base-10 integer result.",
+      "field_order": [
+        "RULE",
+        "INPUT",
+        "MASK"
+      ]
+    },
+    "affine_mod97": {
+      "answer_format": "only the base-10 integer result.",
+      "field_order": [
+        "RULE",
+        "A",
+        "X",
+        "B"
+      ]
+    },
+    "finite_state": {
+      "answer_format": "only S0, S1, S2, or S3.",
+      "field_order": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ]
+    },
+    "tool_recovery": {
+      "answer_format": "exactly RETRY lookup, VERIFY receipt, or STOP.",
+      "field_order": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ]
+    }
+  },
+  "query_policy_selection": "Parse only the exact canonical public query ending: ask for it. selects ask; respond UNKNOWN. selects unknown. Verify the complete family query and cutoff grammar; never inspect evidence or gold to select policy.",
+  "comparison": {
+    "parent_spec_path": "reports/infrastructure_preflight_v2_20261022/evaluation_spec.json",
+    "parent_spec_sha256": "4aa7963f038c0ea66570315671f468a0d49a99376f9d002715fcffaba85329f2",
+    "previous_v1_spec_path": "reports/response_contract_v1_20261022/evaluation_spec.json",
+    "previous_v1_spec_sha256": "f3c259c29cc5b562c231534adac627be6fdae07f065e53b079ea2ffb24a6aca3",
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "max_new_tokens": 32,
+    "max_length": 512,
+    "seed": 17,
+    "do_sample": false,
+    "num_beams": 1,
+    "enable_thinking": false,
+    "device": "mps",
+    "dtype": "float32",
+    "cpu_fallback": false,
+    "native_jobs": 1,
+    "additional_adaptive_runs": "none_in_this_preregistration"
+  },
+  "scoring": {
+    "module": "src/replica_lab/infrastructure_scoring.py",
+    "sha256": "0ad38111bbc3c4a247015f889f2b829047dcc2dda2f238116e8d372befe3ec1a",
+    "unchanged": true,
+    "single_line_compliance": "Trim outer whitespace; require nonempty and no internal CR/LF. Report separately from unchanged strict grammar and correctness.",
+    "format_gate": "16/16 grammar and single-line compliant with EOS and no caps; report correctness separately.",
+    "subagent_judgment": "A separate fresh-context agent independently derives expected decisions from canonical prompt/evidence and judges semantic correctness, clarity, unsupported claims and instruction compliance. No gold or fixed scores in the judge packet. Preserve both verdicts and reconcile disagreements; no post-result parser changes.",
+    "judge_rubric_path": "configs/response_policy_judge_rubric_v1.json"
+  },
+  "stopping_rule": "Exactly one native frozen-original dev16 run at cap32. Preserve previous failures and v2 results. No after-result prompt, cap, parser or decoding changes within v2. No training, downloads or checkpoints.",
+  "interpretation": "Development instruction bundle chosen after v1 failure; same exposed worlds, not independent generalization or architecture selection. A public query policy is permitted input, not the expected action. No architecture training until existing roadmap prerequisites pass."
+}
