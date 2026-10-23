@@ -62,7 +62,7 @@ class OneAction:
  def __init__(self,raw,prompt_tokens,target_ids):self.raw=raw;self.prompt_tokens=prompt_tokens;self.target_ids=target_ids
  def __call__(self,request):
   from replica_lab.runtime.loop import ProposalOutput
-  return ProposalOutput(raw_text=self.raw,prompt_tokens=self.prompt_tokens,generated_token_ids=tuple(self.target_ids),generated_tokens=len(self.target_ids),frame_digest=sha(self.raw.encode()),workspace=None,workspace_stamp=None,wall_seconds=0.0,notes=('model_scored_candidate',))
+  return ProposalOutput(raw_text=self.raw,prompt_tokens=self.prompt_tokens,generated_token_ids=tuple(self.target_ids),generated_tokens=len(self.target_ids),frame_digest=hashlib.sha256(self.raw.encode()).hexdigest(),workspace=None,workspace_stamp=None,wall_seconds=0.0,notes=('model_scored_candidate',))
 def execute(args,protocol,report,prof):
  import torch
  from replica_lab.architecture.contracts import CoreSpec, TaskGraph
