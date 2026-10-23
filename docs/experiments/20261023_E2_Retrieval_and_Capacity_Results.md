@@ -191,3 +191,19 @@ All 12 points completed. Peak sampled driver memory **12.69 GiB**, profiled wall
 base save, no checkpoint. This is capacity only, not answer quality or a
 longer-source-length claim.
 [Report](../../reports/e2_capacity64_selected_attempt01/run_report.json).
+
+## 8. Follow-up: selected 128-unit capacity (23 October)
+
+The selected E2 extension and same validated `max_units`-only migration were
+exercised on a fresh 128-unit bank (124 short records plus one four-chunk record).
+
+| Workload | Actual units | Prompt tokens | Result |
+|---|---:|---:|---|
+| Inference | 1, 32, 64, 96, 128 | 64, 128, 256 | all finite |
+| Modules-only backward | 1, 32, 64, 96, 128 | 64, 128, 256 | finite; 28 gradient tensors |
+
+All 12 points completed. Peak sampled driver memory **12.93 GiB**, profiled wall
+**27.2 s**, zero observed swap growth, no base save and no optimizer update.
+This is capacity only; answer quality and longer-source-length behavior remain
+unqualified.
+[Report](../../reports/e2_capacity128_selected_attempt01/run_report.json).

@@ -1,0 +1,4210 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T16:45:26.109520+00:00",
+  "arguments": {
+    "device": "mps",
+    "output": "runs/e2_capacity128_selected_attempt01",
+    "protocol": "configs/e2_capacity128_selected_v1.json",
+    "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "model_lock": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+    "parent_extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension"
+  },
+  "protocol_sha256": "52cffec6145bfd80c33195f6879ad9faae30e908cdb09b295e9ee9f11db1ba3c",
+  "protocol": {
+    "format": "replica.e2_capacity.qualification.v5",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Qualify the selected E2 extension at 64 units with the validated max_units-only migration; inference and modules-only backward only.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_capacity128",
+      "manifest": "data/e2_capacity128/manifest.json",
+      "manifest_sha256": "f4dd529c99b6d65859af4c79bcd802f692d5a15482433f8d8a32dd2f57ad7704",
+      "records_sha256": "30780421c24c2c0459803808e0a027838f222afbe67530318ba1b98773e28b62"
+    },
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "device": "mps",
+    "dtype": "float32",
+    "native_cache": false,
+    "native_cpu_fallback": false,
+    "scope": {
+      "source_tokens_per_unit": 128,
+      "max_units": 128,
+      "slots_per_unit": 4,
+      "memory_width": 256,
+      "ports": [
+        13,
+        27
+      ],
+      "observer": 41,
+      "training": "modules_only backward; no optimizer step; base frozen"
+    },
+    "schedule": {
+      "inference": [
+        {
+          "id": "inf_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u32_p128",
+          "units": 32,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u64_p128",
+          "units": 64,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u96_p128",
+          "units": 96,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u128_p128",
+          "units": 128,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u128_p256",
+          "units": 128,
+          "prompt_tokens": 256,
+          "generate_tokens": 8
+        }
+      ],
+      "training": [
+        {
+          "id": "train_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u32_p128",
+          "units": 32,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u64_p128",
+          "units": 64,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u96_p128",
+          "units": 96,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u128_p128",
+          "units": 128,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u128_p256",
+          "units": 128,
+          "prompt_tokens": 256,
+          "label_tokens": 16
+        }
+      ]
+    },
+    "measurements": [
+      "actual source-token counts per unit",
+      "selected unit count",
+      "source encode seconds",
+      "writer seconds",
+      "sense pass seconds",
+      "action forward seconds",
+      "generation seconds and generated tokens",
+      "training prepare/forward/backward seconds",
+      "sampled MPS allocated/driver bytes",
+      "process RSS bytes",
+      "guard thresholds"
+    ],
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "one_native_job": true
+    },
+    "stop_conditions": [
+      "declared guard threshold breach",
+      "nonfinite logits/loss/gradients",
+      "schedule point raises an unexpected error",
+      "stale telemetry"
+    ],
+    "exclusions": [
+      "No D2 original-weight capacity arm is declared or run here.",
+      "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+    ],
+    "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim.",
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "points": 12,
+      "source_units": 128,
+      "expected_storage_mib": 8,
+      "no_base_save": true
+    },
+    "migration": "port_capacity_only"
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "implementation_sha256": {
+    "scripts/run_e2_capacity.py": "d80118af2bc704feb9ac38b5cd3fb1d734bb43c22b0f05c972cc94aa8fa7fc28",
+    "src/replica_lab/memory_system/answer.py": "4b722c2738a20fe6da53730c2ace3a0a37d43ef8fe6fbbec74206539b377a212",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "b238fa0e3d0e59bf140767e8213f9c2269c4a87848a129e5960c9157f6129b2f",
+    "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+    "src/replica_lab/memory_system/context.py": "ea1b8a954aae9b7e59845fd5f1db4ef4ef81ac66a32d45723849860c67175ef2",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/architecture/loading.py": "ffdee8328ae6afc40b6b1eadc1abe57ca2950c2b125b6b7e6d32b3a4beeba57d",
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/ports.py": "3d983e8313eb2c7c3cde748c9f8c0b6f384add27d6db5f9098e5ba21816dccfe",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/minicpm5.py": "47b6b302cd0f77a291896585f73d843d6d8cc0556e75e5b04984030e0e5997a9",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/contracts.py": "f07792fe958a432d7cd37d0cbb4f1289f3714033247cc5aceed9e8f2e3ab8464",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf"
+  },
+  "free_disk_before_bytes": 626368012288,
+  "downloads": 0,
+  "original_model_loads": 1,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+  },
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 128,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false
+  },
+  "manifest_digest": "997e894f475e20f04ca15d53491c4b5a6274417857a383096d82c48f19e944c6",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "dataset": {
+    "manifest": {
+      "format": "replica.e2_capacity.dataset.v4",
+      "created_at_utc": "2026-10-23",
+      "subject_id": "e2_capacity128",
+      "branch_id": "capacity",
+      "purpose": "capacity_probe",
+      "as_of": 10,
+      "records": 125,
+      "units": 128,
+      "short_records": 124,
+      "long_record_spans": 4,
+      "token_counts": {
+        "cap128_short_01": 128,
+        "cap128_short_02": 128,
+        "cap128_short_03": 128,
+        "cap128_short_04": 128,
+        "cap128_short_05": 128,
+        "cap128_short_06": 128,
+        "cap128_short_07": 128,
+        "cap128_short_08": 128,
+        "cap128_short_09": 128,
+        "cap128_short_10": 128,
+        "cap128_short_11": 128,
+        "cap128_short_12": 128,
+        "cap128_short_13": 128,
+        "cap128_short_14": 128,
+        "cap128_short_15": 128,
+        "cap128_short_16": 128,
+        "cap128_short_17": 128,
+        "cap128_short_18": 128,
+        "cap128_short_19": 128,
+        "cap128_short_20": 128,
+        "cap128_short_21": 128,
+        "cap128_short_22": 128,
+        "cap128_short_23": 128,
+        "cap128_short_24": 128,
+        "cap128_short_25": 128,
+        "cap128_short_26": 128,
+        "cap128_short_27": 128,
+        "cap128_short_28": 128,
+        "cap128_short_29": 128,
+        "cap128_short_30": 128,
+        "cap128_short_31": 128,
+        "cap128_short_32": 128,
+        "cap128_short_33": 128,
+        "cap128_short_34": 128,
+        "cap128_short_35": 128,
+        "cap128_short_36": 128,
+        "cap128_short_37": 128,
+        "cap128_short_38": 128,
+        "cap128_short_39": 128,
+        "cap128_short_40": 128,
+        "cap128_short_41": 128,
+        "cap128_short_42": 128,
+        "cap128_short_43": 128,
+        "cap128_short_44": 128,
+        "cap128_short_45": 128,
+        "cap128_short_46": 128,
+        "cap128_short_47": 128,
+        "cap128_short_48": 128,
+        "cap128_short_49": 128,
+        "cap128_short_50": 128,
+        "cap128_short_51": 128,
+        "cap128_short_52": 128,
+        "cap128_short_53": 128,
+        "cap128_short_54": 128,
+        "cap128_short_55": 128,
+        "cap128_short_56": 128,
+        "cap128_short_57": 128,
+        "cap128_short_58": 128,
+        "cap128_short_59": 128,
+        "cap128_short_60": 128,
+        "cap128_short_61": 128,
+        "cap128_short_62": 128,
+        "cap128_short_63": 128,
+        "cap128_short_64": 128,
+        "cap128_short_65": 128,
+        "cap128_short_66": 128,
+        "cap128_short_67": 128,
+        "cap128_short_68": 128,
+        "cap128_short_69": 128,
+        "cap128_short_70": 128,
+        "cap128_short_71": 128,
+        "cap128_short_72": 128,
+        "cap128_short_73": 128,
+        "cap128_short_74": 128,
+        "cap128_short_75": 128,
+        "cap128_short_76": 128,
+        "cap128_short_77": 128,
+        "cap128_short_78": 128,
+        "cap128_short_79": 128,
+        "cap128_short_80": 128,
+        "cap128_short_81": 128,
+        "cap128_short_82": 128,
+        "cap128_short_83": 128,
+        "cap128_short_84": 128,
+        "cap128_short_85": 128,
+        "cap128_short_86": 128,
+        "cap128_short_87": 128,
+        "cap128_short_88": 128,
+        "cap128_short_89": 128,
+        "cap128_short_90": 128,
+        "cap128_short_91": 128,
+        "cap128_short_92": 128,
+        "cap128_short_93": 128,
+        "cap128_short_94": 128,
+        "cap128_short_95": 128,
+        "cap128_short_96": 128,
+        "cap128_short_97": 128,
+        "cap128_short_98": 128,
+        "cap128_short_99": 128,
+        "cap128_short_100": 128,
+        "cap128_short_101": 128,
+        "cap128_short_102": 128,
+        "cap128_short_103": 128,
+        "cap128_short_104": 128,
+        "cap128_short_105": 128,
+        "cap128_short_106": 128,
+        "cap128_short_107": 128,
+        "cap128_short_108": 128,
+        "cap128_short_109": 128,
+        "cap128_short_110": 128,
+        "cap128_short_111": 128,
+        "cap128_short_112": 128,
+        "cap128_short_113": 128,
+        "cap128_short_114": 128,
+        "cap128_short_115": 128,
+        "cap128_short_116": 128,
+        "cap128_short_117": 128,
+        "cap128_short_118": 128,
+        "cap128_short_119": 128,
+        "cap128_short_120": 128,
+        "cap128_short_121": 128,
+        "cap128_short_122": 128,
+        "cap128_short_123": 128,
+        "cap128_short_124": 128,
+        "cap128_long": 507
+      },
+      "files": {
+        "records_sha256": "30780421c24c2c0459803808e0a027838f222afbe67530318ba1b98773e28b62"
+      },
+      "claims": "Synthetic 128-unit capacity bank; no labels or quality claim."
+    },
+    "records_sha256": "30780421c24c2c0459803808e0a027838f222afbe67530318ba1b98773e28b62"
+  },
+  "parent_extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf"
+  },
+  "checks": {},
+  "points": [
+    {
+      "id": "inf_u1_p64",
+      "phase": "inference",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        26765,
+        33,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.07404604088515043,
+      "writer_seconds": 0.02101862500421703,
+      "sense_seconds": 0.05941004096530378,
+      "action_forward_seconds": 0.06414149980992079,
+      "generation_seconds": 0.30857087508775294,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 10586875392,
+      "mps_driver_after_bytes": 11016994816,
+      "wall_seconds": 0.5754536250606179,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10746216448
+    },
+    {
+      "id": "inf_u32_p128",
+      "phase": "inference",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.7761617079377174,
+      "writer_seconds": 0.01923624984920025,
+      "sense_seconds": 0.06981837493367493,
+      "action_forward_seconds": 0.08784225000999868,
+      "generation_seconds": 0.3596594580449164,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11243094016,
+      "mps_driver_after_bytes": 12375982080,
+      "wall_seconds": 1.3641562920529395,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10815668224
+    },
+    {
+      "id": "inf_u64_p128",
+      "phase": "inference",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 1.5729743749834597,
+      "writer_seconds": 0.029851833125576377,
+      "sense_seconds": 0.07066900003701448,
+      "action_forward_seconds": 0.08584670885466039,
+      "generation_seconds": 0.36917595798149705,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11394917376,
+      "mps_driver_after_bytes": 12543721472,
+      "wall_seconds": 2.180846208008006,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10824056832
+    },
+    {
+      "id": "inf_u96_p128",
+      "phase": "inference",
+      "declared_units": 96,
+      "actual_units": 96,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 2.421660458901897,
+      "writer_seconds": 0.12314749998040497,
+      "sense_seconds": 0.0721670831553638,
+      "action_forward_seconds": 0.08690695813857019,
+      "generation_seconds": 0.3795243341010064,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11547265280,
+      "mps_driver_after_bytes": 12711493632,
+      "wall_seconds": 3.147480667103082,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10824056832
+    },
+    {
+      "id": "inf_u128_p128",
+      "phase": "inference",
+      "declared_units": 128,
+      "actual_units": 128,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 3.2642993330955505,
+      "writer_seconds": 0.10574374999850988,
+      "sense_seconds": 0.07098750001750886,
+      "action_forward_seconds": 0.08590075001120567,
+      "generation_seconds": 0.3764534159563482,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11697573120,
+      "mps_driver_after_bytes": 12854099968,
+      "wall_seconds": 3.974209874868393,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10824056832
+    },
+    {
+      "id": "inf_u128_p256",
+      "phase": "inference",
+      "declared_units": 128,
+      "actual_units": 128,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "generated_tokens": 3,
+      "generated_token_ids": [
+        316,
+        59252,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 3.240458375075832,
+      "writer_seconds": 0.020014665788039565,
+      "sense_seconds": 0.11645166692323983,
+      "action_forward_seconds": 0.12759483396075666,
+      "generation_seconds": 0.4055946657899767,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 12781914368,
+      "mps_driver_after_bytes": 13885898752,
+      "wall_seconds": 3.9824357500765473,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10824056832
+    },
+    {
+      "id": "train_u1_p64",
+      "phase": "training",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128
+      ],
+      "prepare_seconds": 0.10094074998050928,
+      "forward_seconds": 0.07946058292873204,
+      "backward_seconds": 0.1597794578410685,
+      "loss": 3.0648581981658936,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10151901952,
+      "mps_driver_after_bytes": 10875551744,
+      "wall_seconds": 0.39193879207596183,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10824056832
+    },
+    {
+      "id": "train_u32_p128",
+      "phase": "training",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.8912224578671157,
+      "forward_seconds": 0.10675245802849531,
+      "backward_seconds": 0.22033379203639925,
+      "loss": 3.1543188095092773,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10220843264,
+      "mps_driver_after_bytes": 11026579456,
+      "wall_seconds": 1.270694541046396,
+      "mps_allocated_before_bytes": 10095979520,
+      "mps_driver_before_bytes": 10833494016
+    },
+    {
+      "id": "train_u64_p128",
+      "phase": "training",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.9668226670473814,
+      "forward_seconds": 0.11962670786306262,
+      "backward_seconds": 0.2374624579679221,
+      "loss": 3.1511945724487305,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10253742336,
+      "mps_driver_after_bytes": 11144019968,
+      "wall_seconds": 1.3843766669742763,
+      "mps_allocated_before_bytes": 10128485376,
+      "mps_driver_before_bytes": 11026432000
+    },
+    {
+      "id": "train_u96_p128",
+      "phase": "training",
+      "declared_units": 96,
+      "actual_units": 96,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 1.028495084028691,
+      "forward_seconds": 0.10644291713833809,
+      "backward_seconds": 0.244257332989946,
+      "loss": 3.1479132175445557,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10287428096,
+      "mps_driver_after_bytes": 11269849088,
+      "wall_seconds": 1.4426197079010308,
+      "mps_allocated_before_bytes": 10162039808,
+      "mps_driver_before_bytes": 11143872512
+    },
+    {
+      "id": "train_u128_p128",
+      "phase": "training",
+      "declared_units": 128,
+      "actual_units": 128,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 1.1090418749954551,
+      "forward_seconds": 0.17414400004781783,
+      "backward_seconds": 0.26474704104475677,
+      "loss": 3.2798800468444824,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10321072640,
+      "mps_driver_after_bytes": 11387305984,
+      "wall_seconds": 1.661478416994214,
+      "mps_allocated_before_bytes": 10195594240,
+      "mps_driver_before_bytes": 11261313024
+    },
+    {
+      "id": "train_u128_p256",
+      "phase": "training",
+      "declared_units": 128,
+      "actual_units": 128,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.44718141690827906,
+      "forward_seconds": 0.1661193750333041,
+      "backward_seconds": 0.3703578331042081,
+      "loss": 3.2621407508850098,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10389888768,
+      "mps_driver_after_bytes": 12614139904,
+      "wall_seconds": 1.0510637499392033,
+      "mps_allocated_before_bytes": 10229107712,
+      "mps_driver_before_bytes": 11378753536
+    }
+  ],
+  "bank": {
+    "units": 128,
+    "source_span_tokens": [
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      123
+    ],
+    "record_ids": [
+      "cap128_short_01",
+      "cap128_short_02",
+      "cap128_short_03",
+      "cap128_short_04",
+      "cap128_short_05",
+      "cap128_short_06",
+      "cap128_short_07",
+      "cap128_short_08",
+      "cap128_short_09",
+      "cap128_short_10",
+      "cap128_short_11",
+      "cap128_short_12",
+      "cap128_short_13",
+      "cap128_short_14",
+      "cap128_short_15",
+      "cap128_short_16",
+      "cap128_short_17",
+      "cap128_short_18",
+      "cap128_short_19",
+      "cap128_short_20",
+      "cap128_short_21",
+      "cap128_short_22",
+      "cap128_short_23",
+      "cap128_short_24",
+      "cap128_short_25",
+      "cap128_short_26",
+      "cap128_short_27",
+      "cap128_short_28",
+      "cap128_short_29",
+      "cap128_short_30",
+      "cap128_short_31",
+      "cap128_short_32",
+      "cap128_short_33",
+      "cap128_short_34",
+      "cap128_short_35",
+      "cap128_short_36",
+      "cap128_short_37",
+      "cap128_short_38",
+      "cap128_short_39",
+      "cap128_short_40",
+      "cap128_short_41",
+      "cap128_short_42",
+      "cap128_short_43",
+      "cap128_short_44",
+      "cap128_short_45",
+      "cap128_short_46",
+      "cap128_short_47",
+      "cap128_short_48",
+      "cap128_short_49",
+      "cap128_short_50",
+      "cap128_short_51",
+      "cap128_short_52",
+      "cap128_short_53",
+      "cap128_short_54",
+      "cap128_short_55",
+      "cap128_short_56",
+      "cap128_short_57",
+      "cap128_short_58",
+      "cap128_short_59",
+      "cap128_short_60",
+      "cap128_short_61",
+      "cap128_short_62",
+      "cap128_short_63",
+      "cap128_short_64",
+      "cap128_short_65",
+      "cap128_short_66",
+      "cap128_short_67",
+      "cap128_short_68",
+      "cap128_short_69",
+      "cap128_short_70",
+      "cap128_short_71",
+      "cap128_short_72",
+      "cap128_short_73",
+      "cap128_short_74",
+      "cap128_short_75",
+      "cap128_short_76",
+      "cap128_short_77",
+      "cap128_short_78",
+      "cap128_short_79",
+      "cap128_short_80",
+      "cap128_short_81",
+      "cap128_short_82",
+      "cap128_short_83",
+      "cap128_short_84",
+      "cap128_short_85",
+      "cap128_short_86",
+      "cap128_short_87",
+      "cap128_short_88",
+      "cap128_short_89",
+      "cap128_short_90",
+      "cap128_short_91",
+      "cap128_short_92",
+      "cap128_short_93",
+      "cap128_short_94",
+      "cap128_short_95",
+      "cap128_short_96",
+      "cap128_short_97",
+      "cap128_short_98",
+      "cap128_short_99",
+      "cap128_short_100",
+      "cap128_short_101",
+      "cap128_short_102",
+      "cap128_short_103",
+      "cap128_short_104",
+      "cap128_short_105",
+      "cap128_short_106",
+      "cap128_short_107",
+      "cap128_short_108",
+      "cap128_short_109",
+      "cap128_short_110",
+      "cap128_short_111",
+      "cap128_short_112",
+      "cap128_short_113",
+      "cap128_short_114",
+      "cap128_short_115",
+      "cap128_short_116",
+      "cap128_short_117",
+      "cap128_short_118",
+      "cap128_short_119",
+      "cap128_short_120",
+      "cap128_short_121",
+      "cap128_short_122",
+      "cap128_short_123",
+      "cap128_short_124",
+      "cap128_long",
+      "cap128_long",
+      "cap128_long",
+      "cap128_long"
+    ]
+  },
+  "summary": {
+    "largest_inference_units": 128,
+    "largest_training_units": 128,
+    "largest_prompt_tokens": 256,
+    "largest_source_span_tokens": 128,
+    "points": 12,
+    "inference_points": 6,
+    "training_points": 6,
+    "wall_seconds": 22.687171290861443,
+    "d2_arm": "not declared or run"
+  },
+  "acceptance": {
+    "completed_all_points": true,
+    "schedule_ascending": true,
+    "configured_max_not_claimed_as_exercised": true,
+    "training_scope": "modules_only backward; no optimizer step",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim."
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T16:45:26.114822+00:00",
+    "ended_at": "2026-10-23T16:45:53.333842+00:00",
+    "elapsed_seconds": 27.219386665849015,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 257,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15557099520,
+      "rss_peak_sampled_bytes": 3524771840,
+      "mps_allocated_peak_sampled_bytes": 12798632448,
+      "mps_driver_peak_sampled_bytes": 13885915136
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T16:45:26.115531+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 85%",
+      "memory_free_percent": 85.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T16:45:53.257755+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 65%",
+      "memory_free_percent": 65.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T16:45:30.346770+00:00",
+        "elapsed_seconds": 4.119363707955927,
+        "seconds_since_previous_mark": 4.119363707955927,
+        "synchronize_seconds": 6.084097549319267e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:30.234141+00:00",
+          "elapsed_seconds": 4.119373708032072,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3348660224,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:45:31.091651+00:00",
+        "elapsed_seconds": 4.976789790904149,
+        "seconds_since_previous_mark": 0.8574260829482228,
+        "synchronize_seconds": 3.291061148047447e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:31.091556+00:00",
+          "elapsed_seconds": 4.976803124882281,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3348660224,
+          "rss_measurement_age_seconds": 0.8574382080696523,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 11016994816
+        },
+        "fields": {
+          "point": "inf_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.5754536250606179
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:45:32.464508+00:00",
+        "elapsed_seconds": 6.34968233294785,
+        "seconds_since_previous_mark": 1.3728925420437008,
+        "synchronize_seconds": 2.033286727964878e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:32.464429+00:00",
+          "elapsed_seconds": 6.349702582927421,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3469492224,
+          "rss_measurement_age_seconds": 0.15583941712975502,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12375982080
+        },
+        "fields": {
+          "point": "inf_u32_p128",
+          "units": 32,
+          "tokens": 128,
+          "wall_seconds": 1.3641562920529395
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:45:34.667337+00:00",
+        "elapsed_seconds": 8.552533708047122,
+        "seconds_since_previous_mark": 2.2028513750992715,
+        "synchronize_seconds": 4.333909600973129e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:34.667253+00:00",
+          "elapsed_seconds": 8.552545249927789,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3471196160,
+          "rss_measurement_age_seconds": 0.3534052078612149,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12543721472
+        },
+        "fields": {
+          "point": "inf_u64_p128",
+          "units": 64,
+          "tokens": 128,
+          "wall_seconds": 2.180846208008006
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:45:37.839234+00:00",
+        "elapsed_seconds": 11.724491707980633,
+        "seconds_since_previous_mark": 3.171957999933511,
+        "synchronize_seconds": 2.3748725652694702e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:37.839169+00:00",
+          "elapsed_seconds": 11.72450004098937,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3471310848,
+          "rss_measurement_age_seconds": 1.511850249953568,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12711493632
+        },
+        "fields": {
+          "point": "inf_u96_p128",
+          "units": 96,
+          "tokens": 128,
+          "wall_seconds": 3.147480667103082
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:45:41.842440+00:00",
+        "elapsed_seconds": 15.727720124879852,
+        "seconds_since_previous_mark": 4.003228416899219,
+        "synchronize_seconds": 2.500135451555252e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:41.842347+00:00",
+          "elapsed_seconds": 15.72773962491192,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3471753216,
+          "rss_measurement_age_seconds": 1.477912375004962,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12854099968
+        },
+        "fields": {
+          "point": "inf_u128_p128",
+          "units": 128,
+          "tokens": 128,
+          "wall_seconds": 3.974209874868393
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:45:45.855189+00:00",
+        "elapsed_seconds": 19.740534625016153,
+        "seconds_since_previous_mark": 4.012814500136301,
+        "synchronize_seconds": 2.5830231606960297e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:45.855109+00:00",
+          "elapsed_seconds": 19.740547332912683,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3473309696,
+          "rss_measurement_age_seconds": 1.4324837499298155,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 13885898752
+        },
+        "fields": {
+          "point": "inf_u128_p256",
+          "units": 128,
+          "tokens": 256,
+          "wall_seconds": 3.9824357500765473
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:45:46.292423+00:00",
+        "elapsed_seconds": 20.177796040894464,
+        "seconds_since_previous_mark": 0.4372614158783108,
+        "synchronize_seconds": 1.9581057131290436e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:46.292364+00:00",
+          "elapsed_seconds": 20.177804708015174,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3473309696,
+          "rss_measurement_age_seconds": 1.8697319170460105,
+          "mps_allocated_bytes": 10095979520,
+          "mps_driver_bytes": 10875551744
+        },
+        "fields": {
+          "point": "train_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.39193879207596183
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:45:47.576966+00:00",
+        "elapsed_seconds": 21.462340457830578,
+        "seconds_since_previous_mark": 1.2845444169361144,
+        "synchronize_seconds": 5.833106115460396e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:47.576893+00:00",
+          "elapsed_seconds": 21.46235162485391,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3503030272,
+          "rss_measurement_age_seconds": 1.1190314160194248,
+          "mps_allocated_bytes": 10128485376,
+          "mps_driver_bytes": 11026579456
+        },
+        "fields": {
+          "point": "train_u32_p128",
+          "units": 32,
+          "tokens": 128,
+          "wall_seconds": 1.270694541046396
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:45:48.977205+00:00",
+        "elapsed_seconds": 22.862591832876205,
+        "seconds_since_previous_mark": 1.4002513750456274,
+        "synchronize_seconds": 7.708091288805008e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:48.977125+00:00",
+          "elapsed_seconds": 22.862601374974474,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3509813248,
+          "rss_measurement_age_seconds": 0.5115354580339044,
+          "mps_allocated_bytes": 10162039808,
+          "mps_driver_bytes": 11144019968
+        },
+        "fields": {
+          "point": "train_u64_p128",
+          "units": 64,
+          "tokens": 128,
+          "wall_seconds": 1.3843766669742763
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:45:50.434539+00:00",
+        "elapsed_seconds": 24.319947249954566,
+        "seconds_since_previous_mark": 1.457355417078361,
+        "synchronize_seconds": 1.959037035703659e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:50.434462+00:00",
+          "elapsed_seconds": 24.319957749918103,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3509813248,
+          "rss_measurement_age_seconds": 1.968896167119965,
+          "mps_allocated_bytes": 10195594240,
+          "mps_driver_bytes": 11269849088
+        },
+        "fields": {
+          "point": "train_u96_p128",
+          "units": 96,
+          "tokens": 128,
+          "wall_seconds": 1.4426197079010308
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:45:52.109959+00:00",
+        "elapsed_seconds": 25.995375165948644,
+        "seconds_since_previous_mark": 1.675427915994078,
+        "synchronize_seconds": 2.250075340270996e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:52.109869+00:00",
+          "elapsed_seconds": 25.995386624941602,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3515301888,
+          "rss_measurement_age_seconds": 1.6400371252093464,
+          "mps_allocated_bytes": 10229107712,
+          "mps_driver_bytes": 11387305984
+        },
+        "fields": {
+          "point": "train_u128_p128",
+          "units": 128,
+          "tokens": 128,
+          "wall_seconds": 1.661478416994214
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:45:53.177650+00:00",
+        "elapsed_seconds": 27.063048708019778,
+        "seconds_since_previous_mark": 1.0676735420711339,
+        "synchronize_seconds": 3.5830307751893997e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:53.177529+00:00",
+          "elapsed_seconds": 27.063061165856197,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3524771840,
+          "rss_measurement_age_seconds": 0.60070970794186,
+          "mps_allocated_bytes": 10229107712,
+          "mps_driver_bytes": 12614139904
+        },
+        "fields": {
+          "point": "train_u128_p256",
+          "units": 128,
+          "tokens": 256,
+          "wall_seconds": 1.0510637499392033
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_complete",
+        "timestamp": "2026-10-23T16:45:53.203126+00:00",
+        "elapsed_seconds": 27.0885893329978,
+        "seconds_since_previous_mark": 0.025540624978020787,
+        "synchronize_seconds": 3.250082954764366e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:45:53.203068+00:00",
+          "elapsed_seconds": 27.08859824994579,
+          "phase": "capacity_complete",
+          "rss_peak_process_lifetime_bytes": 15557099520,
+          "rss_current_bytes": 3524771840,
+          "rss_measurement_age_seconds": 0.6262304158881307,
+          "mps_allocated_bytes": 10229107712,
+          "mps_driver_bytes": 11531845632
+        },
+        "fields": {
+          "points": 12
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 27.219386665849015,
+    "sampled_peak_driver_bytes": 13885915136,
+    "sampled_peak_rss_bytes": 3524771840,
+    "new_original_checkpoints": 0,
+    "downloads": 0
+  },
+  "free_disk_after_bytes": 626365489152,
+  "artifact_bytes": 392583,
+  "ended_at_utc": "2026-10-23T16:45:53.334756+00:00"
+}

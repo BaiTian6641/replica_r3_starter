@@ -46,6 +46,12 @@ against lexical **5/8**; the higher-budget arm overfit while training loss fell.
 Lexical remains default; the existing reranker remains opt-in. See
 [cross-template rerank](docs/experiments/20261023_E2_Cross_Template_Rerank_Results.md).
 
+**E2 128-unit selected capacity (23 October).** The selected extension passed
+all 12 inference/modules-only backward points on a fresh 128-unit bank: peak
+driver **12.93 GiB**, **27.2 s**, zero swap growth, 28 gradient tensors. No base
+save/optimizer update; capacity only. See
+[capacity results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+
 **E2 64-unit selected capacity (23 October).** The selected extension passed
 all 12 inference/modules-only backward points on a fresh 64-unit bank through
 the validated `max_units`-only migration: peak driver **12.69 GiB**, **19.1 s**,
