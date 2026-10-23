@@ -5,8 +5,8 @@ import pytest
 from replica_lab.retention import build_manifest
 
 def policy(root):
-    (root/'preserve').mkdir();(root/'preserve'/'a.txt').write_text('a'*10)
-    (root/'candidate').mkdir();(root/'candidate'/'b.txt').write_text('b'*20)
+    (root/'preserve').mkdir(exist_ok=True);(root/'preserve'/'a.txt').write_text('a'*10)
+    (root/'candidate').mkdir(exist_ok=True);(root/'candidate'/'b.txt').write_text('b'*20)
     return {'format':'replica.retention.policy.v1','entries':[
       {'path':'preserve','action':'preserve','reason':'needed'},
       {'path':'candidate','action':'deletion_candidate','reason':'old'}]}
