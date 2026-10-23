@@ -304,6 +304,12 @@ held-out)** with zero false success claims at 15.12 GiB, 66.5 s. This is a
 refactor/verification, not a new capability arm. See
 [candidate rerank results](docs/experiments/20261023_E3_Candidate_Rerank_Replication_Results.md).
 
+**E2 independent answer scoring (23 October).** Removing the candidate-list
+position artifact did not rescue answer selection: model **1/4** vs random
+**0/4**, with distractors preferred in three cases. Candidate ranking remains
+limited to the repair menu; general answer ranking is not qualified. See
+[independent answer results](docs/experiments/20261023_E2_Candidate_Answer_Independent_Results.md).
+
 **E2 answer candidate ranking (23 October).** The repair-family candidate
 scorer was applied to fresh source-answer candidates. Canonical order scored
 **4/4**, but the model always chose index 0; a shuffled-order model control

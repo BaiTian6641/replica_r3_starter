@@ -1,0 +1,733 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T16:24:13.308406+00:00",
+  "protocol_sha256": "6039a523b43a48925bf6efa2059632707efe33bbcdc779d702855051a4def1e7",
+  "protocol": {
+    "format": "replica.e2.candidate_answer_independent.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Position-invariant answer scoring: each candidate is scored against the same source/question prefix with no candidate list; fresh family, no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+    "dataset": {
+      "root": "data/e2_candidate_answers2",
+      "records_sha256": "60a363ae2e420ec305edc85625e8962beccd8426388a1dcc75d6fe5d65dab147",
+      "queries_sha256": "ea481b836934d809ca4dbb1875f8185c68c217b6af61d77aab0b5b18f1c94623",
+      "manifest_sha256": "072d2a698a60e58a1477dd4585205cbed612ca826157e4b17de06c65e9060551"
+    },
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    },
+    "evaluation": {
+      "cases": 4,
+      "prompt_tokens": 1024,
+      "selection": "independent candidate likelihood vs random",
+      "seed": 20261023
+    },
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "native_jobs": 1
+    },
+    "training": {
+      "optimizer_updates": 0,
+      "model_loads": 1
+    },
+    "claims": "Position-invariance interface test; no default promotion."
+  },
+  "selection_mode": "model",
+  "candidate_order": "canonical",
+  "candidate_context": "independent",
+  "training_updates": 0,
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 16,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false,
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    }
+  },
+  "manifest_digest": "5db8ca2213d654ab9d1b892af6064786540f9032206cadfb570f79e68425c31d",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parent_receipt": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "core": {
+        "width": 256,
+        "slots": 8,
+        "steps": 2,
+        "heads": 4,
+        "task_features": 24,
+        "ffn_hidden": 1024,
+        "control_hidden": 340
+      }
+    },
+    "manifest_digest": "5db8ca2213d654ab9d1b892af6064786540f9032206cadfb570f79e68425c31d",
+    "regime": "modules_only",
+    "weights_sha256": "dff846ddce3d2313736d2680ea3bb475dcf8b06af482c2501bcb83e61400b467",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 94,
+        "parameters": 9392456,
+        "trainable": 9392456,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "core.slot_queries",
+          "core.type_embeddings",
+          "core.gate_self_logit",
+          "core.gate_cross_logit",
+          "core.gate_ffn_logit",
+          "core.self_norm.weight",
+          "core.self_norm.bias",
+          "core.cross_norm.weight",
+          "core.cross_norm.bias",
+          "core.ffn_norm.weight",
+          "core.ffn_norm.bias",
+          "core.source_norm.weight",
+          "core.source_norm.bias",
+          "core.self_q.weight",
+          "core.self_k.weight",
+          "core.self_v.weight",
+          "core.self_o.weight",
+          "core.cross_q.weight",
+          "core.cross_k.weight",
+          "core.cross_v.weight",
+          "core.cross_o.weight",
+          "core.ff_up.weight",
+          "core.ff_down.weight",
+          "core.task_encoder.projection.weight",
+          "core.task_encoder.norm.weight",
+          "core.task_encoder.norm.bias",
+          "ff_core.ff_up.weight",
+          "ff_core.ff_gate.weight",
+          "ff_core.ff_down.weight",
+          "workspace_ports.13.gate_logit",
+          "workspace_ports.13.query_norm.weight",
+          "workspace_ports.13.query_norm.bias",
+          "workspace_ports.13.memory_norm.weight",
+          "workspace_ports.13.memory_norm.bias",
+          "workspace_ports.13.query_projection.weight",
+          "workspace_ports.13.key_projection.weight",
+          "workspace_ports.13.value_projection.weight",
+          "workspace_ports.13.output_projection.weight",
+          "workspace_ports.27.gate_logit",
+          "workspace_ports.27.query_norm.weight",
+          "workspace_ports.27.query_norm.bias",
+          "workspace_ports.27.memory_norm.weight",
+          "workspace_ports.27.memory_norm.bias",
+          "workspace_ports.27.query_projection.weight",
+          "workspace_ports.27.key_projection.weight",
+          "workspace_ports.27.value_projection.weight",
+          "workspace_ports.27.output_projection.weight",
+          "task_head.mlp.0.weight",
+          "task_head.mlp.0.bias",
+          "task_head.mlp.2.weight",
+          "task_head.mlp.2.bias"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "core": [
+        "core.slot_queries",
+        "core.type_embeddings",
+        "core.gate_self_logit",
+        "core.gate_cross_logit",
+        "core.gate_ffn_logit",
+        "core.self_norm.weight",
+        "core.self_norm.bias",
+        "core.cross_norm.weight",
+        "core.cross_norm.bias",
+        "core.ffn_norm.weight",
+        "core.ffn_norm.bias",
+        "core.source_norm.weight",
+        "core.source_norm.bias",
+        "core.self_q.weight",
+        "core.self_k.weight",
+        "core.self_v.weight",
+        "core.self_o.weight",
+        "core.cross_q.weight",
+        "core.cross_k.weight",
+        "core.cross_v.weight",
+        "core.cross_o.weight",
+        "core.ff_up.weight",
+        "core.ff_down.weight",
+        "core.task_encoder.projection.weight",
+        "core.task_encoder.norm.weight",
+        "core.task_encoder.norm.bias"
+      ],
+      "ff_core": [
+        "ff_core.ff_up.weight",
+        "ff_core.ff_gate.weight",
+        "ff_core.ff_down.weight"
+      ],
+      "workspace_ports": [
+        "workspace_ports.13.gate_logit",
+        "workspace_ports.13.query_norm.weight",
+        "workspace_ports.13.query_norm.bias",
+        "workspace_ports.13.memory_norm.weight",
+        "workspace_ports.13.memory_norm.bias",
+        "workspace_ports.13.query_projection.weight",
+        "workspace_ports.13.key_projection.weight",
+        "workspace_ports.13.value_projection.weight",
+        "workspace_ports.13.output_projection.weight",
+        "workspace_ports.27.gate_logit",
+        "workspace_ports.27.query_norm.weight",
+        "workspace_ports.27.query_norm.bias",
+        "workspace_ports.27.memory_norm.weight",
+        "workspace_ports.27.memory_norm.bias",
+        "workspace_ports.27.query_projection.weight",
+        "workspace_ports.27.key_projection.weight",
+        "workspace_ports.27.value_projection.weight",
+        "workspace_ports.27.output_projection.weight"
+      ],
+      "task_head": [
+        "task_head.mlp.0.weight",
+        "task_head.mlp.0.bias",
+        "task_head.mlp.2.weight",
+        "task_head.mlp.2.bias"
+      ]
+    }
+  },
+  "results": [
+    {
+      "case_id": "answer2_01",
+      "expected": "indigo",
+      "chosen": "teal",
+      "correct": false,
+      "index": 1,
+      "scores": [
+        3.6791114807128906,
+        2.956134557723999,
+        3.987778902053833,
+        3.6474575996398926
+      ],
+      "source_ids": [
+        "answer2_01_relevant",
+        "answer2_01_same_attr",
+        "answer2_01_same_entity",
+        "answer2_01_owner"
+      ]
+    },
+    {
+      "case_id": "answer2_02",
+      "expected": "carmine",
+      "chosen": "peach",
+      "correct": false,
+      "index": 1,
+      "scores": [
+        4.326733112335205,
+        3.977003335952759,
+        4.4123358726501465,
+        4.462061882019043
+      ],
+      "source_ids": [
+        "answer2_02_relevant",
+        "answer2_02_same_attr",
+        "answer2_02_same_entity",
+        "answer2_02_owner"
+      ]
+    },
+    {
+      "case_id": "answer2_03",
+      "expected": "sienna",
+      "chosen": "plum",
+      "correct": false,
+      "index": 1,
+      "scores": [
+        4.512539863586426,
+        3.8381268978118896,
+        4.695051670074463,
+        4.567736625671387
+      ],
+      "source_ids": [
+        "answer2_03_relevant",
+        "answer2_03_same_attr",
+        "answer2_03_same_entity",
+        "answer2_03_owner"
+      ]
+    },
+    {
+      "case_id": "answer2_04",
+      "expected": "olive",
+      "chosen": "olive",
+      "correct": true,
+      "index": 0,
+      "scores": [
+        3.454852342605591,
+        3.7604775428771973,
+        3.7482306957244873,
+        3.780975341796875
+      ],
+      "source_ids": [
+        "answer2_04_relevant",
+        "answer2_04_same_attr",
+        "answer2_04_same_entity",
+        "answer2_04_owner"
+      ]
+    }
+  ],
+  "accuracy": "1/4",
+  "claims": "Answer-selection interface only; no training or free-form claim.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T16:24:15.247914+00:00",
+    "ended_at": "2026-10-23T16:24:21.610437+00:00",
+    "elapsed_seconds": 6.362617041915655,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 62,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15556706304,
+      "rss_peak_sampled_bytes": 3573792768,
+      "mps_allocated_peak_sampled_bytes": 10247574272,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T16:24:15.248642+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 85%",
+      "memory_free_percent": 85.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T16:24:21.534199+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 68%",
+      "memory_free_percent": 68.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T16:24:19.290522+00:00",
+        "elapsed_seconds": 4.0426066250074655,
+        "seconds_since_previous_mark": 4.0426066250074655,
+        "synchronize_seconds": 5.583977326750755e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:24:19.290477+00:00",
+          "elapsed_seconds": 4.042612791992724,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15556706304,
+          "rss_current_bytes": 344866816,
+          "rss_measurement_age_seconds": 1.9343754998408258,
+          "mps_allocated_bytes": 10113019904,
+          "mps_driver_bytes": 10754605056
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 94,
+              "parameters": 9392456,
+              "trainable": 9392456,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "core.slot_queries",
+                "core.type_embeddings",
+                "core.gate_self_logit",
+                "core.gate_cross_logit",
+                "core.gate_ffn_logit",
+                "core.self_norm.weight",
+                "core.self_norm.bias",
+                "core.cross_norm.weight",
+                "core.cross_norm.bias",
+                "core.ffn_norm.weight",
+                "core.ffn_norm.bias",
+                "core.source_norm.weight",
+                "core.source_norm.bias",
+                "core.self_q.weight",
+                "core.self_k.weight",
+                "core.self_v.weight",
+                "core.self_o.weight",
+                "core.cross_q.weight",
+                "core.cross_k.weight",
+                "core.cross_v.weight",
+                "core.cross_o.weight",
+                "core.ff_up.weight",
+                "core.ff_down.weight",
+                "core.task_encoder.projection.weight",
+                "core.task_encoder.norm.weight",
+                "core.task_encoder.norm.bias",
+                "ff_core.ff_up.weight",
+                "ff_core.ff_gate.weight",
+                "ff_core.ff_down.weight",
+                "workspace_ports.13.gate_logit",
+                "workspace_ports.13.query_norm.weight",
+                "workspace_ports.13.query_norm.bias",
+                "workspace_ports.13.memory_norm.weight",
+                "workspace_ports.13.memory_norm.bias",
+                "workspace_ports.13.query_projection.weight",
+                "workspace_ports.13.key_projection.weight",
+                "workspace_ports.13.value_projection.weight",
+                "workspace_ports.13.output_projection.weight",
+                "workspace_ports.27.gate_logit",
+                "workspace_ports.27.query_norm.weight",
+                "workspace_ports.27.query_norm.bias",
+                "workspace_ports.27.memory_norm.weight",
+                "workspace_ports.27.memory_norm.bias",
+                "workspace_ports.27.query_projection.weight",
+                "workspace_ports.27.key_projection.weight",
+                "workspace_ports.27.value_projection.weight",
+                "workspace_ports.27.output_projection.weight",
+                "task_head.mlp.0.weight",
+                "task_head.mlp.0.bias",
+                "task_head.mlp.2.weight",
+                "task_head.mlp.2.bias"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_answer",
+        "timestamp": "2026-10-23T16:24:20.066419+00:00",
+        "elapsed_seconds": 4.8185042918194085,
+        "seconds_since_previous_mark": 0.775897666811943,
+        "synchronize_seconds": 9.208917617797852e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:24:20.066365+00:00",
+          "elapsed_seconds": 4.818512916797772,
+          "phase": "candidate_answer",
+          "rss_peak_process_lifetime_bytes": 15556706304,
+          "rss_current_bytes": 3520118784,
+          "rss_measurement_age_seconds": 0.6696003749966621,
+          "mps_allocated_bytes": 10113356800,
+          "mps_driver_bytes": 10834591744
+        },
+        "fields": {
+          "case": "answer2_01",
+          "correct": false,
+          "chosen": 1
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_answer",
+        "timestamp": "2026-10-23T16:24:20.520133+00:00",
+        "elapsed_seconds": 5.272220624843612,
+        "seconds_since_previous_mark": 0.4537163330242038,
+        "synchronize_seconds": 3.3329706639051437e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:24:20.520076+00:00",
+          "elapsed_seconds": 5.27222991688177,
+          "phase": "candidate_answer",
+          "rss_peak_process_lifetime_bytes": 15556706304,
+          "rss_current_bytes": 3520118784,
+          "rss_measurement_age_seconds": 1.1233144998550415,
+          "mps_allocated_bytes": 10113684480,
+          "mps_driver_bytes": 10834608128
+        },
+        "fields": {
+          "case": "answer2_02",
+          "correct": false,
+          "chosen": 1
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_answer",
+        "timestamp": "2026-10-23T16:24:20.951751+00:00",
+        "elapsed_seconds": 5.7038373339455575,
+        "seconds_since_previous_mark": 0.43161670910194516,
+        "synchronize_seconds": 3.125052899122238e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:24:20.951687+00:00",
+          "elapsed_seconds": 5.703846499789506,
+          "phase": "candidate_answer",
+          "rss_peak_process_lifetime_bytes": 15556706304,
+          "rss_current_bytes": 3520118784,
+          "rss_measurement_age_seconds": 1.5549341668374836,
+          "mps_allocated_bytes": 10114012160,
+          "mps_driver_bytes": 10834608128
+        },
+        "fields": {
+          "case": "answer2_03",
+          "correct": false,
+          "chosen": 1
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_answer",
+        "timestamp": "2026-10-23T16:24:21.486122+00:00",
+        "elapsed_seconds": 6.181589541956782,
+        "seconds_since_previous_mark": 0.47775220801122487,
+        "synchronize_seconds": 4.333909600973129e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:24:21.429434+00:00",
+          "elapsed_seconds": 6.181600541807711,
+          "phase": "candidate_answer",
+          "rss_peak_process_lifetime_bytes": 15556706304,
+          "rss_current_bytes": 3573792768,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10114307072,
+          "mps_driver_bytes": 10834640896
+        },
+        "fields": {
+          "case": "answer2_04",
+          "correct": true,
+          "chosen": 0
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 6.362617041915655,
+    "sampled_peak_driver_bytes": 11815763968,
+    "sampled_peak_rss_bytes": 3573792768
+  },
+  "ended_at_utc": "2026-10-23T16:24:21.611104+00:00"
+}
