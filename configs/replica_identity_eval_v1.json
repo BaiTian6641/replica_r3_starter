@@ -1,0 +1,23 @@
+{
+  "format": "replica.identity.evaluation.v1",
+  "declared_at_utc": "2026-10-23",
+  "status": "design_pending_authentic_source",
+  "subject": "not_supplied",
+  "source_requirements": [
+    "permitted authentic decision records with source spans and dates",
+    "reviewed identity snapshot with unresolved questions",
+    "held-out decision/topic families reserved before variants",
+    "explicit permitted uses and revocation policy"
+  ],
+  "baselines": ["generic_model", "approved_summary", "archive_retrieval", "optional_neural_identity_conditioning"],
+  "equal_information": "All arms receive the same eligible approved evidence for a case; unavailable evidence is explicit.",
+  "splits": {"train": "complete decision families", "dev": "separate families", "heldout": "unseen families and counterfactuals"},
+  "metrics": [
+    "factual provenance", "conditional choice and ranking", "useful clarification",
+    "counterfactual sensitivity", "temporal fidelity", "unknown handling",
+    "technical correctness", "communication style", "attributable branch divergence"
+  ],
+  "review": "Blind randomized pairwise human source review for personal fit; independent executable verifier for technical outcomes.",
+  "prohibited": ["fabricated autobiography", "assistant prose as human testimony", "percentage-of-person metric", "identity as task-success authority"],
+  "native_budget": "Not declared; requires authentic permitted source and a separately preregistered candidate training arm."
+}

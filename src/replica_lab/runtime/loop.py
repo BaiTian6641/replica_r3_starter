@@ -149,7 +149,8 @@ class TaskRuntime:
                  max_prompt_tokens: int = 2048, generated_token_budget: int = 128,
                  max_proposal_bytes: int = MAX_PROPOSAL_BYTES,
                  workspace_width: int = DEFAULT_WORKSPACE_WIDTH,
-                 shuffled_workspace: CoreState | None = None):
+                 shuffled_workspace: CoreState | None = None,
+                 identity=None):
         if mode not in MODES:
             raise ValueError(f'Unknown runtime mode: {mode!r}')
         self.tools = tools
@@ -166,6 +167,11 @@ class TaskRuntime:
         if self.max_proposal_bytes <= 0 or self.workspace_width <= 0:
             raise ValueError('Proposal and workspace bounds must be positive integers')
         self.shuffled_workspace = shuffled_workspace
+        if identity is not None:
+            from ..replica.identity import IdentityContext
+            if not isinstance(identity, IdentityContext):
+                raise ValueError('identity must be an IdentityContext or None')
+        self.identity = identity
         self.state: ExactTaskState | None = None
         self.previous_workspace: CoreState | None = None
         self._verifier: JournalVerifier | None = None
@@ -293,6 +299,11 @@ class TaskRuntime:
         if state.constraints:
             lines.append('CONSTRAINTS:')
             lines += [f'- {c.text}' for c in state.constraints]
+        if self.identity is not None:
+            from ..replica.identity import render_identity_context
+            identity_text = render_identity_context(self.identity)
+            if identity_text:
+                lines.append(identity_text)
         if state.subgoals:
             lines.append('SUBGOALS:')
             lines += [f'- [{s.state}] {s.subgoal_id}: {s.description}'

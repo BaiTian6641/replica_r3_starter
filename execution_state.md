@@ -29,6 +29,28 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**C16 identity interface (23 October).** Versioned source episodes, approved
+conditional principle hypotheses, dated snapshots, mode-bound identity contexts,
+parallel-branch state, correction/revocation handling, a null path and an
+optional zero-initialized identity reader are implemented with fictional
+contract tests. The runtime can include a bounded approved identity section in
+its prompt when explicitly supplied; the default is byte-identical and identity
+has no verifier or task-success authority. No authentic personal source,
+identity training, native identity-port attachment or fidelity evaluation
+exists. See [identity interface](docs/architecture/09_Replica_Identity_Interface.md).
+
+**E3 narrower repair arm (23 October).** A fresh `set_constant` task family
+(four train/one dev/three held-out, disjoint groups) passed all engineering
+checks: initial parity, E2 migration, both gradient paths, stale-state rejection,
+extension-only export, and zero base copies. Teacher-forced loss fell to **0.015**
+(recurrent) but held-out execution was **0/7**: full and feed-forward arms repeated
+`read` seven times; core-disabled/extra-inference produced malformed proposals.
+The model never selected `set_constant`, so this is action selection, not tool or
+argument parsing. Peak driver **15.72 GiB**, zero swap; 32 updates; the success
+head remained untrained (seven negative labels). Preserve this as the second
+negative action-policy family; do not run another near-identical arm. See
+[set_constant results](docs/experiments/20261023_E3_Set_Constant_Results.md).
+
 **E2 follow-up — retrieval, novel records and capacity (23 October 2026 UTC).**
 A source-separated 13-case/49-record retrieval set and a 16-unit capacity bank
 were committed with protocols before execution. Held-out record recall@1 is

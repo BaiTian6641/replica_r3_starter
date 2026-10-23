@@ -17,6 +17,19 @@ memory is 14.72 GiB, swap growth zero, final v2 extension 35.85 MiB, no base cop
 or download. The E2 parent extension was copied exactly (43 tensors) as both
 initialization and regression reference.
 
+**E3 narrower repair (23 October):** fresh `set_constant` family passes
+all engineering checks but scores **0/7**; the model repeats `read` despite
+teacher loss 0.015. This is a second negative action-policy family, not a tool
+defect. Do not rerun a near-identical action arm; target action selection or
+advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
+
+**C16 identity contracts (23 October):** source episodes, approved snapshots,
+conditional principles, mode-bound contexts, branch isolation, correction/
+revocation, a null prompt path and an optional zero-init reader are implemented
+with fictional tests. No authentic source, trained identity conditioning or
+fidelity evaluation exists. See
+[identity interface](docs/architecture/09_Replica_Identity_Interface.md).
+
 **E2 follow-up (23 October):** source-separated retrieval gives held-out
 recall@1 **0.75** lexical/dense and **0.50** learned rerank; each slot arm answers
 **0/6**, oracle slots **0/4**, and exact text **3/3**. The novel-value

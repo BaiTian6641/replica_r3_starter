@@ -5,7 +5,7 @@
   "documentation": "docs/architecture/08_E3_Implementation.md",
   "E1": "implemented_native_interfaces_qualified",
   "E2": "implemented_slot_reading_diagnostic_passed_reranker_quality_negative_reader_novel_value_bottleneck",
-  "E3": "implemented_native_engineering_passed_learned_task_completion_negative",
+  "E3": "implemented_native_engineering_passed_action_policy_negative_two_task_families",
   "E4": "design_pending",
   "E5": "design_pending",
   "E6": "native_VLM_unrun",
@@ -20,7 +20,8 @@
     "C10": "typed proposals, host schema/scope/tool/budget validation, actual fixture tools, independent success check",
     "C11": "success-head interface implemented; untrained because the bounded outcome set had one class",
     "C15": "extension manifest v2, validated E1/E2 v1 migration, extension-only export",
-    "C17": "request-owned frames and uncached decoding; scheduler/batching/cached generation pending"
+    "C17": "request-owned frames and uncached decoding; scheduler/batching/cached generation pending",
+    "C16": "identity archive/snapshot/context/modes/branch isolation, null prompt path and optional zero-init reader; no authentic source or trained conditioning"
   },
   "native_result": "reports/e3_native_attempt03_20261023/run_report.json",
   "interrupted_result": "reports/e3_interrupted_20261023/acceptance.json",
@@ -38,7 +39,10 @@
     "oracle correct-record slots 0/4 held-out; exact text 3/3; writer/reader novel-value encoding is the bottleneck",
     "largest qualified capacity workload 16 units, 2043 source tokens, 256 prompt, 8 generated; modules-only 16-unit backward",
     "D2 capacity not run; full configured maximum not claimed as exercised",
-    "reranking remains opt-in; lexical remains default"
+    "reranking remains opt-in; lexical remains default",
+    "set_constant arm: 0/7 episodes, repeated read; teacher loss 0.015 but evaluation action selection fails",
+    "narrower tool is implemented but not promoted; do not repeat near-identical action arms",
+    "C16 contracts implemented; identity conditioning untrained and unattached; fidelity evaluation pending authentic permitted source"
   ],
   "retrieval_result": "reports/e2_retrieval_attempt03_20261023/run_report.json",
   "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",
@@ -49,5 +53,6 @@
     "largest qualified capacity workload 16 units, 2043 source tokens, 256 prompt, 8 generated; modules-only 16-unit backward",
     "D2 capacity not run; full configured maximum not claimed as exercised",
     "reranking remains opt-in; lexical remains default"
-  ]
+  ],
+  "set_constant_result": "reports/e3_set_attempt03_20261023/run_report.json"
 }
