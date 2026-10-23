@@ -106,7 +106,7 @@ def execute(args,protocol,report,profiler):
                         train_core=True,train_sense=True) as request:
                     output=session.forward(request,action_ids,labels=labels,attention_mask=mask)
                     loss=output.loss/int(alignment['examples_per_update']); total+=float(loss.detach())
-                session.backward(request,loss)
+                    session.backward(request,loss)
             del output,loss,action_ids,mask,labels
         norm=float(torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad],alignment['gradient_clip'],error_if_nonfinite=True))
         ratio=min(1.0,update/int(alignment['warmup_updates']))
