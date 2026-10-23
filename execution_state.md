@@ -280,6 +280,14 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**C16 persistent identity store (23 October).** The source archive, approved
+snapshots, revocation history and branch-owned experience now persist in an
+atomic, digest-bound, mode-0600 file; reload rejects tampering/unknown formats
+and revoked snapshots cannot resolve. Identity remains optional/null and has no
+verifier authority. Authentic source, native reader attachment and personal
+fidelity remain pending. See
+[identity interface](docs/architecture/09_Replica_Identity_Interface.md).
+
 **C16 identity interface (23 October).** Versioned source episodes, approved
 conditional principle hypotheses, dated snapshots, mode-bound identity contexts,
 parallel-branch state, correction/revocation handling, a null path and an

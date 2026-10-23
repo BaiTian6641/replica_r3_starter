@@ -12,9 +12,12 @@ evaluated candidate.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 import hashlib
 import json
+import os
+from pathlib import Path
+import tempfile
 from types import MappingProxyType
 from typing import Any, Mapping
 
@@ -28,6 +31,7 @@ AUTHENTICITY = frozenset({'unverified', 'source_report', 'verified_source',
 PRINCIPLE_STATUS = frozenset({'proposed', 'approved', 'revoked'})
 MAX_TEXT = 4000
 MAX_SUMMARY = 2400
+STORE_FORMAT = 'replica.identity.store.v1'
 
 
 def fingerprint(value: Any) -> str:
@@ -455,6 +459,137 @@ class IdentityArchive:
             purpose, cutoff, tuple(item.episode_id for item in episodes), summary,
             tuple(snapshot.unresolved_questions),
             {'identity_snapshot': snapshot.schema_version})
+
+
+class IdentityStore:
+    """Host-owned, versioned persistence for source episodes, principles, approved
+    snapshots and branch-owned experience.
+
+    The store contains no model weights and no bundled personal data. It is a
+    local private file by caller choice; writes are atomic, mode 0600, and bound
+    to a SHA256 of the canonical body. A revoked snapshot remains in the store as
+    revoked history, but can never resolve. Revoked/deleted source references in
+    revoked snapshots are retained as identifiers, not silently resurrected.
+    """
+    def __init__(self, subject_id):
+        self.archive = IdentityArchive(subject_id)
+        self.branches = {}
+
+    @property
+    def subject_id(self):
+        return self.archive.subject_id
+
+    def add_episode(self, episode):
+        self.archive.add_episode(episode)
+
+    def add_principle(self, principle):
+        self.archive.add_principle(principle)
+
+    def build_snapshot(self, snapshot_id, **kwargs):
+        snapshot = self.archive.build_snapshot(snapshot_id, **kwargs)
+        return snapshot
+
+    def revoke_episode(self, episode_id):
+        return self.archive.revoke_episode(episode_id)
+
+    def resolve(self, snapshot_id, **kwargs):
+        return self.archive.resolve(snapshot_id, **kwargs)
+
+    def add_branch(self, state):
+        if not isinstance(state, ReplicaBranchState):
+            raise ValueError('add_branch requires ReplicaBranchState')
+        if state.subject_id != self.subject_id:
+            raise PermissionError('branch subject differs from store subject')
+        if state.branch_id in self.branches:
+            raise ValueError('duplicate branch ID')
+        if state.source_snapshot_id not in self.archive._snapshots:
+            raise ValueError('branch snapshot is absent from the store')
+        self.branches[state.branch_id] = state
+
+    def body(self):
+        return {
+            'format': STORE_FORMAT,
+            'subject_id': self.subject_id,
+            'episodes': [asdict(item) for item in self.archive._episodes.values()],
+            'principles': [asdict(item) for item in self.archive._principles.values()],
+            'snapshots': [asdict(item) for item in self.archive._snapshots.values()],
+            'branches': [asdict(item) for item in self.branches.values()],
+        }
+
+    def save(self, path):
+        body = self.body()
+        payload = {'body': body, 'sha256': fingerprint(body)}
+        text = json.dumps(payload, sort_keys=True, separators=(',', ':'),
+                          ensure_ascii=False) + '\n'
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fd, temporary = tempfile.mkstemp(prefix='identity-', dir=path.parent)
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, 'w', encoding='utf-8') as handle:
+                handle.write(text)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+        return fingerprint(payload)
+
+    @classmethod
+    def load(cls, path):
+        payload = json.loads(Path(path).read_text(encoding='utf-8'))
+        if set(payload) != {'body', 'sha256'} or fingerprint(payload['body']) != payload['sha256']:
+            raise ValueError('identity store bytes do not match their digest')
+        body = payload['body']
+        if set(body) != {'format', 'subject_id', 'episodes', 'principles',
+                         'snapshots', 'branches'} or body['format'] != STORE_FORMAT:
+            raise ValueError('unknown identity store format')
+        store = cls(body['subject_id'])
+        for item in body['episodes']:
+            item = {**item, 'permitted_uses': tuple(item['permitted_uses'])}
+            store.archive.add_episode(SourceEpisode(**item))
+        for item in body['principles']:
+            item = {**item, 'exceptions': tuple(item['exceptions']),
+                    'supporting_episode_ids': tuple(item['supporting_episode_ids']),
+                    'contradicting_episode_ids': tuple(item['contradicting_episode_ids'])}
+            principle = PrincipleHypothesis(**item)
+            if principle.subject_id != store.subject_id:
+                raise PermissionError('principle subject differs from store')
+            if principle.principle_id in store.archive._principles:
+                raise ValueError('duplicate principle ID')
+            store.archive._principles[principle.principle_id] = principle
+        episodes = set(store.archive._episodes)
+        principles = set(store.archive._principles)
+        for item in body['snapshots']:
+            item = {**item, 'source_episode_ids': tuple(item['source_episode_ids']),
+                    'source_hashes': tuple(item['source_hashes']),
+                    'principle_ids': tuple(item['principle_ids']),
+                    'unresolved_questions': tuple(item['unresolved_questions']),
+                    'permitted_uses': tuple(item['permitted_uses'])}
+            snapshot = IdentitySnapshot(**item)
+            if snapshot.subject_id != store.subject_id:
+                raise PermissionError('snapshot subject differs from store')
+            if snapshot.status == 'active':
+                if not set(snapshot.source_episode_ids) <= episodes:
+                    raise ValueError('active snapshot references absent episodes')
+                if not set(snapshot.principle_ids) <= principles:
+                    raise ValueError('active snapshot references absent principles')
+                if any(store.archive._principles[x].status != 'approved'
+                       for x in snapshot.principle_ids):
+                    raise ValueError('active snapshot references unapproved principles')
+            if snapshot.snapshot_id in store.archive._snapshots:
+                raise ValueError('duplicate snapshot ID')
+            store.archive._snapshots[snapshot.snapshot_id] = snapshot
+        for item in body['branches']:
+            experiences = tuple(BranchExperience(**{**x, 'evidence_ids': tuple(x['evidence_ids'])})
+                                for x in item['experiences'])
+            state = ReplicaBranchState(item['branch_id'], item['subject_id'],
+                                       item['mode'], item['source_snapshot_id'],
+                                       experiences, tuple(item['skills']),
+                                       item['revision'])
+            store.add_branch(state)
+        return store
 
 
 class IdentityResolver:

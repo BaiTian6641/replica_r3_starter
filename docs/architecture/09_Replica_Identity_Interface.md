@@ -86,3 +86,21 @@ compatibility, zero-init reader parity/independence and optional prompt
 inclusion. No native model, personal data, identity training or fidelity
 evaluation is claimed. The status registry marks C16 as implemented contracts
 only; the identity reader remains untrained and unattached.
+
+
+## Persistent host store (23 October 2026 UTC)
+
+`IdentityStore` now persists the host-owned source archive: attributed episodes,
+approved principles, dated snapshots, revocation history and branch-owned
+experience. The file is canonical JSON with a SHA256 body digest, atomic replace
+and mode `0600`; loading rejects changed bytes, unknown formats, subject
+mismatches and active snapshots that reference absent/unapproved material.
+Revoked snapshots remain as history but cannot resolve.
+
+Branch experience is stored in the same private file but remains a separate
+ownership domain. It never becomes source testimony. The runtime still accepts
+only an explicitly resolved `IdentityContext`; identity remains optional, null
+by default and has no verifier or task-success authority. Native identity-reader
+attachment and any personal conditioning remain unimplemented and untrained.
+Authentic source material is still an external dependency; no personal data is
+bundled in Git.
