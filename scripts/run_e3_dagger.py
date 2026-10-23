@@ -93,7 +93,8 @@ def execute(args,protocol,report,prof):
         for i,request in enumerate(proposer.requests):
             action=teacher_action(tools,trace[:i]); raw=canonical(action)
             ids=tok(raw,add_special_tokens=False)['input_ids']+[tok.eos_token_id]
-            if request.prompt_tokens>int(protocol['training']['max_prompt_tokens']) or len(ids)>int(protocol['training']['max_label_tokens']):
+            prompt_len=len(tok(request.prompt_text,add_special_tokens=False)['input_ids'])
+            if prompt_len>int(protocol['training']['max_prompt_tokens']) or len(ids)>int(protocol['training']['max_label_tokens']):
                 raise ValueError('DAgger example exceeds declared bounds')
             examples.append({'case_id':cid,'goal':tools.goal,'prompt_text':request.prompt_text,
               'target_text':raw,'target_token_ids':ids,'task_features':list(request.task_features),
