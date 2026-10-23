@@ -1,0 +1,39 @@
+{
+  "format": "replica.e3_mixed.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py must pass. Inspect the configuration, run the evaluator, and if a required bound fails change exactly that one numeric constant with set_constant; if it already passes, stop without editing.",
+  "cases": [
+    {
+      "case_id": "fresh_heldout_repair_01",
+      "role": "heldout",
+      "source_group": "fresh_repair_a",
+      "requires_repair": true
+    },
+    {
+      "case_id": "fresh_heldout_repair_02",
+      "role": "heldout",
+      "source_group": "fresh_repair_b",
+      "requires_repair": true
+    },
+    {
+      "case_id": "fresh_heldout_pass_03",
+      "role": "heldout",
+      "source_group": "fresh_pass_a",
+      "requires_repair": false
+    },
+    {
+      "case_id": "fresh_heldout_pass_04",
+      "role": "heldout",
+      "source_group": "fresh_pass_b",
+      "requires_repair": false
+    }
+  ],
+  "splits": {
+    "heldout": [
+      "fresh_heldout_repair_01",
+      "fresh_heldout_repair_02",
+      "fresh_heldout_pass_03",
+      "fresh_heldout_pass_04"
+    ]
+  }
+}

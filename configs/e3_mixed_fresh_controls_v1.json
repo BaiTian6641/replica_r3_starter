@@ -1,0 +1,43 @@
+{
+  "format": "replica.e3.mixed_controls.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "bounded_repair",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_mixed_fresh/cases",
+    "manifest": "fixtures/e3_mixed_fresh/cases/manifest.json",
+    "manifest_sha256": "de4e9d53d9e19735a5dffc58b3793a2def45a4b70d8a43c6becbc5da9e77a913",
+    "heldout": [
+      "fresh_heldout_repair_01",
+      "fresh_heldout_repair_02",
+      "fresh_heldout_pass_03",
+      "fresh_heldout_pass_04"
+    ]
+  },
+  "subject": "e3_fixture",
+  "episodes": {
+    "decisions": 7,
+    "tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128,
+    "success": "independent evaluator exit status only",
+    "workspace_history": "disabled"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "episodes": 4,
+    "checkpoint_saves": 0
+  },
+  "claims": "Fresh-family no-head probe; no training, publication or general-capability claim."
+}
