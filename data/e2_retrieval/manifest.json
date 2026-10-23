@@ -1,0 +1,162 @@
+{
+  "format": "replica.e2_retrieval.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "subject_id": "e2_retrieval",
+  "purpose": "retrieval_eval",
+  "as_of": 10,
+  "tokenizer": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+  "splits": {
+    "train": [
+      "train_a",
+      "train_b"
+    ],
+    "dev": [
+      "dev_a",
+      "dev_b"
+    ],
+    "heldout": [
+      "heldout_a",
+      "heldout_b",
+      "heldout_c",
+      "heldout_d",
+      "heldout_e",
+      "heldout_f"
+    ]
+  },
+  "groups": {
+    "train_a": {
+      "split": "train",
+      "cases": [
+        "train_a1",
+        "train_a2"
+      ]
+    },
+    "train_b": {
+      "split": "train",
+      "cases": [
+        "train_b1",
+        "train_b2",
+        "train_b3"
+      ]
+    },
+    "dev_a": {
+      "split": "dev",
+      "cases": [
+        "dev_a"
+      ]
+    },
+    "dev_b": {
+      "split": "dev",
+      "cases": [
+        "dev_b"
+      ]
+    },
+    "heldout_a": {
+      "split": "heldout",
+      "cases": [
+        "heldout_a"
+      ]
+    },
+    "heldout_b": {
+      "split": "heldout",
+      "cases": [
+        "heldout_b"
+      ]
+    },
+    "heldout_c": {
+      "split": "heldout",
+      "cases": [
+        "heldout_c"
+      ]
+    },
+    "heldout_d": {
+      "split": "heldout",
+      "cases": [
+        "heldout_d"
+      ]
+    },
+    "heldout_e": {
+      "split": "heldout",
+      "cases": [
+        "heldout_e"
+      ]
+    },
+    "heldout_f": {
+      "split": "heldout",
+      "cases": [
+        "heldout_f"
+      ]
+    }
+  },
+  "counts": {
+    "cases": 13,
+    "records": 49,
+    "by_split": {
+      "train": 5,
+      "dev": 2,
+      "heldout": 6
+    }
+  },
+  "token_counts": {
+    "train_a1_launch": 9,
+    "train_a1_review": 9,
+    "train_a1_owner": 8,
+    "train_a1_other": 9,
+    "train_a2_backup": 9,
+    "train_a2_launch": 9,
+    "train_a2_target": 9,
+    "train_a2_other": 9,
+    "train_b1_release": 9,
+    "train_b1_review": 9,
+    "train_b1_owner": 8,
+    "train_b1_other": 9,
+    "train_b2_region": 9,
+    "train_b2_backup": 9,
+    "train_b2_target": 9,
+    "train_b2_other": 9,
+    "train_b3_release_old": 9,
+    "train_b3_release_new": 9,
+    "train_b3_review": 9,
+    "train_b3_other": 9,
+    "dev_a_launch": 10,
+    "dev_a_review": 10,
+    "dev_a_owner": 10,
+    "dev_a_other": 10,
+    "dev_b_release": 11,
+    "dev_b_review": 10,
+    "dev_b_other": 11,
+    "heldout_a_launch": 10,
+    "heldout_a_review": 11,
+    "heldout_a_backup": 10,
+    "heldout_a_other": 9,
+    "heldout_b_release_old": 11,
+    "heldout_b_release_new": 11,
+    "heldout_b_review": 11,
+    "heldout_b_other": 9,
+    "heldout_c_owner": 9,
+    "heldout_c_review": 9,
+    "heldout_c_backup": 9,
+    "heldout_d_long": 231,
+    "heldout_d_review": 11,
+    "heldout_d_other": 10,
+    "heldout_e_review": 11,
+    "heldout_e_future": 12,
+    "heldout_e_unauthorized": 11,
+    "heldout_e_wrongpurpose": 12,
+    "heldout_f_launch": 10,
+    "heldout_f_review": 10,
+    "heldout_f_owner": 9,
+    "heldout_f_other": 9
+  },
+  "long_record": {
+    "record_id": "heldout_d_long",
+    "tokens": 231,
+    "fact_token_start": 177,
+    "chunks": 2
+  },
+  "files": {
+    "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+    "queries_sha256": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a"
+  },
+  "claims": "Authored synthetic retrieval fixtures; held-out groups are source-separated but exposed on disk."
+}

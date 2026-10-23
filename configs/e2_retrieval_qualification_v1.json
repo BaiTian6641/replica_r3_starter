@@ -1,0 +1,116 @@
+{
+  "format": "replica.e2_retrieval.qualification.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Separate eligibility from ranking; measure lexical, native-dense and learned reranking on source-separated retrieval and novel-record use. Held-out groups are used once for final assessment.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/e2_retrieval",
+    "manifest": "data/e2_retrieval/manifest.json",
+    "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+    "queries_sha256": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a",
+    "manifest_sha256": "b073e6397be3b792cf137c05c660fa219d4b8d0426001602646082fa1ed48167",
+    "splits": {
+      "train": [
+        "train_a",
+        "train_b"
+      ],
+      "dev": [
+        "dev_a",
+        "dev_b"
+      ],
+      "heldout": [
+        "heldout_a",
+        "heldout_b",
+        "heldout_c",
+        "heldout_d",
+        "heldout_e",
+        "heldout_f"
+      ]
+    },
+    "counts": {
+      "cases": 13,
+      "records": 49,
+      "by_split": {
+        "train": 5,
+        "dev": 2,
+        "heldout": 6
+      }
+    }
+  },
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "sampling": "greedy",
+  "thinking": false,
+  "training": {
+    "objective": "session.ranking_loss over eligible candidates; answer loss is never used for hard top-k",
+    "updates": 12,
+    "queries_per_update": 5,
+    "optimizer": "muon8bit",
+    "lr_new": 0.001,
+    "lr_muon_new": 0.001,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "seed": 20261023,
+    "trainable": [
+      "reranker",
+      "sense_ports.13"
+    ],
+    "selection_limit": 16,
+    "bank_units": 16,
+    "selection": "all eligible records for each train query in deterministic case-id order",
+    "note": "Train groups only; dev and held-out groups never enter the ranking update."
+  },
+  "generation": {
+    "max_new_tokens": 8,
+    "prompt": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\\n\\nQuery: {query}"
+  },
+  "arms": [
+    {
+      "id": "lexical",
+      "description": "eligible lexical retrieval, then record-order bank cap at 16 unit slots",
+      "ranking": true
+    },
+    {
+      "id": "dense",
+      "description": "native source-prefix mean-feature dense retrieval over eligible records, then bank cap",
+      "ranking": true
+    },
+    {
+      "id": "rerank",
+      "description": "learned reranker over eligible lexical candidates, record score = max span score, then bank cap",
+      "ranking": true
+    },
+    {
+      "id": "oracle_diagnostic",
+      "description": "only the expected eligible record is supplied; diagnostic for reader/answer errors, not a retrieval arm",
+      "ranking": false
+    }
+  ],
+  "scoring": {
+    "retrieval": "record recall@1 and recall@4, expected-record rank; numbers only for relevant cases and ranking arms",
+    "answer": "decoded text stripped and casefolded; exact expected value; UNKNOWN is an abstention",
+    "eligibility": "selected forbiddden/unauthorized/future/wrong-purpose records must be zero",
+    "correction": "superseded record absent; corrected record selected if retrieved",
+    "long_record": "selected span count and whether the fact token offset is inside the selected bank",
+    "distractors": "count eligible non-expected records present in the neural bank",
+    "heldout": "final assessment is held-out source groups only; train/dev remain development evidence"
+  },
+  "controls": [
+    "lexical",
+    "dense",
+    "rerank",
+    "oracle_diagnostic",
+    "missing-information abstention",
+    "unauthorized/future/wrong-purpose exclusion",
+    "correction/superseded exclusion",
+    "irrelevant-but-eligible bank distractors",
+    "long-record chunk coverage"
+  ],
+  "retention": "Keep the parent E2 extension, the new reranker extension, the dataset, raw selected IDs/answers and every failure report. No base copy or download.",
+  "claims": "Reranking remains opt-in unless held-out retrieval and answer results justify a default change. No generalization claim from exposed synthetic source groups."
+}
