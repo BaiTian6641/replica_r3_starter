@@ -16,7 +16,7 @@ validation model; MiniCPM-V-4.7-1B is the second, with its own native port.
 [E3 set_constant negative](../experiments/20261023_E3_Set_Constant_Results.md),
 [C16 identity](09_Replica_Identity_Interface.md),
 [E4 fast memory](10_Fast_Memory_Reference.md),
-[E4 artifacts](11_Runtime_Artifacts.md) and
+[E4 artifacts](11_Runtime_Artifacts.md), [C13 director](13_Learning_Director.md) and
 [E5 procedure](../experiments/20261023_E5_Procedure_Results.md) record the
 connected code and measured limits. The research chapters below remain the
 design baseline.

@@ -289,6 +289,14 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**C13 learning director baseline (23 October).** A deterministic director now
+aggregates actual train/development outcomes, diagnoses repeated failure classes,
+and emits at most one bounded `LearningProposal`, a deferral or no update. It
+requires verified receipts for procedure proposals, at least eight attempts for
+neural proposals, excludes audit/gold, enforces cost/proposal caps and has no
+publish/execute authority. It is **not a learned selector** and has no measured
+learning benefit. See [learning director](docs/architecture/13_Learning_Director.md).
+
 **C16 persistent identity store (23 October).** The source archive, approved
 snapshots, revocation history and branch-owned experience now persist in an
 atomic, digest-bound, mode-0600 file; reload rejects tampering/unknown formats
