@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E2 pointer publication (23 October):** accepted opt-in candidate, harmful
+candidate rejected, manifest rollback verified; exact text remains default. See
+[pointer publication](docs/experiments/20261023_E2_Pointer_Publication_Results.md).
+
 **E4 contextual writer (23 October):** loss 50.1→8.3 but train 3/24,
 heldout 0/8, controls 0/8; rejected. See
 [contextual writer results](docs/experiments/20261023_E4_Contextual_Writer_Results.md).

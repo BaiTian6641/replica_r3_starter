@@ -1,0 +1,130 @@
+{
+  "status": "completed",
+  "created_at_utc": "2026-10-23T13:05:40.970187+00:00",
+  "run_report": "/Users/flare/replica_r3_starter/runs/e2_pointer_head_attempt02/run_report.json",
+  "pointer_candidate": {
+    "artifact_id": "e2-pointer-copy-1",
+    "parent_manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+    "changed_parameters": [
+      "copy_head.query_norm.weight",
+      "copy_head.query_norm.bias",
+      "copy_head.key_norm.weight",
+      "copy_head.key_norm.bias",
+      "copy_head.query_projection.weight",
+      "copy_head.key_projection.weight"
+    ],
+    "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "training_scope": "modules_only",
+    "optimizer": "muon8bit",
+    "producer_versions": {
+      "e2_parent": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404"
+    },
+    "source_ids": [
+      "copy_train_01",
+      "copy_train_02",
+      "copy_train_03",
+      "copy_train_04",
+      "copy_train_05",
+      "copy_train_06",
+      "copy_train_07",
+      "copy_train_08",
+      "copy_train_09",
+      "copy_train_10",
+      "copy_train_11",
+      "copy_train_12",
+      "copy_train_13",
+      "copy_train_14",
+      "copy_train_15",
+      "copy_train_16",
+      "copy_train_17",
+      "copy_train_18",
+      "copy_train_19",
+      "copy_train_20",
+      "copy_train_21",
+      "copy_train_22",
+      "copy_train_23",
+      "copy_train_24"
+    ],
+    "parent_id": null,
+    "status": "accepted",
+    "evaluation": "passed",
+    "created_at": 0,
+    "expires_at": null,
+    "kind": "neural_candidate"
+  },
+  "harmful_candidate": {
+    "artifact": {
+      "artifact_id": "e2-pointer-copy-harmful",
+      "parent_manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+      "changed_parameters": [
+        "copy_head.query_norm.weight",
+        "copy_head.query_norm.bias",
+        "copy_head.key_norm.weight",
+        "copy_head.key_norm.bias",
+        "copy_head.query_projection.weight",
+        "copy_head.key_projection.weight"
+      ],
+      "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+      "training_scope": "modules_only",
+      "optimizer": "muon8bit",
+      "producer_versions": {
+        "e2_parent": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404"
+      },
+      "source_ids": [
+        "copy_train_01",
+        "copy_train_02",
+        "copy_train_03",
+        "copy_train_04",
+        "copy_train_05",
+        "copy_train_06",
+        "copy_train_07",
+        "copy_train_08",
+        "copy_train_09",
+        "copy_train_10",
+        "copy_train_11",
+        "copy_train_12",
+        "copy_train_13",
+        "copy_train_14",
+        "copy_train_15",
+        "copy_train_16",
+        "copy_train_17",
+        "copy_train_18",
+        "copy_train_19",
+        "copy_train_20",
+        "copy_train_21",
+        "copy_train_22",
+        "copy_train_23",
+        "copy_train_24"
+      ],
+      "parent_id": null,
+      "status": "rejected",
+      "evaluation": "failed",
+      "created_at": 0,
+      "expires_at": null,
+      "kind": "neural_candidate"
+    },
+    "rejected": true
+  },
+  "artifact_catalog": {
+    "format": "replica.artifacts.catalog.v1",
+    "artifacts": [
+      {
+        "artifact_id": "e2-pointer-copy-1",
+        "kind": "neural_candidate",
+        "status": "accepted",
+        "digest": "809026b52ac3549643430eefa121ab52175f36169696178c25b09c4944b60996"
+      },
+      {
+        "artifact_id": "e2-pointer-copy-harmful",
+        "kind": "neural_candidate",
+        "status": "rejected",
+        "digest": "413879a4a2394c41d499fc1ab4bb93e5912e6f44fce4b60ab0f892be2a429f9b"
+      }
+    ]
+  },
+  "baseline_manifest": "97319970fae6a9bec5766ef5f2384093f4e8e5a3f5fb75e28b9e56ab1ebaad2c",
+  "pointer_manifest": "a7530031af5ae30f55f616b3d2c26450581bdf535cc2be250ac7076be283c51a",
+  "rolled_back": "97319970fae6a9bec5766ef5f2384093f4e8e5a3f5fb75e28b9e56ab1ebaad2c",
+  "active_after_rollback": "97319970fae6a9bec5766ef5f2384093f4e8e5a3f5fb75e28b9e56ab1ebaad2c",
+  "claims": "Pointer candidate publication metadata and rollback only; exact text remains default; no neural runtime promotion."
+}

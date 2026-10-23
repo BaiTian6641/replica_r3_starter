@@ -33,6 +33,13 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E2 pointer publication (23 October).** The opt-in pointer candidate was
+registered as an accepted neural candidate, a deliberately harmful duplicate
+was rejected, and a separate opt-in manifest was published and rolled back to
+the exact-text baseline. This is metadata/publication only; the pointer is not
+the default and has no runtime promotion. See
+[pointer publication](docs/experiments/20261023_E2_Pointer_Publication_Results.md).
+
 **E4 contextual writer (23 October).** A new source-feature writer reduced
 training loss **50.1→8.3**, but train exact was **3/24**, held-out **0/8**, and
 shuffled/zero/disabled all 0/8. State influence is present; reliable novel-value
