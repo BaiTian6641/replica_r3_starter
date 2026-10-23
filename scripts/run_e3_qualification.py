@@ -825,12 +825,14 @@ def execute(args, profiler, report):
             bytes=report['extension']['bytes'])
     require('original_parameters_unchanged',
             model._original_identity == model.parameter_stamp(original_only=True))
+    # Task workspace/latent payloads are tiny tensors; a native base copy would
+    # be gigabytes. Only the declared extension may exceed 1 MiB.
     payloads = [p for p in args.output.rglob('*.safetensors')
                 if p.name != 'extensions.safetensors'
-                and 'record_latents' not in p.parts
-                and 'workspace_state' not in p.parts]
+                and p.stat().st_size > 1_000_000]
     require('no_base_checkpoint_copy', not payloads,
-            payloads=[str(p.relative_to(args.output)) for p in payloads])
+            payloads=[{'path': str(p.relative_to(args.output)),
+                       'bytes': p.stat().st_size} for p in payloads])
 
     report['costs'] = {
         'profiled_wall_seconds': None,
