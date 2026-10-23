@@ -1,0 +1,22 @@
+W1023 00:41:51.728000 120 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  19%|█▉        | 72/381 [00:00<00:00, 701.41it/s]Loading weights:  41%|████▏     | 158/381 [00:00<00:00, 784.98it/s]Loading weights:  63%|██████▎   | 240/381 [00:00<00:00, 798.43it/s]Loading weights:  88%|████████▊ | 334/381 [00:00<00:00, 851.29it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 841.52it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 1059, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 1029, in main
+    preflight(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 904, in preflight
+    with session.training_request(
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 301, in training_request
+    request = self.prepare(training=True, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 250, in prepare
+    core = self.adapter.build_core_state(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 144, in build_core_state
+    raise ValueError(f'task_features must be finite floating point [1, {spec.task_features}]')
+ValueError: task_features must be finite floating point [1, 24]

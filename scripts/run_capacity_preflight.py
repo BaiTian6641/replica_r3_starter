@@ -61,7 +61,10 @@ def stop_child(child):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--entry-point", choices=("train_text.py", "qualify_architecture.py", "run_replica_session.py"), default="train_text.py")
+    parser.add_argument("--entry-point", choices=("train_text.py", "qualify_architecture.py",
+                                                 "run_replica_session.py", "e3_speed_probe.py",
+                                                 "run_e3_qualification.py", "run_e3_task.py"),
+                        default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--driver-limit-gib", type=float, default=40)
     parser.add_argument("--swap-growth-limit-mib", type=float, default=512)

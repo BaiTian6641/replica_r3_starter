@@ -1,0 +1,206 @@
+{
+  "format": "replica.e3.qualification.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Bounded E3 engineering qualification of the shared core, exact task journal and model-driven action loop; not a generalization or capability-promotion study.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "parent_use": [
+    "initialization_of_E2_components_after_validated_migration",
+    "regression_reference_through_E2_behavior_checks"
+  ],
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "sampling": "greedy",
+  "thinking": false,
+  "ports": [
+    13,
+    27
+  ],
+  "observer": 41,
+  "source_tokens_per_unit": 128,
+  "memory_units": 16,
+  "slots_per_unit": 4,
+  "memory_width": 256,
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3/cases",
+    "train": [
+      "train_retry_01",
+      "train_timeout_02"
+    ],
+    "dev": [
+      "dev_retry_03"
+    ],
+    "heldout": [
+      "heldout_timeout_04",
+      "heldout_retry_05"
+    ],
+    "interrupted": [
+      "interrupted_retry_06"
+    ],
+    "roles_note": "Train cases author alignment targets; dev cases carry controls; held-out cases are used once for model-driven episodes and never for alignment or control tuning; the interrupted case is exercised in separate guarded CLI processes."
+  },
+  "alignment": {
+    "regime": "modules_only",
+    "frozen": "all 2516756480 original parameters (381 tensors)",
+    "trainable_components": [
+      "record_writer",
+      "memory_ports",
+      "sense_ports",
+      "reranker",
+      "core",
+      "workspace_ports",
+      "task_head"
+    ],
+    "optimizer": "muon8bit",
+    "auxiliary_optimizer": "adamw (FP32) for embeddings, heads, slot queries and non-2D tensors",
+    "updates": 16,
+    "examples_per_update": 4,
+    "arms": [
+      {
+        "name": "recurrent",
+        "core_impl": "recurrent",
+        "updates": 8,
+        "selected": true,
+        "initialization": "migrated E2 parent for E2 tensors, fresh E3 tensors"
+      },
+      {
+        "name": "feedforward_control",
+        "core_impl": "feedforward",
+        "updates": 8,
+        "selected": false,
+        "initialization": "the same migrated E2 parent after restoring its new-parameter snapshot; shared sensors/readers are trained by this arm and swapped only for control evaluation; the recurrent arm is restored afterward and is the only exported arm"
+      }
+    ],
+    "example_order": "deterministic round-robin over (train case, teacher step) in sorted case-id and ascending step order",
+    "seed": 20261023,
+    "lr_new": 0.005,
+    "lr_muon_new": 0.01,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "loss": "teacher-forced next-token cross entropy on the generated action JSON plus EOS; prompt prefix masked, never supervised",
+    "train_core": true,
+    "train_sense": true,
+    "previous_workspace_during_alignment": "absent (zero-initial previous state); cross-decision workspace input is exercised at inference and restart, not trained here",
+    "max_prompt_tokens": 640,
+    "max_label_tokens": 96,
+    "teacher_steps_per_case": 5,
+    "teacher_policy": "host-authored action sequence used only to create training labels and real training-tool receipts; never used to choose evaluation actions"
+  },
+  "generation": {
+    "max_new_tokens": 128,
+    "max_prompt_tokens": 640,
+    "reprefill": true,
+    "stop": "EOS or declared token limit",
+    "raw_output_policy": "retain token IDs and raw text for every decision, including malformed proposals"
+  },
+  "budgets": {
+    "decisions_per_episode": 7,
+    "tool_calls_per_episode": 5,
+    "generated_tokens_per_decision": 128,
+    "prompt_tokens_per_decision": 640,
+    "wall_seconds_per_episode": 300
+  },
+  "evaluation": {
+    "full_episodes": [
+      "dev_retry_03",
+      "heldout_timeout_04",
+      "heldout_retry_05"
+    ],
+    "control_case": "dev_retry_03",
+    "control_modes": [
+      "core_disabled",
+      "workspace_zero",
+      "workspace_shuffled",
+      "ff_core",
+      "extra_inference"
+    ],
+    "interrupted_case": "interrupted_retry_06",
+    "interruption_plan": "guarded CLI invocation 1 stops after observing the failed test; a host-only correction bumps the task revision; guarded CLI invocation 2 resumes in a fresh process and must rebuild incompatible workspace state",
+    "success_rule": "only the independent evaluator command run by the host may satisfy the success condition",
+    "scores": [
+      "host-verified task completion",
+      "tool exit codes",
+      "plan change after observed failure",
+      "malformed actions",
+      "incorrect success claims",
+      "stale workspace rejection",
+      "decisions",
+      "prompt and generated tokens",
+      "tool calls",
+      "wall time",
+      "sampled memory"
+    ],
+    "engineering_acceptance": [
+      "null native parity at initialization",
+      "independent memory and workspace reader influence",
+      "gradients through sensors, core and workspace readers",
+      "future-observation and teacher-target exclusion",
+      "validated E2 parent migration",
+      "journal restart reconstruction",
+      "pending-intent reconciliation",
+      "denied goal replacement and unverified obligation completion",
+      "independent success check authority"
+    ],
+    "learned_capability": "reported from held-out task outcomes and controls; a small exposed fixture family cannot establish generalization"
+  },
+  "controls": {
+    "core_disabled": "memory branch only; no CoreState and no workspace readers",
+    "workspace_zero": "core computed, workspace zeroed before readers",
+    "workspace_shuffled": "another task's stored workspace with matching producer",
+    "ff_core": "matched feed-forward core trained with the same declared alignment budget",
+    "extra_inference": "one additional known-input sense pass with the workspace branch disabled",
+    "ff_core_training": "sequential arm of the same 16 updates and 4-example batches, starting from the same migrated parent; shared sensors/readers are trained by that arm and swapped for its control episode only; no FF-arm weights are exported",
+    "claim": "controls are bounded engineering comparisons; no statistical superiority claim; shared-reader coupling is reported as a confound"
+  },
+  "success_head": {
+    "kind": "task-success prediction from detached task features plus pooled first-decision workspace",
+    "train_if_labels_at_least": 8,
+    "require_both_classes": true,
+    "optimizer": "adamw",
+    "steps": 300,
+    "lr": 0.01,
+    "weight_decay": 0.0,
+    "loss": "binary cross entropy with logits",
+    "report": [
+      "label count and class balance",
+      "training loss",
+      "Brier score on the same exposed labels",
+      "explicit no-calibration claim"
+    ],
+    "authority": "prediction only; never declares task success"
+  },
+  "checkpoint": {
+    "format": "replica.minicpm5.extensions.v2",
+    "save_policy": "one final extension-only export after alignment and, if trained, success-head fitting; no base copy, no optimizer checkpoint",
+    "base_saved": false,
+    "storage_root": "runs/",
+    "retention": "keep the parent E2 extension, this final extension, all raw reports, journals and failure traces"
+  },
+  "stop_conditions": [
+    "capacity guard stop (40 GiB sampled driver, 512 MiB sustained swap growth, 15% minimum free memory)",
+    "nonfinite loss, gradient or generated logits",
+    "declared update/decision/tool/token budget exhausted",
+    "journal binding or hash-chain failure",
+    "wall-clock episode budget exceeded"
+  ],
+  "claims": {
+    "implemented": "shared recurrent core, workspace readers, exact task journal, typed actions and tools, model-driven loop, restart",
+    "trained": "modules-only action-format/core/reader alignment and, conditionally, the success head",
+    "measured": "engineering checks, held-out task outcomes, controls and costs under the declared budgets",
+    "not_claimed": "generalization, calibrated confidence, self-improvement, Replica fidelity, full-bank memory capacity, retrieval quality"
+  }
+}

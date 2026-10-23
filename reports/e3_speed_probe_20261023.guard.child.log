@@ -1,0 +1,16 @@
+W1022 23:19:22.203000 87484 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 852.60it/s]Loading weights:  46%|████▌     | 175/381 [00:00<00:00, 858.18it/s]Loading weights:  69%|██████▉   | 262/381 [00:00<00:00, 850.27it/s]Loading weights:  91%|█████████▏| 348/381 [00:00<00:00, 835.13it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 858.17it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/e3_speed_probe.py", line 165, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/e3_speed_probe.py", line 149, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/e3_speed_probe.py", line 91, in execute
+    result = session.forward(request2, prompt, labels=labels)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 205, in forward
+    return self.adapter.forward_with_frame(input_ids,request.frame,labels=labels,attention_mask=attention_mask)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 224, in forward_with_frame
+    raise ValueError('Sense prefix may not contain supervised targets')
+ValueError: Sense prefix may not contain supervised targets
