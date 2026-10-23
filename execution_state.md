@@ -1,5 +1,17 @@
 # Execution state — integrated architecture research and design
 
+**Current E1/E2 implementation update — 23 October 2026 UTC.** The explicit
+native adapter, contextual record writer, two depth ports, temporal ledger,
+retrieval, request/session ownership and persistent runtime CLI are implemented.
+Read [the implementation/runbook](docs/architecture/07_E1_E2_Implementation.md).
+Software validation: **922 passed, one restricted-context MPS skip, 21 subtests**.
+The bounded [GPU protocol](configs/e1_e2_qualification_v1.json) is predeclared;
+native execution and generated-answer acceptance are pending in this revision.
+Keep the sealed local source and selected prior checkpoints. The protected
+untracked runtime draft remains unchanged. No E3 cognitive core is claimed.
+
+## Preserved architecture design handoff
+
 **Current priority — architecture research and rebuild design, 22 October 2026.**
 Read the [integrated design](docs/architecture/README.md), [backbone ports](docs/architecture/02_Backbone_Integration.md),
 [memory and compiler](docs/architecture/03_Memory_and_Runtime_Compilation.md),

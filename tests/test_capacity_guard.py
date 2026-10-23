@@ -137,3 +137,78 @@ def test_final_profile_write_at_child_exit_cannot_hide_a_driver_breach(monkeypat
     assert result["guard"]["peak_driver_bytes"] == 41 * 1024**3
     assert result["guard"]["stop_reason"] == "sampled_mps_driver_limit"
     assert result["child_exit_code"] == 0
+
+
+@pytest.mark.parametrize("entry_point", [None, "train_text.py", "qualify_architecture.py",
+                                        "run_replica_session.py"])
+def test_allowlisted_entry_point_binds_child_command_and_guard_environment(
+        monkeypatch, tmp_path, entry_point):
+    """Exercise dispatch without executing a trainer or allocating GPU state."""
+    script = load_script()
+    report, output = tmp_path / "guard.json", tmp_path / "run"
+    trainer_args = ["--device", "mps", "--output", str(output),
+                    "--config", "configs/fixture.json"]
+    guard_args = [] if entry_point is None else ["--entry-point", entry_point]
+    monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(sys, "argv", ["guard", *guard_args, "--report", str(report),
+                                      "--", *trainer_args])
+    monkeypatch.setenv("REPLICA_CAPACITY_GUARD", "0")
+    monkeypatch.setenv("REPLICA_GUARD_TEST_PASSTHROUGH", "fixture")
+    monkeypatch.setattr(script, "host_reading", baseline)
+    launches = []
+
+    class CompletedChild:
+        returncode = 0
+
+        def __init__(self, command, **kwargs):
+            launches.append((command, kwargs))
+            output.mkdir()
+            (output / "profile_samples.jsonl").write_text(
+                json.dumps({"mps_driver_bytes": 1024**3}) + "\n")
+
+        def poll(self):
+            return self.returncode
+
+        def wait(self, **kwargs):
+            return self.returncode
+
+    monkeypatch.setattr(script.subprocess, "Popen", CompletedChild)
+    assert script.main() == 0
+    assert len(launches) == 1
+    command, options = launches[0]
+    expected_entry = "train_text.py" if entry_point is None else entry_point
+    expected_command = [sys.executable, str(script.ROOT / "scripts" / expected_entry), *trainer_args]
+    assert command == expected_command
+    assert options["cwd"] == script.ROOT
+    assert options["env"]["REPLICA_CAPACITY_GUARD"] == "1"
+    assert options["env"]["REPLICA_GUARD_TEST_PASSTHROUGH"] == "fixture"
+    assert not options.get("shell", False)
+    # A child-only marker must not mutate the parent's environment.
+    assert script.os.environ["REPLICA_CAPACITY_GUARD"] == "0"
+    result = json.loads(report.read_text())
+    assert result["command"] == expected_command
+    assert result["status"] == "completed_within_declared_sampled_limits"
+    assert result["child_exit_code"] == 0
+
+
+@pytest.mark.parametrize("entry_point", ["unknown.py", "../qualify_architecture.py",
+                                        "/tmp/qualify_architecture.py", "qualify_architecture.py; true"])
+def test_arbitrary_entry_point_is_rejected_before_telemetry_or_child_launch(
+        monkeypatch, tmp_path, entry_point):
+    script = load_script()
+    report, output = tmp_path / "guard.json", tmp_path / "run"
+    monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(sys, "argv", ["guard", "--entry-point", entry_point,
+                                      "--report", str(report), "--", "--device", "mps",
+                                      "--output", str(output)])
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Rejected entry points must not sample telemetry or launch a child")
+
+    monkeypatch.setattr(script, "host_reading", forbidden)
+    monkeypatch.setattr(script.subprocess, "Popen", forbidden)
+    with pytest.raises(SystemExit) as error:
+        script.main()
+    assert error.value.code == 2
+    assert not report.exists()
+    assert not output.exists()

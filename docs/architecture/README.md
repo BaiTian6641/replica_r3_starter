@@ -10,6 +10,8 @@ cognitive core, native memory access ports, self-evaluation, bounded learning
 and an authentic personal Replica branch. MiniCPM5-2B is the first technology
 validation model; MiniCPM-V-4.7-1B is the second, with its own native port.
 
+**Implementation follow-up:** [E1/E2 implementation and qualification](07_E1_E2_Implementation.md) now records the connected code and its fixed GPU protocol. The research chapters below remain the design baseline.
+
 ## Read in this order
 
 | Document | What it specifies |

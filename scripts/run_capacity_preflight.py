@@ -10,6 +10,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import signal
 import subprocess
@@ -60,6 +61,7 @@ def stop_child(child):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--entry-point", choices=("train_text.py", "qualify_architecture.py", "run_replica_session.py"), default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--driver-limit-gib", type=float, default=40)
     parser.add_argument("--swap-growth-limit-mib", type=float, default=512)
@@ -83,7 +85,7 @@ def main():
     host_path = args.report.with_suffix(".host.jsonl")
     if log_path.exists() or host_path.exists():
         parser.error("Guard log paths already exist")
-    command = [sys.executable, str(ROOT / "scripts/train_text.py"), *trainer_args]
+    command = [sys.executable, str(ROOT / "scripts" / args.entry_point), *trainer_args]
     report = {"status": "started", "started_at_utc": datetime.now(timezone.utc).isoformat(),
               "command": command, "output": str(output), "child_log": str(log_path),
               "host_samples": str(host_path), "host_poll_seconds": 2,
@@ -124,7 +126,8 @@ def main():
                 if guard.driver_samples > before:
                     last_driver_at = time.monotonic()
         with log_path.open("x") as log, host_path.open("x") as host:
-            child = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+            child = subprocess.Popen(command, cwd=ROOT, stdout=log, stderr=subprocess.STDOUT,
+                                     env={**os.environ, "REPLICA_CAPACITY_GUARD": "1"})
             next_host = started
             while True:
                 drain_profile()

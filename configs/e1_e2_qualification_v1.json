@@ -1,0 +1,56 @@
+{
+  "format": "replica.e1_e2.qualification.v1",
+  "seed": 7123,
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "source_tokens_per_unit": 128,
+  "memory_units": 16,
+  "slots_per_unit": 4,
+  "memory_width": 256,
+  "ports": [13, 27],
+  "observer": 41,
+  "action_tokens": 192,
+  "generation_max_new_tokens": 12,
+  "decoding": "greedy; native template, enable_thinking=false; preserve raw token IDs/text",
+  "alignment": {
+    "regime": "modules_only",
+    "optimizer": "muon8bit",
+    "updates": 32,
+    "grad_accum": 4,
+    "lr_new": 0.01,
+    "lr_muon_new": 0.01,
+    "warmup_updates": 2,
+    "weight_decay": 0,
+    "gradient_clip": 1.0,
+    "order": [0, 1, 2, 3],
+    "selection": "final update only; no early stopping or best-checkpoint search",
+    "loss": "response-only next-token cross entropy including EOS; source text only in record writer"
+  },
+  "ranking": {
+    "updates": 4,
+    "grad_accum": 2,
+    "lr": 0.001,
+    "trainable": ["reranker", "sense_ports.13"],
+    "objective": "preferred-record cross entropy over eligible candidates; separately scored from answer loss"
+  },
+  "cases": [
+    {"id": "aster_amber", "entity": "Aster", "answer": "amber", "source": "The approved release label for project Aster is amber."},
+    {"id": "aster_blue", "entity": "Aster", "answer": "blue", "source": "The approved release label for project Aster is blue."},
+    {"id": "birch_amber", "entity": "Birch", "answer": "amber", "source": "The approved release label for project Birch is amber."},
+    {"id": "birch_blue", "entity": "Birch", "answer": "blue", "source": "The approved release label for project Birch is blue."}
+  ],
+  "prompt": "According to the stored project record, what is the approved release label for project {entity}? Reply with only the label word.",
+  "controls": ["initial null native parity", "each port independently nonzero", "D1 and D2 checkpointed backward", "D2 isolated source-prefix gradient", "known-input sense gradient wiring", "memory-disabled generation", "exact-source text fallback", "A-B-A request isolation", "irrelevant lexical-zero record", "other-subject conflicting record", "future conflicting record", "correction with stale frame rejection and fresh-session restart", "nonzero extension reload"],
+  "acceptance": {
+    "E1": "all native wiring/isolation/serialization checks pass with finite gradients, unchanged original source",
+    "E2_diagnostic": "all four final latent-only whole-answer strings match; opposite records produce opposite answers for both identical-query pairs; excluded-record invariance; correction/restart and exact fallback correct",
+    "scoring": "decoded completion stripped of surrounding whitespace only; exact answer word, no extracted/substituted host answer",
+    "claim_limit": "synthetic exposed tiny alignment and integration only; no held-out generalization, production retrieval quality, cognition or self-improvement claim"
+  },
+  "data_admission": "Four project fixtures authored for this diagnostic; synthetic and unverified, no personal history or external corpus. All cases exposed training/development; no audit split claim.",
+  "storage": "One final extension-only weights export; no native/base copy, optimizer checkpoint, source download or repeated source snapshot. Failure reports retained.",
+  "budget": "One bounded run; four separate reranker updates plus32 D1 updates and two D2 backward-only wiring probes, no D2 optimizer step. Guard40GiBdriver/512MiBswapgrowth/15percentfree. Behavioral failure remains an open gate."
+}
