@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 pooled success head (23 October):** trained on 18 actual outcomes,
+case-heldout 0.8125 vs 0.7778 majority, Brier 0.342; uncalibrated and
+unpublished, no authority. See [results](docs/experiments/20261023_E3_Success_Head_Results.md).
+
 **E3 core controls (23 October):** full path 2/2 vs core-disabled/FF/extra
 1/2 each on a fresh repair/pass pair; repair-specific signal, no recurrent-core
 superiority. See [core-control results](docs/experiments/20261023_E3_Mixed_Core_Controls_Results.md).

@@ -1,0 +1,230 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T12:39:44.099537+00:00",
+  "protocol_sha256": "b01b6e01a4f4ba7d8ab9b091197c2292ff1fca700367f3e3e5ce3f4919e44229",
+  "protocol": {
+    "format": "replica.e3.success_head.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Train a pooled outcome monitor from actual E3 episodes with case-held-out evaluation; no success authority.",
+    "episode_reports": [
+      "runs/e3_mixed_core_controls_attempt02/run_report.json",
+      "runs/e3_prompt_evidence_attempt01/run_report.json",
+      "runs/e3_mixed_controls_attempt01_20261023/run_report.json",
+      "runs/e3_mixed_fresh_controls_attempt01/run_report.json",
+      "runs/e3_mixed_restart_attempt02/process1/session_report.json",
+      "runs/e3_mixed_restart_attempt02/process2/session_report.json"
+    ],
+    "steps": 300,
+    "hidden": 64,
+    "lr": 0.01,
+    "seed": 20261023,
+    "evaluation": "leave-one-case-out; no disjoint calibration set",
+    "claims": "Trained monitor only; no calibrated confidence, deployment or task authority."
+  },
+  "downloads": 0,
+  "optimizer_updates": 300,
+  "checkpoints_saved": 0,
+  "episodes": 18,
+  "positives": 14,
+  "negatives": 4,
+  "cases": [
+    "fresh_heldout_pass_03",
+    "fresh_heldout_pass_04",
+    "fresh_heldout_repair_01",
+    "fresh_heldout_repair_02",
+    "mixed_heldout_pass_09",
+    "mixed_heldout_pass_10",
+    "mixed_heldout_repair_07",
+    "mixed_heldout_repair_08",
+    "prompt_heldout_pass_03",
+    "prompt_heldout_pass_04",
+    "prompt_heldout_repair_01",
+    "prompt_heldout_repair_02"
+  ],
+  "folds": [
+    {
+      "held_case": "fresh_heldout_pass_03",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8619330525398254
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "fresh_heldout_pass_04",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8660157918930054
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "fresh_heldout_repair_01",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8610249757766724
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "fresh_heldout_repair_02",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        false
+      ],
+      "probabilities": [
+        0.974338710308075
+      ],
+      "accuracy": 0.0
+    },
+    {
+      "held_case": "mixed_heldout_pass_09",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8662441372871399
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "mixed_heldout_pass_10",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8663769364356995
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "mixed_heldout_repair_07",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8647523522377014
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "mixed_heldout_repair_08",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.8647027015686035
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "prompt_heldout_pass_03",
+      "train": 14,
+      "test": 4,
+      "test_success": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "probabilities": [
+        0.7864634394645691,
+        0.000507811491843313,
+        8.566926226194482e-06,
+        0.7864634394645691
+      ],
+      "accuracy": 0.5
+    },
+    {
+      "held_case": "prompt_heldout_pass_04",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.814497172832489
+      ],
+      "accuracy": 1.0
+    },
+    {
+      "held_case": "prompt_heldout_repair_01",
+      "train": 14,
+      "test": 4,
+      "test_success": [
+        true,
+        false,
+        false,
+        false
+      ],
+      "probabilities": [
+        0.9505376815795898,
+        0.9990814924240112,
+        0.9998451471328735,
+        0.9505376815795898
+      ],
+      "accuracy": 0.25
+    },
+    {
+      "held_case": "prompt_heldout_repair_02",
+      "train": 17,
+      "test": 1,
+      "test_success": [
+        true
+      ],
+      "probabilities": [
+        0.7767399549484253
+      ],
+      "accuracy": 1.0
+    }
+  ],
+  "metrics": {
+    "cases": 12,
+    "mean_accuracy": 0.8125,
+    "brier": 0.3420138552088698,
+    "majority_baseline": 0.7777777777777778,
+    "calibration": "none; case-held-out only, no disjoint calibration role"
+  },
+  "artifact": {
+    "format": "replica.e3.pooled_success_head.v1",
+    "created_at_utc": "2026-10-23",
+    "input": "task_features[24] + runtime pooled workspace[256]",
+    "hidden": 64,
+    "episode_reports": [
+      "runs/e3_mixed_core_controls_attempt02/run_report.json",
+      "runs/e3_prompt_evidence_attempt01/run_report.json",
+      "runs/e3_mixed_controls_attempt01_20261023/run_report.json",
+      "runs/e3_mixed_fresh_controls_attempt01/run_report.json",
+      "runs/e3_mixed_restart_attempt02/process1/session_report.json",
+      "runs/e3_mixed_restart_attempt02/process2/session_report.json"
+    ],
+    "episodes": 18,
+    "positives": 14,
+    "negatives": 4,
+    "weights_sha256": "44376e2bfe5025eea4df9842bc7d0cb0d8b14c1e619ac4f82caa6b979fd8dd34",
+    "calibration": "none",
+    "authority": "monitor only; never success authority",
+    "base_saved": false
+  }
+}

@@ -435,12 +435,14 @@ def train_success_head(model, episodes, protocol, mark):
     if config.get('require_both_classes') and len(set(labels)) < 2:
         report['reason'] = 'single_outcome_class'
         return report
-    width = model.manifest.core.width
+    # Runtime summaries carry [24 task features, one pooled 256-wide
+    # workspace], not full slots. Use the matching pooled monitor; reshaping the
+    # old full-slot head here would fail or invent slot values.
+    from replica_lab.architecture.heads import PooledTaskOutcomeHead
     features = torch.tensor(feature_vectors, dtype=torch.float32, device='mps')
-    task_part, workspace_part = features[:, :24], features[:, 24:]
-    workspace = workspace_part.reshape(-1, model.manifest.core.slots, width)
+    task_part, workspace_pool = features[:, :24], features[:, 24:]
     target = torch.tensor(labels, dtype=torch.float32, device='mps')
-    head = model.task_head
+    head = PooledTaskOutcomeHead(model.manifest.core, hidden=int(config.get('hidden', 64))).to('mps')
     head.train()
     optimizer = torch.optim.AdamW(head.parameters(), lr=config['lr'],
                                   weight_decay=config['weight_decay'])
@@ -450,7 +452,7 @@ def train_success_head(model, episodes, protocol, mark):
         optimizer.zero_grad(set_to_none=True)
         loss = target.new_zeros(())
         for index in range(count):
-            logits = head(task_part[index:index + 1], workspace[index:index + 1])
+            logits = head(task_part[index:index + 1], workspace_pool[index:index + 1])
             loss = loss + torch.nn.functional.binary_cross_entropy_with_logits(
                 logits, target[index:index + 1])
         loss = loss / count
@@ -464,7 +466,7 @@ def train_success_head(model, episodes, protocol, mark):
     with torch.no_grad():
         for index in range(count):
             probabilities.append(float(head(task_part[index:index + 1],
-                                            workspace[index:index + 1]).sigmoid()[0]))
+                                            workspace_pool[index:index + 1]).sigmoid()[0]))
     probabilities = torch.tensor(probabilities, device='mps')
     brier = float(((probabilities - target) ** 2).mean())
     head.eval()

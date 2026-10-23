@@ -41,3 +41,15 @@ def test_action_kind_head_mask_and_shape_contracts():
         pass
     else:
         raise AssertionError('mask mismatch must fail')
+
+
+def test_pooled_outcome_head_shape_and_detached_inputs():
+    from replica_lab.architecture.heads import PooledTaskOutcomeHead
+    head = PooledTaskOutcomeHead(SPEC, hidden=8)
+    task = torch.randn(2, SPEC.task_features, requires_grad=True)
+    pool = torch.randn(2, SPEC.width, requires_grad=True)
+    logits = head(task, pool)
+    assert logits.shape == (2,)
+    logits.sum().backward()
+    assert task.grad is None and pool.grad is None
+    assert head.mlp[0].weight.grad is not None

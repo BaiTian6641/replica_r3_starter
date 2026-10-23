@@ -1,0 +1,19 @@
+{
+  "format": "replica.e3.success_head.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Train a pooled outcome monitor from actual E3 episodes with case-held-out evaluation; no success authority.",
+  "episode_reports": [
+    "runs/e3_mixed_core_controls_attempt02/run_report.json",
+    "runs/e3_prompt_evidence_attempt01/run_report.json",
+    "runs/e3_mixed_controls_attempt01_20261023/run_report.json",
+    "runs/e3_mixed_fresh_controls_attempt01/run_report.json",
+    "runs/e3_mixed_restart_attempt02/process1/session_report.json",
+    "runs/e3_mixed_restart_attempt02/process2/session_report.json"
+  ],
+  "steps": 300,
+  "hidden": 64,
+  "lr": 0.01,
+  "seed": 20261023,
+  "evaluation": "leave-one-case-out; no disjoint calibration set",
+  "claims": "Trained monitor only; no calibrated confidence, deployment or task authority."
+}

@@ -33,6 +33,15 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 pooled success head (23 October).** The runtime summary contract is 24
+task features plus one pooled 256-wide workspace; the old full-slot reshape was
+replaced with a matching pooled monitor. Trained on 18 actual outcomes (14
+positive / 4 negative), case-held-out accuracy is **0.8125** vs a **0.7778**
+majority and Brier **0.342**, with a 0.25 failure fold on
+`prompt_heldout_repair_01`. It is **uncalibrated and unpublished**, with no
+success authority. See
+[success-head results](docs/experiments/20261023_E3_Success_Head_Results.md).
+
 **E3 core controls (23 October).** On one fresh repair/pass pair with exact
 constant evidence, the full core/workspace path completed **2/2**, while
 core-disabled, feed-forward and extra-inference controls each completed only the
