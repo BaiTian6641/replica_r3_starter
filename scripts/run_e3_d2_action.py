@@ -60,13 +60,13 @@ def execute(args,protocol,report,profiler):
       trainable_parameters=sum(p.numel() for p in train_params),trainable_tensors=len(train_params))
     ledger=RecordLedger(args.output/'ledger.sqlite'); subject='d2-action'; purpose='d2-action'
     root=ROOT/protocol['fixtures']['root']; budgets=protocol['evaluation']
-    cases={x['case_id']:x for x in protocol['fixtures']['train']+protocol['fixtures']['dev']+protocol['fixtures']['heldout']}
+    all_cases=protocol['fixtures']['train']+protocol['fixtures']['dev']+protocol['fixtures']['heldout']
     # Admit one host policy record per branch; no evaluator/reference-repair text enters memory.
-    for cid,role in [(x,'train') for x in protocol['fixtures']['train']]+[(x,'eval') for x in protocol['evaluation']['cases']]:
+    for cid in all_cases:
         tools=FixtureWorkspace(root/cid)
         admit_policy(ledger,tools,subject=subject,branch=cid,purpose=purpose)
     session=MemorySession(model,tok,ledger,max_candidate_units=16)
-    scopes={cid:EligibilityScope(subject,cid,purpose,0,'assistant_for_source',None) for cid in cases}
+    scopes={cid:EligibilityScope(subject,cid,purpose,0,'assistant_for_source',None) for cid in all_cases}
     examples=[]
     for cid in protocol['fixtures']['train']:
         work=args.output/'teacher'/cid
