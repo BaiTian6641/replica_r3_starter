@@ -223,3 +223,18 @@ contracts, not a useful cognitive controller or a task-capable action policy.
 A future narrower repair tool or additional held-out cases would be a separate
 preregistered arm; this result must not be retuned against the same held-out
 fixtures.
+
+## 9. E2 handoff for E3 integration
+
+The 23 October E2 follow-up found that lexical/dense held-out retrieval is
+usable (recall@1 0.75, recall@4 1.00) but the learned reranker is worse
+(0.50) and all slot-reading arms fail novel-value answers (0/6 held-out;
+oracle 0/4). Exact source text answered 3/3 in the diagnostic, and swapped
+slots produced the same old answers as correct slots. The bottleneck is the
+record writer/reader encoding, not eligibility, retrieval availability, prompt
+format or the decoder. Keep the E3 parent extension unchanged, keep reranking
+opt-in, prefer exact text for novel-value precision, and do not attribute E2
+slot failures to the E3 core. The largest actually qualified memory capacity is
+16 units / 2,043 source tokens / 256 prompt tokens / 8 generated tokens, plus a
+modules-only 16-unit backward at 12.51 GiB peak driver. See the
+[E2 results](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md).

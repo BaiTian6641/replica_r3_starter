@@ -1,0 +1,32 @@
+W1023 02:10:35.935000 6005 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 842.11it/s]Loading weights:  46%|████▌     | 175/381 [00:00<00:00, 863.13it/s]Loading weights:  69%|██████▉   | 262/381 [00:00<00:00, 830.41it/s]Loading weights:  91%|█████████ | 346/381 [00:00<00:00, 828.62it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 844.79it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 119, in inference_point
+    forward, forward_seconds = timed(
+                               ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 42, in timed
+    value = action()
+            ^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 120, in <lambda>
+    torch, lambda: session.forward(request, prompt_ids))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 261, in forward
+    self.verify(request)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 176, in verify
+    raise ValueError('Selection differs from frame evidence')
+ValueError: Selection differs from frame evidence
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 374, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 347, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 269, in execute
+    result = inference_point(torch, model, tokenizer, session, scope, task,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 146, in inference_point
+    del forward, generated
+        ^^^^^^^
+UnboundLocalError: cannot access local variable 'forward' where it is not associated with a value

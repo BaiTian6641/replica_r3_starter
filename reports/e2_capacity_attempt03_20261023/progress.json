@@ -1,0 +1,1048 @@
+{
+  "status": "started",
+  "started_at_utc": "2026-10-23T07:11:22.927978+00:00",
+  "arguments": {
+    "device": "mps",
+    "output": "runs/e2_capacity_attempt03_20261023",
+    "protocol": "/Users/flare/replica_r3_starter/configs/e2_capacity_qualification_v1.json",
+    "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "model_lock": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+    "parent_extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension"
+  },
+  "protocol_sha256": "efacbc1309648b48556556e831a9886bc6feac88db208859721ecdad3ae15826",
+  "protocol": {
+    "format": "replica.e2_capacity.qualification.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Ascending native MPS capacity schedule for the existing E2 source-encode/sense/writer/reader/action path; inference and modules-only backward are separate workloads.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_capacity",
+      "manifest": "data/e2_capacity/manifest.json",
+      "manifest_sha256": "0b94d18756bc5ce9ab23cf4c43c3f2e26c81f01899316b002100b042886d70e4",
+      "records_sha256": "efb4449a425f38f286aa0067c2b6ec19faa3f7b1bc6fec08c431d0c04c56111b"
+    },
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "device": "mps",
+    "dtype": "float32",
+    "native_cache": false,
+    "native_cpu_fallback": false,
+    "scope": {
+      "source_tokens_per_unit": 128,
+      "max_units": 16,
+      "slots_per_unit": 4,
+      "memory_width": 256,
+      "ports": [
+        13,
+        27
+      ],
+      "observer": 41,
+      "training": "modules_only backward; no optimizer step; base frozen"
+    },
+    "schedule": {
+      "inference": [
+        {
+          "id": "inf_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u4_p64",
+          "units": 4,
+          "prompt_tokens": 64,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u8_p128",
+          "units": 8,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u12_p128",
+          "units": 12,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u16_p128",
+          "units": 16,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u16_p256",
+          "units": 16,
+          "prompt_tokens": 256,
+          "generate_tokens": 8
+        }
+      ],
+      "training": [
+        {
+          "id": "train_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u4_p128",
+          "units": 4,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u8_p128",
+          "units": 8,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u12_p128",
+          "units": 12,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u16_p128",
+          "units": 16,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u16_p256",
+          "units": 16,
+          "prompt_tokens": 256,
+          "label_tokens": 16
+        }
+      ]
+    },
+    "measurements": [
+      "actual source-token counts per unit",
+      "selected unit count",
+      "source encode seconds",
+      "writer seconds",
+      "sense pass seconds",
+      "action forward seconds",
+      "generation seconds and generated tokens",
+      "training prepare/forward/backward seconds",
+      "sampled MPS allocated/driver bytes",
+      "process RSS bytes",
+      "guard thresholds"
+    ],
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "one_native_job": true
+    },
+    "stop_conditions": [
+      "declared guard threshold breach",
+      "nonfinite logits/loss/gradients",
+      "schedule point raises an unexpected error",
+      "stale telemetry"
+    ],
+    "exclusions": [
+      "No D2 original-weight capacity arm is declared or run here.",
+      "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+    ],
+    "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim."
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "implementation_sha256": {
+    "scripts/run_e2_capacity.py": "03c50441c24d8a108244f35cd8a1f4888ede4fd28f986da61d713e6acb2f10e5",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "d0e9c0bfabe1506acea8a9c9a3fecb33ee354c4d7545539aef1d5d915846e46a",
+    "src/replica_lab/memory_system/__init__.py": "94d01a4ecfff338432f32875a0c175074242fa75507c8e1ac19764f33b8e503c",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/architecture/loading.py": "63a60af9f60f11af712be9a4c0d89e421d90127ccb36151a355f5219ab583870",
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/ports.py": "188894ca3ddb2977dd446b4808e7ef6a2f6a7009715cfa3a8394d78cc5915d48",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/minicpm5.py": "a9b42e71cb9cab867b0c134c385c887132cbba8b08e7988bea77a110919255ea",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/contracts.py": "158a337b2db96660455d8cf66f8b03380bc80aa1a5da61ce76776e8dc7914864",
+    "src/replica_lab/architecture/heads.py": "f0ae6db8633d824abaf78ddcd1db9ed99dd6a8fec66426dae1281d5bde71eab4"
+  },
+  "free_disk_before_bytes": 630224445440,
+  "downloads": 0,
+  "original_model_loads": 1,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+  },
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 16,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false
+  },
+  "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "dataset": {
+    "manifest": {
+      "format": "replica.e2_capacity.dataset.v1",
+      "created_at_utc": "2026-10-23",
+      "subject_id": "e2_capacity",
+      "branch_id": "capacity",
+      "purpose": "capacity_probe",
+      "as_of": 10,
+      "records": 13,
+      "units": 16,
+      "short_records": 12,
+      "long_record_spans": 4,
+      "token_counts": {
+        "cap_short_01": 128,
+        "cap_short_02": 128,
+        "cap_short_03": 128,
+        "cap_short_04": 128,
+        "cap_short_05": 128,
+        "cap_short_06": 128,
+        "cap_short_07": 128,
+        "cap_short_08": 128,
+        "cap_short_09": 128,
+        "cap_short_10": 128,
+        "cap_short_11": 128,
+        "cap_short_12": 128,
+        "cap_long": 507
+      },
+      "files": {
+        "records_sha256": "efb4449a425f38f286aa0067c2b6ec19faa3f7b1bc6fec08c431d0c04c56111b"
+      },
+      "claims": "Synthetic capacity bank; no task labels or quality claim."
+    },
+    "records_sha256": "efb4449a425f38f286aa0067c2b6ec19faa3f7b1bc6fec08c431d0c04c56111b"
+  },
+  "parent_extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf"
+  },
+  "checks": {},
+  "points": [
+    {
+      "id": "inf_u1_p64",
+      "phase": "inference",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        26765,
+        33,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.08190195797942579,
+      "writer_seconds": 0.019741875119507313,
+      "sense_seconds": 0.06039412505924702,
+      "action_forward_seconds": 0.06289191707037389,
+      "generation_seconds": 0.30381441698409617,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 10586875392,
+      "mps_driver_after_bytes": 11016994816,
+      "wall_seconds": 0.5581535829696804,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10746216448
+    },
+    {
+      "id": "inf_u4_p64",
+      "phase": "inference",
+      "declared_units": 4,
+      "actual_units": 4,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        26765,
+        33,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.10610595787875354,
+      "writer_seconds": 0.025749041000381112,
+      "sense_seconds": 0.05808895803056657,
+      "action_forward_seconds": 0.06382279214449227,
+      "generation_seconds": 0.29577325005084276,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 10600584192,
+      "mps_driver_after_bytes": 11017027584,
+      "wall_seconds": 0.5673582919407636,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10815668224
+    },
+    {
+      "id": "inf_u8_p128",
+      "phase": "inference",
+      "declared_units": 8,
+      "actual_units": 8,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.2097382501233369,
+      "writer_seconds": 0.032373332884162664,
+      "sense_seconds": 0.07137645804323256,
+      "action_forward_seconds": 0.08465016703121364,
+      "generation_seconds": 0.3667854580562562,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11128735232,
+      "mps_driver_after_bytes": 12313067520,
+      "wall_seconds": 0.786109667038545,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10815668224
+    },
+    {
+      "id": "inf_u12_p128",
+      "phase": "inference",
+      "declared_units": 12,
+      "actual_units": 12,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.3054810829926282,
+      "writer_seconds": 0.025916791055351496,
+      "sense_seconds": 0.0711625418625772,
+      "action_forward_seconds": 0.085004375083372,
+      "generation_seconds": 0.36451366590335965,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11147713024,
+      "mps_driver_after_bytes": 12321456128,
+      "wall_seconds": 0.8754005418159068,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u16_p128",
+      "phase": "inference",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 0.42455687490291893,
+      "writer_seconds": 0.11505366722121835,
+      "sense_seconds": 0.07056166720576584,
+      "action_forward_seconds": 0.08516133297234774,
+      "generation_seconds": 0.3727848338894546,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11166649856,
+      "mps_driver_after_bytes": 12321456128,
+      "wall_seconds": 1.092478333041072,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u16_p256",
+      "phase": "inference",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "generated_tokens": 3,
+      "generated_token_ids": [
+        316,
+        59252,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 0.42091279197484255,
+      "writer_seconds": 0.01359879202209413,
+      "sense_seconds": 0.11725666699931026,
+      "action_forward_seconds": 0.12786141713149846,
+      "generation_seconds": 0.39101737504824996,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 12251482624,
+      "mps_driver_after_bytes": 13437140992,
+      "wall_seconds": 1.1020825831219554,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "train_u1_p64",
+      "phase": "training",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128
+      ],
+      "prepare_seconds": 0.11872437503188848,
+      "forward_seconds": 0.08092141686938703,
+      "backward_seconds": 0.5775503339245915,
+      "loss": 3.0648581981658936,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10151901952,
+      "mps_driver_after_bytes": 10879746048,
+      "wall_seconds": 0.8134219578932971,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10828251136
+    },
+    {
+      "id": "train_u4_p128",
+      "phase": "training",
+      "declared_units": 4,
+      "actual_units": 4,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.16944970795884728,
+      "forward_seconds": 0.15701908292248845,
+      "backward_seconds": 0.2647575419396162,
+      "loss": 3.1713857650756836,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10190975232,
+      "mps_driver_after_bytes": 12003852288,
+      "wall_seconds": 0.6196076250635087,
+      "mps_allocated_before_bytes": 10095979520,
+      "mps_driver_before_bytes": 10837688320
+    },
+    {
+      "id": "train_u8_p128",
+      "phase": "training",
+      "declared_units": 8,
+      "actual_units": 8,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.1868055840022862,
+      "forward_seconds": 0.11051849997602403,
+      "backward_seconds": 0.21459658397361636,
+      "loss": 3.1682705879211426,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10195185920,
+      "mps_driver_after_bytes": 12020629504,
+      "wall_seconds": 0.5431649999227375,
+      "mps_allocated_before_bytes": 10099125248,
+      "mps_driver_before_bytes": 10921574400
+    },
+    {
+      "id": "train_u12_p128",
+      "phase": "training",
+      "declared_units": 12,
+      "actual_units": 12,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.18791770795360208,
+      "forward_seconds": 0.10848812502808869,
+      "backward_seconds": 0.2228423748165369,
+      "loss": 3.1636605262756348,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10199396608,
+      "mps_driver_after_bytes": 12029018112,
+      "wall_seconds": 0.551036125048995,
+      "mps_allocated_before_bytes": 10103319552,
+      "mps_driver_before_bytes": 10938351616
+    },
+    {
+      "id": "train_u16_p128",
+      "phase": "training",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.3896897919476032,
+      "forward_seconds": 0.11347937490791082,
+      "backward_seconds": 0.22114383289590478,
+      "loss": 3.3817644119262695,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10203566336,
+      "mps_driver_after_bytes": 12045811712,
+      "wall_seconds": 0.7567162499763072,
+      "mps_allocated_before_bytes": 10107513856,
+      "mps_driver_before_bytes": 10955128832
+    },
+    {
+      "id": "train_u16_p256",
+      "phase": "training",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.12953570811077952,
+      "forward_seconds": 0.14394204202108085,
+      "backward_seconds": 0.34985020803287625,
+      "loss": 3.3117942810058594,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10272316928,
+      "mps_driver_after_bytes": 12207292416,
+      "wall_seconds": 0.659050416899845,
+      "mps_allocated_before_bytes": 10111667200,
+      "mps_driver_before_bytes": 10971906048
+    }
+  ],
+  "bank": {
+    "units": 16,
+    "source_span_tokens": [
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      123
+    ],
+    "record_ids": [
+      "cap_short_01",
+      "cap_short_02",
+      "cap_short_03",
+      "cap_short_04",
+      "cap_short_05",
+      "cap_short_06",
+      "cap_short_07",
+      "cap_short_08",
+      "cap_short_09",
+      "cap_short_10",
+      "cap_short_11",
+      "cap_short_12",
+      "cap_long",
+      "cap_long",
+      "cap_long",
+      "cap_long"
+    ]
+  },
+  "summary": {
+    "largest_inference_units": 16,
+    "largest_training_units": 16,
+    "largest_prompt_tokens": 256,
+    "largest_source_span_tokens": 128,
+    "points": 12,
+    "inference_points": 6,
+    "training_points": 6,
+    "wall_seconds": 9.194030334008858,
+    "d2_arm": "not declared or run"
+  },
+  "acceptance": {
+    "completed_all_points": true,
+    "schedule_ascending": true,
+    "configured_max_not_claimed_as_exercised": true,
+    "training_scope": "modules_only backward; no optimizer step",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim."
+  }
+}

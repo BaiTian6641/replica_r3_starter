@@ -81,7 +81,8 @@ def selection_for_units(session, scope, records, units):
 
 def inference_point(torch, model, tokenizer, session, scope, task, records, point,
                     report):
-    from replica_lab.architecture.contracts import EvidencePin, MemoryRead, RequestContext
+    from replica_lab.architecture.contracts import MemoryRead, RequestContext
+    from replica_lab.memory_system.session import pin_selection
     units = int(point['units'])
     selection = selection_for_units(session, scope, records, units)
     spans = session.spans(selection.records)
@@ -102,16 +103,20 @@ def inference_point(torch, model, tokenizer, session, scope, task, records, poin
 
     features, source_seconds = timed(torch, encode)
     feature_rows = features
-    hidden = torch.stack([feature.squeeze(0) for feature in feature_rows], dim=0).unsqueeze(0)
-    valid_hidden = torch.ones(hidden.shape[:3], dtype=torch.bool, device='mps')
+    length = max(int(feature.shape[1]) for feature in feature_rows)
+    hidden = torch.zeros(1, len(feature_rows), length,
+                         model.base.config.hidden_size, device='mps',
+                         dtype=feature_rows[0].dtype)
+    valid_hidden = torch.zeros(1, len(feature_rows), length, dtype=torch.bool,
+                               device='mps')
+    for index, feature in enumerate(feature_rows):
+        hidden[0, index, :feature.shape[1]] = feature[0]
+        valid_hidden[0, index, :feature.shape[1]] = True
     (slots, slots_valid), writer_seconds = timed(
         torch, lambda: model.record_writer(hidden, valid_hidden))
     memory = MemoryRead(spans, slots, slots_valid, model.memory_producer_key())
     sense, sense_seconds = timed(torch, lambda: model.sense(prompt_ids, prompt_mask))
-    evidence = EvidencePin('capacity', 0, 'e2_capacity', 'capacity', 'capacity_probe',
-                           10, 'assistant_for_source', None,
-                           tuple((record.record_id, record.record_hash)
-                                 for record in selection.records))
+    evidence = pin_selection(selection)
     frame = model.make_frame(f'capacity-{point["id"]}', evidence, memory, sense)
     request = RequestContext(f'capacity-{point["id"]}', task, frame, selection)
     try:
@@ -143,7 +148,6 @@ def inference_point(torch, model, tokenizer, session, scope, task, records, poin
         return result
     finally:
         request.release()
-        del forward, generated
 
 
 def training_point(torch, model, tokenizer, session, scope, task, records, point,
@@ -198,7 +202,6 @@ def training_point(torch, model, tokenizer, session, scope, task, records, point
         request.release()
         model.zero_grad(set_to_none=True)
         model.eval()
-        del output
 
 
 def execute(args, profiler, report):

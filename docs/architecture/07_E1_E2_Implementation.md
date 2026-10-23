@@ -170,6 +170,30 @@ promotion. None is claimed by this E1/E2 implementation. The legacy last-layer
 adapter and its recorded negatives remain reproducible, and `runtime_pilot.py`
 is untouched.
 
+## E2 follow-up: retrieval, novel records and capacity
+
+The 23 October follow-up created a source-separated 13-case/49-record retrieval
+set and a 16-unit capacity bank, both committed with protocols before execution.
+Results:
+
+- Lexical and native-dense held-out record recall@1 **0.75**, recall@4 **1.00**.
+- Learned reranking held-out recall@1 **0.50**; training loss moved only
+  1.325 → 1.285 per query. Reranking remains **opt-in**.
+- All slot arms answered 0/6 held-out cases; oracle correct-record slots answered
+  0/4. Exact source text answered 3/3 in the diagnostic, and swapped slots
+  produced the same old answers as correct slots. The bottleneck is record
+  writer/reader encoding, not eligibility, retrieval availability or the decoder.
+- Eligibility violations were zero; corrections and superseded records were
+  filtered correctly; long-record chunks included the fact span.
+- The largest qualified capacity path is **16 units / 2,043 source tokens /
+  256 prompt tokens / 8 generated tokens**, plus a modules-only 16-unit backward.
+  Peak sampled driver memory was **12.51 GiB**, zero observed swap growth.
+  D2 capacity was not run.
+
+See [retrieval and capacity results](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+Keep lexical retrieval as the default, reranking opt-in, and prefer exact text
+for novel-value precision until the writer/reader is improved.
+
 ## Native attempt 1 and boundary fix
 
 Commit `9601399` ran the fixed protocol on MPS. All initial wiring checks passed,

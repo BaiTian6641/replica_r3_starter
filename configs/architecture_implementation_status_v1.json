@@ -4,7 +4,7 @@
   "design": "configs/architecture_design_v1.json",
   "documentation": "docs/architecture/08_E3_Implementation.md",
   "E1": "implemented_native_interfaces_qualified",
-  "E2": "implemented_slot_reading_diagnostic_passed_reranker_quality_open",
+  "E2": "implemented_slot_reading_diagnostic_passed_reranker_quality_negative_reader_novel_value_bottleneck",
   "E3": "implemented_native_engineering_passed_learned_task_completion_negative",
   "E4": "design_pending",
   "E5": "design_pending",
@@ -13,8 +13,8 @@
     "C01": "native MiniCPM5 text adapter; VLM separate",
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
     "C03": "exact temporal record ledger; task/action integration through the E3 runtime",
-    "C04": "source-prefix contextual writer and content/version-bound inference latents",
-    "C05": "eligible lexical/native-dense candidates, separate ranking objective, exact fetch; no automatic model-driven paging",
+    "C04": "source-prefix contextual writer and content/version-bound inference latents; novel-value reader transfer fails diagnostic",
+    "C05": "eligible lexical/native-dense candidates, explicit ranking objective (negative held-out top1), exact fetch; no automatic model-driven paging",
     "C08": "authorized goal, success conditions, constraints, subgoals, claims, obligations and exact journal",
     "C09": "width-256 eight-slot tied core, two iterations, matched feed-forward control and workspace readers; native-qualified",
     "C10": "typed proposals, host schema/scope/tool/budget validation, actual fixture tools, independent success check",
@@ -33,6 +33,21 @@
     "fresh-process restart reconstructed state and rejected stale workspace; task did not complete",
     "exposed synthetic fixtures, no held-out generalization",
     "parent E2 extension is initialization and regression reference, not a capability baseline",
-    "no cognition/self-improvement/personal-fidelity claim"
+    "no cognition/self-improvement/personal-fidelity claim",
+    "E2 retrieval held-out recall@1 0.75 lexical/dense, 0.50 rerank; answer accuracy 0/6 all slot arms",
+    "oracle correct-record slots 0/4 held-out; exact text 3/3; writer/reader novel-value encoding is the bottleneck",
+    "largest qualified capacity workload 16 units, 2043 source tokens, 256 prompt, 8 generated; modules-only 16-unit backward",
+    "D2 capacity not run; full configured maximum not claimed as exercised",
+    "reranking remains opt-in; lexical remains default"
+  ],
+  "retrieval_result": "reports/e2_retrieval_attempt03_20261023/run_report.json",
+  "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",
+  "answer_path_diagnostic": "reports/e2_diagnostic_20261023/run_report.json",
+  "new_scope_limits": [
+    "E2 retrieval held-out recall@1 0.75 lexical/dense, 0.50 rerank; answer accuracy 0/6 all slot arms",
+    "oracle correct-record slots 0/4 held-out; exact text 3/3; writer/reader novel-value encoding is the bottleneck",
+    "largest qualified capacity workload 16 units, 2043 source tokens, 256 prompt, 8 generated; modules-only 16-unit backward",
+    "D2 capacity not run; full configured maximum not claimed as exercised",
+    "reranking remains opt-in; lexical remains default"
   ]
 }

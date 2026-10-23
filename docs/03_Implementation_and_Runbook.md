@@ -10,8 +10,13 @@ loop pass **engineering** acceptance. **Learned task completion is negative**:
 workspace-zero arm wrote an invalid repair, and the success head was untrained
 because all eight actual outcomes were negative. See the
 [E3 implementation spec](architecture/08_E3_Implementation.md) and
-[native results](experiments/20261023_E3_Native_Results.md). E2 reranking remains
-1/2; E4/E5 remain adaptive-memory and candidate-learning work. Historical
+[native results](experiments/20261023_E3_Native_Results.md). The E2 follow-up
+measured held-out lexical/dense recall@1 **0.75**, learned rerank **0.50**, zero
+slot-arm answers, oracle **0/4**, and exact text **3/3**; the writer/reader
+novel-value path is the bottleneck. The largest qualified capacity path is 16
+units / 2,043 source tokens / 256 prompt tokens / 8 generated tokens, with
+12.51 GiB peak driver. Reranking remains opt-in. E4/E5 remain adaptive-memory
+and candidate-learning work. Historical
 commands below remain reproducibility references. The protected runtime draft
 is not imported.
 
@@ -53,7 +58,7 @@ receipt loop alongside E1/E2; its qualification protocol is bound to that implem
 | Component | Delivered behavior | Important boundary |
 |---|---|---|
 | architecture/ | Explicit native adapter, typed immutable frames, source-only prefix writer access, independent block13/27 memory and workspace ports, sense41, tied core and matched feed-forward control | Batch-one uncached text reference; E3 core/readers native-qualified; learned action completion negative |
-| memory_system/ | Temporal ledger, scoped lexical/native-dense candidates, supervised reranker API, versioned latents, exact fetch and host commit | Slot-reading diagnostic passes; reranker quality and multi-record interference remain open |
+| memory_system/ | Temporal ledger, scoped lexical/native-dense candidates, supervised reranker API, versioned latents, exact fetch and host commit | Held-out recall@1 0.75 lexical/dense, 0.50 rerank; slot reader fails novel values; reranking opt-in |
 | run_replica_session.py / qualify_architecture.py / run_e3_task.py | Shared offline MPS loader, persistent session CLIs, E3 task restart, extension-only exports with validated v1 migration | Fresh-process reload passes; extensions are not resumable optimizer checkpoints |
 | runtime/ + run_e3_qualification.py | Exact task journal, typed actions/tools, independent success check, preregistered core/control study | Engineering checks pass; learned task completion and success-head training do not |
 | contracts.py | Typed source/branch records; exact SFT schema; lineage/exact-duplicate split audit | Cannot prove factual correctness or user consent |
@@ -168,6 +173,32 @@ Collect the split engineering/learned checks with:
 The current model does **not** complete these fixtures. These commands reproduce
 the observed engineering pass and negative learned result; they are not a recipe
 for tuning against the held-out set.
+
+## 1b. E2 retrieval and capacity commands
+
+Both protocols and datasets are committed before native execution. Use fresh
+paths and one guarded job at a time.
+
+```bash
+.venv/bin/python scripts/verify_e2_retrieval_data.py
+.venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_e2_retrieval.py --report reports/e2_retrieval.guard.json \
+  -- --device mps --output runs/e2_retrieval
+.venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_e2_diagnostic.py --report reports/e2_diagnostic.guard.json \
+  -- --device mps --output runs/e2_diagnostic \
+  --extension runs/e2_retrieval_attempt03_20261023/selected_extension
+.venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_e2_capacity.py --report reports/e2_capacity.guard.json \
+  -- --device mps --output runs/e2_capacity
+```
+
+The retrieval run trains only the reranker and block-13 sensor through
+`ranking_loss`; it does not use answer loss for hard top-k. The capacity run
+ascends 1→16 units and 64→256 prompt tokens for inference and modules-only
+backward, with no optimizer step. Results and retained failures are recorded in
+[the E2 report](experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+Reranking remains opt-in and lexical remains the default.
 
 ## 2. Run the offline core first
 

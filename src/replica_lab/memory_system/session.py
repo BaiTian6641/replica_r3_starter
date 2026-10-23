@@ -327,11 +327,13 @@ class MemorySession:
         if changed:self._features.clear()
         return changed
 
-    def dense_candidates(self, query, scope, *, limit=16):
+    def dense_candidates(self, query, scope, *, limit=16, lexical_weight=1.0):
         """Native source-prefix mean features, only for eligible records.
 
         This is a deterministic dense baseline, not a learned semantic retriever.
-        A separately trainable reranker is applied in prepare(rerank=True).
+        ``lexical_weight=0`` gives the pure-dense comparison; the default keeps
+        the historical hybrid behavior. A separately trainable reranker is
+        applied in prepare(rerank=True).
         """
         snapshot = self.ledger.snapshot(scope)
         all_units = self.spans(snapshot.records)  # bound total work before encoding
@@ -349,4 +351,5 @@ class MemorySession:
         if snapshot.epoch != self.ledger.epoch:
             raise ValueError('Sources changed during dense encoding')
         return self.index.retrieve(query,**asdict(scope),limit=limit,dense_query=q.tolist(),
-            dense_vectors=vectors,dense_producer_id=self.adapter.producer_key())
+            dense_vectors=vectors,dense_producer_id=self.adapter.producer_key(),
+            lexical_weight=lexical_weight,dense_weight=1.0)

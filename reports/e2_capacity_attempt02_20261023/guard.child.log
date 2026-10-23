@@ -1,0 +1,18 @@
+W1023 02:10:59.208000 6086 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 837.29it/s]Loading weights:  46%|████▌     | 175/381 [00:00<00:00, 861.96it/s]Loading weights:  69%|██████▉   | 262/381 [00:00<00:00, 860.55it/s]Loading weights:  92%|█████████▏| 351/381 [00:00<00:00, 870.86it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 868.67it/s]
+{"phase": "capacity_inference", "point": "inf_u1_p64", "units": 1, "tokens": 64, "wall_seconds": 0.5598781248554587}
+{"phase": "capacity_inference", "point": "inf_u4_p64", "units": 4, "tokens": 64, "wall_seconds": 0.8616811251267791}
+{"phase": "capacity_inference", "point": "inf_u8_p128", "units": 8, "tokens": 128, "wall_seconds": 0.9507562920916826}
+{"phase": "capacity_inference", "point": "inf_u12_p128", "units": 12, "tokens": 128, "wall_seconds": 0.9105353751219809}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 370, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 343, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 265, in execute
+    result = inference_point(torch, model, tokenizer, session, scope, task,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 106, in inference_point
+    hidden = torch.stack([feature.squeeze(0) for feature in feature_rows], dim=0).unsqueeze(0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: stack expects each tensor to be equal size, but got [128, 2048] at entry 0 and [123, 2048] at entry 15

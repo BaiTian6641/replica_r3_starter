@@ -9,10 +9,15 @@ contract experiment, train a new model, or claim that the proposed modules exist
 The previous GPU results remain evidence about the earlier adapter and protocol.
 
 **Implementation update, 23 October 2026 UTC:** E1 is implemented/native-qualified.
-E2's connected slot-reading diagnostic passes; learned reranking quality,
-full-bank capacity and novel-source tests remain open. See
-[implementation](07_E1_E2_Implementation.md), [results](../experiments/20261023_E1_E2_Native_Results.md)
-and the [machine-readable status](../../configs/architecture_implementation_status_v1.json).
+E2's follow-up now measures source-separated retrieval (held-out recall@1
+0.75 lexical/dense, 0.50 learned rerank), slot answers (0/6; oracle 0/4; exact
+text 3/3) and capacity (16 units / 2,043 source tokens / 256 prompt tokens /
+8 generated; modules-only 16-unit backward). The writer/reader novel-value path
+is the bottleneck; reranking remains opt-in. See
+[implementation](07_E1_E2_Implementation.md),
+[E1/E2 results](../experiments/20261023_E1_E2_Native_Results.md),
+[E2 follow-up](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md) and
+the [machine-readable status](../../configs/architecture_implementation_status_v1.json).
 **E3 is implemented and native-qualified on the same date.** The shared core,
 workspace readers, exact journal, typed actions, fixture tools and restart loop
 pass engineering acceptance; model-driven task completion is negative on the

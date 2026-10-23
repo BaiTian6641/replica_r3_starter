@@ -29,9 +29,31 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**E2 follow-up — retrieval, novel records and capacity (23 October 2026 UTC).**
+A source-separated 13-case/49-record retrieval set and a 16-unit capacity bank
+were committed with protocols before execution. Held-out record recall@1 is
+**0.75** for lexical and native dense, **0.50** for learned reranking; all slot
+arms answer **0/6** held-out cases and the oracle correct-record diagnostic
+answers **0/4**. Exact source text answers **3/3**; correct and swapped slots
+produce the same old answer. The bottleneck is therefore record writer/reader
+encoding, not eligibility, retrieval availability or the decoder. Eligibility
+violations are zero, corrections/superseded records are filtered, and the long
+record's fact span is included. Reranking remains **opt-in**; lexical remains
+the default; dense is not preferred.
+
+The largest actually qualified capacity path is **16 units / 2,043 source tokens
+/ 256 prompt tokens / 8 generated tokens**, plus a modules-only 16-unit backward.
+All 12 schedule points completed; peak sampled driver memory **12.51 GiB**, zero
+observed swap growth, 69% minimum free. D2 capacity was not declared or run.
+See [E2 results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+Validation for this increment: full suite **1091 passed / 21 subtests**, E2
+dataset tests 3 passed; receipt
+[validation_e2_followup_20261023.json](reports/validation_e2_followup_20261023.json).
+
 **Open:** held-out configuration repair, correct action selection/arguments,
-full-core plan continuation, success-head training/calibration, E2 reranker
-quality (1/2), full-bank native capacity and novel-source quality. These are
+full-core plan continuation, success-head training/calibration, novel-value
+E2 writer/reader transfer, ranking quality and broad capacity beyond the
+qualified 16-unit/256-token workload. These are
 exposed synthetic fixtures, not a generalization result. Do not retune this
 held-out set. A future narrower repair-tool arm or new held-out cases must be a
 new preregistered study.
@@ -45,7 +67,8 @@ fixed that parser and produced the accepted evidence. The interrupted pre-check
 also preserves a nested-binding CLI failure. See
 [E3 results](docs/experiments/20261023_E3_Native_Results.md).
 
-**Progress commits:** `e16a3f3` core/readers, `59ef1bb` journal/actions/runtime,
+**Progress commits:** E2 follow-up `dabaa00` protocols/data and `3fd5c03`
+answer-path diagnostic; E3 `e16a3f3` core/readers, `59ef1bb` journal/actions/runtime,
 `8e95e2b` preregistered protocol before execution, then focused parser/binding
 fixes (`46f1b59`, `bfaa0e7`, `867fe30`, `e9eb7d6`). Native jobs are idle. Total
 alignment work: 32 updates in attempt 2 + 32 in attempt 3; attempt 1 performed

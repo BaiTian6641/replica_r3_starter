@@ -75,7 +75,7 @@ def lexical_selection(session, query, scope):
 
 
 def dense_selection(session, query, scope):
-    selection = session.dense_candidates(query, scope, limit=16)
+    selection = session.dense_candidates(query, scope, limit=16, lexical_weight=0.0)
     return cap_selection(session, selection)
 
 
@@ -357,12 +357,12 @@ def execute(args, profiler, report):
         norm = float(torch.nn.utils.clip_grad_norm_(
             [p for p in model.parameters() if p.requires_grad],
             training['gradient_clip'], error_if_nonfinite=True))
+        if update == 1:
+            report['training']['gradient_audit_update1'] = model.gradient_audit()
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
         report['training']['updates'].append({'update': update, 'mean_loss': total,
                                               'gradient_norm': norm})
-        if update == 1:
-            report['training']['gradient_audit_update1'] = model.gradient_audit()
         mark('reranker_update', update=update, loss=total)
     report['training']['optimizer_after'] = optimizer.audit()
     del optimizer

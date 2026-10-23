@@ -27,9 +27,19 @@ did not re-execute completed actions, spent the remaining decisions and still
 failed to repair. The split acceptance is **10/14**; restart/idempotency
 engineering passes, learned completion does not.
 
+**E2 follow-up (23 October):** source-separated retrieval gives held-out
+recall@1 **0.75** lexical/dense and **0.50** learned rerank; each slot arm
+answers **0/6**, oracle slots **0/4**, and exact text **3/3**. The novel-value
+writer/reader path is the bottleneck; eligibility and long-chunk inclusion pass.
+The largest actually exercised capacity is **16 units / 2,043 source tokens /
+256 prompt tokens / 8 generated tokens** plus a modules-only 16-unit backward,
+at **12.51 GiB** sampled peak driver and zero swap growth. Reranking remains
+opt-in; lexical remains the default. D2 capacity was not run. See
+[E2 results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 **Open:** held-out configuration repair, correct action/argument selection,
-full-core plan continuation, success-head training/calibration, E2 reranker
-top-1 (1/2), full-bank native capacity and novel-source quality. These are
+full-core plan continuation, success-head training/calibration, novel-value E2
+writer/reader transfer, ranking quality and capacity beyond the qualified
+16-unit/256-token workload. These are
 exposed synthetic fixtures, not a generalization result. Do not retune this
 held-out set; a narrower repair tool or fresh cases requires a new preregistered
 arm. Next: either that bounded tool-interface study or E2 retrieval/capacity

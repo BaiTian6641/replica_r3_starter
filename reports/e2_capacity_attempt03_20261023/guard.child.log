@@ -1,0 +1,16 @@
+W1023 02:11:22.841000 6175 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 846.25it/s]Loading weights:  48%|████▊     | 181/381 [00:00<00:00, 876.00it/s]Loading weights:  71%|███████   | 269/381 [00:00<00:00, 838.42it/s]Loading weights:  94%|█████████▎| 357/381 [00:00<00:00, 852.73it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 861.86it/s]
+{"phase": "capacity_inference", "point": "inf_u1_p64", "units": 1, "tokens": 64, "wall_seconds": 0.5581535829696804}
+{"phase": "capacity_inference", "point": "inf_u4_p64", "units": 4, "tokens": 64, "wall_seconds": 0.5673582919407636}
+{"phase": "capacity_inference", "point": "inf_u8_p128", "units": 8, "tokens": 128, "wall_seconds": 0.786109667038545}
+{"phase": "capacity_inference", "point": "inf_u12_p128", "units": 12, "tokens": 128, "wall_seconds": 0.8754005418159068}
+{"phase": "capacity_inference", "point": "inf_u16_p128", "units": 16, "tokens": 128, "wall_seconds": 1.092478333041072}
+{"phase": "capacity_inference", "point": "inf_u16_p256", "units": 16, "tokens": 256, "wall_seconds": 1.1020825831219554}
+{"phase": "capacity_training", "point": "train_u1_p64", "units": 1, "tokens": 64, "wall_seconds": 0.8134219578932971}
+{"phase": "capacity_training", "point": "train_u4_p128", "units": 4, "tokens": 128, "wall_seconds": 0.6196076250635087}
+{"phase": "capacity_training", "point": "train_u8_p128", "units": 8, "tokens": 128, "wall_seconds": 0.5431649999227375}
+{"phase": "capacity_training", "point": "train_u12_p128", "units": 12, "tokens": 128, "wall_seconds": 0.551036125048995}
+{"phase": "capacity_training", "point": "train_u16_p128", "units": 16, "tokens": 128, "wall_seconds": 0.7567162499763072}
+{"phase": "capacity_training", "point": "train_u16_p256", "units": 16, "tokens": 256, "wall_seconds": 0.659050416899845}
+{"phase": "capacity_complete", "points": 12}
+{"status": "completed", "summary": {"largest_inference_units": 16, "largest_training_units": 16, "largest_prompt_tokens": 256, "largest_source_span_tokens": 128, "points": 12, "inference_points": 6, "training_points": 6, "wall_seconds": 9.194030334008858, "d2_arm": "not declared or run"}, "costs": {"profiled_wall_seconds": 13.740895291091874, "sampled_peak_driver_bytes": 13437157376, "sampled_peak_rss_bytes": 4228972544, "new_original_checkpoints": 0, "downloads": 0}}

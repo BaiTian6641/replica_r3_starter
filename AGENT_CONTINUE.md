@@ -17,12 +17,23 @@ memory is 14.72 GiB, swap growth zero, final v2 extension 35.85 MiB, no base cop
 or download. The E2 parent extension was copied exactly (43 tensors) as both
 initialization and regression reference.
 
+**E2 follow-up (23 October):** source-separated retrieval gives held-out
+recall@1 **0.75** lexical/dense and **0.50** learned rerank; each slot arm answers
+**0/6**, oracle slots **0/4**, and exact text **3/3**. The novel-value
+writer/reader path is the bottleneck; eligibility and long-chunk inclusion pass.
+Largest actually exercised capacity: **16 units / 2,043 source tokens / 256
+prompt tokens / 8 generated tokens** plus modules-only 16-unit backward, at
+**12.51 GiB** peak driver, zero swap. Reranking stays opt-in; lexical is the
+default. D2 capacity was not run. See
+[E2 results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+
 **Open:** configuration repair, correct action/argument selection, full-core
-plan continuation, success-head training/calibration, E2 reranker top-1 (1/2),
-full-bank capacity and novel-source quality. Do not retune the held-out set.
-Next is either a separately preregistered narrower repair-tool study with fresh
-cases or E2 retrieval/capacity qualification. No broad corpus campaign or model
-promotion is admitted.
+plan continuation, success-head training/calibration, novel-value E2
+writer/reader transfer, ranking quality and capacity beyond the qualified
+16-unit/256-token workload. Do not retune the held-out set. Next is either a
+separately preregistered narrower repair-tool study with fresh cases or a
+writer/reader improvement arm. No broad corpus campaign or model promotion is
+admitted.
 
 Validation: integrated full suite **1081 passed / 21 subtests**; E3-focused
 suite **157 passed**. Attempt 1 (parity order), attempt 2 (EOS-as-second-JSON

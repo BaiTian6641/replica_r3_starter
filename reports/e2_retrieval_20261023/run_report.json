@@ -1,0 +1,6117 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T07:09:48.772267+00:00",
+  "arguments": {
+    "device": "mps",
+    "output": "runs/e2_retrieval_20261023",
+    "protocol": "/Users/flare/replica_r3_starter/configs/e2_retrieval_qualification_v1.json",
+    "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "model_lock": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+    "parent_extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension"
+  },
+  "protocol_sha256": "4b640fc7ef6dd5a8b5af098e7390cfe390fa43fd81246453f638d1909b1c8f39",
+  "protocol": {
+    "format": "replica.e2_retrieval.qualification.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Separate eligibility from ranking; measure lexical, native-dense and learned reranking on source-separated retrieval and novel-record use. Held-out groups are used once for final assessment.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_retrieval",
+      "manifest": "data/e2_retrieval/manifest.json",
+      "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+      "queries_sha256": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a",
+      "manifest_sha256": "b073e6397be3b792cf137c05c660fa219d4b8d0426001602646082fa1ed48167",
+      "splits": {
+        "train": [
+          "train_a",
+          "train_b"
+        ],
+        "dev": [
+          "dev_a",
+          "dev_b"
+        ],
+        "heldout": [
+          "heldout_a",
+          "heldout_b",
+          "heldout_c",
+          "heldout_d",
+          "heldout_e",
+          "heldout_f"
+        ]
+      },
+      "counts": {
+        "cases": 13,
+        "records": 49,
+        "by_split": {
+          "train": 5,
+          "dev": 2,
+          "heldout": 6
+        }
+      }
+    },
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "device": "mps",
+    "dtype": "float32",
+    "native_cache": false,
+    "native_cpu_fallback": false,
+    "sampling": "greedy",
+    "thinking": false,
+    "training": {
+      "objective": "session.ranking_loss over eligible candidates; answer loss is never used for hard top-k",
+      "updates": 12,
+      "queries_per_update": 5,
+      "optimizer": "muon8bit",
+      "lr_new": 0.001,
+      "lr_muon_new": 0.001,
+      "lr_base": 0.0,
+      "lr_muon_base": 0.0,
+      "weight_decay": 0.0,
+      "gradient_clip": 1.0,
+      "seed": 20261023,
+      "trainable": [
+        "reranker",
+        "sense_ports.13"
+      ],
+      "selection_limit": 16,
+      "bank_units": 16,
+      "selection": "all eligible records for each train query in deterministic case-id order",
+      "note": "Train groups only; dev and held-out groups never enter the ranking update."
+    },
+    "generation": {
+      "max_new_tokens": 8,
+      "prompt": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\\n\\nQuery: {query}"
+    },
+    "arms": [
+      {
+        "id": "lexical",
+        "description": "eligible lexical retrieval, then record-order bank cap at 16 unit slots",
+        "ranking": true
+      },
+      {
+        "id": "dense",
+        "description": "native source-prefix mean-feature dense retrieval over eligible records, then bank cap",
+        "ranking": true
+      },
+      {
+        "id": "rerank",
+        "description": "learned reranker over eligible lexical candidates, record score = max span score, then bank cap",
+        "ranking": true
+      },
+      {
+        "id": "oracle_diagnostic",
+        "description": "only the expected eligible record is supplied; diagnostic for reader/answer errors, not a retrieval arm",
+        "ranking": false
+      }
+    ],
+    "scoring": {
+      "retrieval": "record recall@1 and recall@4, expected-record rank; numbers only for relevant cases and ranking arms",
+      "answer": "decoded text stripped and casefolded; exact expected value; UNKNOWN is an abstention",
+      "eligibility": "selected forbiddden/unauthorized/future/wrong-purpose records must be zero",
+      "correction": "superseded record absent; corrected record selected if retrieved",
+      "long_record": "selected span count and whether the fact token offset is inside the selected bank",
+      "distractors": "count eligible non-expected records present in the neural bank",
+      "heldout": "final assessment is held-out source groups only; train/dev remain development evidence"
+    },
+    "controls": [
+      "lexical",
+      "dense",
+      "rerank",
+      "oracle_diagnostic",
+      "missing-information abstention",
+      "unauthorized/future/wrong-purpose exclusion",
+      "correction/superseded exclusion",
+      "irrelevant-but-eligible bank distractors",
+      "long-record chunk coverage"
+    ],
+    "retention": "Keep the parent E2 extension, the new reranker extension, the dataset, raw selected IDs/answers and every failure report. No base copy or download.",
+    "claims": "Reranking remains opt-in unless held-out retrieval and answer results justify a default change. No generalization claim from exposed synthetic source groups."
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "implementation_sha256": {
+    "scripts/run_e2_retrieval.py": "228fe4144b50896d9ff8ee59745bcce517657b5bf4d33b64e97625664730b6a8",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "d0e9c0bfabe1506acea8a9c9a3fecb33ee354c4d7545539aef1d5d915846e46a",
+    "src/replica_lab/memory_system/__init__.py": "94d01a4ecfff338432f32875a0c175074242fa75507c8e1ac19764f33b8e503c",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/architecture/loading.py": "63a60af9f60f11af712be9a4c0d89e421d90127ccb36151a355f5219ab583870",
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/ports.py": "188894ca3ddb2977dd446b4808e7ef6a2f6a7009715cfa3a8394d78cc5915d48",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/minicpm5.py": "a9b42e71cb9cab867b0c134c385c887132cbba8b08e7988bea77a110919255ea",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/contracts.py": "158a337b2db96660455d8cf66f8b03380bc80aa1a5da61ce76776e8dc7914864",
+    "src/replica_lab/architecture/heads.py": "f0ae6db8633d824abaf78ddcd1db9ed99dd6a8fec66426dae1281d5bde71eab4"
+  },
+  "free_disk_before_bytes": 630250651648,
+  "downloads": 0,
+  "original_model_loads": 1,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+  },
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 16,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false
+  },
+  "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "checks": {
+    "eligibility_precedes_ranking": {
+      "passed": true,
+      "cases": 13
+    },
+    "extension_reload": {
+      "passed": true
+    },
+    "no_forbidden_neural_candidates": {
+      "passed": true,
+      "violations": 0
+    },
+    "long_record_chunking_exercised": {
+      "passed": true
+    }
+  },
+  "dataset": {
+    "manifest": {
+      "format": "replica.e2_retrieval.dataset.v1",
+      "created_at_utc": "2026-10-23",
+      "subject_id": "e2_retrieval",
+      "purpose": "retrieval_eval",
+      "as_of": 10,
+      "tokenizer": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+      "splits": {
+        "train": [
+          "train_a",
+          "train_b"
+        ],
+        "dev": [
+          "dev_a",
+          "dev_b"
+        ],
+        "heldout": [
+          "heldout_a",
+          "heldout_b",
+          "heldout_c",
+          "heldout_d",
+          "heldout_e",
+          "heldout_f"
+        ]
+      },
+      "groups": {
+        "train_a": {
+          "split": "train",
+          "cases": [
+            "train_a1",
+            "train_a2"
+          ]
+        },
+        "train_b": {
+          "split": "train",
+          "cases": [
+            "train_b1",
+            "train_b2",
+            "train_b3"
+          ]
+        },
+        "dev_a": {
+          "split": "dev",
+          "cases": [
+            "dev_a"
+          ]
+        },
+        "dev_b": {
+          "split": "dev",
+          "cases": [
+            "dev_b"
+          ]
+        },
+        "heldout_a": {
+          "split": "heldout",
+          "cases": [
+            "heldout_a"
+          ]
+        },
+        "heldout_b": {
+          "split": "heldout",
+          "cases": [
+            "heldout_b"
+          ]
+        },
+        "heldout_c": {
+          "split": "heldout",
+          "cases": [
+            "heldout_c"
+          ]
+        },
+        "heldout_d": {
+          "split": "heldout",
+          "cases": [
+            "heldout_d"
+          ]
+        },
+        "heldout_e": {
+          "split": "heldout",
+          "cases": [
+            "heldout_e"
+          ]
+        },
+        "heldout_f": {
+          "split": "heldout",
+          "cases": [
+            "heldout_f"
+          ]
+        }
+      },
+      "counts": {
+        "cases": 13,
+        "records": 49,
+        "by_split": {
+          "train": 5,
+          "dev": 2,
+          "heldout": 6
+        }
+      },
+      "token_counts": {
+        "train_a1_launch": 9,
+        "train_a1_review": 9,
+        "train_a1_owner": 8,
+        "train_a1_other": 9,
+        "train_a2_backup": 9,
+        "train_a2_launch": 9,
+        "train_a2_target": 9,
+        "train_a2_other": 9,
+        "train_b1_release": 9,
+        "train_b1_review": 9,
+        "train_b1_owner": 8,
+        "train_b1_other": 9,
+        "train_b2_region": 9,
+        "train_b2_backup": 9,
+        "train_b2_target": 9,
+        "train_b2_other": 9,
+        "train_b3_release_old": 9,
+        "train_b3_release_new": 9,
+        "train_b3_review": 9,
+        "train_b3_other": 9,
+        "dev_a_launch": 10,
+        "dev_a_review": 10,
+        "dev_a_owner": 10,
+        "dev_a_other": 10,
+        "dev_b_release": 11,
+        "dev_b_review": 10,
+        "dev_b_other": 11,
+        "heldout_a_launch": 10,
+        "heldout_a_review": 11,
+        "heldout_a_backup": 10,
+        "heldout_a_other": 9,
+        "heldout_b_release_old": 11,
+        "heldout_b_release_new": 11,
+        "heldout_b_review": 11,
+        "heldout_b_other": 9,
+        "heldout_c_owner": 9,
+        "heldout_c_review": 9,
+        "heldout_c_backup": 9,
+        "heldout_d_long": 231,
+        "heldout_d_review": 11,
+        "heldout_d_other": 10,
+        "heldout_e_review": 11,
+        "heldout_e_future": 12,
+        "heldout_e_unauthorized": 11,
+        "heldout_e_wrongpurpose": 12,
+        "heldout_f_launch": 10,
+        "heldout_f_review": 10,
+        "heldout_f_owner": 9,
+        "heldout_f_other": 9
+      },
+      "long_record": {
+        "record_id": "heldout_d_long",
+        "tokens": 231,
+        "fact_token_start": 177,
+        "chunks": 2
+      },
+      "files": {
+        "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+        "queries_sha256": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a"
+      },
+      "claims": "Authored synthetic retrieval fixtures; held-out groups are source-separated but exposed on disk."
+    },
+    "files": {
+      "records": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+      "queries": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a",
+      "manifest": "b073e6397be3b792cf137c05c660fa219d4b8d0426001602646082fa1ed48167"
+    }
+  },
+  "parent_extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf",
+    "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404"
+  },
+  "training": {
+    "optimizer": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.001,
+          "weight_decay": 0.0,
+          "param_names": [
+            "sense_ports.13.projection.weight",
+            "reranker.query_projection.weight",
+            "reranker.record_projection.weight"
+          ],
+          "tensors": 3,
+          "parameters": 655360
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.001,
+          "weight_decay": 0.0,
+          "param_names": [
+            "sense_ports.13.input_norm.weight",
+            "sense_ports.13.input_norm.bias",
+            "reranker.query_norm.weight",
+            "reranker.query_norm.bias",
+            "reranker.record_norm.weight",
+            "reranker.record_norm.bias"
+          ],
+          "tensors": 6,
+          "parameters": 5120
+        }
+      ],
+      "state_tensor_bytes": 0,
+      "state_bytes_by_dtype": {}
+    },
+    "updates": [
+      {
+        "update": 1,
+        "mean_loss": 6.6251747608184814,
+        "gradient_norm": 2.105839967727661
+      },
+      {
+        "update": 2,
+        "mean_loss": 6.605111360549927,
+        "gradient_norm": 2.0835869312286377
+      },
+      {
+        "update": 3,
+        "mean_loss": 6.585157752037048,
+        "gradient_norm": 2.0545427799224854
+      },
+      {
+        "update": 4,
+        "mean_loss": 6.565452337265015,
+        "gradient_norm": 2.0164475440979004
+      },
+      {
+        "update": 5,
+        "mean_loss": 6.5461167097091675,
+        "gradient_norm": 1.9714299440383911
+      },
+      {
+        "update": 6,
+        "mean_loss": 6.5271337032318115,
+        "gradient_norm": 1.922098159790039
+      },
+      {
+        "update": 7,
+        "mean_loss": 6.508437156677246,
+        "gradient_norm": 1.8705145120620728
+      },
+      {
+        "update": 8,
+        "mean_loss": 6.4902952909469604,
+        "gradient_norm": 1.8149088621139526
+      },
+      {
+        "update": 9,
+        "mean_loss": 6.472733020782471,
+        "gradient_norm": 1.75706946849823
+      },
+      {
+        "update": 10,
+        "mean_loss": 6.4556461572647095,
+        "gradient_norm": 1.6990633010864258
+      },
+      {
+        "update": 11,
+        "mean_loss": 6.439048171043396,
+        "gradient_norm": 1.6422667503356934
+      },
+      {
+        "update": 12,
+        "mean_loss": 6.422569751739502,
+        "gradient_norm": 1.590664267539978
+      }
+    ],
+    "trainable": [
+      "reranker",
+      "sense_ports.13"
+    ],
+    "objective": "session.ranking_loss over eligible candidates; answer loss is never used for hard top-k",
+    "gradient_audit_update1": {
+      "original": {
+        "eligible": 0,
+        "present": [],
+        "nonzero": [],
+        "nonfinite": []
+      },
+      "new": {
+        "eligible": 9,
+        "present": [],
+        "nonzero": [],
+        "nonfinite": []
+      }
+    },
+    "optimizer_after": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.001,
+          "weight_decay": 0.0,
+          "param_names": [
+            "sense_ports.13.projection.weight",
+            "reranker.query_projection.weight",
+            "reranker.record_projection.weight"
+          ],
+          "tensors": 3,
+          "parameters": 655360
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.001,
+          "weight_decay": 0.0,
+          "param_names": [
+            "sense_ports.13.input_norm.weight",
+            "sense_ports.13.input_norm.bias",
+            "reranker.query_norm.weight",
+            "reranker.query_norm.bias",
+            "reranker.record_norm.weight",
+            "reranker.record_norm.bias"
+          ],
+          "tensors": 6,
+          "parameters": 5120
+        }
+      ],
+      "state_tensor_bytes": 697600,
+      "state_bytes_by_dtype": {
+        "torch.int8": 655360,
+        "torch.float32": 42240
+      }
+    }
+  },
+  "extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e2_retrieval_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "eba27daf2559864eb4c7486996374d8eedf9e5cc0f29e22333506eb347deada7",
+    "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 43,
+        "parameters": 4878850,
+        "trainable": 4878850,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "bytes": 19523348
+  },
+  "results": [
+    {
+      "answer": "yellow",
+      "generated_token_ids": [
+        49867,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a1_launch",
+        "train_a1_other",
+        "train_a1_review",
+        "train_a1_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a1_launch",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_owner",
+          "token_start": 0,
+          "token_end": 8
+        }
+      ],
+      "case_id": "train_a1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "lexical",
+      "expected_record_id": "train_a1_launch",
+      "expected_answer": "amber",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "yellow",
+      "generated_token_ids": [
+        49867,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a1_launch",
+        "train_a1_other",
+        "train_a1_review",
+        "train_a1_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a1_launch",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_owner",
+          "token_start": 0,
+          "token_end": 8
+        }
+      ],
+      "case_id": "train_a1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "dense",
+      "expected_record_id": "train_a1_launch",
+      "expected_answer": "amber",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "yellow",
+      "generated_token_ids": [
+        49867,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a1_launch",
+        "train_a1_other",
+        "train_a1_review",
+        "train_a1_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a1_launch",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a1_owner",
+          "token_start": 0,
+          "token_end": 8
+        }
+      ],
+      "case_id": "train_a1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "rerank",
+      "expected_record_id": "train_a1_launch",
+      "expected_answer": "amber",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": 0.09238065034151077
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a1_launch"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a1_launch",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_a1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "train_a1_launch",
+      "expected_answer": "amber",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": true,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a2_backup",
+        "train_a2_other",
+        "train_a2_launch",
+        "train_a2_target"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a2_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_launch",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_target",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_a2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "lexical",
+      "expected_record_id": "train_a2_backup",
+      "expected_answer": "midnight",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a2_backup",
+        "train_a2_other",
+        "train_a2_target",
+        "train_a2_launch"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a2_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_target",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_launch",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_a2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "dense",
+      "expected_record_id": "train_a2_backup",
+      "expected_answer": "midnight",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a2_launch",
+        "train_a2_backup",
+        "train_a2_other",
+        "train_a2_target"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a2_launch",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_a2_target",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_a2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "rerank",
+      "expected_record_id": "train_a2_backup",
+      "expected_answer": "midnight",
+      "rank": 2,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": -0.029404567554593086
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_a2_backup"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_a2_backup",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_a2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "train_a2_backup",
+      "expected_answer": "midnight",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b1_release",
+        "train_b1_other",
+        "train_b1_review",
+        "train_b1_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b1_release",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_owner",
+          "token_start": 0,
+          "token_end": 8
+        }
+      ],
+      "case_id": "train_b1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "lexical",
+      "expected_record_id": "train_b1_release",
+      "expected_answer": "blue",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": true,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b1_release",
+        "train_b1_other",
+        "train_b1_review",
+        "train_b1_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b1_release",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_owner",
+          "token_start": 0,
+          "token_end": 8
+        }
+      ],
+      "case_id": "train_b1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "dense",
+      "expected_record_id": "train_b1_release",
+      "expected_answer": "blue",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": true,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b1_review",
+        "train_b1_other",
+        "train_b1_release",
+        "train_b1_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b1_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_release",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b1_owner",
+          "token_start": 0,
+          "token_end": 8
+        }
+      ],
+      "case_id": "train_b1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "rerank",
+      "expected_record_id": "train_b1_release",
+      "expected_answer": "blue",
+      "rank": 3,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": true,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": -0.049072496592998505
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b1_release"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b1_release",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b1",
+      "split": "train",
+      "kind": "relevant_among_distractors",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "train_b1_release",
+      "expected_answer": "blue",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": true,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b2_region",
+        "train_b2_backup",
+        "train_b2_other",
+        "train_b2_target"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b2_region",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_target",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "lexical",
+      "expected_record_id": "train_b2_region",
+      "expected_answer": "north",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b2_region",
+        "train_b2_other",
+        "train_b2_backup",
+        "train_b2_target"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b2_region",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_target",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "dense",
+      "expected_record_id": "train_b2_region",
+      "expected_answer": "north",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b2_region",
+        "train_b2_other",
+        "train_b2_backup",
+        "train_b2_target"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b2_region",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b2_target",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "rerank",
+      "expected_record_id": "train_b2_region",
+      "expected_answer": "north",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": -0.00324113667011261
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b2_region"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b2_region",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b2",
+      "split": "train",
+      "kind": "same_entity_different_attribute",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "train_b2_region",
+      "expected_answer": "north",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b3_release_new",
+        "train_b3_other",
+        "train_b3_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b3_release_new",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b3_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b3_review",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b3",
+      "split": "train",
+      "kind": "correction",
+      "arm": "lexical",
+      "expected_record_id": "train_b3_release_new",
+      "expected_answer": "silver",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b3_release_new",
+        "train_b3_other",
+        "train_b3_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b3_release_new",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b3_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b3_review",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b3",
+      "split": "train",
+      "kind": "correction",
+      "arm": "dense",
+      "expected_record_id": "train_b3_release_new",
+      "expected_answer": "silver",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "blue",
+      "generated_token_ids": [
+        16724,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b3_release_new",
+        "train_b3_review",
+        "train_b3_other"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b3_release_new",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b3_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "train_b3_other",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b3",
+      "split": "train",
+      "kind": "correction",
+      "arm": "rerank",
+      "expected_record_id": "train_b3_release_new",
+      "expected_answer": "silver",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": 0.04720655828714371
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "train_b3_release_new"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "train_b3_release_new",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "train_b3",
+      "split": "train",
+      "kind": "correction",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "train_b3_release_new",
+      "expected_answer": "silver",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_a_launch",
+        "dev_a_other",
+        "dev_a_review",
+        "dev_a_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_other",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_owner",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "dev_a",
+      "split": "dev",
+      "kind": "relevant_among_distractors",
+      "arm": "lexical",
+      "expected_record_id": "dev_a_launch",
+      "expected_answer": "copper",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_a_launch",
+        "dev_a_other",
+        "dev_a_review",
+        "dev_a_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_other",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_owner",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "dev_a",
+      "split": "dev",
+      "kind": "relevant_among_distractors",
+      "arm": "dense",
+      "expected_record_id": "dev_a_launch",
+      "expected_answer": "copper",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_a_other",
+        "dev_a_launch",
+        "dev_a_review",
+        "dev_a_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_a_other",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_a_owner",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "dev_a",
+      "split": "dev",
+      "kind": "relevant_among_distractors",
+      "arm": "rerank",
+      "expected_record_id": "dev_a_launch",
+      "expected_answer": "copper",
+      "rank": 2,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": -0.012223093770444393
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_a_launch"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "dev_a",
+      "split": "dev",
+      "kind": "relevant_among_distractors",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "dev_a_launch",
+      "expected_answer": "copper",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_b_release",
+        "dev_b_other",
+        "dev_b_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_b_release",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "dev_b_other",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "dev_b_review",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "dev_b",
+      "split": "dev",
+      "kind": "same_entity_different_attribute",
+      "arm": "lexical",
+      "expected_record_id": "dev_b_release",
+      "expected_answer": "teal",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_b_release",
+        "dev_b_review",
+        "dev_b_other"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_b_release",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "dev_b_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_b_other",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "dev_b",
+      "split": "dev",
+      "kind": "same_entity_different_attribute",
+      "arm": "dense",
+      "expected_record_id": "dev_b_release",
+      "expected_answer": "teal",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_b_other",
+        "dev_b_review",
+        "dev_b_release"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_b_other",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "dev_b_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "dev_b_release",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "dev_b",
+      "split": "dev",
+      "kind": "same_entity_different_attribute",
+      "arm": "rerank",
+      "expected_record_id": "dev_b_release",
+      "expected_answer": "teal",
+      "rank": 3,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": -0.023008406162261963
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "dev_b_release"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "dev_b_release",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "dev_b",
+      "split": "dev",
+      "kind": "same_entity_different_attribute",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "dev_b_release",
+      "expected_answer": "teal",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_a_launch",
+        "heldout_a_backup",
+        "heldout_a_other",
+        "heldout_a_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_a_backup",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_a_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_a_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_a",
+      "split": "heldout",
+      "kind": "relevant_among_distractors",
+      "arm": "lexical",
+      "expected_record_id": "heldout_a_launch",
+      "expected_answer": "crimson",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_a_launch",
+        "heldout_a_other",
+        "heldout_a_backup",
+        "heldout_a_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_a_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_a_backup",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_a_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_a",
+      "split": "heldout",
+      "kind": "relevant_among_distractors",
+      "arm": "dense",
+      "expected_record_id": "heldout_a_launch",
+      "expected_answer": "crimson",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_a_other",
+        "heldout_a_launch",
+        "heldout_a_review",
+        "heldout_a_backup"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_a_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_a_review",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_a_backup",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "heldout_a",
+      "split": "heldout",
+      "kind": "relevant_among_distractors",
+      "arm": "rerank",
+      "expected_record_id": "heldout_a_launch",
+      "expected_answer": "crimson",
+      "rank": 2,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": 0.02681617997586727
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_a_launch"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_a_launch",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "heldout_a",
+      "split": "heldout",
+      "kind": "relevant_among_distractors",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "heldout_a_launch",
+      "expected_answer": "crimson",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_b_release_new",
+        "heldout_b_other",
+        "heldout_b_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_b_release_new",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_b_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_b_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_b",
+      "split": "heldout",
+      "kind": "correction",
+      "arm": "lexical",
+      "expected_record_id": "heldout_b_release_new",
+      "expected_answer": "indigo",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_b_release_new",
+        "heldout_b_review",
+        "heldout_b_other"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_b_release_new",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_b_review",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_b_other",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_b",
+      "split": "heldout",
+      "kind": "correction",
+      "arm": "dense",
+      "expected_record_id": "heldout_b_release_new",
+      "expected_answer": "indigo",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_b_review",
+        "heldout_b_release_new",
+        "heldout_b_other"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_b_review",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_b_release_new",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_b_other",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_b",
+      "split": "heldout",
+      "kind": "correction",
+      "arm": "rerank",
+      "expected_record_id": "heldout_b_release_new",
+      "expected_answer": "indigo",
+      "rank": 2,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": -0.027507644146680832
+    },
+    {
+      "answer": "white",
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_b_release_new"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_b_release_new",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_b",
+      "split": "heldout",
+      "kind": "correction",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "heldout_b_release_new",
+      "expected_answer": "indigo",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "heldout_c_review",
+        "heldout_c_backup",
+        "heldout_c_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_c_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_c_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_c_owner",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_c",
+      "split": "heldout",
+      "kind": "missing_information",
+      "arm": "lexical",
+      "expected_record_id": null,
+      "expected_answer": "UNKNOWN",
+      "rank": null,
+      "recall_at_1": false,
+      "recall_at_4": false,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "heldout_c_review",
+        "heldout_c_backup",
+        "heldout_c_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_c_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_c_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_c_owner",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_c",
+      "split": "heldout",
+      "kind": "missing_information",
+      "arm": "dense",
+      "expected_record_id": null,
+      "expected_answer": "UNKNOWN",
+      "rank": null,
+      "recall_at_1": false,
+      "recall_at_4": false,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 57,
+      "selected_records": [
+        "heldout_c_review",
+        "heldout_c_backup",
+        "heldout_c_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_c_review",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_c_backup",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_c_owner",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_c",
+      "split": "heldout",
+      "kind": "missing_information",
+      "arm": "rerank",
+      "expected_record_id": null,
+      "expected_answer": "UNKNOWN",
+      "rank": null,
+      "recall_at_1": false,
+      "recall_at_4": false,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 3,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_d_other",
+        "heldout_d_review",
+        "heldout_d_long"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_d_other",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_d_review",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 0,
+          "token_end": 128
+        },
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 128,
+          "token_end": 231
+        }
+      ],
+      "case_id": "heldout_d",
+      "split": "heldout",
+      "kind": "long_record_chunking",
+      "arm": "lexical",
+      "expected_record_id": "heldout_d_long",
+      "expected_answer": "quartz",
+      "rank": 3,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 4,
+      "answer_span_included": true,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_d_other",
+        "heldout_d_review",
+        "heldout_d_long"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_d_other",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_d_review",
+          "token_start": 0,
+          "token_end": 11
+        },
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 0,
+          "token_end": 128
+        },
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 128,
+          "token_end": 231
+        }
+      ],
+      "case_id": "heldout_d",
+      "split": "heldout",
+      "kind": "long_record_chunking",
+      "arm": "dense",
+      "expected_record_id": "heldout_d_long",
+      "expected_answer": "quartz",
+      "rank": 3,
+      "recall_at_1": false,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 4,
+      "answer_span_included": true,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_d_long",
+        "heldout_d_other",
+        "heldout_d_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 0,
+          "token_end": 128
+        },
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 128,
+          "token_end": 231
+        },
+        {
+          "record_id": "heldout_d_other",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_d_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_d",
+      "split": "heldout",
+      "kind": "long_record_chunking",
+      "arm": "rerank",
+      "expected_record_id": "heldout_d_long",
+      "expected_answer": "quartz",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 2,
+      "span_count": 4,
+      "answer_span_included": true,
+      "rerank_score": -0.026524895802140236
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_d_long"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 0,
+          "token_end": 128
+        },
+        {
+          "record_id": "heldout_d_long",
+          "token_start": 128,
+          "token_end": 231
+        }
+      ],
+      "case_id": "heldout_d",
+      "split": "heldout",
+      "kind": "long_record_chunking",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "heldout_d_long",
+      "expected_answer": "quartz",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 2,
+      "answer_span_included": true,
+      "rerank_score": null
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_e_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_e_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_e",
+      "split": "heldout",
+      "kind": "future_unauthorized_wrong_purpose",
+      "arm": "lexical",
+      "expected_record_id": null,
+      "expected_answer": "UNKNOWN",
+      "rank": null,
+      "recall_at_1": false,
+      "recall_at_4": false,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 1,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_e_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_e_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_e",
+      "split": "heldout",
+      "kind": "future_unauthorized_wrong_purpose",
+      "arm": "dense",
+      "expected_record_id": null,
+      "expected_answer": "UNKNOWN",
+      "rank": null,
+      "recall_at_1": false,
+      "recall_at_4": false,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 1,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "red",
+      "generated_token_ids": [
+        531,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "selected_records": [
+        "heldout_e_review"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_e_review",
+          "token_start": 0,
+          "token_end": 11
+        }
+      ],
+      "case_id": "heldout_e",
+      "split": "heldout",
+      "kind": "future_unauthorized_wrong_purpose",
+      "arm": "rerank",
+      "expected_record_id": null,
+      "expected_answer": "UNKNOWN",
+      "rank": null,
+      "recall_at_1": false,
+      "recall_at_4": false,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 1,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_f_launch",
+        "heldout_f_other",
+        "heldout_f_review",
+        "heldout_f_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_f_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_f_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_f_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_f_owner",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_f",
+      "split": "heldout",
+      "kind": "unseen_entity_value",
+      "arm": "lexical",
+      "expected_record_id": "heldout_f_launch",
+      "expected_answer": "ivory",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_f_launch",
+        "heldout_f_other",
+        "heldout_f_review",
+        "heldout_f_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_f_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_f_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_f_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_f_owner",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_f",
+      "split": "heldout",
+      "kind": "unseen_entity_value",
+      "arm": "dense",
+      "expected_record_id": "heldout_f_launch",
+      "expected_answer": "ivory",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": null
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_f_launch",
+        "heldout_f_review",
+        "heldout_f_other",
+        "heldout_f_owner"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_f_launch",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_f_review",
+          "token_start": 0,
+          "token_end": 10
+        },
+        {
+          "record_id": "heldout_f_other",
+          "token_start": 0,
+          "token_end": 9
+        },
+        {
+          "record_id": "heldout_f_owner",
+          "token_start": 0,
+          "token_end": 9
+        }
+      ],
+      "case_id": "heldout_f",
+      "split": "heldout",
+      "kind": "unseen_entity_value",
+      "arm": "rerank",
+      "expected_record_id": "heldout_f_launch",
+      "expected_answer": "ivory",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": true,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 3,
+      "span_count": 4,
+      "answer_span_included": null,
+      "rerank_score": -0.0037991423159837723
+    },
+    {
+      "answer": "amber",
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 58,
+      "selected_records": [
+        "heldout_f_launch"
+      ],
+      "selected_spans": [
+        {
+          "record_id": "heldout_f_launch",
+          "token_start": 0,
+          "token_end": 10
+        }
+      ],
+      "case_id": "heldout_f",
+      "split": "heldout",
+      "kind": "unseen_entity_value",
+      "arm": "oracle_diagnostic",
+      "expected_record_id": "heldout_f_launch",
+      "expected_answer": "ivory",
+      "rank": 1,
+      "recall_at_1": true,
+      "recall_at_4": true,
+      "retrieval_applicable": false,
+      "answer_correct": false,
+      "abstained": false,
+      "forbidden_selected": [],
+      "eligible_forbidden": [],
+      "distractors_selected": 0,
+      "span_count": 1,
+      "answer_span_included": null,
+      "rerank_score": null
+    }
+  ],
+  "metrics": {
+    "lexical": {
+      "train": {
+        "cases": 5,
+        "relevant_cases": 5,
+        "recall_at_1": 1.0,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.2,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.8,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "dev": {
+        "cases": 2,
+        "relevant_cases": 2,
+        "recall_at_1": 1.0,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.5,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "heldout": {
+        "cases": 6,
+        "relevant_cases": 4,
+        "recall_at_1": 0.75,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.3333333333333335,
+        "long_span_counts": [
+          4
+        ],
+        "long_answer_span": [
+          true
+        ]
+      }
+    },
+    "dense": {
+      "train": {
+        "cases": 5,
+        "relevant_cases": 5,
+        "recall_at_1": 1.0,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.2,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.8,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "dev": {
+        "cases": 2,
+        "relevant_cases": 2,
+        "recall_at_1": 1.0,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.5,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "heldout": {
+        "cases": 6,
+        "relevant_cases": 4,
+        "recall_at_1": 0.75,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.3333333333333335,
+        "long_span_counts": [
+          4
+        ],
+        "long_answer_span": [
+          true
+        ]
+      }
+    },
+    "rerank": {
+      "train": {
+        "cases": 5,
+        "relevant_cases": 5,
+        "recall_at_1": 0.6,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.2,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.8,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "dev": {
+        "cases": 2,
+        "relevant_cases": 2,
+        "recall_at_1": 0.0,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.5,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "heldout": {
+        "cases": 6,
+        "relevant_cases": 4,
+        "recall_at_1": 0.5,
+        "recall_at_4": 1.0,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 2.3333333333333335,
+        "long_span_counts": [
+          4
+        ],
+        "long_answer_span": [
+          true
+        ]
+      }
+    },
+    "oracle_diagnostic": {
+      "train": {
+        "cases": 5,
+        "relevant_cases": 0,
+        "recall_at_1": null,
+        "recall_at_4": null,
+        "answer_correct": 0.4,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 0.0,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "dev": {
+        "cases": 2,
+        "relevant_cases": 0,
+        "recall_at_1": null,
+        "recall_at_4": null,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 0.0,
+        "long_span_counts": [],
+        "long_answer_span": []
+      },
+      "heldout": {
+        "cases": 4,
+        "relevant_cases": 0,
+        "recall_at_1": null,
+        "recall_at_4": null,
+        "answer_correct": 0.0,
+        "abstentions": 0,
+        "forbidden_selected": 0,
+        "eligible_forbidden": 0,
+        "mean_distractors": 0.0,
+        "long_span_counts": [
+          2
+        ],
+        "long_answer_span": [
+          true
+        ]
+      }
+    }
+  },
+  "eligibility": [
+    {
+      "case_id": "train_a1",
+      "split": "train",
+      "eligible": [
+        "train_a1_launch",
+        "train_a1_other",
+        "train_a1_owner",
+        "train_a1_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "train_a2",
+      "split": "train",
+      "eligible": [
+        "train_a2_backup",
+        "train_a2_launch",
+        "train_a2_other",
+        "train_a2_target"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "train_b1",
+      "split": "train",
+      "eligible": [
+        "train_b1_other",
+        "train_b1_owner",
+        "train_b1_release",
+        "train_b1_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "train_b2",
+      "split": "train",
+      "eligible": [
+        "train_b2_backup",
+        "train_b2_other",
+        "train_b2_region",
+        "train_b2_target"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "train_b3",
+      "split": "train",
+      "eligible": [
+        "train_b3_other",
+        "train_b3_release_new",
+        "train_b3_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "dev_a",
+      "split": "dev",
+      "eligible": [
+        "dev_a_launch",
+        "dev_a_other",
+        "dev_a_owner",
+        "dev_a_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "dev_b",
+      "split": "dev",
+      "eligible": [
+        "dev_b_other",
+        "dev_b_release",
+        "dev_b_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "heldout_a",
+      "split": "heldout",
+      "eligible": [
+        "heldout_a_backup",
+        "heldout_a_launch",
+        "heldout_a_other",
+        "heldout_a_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "heldout_b",
+      "split": "heldout",
+      "eligible": [
+        "heldout_b_other",
+        "heldout_b_release_new",
+        "heldout_b_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "heldout_c",
+      "split": "heldout",
+      "eligible": [
+        "heldout_c_backup",
+        "heldout_c_owner",
+        "heldout_c_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": null
+    },
+    {
+      "case_id": "heldout_d",
+      "split": "heldout",
+      "eligible": [
+        "heldout_d_long",
+        "heldout_d_other",
+        "heldout_d_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    },
+    {
+      "case_id": "heldout_e",
+      "split": "heldout",
+      "eligible": [
+        "heldout_e_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": null
+    },
+    {
+      "case_id": "heldout_f",
+      "split": "heldout",
+      "eligible": [
+        "heldout_f_launch",
+        "heldout_f_other",
+        "heldout_f_owner",
+        "heldout_f_review"
+      ],
+      "forbidden_eligible": [],
+      "expected_eligible": true
+    }
+  ],
+  "acceptance": {
+    "engineering": true,
+    "eligibility_violations": 0,
+    "heldout_split": "heldout",
+    "oracle_diagnostic": "not a retrieval arm; answers only isolate reader errors",
+    "reranker_default": "unchanged; opt-in pending held-out evidence",
+    "claims": "Exposed synthetic source groups; final held-out assessment is source-separated but not a broad generalization benchmark."
+  },
+  "diagnostics": {
+    "heldout": [
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_a_launch",
+          "heldout_a_backup",
+          "heldout_a_other",
+          "heldout_a_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_a_launch",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_a_backup",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_a_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_a_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_a",
+        "split": "heldout",
+        "kind": "relevant_among_distractors",
+        "arm": "lexical",
+        "expected_record_id": "heldout_a_launch",
+        "expected_answer": "crimson",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 4,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_a_launch",
+          "heldout_a_other",
+          "heldout_a_backup",
+          "heldout_a_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_a_launch",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_a_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_a_backup",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_a_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_a",
+        "split": "heldout",
+        "kind": "relevant_among_distractors",
+        "arm": "dense",
+        "expected_record_id": "heldout_a_launch",
+        "expected_answer": "crimson",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 4,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_a_other",
+          "heldout_a_launch",
+          "heldout_a_review",
+          "heldout_a_backup"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_a_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_a_launch",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_a_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_a_backup",
+            "token_start": 0,
+            "token_end": 10
+          }
+        ],
+        "case_id": "heldout_a",
+        "split": "heldout",
+        "kind": "relevant_among_distractors",
+        "arm": "rerank",
+        "expected_record_id": "heldout_a_launch",
+        "expected_answer": "crimson",
+        "rank": 2,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 4,
+        "answer_span_included": null,
+        "rerank_score": 0.02681617997586727
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_a_launch"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_a_launch",
+            "token_start": 0,
+            "token_end": 10
+          }
+        ],
+        "case_id": "heldout_a",
+        "split": "heldout",
+        "kind": "relevant_among_distractors",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "heldout_a_launch",
+        "expected_answer": "crimson",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_release_new",
+          "heldout_b_other",
+          "heldout_b_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_b_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "lexical",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_release_new",
+          "heldout_b_review",
+          "heldout_b_other"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_other",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "dense",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_review",
+          "heldout_b_release_new",
+          "heldout_b_other"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_other",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "rerank",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 2,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": -0.027507644146680832
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_release_new"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "heldout_c_review",
+          "heldout_c_backup",
+          "heldout_c_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_c_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_backup",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_c",
+        "split": "heldout",
+        "kind": "missing_information",
+        "arm": "lexical",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "heldout_c_review",
+          "heldout_c_backup",
+          "heldout_c_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_c_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_backup",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_c",
+        "split": "heldout",
+        "kind": "missing_information",
+        "arm": "dense",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "heldout_c_review",
+          "heldout_c_backup",
+          "heldout_c_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_c_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_backup",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_c",
+        "split": "heldout",
+        "kind": "missing_information",
+        "arm": "rerank",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_other",
+          "heldout_d_review",
+          "heldout_d_long"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_other",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_d_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "lexical",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 3,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 4,
+        "answer_span_included": true,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_other",
+          "heldout_d_review",
+          "heldout_d_long"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_other",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_d_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "dense",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 3,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 4,
+        "answer_span_included": true,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_long",
+          "heldout_d_other",
+          "heldout_d_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          },
+          {
+            "record_id": "heldout_d_other",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_d_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "rerank",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 4,
+        "answer_span_included": true,
+        "rerank_score": -0.026524895802140236
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_long"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 2,
+        "answer_span_included": true,
+        "rerank_score": null
+      },
+      {
+        "answer": "red",
+        "generated_token_ids": [
+          531,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_e_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_e_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_e",
+        "split": "heldout",
+        "kind": "future_unauthorized_wrong_purpose",
+        "arm": "lexical",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 1,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "red",
+        "generated_token_ids": [
+          531,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_e_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_e_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_e",
+        "split": "heldout",
+        "kind": "future_unauthorized_wrong_purpose",
+        "arm": "dense",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 1,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "red",
+        "generated_token_ids": [
+          531,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_e_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_e_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_e",
+        "split": "heldout",
+        "kind": "future_unauthorized_wrong_purpose",
+        "arm": "rerank",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 1,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_f_launch",
+          "heldout_f_other",
+          "heldout_f_review",
+          "heldout_f_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_f_launch",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_f_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_f_review",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_f_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_f",
+        "split": "heldout",
+        "kind": "unseen_entity_value",
+        "arm": "lexical",
+        "expected_record_id": "heldout_f_launch",
+        "expected_answer": "ivory",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 4,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_f_launch",
+          "heldout_f_other",
+          "heldout_f_review",
+          "heldout_f_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_f_launch",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_f_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_f_review",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_f_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_f",
+        "split": "heldout",
+        "kind": "unseen_entity_value",
+        "arm": "dense",
+        "expected_record_id": "heldout_f_launch",
+        "expected_answer": "ivory",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 4,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_f_launch",
+          "heldout_f_review",
+          "heldout_f_other",
+          "heldout_f_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_f_launch",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_f_review",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_f_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_f_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_f",
+        "split": "heldout",
+        "kind": "unseen_entity_value",
+        "arm": "rerank",
+        "expected_record_id": "heldout_f_launch",
+        "expected_answer": "ivory",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 4,
+        "answer_span_included": null,
+        "rerank_score": -0.0037991423159837723
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_f_launch"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_f_launch",
+            "token_start": 0,
+            "token_end": 10
+          }
+        ],
+        "case_id": "heldout_f",
+        "split": "heldout",
+        "kind": "unseen_entity_value",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "heldout_f_launch",
+        "expected_answer": "ivory",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      }
+    ],
+    "correction": [
+      {
+        "answer": "blue",
+        "generated_token_ids": [
+          16724,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "train_b3_release_new",
+          "train_b3_other",
+          "train_b3_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "train_b3_release_new",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "train_b3_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "train_b3_review",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "train_b3",
+        "split": "train",
+        "kind": "correction",
+        "arm": "lexical",
+        "expected_record_id": "train_b3_release_new",
+        "expected_answer": "silver",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "blue",
+        "generated_token_ids": [
+          16724,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "train_b3_release_new",
+          "train_b3_other",
+          "train_b3_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "train_b3_release_new",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "train_b3_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "train_b3_review",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "train_b3",
+        "split": "train",
+        "kind": "correction",
+        "arm": "dense",
+        "expected_record_id": "train_b3_release_new",
+        "expected_answer": "silver",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "blue",
+        "generated_token_ids": [
+          16724,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "train_b3_release_new",
+          "train_b3_review",
+          "train_b3_other"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "train_b3_release_new",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "train_b3_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "train_b3_other",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "train_b3",
+        "split": "train",
+        "kind": "correction",
+        "arm": "rerank",
+        "expected_record_id": "train_b3_release_new",
+        "expected_answer": "silver",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": 0.04720655828714371
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "train_b3_release_new"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "train_b3_release_new",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "train_b3",
+        "split": "train",
+        "kind": "correction",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "train_b3_release_new",
+        "expected_answer": "silver",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_release_new",
+          "heldout_b_other",
+          "heldout_b_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_other",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_b_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "lexical",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_release_new",
+          "heldout_b_review",
+          "heldout_b_other"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_other",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "dense",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_review",
+          "heldout_b_release_new",
+          "heldout_b_other"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_b_other",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "rerank",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 2,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": -0.027507644146680832
+      },
+      {
+        "answer": "white",
+        "generated_token_ids": [
+          11235,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_b_release_new"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_b_release_new",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_b",
+        "split": "heldout",
+        "kind": "correction",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "heldout_b_release_new",
+        "expected_answer": "indigo",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      }
+    ],
+    "missing_information": [
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "heldout_c_review",
+          "heldout_c_backup",
+          "heldout_c_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_c_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_backup",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_c",
+        "split": "heldout",
+        "kind": "missing_information",
+        "arm": "lexical",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "heldout_c_review",
+          "heldout_c_backup",
+          "heldout_c_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_c_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_backup",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_c",
+        "split": "heldout",
+        "kind": "missing_information",
+        "arm": "dense",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 57,
+        "selected_records": [
+          "heldout_c_review",
+          "heldout_c_backup",
+          "heldout_c_owner"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_c_review",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_backup",
+            "token_start": 0,
+            "token_end": 9
+          },
+          {
+            "record_id": "heldout_c_owner",
+            "token_start": 0,
+            "token_end": 9
+          }
+        ],
+        "case_id": "heldout_c",
+        "split": "heldout",
+        "kind": "missing_information",
+        "arm": "rerank",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 3,
+        "span_count": 3,
+        "answer_span_included": null,
+        "rerank_score": null
+      }
+    ],
+    "long_record": [
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_other",
+          "heldout_d_review",
+          "heldout_d_long"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_other",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_d_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "lexical",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 3,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 4,
+        "answer_span_included": true,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_other",
+          "heldout_d_review",
+          "heldout_d_long"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_other",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_d_review",
+            "token_start": 0,
+            "token_end": 11
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "dense",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 3,
+        "recall_at_1": false,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 4,
+        "answer_span_included": true,
+        "rerank_score": null
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_long",
+          "heldout_d_other",
+          "heldout_d_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          },
+          {
+            "record_id": "heldout_d_other",
+            "token_start": 0,
+            "token_end": 10
+          },
+          {
+            "record_id": "heldout_d_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "rerank",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": true,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 2,
+        "span_count": 4,
+        "answer_span_included": true,
+        "rerank_score": -0.026524895802140236
+      },
+      {
+        "answer": "amber",
+        "generated_token_ids": [
+          11368,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 58,
+        "selected_records": [
+          "heldout_d_long"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 0,
+            "token_end": 128
+          },
+          {
+            "record_id": "heldout_d_long",
+            "token_start": 128,
+            "token_end": 231
+          }
+        ],
+        "case_id": "heldout_d",
+        "split": "heldout",
+        "kind": "long_record_chunking",
+        "arm": "oracle_diagnostic",
+        "expected_record_id": "heldout_d_long",
+        "expected_answer": "quartz",
+        "rank": 1,
+        "recall_at_1": true,
+        "recall_at_4": true,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 0,
+        "span_count": 2,
+        "answer_span_included": true,
+        "rerank_score": null
+      }
+    ],
+    "future_unauthorized_wrong_purpose": [
+      {
+        "answer": "red",
+        "generated_token_ids": [
+          531,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_e_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_e_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_e",
+        "split": "heldout",
+        "kind": "future_unauthorized_wrong_purpose",
+        "arm": "lexical",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 1,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "red",
+        "generated_token_ids": [
+          531,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_e_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_e_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_e",
+        "split": "heldout",
+        "kind": "future_unauthorized_wrong_purpose",
+        "arm": "dense",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 1,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      },
+      {
+        "answer": "red",
+        "generated_token_ids": [
+          531,
+          1
+        ],
+        "generated_tokens": 2,
+        "prompt_tokens": 59,
+        "selected_records": [
+          "heldout_e_review"
+        ],
+        "selected_spans": [
+          {
+            "record_id": "heldout_e_review",
+            "token_start": 0,
+            "token_end": 11
+          }
+        ],
+        "case_id": "heldout_e",
+        "split": "heldout",
+        "kind": "future_unauthorized_wrong_purpose",
+        "arm": "rerank",
+        "expected_record_id": null,
+        "expected_answer": "UNKNOWN",
+        "rank": null,
+        "recall_at_1": false,
+        "recall_at_4": false,
+        "retrieval_applicable": false,
+        "answer_correct": false,
+        "abstained": false,
+        "forbidden_selected": [],
+        "eligible_forbidden": [],
+        "distractors_selected": 1,
+        "span_count": 1,
+        "answer_span_included": null,
+        "rerank_score": null
+      }
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 23.989224165910855,
+    "sampled_peak_driver_bytes": 10791665664,
+    "sampled_peak_rss_bytes": 3494608896,
+    "new_original_checkpoints": 0,
+    "downloads": 0
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T07:09:48.775026+00:00",
+    "ended_at": "2026-10-23T07:10:12.764272+00:00",
+    "elapsed_seconds": 23.989224165910855,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 120,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15558852608,
+      "rss_peak_sampled_bytes": 3494608896,
+      "mps_allocated_peak_sampled_bytes": 10121716992,
+      "mps_driver_peak_sampled_bytes": 10791665664
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T07:09:48.775767+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T07:10:12.708643+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T07:09:52.818281+00:00",
+        "elapsed_seconds": 4.043162707937881,
+        "seconds_since_previous_mark": 4.043162707937881,
+        "synchronize_seconds": 8.291099220514297e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:52.818204+00:00",
+          "elapsed_seconds": 4.043173749931157,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 348667904,
+          "rss_measurement_age_seconds": 1.9799762920010835,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:55.036640+00:00",
+        "elapsed_seconds": 6.212054457981139,
+        "seconds_since_previous_mark": 2.168891750043258,
+        "synchronize_seconds": 0.0010002078488469124,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:54.987102+00:00",
+          "elapsed_seconds": 6.21206908300519,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492085760,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 1,
+          "loss": 6.6251747608184814
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:55.585326+00:00",
+        "elapsed_seconds": 6.810233915923163,
+        "seconds_since_previous_mark": 0.5981794579420239,
+        "synchronize_seconds": 0.00042758393101394176,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:55.585280+00:00",
+          "elapsed_seconds": 6.810242207953706,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492085760,
+          "rss_measurement_age_seconds": 0.5981712080538273,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 2,
+          "loss": 6.605111360549927
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:56.085613+00:00",
+        "elapsed_seconds": 7.310485332971439,
+        "seconds_since_previous_mark": 0.5002514170482755,
+        "synchronize_seconds": 0.0004610419273376465,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:56.085533+00:00",
+          "elapsed_seconds": 7.310498665785417,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492085760,
+          "rss_measurement_age_seconds": 1.0984385421033949,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 3,
+          "loss": 6.585157752037048
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:56.583400+00:00",
+        "elapsed_seconds": 7.808280832832679,
+        "seconds_since_previous_mark": 0.4977954998612404,
+        "synchronize_seconds": 0.0004212090279906988,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:56.583330+00:00",
+          "elapsed_seconds": 7.808293457841501,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492085760,
+          "rss_measurement_age_seconds": 1.596233458025381,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 4,
+          "loss": 6.565452337265015
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:57.128997+00:00",
+        "elapsed_seconds": 8.3056626659818,
+        "seconds_since_previous_mark": 0.4973818331491202,
+        "synchronize_seconds": 0.0004172080662101507,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:57.080712+00:00",
+          "elapsed_seconds": 8.305675665847957,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492724736,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 5,
+          "loss": 6.5461167097091675
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:57.671579+00:00",
+        "elapsed_seconds": 8.896462415810674,
+        "seconds_since_previous_mark": 0.5907997498288751,
+        "synchronize_seconds": 0.0004337499849498272,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:57.671511+00:00",
+          "elapsed_seconds": 8.896472624968737,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492724736,
+          "rss_measurement_age_seconds": 0.5907935840077698,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 6,
+          "loss": 6.5271337032318115
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:58.172039+00:00",
+        "elapsed_seconds": 9.396932750009,
+        "seconds_since_previous_mark": 0.5004703341983259,
+        "synchronize_seconds": 0.00042337505146861076,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:58.171982+00:00",
+          "elapsed_seconds": 9.396941874874756,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492724736,
+          "rss_measurement_age_seconds": 1.0912580001167953,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 7,
+          "loss": 6.508437156677246
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:58.673487+00:00",
+        "elapsed_seconds": 9.898366124834865,
+        "seconds_since_previous_mark": 0.501433374825865,
+        "synchronize_seconds": 0.00042458297684788704,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:58.673417+00:00",
+          "elapsed_seconds": 9.898375374963507,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492724736,
+          "rss_measurement_age_seconds": 1.5926903751678765,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 8,
+          "loss": 6.4902952909469604
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:59.222439+00:00",
+        "elapsed_seconds": 10.445514207938686,
+        "seconds_since_previous_mark": 0.5471480831038207,
+        "synchronize_seconds": 0.000528041971847415,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:59.222377+00:00",
+          "elapsed_seconds": 10.447352040791884,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492823040,
+          "rss_measurement_age_seconds": 0.05103133409284055,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 9,
+          "loss": 6.472733020782471
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:09:59.775285+00:00",
+        "elapsed_seconds": 10.995186790823936,
+        "seconds_since_previous_mark": 0.5496725828852504,
+        "synchronize_seconds": 0.00041854195296764374,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:09:59.770239+00:00",
+          "elapsed_seconds": 10.995194082846865,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492823040,
+          "rss_measurement_age_seconds": 0.5988735419232398,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 10,
+          "loss": 6.4556461572647095
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:10:00.273499+00:00",
+        "elapsed_seconds": 11.498393207788467,
+        "seconds_since_previous_mark": 0.503206416964531,
+        "synchronize_seconds": 0.00042129214853048325,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:00.273447+00:00",
+          "elapsed_seconds": 11.498402665834874,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492823040,
+          "rss_measurement_age_seconds": 1.1020832089707255,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 11,
+          "loss": 6.439048171043396
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reranker_update",
+        "timestamp": "2026-10-23T07:10:00.771673+00:00",
+        "elapsed_seconds": 11.996581832878292,
+        "seconds_since_previous_mark": 0.4981886250898242,
+        "synchronize_seconds": 0.00041945790871977806,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:00.771635+00:00",
+          "elapsed_seconds": 11.996587165864184,
+          "phase": "reranker_update",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3492823040,
+          "rss_measurement_age_seconds": 1.6002632500603795,
+          "mps_allocated_bytes": 10097014016,
+          "mps_driver_bytes": 10791649280
+        },
+        "fields": {
+          "update": 12,
+          "loss": 6.422569751739502
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:01.826118+00:00",
+        "elapsed_seconds": 13.050971040967852,
+        "seconds_since_previous_mark": 1.0543892080895603,
+        "synchronize_seconds": 1.4791032299399376e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:01.826028+00:00",
+          "elapsed_seconds": 13.050983249908313,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3493756928,
+          "rss_measurement_age_seconds": 0.5503436250146478,
+          "mps_allocated_bytes": 10095480576,
+          "mps_driver_bytes": 10766385152
+        },
+        "fields": {
+          "case": "train_a1",
+          "split": "train",
+          "results": 4
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:02.708360+00:00",
+        "elapsed_seconds": 13.933209915878251,
+        "seconds_since_previous_mark": 0.8822388749103993,
+        "synchronize_seconds": 3.7921126931905746e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:02.708268+00:00",
+          "elapsed_seconds": 13.93322058278136,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3493756928,
+          "rss_measurement_age_seconds": 1.4325802919920534,
+          "mps_allocated_bytes": 10095775488,
+          "mps_driver_bytes": 10766385152
+        },
+        "fields": {
+          "case": "train_a2",
+          "split": "train",
+          "results": 8
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:03.624385+00:00",
+        "elapsed_seconds": 14.849229999817908,
+        "seconds_since_previous_mark": 0.9160200839396566,
+        "synchronize_seconds": 9.16607677936554e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:03.624293+00:00",
+          "elapsed_seconds": 14.849249415798113,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3493822464,
+          "rss_measurement_age_seconds": 0.2578532078769058,
+          "mps_allocated_bytes": 10096062208,
+          "mps_driver_bytes": 10766385152
+        },
+        "fields": {
+          "case": "train_b1",
+          "split": "train",
+          "results": 12
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:04.515752+00:00",
+        "elapsed_seconds": 15.740601290948689,
+        "seconds_since_previous_mark": 0.8913712911307812,
+        "synchronize_seconds": 4.041008651256561e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:04.515663+00:00",
+          "elapsed_seconds": 15.74061279091984,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3493822464,
+          "rss_measurement_age_seconds": 1.1492168749682605,
+          "mps_allocated_bytes": 10096357120,
+          "mps_driver_bytes": 10766385152
+        },
+        "fields": {
+          "case": "train_b2",
+          "split": "train",
+          "results": 16
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:05.487691+00:00",
+        "elapsed_seconds": 16.663217124994844,
+        "seconds_since_previous_mark": 0.9226158340461552,
+        "synchronize_seconds": 4.291068762540817e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:05.438280+00:00",
+          "elapsed_seconds": 16.663228540914133,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3493986304,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10096578304,
+          "mps_driver_bytes": 10766385152
+        },
+        "fields": {
+          "case": "train_b3",
+          "split": "train",
+          "results": 20
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:06.397819+00:00",
+        "elapsed_seconds": 17.62267170799896,
+        "seconds_since_previous_mark": 0.959454583004117,
+        "synchronize_seconds": 1.2208009138703346e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:06.397736+00:00",
+          "elapsed_seconds": 17.62268279097043,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3493986304,
+          "rss_measurement_age_seconds": 0.959453291958198,
+          "mps_allocated_bytes": 10096905984,
+          "mps_driver_bytes": 10764288000
+        },
+        "fields": {
+          "case": "dev_a",
+          "split": "dev",
+          "results": 24
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:07.628370+00:00",
+        "elapsed_seconds": 18.853213915834203,
+        "seconds_since_previous_mark": 1.2305422078352422,
+        "synchronize_seconds": 8.333008736371994e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:07.628283+00:00",
+          "elapsed_seconds": 18.85323249991052,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3494395904,
+          "rss_measurement_age_seconds": 0.10830204095691442,
+          "mps_allocated_bytes": 10097168128,
+          "mps_driver_bytes": 10764288000
+        },
+        "fields": {
+          "case": "dev_b",
+          "split": "dev",
+          "results": 28
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:08.510515+00:00",
+        "elapsed_seconds": 19.735340915853158,
+        "seconds_since_previous_mark": 0.8821270000189543,
+        "synchronize_seconds": 4.20818105340004e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:08.510409+00:00",
+          "elapsed_seconds": 19.73535658279434,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3494395904,
+          "rss_measurement_age_seconds": 0.9904375409241766,
+          "mps_allocated_bytes": 10097495808,
+          "mps_driver_bytes": 10764288000
+        },
+        "fields": {
+          "case": "heldout_a",
+          "split": "heldout",
+          "results": 32
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:09.385631+00:00",
+        "elapsed_seconds": 20.610483582830057,
+        "seconds_since_previous_mark": 0.8751426669768989,
+        "synchronize_seconds": 4.00003045797348e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:09.385553+00:00",
+          "elapsed_seconds": 20.610493457876146,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3494395904,
+          "rss_measurement_age_seconds": 1.865554415853694,
+          "mps_allocated_bytes": 10097749760,
+          "mps_driver_bytes": 10764288000
+        },
+        "fields": {
+          "case": "heldout_b",
+          "split": "heldout",
+          "results": 36
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:10.111511+00:00",
+        "elapsed_seconds": 21.336326790973544,
+        "seconds_since_previous_mark": 0.7258432081434876,
+        "synchronize_seconds": 1.1750031262636185e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:10.111399+00:00",
+          "elapsed_seconds": 21.336339249974117,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3494608896,
+          "rss_measurement_age_seconds": 0.5001126250717789,
+          "mps_allocated_bytes": 10097970944,
+          "mps_driver_bytes": 10764288000
+        },
+        "fields": {
+          "case": "heldout_c",
+          "split": "heldout",
+          "results": 39
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:11.102262+00:00",
+        "elapsed_seconds": 22.327107665827498,
+        "seconds_since_previous_mark": 0.9907808748539537,
+        "synchronize_seconds": 4.62518073618412e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:11.102181+00:00",
+          "elapsed_seconds": 22.32712012482807,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 3494608896,
+          "rss_measurement_age_seconds": 1.4908915411215276,
+          "mps_allocated_bytes": 10100035328,
+          "mps_driver_bytes": 10772676608
+        },
+        "fields": {
+          "case": "heldout_d",
+          "split": "heldout",
+          "results": 43
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:11.784082+00:00",
+        "elapsed_seconds": 23.00889991596341,
+        "seconds_since_previous_mark": 0.6817922501359135,
+        "synchronize_seconds": 7.5409188866615295e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:11.783976+00:00",
+          "elapsed_seconds": 23.00891474983655,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 2372255744,
+          "rss_measurement_age_seconds": 0.09360708296298981,
+          "mps_allocated_bytes": 10100125440,
+          "mps_driver_bytes": 10772676608
+        },
+        "fields": {
+          "case": "heldout_e",
+          "split": "heldout",
+          "results": 46
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_case",
+        "timestamp": "2026-10-23T07:10:12.665820+00:00",
+        "elapsed_seconds": 23.890660249860957,
+        "seconds_since_previous_mark": 0.8817603338975459,
+        "synchronize_seconds": 4.125060513615608e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:12.665737+00:00",
+          "elapsed_seconds": 23.89067174983211,
+          "phase": "retrieval_case",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 2372255744,
+          "rss_measurement_age_seconds": 0.975360875017941,
+          "mps_allocated_bytes": 10100436736,
+          "mps_driver_bytes": 10772676608
+        },
+        "fields": {
+          "case": "heldout_f",
+          "split": "heldout",
+          "results": 50
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "retrieval_complete",
+        "timestamp": "2026-10-23T07:10:12.666782+00:00",
+        "elapsed_seconds": 23.89167487481609,
+        "seconds_since_previous_mark": 0.0010146249551326036,
+        "synchronize_seconds": 2.499902620911598e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:10:12.666748+00:00",
+          "elapsed_seconds": 23.891681207809597,
+          "phase": "retrieval_complete",
+          "rss_peak_process_lifetime_bytes": 15558852608,
+          "rss_current_bytes": 2372255744,
+          "rss_measurement_age_seconds": 0.9763549170456827,
+          "mps_allocated_bytes": 10100436736,
+          "mps_driver_bytes": 10772676608
+        },
+        "fields": {
+          "engineering": true
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "free_disk_after_bytes": 630229798912,
+  "artifact_bytes": 19810105,
+  "ended_at_utc": "2026-10-23T07:10:12.765436+00:00"
+}

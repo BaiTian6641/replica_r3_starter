@@ -1,0 +1,411 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T07:12:31.410152+00:00",
+  "protocol_sha256": "69b322d2f415dd69186d5f38e1f6d4b84ce1d5f1597db80c9f34d112394723cb",
+  "protocol": {
+    "format": "replica.e2_retrieval.diagnostic.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Post-hoc answer-path diagnostic after the preregistered retrieval arm; no training and no default change.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_retrieval",
+      "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201"
+    },
+    "extension": "runs/e2_retrieval_20261023/selected_extension",
+    "cases": [
+      "heldout_a",
+      "heldout_b",
+      "heldout_d"
+    ],
+    "swaps": {
+      "heldout_a": "heldout_a_review",
+      "heldout_b": "heldout_b_review",
+      "heldout_d": "heldout_d_review"
+    },
+    "conditions": [
+      "correct_slots",
+      "swapped_slots",
+      "no_slots",
+      "exact_text"
+    ],
+    "generation": {
+      "max_new_tokens": 8,
+      "prompt": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: {query}",
+      "exact_text_prefix": "Observed source record (exact, read-only):\n{text}\n\n"
+    },
+    "budget": "12 greedy generations; one native model load; no optimizer update; no checkpoint save",
+    "retention": "Preserve raw prompts, token IDs and answers; this is diagnostic, not a held-out retrieval arm.",
+    "claims": "Distinguishes correct-slot, swapped-slot, no-slot and exact-text behavior; cannot establish broad generation quality."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e2_retrieval_20261023/selected_extension",
+    "weights_sha256": "eba27daf2559864eb4c7486996374d8eedf9e5cc0f29e22333506eb347deada7",
+    "format": "replica.minicpm5.extensions.v1"
+  },
+  "results": [
+    {
+      "case_id": "heldout_a",
+      "condition": "correct_slots",
+      "expected_answer": "crimson",
+      "answer": "amber",
+      "answer_correct": false,
+      "selected_records": [
+        "heldout_a_launch"
+      ],
+      "prompt_tokens": 57,
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Garnet?"
+    },
+    {
+      "case_id": "heldout_a",
+      "condition": "swapped_slots",
+      "expected_answer": "crimson",
+      "answer": "amber",
+      "answer_correct": false,
+      "selected_records": [
+        "heldout_a_review"
+      ],
+      "prompt_tokens": 57,
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Garnet?"
+    },
+    {
+      "case_id": "heldout_a",
+      "condition": "no_slots",
+      "expected_answer": "crimson",
+      "answer": "UNKNOWN",
+      "answer_correct": false,
+      "selected_records": [],
+      "prompt_tokens": 57,
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Garnet?"
+    },
+    {
+      "case_id": "heldout_a",
+      "condition": "exact_text",
+      "expected_answer": "crimson",
+      "answer": "crimson",
+      "answer_correct": true,
+      "selected_records": [],
+      "prompt_tokens": 78,
+      "generated_token_ids": [
+        76112,
+        2272,
+        130073
+      ],
+      "prompt_text": "Observed source record (exact, read-only):\nThe launch code for project Garnet is crimson.\n\nAnswer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Garnet?"
+    },
+    {
+      "case_id": "heldout_b",
+      "condition": "correct_slots",
+      "expected_answer": "indigo",
+      "answer": "white",
+      "answer_correct": false,
+      "selected_records": [
+        "heldout_b_release_new"
+      ],
+      "prompt_tokens": 58,
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the release label for project Halcyon?"
+    },
+    {
+      "case_id": "heldout_b",
+      "condition": "swapped_slots",
+      "expected_answer": "indigo",
+      "answer": "white",
+      "answer_correct": false,
+      "selected_records": [
+        "heldout_b_review"
+      ],
+      "prompt_tokens": 58,
+      "generated_token_ids": [
+        11235,
+        1
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the release label for project Halcyon?"
+    },
+    {
+      "case_id": "heldout_b",
+      "condition": "no_slots",
+      "expected_answer": "indigo",
+      "answer": "UNKNOWN",
+      "answer_correct": false,
+      "selected_records": [],
+      "prompt_tokens": 58,
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the release label for project Halcyon?"
+    },
+    {
+      "case_id": "heldout_b",
+      "condition": "exact_text",
+      "expected_answer": "indigo",
+      "answer": "indigo",
+      "answer_correct": true,
+      "selected_records": [],
+      "prompt_tokens": 80,
+      "generated_token_ids": [
+        605,
+        14105,
+        130073
+      ],
+      "prompt_text": "Observed source record (exact, read-only):\nThe release label for project Halcyon is indigo.\n\nAnswer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the release label for project Halcyon?"
+    },
+    {
+      "case_id": "heldout_d",
+      "condition": "correct_slots",
+      "expected_answer": "quartz",
+      "answer": "amber",
+      "answer_correct": false,
+      "selected_records": [
+        "heldout_d_long"
+      ],
+      "prompt_tokens": 57,
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Juniper?"
+    },
+    {
+      "case_id": "heldout_d",
+      "condition": "swapped_slots",
+      "expected_answer": "quartz",
+      "answer": "amber",
+      "answer_correct": false,
+      "selected_records": [
+        "heldout_d_review"
+      ],
+      "prompt_tokens": 57,
+      "generated_token_ids": [
+        11368,
+        1
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Juniper?"
+    },
+    {
+      "case_id": "heldout_d",
+      "condition": "no_slots",
+      "expected_answer": "quartz",
+      "answer": "UNKNOWN",
+      "answer_correct": false,
+      "selected_records": [],
+      "prompt_tokens": 57,
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "prompt_text": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Juniper?"
+    },
+    {
+      "case_id": "heldout_d",
+      "condition": "exact_text",
+      "expected_answer": "quartz",
+      "answer": "quartz",
+      "answer_correct": true,
+      "selected_records": [],
+      "prompt_tokens": 299,
+      "generated_token_ids": [
+        53838,
+        111,
+        130073
+      ],
+      "prompt_text": "Observed source record (exact, read-only):\nThe Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The launch code for project Juniper is quartz. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. The Juniper program maintains routine operational notes about scheduling, reviews, maintenance, documentation, audits, and training. \n\nAnswer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: What is the launch code for project Juniper?"
+    }
+  ],
+  "diagnosis": {
+    "correct_slots_vs_no_slots": [
+      [
+        "amber",
+        "UNKNOWN"
+      ],
+      [
+        "white",
+        "UNKNOWN"
+      ],
+      [
+        "amber",
+        "UNKNOWN"
+      ]
+    ],
+    "correct_slots_vs_swapped_slots": [
+      [
+        "amber",
+        "amber"
+      ],
+      [
+        "white",
+        "white"
+      ],
+      [
+        "amber",
+        "amber"
+      ]
+    ],
+    "exact_text": [
+      "crimson",
+      "indigo",
+      "quartz"
+    ],
+    "note": "Post-hoc diagnostic; not a retrieval arm and not used to change defaults."
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T07:12:31.410478+00:00",
+    "ended_at": "2026-10-23T07:12:39.267559+00:00",
+    "elapsed_seconds": 7.857012249995023,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 32,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15555706880,
+      "rss_peak_sampled_bytes": 3509305344,
+      "mps_allocated_peak_sampled_bytes": 10098989824,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T07:12:31.411185+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T07:12:39.186500+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T07:12:35.654552+00:00",
+        "elapsed_seconds": 4.124858458060771,
+        "seconds_since_previous_mark": 4.124858458060771,
+        "synchronize_seconds": 6.250105798244476e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T07:12:35.535388+00:00",
+          "elapsed_seconds": 4.124870165949687,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15555706880,
+          "rss_current_bytes": 3392208896,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 7.857012249995023,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T07:12:39.268270+00:00"
+}
