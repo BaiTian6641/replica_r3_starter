@@ -1,0 +1,45 @@
+{
+  "format": "replica.e5.neural_candidate_eval.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Independent held-out evaluation of the existing E2 reranker candidate against its parent. The candidate was trained under the E2 protocol; this arm performs no new optimization.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "candidate_extension": "runs/e2_retrieval_attempt03_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e2_retrieval",
+    "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+    "queries_sha256": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a"
+  },
+  "evaluation_cases": {
+    "dev": [
+      "dev_a",
+      "dev_b"
+    ],
+    "heldout": [
+      "heldout_a",
+      "heldout_b",
+      "heldout_d",
+      "heldout_f"
+    ]
+  },
+  "metric": "record recall@1/@4 from the learned reranker over the eligible lexical candidate pool; max span score per record; 16-unit bank",
+  "decision_rule": {
+    "reject": "candidate held-out top1 below parent or dev loss",
+    "accept": "candidate held-out top1 above parent and dev not below parent",
+    "defer": "all other outcomes"
+  },
+  "budget": {
+    "model_loads": 2,
+    "native_generations": 0,
+    "optimizer_updates": 0,
+    "checkpoint_saves": 0,
+    "heldout_reuse": "one final assessment"
+  },
+  "controls": [
+    "parent reranker",
+    "candidate reranker",
+    "lexical ordering reference (computed from the same pool)"
+  ],
+  "retention": "Keep parent and candidate extensions, raw rankings and rejection artifact. No base copy or download.",
+  "claims": "Neural candidate acceptance/rejection on a small exposed retrieval set; no broad retrieval-quality or task-benefit claim."
+}
