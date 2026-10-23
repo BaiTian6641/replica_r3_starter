@@ -19,3 +19,12 @@ def test_large_fixtures():
             repair=json.loads((copy/'case.json').read_text())['reference_repair']
             (copy/repair['path']).write_text(repair['content'])
             assert tools.verify_success()['passed'] is True
+
+def test_d2_family_is_distinct_and_fresh():
+    DATA=ROOT/'fixtures/e3_d2/cases'; m=json.loads((DATA/'manifest.json').read_text())
+    assert len(m['splits']['train'])==8 and len(m['splits']['heldout'])==4
+    groups={}
+    for item in m['cases']:groups.setdefault(item['role'],set()).add(item['source_group'])
+    for a in groups:
+        for b in groups:
+            if a!=b:assert not(groups[a]&groups[b])
