@@ -1,0 +1,52 @@
+{
+  "format": "replica.e5.procedure.qualification.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Compile a bounded repair procedure from verified train traces, execute it on source-separated held-out fixtures, verify independently, and publish/reject through the existing manifest registry. This is a procedure baseline, not a neural policy or model-selected action.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "fixtures_root": "fixtures/e3_set/cases",
+  "train_cases": [
+    "set_train_retry_01",
+    "set_train_timeout_02",
+    "set_train_backoff_03",
+    "set_train_poll_04"
+  ],
+  "dev_cases": [
+    "set_dev_retry_05"
+  ],
+  "heldout_cases": [
+    "set_heldout_timeout_06",
+    "set_heldout_backoff_07",
+    "set_heldout_poll_08"
+  ],
+  "source_event_ids": [
+    "teacher:set_train_retry_01:step3",
+    "teacher:set_train_timeout_02:step3",
+    "teacher:set_train_backoff_03:step3",
+    "teacher:set_train_poll_04:step3"
+  ],
+  "procedure": {
+    "workspace_entry": "workspace/app_settings.py",
+    "steps": [
+      "read_file",
+      "run_test",
+      "set_constant(from disclosed failure)",
+      "run_test"
+    ],
+    "independent_test": "evaluator exits zero"
+  },
+  "budget": {
+    "train_cases": 4,
+    "dev_cases": 1,
+    "heldout_cases": 3,
+    "tool_calls_per_case": 4,
+    "native_model_loads": 0,
+    "optimizer_updates": 0
+  },
+  "acceptance": {
+    "accept_if": "dev and all held-out cases pass the independent evaluator; non-target constants preserved",
+    "reject_if": "any held-out failure or harmful candidate",
+    "publication": "ManifestRegistry atomic active pointer; no neural weights"
+  },
+  "retention": "Keep raw procedure receipts, case results, active manifest and rejection evidence. No model or base checkpoint is saved.",
+  "claims": "Procedure-library improvement only; no neural candidate, model-selected action or personal fidelity claim."
+}
