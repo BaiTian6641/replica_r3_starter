@@ -40,6 +40,13 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer top-record continuation (23 October).** Continuing only the copy
+head on top-record whole-word candidates produced **8/12** on a new family,
+identical to the parent (**8/12**), with flat training loss and identical spans.
+Rejected; pointer remains opt-in and exact text remains default. The remaining
+error is within-record entity-name span selection. See
+[scope continuation results](docs/experiments/20261023_E2_Pointer_Scope_Train_Results.md).
+
 **E2 pointer record scope (23 October).** On a third untouched family, the
 same pointer weights with whole-word candidates scored **10/12** when restricted
 to the top lexical record versus **3/12** across all selected records. The two

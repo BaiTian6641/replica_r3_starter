@@ -1,0 +1,12 @@
+W1023 08:50:47.989000 36726 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_scope_train.py", line 137, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_scope_train.py", line 128, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_scope_train.py", line 23, in execute
+    if sha(eval_data/'records.jsonl')!=protocol['eval_dataset']['records_sha256']: raise ValueError('eval records changed')
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'records_sha256'

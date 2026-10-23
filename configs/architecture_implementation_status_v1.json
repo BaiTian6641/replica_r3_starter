@@ -13,7 +13,7 @@
     "C01": "native MiniCPM5 text adapter; VLM separate",
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
     "C03": "exact temporal record ledger; task/action integration through the E3 runtime",
-    "C04": "pointer copy opt-in; all-record 3/6 dev, 2/10 heldout; fresh top-lexical-record + whole-word 10/12; pointer weights unchanged",
+    "C04": "pointer opt-in; top-record whole-word parent fresh 8/12; top-record continuation candidate 8/12, identical spans; rejected",
     "C05": "eligible lexical/dense candidates and exact fetch; top-record pointer scoping identifies source selection as dominant fresh-copy bottleneck",
     "C08": "authorized goal, conditions, constraints, claims, obligations, exact journal; restart reconstruction passes 12/12 on a copied mixed repair",
     "C09": "core/workspace and action head; bounded mixed family 4/4 with and without head; full path 2/2 vs 1/2 for core-disabled/FF/extra controls; no recurrent-specific benefit",
@@ -23,7 +23,7 @@
     "C17": "request-owned frames and uncached decoding; scheduler/batching/cached generation pending",
     "C16": "identity archive/snapshot/context/modes/branch isolation, null prompt path and optional zero-init reader; no authentic source or trained conditioning",
     "C06": "functional fast memory + writers/readers + exact image reload + source invalidation + bounded permitted-observation replay; learned delayed-use candidates rejected",
-    "C12": "typed artifacts + fast writer + pointer candidate publication; pointer accepted opt-in, harmful candidate rejected, manifest rollback verified; no default activation",
+    "C12": "typed artifacts/pointer publication; top-record pointer continuation exported but rejected",
     "C14": "procedure candidate accepted; reranker candidate accepted opt-in; D1 reader candidate deferred (0/16); E4 delayed-use candidate rejected; E2 copy-head candidate rejected; E2 pointer copy accepted opt-in; pointer candidate published opt-in with rollback"
   },
   "native_result": "reports/e3_native_attempt03_20261023/run_report.json",
@@ -83,7 +83,9 @@
     "E2 pointer consumer: 3/6 dev, 2/10 heldout, exact-source fallback provenance complete; no default change",
     "E2 pointer fresh-value consumer: 3/12, with partial subword copies; opt-in only, exact text default",
     "E2 pointer whole-word candidates remove truncation but accuracy stays 2/12; query/source selection is the bottleneck",
-    "E2 pointer top-lexical-record scope: 10/12 fresh vs all-record 3/12; within-record span scoring remains"
+    "E2 pointer top-lexical-record scope: 10/12 fresh vs all-record 3/12; within-record span scoring remains",
+    "E2 pointer top-record continuation: parent 8/12, candidate 8/12, flat loss; rejected",
+    "E2 pointer remaining error: within-record entity-name spans"
   ],
   "retrieval_result": "reports/e2_retrieval_attempt03_20261023/run_report.json",
   "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",
