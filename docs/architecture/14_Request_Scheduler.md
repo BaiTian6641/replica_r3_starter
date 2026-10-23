@@ -35,3 +35,18 @@ refusal, explicit invalidation, release, and ownership identity binding. No
 native job is scheduled by a production service yet; every existing native
 script remains serialized by the exclusive worker lock. Cache keys and
 equivalence remain future work.
+
+## Bounded cache manager
+
+`src/replica_lab/runtime/cache.py` adds a bounded in-process `OwnedCache` for
+host payloads. A `CacheKey` binds producer, writer, tokenizer, record/span hashes,
+subject, branch, purpose, cutoff, revision and optional identity digest. Only an
+exact key matches; equal shapes or a matching producer are insufficient.
+Eviction is deterministic oldest-first under entry/byte bounds. Source
+invalidation removes matching entries.
+
+This is **not** native KV/recurrent reuse. The reference adapter still
+re-prefills, and no cached model tensor is exposed. The manager is a contract for
+future typed artifacts, not evidence of cache speedup or semantic equivalence.
+`tests/test_cache_manager.py` covers exact-hit/mismatch, bounds, source
+invalidation, collision handling and clearing.

@@ -305,6 +305,12 @@ not changing action selection. No false success, no repair selected. This closes
 the prompt-only guard path and supports an action-selection, not interface,
 diagnosis. See [guard results](docs/experiments/20261023_E3_Action_Guard_Results.md).
 
+**C17 bounded cache manager (23 October).** An exact-ownership-key host cache
+now binds producer/writer/tokenizer, record/span hashes, scope and identity, with
+deterministic entry/byte bounds and source invalidation. It is not native
+KV/recurrent reuse; the adapter still re-prefills. See
+[request scheduler](docs/architecture/14_Request_Scheduler.md).
+
 **C17 request admission (23 October).** A single-job `RequestScheduler` now
 binds each admitted operation to request/task/revision/evidence/branch/producer
 identity, refuses a second concurrent admission, and supports explicit host
