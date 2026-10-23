@@ -446,6 +446,13 @@ neural proposals, excludes audit/gold, enforces cost/proposal caps and has no
 publish/execute authority. It is **not a learned selector** and has no measured
 learning benefit. See [learning director](docs/architecture/13_Learning_Director.md).
 
+**C16 fidelity harness (23 October).** A fictional scoring harness now compares
+generic, approved-summary and archive-retrieval baselines while keeping
+provenance, choice, clarification, unknown, technical, style and branch
+divergence separate. It rejects non-fictional cases and makes no fidelity claim.
+Authentic data and human review remain external. See
+[fidelity harness](docs/architecture/17_Replica_Fidelity_Evaluation.md).
+
 **C16 persistent identity store (23 October).** The source archive, approved
 snapshots, revocation history and branch-owned experience now persist in an
 atomic, digest-bound, mode-0600 file; reload rejects tampering/unknown formats

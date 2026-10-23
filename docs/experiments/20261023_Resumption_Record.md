@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the C13 actual-outcome audit; documentation follows.
+- Last code/test HEAD: the C16 fictional fidelity scoring harness; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -61,7 +61,8 @@
 4. **E4 learned delayed-use/practice** candidates were rejected; fast memory and
    artifacts are implemented, but learned benefit is unproven.
 5. **C16 authentic conditioning/fidelity** requires permitted personal source
-   material; no personal data is bundled.
+   material; no personal data is bundled. A fictional scoring harness now exists,
+   but no authentic baseline run or human review has occurred.
 6. **E6 multimodal** requires local MiniCPM-V-4.7-1B weights and a separate
    adapter; unavailable.
 7. **D2 full-backbone action tuning** was tested with bf16 compute: 8 updates
