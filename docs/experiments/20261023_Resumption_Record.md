@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the commit adding the candidate-ranking control result; documentation follows.
+- Last code/test HEAD: the commit adding the candidate-ranking replication; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -42,9 +42,10 @@
 1. **E3 free-form action selection remains negative.** The original family was
    0/7; guard/control 0/4; constrained decoding 0/1; a 12-train family was 0/9;
    DAgger degraded 2/5 to 0/5; and full-backbone bf16 was 0/6. A declared
-   **candidate-ranking interface** did succeed: model **5/5** (4/4 held-out)
-   vs same-menu random **0/5**, with zero false success. It is opt-in, narrow,
-   and not a free-form policy generalization.
+   **candidate-ranking interface** has replicated: model **11/11** episodes
+   (9/9 held-out) vs same-menu random **0/11**, with zero false success across
+   two small fresh families. It is opt-in, narrow, and not a free-form policy
+   generalization.
 2. **Learned C13 director** has no trained ranking policy or checked-proposal
    dataset. The deterministic baseline is not a capability result.
 3. **C17 native cache reuse** is not implemented; admission and an exact-key
