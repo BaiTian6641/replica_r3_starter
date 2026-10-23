@@ -58,6 +58,21 @@ class FastMemoryBridge:
         self.observed = 0
         self.last_commit: FastMemoryCommit | None = None
 
+    @classmethod
+    def from_image(cls, image_dir, *, config, scope, producer, encoder,
+                   image_root=None):
+        """Load one exact owner/scope/producer image into a fresh host bridge.
+
+        The image is a committed fast-state snapshot, not a model checkpoint.
+        `observed` is reconstructed from the image update count; no pending
+        writes, generated text or cross-branch material are accepted.
+        """
+        session = FastMemorySession.load(image_dir, config=config, scope=scope,
+                                         producer=producer)
+        bridge = cls(session, encoder, image_root=image_root)
+        bridge.observed = int(session.state.update_count)
+        return bridge
+
     def observe(self, observation_id: str, text: str, *, source_hash: str):
         if not isinstance(source_hash, str) or len(source_hash) != 64:
             raise ValueError('source_hash must be a SHA256')
@@ -72,7 +87,8 @@ class FastMemoryBridge:
         if self.image_root is not None:
             path = self.image_root / f'image-{self.session.state.generation}-{receipt.chunk_index}'
             if not path.exists():
-                path.mkdir(parents=True)
+                # FastMemorySession.save creates the directory itself and
+                # validates the image quota; do not pre-create it here.
                 self.session.save(path)
         return receipt
 

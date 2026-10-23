@@ -33,6 +33,14 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 image reload (23 October).** A committed fast-memory image now loads into a
+fresh `FastMemoryBridge` with exact owner/scope/producer validation, reconstructs
+its observation count, rejects cross-branch/tampered images, and can seed the
+next runtime decision from the restored snapshot. The bridge's duplicate
+directory creation was fixed. This is persistence plumbing, not learned
+delayed-use benefit. See
+[fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+
 **E2 pointer publication (23 October).** The opt-in pointer candidate was
 registered as an accepted neural candidate, a deliberately harmful duplicate
 was rejected, and a separate opt-in manifest was published and rolled back to

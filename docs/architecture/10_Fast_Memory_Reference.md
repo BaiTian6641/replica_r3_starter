@@ -63,10 +63,12 @@ state to the next `ProposalRequest`; `SessionProposer` converts it to a
 receipts are excluded. This path is tested with a deterministic, **untrained**
 token encoder; it proves scheduling and state ownership, not semantic usefulness.
 
-Still not connected: outer-loop training of fast write/query projections, a
-delayed-use/interference native task study, cross-session image reload in the
-runtime, and a learned encoder. Those require a separately preregistered native
-arm with one deferred commit per observation and a new evaluation set.
+Still not connected: a learned semantic encoder and a successful delayed-use
+task result. Cross-session host/runtime image reload is now connected: a bridge
+loads an exact owner/scope/producer image into a fresh session, reconstructs its
+observation count, rejects cross-branch/tampered images, and can seed the next
+runtime decision from the restored snapshot. The deterministic encoder remains
+an evidence/scaffolding path, not a learned capability.
 
 ## 4. Tests
 

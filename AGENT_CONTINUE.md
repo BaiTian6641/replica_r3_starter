@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 image reload (23 October):** exact owner/scope/producer image loads into
+a fresh bridge and seeds runtime; cross-branch/tampered images rejected. See
+[fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+
 **E2 pointer publication (23 October):** accepted opt-in candidate, harmful
 candidate rejected, manifest rollback verified; exact text remains default. See
 [pointer publication](docs/experiments/20261023_E2_Pointer_Publication_Results.md).

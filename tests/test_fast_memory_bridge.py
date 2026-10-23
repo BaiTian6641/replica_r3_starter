@@ -48,3 +48,56 @@ def test_runtime_observation_bridge_reaches_next_decision(tmp_path):
     assert proposer.requests[2].fast_state is not None   # test receipt was committed
     assert summary['fast_memory']['observed'] == 2
     assert runtime.fast_state is not None
+
+
+def test_bridge_image_reload_is_exact_and_scope_bound(tmp_path):
+    first = bridge()
+    first = FastMemoryBridge(first.session, first.encoder,
+                             image_root=tmp_path / 'images')
+    receipt = first.observe('obs-1', 'The evaluator failed with code 1.',
+                            source_hash='a' * 64)
+    assert receipt is not None
+    image = tmp_path / 'images' / f'image-0-{receipt.chunk_index}'
+    loaded = FastMemoryBridge.from_image(
+        image, config=first.session.config, scope=first.session.scope,
+        producer=first.session.producer, encoder=first.encoder,
+        image_root=tmp_path / 'reloaded')
+    assert loaded.snapshot().digest == first.snapshot().digest
+    assert loaded.observed == 1
+    assert loaded.observe('obs-1', 'The evaluator failed with code 1.',
+                          source_hash='a' * 64) is None
+    second = loaded.observe('obs-2', 'The evaluator passed.', source_hash='b' * 64)
+    assert second is not None and second.committed
+    assert loaded.session.state.chunk_index == 2
+    other_scope = type(first.session.scope)('subject-1', 'other-branch', 'test',
+                                            'parallel_replica', 0)
+    try:
+        FastMemoryBridge.from_image(image, config=first.session.config,
+                                    scope=other_scope, producer=first.session.producer,
+                                    encoder=first.encoder)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError('cross-branch image must be rejected')
+
+
+def test_runtime_accepts_reloaded_fast_image(tmp_path):
+    from tests.e3_runtime_helpers import (make_case, make_runtime, read_action,
+                                          ScriptedProposer)
+    first = bridge()
+    first = FastMemoryBridge(first.session, first.encoder,
+                             image_root=tmp_path / 'images')
+    receipt = first.observe('obs-1', 'The evaluator failed with code 1.',
+                            source_hash='a' * 64)
+    image = tmp_path / 'images' / f'image-0-{receipt.chunk_index}'
+    loaded = FastMemoryBridge.from_image(
+        image, config=first.session.config, scope=first.session.scope,
+        producer=first.session.producer, encoder=first.encoder)
+    tools = make_case(tmp_path)
+    expected_digest = loaded.snapshot().digest
+    runtime = make_runtime(tools, tmp_path, fast_memory=loaded,
+                           max_prompt_tokens=512, generated_token_budget=32)
+    proposer = ScriptedProposer([read_action(), '{"kind": "stop"}'])
+    runtime.run(proposer, max_decisions=1)
+    assert proposer.requests[0].fast_state is not None
+    assert proposer.requests[0].fast_state.digest == expected_digest
