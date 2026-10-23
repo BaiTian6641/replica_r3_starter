@@ -226,22 +226,26 @@ def execute(args, profiler, report):
            for point in schedule[phase]]
     if len(ids) != len(set(ids)):
         raise ValueError('Schedule ids must be unique')
-    declared_units = int(protocol['scope']['max_units'])
     for phase in ('inference', 'training'):
         units = [int(point['units']) for point in schedule[phase]]
         if units != sorted(units) or units[-1] > declared_units or units[0] < 1:
             raise ValueError('Each schedule phase must ascend within the declared unit cap')
+    declared_units = int(protocol['scope']['max_units'])
+    parent = (None if protocol.get('parent_extension') is None
+              else Path(protocol['parent_extension']))
+    from replica_lab.architecture.contracts import PortSpec
     model, tokenizer, source_lock = load_local_mps(
-        args.model_path, args.model_lock, profiler=profiler)
-    parent = Path(args.parent_extension)
-    parent_receipt = model.load_extension(parent)
+        args.model_path, args.model_lock, profiler=profiler,
+        ports=PortSpec(max_units=declared_units) if parent is None else None)
+    parent_receipt = model.load_extension(parent) if parent is not None else None
     report.update(manifest=model.manifest.to_dict(), manifest_digest=model.manifest.digest,
                   source_lock=source_lock, parameters=model.parameter_audit(),
                   dataset={'manifest': manifest,
                            'records_sha256': protocol['dataset']['records_sha256']},
-                  parent_extension={'path': str(parent.resolve()),
+                  parent_extension=(None if parent is None else {
+                                    'path': str(parent.resolve()),
                                     'format': parent_receipt['format'],
-                                    'weights_sha256': parent_receipt['weights_sha256']},
+                                    'weights_sha256': parent_receipt['weights_sha256']}),
                   checks={}, points=[])
     ledger = RecordLedger(args.output / 'capacity_ledger.sqlite')
     for record in records:

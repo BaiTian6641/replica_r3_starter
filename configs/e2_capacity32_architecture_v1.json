@@ -1,0 +1,160 @@
+{
+  "format": "replica.e2_capacity.qualification.v3",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Architecture-only 32-unit port capacity; no selected extension or base save. Separated from the 16-unit selected-weight qualification.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/e2_capacity32",
+    "manifest": "data/e2_capacity32/manifest.json",
+    "manifest_sha256": "9fa16cc7e8c6fe441c10365a245e8563feef3f05f216edf3296df924398544f2",
+    "records_sha256": "e043cc4cc8a5391d14d129844720339065eefc598a48e78c821343b162b37a8b"
+  },
+  "parent_extension": null,
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "scope": {
+    "source_tokens_per_unit": 128,
+    "max_units": 32,
+    "slots_per_unit": 4,
+    "memory_width": 256,
+    "ports": [
+      13,
+      27
+    ],
+    "observer": 41,
+    "training": "modules_only backward; no optimizer step; base frozen"
+  },
+  "schedule": {
+    "inference": [
+      {
+        "id": "inf_u1_p64",
+        "units": 1,
+        "prompt_tokens": 64,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u8_p128",
+        "units": 8,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u16_p128",
+        "units": 16,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u24_p128",
+        "units": 24,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u32_p128",
+        "units": 32,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u32_p256",
+        "units": 32,
+        "prompt_tokens": 256,
+        "generate_tokens": 8
+      }
+    ],
+    "training": [
+      {
+        "id": "train_u1_p64",
+        "units": 1,
+        "prompt_tokens": 64,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u8_p128",
+        "units": 8,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u16_p128",
+        "units": 16,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u24_p128",
+        "units": 24,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u32_p128",
+        "units": 32,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u32_p256",
+        "units": 32,
+        "prompt_tokens": 256,
+        "label_tokens": 16
+      }
+    ]
+  },
+  "measurements": [
+    "actual source-token counts per unit",
+    "selected unit count",
+    "source encode seconds",
+    "writer seconds",
+    "sense pass seconds",
+    "action forward seconds",
+    "generation seconds and generated tokens",
+    "training prepare/forward/backward seconds",
+    "sampled MPS allocated/driver bytes",
+    "process RSS bytes",
+    "guard thresholds"
+  ],
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "one_native_job": true
+  },
+  "stop_conditions": [
+    "declared guard threshold breach",
+    "nonfinite logits/loss/gradients",
+    "schedule point raises an unexpected error",
+    "stale telemetry"
+  ],
+  "exclusions": [
+    "No D2 original-weight capacity arm is declared or run here.",
+    "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+  ],
+  "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+  "claims": "Architecture port capacity only; random E2 ports, no selected extension, no quality or training claim.",
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "points": 12,
+    "source_units": 32,
+    "expected_storage_mib": 8,
+    "no_base_save": true
+  },
+  "capacity_variant": "architecture_only_random_ports",
+  "ports": {
+    "injection_layers": [
+      13,
+      27
+    ],
+    "observer_layer": 41,
+    "source_layer": 13,
+    "memory_width": 256,
+    "slots_per_unit": 4,
+    "max_units": 32,
+    "source_tokens": 128,
+    "heads": 4
+  }
+}
