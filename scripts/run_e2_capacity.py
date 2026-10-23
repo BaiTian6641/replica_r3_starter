@@ -212,7 +212,8 @@ def execute(args, profiler, report):
     from replica_lab.memory_system.session import MemorySession
 
     protocol = json.loads(args.protocol.read_text())
-    if protocol['format'] != 'replica.e2_capacity.qualification.v1':
+    if protocol['format'] not in ('replica.e2_capacity.qualification.v1',
+                                  'replica.e2_capacity.qualification.v2'):
         raise ValueError('Unknown capacity protocol')
     data_root = ROOT / protocol['dataset']['root']
     manifest = json.loads((data_root / 'manifest.json').read_text())
