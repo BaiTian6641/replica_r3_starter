@@ -46,13 +46,14 @@ against lexical **5/8**; the higher-budget arm overfit while training loss fell.
 Lexical remains default; the existing reranker remains opt-in. See
 [cross-template rerank](docs/experiments/20261023_E2_Cross_Template_Rerank_Results.md).
 
-**E2 32-unit architecture capacity (23 October).** A fresh 32-unit bank passed
-all 12 inference/modules-only backward points under the guard: peak driver
-**12.57 GiB**, 17.4 s, zero swap growth, 68% minimum free, 28 gradient tensors.
-This used a 32-unit `PortSpec` with random E2 ports and **no selected
-extension**; the selected-weight path remains capped at 16 because its manifest
-declares `max_units=16`. The attempted selected-weight 32-unit run is preserved
-as failed evidence. See
+**E2 32-unit capacity (23 October).** A fresh 32-unit bank passed all 12
+inference/modules-only backward points under the guard. The architecture-only
+arm (random ports, no parent) used 12.57 GiB and 17.4 s. A validated
+**port-capacity-only** migration then loaded the selected E2 extension with
+identical tensors and only `ports.max_units` increased to 32; it also passed
+12/12, at **12.57 GiB**, **14.9 s**, zero swap and 28 gradient tensors. No base
+save or optimizer update. This qualifies selected-weight capacity at 32 units
+for the synthetic bank; it is not a quality or longer-source claim. See
 [capacity results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 
 **E2 cross-template retrieval (23 October).** Lexical top-1 **7/12**, native

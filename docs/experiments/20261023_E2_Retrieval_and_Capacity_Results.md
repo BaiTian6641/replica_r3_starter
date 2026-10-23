@@ -162,6 +162,16 @@ extension and random E2 ports. It is not a selected-weight or quality result.
 
 All 12 points completed. Peak sampled driver memory **12.57 GiB**, profiled wall
 **17.4 s**, zero observed swap growth, 68% minimum free. No optimizer update, no
-base copy, no checkpoint. The selected-weight qualified maximum remains **16
-units**; 32 units is an architecture-capacity result only.
-[Report](../../reports/e2_capacity32_architecture_attempt03/run_report.json).
+base copy, no checkpoint.
+[Architecture-only report](../../reports/e2_capacity32_architecture_attempt03/run_report.json).
+
+### Selected extension at 32 units
+
+A validated **port-capacity-only** migration then loaded the selected E2
+extension into a 32-unit `PortSpec`. The migration requires identical tensor
+inventory/shapes and all shared manifest fields except `ports.max_units`, which
+may only increase. The selected extension passed the same 12 points: peak
+**12.57 GiB**, profiled wall **14.9 s**, zero swap, 28 gradient tensors, no base
+save or optimizer update. The qualified selected-weight maximum is therefore
+**32 units** for this synthetic workload.
+[Selected report](../../reports/e2_capacity32_selected_attempt01/run_report.json).
