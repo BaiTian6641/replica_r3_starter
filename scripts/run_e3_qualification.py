@@ -351,7 +351,7 @@ def plan_change_after_failure(trace):
 
 def run_episode(case_dir, work_dir, *, session, tokenizer, mode, subject, purpose,
                 budget, max_prompt_tokens, generated_token_budget, shuffled=None,
-                mark=None, zero_previous=False):
+                mark=None, zero_previous=False, proposer=None):
     from replica_lab.memory_system import EligibilityScope
     from replica_lab.runtime.journal import TaskJournal
     from replica_lab.runtime.loop import TaskRuntime
@@ -373,8 +373,10 @@ def run_episode(case_dir, work_dir, *, session, tokenizer, mode, subject, purpos
                               budget=budget, shuffled_workspace=shuffled)
         runtime.initialize(initial_state(tools, subject=subject, branch=branch,
                                          purpose=purpose, budget=budget))
-        proposer = proposer_for_mode(session, tokenizer, tools, mode=mode, scope=scope,
-                                     subject=subject, zero_previous=zero_previous)
+        if proposer is None:
+            proposer = proposer_for_mode(session, tokenizer, tools, mode=mode,
+                                         scope=scope, subject=subject,
+                                         zero_previous=zero_previous)
         summary = runtime.run(proposer, max_decisions=budget.max_decisions)
         final = runtime.state
         stored = store.load()

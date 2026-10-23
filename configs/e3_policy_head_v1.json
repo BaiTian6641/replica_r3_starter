@@ -1,0 +1,143 @@
+{
+  "format": "replica.e3.policy_head.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "bounded_repair",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "extension_role": "Accepted E3 engineering extension; frozen backbone/core for this arm.",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_mixed/cases",
+    "manifest": "fixtures/e3_mixed/cases/manifest.json",
+    "manifest_sha256": "217408f05ad6d1cdfa693ba7ad2f31c61c02e38ff88e76d8989865149084e9a5",
+    "train": [
+      "mixed_train_repair_01",
+      "mixed_train_repair_02",
+      "mixed_train_pass_03",
+      "mixed_train_pass_04"
+    ],
+    "dev": [
+      "mixed_dev_repair_05",
+      "mixed_dev_pass_06"
+    ],
+    "heldout": [
+      "mixed_heldout_repair_07",
+      "mixed_heldout_repair_08",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ]
+  },
+  "subject": "e3_fixture",
+  "teacher": {
+    "max_prompt_tokens": 640,
+    "max_generated_tokens": 96,
+    "policy": "repair: read->run_test->set_constant->run_test->stop; pass: read->run_test->stop",
+    "pass_actions": [
+      {
+        "kind": "read",
+        "path": "workspace/app_settings.py"
+      },
+      {
+        "kind": "invoke_tool",
+        "tool": "run_test",
+        "arguments": {}
+      },
+      {
+        "kind": "stop"
+      }
+    ]
+  },
+  "head": {
+    "input": "pooled prompt-only core workspace plus exact task features",
+    "classes": [
+      "read",
+      "run_test",
+      "set_constant",
+      "stop"
+    ],
+    "hidden": 64,
+    "steps": 240,
+    "lr": 0.01,
+    "weight_decay": 0.0,
+    "seed": 20261023,
+    "training_roles": [
+      "train"
+    ],
+    "objective": "cross entropy on host-authored teacher action kinds",
+    "output": "head.safetensors plus manifest; no extension or base copy",
+    "pass_cases": [
+      "mixed_train_pass_03",
+      "mixed_train_pass_04",
+      "mixed_dev_pass_06",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ],
+    "pass_actions": [
+      {
+        "kind": "read",
+        "path": "workspace/app_settings.py"
+      },
+      {
+        "kind": "invoke_tool",
+        "tool": "run_test",
+        "arguments": {}
+      },
+      {
+        "kind": "stop"
+      }
+    ]
+  },
+  "decoding": {
+    "kind_conditioning": "the head selects one kind; its token/text hint is added to the frozen model prompt; model generates the JSON arguments",
+    "greedy": true,
+    "max_new_tokens": 128,
+    "prompt_tokens": 640,
+    "reprefill": true
+  },
+  "episodes": {
+    "heldout": [
+      "mixed_heldout_repair_07",
+      "mixed_heldout_repair_08",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ],
+    "control_cases": [
+      "mixed_heldout_repair_07",
+      "mixed_heldout_pass_09"
+    ],
+    "decisions": 7,
+    "tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128,
+    "success": "independent evaluator exit status only"
+  },
+  "decision_rule": {
+    "accepted_for_followup": "at least one head-conditioned held-out completion and no no-head control completion",
+    "inconclusive": "head-conditioned completion with control completion",
+    "rejected": "no head-conditioned completion"
+  },
+  "budget": {
+    "model_loads": 1,
+    "head_optimizer_updates": 240,
+    "episodes": 6,
+    "head_saves": 1,
+    "extension_saves": 0,
+    "downloads": 0
+  },
+  "stop_conditions": [
+    "capacity guard failure",
+    "nonfinite head loss",
+    "teacher receipt failure",
+    "declared episode/token budget exhausted"
+  ],
+  "retention": "Keep head artifact, raw teacher receipts, raw actions/receipts and failures; no base copy.",
+  "claims": "Kind-conditioned synthetic action loop only; no broad generalization, task-completion, calibrated confidence or personal claim."
+}
