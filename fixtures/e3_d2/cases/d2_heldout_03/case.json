@@ -1,0 +1,37 @@
+{
+  "format": "replica.e3.fixture.v1",
+  "case_id": "d2_heldout_03",
+  "role": "heldout",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "Change exactly one numeric constant with set_constant; leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit, and test."
+  ],
+  "allowed_tools": [
+    "read_file",
+    "set_constant",
+    "run_test"
+  ],
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "workspace_entry": "workspace/app_settings.py",
+  "reference_repair": {
+    "path": "workspace/app_settings.py",
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_LIMIT = 8\nDRAIN_MS = 2600\n"
+  },
+  "variant": {
+    "constant": "DRAIN_MS",
+    "expected_value": 2600,
+    "actual_value": 400,
+    "description": "one numeric policy bound below its required minimum"
+  },
+  "source_group": "d2_heldout_c"
+}

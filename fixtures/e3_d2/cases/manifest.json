@@ -1,0 +1,141 @@
+{
+  "format": "replica.e3_d2.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "cases": [
+    {
+      "case_id": "d2_train_01",
+      "role": "train",
+      "source_group": "d2_train_a",
+      "constant": "MAX_WORKERS",
+      "actual": 2,
+      "expected": 9
+    },
+    {
+      "case_id": "d2_train_02",
+      "role": "train",
+      "source_group": "d2_train_b",
+      "constant": "BUFFER_MS",
+      "actual": 150,
+      "expected": 1100
+    },
+    {
+      "case_id": "d2_train_03",
+      "role": "train",
+      "source_group": "d2_train_c",
+      "constant": "RETRY_DELAY_S",
+      "actual": 0.2,
+      "expected": 1.3
+    },
+    {
+      "case_id": "d2_train_04",
+      "role": "train",
+      "source_group": "d2_train_d",
+      "constant": "PAGE_SIZE_KB",
+      "actual": 32,
+      "expected": 128
+    },
+    {
+      "case_id": "d2_train_05",
+      "role": "train",
+      "source_group": "d2_train_a",
+      "constant": "HEARTBEAT_MS",
+      "actual": 250,
+      "expected": 1600
+    },
+    {
+      "case_id": "d2_train_06",
+      "role": "train",
+      "source_group": "d2_train_b",
+      "constant": "MAX_INFLIGHT",
+      "actual": 3,
+      "expected": 11
+    },
+    {
+      "case_id": "d2_train_07",
+      "role": "train",
+      "source_group": "d2_train_c",
+      "constant": "SOCKET_TIMEOUT_S",
+      "actual": 0.4,
+      "expected": 2.6
+    },
+    {
+      "case_id": "d2_train_08",
+      "role": "train",
+      "source_group": "d2_train_d",
+      "constant": "COMPACT_MS",
+      "actual": 800,
+      "expected": 4800
+    },
+    {
+      "case_id": "d2_dev_01",
+      "role": "dev",
+      "source_group": "d2_dev_a",
+      "constant": "LEASE_MS",
+      "actual": 300,
+      "expected": 2200
+    },
+    {
+      "case_id": "d2_dev_02",
+      "role": "dev",
+      "source_group": "d2_dev_b",
+      "constant": "THROTTLE_QPS",
+      "actual": 5,
+      "expected": 22
+    },
+    {
+      "case_id": "d2_heldout_01",
+      "role": "heldout",
+      "source_group": "d2_heldout_a",
+      "constant": "WINDOW_MS",
+      "actual": 200,
+      "expected": 1800
+    },
+    {
+      "case_id": "d2_heldout_02",
+      "role": "heldout",
+      "source_group": "d2_heldout_b",
+      "constant": "MAX_RETRY",
+      "actual": 1,
+      "expected": 7
+    },
+    {
+      "case_id": "d2_heldout_03",
+      "role": "heldout",
+      "source_group": "d2_heldout_c",
+      "constant": "DRAIN_MS",
+      "actual": 400,
+      "expected": 2600
+    },
+    {
+      "case_id": "d2_heldout_04",
+      "role": "heldout",
+      "source_group": "d2_heldout_d",
+      "constant": "CONN_BUDGET",
+      "actual": 6,
+      "expected": 24
+    }
+  ],
+  "splits": {
+    "train": [
+      "d2_train_01",
+      "d2_train_02",
+      "d2_train_03",
+      "d2_train_04",
+      "d2_train_05",
+      "d2_train_06",
+      "d2_train_07",
+      "d2_train_08"
+    ],
+    "dev": [
+      "d2_dev_01",
+      "d2_dev_02"
+    ],
+    "heldout": [
+      "d2_heldout_01",
+      "d2_heldout_02",
+      "d2_heldout_03",
+      "d2_heldout_04"
+    ]
+  }
+}

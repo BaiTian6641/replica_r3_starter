@@ -1,0 +1,86 @@
+{
+  "format": "replica.e3.d2_action.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "One bounded full-augmented action diagnostic on fresh source groups, initialized from the accepted E3 extension. Held-out completion decides whether any export is warranted.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_d2/cases",
+    "manifest_sha256": "26e8d67fda9f369ef9a36b2dcd4ce6e0c220190aee1a187309e6e1d155137d97",
+    "train": [
+      "d2_train_01",
+      "d2_train_02",
+      "d2_train_03",
+      "d2_train_04",
+      "d2_train_05",
+      "d2_train_06",
+      "d2_train_07",
+      "d2_train_08"
+    ],
+    "dev": [
+      "d2_dev_01",
+      "d2_dev_02"
+    ],
+    "heldout": [
+      "d2_heldout_01",
+      "d2_heldout_02",
+      "d2_heldout_03",
+      "d2_heldout_04"
+    ]
+  },
+  "training": {
+    "regime": "full_augmented",
+    "trainable": [
+      "all 381 original tensors",
+      "all new adapter/core tensors"
+    ],
+    "optimizer": "muon8bit",
+    "auxiliary": "adamw_fp32",
+    "updates": 8,
+    "examples_per_update": 4,
+    "seed": 20261023,
+    "lr_base": 0.0001,
+    "lr_muon_base": 0.0001,
+    "lr_new": 0.001,
+    "lr_muon_new": 0.001,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "previous_workspace": "absent",
+    "teacher_policy": "read_file -> run_test -> set_constant -> run_test -> stop; labels only"
+  },
+  "evaluation": {
+    "cases": [
+      "d2_dev_01",
+      "d2_dev_02",
+      "d2_heldout_01",
+      "d2_heldout_02",
+      "d2_heldout_03",
+      "d2_heldout_04"
+    ],
+    "mode": "full",
+    "zero_previous_workspace": true,
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128
+  },
+  "checkpoint": {
+    "policy": "no export unless at least one held-out full-model episode completes; accepted candidate would require a separate retained full-state package",
+    "base_saved_on_rejection": false
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "model_loads": 1,
+    "native_jobs": 1
+  },
+  "stop_conditions": [
+    "guard breach",
+    "nonfinite loss/gradient/logits",
+    "memory pressure",
+    "8 updates without held-out improvement"
+  ],
+  "claims": "Full-backbone action diagnostic only; no quality or architecture-benefit claim unless held-out completions occur."
+}
