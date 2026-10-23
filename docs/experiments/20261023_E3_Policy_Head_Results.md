@@ -1,10 +1,10 @@
 # E3 action-kind head: bounded completions, head contribution inconclusive
 
 23 October 2026 UTC. Protocol and mixed fixtures were committed before
-execution. **Result: 4/4 held-out mixed episodes completed under head-
-conditioned generation; 2/2 no-head control episodes also completed.** The
-connected loop now demonstrates real repairs and independent evaluator passes,
-but this run does **not** establish that the head improves action selection.
+execution. **Result: 4/4 held-out mixed episodes completed under head-conditioned
+generation; all four no-head control episodes also completed.** The connected
+loop now demonstrates real repairs and independent evaluator passes, but the
+head provides **no measured benefit** on this family.
 
 ## 1. Arm
 
@@ -43,11 +43,13 @@ This table is small-sample kind accuracy, not action execution or calibration.
 | `mixed_heldout_repair_07` | yes | complete | complete |
 | `mixed_heldout_repair_08` | yes | complete | complete |
 | `mixed_heldout_pass_09` | no | complete | complete |
-| `mixed_heldout_pass_10` | no | complete | not run |
+| `mixed_heldout_pass_10` | no | complete | complete |
 
 Head-conditioned totals: **4/4 success, 16 decisions, 20 tool calls, 0 malformed,
-0 false success claims**. Controls: **2/2 success** with the same action-kind
-sequence as their head-conditioned counterparts.
+0 false success claims**. Complete no-head controls: **4/4 success** with the
+same action-kind sequence as their head-conditioned counterparts. The additional
+control run (`runs/e3_mixed_controls_attempt01_20261023`) used no head or
+training, actual tools and the independent evaluator.
 
 Repair traces:
 - `read` → failing `run_test` → `set_constant` with the correct name/value →
@@ -65,9 +67,11 @@ receipts and prompts are in
 - This is a **bounded mixed-outcome task success**, not a general E3 capability
   or a core/head benefit result. Control cases used values/settings close to the
   accepted extension's training family; the family is synthetic and exposed.
-- The head-conditioned and no-head control action sequences are identical. The
-  head's kind predictions are accurate on 16 held-out states, but the hint did
-  not cause a visible behavior change. Do not claim the head improves completion.
+- The head-conditioned and no-head control action sequences are identical, and
+  all four no-head controls complete. The head's kind predictions are accurate
+  on 16 held-out states, but the hint causes no visible behavior change. Reject
+  the head as an improvement candidate for this family; keep it as diagnostic
+  evidence only.
 - The 4/4 result also shows the earlier set_constant 0/7 was not a universal
   tool/parser failure; task mixture and state matter.
 - Success head remains untrained (this run has positive labels but no disjoint
@@ -76,13 +80,12 @@ receipts and prompts are in
 
 ## 5. Next
 
-1. Run a **head-disabled full** set on all four held-out cases (two controls are
-   currently missing) and audit whether the head hint changes any decision.
-2. Include **fresh task values** not close to accepted training families, plus a
-   **step-only/kind-shuffled control**.
-3. Only then decide whether to publish the head or keep exact text/lexical
-   defaults. Any head publication needs a manifest, rollback and a new held-out
-   family.
+1. Do not publish this head: the complete no-head controls match it 4/4.
+2. For a future head claim, use **fresh task values**, a **kind-shuffled head**
+   and a **step-only control**; also log head kind and prompt-side hint per
+   decision.
+3. Preserve the four complete episodes as bounded E3 capability evidence; test
+   fresh-process continuation on an interrupted mixed case next.
 
 ## 6. Costs
 

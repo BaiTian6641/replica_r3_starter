@@ -51,12 +51,11 @@ retuned. See
 
 **E3 mixed-outcome policy head (23 October).** On the fresh four-case mixed
 family, actual model actions completed **4/4** held-out episodes under
-kind-conditioned generation and **2/2** no-head controls; repairs were applied
+kind-conditioned generation and **4/4** no-head controls; repairs were applied
 and the independent evaluator passed, with 0 malformed actions and 0 false
-success claims. The head classified held-out kinds 1.00, but head and control
-action sequences were identical, so the head's causal contribution is
-**inconclusive**. This is a bounded synthetic success, not general capability;
-no default was changed. See
+success claims. Head and control action sequences were identical, so the head
+has **no measured benefit** and is rejected as a candidate. This is a bounded
+synthetic success, not general capability; no default was changed. See
 [E3 policy-head results](docs/experiments/20261023_E3_Policy_Head_Results.md).
 
 **E3 mixed-outcome probe (23 October).** A mixed pass/repair family has

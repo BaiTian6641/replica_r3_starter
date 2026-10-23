@@ -29,8 +29,9 @@ Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
 **E3 mixed-outcome policy head (23 October):** 4/4 head-conditioned and
-2/2 no-head held-out episodes completed with independent evaluator passes; head
-and controls had identical action kinds, so head benefit is inconclusive. See
+4/4 no-head held-out episodes completed with independent evaluator passes; head
+and controls had identical action kinds, so the head is rejected (no measured
+benefit). See
 [policy-head results](docs/experiments/20261023_E3_Policy_Head_Results.md).
 
 **E3 mixed-outcome probe (23 October):** 1.00 kind accuracy vs 0.875
