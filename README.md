@@ -61,7 +61,7 @@ commit guard and marked cleanup candidates. The [authorized checkpoint cleanup](
 retired the 16 marked old runtime states, preserved selected results, and enables
 automatic sharing of identical native weights in future local saves. The user
 subsequently resumed the bounded D2 GPU package. Every experiment reuses this
-one sealed source offline; a new run never downloads another original model.
+one sealed source offline; a new run never downloads another original model. The [post-D2 retirement](docs/experiments/20261022_Checkpoint_Retirement_After_D2.md) subsequently removes 19 superseded payload directories and 10 orphan pool weights, recovering an observed 123.24 GiB. Original/selected models, latest D2 update 8 and raw evidence remain; about 589 GiB is free.
 
 | Read | Purpose |
 |---|---|

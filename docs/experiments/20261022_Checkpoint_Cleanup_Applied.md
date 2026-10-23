@@ -1,5 +1,10 @@
 # Applied checkpoint cleanup and shared future saves
 
+**Later storage status:** [post-D2 retirement](20261022_Checkpoint_Retirement_After_D2.md)
+removes 19 newly obsolete payload directories and 10 orphan pool versions after
+D2 qualification. Selected results/source and raw evidence remain. Counts and
+retention decisions below describe the earlier maintenance snapshot.
+
 22 October 2026, America/Chicago. The user authorized exact-byte deduplication,
 deletion of the previously marked old checkpoints, preservation of original and
 selected results, and disk measurements. **Training remains paused.** No

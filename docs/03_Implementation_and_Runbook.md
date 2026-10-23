@@ -132,7 +132,7 @@ scope/guard/audit contract. Resume only within the same exact training contract.
 A new rate, source, dataset or code contract is a new declared experiment.
 The [saved-export evaluation plan](../reports/D2_saved_export_evaluation_plan_20261022.json)
 and `scripts/run_generation_preflight.py` show independent guarded train/dev
-answer checks. Normal experiment launches never use `--allow-network`.
+answer checks. Normal experiment launches never use `--allow-network`. After a documented experiment finishes, follow the [retention ledger](experiments/20261022_Checkpoint_Retirement_After_D2.md): keep selected/active final exports and restart states, archive reports/metadata, then retire superseded capacity/intermediate payloads and their orphan pool versions. The completed one-shot cleanup/recovery scripts refuse changed or unreviewed scopes; future retirement needs a fresh reviewed inventory.
 
 ## 4. A real-model preflight, not the main experiment
 

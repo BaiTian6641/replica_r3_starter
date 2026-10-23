@@ -1,5 +1,10 @@
 # Repeated native backbones in run checkpoints
 
+**Later storage status:** [post-D2 retirement](20261022_Checkpoint_Retirement_After_D2.md)
+removes 19 newly obsolete payload directories and 10 orphan pool versions after
+D2 qualification. Selected results/source and raw evidence remain. Counts and
+retention decisions below describe the earlier maintenance snapshot.
+
 **Current status:** [cleanup and future-save sharing](20261022_Checkpoint_Cleanup_Applied.md)
 have now been applied with the user's authorization. The inventory totals below
 are the pre-cleanup logical snapshot, not the current physical allocation.

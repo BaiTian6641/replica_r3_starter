@@ -1,0 +1,47 @@
+{
+  "status": "passed",
+  "validated_at": "2026-10-23T00:06:31.501769+00:00",
+  "scope": "Post-D2 checkpoint retirement and orphan-pool cleanup; storage fixture tests plus actual byte/metadata/deletion evidence. No native model execution or downloads. Historical D2 experiment validation remains unchanged.",
+  "pytest": {
+    "command": ".venv/bin/python -m pytest -q tests/test_checkpoint_retirement.py tests/test_storage_cleanup_apply.py tests/test_checkpoint_storage.py --junitxml=reports/tests_checkpoint_retirement_20261022.xml",
+    "passed": 75,
+    "skipped": 0,
+    "failed": 0,
+    "errors": 0,
+    "xunit": "reports/tests_checkpoint_retirement_20261022.xml",
+    "output": "reports/test_output_checkpoint_retirement_20261022.txt"
+  },
+  "tested_file_sha256": {
+    "scripts/retire_completed_checkpoints.py": "b61a1333021780380be3f982436c6ff840a829538e7a08f786c86ffe70bab504",
+    "scripts/finish_checkpoint_retirement_pool.py": "7665d11ac40d0943708c857e2ffeb7730e3411dc8dce3253159a1bb31137717c",
+    "scripts/apply_checkpoint_storage_cleanup.py": "d52fdb07f9291d8c0ba7ea03ccfa8d4349b7e6a2a170d51e2d8efafc88c3b75b",
+    "scripts/compact_identical_checkpoints.py": "cd1c0025d8ad4c5c4f10efb2fd937304edd4d7d8a4dbdf8947b386d76ef66c5b",
+    "scripts/download_model.py": "c3db40eecaa7559c5f31b9d45f0518119457f582120d9cca937ee6c3e7e64cfe",
+    "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1",
+    "tests/test_checkpoint_retirement.py": "b616492058c41147fc75761b39b3da89a62bfd8a42a92852f74dcd97c4621652",
+    "tests/test_storage_cleanup_apply.py": "3e7587aee0c762eaae43dbdc79427fc21afce895a89814f730a66c1e665e7736",
+    "tests/test_checkpoint_storage.py": "9e1fb2a1d8c8cdccae2f6ed112c192d312640af6a4bdf501fb5fc38ebad2fd50"
+  },
+  "actual_cleanup": {
+    "journal": "reports/checkpoint_retirement_after_D2_20261022.json",
+    "initial_partial_journal": "reports/checkpoint_retirement_initial_after_D2_20261022.json",
+    "plan": "reports/checkpoint_retirement_plan_after_D2_20261022.json",
+    "retired_payload_dirs": 19,
+    "retired_orphan_pool_files": 10,
+    "remaining_live_pool_groups": 4,
+    "archived_small_files": 100,
+    "protected_file_identities_unchanged": true,
+    "protected_training_receipts_verified": [
+      "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/checkpoint_receipt.json",
+      "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+      "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json"
+    ],
+    "source_and_acquisition_receipt_preserved": true,
+    "model_runs": 0,
+    "downloads": 0,
+    "native_jobs": "IDLE",
+    "observed_freed_bytes": 132326334464
+  },
+  "assurance": "Protected retained checkpoint payloads and live pool objects were fully hashed before retirement and again during narrow recovery. Remaining identities, source and all raw files exactly match the plan. The original guard stopped on ctime-only drift in one orphan; its fresh full hash matched, and unchanged guards completed recovery. Filesystem free-space deltas are system-wide.",
+  "historical_D2_evidence_pins_unchanged": 101
+}

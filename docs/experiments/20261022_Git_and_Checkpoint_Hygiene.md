@@ -1,5 +1,10 @@
 # Git artifacts, source reuse and checkpoint retention
 
+**Later storage status:** [post-D2 retirement](20261022_Checkpoint_Retirement_After_D2.md)
+removes 19 newly obsolete payload directories and 10 orphan pool versions after
+D2 qualification. Selected results/source and raw evidence remain. Counts and
+retention decisions below describe the earlier maintenance snapshot.
+
 **Current status:** the subsequent [authorized cleanup](20261022_Checkpoint_Cleanup_Applied.md)
 applied the 16-directory retirement and verified weight sharing. The findings
 and initial marking below describe the preceding maintenance snapshot.

@@ -1,10 +1,12 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current authorization:** the user resumed bounded D2 MPS experiments after
-storage cleanup. Follow [D2 resumption](docs/experiments/20261022_D2_Resume.md);
-the results in [D2 qualification](docs/experiments/20261022_D2_Results.md) record
-the accepted gates. Reuse the existing sealed MiniCPM5-2B source offline and
-preserve selected results.
+**Current storage state:** the bounded D2 GPU package is complete. The user
+subsequently authorized [post-D2 checkpoint retirement](docs/experiments/20261022_Checkpoint_Retirement_After_D2.md):
+19 superseded payload directories and 10 orphan pool files are removed.
+Preserve the one sealed original, selected D0 update 8, D1 update 28, D2 tiny
+update 8 and useful final negatives. Retained selected exports/runtime states
+remain valid; older capacity/intermediate payload paths in archived reports are
+historical and cannot be resumed. Native training/generation remain idle.
 
 Copy this complete instruction to the coding agent working in the actual project repository.
 

@@ -1,0 +1,152 @@
+{
+  "status": "partial_or_failed_inspect_journal",
+  "started_at_utc": "2026-10-22T23:59:27.735282+00:00",
+  "plan": "reports/checkpoint_retirement_plan_after_D2_20261022.json",
+  "plan_sha256": "90687efa2534b85ac9f12450c6750c162a66b5c7c61cc0f2c91dcc8087ed746e",
+  "disk_before": {
+    "total_bytes": 994662584320,
+    "used_bytes": 494557618176,
+    "free_bytes": 500104966144,
+    "df_k": [
+      "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+      "/dev/disk3s5   971350180 458888472 488383756    49% 1198581 4883837560    0%   /System/Volumes/Data"
+    ]
+  },
+  "deleted_payloads": [
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022/checkpoint",
+      "logical_bytes": 10080595265
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk01_20261022/training_checkpoint_0001",
+      "logical_bytes": 16347133490
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022/checkpoint",
+      "logical_bytes": 10080605652
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity256_chunk02_20261022/training_checkpoint_0002",
+      "logical_bytes": 16347134770
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity512_chunk01_20261022/checkpoint",
+      "logical_bytes": 10080596059
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity512_chunk01_20261022/training_checkpoint_0001",
+      "logical_bytes": 16347134533
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity512_chunk02_20261022/checkpoint",
+      "logical_bytes": 10080598249
+    },
+    {
+      "path": "runs/minicpm5_D2_capacity512_chunk02_20261022/training_checkpoint_0002",
+      "logical_bytes": 16347135813
+    },
+    {
+      "path": "runs/minicpm5_D2_tiny_chunk01_20261022/checkpoint",
+      "logical_bytes": 10080606951
+    },
+    {
+      "path": "runs/minicpm5_D2_tiny_chunk01_20261022/training_checkpoint_0004",
+      "logical_bytes": 16347153221
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk01_20261022/checkpoint",
+      "logical_bytes": 10080598117
+    },
+    {
+      "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/checkpoint",
+      "logical_bytes": 10080598135
+    },
+    {
+      "path": "runs/minicpm5_augmented_generation_qualification256_20261022/adapter_export",
+      "logical_bytes": 10080566141
+    },
+    {
+      "path": "runs/minicpm5_native_adapter_qualification256_20261022/adapter_export",
+      "logical_bytes": 10080559967
+    },
+    {
+      "path": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk02_20261022/checkpoint",
+      "logical_bytes": 10077038914
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk01_20261022/checkpoint",
+      "logical_bytes": 10077004715
+    },
+    {
+      "path": "runs/minicpm5_capacity256_full_muon8bit_chunk02_20261022/checkpoint",
+      "logical_bytes": 10077006459
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk01_20261022/checkpoint",
+      "logical_bytes": 10077004721
+    },
+    {
+      "path": "runs/minicpm5_capacity512_full_muon8bit_chunk02_20261022/checkpoint",
+      "logical_bytes": 10077006461
+    }
+  ],
+  "deleted_pool_files": [
+    {
+      "path": "runs/.checkpoint_storage/sha256/00/00753e573d0f6514aff1198d0551c256260b2a55583899431e4ff0b4a13714c1.safetensors",
+      "sha256": "00753e573d0f6514aff1198d0551c256260b2a55583899431e4ff0b4a13714c1",
+      "logical_bytes": 10067069720
+    }
+  ],
+  "model_runs": 0,
+  "downloads": 0,
+  "native_jobs": "IDLE",
+  "protected_byte_claims_verified": 35,
+  "protected_training_receipts_verified": [
+    "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/checkpoint_receipt.json",
+    "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/checkpoint_receipt.json",
+    "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/checkpoint_receipt.json"
+  ],
+  "original_source": {
+    "status": "reused_local_sealed_snapshot",
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "snapshot": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "receipt_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source.download.json",
+    "receipt_preserved": true,
+    "network_used": false,
+    "verified_files": 9,
+    "selected_inventory_suffixes": [
+      ".jinja",
+      ".json",
+      ".model",
+      ".safetensors"
+    ]
+  },
+  "pending": {
+    "orphan_pool_file": "runs/.checkpoint_storage/sha256/08/08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966.safetensors"
+  },
+  "disk_after_payloads": {
+    "total_bytes": 994662584320,
+    "used_bytes": 462907805696,
+    "free_bytes": 531754778624,
+    "df_k": [
+      "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+      "/dev/disk3s5   971350180 427980452 519291776    46% 1198388 5192917760    0%   /System/Volumes/Data"
+    ]
+  },
+  "error": {
+    "type": "ValueError",
+    "message": "File changed during planning or compaction: /Users/flare/replica_r3_starter/runs/.checkpoint_storage/sha256/08/08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966.safetensors"
+  },
+  "disk_after": {
+    "total_bytes": 994662584320,
+    "used_bytes": 452840939520,
+    "free_bytes": 541821644800,
+    "df_k": [
+      "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on",
+      "/dev/disk3s5   971350180 418149528 529122700    45% 1198388 5291227000    0%   /System/Volumes/Data"
+    ]
+  },
+  "observed_freed_bytes": 41716678656,
+  "completed_at_utc": "2026-10-23T00:00:17.635874+00:00"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "validated_at": "2026-10-23T00:07:35.805163+00:00",
+  "scope": "File integrity, syntax and delivery consistency; no model-quality evaluation",
+  "validation_evidence_source": "reports/validation_checkpoint_retirement_after_D2_20261022.json",
+  "checks": {
+    "required_files": 15,
+    "docs_count": 7,
+    "prompts_count": 8,
+    "schemas_count": 3,
+    "json_files_parsed": 327,
+    "python_files_parsed": 78,
+    "current_document_local_links": 465,
+    "archived_sources_hashed": 7,
+    "tested_files_hash_matched": 9,
+    "recorded_test_run": {
+      "command": ".venv/bin/python -m pytest -q tests/test_checkpoint_retirement.py tests/test_storage_cleanup_apply.py tests/test_checkpoint_storage.py --junitxml=reports/tests_checkpoint_retirement_20261022.xml",
+      "passed": 75,
+      "skipped": 0,
+      "failed": 0,
+      "errors": 0,
+      "xunit": "reports/tests_checkpoint_retirement_20261022.xml",
+      "output": "reports/test_output_checkpoint_retirement_20261022.txt"
+    },
+    "tests_rerun_by_this_script": false,
+    "diagram_sets": 8,
+    "pdf_pages": "not checked; install pypdf to check page count"
+  },
+  "failures": [],
+  "archival_link_check_excluded": "reference/r2; source bytes verified separately"
+}

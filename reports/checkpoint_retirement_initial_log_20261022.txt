@@ -1,0 +1,55 @@
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/checkpoint/base/model.safetensors"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/model.safetensors"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk02_20261022/checkpoint/base/model.safetensors"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/checkpoint/base/model.safetensors"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/base/model.safetensors"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/checkpoint/base/model.safetensors"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/model.safetensors"}
+{"verified": "runs/minicpm5_mps_muon8bit_D0_preflight_20261022_01/checkpoint/base/model.safetensors"}
+{"verified": "runs/.checkpoint_storage/sha256/02/020cf2e7d04969faa9cdbf93f8cddb6e411178a983fe7bc13c6071e9274d3801.safetensors"}
+{"verified": "runs/.checkpoint_storage/sha256/07/07db90adf475eae2201fc3f3fbe76849c12cf1777c4e271114af142a048dfbb8.safetensors"}
+{"verified": "runs/.checkpoint_storage/sha256/11/11265632c350e07f5781c16c23d9560c1c63524d036a5c84c8f0297410560625.safetensors"}
+{"verified": "runs/.checkpoint_storage/sha256/92/921f19064fffc5a5f8b91457341b5860c30fb69a966e132eaa3f75077cc52bcb.safetensors"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/adapter_manifest.json"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/chat_template.jinja"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/config.json"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/generation_config.json"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/tokenizer.json"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/base/tokenizer_config.json"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/runtime.pt"}
+{"verified": "runs/minicpm5_D1_mask1_B8_lr1e2_chunk02_20261022/training_checkpoint_0028/sidecars.safetensors"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/adapter_manifest.json"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/base/chat_template.jinja"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/base/config.json"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/base/generation_config.json"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/base/tokenizer.json"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/base/tokenizer_config.json"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/runtime.pt"}
+{"verified": "runs/minicpm5_D2_tiny_chunk02_20261022/training_checkpoint_0008/sidecars.safetensors"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/adapter_manifest.json"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/chat_template.jinja"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/config.json"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/generation_config.json"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/tokenizer.json"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/base/tokenizer_config.json"}
+{"verified": "runs/minicpm5_balanced_mask1_B8_lr1e4_chunk01_20261022/training_checkpoint_0008/runtime.pt"}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/retire_completed_checkpoints.py", line 246, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/retire_completed_checkpoints.py", line 240, in main
+    output=a.output if a.output.is_absolute() else ROOT/a.output;apply(plan,output)
+                                                                 ^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/retire_completed_checkpoints.py", line 213, in apply
+    retire_pool_file(safe.safe_path(row['path']),row['identity'],live_hashes)
+  File "/Users/flare/replica_r3_starter/scripts/retire_completed_checkpoints.py", line 141, in retire_pool_file
+    if safe.sha(path)!=digest:raise ValueError('Pool bytes differ from content address')
+       ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/apply_checkpoint_storage_cleanup.py", line 36, in sha
+    return cow.sha256_file(path)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/compact_identical_checkpoints.py", line 82, in sha256_file
+    _unchanged(path, before)
+  File "/Users/flare/replica_r3_starter/scripts/compact_identical_checkpoints.py", line 67, in _unchanged
+    raise ValueError(f"File changed during planning or compaction: {path}")
+ValueError: File changed during planning or compaction: /Users/flare/replica_r3_starter/runs/.checkpoint_storage/sha256/08/08cb3c4385c57d0fa744bb8ee3affc53f502d14b63e3d0b40c34cb918faef966.safetensors

@@ -1,0 +1,1297 @@
+{
+  "format_version": 1,
+  "regime": "modules_only",
+  "adapter_settings": {
+    "memory_size": 64,
+    "workspace_size": 64,
+    "slots": 4,
+    "workspace_steps": 2,
+    "insertion_layer": -1,
+    "heads": 4
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "total": 2516756480,
+      "trainable": 0,
+      "tensor_count": 381,
+      "trainable_dtypes": []
+    },
+    "new": {
+      "total": 895490,
+      "trainable": 895490,
+      "tensor_count": 48,
+      "trainable_dtypes": [
+        "torch.float32"
+      ]
+    }
+  },
+  "generation_cache_supported": false,
+  "training_scope": "text_only",
+  "run": {
+    "status": "completed_local_training_run",
+    "model_lock": {
+      "repo_id": "openbmb/MiniCPM5-2B",
+      "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "requested_revision": "main",
+      "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "architectures": [
+        "LlamaForCausalLM"
+      ],
+      "model_type": "llama",
+      "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+      "weights_downloaded": true,
+      "integration_tested": false,
+      "snapshot_files_sha256": {
+        ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+        "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+        "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+        "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+        "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+        "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+        "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+        "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+        "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+      },
+      "local_bytes_sealed": true,
+      "upstream_authenticity_independently_verified": false
+    },
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "total": 2516756480,
+        "trainable": 0,
+        "tensor_count": 381,
+        "trainable_dtypes": []
+      },
+      "new": {
+        "total": 895490,
+        "trainable": 895490,
+        "tensor_count": 48,
+        "trainable_dtypes": [
+          "torch.float32"
+        ]
+      }
+    },
+    "parameter_dtype": "float32",
+    "compute_dtype": "float32",
+    "device": "mps",
+    "steps": 8,
+    "maximum_step_budget": 64,
+    "seed": 17,
+    "start_step": 0,
+    "stop_reason": "process_chunk_completed",
+    "run_contract": {
+      "format_version": 1,
+      "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+      "dev_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+      "batch_plan_sha256": "dfb7e2ffb1c2bd11089bef4a923027bbb6bf94b221fb44f707e7b4c8e2d549ce",
+      "settings": {
+        "regime": "modules_only",
+        "device": "mps",
+        "dtype": "float32",
+        "optimizer": "muon8bit",
+        "steps": 64,
+        "grad_accum": 8,
+        "max_length": 256,
+        "lr_base": 0.0001,
+        "lr_new": 0.001,
+        "lr_muon_base": 0.0001,
+        "lr_muon_new": 0.001,
+        "momentum": 0.95,
+        "ns_steps": 5,
+        "block_size": 2048,
+        "weight_decay": 0.0,
+        "seed": 17,
+        "memory_size": 64,
+        "workspace_size": 64,
+        "insertion_layer": -1,
+        "checkpointing": true,
+        "sampling": "answer_balanced",
+        "lr_schedule": "constant",
+        "warmup_steps": 2,
+        "min_lr_ratio": 0.2,
+        "generation_every": 4,
+        "generation_max_new_tokens": 8,
+        "stop_on_train_perfect": true
+      },
+      "packages": {
+        "torch": "2.14.1",
+        "transformers": "5.20.2",
+        "safetensors": "0.8.0"
+      },
+      "implementation_sha256": {
+        "scripts/train_text.py": "1c43d12a7bd891e5934b25eb274ffe7bfb38e3a68f0917a69349759c0c0cd599",
+        "src/replica_lab/model_adapter.py": "bc563a86e7373ab5fbddd6a378aaea6feb8073f045f8f632dc642bef0b8b309d",
+        "src/replica_lab/optimizers.py": "e5bf4d3ed11bcc35d0a52372cb8a76faf07c689e45ba9a59dd0c423f2618fbd6",
+        "src/replica_lab/curriculum.py": "616b4b3fd95b188c030d3750150b246d68d7a59db26cd125b4cb2d16c41d0c88",
+        "src/replica_lab/training_tools.py": "6e5ebb1d95a7165ce587fa1335372dd78055e9a8ae51f7979806682159cfddd7",
+        "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+        "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+        "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+        "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+        "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92"
+      }
+    },
+    "checkpoint_receipts": [
+      {
+        "path": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022/training_checkpoint_0008",
+        "step": 8,
+        "receipt_sha256": "778624efa786869affac90f3a029ae46e9d0ad77009b875f102aaf7e4055acba"
+      }
+    ],
+    "generation_history": [
+      {
+        "examples": [
+          {
+            "id": "train-w4-m1-x0",
+            "expected": "1",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "e679aef1fad01bba42d7ac274ec927cb457a7732e48a86d57e5ef775a1c5b772",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              6491,
+              285,
+              9327,
+              47,
+              458
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to apply the transformation: \"",
+            "completion": "We need to apply the transformation: \"",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 1,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x1",
+            "expected": "0",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "a95ff49b7c1a8a4fa146a66c23ca0a0212dcbb532121fff8d203643cbcec50ad",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              4861,
+              285,
+              25460,
+              12612,
+              1248
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to output the decimal integer result",
+            "completion": "We need to output the decimal integer result",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 0,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x2",
+            "expected": "3",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "c9b3f5c5ffbcd2b6ec066386af16bf542412a75576f1a7174a0ab401b2388100",
+            "generated_token_ids": [
+              62,
+              1178,
+              746,
+              1982,
+              317,
+              1848,
+              447,
+              401
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "I need more information to help you with",
+            "completion": "I need more information to help you with",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 3,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x3",
+            "expected": "2",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "b4bdbbbf6e83ea0b1a32615f2349ee572a9708a2e9e37fb1acfbc5abbb2e2189",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 2,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x4",
+            "expected": "5",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "bcb6e89c0409d14275ada68601f1e2c457c4a1a72305b65f5ceea09c53f3bdea",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 5,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x5",
+            "expected": "4",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "c9d1349be12959cd73272cc930fb4bea0b169feb408e23282b850403b10033e5",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              6491,
+              285,
+              9327,
+              47,
+              458
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to apply the transformation: \"",
+            "completion": "We need to apply the transformation: \"",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 4,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x6",
+            "expected": "7",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "a44ab131af57c02ed7d082f5fd2f486d7f2f4055c9179412467265719d466d4d",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 7,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x7",
+            "expected": "6",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "80d10d3b6d99343238eb218a1784340824de4d7b5817cea48d6339418cd46be8",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 6,
+            "strict_integer_match": false,
+            "task_correct": false
+          }
+        ],
+        "evaluated_examples": 8,
+        "task_correct": 0,
+        "task_accuracy": 0.0,
+        "fixture_task_accuracy": 0.0,
+        "exact_text_accuracy": 0.0,
+        "response_histogram": {
+          "We need to apply the transformation: \"": 2,
+          "We need to output the decimal integer result": 1,
+          "I need more information to help you with": 1,
+          "We need to interpret the problem. It": 4
+        },
+        "distinct_responses": 4,
+        "decoding": {
+          "do_sample": false,
+          "num_beams": 1,
+          "use_cache": false,
+          "context": "fixed_original_prompt_and_support",
+          "max_new_tokens": 8
+        },
+        "step": 4
+      },
+      {
+        "examples": [
+          {
+            "id": "train-w4-m1-x0",
+            "expected": "1",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "e679aef1fad01bba42d7ac274ec927cb457a7732e48a86d57e5ef775a1c5b772",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              6491,
+              285,
+              9327,
+              47,
+              458
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to apply the transformation: \"",
+            "completion": "We need to apply the transformation: \"",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 1,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x1",
+            "expected": "0",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "a95ff49b7c1a8a4fa146a66c23ca0a0212dcbb532121fff8d203643cbcec50ad",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              4861,
+              285,
+              25460,
+              12612,
+              1248
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to output the decimal integer result",
+            "completion": "We need to output the decimal integer result",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 0,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x2",
+            "expected": "3",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "c9b3f5c5ffbcd2b6ec066386af16bf542412a75576f1a7174a0ab401b2388100",
+            "generated_token_ids": [
+              62,
+              1178,
+              746,
+              1982,
+              317,
+              1848,
+              447,
+              401
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "I need more information to help you with",
+            "completion": "I need more information to help you with",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 3,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x3",
+            "expected": "2",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "b4bdbbbf6e83ea0b1a32615f2349ee572a9708a2e9e37fb1acfbc5abbb2e2189",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 2,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x4",
+            "expected": "5",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "bcb6e89c0409d14275ada68601f1e2c457c4a1a72305b65f5ceea09c53f3bdea",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 5,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x5",
+            "expected": "4",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "c9d1349be12959cd73272cc930fb4bea0b169feb408e23282b850403b10033e5",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              6491,
+              285,
+              9327,
+              47,
+              458
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to apply the transformation: \"",
+            "completion": "We need to apply the transformation: \"",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 4,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x6",
+            "expected": "7",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "a44ab131af57c02ed7d082f5fd2f486d7f2f4055c9179412467265719d466d4d",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 7,
+            "strict_integer_match": false,
+            "task_correct": false
+          },
+          {
+            "id": "train-w4-m1-x7",
+            "expected": "6",
+            "prompt_tokens": 53,
+            "prompt_token_ids_sha256": "80d10d3b6d99343238eb218a1784340824de4d7b5817cea48d6339418cd46be8",
+            "generated_token_ids": [
+              1741,
+              1178,
+              317,
+              11417,
+              285,
+              2333,
+              35,
+              861
+            ],
+            "generated_tokens": 8,
+            "ended_by_eos": false,
+            "hit_token_budget": true,
+            "raw_completion": "We need to interpret the problem. It",
+            "completion": "We need to interpret the problem. It",
+            "exact_text_match": false,
+            "predicted_integer": null,
+            "expected_integer": 6,
+            "strict_integer_match": false,
+            "task_correct": false
+          }
+        ],
+        "evaluated_examples": 8,
+        "task_correct": 0,
+        "task_accuracy": 0.0,
+        "fixture_task_accuracy": 0.0,
+        "exact_text_accuracy": 0.0,
+        "response_histogram": {
+          "We need to apply the transformation: \"": 2,
+          "We need to output the decimal integer result": 1,
+          "I need more information to help you with": 1,
+          "We need to interpret the problem. It": 4
+        },
+        "distinct_responses": 4,
+        "decoding": {
+          "do_sample": false,
+          "num_beams": 1,
+          "use_cache": false,
+          "context": "fixed_original_prompt_and_support",
+          "max_new_tokens": 8
+        },
+        "step": 8
+      }
+    ],
+    "grad_accum": 8,
+    "max_length": 256,
+    "checkpointing": true,
+    "optimizer": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.001,
+          "weight_decay": 0.0,
+          "param_names": [
+            "support_writer.input_projection.weight",
+            "support_writer.attention.in_proj_weight",
+            "support_writer.attention.out_proj.weight",
+            "memory_reader.query_projection.weight",
+            "memory_reader.attention.in_proj_weight",
+            "memory_reader.attention.out_proj.weight",
+            "memory_reader.output_projection.weight",
+            "workspace.encoder.input_projection.weight",
+            "workspace.encoder.attention.in_proj_weight",
+            "workspace.encoder.attention.out_proj.weight",
+            "workspace.recurrent.weight_ih",
+            "workspace.recurrent.weight_hh",
+            "workspace.reader.query_projection.weight",
+            "workspace.reader.attention.in_proj_weight",
+            "workspace.reader.attention.out_proj.weight",
+            "workspace.reader.output_projection.weight"
+          ],
+          "tensors": 16,
+          "parameters": 876544
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.001,
+          "weight_decay": 0.0,
+          "param_names": [
+            "support_writer.slot_queries",
+            "support_writer.input_norm.weight",
+            "support_writer.input_norm.bias",
+            "support_writer.attention.in_proj_bias",
+            "support_writer.attention.out_proj.bias",
+            "support_writer.output_norm.weight",
+            "support_writer.output_norm.bias",
+            "memory_reader.gate_logit",
+            "memory_reader.query_norm.weight",
+            "memory_reader.query_norm.bias",
+            "memory_reader.memory_norm.weight",
+            "memory_reader.memory_norm.bias",
+            "memory_reader.attention.in_proj_bias",
+            "memory_reader.attention.out_proj.bias",
+            "workspace.encoder.slot_queries",
+            "workspace.encoder.input_norm.weight",
+            "workspace.encoder.input_norm.bias",
+            "workspace.encoder.attention.in_proj_bias",
+            "workspace.encoder.attention.out_proj.bias",
+            "workspace.encoder.output_norm.weight",
+            "workspace.encoder.output_norm.bias",
+            "workspace.recurrent.bias_ih",
+            "workspace.recurrent.bias_hh",
+            "workspace.workspace_norm.weight",
+            "workspace.workspace_norm.bias",
+            "workspace.reader.gate_logit",
+            "workspace.reader.query_norm.weight",
+            "workspace.reader.query_norm.bias",
+            "workspace.reader.memory_norm.weight",
+            "workspace.reader.memory_norm.bias",
+            "workspace.reader.attention.in_proj_bias",
+            "workspace.reader.attention.out_proj.bias"
+          ],
+          "tensors": 32,
+          "parameters": 18946
+        }
+      ],
+      "state_tensor_bytes": 1029824,
+      "state_bytes_by_dtype": {
+        "torch.int8": 876544,
+        "torch.float32": 153280
+      }
+    },
+    "arguments": {
+      "model_path": "checkpoints/minicpm5_source",
+      "model_lock": "configs/minicpm5_sealed_lock.local.json",
+      "data": "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+      "dev": "data/fixtures/dev.jsonl",
+      "output": "runs/minicpm5_D1_mask1_B8_lr1e3_chunk01_20261022",
+      "regime": "modules_only",
+      "device": "mps",
+      "dtype": "float32",
+      "optimizer": "muon8bit",
+      "steps": 64,
+      "grad_accum": 8,
+      "max_length": 256,
+      "lr_base": 0.0001,
+      "lr_new": 0.001,
+      "lr_muon_base": 0.0001,
+      "lr_muon_new": 0.001,
+      "momentum": 0.95,
+      "ns_steps": 5,
+      "block_size": 2048,
+      "weight_decay": 0.0,
+      "seed": 17,
+      "memory_size": 64,
+      "workspace_size": 64,
+      "insertion_layer": -1,
+      "checkpointing": true,
+      "verify_reload": true,
+      "sampling": "answer_balanced",
+      "lr_schedule": "constant",
+      "warmup_steps": 2,
+      "min_lr_ratio": 0.2,
+      "generation_every": 4,
+      "generation_max_new_tokens": 8,
+      "stop_on_train_perfect": true,
+      "checkpoint_every": 8,
+      "resume_from": null,
+      "stop_after": 8
+    },
+    "actual_sequence_lengths": {
+      "minimum": 55,
+      "maximum": 55
+    },
+    "train_updates": [
+      {
+        "step": 1,
+        "example_ids": [
+          "train-w4-m1-x2",
+          "train-w4-m1-x0",
+          "train-w4-m1-x1",
+          "train-w4-m1-x5",
+          "train-w4-m1-x4",
+          "train-w4-m1-x3",
+          "train-w4-m1-x6",
+          "train-w4-m1-x7"
+        ],
+        "selection": {
+          "example_indices": [
+            2,
+            0,
+            1,
+            5,
+            4,
+            3,
+            6,
+            7
+          ],
+          "example_ids": [
+            "train-w4-m1-x2",
+            "train-w4-m1-x0",
+            "train-w4-m1-x1",
+            "train-w4-m1-x5",
+            "train-w4-m1-x4",
+            "train-w4-m1-x3",
+            "train-w4-m1-x6",
+            "train-w4-m1-x7"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 0.5,
+        "learning_rates": [
+          0.0005,
+          0.0005
+        ],
+        "answer_nll": 12.145769655704498,
+        "eos_nll": 17.15336322784424,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.649566411972046,
+        "elapsed_seconds": 2.741048000054434,
+        "gradient_audit": {
+          "original": {
+            "eligible_tensors": 0,
+            "gradient_tensors": 0,
+            "nonzero_gradient_tensors": 0,
+            "missing_gradient_names": []
+          },
+          "new": {
+            "eligible_tensors": 48,
+            "gradient_tensors": 48,
+            "nonzero_gradient_tensors": 2,
+            "missing_gradient_names": []
+          }
+        },
+        "processed_tokens_per_second": 160.52254465856203
+      },
+      {
+        "step": 2,
+        "example_ids": [
+          "train-w4-m1-x7",
+          "train-w4-m1-x3",
+          "train-w4-m1-x4",
+          "train-w4-m1-x5",
+          "train-w4-m1-x2",
+          "train-w4-m1-x6",
+          "train-w4-m1-x1",
+          "train-w4-m1-x0"
+        ],
+        "selection": {
+          "example_indices": [
+            7,
+            3,
+            4,
+            5,
+            2,
+            6,
+            1,
+            0
+          ],
+          "example_ids": [
+            "train-w4-m1-x7",
+            "train-w4-m1-x3",
+            "train-w4-m1-x4",
+            "train-w4-m1-x5",
+            "train-w4-m1-x2",
+            "train-w4-m1-x6",
+            "train-w4-m1-x1",
+            "train-w4-m1-x0"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.140981435775757,
+        "eos_nll": 17.14258110523224,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.641781210899353,
+        "elapsed_seconds": 1.6483996252063662,
+        "gradient_audit": {
+          "original": {
+            "eligible_tensors": 0,
+            "gradient_tensors": 0,
+            "nonzero_gradient_tensors": 0,
+            "missing_gradient_names": []
+          },
+          "new": {
+            "eligible_tensors": 48,
+            "gradient_tensors": 48,
+            "nonzero_gradient_tensors": 48,
+            "missing_gradient_names": []
+          }
+        },
+        "processed_tokens_per_second": 266.9255642089312
+      },
+      {
+        "step": 3,
+        "example_ids": [
+          "train-w4-m1-x2",
+          "train-w4-m1-x3",
+          "train-w4-m1-x4",
+          "train-w4-m1-x6",
+          "train-w4-m1-x1",
+          "train-w4-m1-x5",
+          "train-w4-m1-x0",
+          "train-w4-m1-x7"
+        ],
+        "selection": {
+          "example_indices": [
+            2,
+            3,
+            4,
+            6,
+            1,
+            5,
+            0,
+            7
+          ],
+          "example_ids": [
+            "train-w4-m1-x2",
+            "train-w4-m1-x3",
+            "train-w4-m1-x4",
+            "train-w4-m1-x6",
+            "train-w4-m1-x1",
+            "train-w4-m1-x5",
+            "train-w4-m1-x0",
+            "train-w4-m1-x7"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.127953886985779,
+        "eos_nll": 17.117180466651917,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.622567057609558,
+        "elapsed_seconds": 1.6086077499203384,
+        "gradient_audit": null,
+        "processed_tokens_per_second": 273.52845963957947
+      },
+      {
+        "step": 4,
+        "example_ids": [
+          "train-w4-m1-x6",
+          "train-w4-m1-x7",
+          "train-w4-m1-x0",
+          "train-w4-m1-x4",
+          "train-w4-m1-x1",
+          "train-w4-m1-x5",
+          "train-w4-m1-x3",
+          "train-w4-m1-x2"
+        ],
+        "selection": {
+          "example_indices": [
+            6,
+            7,
+            0,
+            4,
+            1,
+            5,
+            3,
+            2
+          ],
+          "example_ids": [
+            "train-w4-m1-x6",
+            "train-w4-m1-x7",
+            "train-w4-m1-x0",
+            "train-w4-m1-x4",
+            "train-w4-m1-x1",
+            "train-w4-m1-x5",
+            "train-w4-m1-x3",
+            "train-w4-m1-x2"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.111819982528687,
+        "eos_nll": 17.0872004032135,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.599510192871094,
+        "elapsed_seconds": 1.582823415985331,
+        "gradient_audit": null,
+        "processed_tokens_per_second": 277.9842625250104
+      },
+      {
+        "step": 5,
+        "example_ids": [
+          "train-w4-m1-x1",
+          "train-w4-m1-x4",
+          "train-w4-m1-x3",
+          "train-w4-m1-x6",
+          "train-w4-m1-x7",
+          "train-w4-m1-x2",
+          "train-w4-m1-x5",
+          "train-w4-m1-x0"
+        ],
+        "selection": {
+          "example_indices": [
+            1,
+            4,
+            3,
+            6,
+            7,
+            2,
+            5,
+            0
+          ],
+          "example_ids": [
+            "train-w4-m1-x1",
+            "train-w4-m1-x4",
+            "train-w4-m1-x3",
+            "train-w4-m1-x6",
+            "train-w4-m1-x7",
+            "train-w4-m1-x2",
+            "train-w4-m1-x5",
+            "train-w4-m1-x0"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.093920707702637,
+        "eos_nll": 17.053332448005676,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.573626279830933,
+        "elapsed_seconds": 1.6079248751047999,
+        "gradient_audit": null,
+        "processed_tokens_per_second": 273.64462532574606
+      },
+      {
+        "step": 6,
+        "example_ids": [
+          "train-w4-m1-x6",
+          "train-w4-m1-x0",
+          "train-w4-m1-x5",
+          "train-w4-m1-x7",
+          "train-w4-m1-x3",
+          "train-w4-m1-x2",
+          "train-w4-m1-x1",
+          "train-w4-m1-x4"
+        ],
+        "selection": {
+          "example_indices": [
+            6,
+            0,
+            5,
+            7,
+            3,
+            2,
+            1,
+            4
+          ],
+          "example_ids": [
+            "train-w4-m1-x6",
+            "train-w4-m1-x0",
+            "train-w4-m1-x5",
+            "train-w4-m1-x7",
+            "train-w4-m1-x3",
+            "train-w4-m1-x2",
+            "train-w4-m1-x1",
+            "train-w4-m1-x4"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.075019240379333,
+        "eos_nll": 17.016250014305115,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.545634627342224,
+        "elapsed_seconds": 1.5602492499165237,
+        "gradient_audit": null,
+        "processed_tokens_per_second": 282.006224341105
+      },
+      {
+        "step": 7,
+        "example_ids": [
+          "train-w4-m1-x4",
+          "train-w4-m1-x7",
+          "train-w4-m1-x0",
+          "train-w4-m1-x6",
+          "train-w4-m1-x5",
+          "train-w4-m1-x3",
+          "train-w4-m1-x2",
+          "train-w4-m1-x1"
+        ],
+        "selection": {
+          "example_indices": [
+            4,
+            7,
+            0,
+            6,
+            5,
+            3,
+            2,
+            1
+          ],
+          "example_ids": [
+            "train-w4-m1-x4",
+            "train-w4-m1-x7",
+            "train-w4-m1-x0",
+            "train-w4-m1-x6",
+            "train-w4-m1-x5",
+            "train-w4-m1-x3",
+            "train-w4-m1-x2",
+            "train-w4-m1-x1"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.055422723293304,
+        "eos_nll": 16.976304054260254,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.515863180160522,
+        "elapsed_seconds": 1.6448383750393987,
+        "gradient_audit": null,
+        "processed_tokens_per_second": 267.50348646836545
+      },
+      {
+        "step": 8,
+        "example_ids": [
+          "train-w4-m1-x2",
+          "train-w4-m1-x7",
+          "train-w4-m1-x1",
+          "train-w4-m1-x3",
+          "train-w4-m1-x4",
+          "train-w4-m1-x6",
+          "train-w4-m1-x5",
+          "train-w4-m1-x0"
+        ],
+        "selection": {
+          "example_indices": [
+            2,
+            7,
+            1,
+            3,
+            4,
+            6,
+            5,
+            0
+          ],
+          "example_ids": [
+            "train-w4-m1-x2",
+            "train-w4-m1-x7",
+            "train-w4-m1-x1",
+            "train-w4-m1-x3",
+            "train-w4-m1-x4",
+            "train-w4-m1-x6",
+            "train-w4-m1-x5",
+            "train-w4-m1-x0"
+          ],
+          "answer_histogram": {
+            "0": 1,
+            "1": 1,
+            "2": 1,
+            "3": 1,
+            "4": 1,
+            "5": 1,
+            "6": 1,
+            "7": 1
+          },
+          "all_answer_classes_present": true,
+          "answer_counts_equal": true
+        },
+        "lr_factor": 1.0,
+        "learning_rates": [
+          0.001,
+          0.001
+        ],
+        "answer_nll": 12.03497314453125,
+        "eos_nll": 16.934086680412292,
+        "processed_tokens": 440,
+        "supervised_tokens": 16,
+        "train_response_nll_before_update": 14.484529972076416,
+        "elapsed_seconds": 1.5372484580148011,
+        "gradient_audit": null,
+        "processed_tokens_per_second": 286.2256896118243
+      }
+    ],
+    "processed_train_tokens": 3520,
+    "supervised_train_tokens": 128,
+    "dev_supervised_tokens": 32,
+    "training_update_seconds": 13.931139749241993,
+    "evaluation_seconds": 1.1423269170336425,
+    "processed_train_tokens_per_second": 252.6713580768958,
+    "cpu_fallback_enabled": false,
+    "train_examples": 8,
+    "dev_examples": 16,
+    "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+    "dev_sha256": "84e6e0b50503a6931f49f802f198596bd4564b17feca1462a54bc3dda81bf855",
+    "dev_response_nll": 14.817611277103424,
+    "dev_answer_nll": 12.505980998277664,
+    "dev_eos_nll": 17.129241704940796,
+    "first_update_gradient_audit": {
+      "original": {
+        "eligible_tensors": 0,
+        "gradient_tensors": 0,
+        "nonzero_gradient_tensors": 0,
+        "missing_gradient_names": []
+      },
+      "new": {
+        "eligible_tensors": 48,
+        "gradient_tensors": 48,
+        "nonzero_gradient_tensors": 2,
+        "missing_gradient_names": []
+      }
+    },
+    "elapsed_seconds": 32.59324499987997,
+    "cuda_peak_allocated_bytes": null,
+    "mps_current_allocated_bytes": 10139702016,
+    "mps_driver_allocated_bytes": 10858725376,
+    "packages": {
+      "torch": "2.14.1",
+      "transformers": "5.20.2",
+      "safetensors": "0.8.0"
+    },
+    "limitations": [
+      "Single device, no optimizer offload or distributed sharding",
+      "Dev NLL is not held-out task success or self-improvement evidence",
+      "Augmented generation uses fixed-context uncached re-prefill",
+      "Runtime checkpoints are single-device and require the same bound training contract",
+      "Muon8bit is a portable project experiment, not a validated paper reproduction",
+      "This runner is text-only; it does not train a VLM"
+    ]
+  }
+}
