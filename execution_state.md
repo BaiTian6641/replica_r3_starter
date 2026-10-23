@@ -29,6 +29,15 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**E5 procedure candidate (23 October).** A host `RepairProcedure` compiled from
+four verified train trajectories succeeded on **3/3 held-out + 1/1 dev** cases
+with independent evaluator receipts, preserved non-target constants, and was
+published through `ManifestRegistry`; a deliberately harmful candidate was
+rejected and rollback to an ancestor was tested. This is a procedure-library
+baseline, **not** a neural parameter update or model-selected action. It shows
+the task family is solvable while the model action policy remains 0/7. See
+[procedure results](docs/experiments/20261023_E5_Procedure_Results.md).
+
 **E4 typed artifacts (23 October).** ContextPack, RecordLatent,
 BranchMemoryImage, ProcedureArtifact and NeuralCandidate metadata contracts now
 have kind-specific lifecycles, source/parent dependency tracking, expiry,

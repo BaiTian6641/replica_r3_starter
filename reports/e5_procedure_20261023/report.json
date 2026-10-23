@@ -1,0 +1,460 @@
+{
+  "status": "completed",
+  "created_at_utc": "2026-10-23T11:42:40.607109+00:00",
+  "config_sha256": "afd798fc93682b284ea897bbc7b5665af671fa44df50c62d4c7d1301e6348df0",
+  "procedure": "f0ba4130e6086ccb05d753f33626cf1e188ca9c3bdd963a71ca00873cd2ed0c2",
+  "proposal": {
+    "format": "replica.learning.proposal.v1",
+    "proposal_id": "proposal-procedure-repair",
+    "parent_manifest_id": null,
+    "source_event_ids": [
+      "teacher:set_train_retry_01:step3",
+      "teacher:set_train_timeout_02:step3",
+      "teacher:set_train_backoff_03:step3",
+      "teacher:set_train_poll_04:step3"
+    ],
+    "target_kind": "procedure",
+    "target_id": "repair-config",
+    "data_manifest": {
+      "train_cases": [
+        "set_train_retry_01",
+        "set_train_timeout_02",
+        "set_train_backoff_03",
+        "set_train_poll_04"
+      ]
+    },
+    "budget": {
+      "train_cases": 4,
+      "dev_cases": 1,
+      "heldout_cases": 3,
+      "tool_calls_per_case": 4,
+      "native_model_loads": 0,
+      "optimizer_updates": 0
+    },
+    "optimizer": "host_tools",
+    "evaluation_plan": "source-separated dev/held-out execution and independent evaluator",
+    "created_at": 0,
+    "digest": "0cac3fbec6abb2be79d62389f604ffd6883a737d2ede7c880d14daffeef3b521"
+  },
+  "results": [
+    {
+      "case_id": "set_dev_retry_05",
+      "role": "dev",
+      "status": "succeeded",
+      "parsed": {
+        "name": "MAX_RETRIES",
+        "actual": "1",
+        "expected": "4"
+      },
+      "final_exit_code": 0,
+      "error": null,
+      "independent_passed": true,
+      "receipts": [
+        {
+          "status": "ok",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "531a862e3570c2001cddbab02295da685d4bed7e62da46054a4d1e3856b8737b",
+          "size": 143,
+          "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nREQUEST_TIMEOUT_MS = 8000\nBACKOFF_SECONDS = 0.3\nMAX_RETRIES = 1\n",
+          "excerpt": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nREQUEST_TIMEOUT_MS = 8000\nBACKOFF_SECONDS = 0.3\nMAX_RETRIES = 1\n"
+        },
+        {
+          "status": "error",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmp83aqkl9v/set_dev_retry_05",
+            "exit_code": 1,
+            "timed_out": false,
+            "duration_ms": 40,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "046df2a76b1b07cb35549fdf5e62f520709aa03dff93a3e0ac8395a8c7d44083",
+            "stdout_excerpt": "",
+            "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmp83aqkl9v/set_dev_retry_05/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 1 not greater than or equal to 4 : MAX_RETRIES=1 needs MAX_RETRIES >= 4\n\n----------------------------------------------------------------",
+            "workspace_hashes_before": {
+              "app_settings.py": "531a862e3570c2001cddbab02295da685d4bed7e62da46054a4d1e3856b8737b"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "531a862e3570c2001cddbab02295da685d4bed7e62da46054a4d1e3856b8737b"
+            },
+            "receipt_sha256": "caa02c9192d8c25c689ec77e424028b1b4d9ea077ff14af933e8c5248e791bc0"
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "set_constant",
+          "name": "MAX_RETRIES",
+          "old_value": "1",
+          "new_value": "4.0",
+          "path": "workspace/app_settings.py",
+          "sha256": "f043569cab4891281afcc00eb1a60e9b101bd3a9a9c43b8c99b95b554573b6b1",
+          "receipt": {
+            "status": "ok",
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "f043569cab4891281afcc00eb1a60e9b101bd3a9a9c43b8c99b95b554573b6b1",
+            "size": 145,
+            "created": false
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmp83aqkl9v/set_dev_retry_05",
+            "exit_code": 0,
+            "timed_out": false,
+            "duration_ms": 35,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+            "stdout_excerpt": "",
+            "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+            "workspace_hashes_before": {
+              "app_settings.py": "f043569cab4891281afcc00eb1a60e9b101bd3a9a9c43b8c99b95b554573b6b1"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "f043569cab4891281afcc00eb1a60e9b101bd3a9a9c43b8c99b95b554573b6b1"
+            },
+            "receipt_sha256": "6bb353fdc76c60739986814f75d5255df612bfe5876c840c8e35b18f7d50cce8"
+          }
+        }
+      ],
+      "workspace_sha256": "f043569cab4891281afcc00eb1a60e9b101bd3a9a9c43b8c99b95b554573b6b1"
+    },
+    {
+      "case_id": "set_heldout_timeout_06",
+      "role": "heldout",
+      "status": "succeeded",
+      "parsed": {
+        "name": "CONNECT_TIMEOUT_MS",
+        "actual": "500",
+        "expected": "2500"
+      },
+      "final_exit_code": 0,
+      "error": null,
+      "independent_passed": true,
+      "receipts": [
+        {
+          "status": "ok",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "69a4863b75e89d0a86ebe8e77709cc0809b0c932f7dcd03aefbe7208c6b5cb53",
+          "size": 142,
+          "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nMAX_RETRIES = 3\nBACKOFF_SECONDS = 0.5\nCONNECT_TIMEOUT_MS = 500\n",
+          "excerpt": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nMAX_RETRIES = 3\nBACKOFF_SECONDS = 0.5\nCONNECT_TIMEOUT_MS = 500\n"
+        },
+        {
+          "status": "error",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmpk0tknmli/set_heldout_timeout_06",
+            "exit_code": 1,
+            "timed_out": false,
+            "duration_ms": 36,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "8be768edab0ea1b930ec70e33ed59c7038ddd5341449f8aefcccbff7b847d082",
+            "stdout_excerpt": "",
+            "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmpk0tknmli/set_heldout_timeout_06/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 500 not greater than or equal to 2500 : CONNECT_TIMEOUT_MS=500 needs CONNECT_TIMEOUT_MS >= 2500\n\n----------------------------------",
+            "workspace_hashes_before": {
+              "app_settings.py": "69a4863b75e89d0a86ebe8e77709cc0809b0c932f7dcd03aefbe7208c6b5cb53"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "69a4863b75e89d0a86ebe8e77709cc0809b0c932f7dcd03aefbe7208c6b5cb53"
+            },
+            "receipt_sha256": "eb58224b0c355b6741de380945f9a52ed9c8857cb9d736ea8a6de19ad1841947"
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "set_constant",
+          "name": "CONNECT_TIMEOUT_MS",
+          "old_value": "500",
+          "new_value": "2500.0",
+          "path": "workspace/app_settings.py",
+          "sha256": "cb935663e2c4e0746740d4792907c54b3d78bfff86b9d040dd11b92fb8a4d860",
+          "receipt": {
+            "status": "ok",
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "cb935663e2c4e0746740d4792907c54b3d78bfff86b9d040dd11b92fb8a4d860",
+            "size": 145,
+            "created": false
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmpk0tknmli/set_heldout_timeout_06",
+            "exit_code": 0,
+            "timed_out": false,
+            "duration_ms": 34,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+            "stdout_excerpt": "",
+            "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+            "workspace_hashes_before": {
+              "app_settings.py": "cb935663e2c4e0746740d4792907c54b3d78bfff86b9d040dd11b92fb8a4d860"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "cb935663e2c4e0746740d4792907c54b3d78bfff86b9d040dd11b92fb8a4d860"
+            },
+            "receipt_sha256": "66c6a7070af67b11af919c810477a716a4a082d1a5e2540f0821f1c66a91a7ca"
+          }
+        }
+      ],
+      "workspace_sha256": "cb935663e2c4e0746740d4792907c54b3d78bfff86b9d040dd11b92fb8a4d860"
+    },
+    {
+      "case_id": "set_heldout_backoff_07",
+      "role": "heldout",
+      "status": "succeeded",
+      "parsed": {
+        "name": "BACKOFF_SECONDS",
+        "actual": "0.1",
+        "expected": "1.5"
+      },
+      "final_exit_code": 0,
+      "error": null,
+      "independent_passed": true,
+      "receipts": [
+        {
+          "status": "ok",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "9e39f9d842c1ceff2549889cb5f24e46e0b30a6bf5f4489300eed0d4f8d1826b",
+          "size": 145,
+          "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nRETRY_ATTEMPTS = 2\nREQUEST_TIMEOUT_MS = 700\nBACKOFF_SECONDS = 0.1\n",
+          "excerpt": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nRETRY_ATTEMPTS = 2\nREQUEST_TIMEOUT_MS = 700\nBACKOFF_SECONDS = 0.1\n"
+        },
+        {
+          "status": "error",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmp4yy1gmiz/set_heldout_backoff_07",
+            "exit_code": 1,
+            "timed_out": false,
+            "duration_ms": 35,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "9af5e000aa8e767ced93bc67f48e9f73442e8587e7cfc93762044be98734c1a3",
+            "stdout_excerpt": "",
+            "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmp4yy1gmiz/set_heldout_backoff_07/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 0.1 not greater than or equal to 1.5 : BACKOFF_SECONDS=0.1 needs BACKOFF_SECONDS >= 1.5\n\n------------------------------------------",
+            "workspace_hashes_before": {
+              "app_settings.py": "9e39f9d842c1ceff2549889cb5f24e46e0b30a6bf5f4489300eed0d4f8d1826b"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "9e39f9d842c1ceff2549889cb5f24e46e0b30a6bf5f4489300eed0d4f8d1826b"
+            },
+            "receipt_sha256": "af82dff27d81a22eae84bba2ae8c28cd78453f56056b86acc88d62c37bab77bc"
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "set_constant",
+          "name": "BACKOFF_SECONDS",
+          "old_value": "0.1",
+          "new_value": "1.5",
+          "path": "workspace/app_settings.py",
+          "sha256": "11191ee7b35a49d2432b5d3d9dc3378cbd26729e5e079f058c98787630d9af03",
+          "receipt": {
+            "status": "ok",
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "11191ee7b35a49d2432b5d3d9dc3378cbd26729e5e079f058c98787630d9af03",
+            "size": 145,
+            "created": false
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmp4yy1gmiz/set_heldout_backoff_07",
+            "exit_code": 0,
+            "timed_out": false,
+            "duration_ms": 34,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+            "stdout_excerpt": "",
+            "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+            "workspace_hashes_before": {
+              "app_settings.py": "11191ee7b35a49d2432b5d3d9dc3378cbd26729e5e079f058c98787630d9af03"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "11191ee7b35a49d2432b5d3d9dc3378cbd26729e5e079f058c98787630d9af03"
+            },
+            "receipt_sha256": "24beac543aa6fa0fb21c89371491261db261e46266a8ad983ef9dee53c66e2df"
+          }
+        }
+      ],
+      "workspace_sha256": "11191ee7b35a49d2432b5d3d9dc3378cbd26729e5e079f058c98787630d9af03"
+    },
+    {
+      "case_id": "set_heldout_poll_08",
+      "role": "heldout",
+      "status": "succeeded",
+      "parsed": {
+        "name": "POLL_ATTEMPTS",
+        "actual": "2",
+        "expected": "7"
+      },
+      "final_exit_code": 0,
+      "error": null,
+      "independent_passed": true,
+      "receipts": [
+        {
+          "status": "ok",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "f779615c3627ef8fd874a1678867c752977ce6f2200b8176d76cd4bbe654fb56",
+          "size": 145,
+          "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nBACKOFF_SECONDS = 0.45\nREQUEST_TIMEOUT_MS = 600\nPOLL_ATTEMPTS = 2\n",
+          "excerpt": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nBACKOFF_SECONDS = 0.45\nREQUEST_TIMEOUT_MS = 600\nPOLL_ATTEMPTS = 2\n"
+        },
+        {
+          "status": "error",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmpaz50w5kz/set_heldout_poll_08",
+            "exit_code": 1,
+            "timed_out": false,
+            "duration_ms": 35,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "2a4345c6b9713947b7af6081bcac341c15f5ee90a35a045eceae920db90ae2a2",
+            "stdout_excerpt": "",
+            "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmpaz50w5kz/set_heldout_poll_08/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 2 not greater than or equal to 7 : POLL_ATTEMPTS=2 needs POLL_ATTEMPTS >= 7\n\n---------------------------------------------------------",
+            "workspace_hashes_before": {
+              "app_settings.py": "f779615c3627ef8fd874a1678867c752977ce6f2200b8176d76cd4bbe654fb56"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "f779615c3627ef8fd874a1678867c752977ce6f2200b8176d76cd4bbe654fb56"
+            },
+            "receipt_sha256": "292648a656d262c7f93354370ded63b1bea003f5452ae3aeddcd860a67a3c4f6"
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "set_constant",
+          "name": "POLL_ATTEMPTS",
+          "old_value": "2",
+          "new_value": "7.0",
+          "path": "workspace/app_settings.py",
+          "sha256": "fd72c8da99bf65a77ce9d0c49db14c1b48e5a6bf60cc181577ae562c54c388fd",
+          "receipt": {
+            "status": "ok",
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "fd72c8da99bf65a77ce9d0c49db14c1b48e5a6bf60cc181577ae562c54c388fd",
+            "size": 147,
+            "created": false
+          }
+        },
+        {
+          "status": "ok",
+          "kind": "run_test",
+          "receipt": {
+            "kind": "run_test",
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator/test_policy.py"
+            ],
+            "cwd": "/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/tmpaz50w5kz/set_heldout_poll_08",
+            "exit_code": 0,
+            "timed_out": false,
+            "duration_ms": 33,
+            "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+            "stdout_excerpt": "",
+            "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+            "workspace_hashes_before": {
+              "app_settings.py": "fd72c8da99bf65a77ce9d0c49db14c1b48e5a6bf60cc181577ae562c54c388fd"
+            },
+            "workspace_hashes_after": {
+              "app_settings.py": "fd72c8da99bf65a77ce9d0c49db14c1b48e5a6bf60cc181577ae562c54c388fd"
+            },
+            "receipt_sha256": "e097af028c23e176117685f2a0274e5626553f59d6ef15c48f4761bc72e47a01"
+          }
+        }
+      ],
+      "workspace_sha256": "fd72c8da99bf65a77ce9d0c49db14c1b48e5a6bf60cc181577ae562c54c388fd"
+    }
+  ],
+  "evaluation": {
+    "decision": "accept",
+    "candidate_digest": "66361089ce87b5121bed5c7f5955fd8ad0bf2975c3a5a7ddff42053785234a02",
+    "parent_manifest_id": null,
+    "cases": [
+      {
+        "case_id": "set_dev_retry_05",
+        "role": "dev",
+        "status": "succeeded",
+        "independent_passed": true
+      },
+      {
+        "case_id": "set_heldout_timeout_06",
+        "role": "heldout",
+        "status": "succeeded",
+        "independent_passed": true
+      },
+      {
+        "case_id": "set_heldout_backoff_07",
+        "role": "heldout",
+        "status": "succeeded",
+        "independent_passed": true
+      },
+      {
+        "case_id": "set_heldout_poll_08",
+        "role": "heldout",
+        "status": "succeeded",
+        "independent_passed": true
+      }
+    ],
+    "target": "procedure"
+  },
+  "active_manifest_id": "b24e7722d6bbf0f5f0975901cc8e7e46293e69badd157fb0a888324d92af3941",
+  "harmful_candidate": {
+    "rejected": true,
+    "reason": "only accepted candidates may be published"
+  },
+  "acceptance": {
+    "accepted": true,
+    "heldout_passed": 3,
+    "heldout_cases": 3
+  },
+  "claims": "Procedure baseline only; no neural update or model-selected action."
+}

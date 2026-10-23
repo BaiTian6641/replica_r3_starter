@@ -85,3 +85,24 @@ def test_publish_accepted_procedure_and_reject_harmful_candidate(tmp_path):
         pass
     else:
         raise AssertionError('rejected candidate must not publish')
+
+
+def test_accepted_candidate_rollback_returns_to_ancestor(tmp_path):
+    from replica_lab.contracts import fingerprint
+    payload1 = {'base_revision': 'f97400052a43d642bbc6e9975e2397e3ae6a6b52',
+                'identity_version': 'generic', 'procedure': 'v1'}
+    payload2 = {'base_revision': 'f97400052a43d642bbc6e9975e2397e3ae6a6b52',
+                'identity_version': 'generic', 'procedure': 'v2'}
+    registry = ManifestRegistry(tmp_path / 'registry')
+    first = registry.publish(payload1, {'decision': 'accept',
+                                        'candidate_digest': fingerprint(payload1),
+                                        'parent_manifest_id': None},
+                             expected_parent=None)
+    second = registry.publish(payload2, {'decision': 'accept',
+                                         'candidate_digest': fingerprint(payload2),
+                                         'parent_manifest_id': first['manifest_id']},
+                              expected_parent=first['manifest_id'])
+    assert registry.active()['manifest_id'] == second['manifest_id']
+    rolled = registry.rollback(first['manifest_id'])
+    assert rolled['manifest_id'] == first['manifest_id']
+    assert registry.active()['manifest_id'] == first['manifest_id']

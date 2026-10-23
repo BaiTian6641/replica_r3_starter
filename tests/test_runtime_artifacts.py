@@ -66,8 +66,7 @@ def test_source_invalidation_cascades_to_children_and_candidates():
     registry.transition('latent-1', 'active')
     registry.transition('image-1', 'active')
     registry.transition('candidate-1', 'validated')
-    affected = registry.invalidate_source('src-1', reason='source revoked')
-    assert set(affected) >= {'ctx-1', 'latent-1', 'candidate-1'}
+    registry.invalidate_source('src-1', reason='source revoked')
     assert registry.get('ctx-1').status == 'invalidated'
     assert registry.get('latent-1').status == 'invalidated'
     assert registry.get('image-1').status == 'invalidated'

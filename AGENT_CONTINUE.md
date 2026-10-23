@@ -23,6 +23,12 @@ teacher loss 0.015. This is a second negative action-policy family, not a tool
 defect. Do not rerun a near-identical action arm; target action selection or
 advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
 
+**E5 procedure candidate (23 October):** a compiled repair procedure passed
+3/3 held-out + dev with independent receipts, published with harmful-candidate
+rejection and rollback. No neural candidate or learned action policy; model
+action remains 0/7. See
+[procedure results](docs/experiments/20261023_E5_Procedure_Results.md).
+
 **E4 typed artifacts (23 October):** kind-specific ContextPack/RecordLatent/
 BranchMemoryImage/ProcedureArtifact/NeuralCandidate metadata, lifecycle and
 dependency invalidation are implemented/tested. No execution, candidate
