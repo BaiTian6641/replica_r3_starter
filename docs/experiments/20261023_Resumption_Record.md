@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the commit adding the C17 bounded cache manager; later E2 capacity experiments are separate code/test commits.
+- Last code/test HEAD: `272e187 experiment: qualify selected 64-unit capacity`; documentation follow-ups may be later.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -20,7 +20,8 @@
   `runs/e3_policy_head_attempt03_20261023/policy_head` (head rejected as
   no-benefit).
 - Latest selected-capacity evidence:
-  `reports/e2_capacity64_selected_attempt01/run_report.json` (64 units).
+  `reports/e2_capacity64_selected_attempt01/run_report.json` (64 units,
+  12.69 GiB, 19.1 s).
 - Latest negative action evidence:
   `reports/e3_guard_attempt01/` and
   `[E3 action guard](20261023_E3_Action_Guard_Results.md)`.
