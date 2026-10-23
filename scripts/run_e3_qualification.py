@@ -614,8 +614,9 @@ def execute(args, profiler, report):
     # ---- independent branch influence after parent migration --------------
     prompt_ids = parity_ids
     prompt_mask = parity_mask
-    probe_scope = scopes['train_retry_01']
-    probe_task = tools_by_case['train_retry_01']
+    probe_case = protocol['fixtures']['train'][0]
+    probe_scope = scopes[probe_case]
+    probe_task = tools_by_case[probe_case]
     from replica_lab.architecture.contracts import TaskGraph
     features = torch.zeros(1, 24, device='mps')
     initial_ports = {name: parameter.detach().clone()
@@ -627,7 +628,7 @@ def execute(args, profiler, report):
         candidate = session.prepare(prompt_ids=prompt_ids, prompt_mask=prompt_mask,
                                     query=probe_task.goal, scope=probe_scope,
                                     task=TaskGraph('probe', probe_task.goal),
-                                    selection=selections['train_retry_01'],
+                                    selection=selections[probe_case],
                                     task_features=features, task_digest='probe-digest',
                                     revision=0, enabled_branches=branches)
         try:
@@ -873,7 +874,7 @@ def execute(args, profiler, report):
         'profiled_wall_seconds': None,
         'sampled_peak_driver_bytes': None,
         'episode_wall_seconds': report['evaluation']['wall_seconds_total'],
-        'optimizer_updates': int(alignment['updates']) * len(alignment['arms']),
+        'optimizer_updates': int(alignment['updates']) * len(alignment.get('arms', ('recurrent', 'feedforward_control'))),
         'new_original_checkpoints': 0,
         'extension_bytes': report['extension']['bytes'],
         'downloads': 0}

@@ -1,0 +1,55 @@
+W1023 02:21:44.311000 8100 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 85/381 [00:00<00:00, 842.15it/s]Loading weights:  45%|████▌     | 172/381 [00:00<00:00, 836.11it/s]Loading weights:  68%|██████▊   | 258/381 [00:00<00:00, 842.30it/s]Loading weights:  90%|█████████ | 343/381 [00:00<00:00, 831.76it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 851.25it/s]
+{"phase": "teacher_trajectory", "case": "set_train_retry_01", "steps": 5}
+{"phase": "teacher_trajectory", "case": "set_train_timeout_02", "steps": 5}
+{"phase": "teacher_trajectory", "case": "set_train_backoff_03", "steps": 5}
+{"phase": "teacher_trajectory", "case": "set_train_poll_04", "steps": 5}
+{"phase": "alignment_recurrent_update", "update": 1, "loss": 11.836523056030273}
+{"phase": "alignment_recurrent_update", "update": 2, "loss": 5.895687758922577}
+{"phase": "alignment_recurrent_update", "update": 3, "loss": 2.859468162059784}
+{"phase": "alignment_recurrent_update", "update": 4, "loss": 1.8150702584534883}
+{"phase": "alignment_recurrent_update", "update": 5, "loss": 1.2149376273155212}
+{"phase": "alignment_recurrent_update", "update": 6, "loss": 0.5907921940088272}
+{"phase": "alignment_recurrent_update", "update": 7, "loss": 0.3469891734421253}
+{"phase": "alignment_recurrent_update", "update": 8, "loss": 0.21840408444404602}
+{"phase": "alignment_recurrent_update", "update": 9, "loss": 0.8516381802037358}
+{"phase": "alignment_recurrent_update", "update": 10, "loss": 0.27347751741763204}
+{"phase": "alignment_recurrent_update", "update": 11, "loss": 0.07563238550210372}
+{"phase": "alignment_recurrent_update", "update": 12, "loss": 0.421312454258441}
+{"phase": "alignment_recurrent_update", "update": 13, "loss": 0.04632100183516741}
+{"phase": "alignment_recurrent_update", "update": 14, "loss": 0.2505777720361948}
+{"phase": "alignment_recurrent_update", "update": 15, "loss": 0.1454077206144575}
+{"phase": "alignment_recurrent_update", "update": 16, "loss": 0.013779528148006648}
+{"phase": "alignment_feedforward_update", "update": 1, "loss": 11.836523056030273}
+{"phase": "alignment_feedforward_update", "update": 2, "loss": 5.999819278717041}
+{"phase": "alignment_feedforward_update", "update": 3, "loss": 2.875267416238785}
+{"phase": "alignment_feedforward_update", "update": 4, "loss": 1.6522059496492147}
+{"phase": "alignment_feedforward_update", "update": 5, "loss": 1.188500702381134}
+{"phase": "alignment_feedforward_update", "update": 6, "loss": 0.41322923079133034}
+{"phase": "alignment_feedforward_update", "update": 7, "loss": 0.8306033592671156}
+{"phase": "alignment_feedforward_update", "update": 8, "loss": 0.26106002554297447}
+{"phase": "alignment_feedforward_update", "update": 9, "loss": 0.2753083035349846}
+{"phase": "alignment_feedforward_update", "update": 10, "loss": 0.2539656599983573}
+{"phase": "alignment_feedforward_update", "update": 11, "loss": 0.1341631542891264}
+{"phase": "alignment_feedforward_update", "update": 12, "loss": 0.29873818531632423}
+{"phase": "alignment_feedforward_update", "update": 13, "loss": 0.15757559426128864}
+{"phase": "alignment_feedforward_update", "update": 14, "loss": 0.13727253023535013}
+{"phase": "alignment_feedforward_update", "update": 15, "loss": 0.1036986242979765}
+{"phase": "alignment_feedforward_update", "update": 16, "loss": 0.33747180737555027}
+{"phase": "alignment_complete"}
+{"phase": "episode_complete", "case": "set_dev_retry_05", "mode": "full", "success": false}
+{"phase": "episode_complete", "case": "set_heldout_timeout_06", "mode": "full", "success": false}
+{"phase": "episode_complete", "case": "set_heldout_backoff_07", "mode": "full", "success": false}
+{"phase": "episode_complete", "case": "set_heldout_poll_08", "mode": "full", "success": false}
+{"phase": "episode_complete", "case": "set_dev_retry_05", "mode": "core_disabled", "success": false}
+{"phase": "episode_complete", "case": "set_dev_retry_05", "mode": "ff_core", "success": false}
+{"phase": "episode_complete", "case": "set_dev_retry_05", "mode": "extra_inference", "success": false}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 1141, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 1113, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_qualification.py", line 877, in execute
+    'optimizer_updates': int(alignment['updates']) * len(alignment['arms']),
+                                                         ~~~~~~~~~^^^^^^^^
+KeyError: 'arms'

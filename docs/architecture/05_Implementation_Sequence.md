@@ -21,8 +21,10 @@ the [machine-readable status](../../configs/architecture_implementation_status_v
 **E3 is implemented and native-qualified on the same date.** The shared core,
 workspace readers, exact journal, typed actions, fixture tools and restart loop
 pass engineering acceptance; model-driven task completion is negative on the
-exposed fixtures (0/8) and the success head was not trained. See
-[E3 results](../experiments/20261023_E3_Native_Results.md). The original proposal
+exposed fixtures (0/8), and a fresh `set_constant` family is also negative
+(0/7, repeated read). The success head was not trained. See
+[E3 results](../experiments/20261023_E3_Native_Results.md) and
+[set_constant results](../experiments/20261023_E3_Set_Constant_Results.md). The original proposal
 below is preserved as the design baseline; its “proposed” labels describe the
 research handoff.
 

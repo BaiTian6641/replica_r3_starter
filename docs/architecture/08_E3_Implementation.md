@@ -238,3 +238,16 @@ slot failures to the E3 core. The largest actually qualified memory capacity is
 16 units / 2,043 source tokens / 256 prompt tokens / 8 generated tokens, plus a
 modules-only 16-unit backward at 12.51 GiB peak driver. See the
 [E2 results](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+
+## 10. Narrower `set_constant` arm (negative)
+
+A second predeclared family replaced full-file repair with a bounded
+`set_constant` tool (one numeric literal; other settings preserved) and used
+fresh source groups. All engineering checks passed. Teacher-forced loss fell to
+0.015, but held-out execution was **0/7**: the full and feed-forward arms
+repeated `read`, while core-disabled/extra-inference produced malformed
+proposals. The model never selected the repair, so the failure is action
+selection/representation, not tool validation or argument syntax. This matches
+the earlier `write_file` read attractor. Do not run another near-identical
+action arm; the set_constant tool remains implemented but is not promoted. See
+[set_constant results](../experiments/20261023_E3_Set_Constant_Results.md).
