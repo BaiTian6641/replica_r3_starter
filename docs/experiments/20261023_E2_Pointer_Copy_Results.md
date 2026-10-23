@@ -36,7 +36,10 @@ values, so the model is using the selected source rather than a fixed answer
 prior. Held-out hits were `navy` and `magenta`; misses include `Flint`/`flint`
 (case mismatch), `amber`, `blue`, `silver`, `crimson`. Training loss stayed near
 18.5, so the margin is modest and the optimizer did not show a clean learning
-curve.
+curve. A tiny CPU probe confirms the pointer mechanism itself learns: loss fell
+**2.689 → 2.291** over 300 steps and the target span became the argmax. The flat
+native curve is therefore an optimization/data-scale limit, not a broken pointer
+path.
 
 ## 3. Decision and limits
 
