@@ -1,0 +1,121 @@
+{
+  "status": "completed",
+  "created_at_utc": "2026-10-23T14:01:28.198765+00:00",
+  "candidate": {
+    "artifact_id": "e2-pointer-context-1",
+    "parent_manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+    "changed_parameters": [
+      "linear.weight",
+      "linear.bias"
+    ],
+    "weights_sha256": "d9dc540a25cd2fa7ce150a0ff2cea092cd4093126d51b2aa16c0c1091674ca13",
+    "training_scope": "modules_only",
+    "optimizer": "adamw",
+    "producer_versions": {
+      "pointer": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73"
+    },
+    "source_ids": [
+      "copy_train_01",
+      "copy_train_02",
+      "copy_train_03",
+      "copy_train_04",
+      "copy_train_05",
+      "copy_train_06",
+      "copy_train_07",
+      "copy_train_08",
+      "copy_train_09",
+      "copy_train_10",
+      "copy_train_11",
+      "copy_train_12",
+      "copy_train_13",
+      "copy_train_14",
+      "copy_train_15",
+      "copy_train_16",
+      "copy_train_17",
+      "copy_train_18",
+      "copy_train_19",
+      "copy_train_20",
+      "copy_train_21",
+      "copy_train_22",
+      "copy_train_23",
+      "copy_train_24"
+    ],
+    "parent_id": null,
+    "status": "accepted",
+    "evaluation": "passed",
+    "created_at": 0,
+    "expires_at": null,
+    "kind": "neural_candidate"
+  },
+  "harmful": {
+    "candidate": {
+      "artifact_id": "e2-pointer-context-harmful",
+      "parent_manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+      "changed_parameters": [
+        "linear.weight",
+        "linear.bias"
+      ],
+      "weights_sha256": "d9dc540a25cd2fa7ce150a0ff2cea092cd4093126d51b2aa16c0c1091674ca13",
+      "training_scope": "modules_only",
+      "optimizer": "adamw",
+      "producer_versions": {
+        "pointer": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73"
+      },
+      "source_ids": [
+        "copy_train_01",
+        "copy_train_02",
+        "copy_train_03",
+        "copy_train_04",
+        "copy_train_05",
+        "copy_train_06",
+        "copy_train_07",
+        "copy_train_08",
+        "copy_train_09",
+        "copy_train_10",
+        "copy_train_11",
+        "copy_train_12",
+        "copy_train_13",
+        "copy_train_14",
+        "copy_train_15",
+        "copy_train_16",
+        "copy_train_17",
+        "copy_train_18",
+        "copy_train_19",
+        "copy_train_20",
+        "copy_train_21",
+        "copy_train_22",
+        "copy_train_23",
+        "copy_train_24"
+      ],
+      "parent_id": null,
+      "status": "rejected",
+      "evaluation": "failed",
+      "created_at": 0,
+      "expires_at": null,
+      "kind": "neural_candidate"
+    },
+    "rejected": true
+  },
+  "artifact_catalog": {
+    "format": "replica.artifacts.catalog.v1",
+    "artifacts": [
+      {
+        "artifact_id": "e2-pointer-context-1",
+        "kind": "neural_candidate",
+        "status": "accepted",
+        "digest": "82fe29e069448ee0bb459c9e590cd22573d53f457791ead76aa815b7343f8e13"
+      },
+      {
+        "artifact_id": "e2-pointer-context-harmful",
+        "kind": "neural_candidate",
+        "status": "rejected",
+        "digest": "245a3fdb44563e8897aebc462a19119feee9ef64ebbb18327952ecb312deafea"
+      }
+    ]
+  },
+  "baseline_manifest": "97319970fae6a9bec5766ef5f2384093f4e8e5a3f5fb75e28b9e56ab1ebaad2c",
+  "candidate_manifest": "ec173220c7b7976fffccf3051cac18ca8be73d564dbb96296fec1110fddc9724",
+  "rolled_back": "97319970fae6a9bec5766ef5f2384093f4e8e5a3f5fb75e28b9e56ab1ebaad2c",
+  "active_after_rollback": "97319970fae6a9bec5766ef5f2384093f4e8e5a3f5fb75e28b9e56ab1ebaad2c",
+  "claims": "Context-head publication metadata and rollback only; exact text remains default; not integrated as a default."
+}

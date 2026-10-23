@@ -1,0 +1,22 @@
+W1023 09:00:19.284000 38595 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]
+Loading weights:  25%|██▍       | 95/381 [00:00<00:00, 922.11it/s]
+Loading weights:  49%|████▉     | 188/381 [00:00<00:00, 899.28it/s]
+Loading weights:  73%|███████▎  | 278/381 [00:00<00:00, 887.73it/s]
+Loading weights:  96%|█████████▋| 367/381 [00:00<00:00, 850.23it/s]
+Loading weights: 100%|██████████| 381/381 [00:00<00:00, 893.43it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_context_service.py", line 91, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_context_service.py", line 82, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_context_service.py", line 32, in execute
+    head.load_state_dict(load_file(str(ROOT/protocol['context_head'])))
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 2643, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for CandidateContextHead:
+	Missing key(s) in state_dict: "linear.weight", "linear.bias".
+	Unexpected key(s) in state_dict: "bias", "weight".

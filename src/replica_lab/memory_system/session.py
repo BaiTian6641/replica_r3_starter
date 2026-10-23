@@ -383,6 +383,32 @@ class MemorySession:
             return token_ids, token_mask, candidate_mask, tuple(provenance)
         return token_ids, token_mask, candidate_mask
 
+    def pointer_answer_context(self, request, context_head, *, unit: str = 'word',
+                               record_scope: str = 'top') -> PointerAnswer:
+        """Pointer answer plus a candidate-context bias over the same spans."""
+        from .context import context_features
+        token_ids, token_mask, candidate_mask, provenance = self.copy_candidates(
+            request, include_provenance=True, unit=unit, record_scope=record_scope)
+        scores = self.adapter.pointer_scores(request.frame, token_ids, token_mask,
+                                             candidate_mask)
+        features = context_features(self, request, token_ids, token_mask, provenance,
+                                    max_span=self.adapter.manifest.copy.max_span)
+        bias = context_head(features).reshape(-1)
+        index = int((scores + bias).argmax(dim=-1)[0])
+        seq = tuple(int(x) for x in token_ids[0, index][token_mask[0, index]].tolist())
+        start, length, source = provenance[index]
+        if len(source) != length:
+            raise ValueError('Pointer provenance length mismatch')
+        record_id, record_hash, span_hash = source[0]
+        return PointerAnswer(
+            token_ids=seq, text=self.tokenizer.decode(list(seq),
+                                                       skip_special_tokens=True).strip(),
+            record_id=record_id, record_hash=record_hash, span_hash=span_hash,
+            source_ids=tuple(dict.fromkeys(item[0] for item in source)),
+            candidate_index=index, candidate_count=len(provenance),
+            producer=request.frame.copy.producer,
+            source_hashes=tuple(dict.fromkeys(item[1] for item in source)))
+
     def pointer_answer(self, request, *, unit: str = 'token',
                        record_scope: str = 'all') -> PointerAnswer:
         """Return the model-selected exact source span and host provenance."""

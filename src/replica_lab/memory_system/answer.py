@@ -42,6 +42,7 @@ class MemoryAnswerService:
         self.exact_source_fallback = exact_source_fallback
         self.candidate_unit = candidate_unit
         self.record_scope = record_scope
+        self.context_head = None
 
     def answer(self, request) -> MemoryAnswer:
         self.session.verify(request)
@@ -49,8 +50,13 @@ class MemoryAnswerService:
         if frame is None:
             raise ValueError('answer requires an owned request frame')
         if self.pointer_enabled and frame.copy is not None and frame.branch_enabled('copy'):
-            pointer: PointerAnswer = self.session.pointer_answer(
-                request, unit=self.candidate_unit, record_scope=self.record_scope)
+            if self.context_head is not None:
+                pointer: PointerAnswer = self.session.pointer_answer_context(
+                    request, self.context_head, unit=self.candidate_unit,
+                    record_scope=self.record_scope)
+            else:
+                pointer: PointerAnswer = self.session.pointer_answer(
+                    request, unit=self.candidate_unit, record_scope=self.record_scope)
             return MemoryAnswer(
                 text=pointer.text, method='pointer_copy',
                 record_ids=(pointer.record_id,),
