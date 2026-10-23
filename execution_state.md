@@ -33,6 +33,14 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 exact-constant prompt evidence (23 October).** A host-read line now lists
+the current workspace constant names/current values (never the expected bound or
+a proposed repair) when `set_constant` is allowed. On a new four-case family
+this produced **4/4 completions**, 0 malformed actions and 0 false success
+claims; the model still selected the name/value. This is a narrower evidence
+interface, not a general capability claim. See
+[prompt evidence results](docs/experiments/20261023_E3_Prompt_Evidence_Results.md).
+
 **E3 fresh mixed family (23 October).** Four new held-out cases with constant
 names/values absent from accepted training produced **3/4 completions** with no
 head. The miss was `fresh_heldout_repair_02`: the model generated `12` but
