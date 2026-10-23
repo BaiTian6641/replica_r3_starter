@@ -1,12 +1,14 @@
 # 03 - Construction plan and executable runbook
 
-**Current implementation priority:** follow the [integrated architecture build](architecture/05_Implementation_Sequence.md).
-E1/E2 replace the temporary global context and set-pooled writer with explicit
-request ownership, contextual record payloads and two native memory ports. E3
-connects the shared core to real task state/actions; E4/E5 add adaptive memory,
-compilation and candidate learning. The [design index](architecture/README.md)
-is the current specification. Historical commands and reports below remain
-reproducibility references; no native job is part of this design review.
+**Current implementation:** E1/E2 are connected and have passed their bounded
+native memory diagnostic on MPS. Use the [new runtime/runbook](architecture/07_E1_E2_Implementation.md)
+and [measured results](experiments/20261023_E1_E2_Native_Results.md): slot-only 4/4,
+disabled 0/4, exact fallback 4/4, fresh-process correction/cache reload pass,
+21.11 GiB peak driver memory, one 18.62 MiB extension and no base copy.
+Reranking remains 1/2; full-bank capacity and held-out quality remain open.
+E3 now connects the shared core to real task state/actions; E4/E5 add adaptive
+memory, compilation and candidate learning. Historical commands below remain
+reproducibility references. The protected runtime draft is not imported.
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
@@ -45,6 +47,9 @@ receipt loop alongside E1/E2; its qualification protocol is bound to that implem
 
 | Component | Delivered behavior | Important boundary |
 |---|---|---|
+| architecture/ | Explicit native adapter, typed immutable frames, source-only prefix writer access, independent block13/27 ports and sense41 | Batch-one uncached text reference; native short D1/D2 gradients qualified, E3 core pending |
+| memory_system/ | Temporal ledger, scoped lexical/native-dense candidates, supervised reranker API, versioned latents, exact fetch and host commit | Slot-reading diagnostic passes; reranker quality and multi-record interference remain open |
+| run_replica_session.py / qualify_architecture.py | Shared offline MPS loader, persistent session CLI, fixed diagnostic, extension-only exports | Fresh-process reload passes; extension is not a resumable optimizer checkpoint |
 | contracts.py | Typed source/branch records; exact SFT schema; lineage/exact-duplicate split audit | Cannot prove factual correctness or user consent |
 | memory.py | SQLite records, scope checks, observation-time reads, corrections, tombstones, derived-artifact invalidation | Not a semantic retriever, encrypted vault or OS security boundary |
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |

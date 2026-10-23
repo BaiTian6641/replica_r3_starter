@@ -8,6 +8,14 @@ This deliverable is research and design. It does not launch another response
 contract experiment, train a new model, or claim that the proposed modules exist.
 The previous GPU results remain evidence about the earlier adapter and protocol.
 
+**Implementation update, 23 October 2026 UTC:** E1 is implemented/native-qualified.
+E2's connected slot-reading diagnostic passes; learned reranking quality,
+full-bank capacity and novel-source tests remain open. See
+[implementation](07_E1_E2_Implementation.md), [results](../experiments/20261023_E1_E2_Native_Results.md)
+and the [machine-readable status](../../configs/architecture_implementation_status_v1.json).
+E3 is the next construction package. The original proposal below is preserved
+as the design baseline; its “proposed” labels describe the research handoff.
+
 ## 1. What changes in the work plan
 
 The next engineering deliverable is a connected MiniCPM5 memory/core/runtime

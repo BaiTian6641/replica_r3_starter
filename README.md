@@ -1,14 +1,16 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
-**Current work: [integrated architecture research and design](docs/architecture/README.md).**
-The new six-chapter design covers 18 components: native MiniCPM memory ports,
-parallel cognition, temporal/neural memory, runtime compilation, evaluated
-learning and authentic Replica integration. Start with the
-[system blueprint](docs/architecture/01_System_Blueprint.md),
-[rendered component diagrams](diagrams/architecture_v1/README.md), and
-[E1–E6 build sequence](docs/architecture/05_Implementation_Sequence.md).
-The implementation priority is now the connected architecture. This review adds
-no model runs, training results or checkpoints; earlier experiments remain below.
+**Current work: E1/E2 connected native memory is implemented.** The new
+[architecture interfaces and runtime](docs/architecture/07_E1_E2_Implementation.md)
+passed a bounded M2 Ultra GPU diagnostic: **4/4 slot-only answers**, **0/4 with
+ports disabled**, exact fallback, correction and fresh-process cache/extension
+reload. Peak driver memory: **21.11 GiB**. The local original model was reused;
+only an **18.62 MiB extension** was saved. See [results and limits](docs/experiments/20261023_E1_E2_Native_Results.md).
+
+The reranker remains 1/2 on its tiny test. Generalization, full-bank capacity and
+E3 cognition are still open. The [18-component design](docs/architecture/README.md)
+and [E1–E6 sequence](docs/architecture/05_Implementation_Sequence.md) remain the
+construction plan; the next package is the shared cognitive core and task loop.
 
 **23 October 2026 | Experience-driven learning, small-model architecture experiments and a personal parallel Replica**
 
@@ -16,7 +18,7 @@ The target is a semi-cognitive system that uses experience to improve its future
 
 This package contains an executable research starter, detailed construction documents, an eight-page diagram atlas, a dataset catalog, eight complete dataset-generation/review prompts, schemas and coding-agent instructions. It is a new R3 bundle; the seven supplied R2 documents are preserved unchanged under reference/r2.
 
-## Latest native evidence — 22 October 2026 (America/Chicago)
+## Preserved query-policy baseline — 22 October 2026 (America/Chicago)
 
 Released **2,000 source-bound synthetic targets across four task families**.
 The simpler query-policy contract was committed at `b2010c2` before its M2 Ultra

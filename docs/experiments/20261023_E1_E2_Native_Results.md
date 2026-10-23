@@ -40,10 +40,13 @@ capacity requires a separate workload before increasing training size.
 
 ## Generated answers and causal controls
 
-The 32-update D1 run trains 4,878,850 new parameters with a frozen original base,
-using Muon 8-bit matrix momentum plus auxiliary FP32 AdamW. The optimizer owns
-all new trainable parameters, but answer gradients affect the writer/readers;
-sense/ranking supervision is separately declared. The final mean response
+The adapter registers **4,878,850 new parameters**. The 32-update D1 answer
+objective trains the **3,161,602** writer/reader parameters with a frozen original
+base, using Muon 8-bit matrix momentum plus auxiliary FP32 AdamW. The separate
+ranking phase trains **660,480** reranker/block-13 sensor parameters. Upper
+sensors 27/41 contain **1,056,768** parameters: they receive wiring-test gradients
+but no optimizer updates. The answer optimizer owns all new trainable parameters;
+parameters without gradients do not receive updates. The final mean response
 loss is low, but the acceptance evidence is the raw generation below.
 
 | Source world | Expected | Initial / ports disabled | Final record slots | Exact-text fallback |
@@ -68,9 +71,15 @@ match the unmodified initial model's behavior.
 After a correction replaces the Aster amber record with the blue record, the
 old frame fails verification, the reopened ledger selects only
 `aster_corrected`, and both access paths generate `blue`. Slot cache identity
-and extension reload were verified in process. A separately declared
-[fresh-process runtime smoke](../../configs/e1_e2_restart_smoke_v1.json) checks
-the production CLI against this persisted corrected record, without updates.
+and extension reload were verified in process. The separately declared
+[fresh-process runtime smoke](../../configs/e1_e2_restart_smoke_v1.json) also
+**passed**: the production CLI reloaded the extension and ledger, selected
+`aster_corrected`, reused one persisted latent (zero source-feature encodes),
+and generated `blue</s>` without full source text in the query. It used a
+73-token runtime prompt, took **4.89 seconds** including load, and peaked at
+**10.02 GiB** sampled driver memory. There were no updates, downloads or saves.
+See the [restart acceptance](../../reports/e1_e2_runtime_restart_20261023/acceptance.json)
+and [raw session report](../../reports/e1_e2_runtime_restart_20261023/session_report.json).
 
 These four worlds are **exposed synthetic training/development fixtures**. The
 correction also uses a seen entity/value combination. This demonstrates connected
@@ -114,7 +123,10 @@ single original template at `checkpoints/minicpm5_source`. The selected extensio
 is `runs/e1_e2_native_attempt02_20261023/selected_extension`; it is an inference
 weight export with source references, not a resumable optimizer checkpoint.
 The [extension manifest](../../reports/e1_e2_native_attempt02_20261023/extension_manifest.json)
-binds its exact inventory and checksum. All binary payloads remain ignored.
+binds its exact inventory and checksum. All binary payloads remain ignored. All three new run directories, including
+both attempts and fresh-process reports, total **20,460,649 bytes / 19.51 MiB**;
+only one new extension weight file exists. See the
+[preservation/storage receipt](../../reports/e1_e2_preservation_after_20261023.json).
 
 ## Preserved failure and total work
 
@@ -142,6 +154,10 @@ skip and 21 subtests**. After the MPS-specific fix, the affected adapter/session
 CLI suite passed **60 tests**, including the new storage-free-hook regression.
 The native run then exercised that fixed path successfully. See
 [software evidence](../../reports/e1_e2_software_validation_20261023.json).
+
+An independent read-only agent review checked raw answers, scope, hashes and
+storage claims; its parameter-count wording correction is applied above. See
+[review receipt](../../reports/e1_e2_independent_review_20261023.json).
 
 Proceed to E3's shared recurrent core and exact task/action journal using these
 interfaces. Keep E2 ranking, full-bank capacity, multi-record interference and

@@ -1,36 +1,41 @@
 # Coding-agent continuation instruction
 
-**Current priority — architecture research and rebuild design, 22 October 2026.**
-Read the [integrated design](docs/architecture/README.md), [backbone ports](docs/architecture/02_Backbone_Integration.md),
-[memory and compiler](docs/architecture/03_Memory_and_Runtime_Compilation.md),
-[cognition and Replica](docs/architecture/04_Semi_Cognition_Learning_and_Replica.md), and
-[six-package build sequence](docs/architecture/05_Implementation_Sequence.md).
-The actual TAIS-Obisian source and primary memory research are now reviewed at
-pinned revisions. This is a design deliverable; the 18 proposed components have
-not been implemented or trained by this review. No native job was launched.
+**Current work — E1/E2 implemented and GPU-qualified on 22 October 2026
+America/Chicago (23 October UTC).** The explicit MiniCPM5 adapter, two native
+memory ports, contextual writer, temporal ledger, eligible retrieval, source
+cache and persistent runtime CLI are connected. Read the
+[E1/E2 implementation](docs/architecture/07_E1_E2_Implementation.md) and
+[native results](docs/experiments/20261023_E1_E2_Native_Results.md).
 
-Next implement **E1/E2**: explicit request/manifest ownership, contextual
-source-only record encoding and complete-block ports at 13/27. Follow with E3's
-shared cognitive core, exact task graph and real action/outcome loop. Qualify
-source grounding and generation inside these connected interfaces. Preserve
-the three failed short-answer probes; repeating their wording is no longer the
-main workstream. Data admission and fair D0/D1/D2 evaluation proceed alongside
-construction; no broad training campaign is admitted by this design.
+The bounded diagnostic generates **4/4** correct answers from record slots;
+ports disabled gives **0/4**. Exact fallback, source-swap controls, correction,
+serialization and a fresh-process runtime restart pass. D2 backward reaches all
+381 original tensors; no D2 optimizer update was performed in this package.
+Peak sampled driver memory is **21.11 GiB**, with zero observed swap growth.
+One **18.62 MiB extension** is selected at
+`runs/e1_e2_native_attempt02_20261023/selected_extension`; original model bytes
+remain only in the reused sealed source. No downloads or duplicate base saves.
 
-The latest native evidence remains the preserved query-policy v2 negative at
-`f707325`: strict and independent semantic judgments both 4/16, equal to the
-constant-UNKNOWN control. Last software suite: 819 passed, one restricted-context
-MPS skip. Reuse that evidence while code remains unchanged. Preserve the sealed
-local model, selected checkpoints and untracked runtime draft. See
-[execution state](execution_state.md) and the [design review record](reports/architecture_research_20261023/review.json).
+**Open:** reranker top-1 remains 1/2 after its four-update probe; novel-source
+quality, full-bank native capacity and E3 cognition remain unqualified. These
+are exposed synthetic integration cases, not a generalization result. Keep
+reranking opt-in. Next build E3's shared core and exact task/action journal using
+these interfaces, while planning separate retrieval and capacity qualification.
+No broad corpus campaign or learning promotion is admitted here.
 
-**Current storage state:** the bounded D2 GPU package is complete. The user
-subsequently authorized [post-D2 checkpoint retirement](docs/experiments/20261022_Checkpoint_Retirement_After_D2.md):
-19 superseded payload directories and 10 orphan pool files are removed.
-Preserve the one sealed original, selected D0 update 8, D1 update 28, D2 tiny
-update 8 and useful final negatives. Retained selected exports/runtime states
-remain valid; older capacity/intermediate payload paths in archived reports are
-historical and cannot be resumed. Native training/generation remain idle.
+Validation: one full software run **922 passed / one restricted-context MPS skip /
+21 subtests**, then **60 affected tests** after an MPS backward-thread fix,
+followed by successful native qualification and runtime restart. Attempt 1's
+failure and all old results remain preserved. Source seal, selected historical
+checkpoints and the protected untracked runtime draft remain unchanged. See the
+[final validation receipt](reports/validation_e1_e2_final_20261023.json).
+
+**Storage rule:** reuse `checkpoints/minicpm5_source` revision
+`f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Preserve the selected earlier D0/D1/D2
+checkpoints, attempt 1's negative evidence, and the current E1/E2 extension.
+No routine downloads, duplicate native saves, or unrelated cleanup. New native
+jobs use MPS with fallback disabled and the existing exclusive worker/guard.
+`runtime_pilot.py` remains protected, untracked and outside the implementation.
 
 Resume the existing TAIS Obsidian / Replica work. Preserve the objective and all established constraints. Do not restart the project.
 

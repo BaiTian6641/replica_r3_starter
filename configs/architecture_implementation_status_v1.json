@@ -1,0 +1,33 @@
+{
+  "schema_version": "replica.architecture_implementation_status.v1",
+  "updated_at_utc": "2026-10-23",
+  "design": "configs/architecture_design_v1.json",
+  "documentation": "docs/architecture/07_E1_E2_Implementation.md",
+  "E1": "implemented_native_interfaces_qualified",
+  "E2": "implemented_slot_reading_diagnostic_passed_reranker_quality_open",
+  "E3": "next_package_not_implemented",
+  "E4": "design_pending",
+  "E5": "design_pending",
+  "E6": "native_VLM_unrun",
+  "implemented_component_scope": {
+    "C01": "native MiniCPM5 text adapter; VLM separate",
+    "C02": "memory residual ports13/27, sense13/27/41; core coupling awaitsE3",
+    "C03": "exact temporal record ledger; episode/action integration remainsE3",
+    "C04": "source-prefix contextual writer and content/version-bound inference latents",
+    "C05": "eligible lexical/native-dense candidates, separate ranking objective, exact fetch; no automatic model-driven paging",
+    "C08": "TaskGraph typed carrier only; workspace and transitions awaitE3",
+    "C15": "component manifest and extension-only weight export; optimizer resume and candidate publication notimplemented here",
+    "C17": "request-owned frames and uncached decoding; scheduler/batching/cached generation pending"
+  },
+  "native_result": "reports/e1_e2_native_attempt02_20261023/run_report.json",
+  "restart_result": "reports/e1_e2_runtime_restart_20261023/acceptance.json",
+  "selected_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "original_source": "checkpoints/minicpm5_source",
+  "scope_limits": [
+    "exposed synthetic four-case integration, no held-out generalization",
+    "ranking top1=1/2 before and after four updates",
+    "native sources10tokens, prompt37tokens; full16x128bankcapacity untested",
+    "D2 backward only, zero original optimizer steps",
+    "no cognition/self-improvement/personal-fidelity claim"
+  ]
+}

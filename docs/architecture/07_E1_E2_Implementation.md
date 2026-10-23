@@ -4,7 +4,7 @@
 first two packages of the [build sequence](05_Implementation_Sequence.md).
 **Native follow-up:** E1 and the bounded E2 slot-reading diagnostic pass on the
 M2 Ultra GPU. See the [results and limitations](../experiments/20261023_E1_E2_Native_Results.md).
-The reranker remains1/2 on its tiny diagnostic; E3 and broader quality remain open.
+The reranker remains 1/2 on its tiny diagnostic; E3 and broader quality remain open.
 
 ## Connected implementation
 

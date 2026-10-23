@@ -10,7 +10,7 @@ cognitive core, native memory access ports, self-evaluation, bounded learning
 and an authentic personal Replica branch. MiniCPM5-2B is the first technology
 validation model; MiniCPM-V-4.7-1B is the second, with its own native port.
 
-**Implementation follow-up:** [E1/E2 implementation and qualification](07_E1_E2_Implementation.md) now records the connected code and its fixed GPU protocol. The research chapters below remain the design baseline.
+**Implementation follow-up:** [E1/E2 implementation and qualification](07_E1_E2_Implementation.md) records the connected code and completed MPS qualification. Slot-only answers are 4/4 with source-swap/restart controls; reranking quality remains open. See the [native results](../experiments/20261023_E1_E2_Native_Results.md). The research chapters below remain the design baseline.
 
 ## Read in this order
 
@@ -73,15 +73,16 @@ and research reports; older notes that no matching public upstream had been
 identified describe the prior review, not this one. Its custom-model mechanisms
 inform the design; its reported results do not qualify our MiniCPM implementation.
 
-Current native evidence remains the small last-block adapter, its capacity and
-memorization checks, and the preserved failed response-contract probes. This
-package defines the larger system to implement. It makes no new model-quality,
-memory-retention, personal-fidelity or self-improvement result.
+At the design handoff, native evidence covered the earlier last-block adapter
+and preserved response-contract failures. The subsequent E1/E2 implementation
+now adds measured native source-to-port integration. This remains a narrow
+synthetic diagnostic, with no personal-fidelity or self-improvement result.
 
 ## Immediate implementation
 
-Implement **E1 and E2**: explicit request/manifest interfaces, source-only
-contextual record encoding and two native memory ports. Then connect the shared
+**E1/E2 implementation and bounded native diagnostic are complete** (reranking
+quality remains open). Their delivered scope is: explicit request/manifest interfaces, source-only
+contextual record encoding and two native memory ports. Next connect the shared
 core, task journal and real neural action/outcome loop in E3. Integrate temporal
 memory/compilation and actual candidate learning in E4/E5. Source admission and
 fair-comparison design proceed alongside construction; they do not require more
