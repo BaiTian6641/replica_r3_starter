@@ -47,7 +47,7 @@ class TaskSuccessHead(nn.Module):
         if valid is None:
             valid = torch.ones(1, self.spec.slots, dtype=torch.bool, device=workspace.device)
         if valid.dtype != torch.bool or tuple(valid.shape) != tuple(workspace.shape[:2]):
-            raise ValueError('valid must be a boolean mask matching [1, slots]')
+            raise ValueError('valid must be a boolean mask matching [batch, slots]')
         if task_features.device != workspace.device:
             raise ValueError('task_features and workspace must be on the same device')
         # Detach only the inputs: the monitor must not train the core, while the
@@ -93,21 +93,21 @@ class ActionKindHead(nn.Module):
 
     def forward(self, task_features: Tensor, workspace: Tensor,
                 valid: Tensor | None = None) -> Tensor:
-        if task_features.ndim != 2 or task_features.shape[0] != 1 \
+        if task_features.ndim != 2 or task_features.shape[0] < 1 \
                 or task_features.shape[1] != self.spec.task_features:
-            raise ValueError(f'task_features must have shape [1, {self.spec.task_features}]')
-        if workspace.ndim != 3 or workspace.shape[0] != 1 \
+            raise ValueError(f'task_features must have shape [batch, {self.spec.task_features}]')
+        if workspace.ndim != 3 or workspace.shape[0] != task_features.shape[0] \
                 or workspace.shape[1] != self.spec.slots \
                 or workspace.shape[-1] != self.spec.width:
-            raise ValueError(f'workspace must have shape [1, {self.spec.slots}, {self.spec.width}]')
+            raise ValueError(f'workspace must have shape [batch, {self.spec.slots}, {self.spec.width}]')
         for value, name in ((task_features, 'task_features'), (workspace, 'workspace')):
             if not value.is_floating_point() or not bool(torch.isfinite(value).all()):
                 raise ValueError(f'{name} must be finite floating point')
         if valid is None:
-            valid = torch.ones(1, self.spec.slots, dtype=torch.bool,
+            valid = torch.ones(workspace.shape[:2], dtype=torch.bool,
                                device=workspace.device)
         if valid.dtype != torch.bool or tuple(valid.shape) != tuple(workspace.shape[:2]):
-            raise ValueError('valid must be a boolean mask matching [1, slots]')
+            raise ValueError('valid must be a boolean mask matching [batch, slots]')
         if task_features.device != workspace.device:
             raise ValueError('task_features and workspace must be on the same device')
         mask = valid.to(workspace.device)
