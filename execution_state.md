@@ -396,6 +396,13 @@ not changing action selection. No false success, no repair selected. This closes
 the prompt-only guard path and supports an action-selection, not interface,
 diagnosis. See [guard results](docs/experiments/20261023_E3_Action_Guard_Results.md).
 
+**Retention inventory (23 October).** A read-only manifest now validates the
+declared retention policy, measures bytes/files and hashes small artifacts
+without deleting or rewriting anything. It records the sealed source, selected
+extensions, protected `runtime_pilot.py`, and rejected candidates; no deletion
+was performed. Manifest: `reports/retention_manifest_20261023.json`. See
+`configs/retention_policy_v1.json` and `src/replica_lab/retention.py`.
+
 **C17 bounded cache manager (23 October).** An exact-ownership-key host cache
 now binds producer/writer/tokenizer, record/span hashes, scope and identity, with
 deterministic entry/byte bounds and source invalidation. It is not native
