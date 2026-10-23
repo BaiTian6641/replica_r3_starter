@@ -1,0 +1,51 @@
+{
+  "format": "replica.e3.candidate_restart.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fresh-process continuation of candidate-ranked repair after an observed failure; exact journal/workspace persistence, no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_candidate_restart/cases",
+    "manifest_sha256": "16e61a2781170644b332c4deb48ab581d6c18cc2b638eef5b864351fd7a28eed",
+    "heldout": [
+      "restart_heldout_01",
+      "restart_heldout_02"
+    ]
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "processes": {
+    "one": {
+      "max_steps": 2,
+      "expect": "observed read + failed test; no success"
+    },
+    "two": {
+      "max_steps": 5,
+      "expect": "reload journal/workspace; complete if model ranks valid repair"
+    }
+  },
+  "evaluation": {
+    "cases": [
+      "restart_heldout_01",
+      "restart_heldout_02"
+    ],
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 1024,
+    "generated_tokens": 128
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "claims": "Restart/interface integration only; no training or default promotion."
+}
