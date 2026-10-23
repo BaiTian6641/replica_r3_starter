@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- HEAD at this record: `2a971c7 experiment: record negative action-space guard`
+- HEAD at this record: `9561a2e docs: add resumption record`
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
