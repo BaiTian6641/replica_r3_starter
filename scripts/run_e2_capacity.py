@@ -222,6 +222,7 @@ def execute(args, profiler, report):
         raise ValueError('Capacity records differ from the preregistered hash')
     records = [MemoryRecord(**json.loads(line)) for line in
                (data_root / 'records.jsonl').read_text().splitlines() if line.strip()]
+    declared_units = int(protocol['scope']['max_units'])
     schedule = protocol['schedule']
     ids = [point['id'] for phase in ('inference', 'training')
            for point in schedule[phase]]
@@ -231,7 +232,6 @@ def execute(args, profiler, report):
         units = [int(point['units']) for point in schedule[phase]]
         if units != sorted(units) or units[-1] > declared_units or units[0] < 1:
             raise ValueError('Each schedule phase must ascend within the declared unit cap')
-    declared_units = int(protocol['scope']['max_units'])
     parent = (None if protocol.get('parent_extension') is None
               else Path(protocol['parent_extension']))
     from replica_lab.architecture.contracts import PortSpec
