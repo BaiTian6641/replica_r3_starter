@@ -49,6 +49,16 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 delayed-use candidate (23 October).** A learned token-feature fast writer
+plus native readers at blocks 13/27 was trained for 32 modules-only updates on
+24 source pages. Held-out exact accuracy is **0/8**; train is 7/24; correct and
+shuffled states diverge on 6/14 cases, while zero state equals disabled 14/14.
+A no-retraining compositional diagnostic with held-out entities and seen values
+scores 1/8 correct and 1/8 shuffled, 0/8 zero/disabled. The writer/representation
+does not generalize; the arm is rejected, no default change. Persisted-image
+reload is exact but is same-process. See
+[E4 delayed-use results](docs/experiments/20261023_E4_Delayed_Use_Results.md).
+
 **E5 neural candidate (23 October).** The existing E2 reranker extension was
 evaluated against its parent on source-separated retrieval cases with no new
 training: held-out top-1 **0.25 → 0.50** (parent → candidate), but lexical is

@@ -38,6 +38,12 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 delayed-use candidate (23 October):** learned write projection + native
+fast readers; 0/8 held-out, 7/24 train, correct/shuffled differ but no
+association gain; compositional 1/8 vs 1/8 shuffled, 0/8 controls. Rejected,
+no default change. See
+[E4 delayed-use results](docs/experiments/20261023_E4_Delayed_Use_Results.md).
+
 **E5 neural candidate (23 October):** existing E2 reranker evaluated against
 its parent on held-out sources: top1 0.25 → 0.50, but lexical 0.75. Accepted
 opt-in only; lexical default unchanged. See

@@ -1,0 +1,2682 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T12:00:42.321625+00:00",
+  "protocol_sha256": "1535dcec179439520b736b8465e1e05d32eac8c361cb56b99f0c37cc8537f3b4",
+  "protocol": {
+    "format": "replica.e4.delayed_use.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Learned fast write projection plus native read ports on source pages observed before a later query; controls and persisted-image reload separate wiring from delayed-use benefit.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "parent_role": "E2 extension initialization and regression reference; fast write/read parameters are fresh.",
+    "dataset": {
+      "root": "data/e4_delayed",
+      "records_sha256": "9a2ee61310fdf17fadd178c0b9ff36f6e097c54e7b55b226344b6e3fccf0d7f2",
+      "queries_sha256": "3f2f3688fdadf51024163af399ca991c07db1bdcc66a371dec6ff5a316ffb4f9",
+      "manifest_sha256": "d636a1f2b048f0f8fad44698aaf73ef1b1bf5813ffffa9a3387f55eef6bc4ca4"
+    },
+    "splits": {
+      "train": 24,
+      "dev": 6,
+      "heldout": 8
+    },
+    "fast_memory": {
+      "heads": 4,
+      "key_size": 64,
+      "value_size": 64,
+      "learning_rate": 0.1,
+      "decay": 0.0,
+      "max_update_norm": 1.0,
+      "max_tokens_per_chunk": 256,
+      "max_image_bytes": 1048576
+    },
+    "training": {
+      "regime": "modules_only",
+      "trainable": [
+        "fast_write_encoder",
+        "fast_ports"
+      ],
+      "feature_producer": "frozen native input-token embeddings of the observed source page",
+      "write_schedule": "one observed source page -> one deferred commit; query/action never enters the write",
+      "optimizer": "muon8bit",
+      "lr_new": 0.02,
+      "lr_muon_new": 0.02,
+      "lr_base": 0.0,
+      "lr_muon_base": 0.0,
+      "updates": 32,
+      "examples_per_update": 4,
+      "warmup_updates": 2,
+      "weight_decay": 0.0,
+      "gradient_clip": 1.0,
+      "seed": 20261023,
+      "loss": "response-only next-token cross entropy on answer plus EOS; prompt prefix masked",
+      "selection": "empty record bank; only the committed fast state supplies the observation"
+    },
+    "evaluation": {
+      "dev_cases": 6,
+      "heldout_cases": 8,
+      "train_cases": 24,
+      "arms": [
+        "correct_observation",
+        "shuffled_observation",
+        "zero_state",
+        "fast_disabled"
+      ],
+      "generation": {
+        "max_new_tokens": 6,
+        "greedy": true
+      },
+      "metric": "exact stripped answer; raw generated token IDs and answers retained",
+      "restart": "persist the first held-out observation image, load it into a fresh FastMemorySession, and compare the generated answer/state digest"
+    },
+    "decision_rule": {
+      "accept": "correct held-out exact accuracy strictly above shuffled, zero and disabled controls, with dev not below disabled",
+      "reject": "no positive held-out gain or dev regression",
+      "defer": "control-ambiguous result"
+    },
+    "budget": {
+      "model_loads": 1,
+      "extension_reloads": 1,
+      "optimizer_updates": 32,
+      "eval_generations": 96,
+      "checkpoint_saves": 1,
+      "fast_state_images": 1
+    },
+    "stop_conditions": [
+      "capacity guard failure",
+      "nonfinite loss or state",
+      "no held-out correct-state answer at update 32"
+    ],
+    "retention": "Keep parent extension, candidate extension, raw prompts/answers, persisted fast image and failure evidence. No base copy or download.",
+    "claims": "Learned read-side delayed use on synthetic source pages; fixed token-embedding writer; no general memory or personal-fidelity claim."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "77deb8eb4282d9547b307bd6a7c6ae2e47cce5f815e88ce5d4a3db5caddb2688",
+  "parent_migration": {
+    "accepted_parent_v1": true,
+    "copied": [
+      "memory_ports.13.gate_logit",
+      "memory_ports.13.key_projection.weight",
+      "memory_ports.13.memory_norm.bias",
+      "memory_ports.13.memory_norm.weight",
+      "memory_ports.13.output_projection.weight",
+      "memory_ports.13.query_norm.bias",
+      "memory_ports.13.query_norm.weight",
+      "memory_ports.13.query_projection.weight",
+      "memory_ports.13.value_projection.weight",
+      "memory_ports.27.gate_logit",
+      "memory_ports.27.key_projection.weight",
+      "memory_ports.27.memory_norm.bias",
+      "memory_ports.27.memory_norm.weight",
+      "memory_ports.27.output_projection.weight",
+      "memory_ports.27.query_norm.bias",
+      "memory_ports.27.query_norm.weight",
+      "memory_ports.27.query_projection.weight",
+      "memory_ports.27.value_projection.weight",
+      "record_writer.encoder.attention.in_proj_bias",
+      "record_writer.encoder.attention.in_proj_weight",
+      "record_writer.encoder.attention.out_proj.bias",
+      "record_writer.encoder.attention.out_proj.weight",
+      "record_writer.encoder.input_norm.bias",
+      "record_writer.encoder.input_norm.weight",
+      "record_writer.encoder.input_projection.weight",
+      "record_writer.encoder.output_norm.bias",
+      "record_writer.encoder.output_norm.weight",
+      "record_writer.encoder.slot_queries",
+      "reranker.query_norm.bias",
+      "reranker.query_norm.weight",
+      "reranker.query_projection.weight",
+      "reranker.record_norm.bias",
+      "reranker.record_norm.weight",
+      "reranker.record_projection.weight",
+      "sense_ports.13.input_norm.bias",
+      "sense_ports.13.input_norm.weight",
+      "sense_ports.13.projection.weight",
+      "sense_ports.27.input_norm.bias",
+      "sense_ports.27.input_norm.weight",
+      "sense_ports.27.projection.weight",
+      "sense_ports.41.input_norm.bias",
+      "sense_ports.41.input_norm.weight",
+      "sense_ports.41.projection.weight"
+    ],
+    "fresh_init": [
+      "fast_ports.13.gate_logit",
+      "fast_ports.13.output_projection.weight",
+      "fast_ports.13.query_norm.bias",
+      "fast_ports.13.query_norm.weight",
+      "fast_ports.13.query_projection.weight",
+      "fast_ports.27.gate_logit",
+      "fast_ports.27.output_projection.weight",
+      "fast_ports.27.query_norm.bias",
+      "fast_ports.27.query_norm.weight",
+      "fast_ports.27.query_projection.weight",
+      "fast_write_encoder.input_norm.bias",
+      "fast_write_encoder.input_norm.weight",
+      "fast_write_encoder.key_projection.weight",
+      "fast_write_encoder.value_projection.weight"
+    ]
+  },
+  "fast_spec": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "learning_rate": 0.1,
+    "decay": 0.0,
+    "max_update_norm": 1.0,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 57,
+      "parameters": 7250436,
+      "trainable": 7250436,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight",
+        "fast_write_encoder.input_norm.weight",
+        "fast_write_encoder.input_norm.bias",
+        "fast_write_encoder.key_projection.weight",
+        "fast_write_encoder.value_projection.weight",
+        "fast_ports.13.gate_logit",
+        "fast_ports.13.query_norm.weight",
+        "fast_ports.13.query_norm.bias",
+        "fast_ports.13.query_projection.weight",
+        "fast_ports.13.output_projection.weight",
+        "fast_ports.27.gate_logit",
+        "fast_ports.27.query_norm.weight",
+        "fast_ports.27.query_norm.bias",
+        "fast_ports.27.query_projection.weight",
+        "fast_ports.27.output_projection.weight"
+      ]
+    }
+  },
+  "checks": {
+    "correct_state_above_controls": false,
+    "state_image_reload_equal": true,
+    "generation_finite_tokens": true,
+    "no_prompt_source": true
+  },
+  "parent_disabled": [
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "azure",
+      "case_id": "e4_dev_01",
+      "split": "dev"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "mauve",
+      "case_id": "e4_dev_02",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have access to",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        3870,
+        317
+      ],
+      "correct": false,
+      "expected": "umber",
+      "case_id": "e4_dev_03",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "lilac",
+      "case_id": "e4_dev_04",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "flint",
+      "case_id": "e4_dev_05",
+      "split": "dev"
+    },
+    {
+      "answer": "Elm",
+      "token_ids": [
+        7057,
+        98,
+        130073
+      ],
+      "correct": false,
+      "expected": "hazel",
+      "case_id": "e4_dev_06",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have access to",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        3870,
+        317
+      ],
+      "correct": false,
+      "expected": "vermilion",
+      "case_id": "e4_heldout_01",
+      "split": "heldout"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "cerulean",
+      "case_id": "e4_heldout_02",
+      "split": "heldout"
+    },
+    {
+      "answer": "No data available",
+      "token_ids": [
+        3280,
+        1397,
+        3119,
+        130073
+      ],
+      "correct": false,
+      "expected": "chartreuse",
+      "case_id": "e4_heldout_03",
+      "split": "heldout"
+    },
+    {
+      "answer": "Iris",
+      "token_ids": [
+        111027,
+        130073
+      ],
+      "correct": false,
+      "expected": "magenta",
+      "case_id": "e4_heldout_04",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "tangerine",
+      "case_id": "e4_heldout_05",
+      "split": "heldout"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "periwinkle",
+      "case_id": "e4_heldout_06",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "turquoise",
+      "case_id": "e4_heldout_07",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "burgundy",
+      "case_id": "e4_heldout_08",
+      "split": "heldout"
+    }
+  ],
+  "training": {
+    "optimizer": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.02,
+          "weight_decay": 0.0,
+          "param_names": [
+            "fast_write_encoder.key_projection.weight",
+            "fast_write_encoder.value_projection.weight",
+            "fast_ports.13.query_projection.weight",
+            "fast_ports.13.output_projection.weight",
+            "fast_ports.27.query_projection.weight",
+            "fast_ports.27.output_projection.weight"
+          ],
+          "tensors": 6,
+          "parameters": 2359296
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.02,
+          "weight_decay": 0.0,
+          "param_names": [
+            "fast_write_encoder.input_norm.weight",
+            "fast_write_encoder.input_norm.bias",
+            "fast_ports.13.gate_logit",
+            "fast_ports.13.query_norm.weight",
+            "fast_ports.13.query_norm.bias",
+            "fast_ports.27.gate_logit",
+            "fast_ports.27.query_norm.weight",
+            "fast_ports.27.query_norm.bias"
+          ],
+          "tensors": 8,
+          "parameters": 12290
+        }
+      ],
+      "state_tensor_bytes": 0,
+      "state_bytes_by_dtype": {}
+    },
+    "updates": [
+      {
+        "update": 1,
+        "mean_loss": 58.74020290374756
+      },
+      {
+        "update": 2,
+        "mean_loss": 54.78377819061279
+      },
+      {
+        "update": 3,
+        "mean_loss": 42.07962894439697
+      },
+      {
+        "update": 4,
+        "mean_loss": 45.24567985534668
+      },
+      {
+        "update": 5,
+        "mean_loss": 44.34688663482666
+      },
+      {
+        "update": 6,
+        "mean_loss": 55.059940338134766
+      },
+      {
+        "update": 7,
+        "mean_loss": 47.47273349761963
+      },
+      {
+        "update": 8,
+        "mean_loss": 44.692659854888916
+      },
+      {
+        "update": 9,
+        "mean_loss": 31.603158950805664
+      },
+      {
+        "update": 10,
+        "mean_loss": 35.26940059661865
+      },
+      {
+        "update": 11,
+        "mean_loss": 34.51770830154419
+      },
+      {
+        "update": 12,
+        "mean_loss": 40.744140625
+      },
+      {
+        "update": 13,
+        "mean_loss": 33.76017999649048
+      },
+      {
+        "update": 14,
+        "mean_loss": 32.083380699157715
+      },
+      {
+        "update": 15,
+        "mean_loss": 23.04658317565918
+      },
+      {
+        "update": 16,
+        "mean_loss": 25.60779905319214
+      },
+      {
+        "update": 17,
+        "mean_loss": 25.91753387451172
+      },
+      {
+        "update": 18,
+        "mean_loss": 28.909850120544434
+      },
+      {
+        "update": 19,
+        "mean_loss": 23.13469123840332
+      },
+      {
+        "update": 20,
+        "mean_loss": 20.955446481704712
+      },
+      {
+        "update": 21,
+        "mean_loss": 15.03302788734436
+      },
+      {
+        "update": 22,
+        "mean_loss": 16.270183563232422
+      },
+      {
+        "update": 23,
+        "mean_loss": 14.5419442653656
+      },
+      {
+        "update": 24,
+        "mean_loss": 18.867205142974854
+      },
+      {
+        "update": 25,
+        "mean_loss": 15.162984848022461
+      },
+      {
+        "update": 26,
+        "mean_loss": 14.16949725151062
+      },
+      {
+        "update": 27,
+        "mean_loss": 8.938522756099701
+      },
+      {
+        "update": 28,
+        "mean_loss": 11.530969738960266
+      },
+      {
+        "update": 29,
+        "mean_loss": 7.765038847923279
+      },
+      {
+        "update": 30,
+        "mean_loss": 9.86811375617981
+      },
+      {
+        "update": 31,
+        "mean_loss": 10.506530165672302
+      },
+      {
+        "update": 32,
+        "mean_loss": 8.42734369635582
+      }
+    ]
+  },
+  "extension": {
+    "path": "runs/e4_delayed_attempt01_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v2",
+    "weights_sha256": "c558444c5e8d9b1c1466fcb7671b400e44cf1d71d4628f4729583a81f7636eb8",
+    "manifest_digest": "77deb8eb4282d9547b307bd6a7c6ae2e47cce5f815e88ce5d4a3db5caddb2688",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 57,
+        "parameters": 7250436,
+        "trainable": 7250436,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "fast_write_encoder.input_norm.weight",
+          "fast_write_encoder.input_norm.bias",
+          "fast_write_encoder.key_projection.weight",
+          "fast_write_encoder.value_projection.weight",
+          "fast_ports.13.gate_logit",
+          "fast_ports.13.query_norm.weight",
+          "fast_ports.13.query_norm.bias",
+          "fast_ports.13.query_projection.weight",
+          "fast_ports.13.output_projection.weight",
+          "fast_ports.27.gate_logit",
+          "fast_ports.27.query_norm.weight",
+          "fast_ports.27.query_norm.bias",
+          "fast_ports.27.query_projection.weight",
+          "fast_ports.27.output_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false
+  },
+  "candidate": {
+    "correct": [
+      {
+        "answer": "rose",
+        "token_ids": [
+          14093,
+          1
+        ],
+        "correct": false,
+        "expected": "azure",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "arthur",
+        "token_ids": [
+          303,
+          13301,
+          1
+        ],
+        "correct": false,
+        "expected": "mauve",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "spring",
+        "token_ids": [
+          23440,
+          1
+        ],
+        "correct": false,
+        "expected": "umber",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "cinder",
+        "token_ids": [
+          88,
+          8304,
+          1
+        ],
+        "correct": false,
+        "expected": "lilac",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "gps",
+        "token_ids": [
+          92,
+          938,
+          1
+        ],
+        "correct": false,
+        "expected": "flint",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "indig",
+        "token_ids": [
+          605,
+          349,
+          1
+        ],
+        "correct": false,
+        "expected": "hazel",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "vermilion",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "glade",
+        "token_ids": [
+          3582,
+          1090,
+          1
+        ],
+        "correct": false,
+        "expected": "cerulean",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "threes",
+        "token_ids": [
+          405,
+          7420,
+          1
+        ],
+        "correct": false,
+        "expected": "chartreuse",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "art",
+        "token_ids": [
+          502,
+          1
+        ],
+        "correct": false,
+        "expected": "magenta",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "jura",
+        "token_ids": [
+          95,
+          4636,
+          1
+        ],
+        "correct": false,
+        "expected": "tangerine",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "kelp",
+        "token_ids": [
+          33311,
+          101,
+          1
+        ],
+        "correct": false,
+        "expected": "periwinkle",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "turquoise",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "adam",
+        "token_ids": [
+          58581,
+          1
+        ],
+        "correct": false,
+        "expected": "burgundy",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ],
+    "shuffled": [
+      {
+        "answer": "rose",
+        "token_ids": [
+          14093,
+          1
+        ],
+        "correct": false,
+        "expected": "azure",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "jade",
+        "token_ids": [
+          95,
+          1090,
+          1
+        ],
+        "correct": false,
+        "expected": "mauve",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "orange",
+        "token_ids": [
+          30958,
+          1
+        ],
+        "correct": false,
+        "expected": "umber",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "cinder",
+        "token_ids": [
+          88,
+          8304,
+          1
+        ],
+        "correct": false,
+        "expected": "lilac",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "gps",
+        "token_ids": [
+          92,
+          938,
+          1
+        ],
+        "correct": false,
+        "expected": "flint",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "stable",
+        "token_ids": [
+          55211,
+          1
+        ],
+        "correct": false,
+        "expected": "hazel",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "vermilion",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "glade",
+        "token_ids": [
+          3582,
+          1090,
+          1
+        ],
+        "correct": false,
+        "expected": "cerulean",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "triple",
+        "token_ids": [
+          395,
+          3149,
+          1
+        ],
+        "correct": false,
+        "expected": "chartreuse",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "beta",
+        "token_ids": [
+          2344,
+          1
+        ],
+        "correct": false,
+        "expected": "magenta",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "japan",
+        "token_ids": [
+          95,
+          4939,
+          1
+        ],
+        "correct": false,
+        "expected": "tangerine",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "kelp",
+        "token_ids": [
+          33311,
+          101,
+          1
+        ],
+        "correct": false,
+        "expected": "periwinkle",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "turquoise",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "adam",
+        "token_ids": [
+          58581,
+          1
+        ],
+        "correct": false,
+        "expected": "burgundy",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ],
+    "zero": [
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "azure",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "mauve",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "umber",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "lilac",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "flint",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "Elm",
+        "token_ids": [
+          7057,
+          98,
+          130073
+        ],
+        "correct": false,
+        "expected": "hazel",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "vermilion",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "cerulean",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "No data available",
+        "token_ids": [
+          3280,
+          1397,
+          3119,
+          130073
+        ],
+        "correct": false,
+        "expected": "chartreuse",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "Iris",
+        "token_ids": [
+          111027,
+          130073
+        ],
+        "correct": false,
+        "expected": "magenta",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "tangerine",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "periwinkle",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "turquoise",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "burgundy",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ],
+    "disabled": [
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "azure",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "mauve",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "umber",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "lilac",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "flint",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "Elm",
+        "token_ids": [
+          7057,
+          98,
+          130073
+        ],
+        "correct": false,
+        "expected": "hazel",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "vermilion",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "cerulean",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "No data available",
+        "token_ids": [
+          3280,
+          1397,
+          3119,
+          130073
+        ],
+        "correct": false,
+        "expected": "chartreuse",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "Iris",
+        "token_ids": [
+          111027,
+          130073
+        ],
+        "correct": false,
+        "expected": "magenta",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "tangerine",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "periwinkle",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "turquoise",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "burgundy",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ]
+  },
+  "metrics": {
+    "correct": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "shuffled": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "zero": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "disabled": {
+      "dev": 0.0,
+      "heldout": 0.0
+    }
+  },
+  "train_correct": 0.2916666666666667,
+  "train_results": [
+    {
+      "answer": "sapphire",
+      "token_ids": [
+        104,
+        1593,
+        15950,
+        1
+      ],
+      "correct": false,
+      "expected": "amber",
+      "case_id": "e4_train_01",
+      "split": "train"
+    },
+    {
+      "answer": "blue",
+      "token_ids": [
+        16724,
+        1
+      ],
+      "correct": true,
+      "expected": "blue",
+      "case_id": "e4_train_02",
+      "split": "train"
+    },
+    {
+      "answer": "silver",
+      "token_ids": [
+        108334,
+        1
+      ],
+      "correct": true,
+      "expected": "silver",
+      "case_id": "e4_train_03",
+      "split": "train"
+    },
+    {
+      "answer": "sue",
+      "token_ids": [
+        104,
+        616,
+        1
+      ],
+      "correct": false,
+      "expected": "crimson",
+      "case_id": "e4_train_04",
+      "split": "train"
+    },
+    {
+      "answer": "d",
+      "token_ids": [
+        89,
+        130073
+      ],
+      "correct": false,
+      "expected": "teal",
+      "case_id": "e4_train_05",
+      "split": "train"
+    },
+    {
+      "answer": "rose",
+      "token_ids": [
+        14093,
+        1
+      ],
+      "correct": false,
+      "expected": "violet",
+      "case_id": "e4_train_06",
+      "split": "train"
+    },
+    {
+      "answer": "water",
+      "token_ids": [
+        10418,
+        1
+      ],
+      "correct": false,
+      "expected": "ochre",
+      "case_id": "e4_train_07",
+      "split": "train"
+    },
+    {
+      "answer": "indigo",
+      "token_ids": [
+        605,
+        14105,
+        1
+      ],
+      "correct": true,
+      "expected": "indigo",
+      "case_id": "e4_train_08",
+      "split": "train"
+    },
+    {
+      "answer": "lake",
+      "token_ids": [
+        67701,
+        1
+      ],
+      "correct": false,
+      "expected": "copper",
+      "case_id": "e4_train_09",
+      "split": "train"
+    },
+    {
+      "answer": "j",
+      "token_ids": [
+        95,
+        1
+      ],
+      "correct": false,
+      "expected": "emerald",
+      "case_id": "e4_train_10",
+      "split": "train"
+    },
+    {
+      "answer": "bronze",
+      "token_ids": [
+        89105,
+        3377,
+        1
+      ],
+      "correct": true,
+      "expected": "bronze",
+      "case_id": "e4_train_11",
+      "split": "train"
+    },
+    {
+      "answer": "sherman",
+      "token_ids": [
+        104,
+        423,
+        1479,
+        1
+      ],
+      "correct": false,
+      "expected": "saffron",
+      "case_id": "e4_train_12",
+      "split": "train"
+    },
+    {
+      "answer": "spring",
+      "token_ids": [
+        23440,
+        1
+      ],
+      "correct": false,
+      "expected": "slate",
+      "case_id": "e4_train_13",
+      "split": "train"
+    },
+    {
+      "answer": "rose",
+      "token_ids": [
+        14093,
+        1
+      ],
+      "correct": false,
+      "expected": "ivory",
+      "case_id": "e4_train_14",
+      "split": "train"
+    },
+    {
+      "answer": "thirty one",
+      "token_ids": [
+        405,
+        6842,
+        678,
+        1
+      ],
+      "correct": false,
+      "expected": "quartz",
+      "case_id": "e4_train_15",
+      "split": "train"
+    },
+    {
+      "answer": "bug",
+      "token_ids": [
+        32430,
+        1
+      ],
+      "correct": false,
+      "expected": "topaz",
+      "case_id": "e4_train_16",
+      "split": "train"
+    },
+    {
+      "answer": "sapphire",
+      "token_ids": [
+        104,
+        1593,
+        15950,
+        1
+      ],
+      "correct": false,
+      "expected": "onyx",
+      "case_id": "e4_train_17",
+      "split": "train"
+    },
+    {
+      "answer": "bronze",
+      "token_ids": [
+        89105,
+        3377,
+        1
+      ],
+      "correct": false,
+      "expected": "coral",
+      "case_id": "e4_train_18",
+      "split": "train"
+    },
+    {
+      "answer": "rose",
+      "token_ids": [
+        14093,
+        1
+      ],
+      "correct": true,
+      "expected": "rose",
+      "case_id": "e4_train_19",
+      "split": "train"
+    },
+    {
+      "answer": "thistle",
+      "token_ids": [
+        405,
+        26285,
+        1
+      ],
+      "correct": false,
+      "expected": "pearl",
+      "case_id": "e4_train_20",
+      "split": "train"
+    },
+    {
+      "answer": "orange",
+      "token_ids": [
+        30958,
+        1
+      ],
+      "correct": false,
+      "expected": "olive",
+      "case_id": "e4_train_21",
+      "split": "train"
+    },
+    {
+      "answer": "ruby",
+      "token_ids": [
+        77876,
+        1
+      ],
+      "correct": true,
+      "expected": "ruby",
+      "case_id": "e4_train_22",
+      "split": "train"
+    },
+    {
+      "answer": "jade",
+      "token_ids": [
+        95,
+        1090,
+        1
+      ],
+      "correct": true,
+      "expected": "jade",
+      "case_id": "e4_train_23",
+      "split": "train"
+    },
+    {
+      "answer": "spark",
+      "token_ids": [
+        113336,
+        1
+      ],
+      "correct": false,
+      "expected": "opal",
+      "case_id": "e4_train_24",
+      "split": "train"
+    }
+  ],
+  "restart": {
+    "image": {
+      "format": "replica.fast_memory.image.v1",
+      "schema": "replica.fast_memory.state.v1",
+      "scope": {
+        "subject_id": "e4_delayed",
+        "branch_id": "e4_heldout_01",
+        "purpose": "delayed_use_eval",
+        "mode": "parallel_replica",
+        "source_epoch": 0
+      },
+      "producer": "3994c9fa44a86dac4fa3f6c70b43fbef95ad25bc41029573768d491063d8b19e",
+      "config": {
+        "key_size": 64,
+        "value_size": 64,
+        "heads": 4,
+        "learning_rate": 0.1,
+        "decay": 0.0,
+        "max_update_norm": 1.0,
+        "max_chunks": 4096,
+        "max_tokens_per_chunk": 256,
+        "max_image_bytes": 1048576
+      },
+      "weights_sha256": "d43698752dae953efb968bdac371ffe219462e510ec2dd6fb25007ebf10decbc",
+      "state_digest": "5c5efa705becc36c7b2685671db8073f5dd543dca6d3672a945fb8c2ef8ce262",
+      "chunk_index": 1,
+      "update_count": 1,
+      "cursor": 38,
+      "generation": 0,
+      "lineage": [
+        [
+          "heldout-observation",
+          "332ecf176b65a245632a2eaf52aed5fec20831353a765825e880e8b472fe9ec2"
+        ]
+      ]
+    },
+    "state_digest_equal": true,
+    "reloaded_answer": {
+      "answer": "bronze",
+      "token_ids": [
+        89105,
+        3377,
+        1
+      ],
+      "correct": false,
+      "expected": "vermilion"
+    },
+    "correct_answer": {
+      "answer": "bronze",
+      "token_ids": [
+        89105,
+        3377,
+        1
+      ],
+      "correct": false,
+      "expected": "vermilion"
+    },
+    "answer_equal": true
+  },
+  "decision": "reject",
+  "deployment": "not_published",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T12:00:42.321967+00:00",
+    "ended_at": "2026-10-23T12:01:49.251735+00:00",
+    "elapsed_seconds": 66.93250112514943,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 288,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15558098944,
+      "rss_peak_sampled_bytes": 3851681792,
+      "mps_allocated_peak_sampled_bytes": 10226614784,
+      "mps_driver_peak_sampled_bytes": 10896998400
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T12:00:42.322652+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T12:01:49.228840+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T12:00:46.265735+00:00",
+        "elapsed_seconds": 3.9438368331175297,
+        "seconds_since_previous_mark": 3.9438368331175297,
+        "synchronize_seconds": 4.9578957259655e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:46.265653+00:00",
+          "elapsed_seconds": 3.9438529170583934,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 345112576,
+          "rss_measurement_age_seconds": 1.8538888751063496,
+          "mps_allocated_bytes": 10104417792,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 57,
+              "parameters": 7250436,
+              "trainable": 7250436,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "fast_write_encoder.input_norm.weight",
+                "fast_write_encoder.input_norm.bias",
+                "fast_write_encoder.key_projection.weight",
+                "fast_write_encoder.value_projection.weight",
+                "fast_ports.13.gate_logit",
+                "fast_ports.13.query_norm.weight",
+                "fast_ports.13.query_norm.bias",
+                "fast_ports.13.query_projection.weight",
+                "fast_ports.13.output_projection.weight",
+                "fast_ports.27.gate_logit",
+                "fast_ports.27.query_norm.weight",
+                "fast_ports.27.query_norm.bias",
+                "fast_ports.27.query_projection.weight",
+                "fast_ports.27.output_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:52.299689+00:00",
+        "elapsed_seconds": 9.978061875095591,
+        "seconds_since_previous_mark": 6.034225041978061,
+        "synchronize_seconds": 0.001081167021766305,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:52.299634+00:00",
+          "elapsed_seconds": 9.978073874954134,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3741515776,
+          "rss_measurement_age_seconds": 1.3550730422139168,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10888265728
+        },
+        "fields": {
+          "update": 1,
+          "loss": 58.74020290374756
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:53.435818+00:00",
+        "elapsed_seconds": 11.114187625003979,
+        "seconds_since_previous_mark": 1.1361257499083877,
+        "synchronize_seconds": 0.0005669579841196537,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:53.435711+00:00",
+          "elapsed_seconds": 11.11420216714032,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3824861184,
+          "rss_measurement_age_seconds": 0.3582665838766843,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896785408
+        },
+        "fields": {
+          "update": 2,
+          "loss": 54.78377819061279
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:54.531426+00:00",
+        "elapsed_seconds": 12.209839791990817,
+        "seconds_since_previous_mark": 1.095652166986838,
+        "synchronize_seconds": 0.0006660001818090677,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:54.531319+00:00",
+          "elapsed_seconds": 12.209853125037625,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3824861184,
+          "rss_measurement_age_seconds": 1.4539168749470264,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896850944
+        },
+        "fields": {
+          "update": 3,
+          "loss": 42.07962894439697
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:55.681006+00:00",
+        "elapsed_seconds": 13.359479791950434,
+        "seconds_since_previous_mark": 1.1496399999596179,
+        "synchronize_seconds": 0.0005493750795722008,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:55.680913+00:00",
+          "elapsed_seconds": 13.359494083095342,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3845816320,
+          "rss_measurement_age_seconds": 0.482815041905269,
+          "mps_allocated_bytes": 10107571200,
+          "mps_driver_bytes": 10896949248
+        },
+        "fields": {
+          "update": 4,
+          "loss": 45.24567985534668
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:56.791329+00:00",
+        "elapsed_seconds": 14.469848999986425,
+        "seconds_since_previous_mark": 1.1103692080359906,
+        "synchronize_seconds": 0.0006368749309331179,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:56.791238+00:00",
+          "elapsed_seconds": 14.469870666973293,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3845816320,
+          "rss_measurement_age_seconds": 1.5931850420311093,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896949248
+        },
+        "fields": {
+          "update": 5,
+          "loss": 44.34688663482666
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:57.935615+00:00",
+        "elapsed_seconds": 15.614219957962632,
+        "seconds_since_previous_mark": 1.1443709579762071,
+        "synchronize_seconds": 0.0005659579765051603,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:57.935559+00:00",
+          "elapsed_seconds": 15.614229625090957,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851288576,
+          "rss_measurement_age_seconds": 0.6057700829114765,
+          "mps_allocated_bytes": 10107669504,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 6,
+          "loss": 55.059940338134766
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:00:59.028831+00:00",
+        "elapsed_seconds": 16.70747312507592,
+        "seconds_since_previous_mark": 1.0932531671132892,
+        "synchronize_seconds": 0.0006516249850392342,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:00:59.028768+00:00",
+          "elapsed_seconds": 16.70748412492685,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851288576,
+          "rss_measurement_age_seconds": 1.6990262081380934,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 7,
+          "loss": 47.47273349761963
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:00.219227+00:00",
+        "elapsed_seconds": 17.8978687080089,
+        "seconds_since_previous_mark": 1.1903955829329789,
+        "synchronize_seconds": 0.0005717088934034109,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:00.219117+00:00",
+          "elapsed_seconds": 17.897882000077516,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851501568,
+          "rss_measurement_age_seconds": 0.7549051670357585,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 8,
+          "loss": 44.692659854888916
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:01.312405+00:00",
+        "elapsed_seconds": 18.991107667097822,
+        "seconds_since_previous_mark": 1.0932389590889215,
+        "synchronize_seconds": 0.0006274590268731117,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:01.312312+00:00",
+          "elapsed_seconds": 18.991122417151928,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851501568,
+          "rss_measurement_age_seconds": 1.8481372091919184,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 9,
+          "loss": 31.603158950805664
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:02.454206+00:00",
+        "elapsed_seconds": 20.132992167025805,
+        "seconds_since_previous_mark": 1.1418844999279827,
+        "synchronize_seconds": 0.0005433750338852406,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:02.454148+00:00",
+          "elapsed_seconds": 20.13300329213962,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851583488,
+          "rss_measurement_age_seconds": 0.856450165854767,
+          "mps_allocated_bytes": 10107571200,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 10,
+          "loss": 35.26940059661865
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:03.569461+00:00",
+        "elapsed_seconds": 21.248247999930754,
+        "seconds_since_previous_mark": 1.1152558329049498,
+        "synchronize_seconds": 0.0006525840144604445,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:03.569360+00:00",
+          "elapsed_seconds": 21.24826137511991,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851583488,
+          "rss_measurement_age_seconds": 1.9717252079863101,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 11,
+          "loss": 34.51770830154419
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:04.676482+00:00",
+        "elapsed_seconds": 22.3553190829698,
+        "seconds_since_previous_mark": 1.1070710830390453,
+        "synchronize_seconds": 0.0005766670219600201,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:04.676397+00:00",
+          "elapsed_seconds": 22.35534808295779,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 3851681792,
+          "rss_measurement_age_seconds": 0.951101333135739,
+          "mps_allocated_bytes": 10107669504,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 12,
+          "loss": 40.744140625
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:05.883284+00:00",
+        "elapsed_seconds": 23.522212625015527,
+        "seconds_since_previous_mark": 1.1668935420457274,
+        "synchronize_seconds": 0.0006494170520454645,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:05.843233+00:00",
+          "elapsed_seconds": 23.52222766703926,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 13,
+          "loss": 33.76017999649048
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:06.966339+00:00",
+        "elapsed_seconds": 24.64529462507926,
+        "seconds_since_previous_mark": 1.1230820000637323,
+        "synchronize_seconds": 0.0005677910521626472,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:06.966267+00:00",
+          "elapsed_seconds": 24.64530645799823,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 1.1230701659806073,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 14,
+          "loss": 32.083380699157715
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:08.060853+00:00",
+        "elapsed_seconds": 25.73983862507157,
+        "seconds_since_previous_mark": 1.094543999992311,
+        "synchronize_seconds": 0.000542874913662672,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:08.060770+00:00",
+          "elapsed_seconds": 25.739856499945745,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 0.09472712501883507,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 15,
+          "loss": 23.04658317565918
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:09.147801+00:00",
+        "elapsed_seconds": 26.82682833308354,
+        "seconds_since_previous_mark": 1.08698970801197,
+        "synchronize_seconds": 0.0006717080250382423,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:09.147714+00:00",
+          "elapsed_seconds": 26.826842000009492,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 1.181715541984886,
+          "mps_allocated_bytes": 10107571200,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 16,
+          "loss": 25.60779905319214
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:10.295933+00:00",
+        "elapsed_seconds": 27.9749962920323,
+        "seconds_since_previous_mark": 1.1481679589487612,
+        "synchronize_seconds": 0.000995791982859373,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:10.295838+00:00",
+          "elapsed_seconds": 27.975015958072618,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 0.22252291697077453,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 17,
+          "loss": 25.91753387451172
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:11.456070+00:00",
+        "elapsed_seconds": 29.1352192920167,
+        "seconds_since_previous_mark": 1.1602229999843985,
+        "synchronize_seconds": 0.0006744998972862959,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:11.456009+00:00",
+          "elapsed_seconds": 29.13523008301854,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 1.382721166824922,
+          "mps_allocated_bytes": 10107669504,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 18,
+          "loss": 28.909850120544434
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:12.546959+00:00",
+        "elapsed_seconds": 30.22612345800735,
+        "seconds_since_previous_mark": 1.0909041659906507,
+        "synchronize_seconds": 0.0005485420115292072,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:12.546870+00:00",
+          "elapsed_seconds": 30.226136083016172,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 0.3694930418860167,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 19,
+          "loss": 23.13469123840332
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:13.650557+00:00",
+        "elapsed_seconds": 31.32977916696109,
+        "seconds_since_previous_mark": 1.1036557089537382,
+        "synchronize_seconds": 0.0006726670544594526,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:13.650482+00:00",
+          "elapsed_seconds": 31.329791750060394,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449309696,
+          "rss_measurement_age_seconds": 1.4731459578033537,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 20,
+          "loss": 20.955446481704712
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:14.761797+00:00",
+        "elapsed_seconds": 32.44105787505396,
+        "seconds_since_previous_mark": 1.1112787080928683,
+        "synchronize_seconds": 0.0006349170580506325,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:14.761715+00:00",
+          "elapsed_seconds": 32.441070958040655,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449326080,
+          "rss_measurement_age_seconds": 0.476190707879141,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 21,
+          "loss": 15.03302788734436
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:15.866795+00:00",
+        "elapsed_seconds": 33.54605129198171,
+        "seconds_since_previous_mark": 1.1049934169277549,
+        "synchronize_seconds": 0.0006624171510338783,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:15.866665+00:00",
+          "elapsed_seconds": 33.54606645810418,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 2449326080,
+          "rss_measurement_age_seconds": 1.581206165952608,
+          "mps_allocated_bytes": 10107571200,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 22,
+          "loss": 16.270183563232422
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:17.026670+00:00",
+        "elapsed_seconds": 34.70603216695599,
+        "seconds_since_previous_mark": 1.1599808749742806,
+        "synchronize_seconds": 0.0005583330057561398,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:17.026596+00:00",
+          "elapsed_seconds": 34.706051541958004,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903135232,
+          "rss_measurement_age_seconds": 0.6231110829394311,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 23,
+          "loss": 14.5419442653656
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:18.110993+00:00",
+        "elapsed_seconds": 35.79036891693249,
+        "seconds_since_previous_mark": 1.0843367499765009,
+        "synchronize_seconds": 0.0005382499657571316,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:18.110890+00:00",
+          "elapsed_seconds": 35.79038858297281,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903135232,
+          "rss_measurement_age_seconds": 1.7074517079163343,
+          "mps_allocated_bytes": 10107669504,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 24,
+          "loss": 18.867205142974854
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:19.228318+00:00",
+        "elapsed_seconds": 36.90775979193859,
+        "seconds_since_previous_mark": 1.1173908750060946,
+        "synchronize_seconds": 0.000662083039060235,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:19.228236+00:00",
+          "elapsed_seconds": 36.90777412499301,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903200768,
+          "rss_measurement_age_seconds": 0.7359061250463128,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 25,
+          "loss": 15.162984848022461
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:20.331536+00:00",
+        "elapsed_seconds": 38.011051832931116,
+        "seconds_since_previous_mark": 1.1032920409925282,
+        "synchronize_seconds": 0.0006908338982611895,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:20.331481+00:00",
+          "elapsed_seconds": 38.01106075011194,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903200768,
+          "rss_measurement_age_seconds": 1.839187250006944,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 26,
+          "loss": 14.16949725151062
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:21.424798+00:00",
+        "elapsed_seconds": 39.10434929211624,
+        "seconds_since_previous_mark": 1.0932974591851234,
+        "synchronize_seconds": 0.0006275421474128962,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:21.424735+00:00",
+          "elapsed_seconds": 39.10436145798303,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903217152,
+          "rss_measurement_age_seconds": 0.8404032909311354,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 27,
+          "loss": 8.938522756099701
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:22.562202+00:00",
+        "elapsed_seconds": 40.24177258298732,
+        "seconds_since_previous_mark": 1.1374232908710837,
+        "synchronize_seconds": 0.0005421671085059643,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:22.562113+00:00",
+          "elapsed_seconds": 40.24178716703318,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903217152,
+          "rss_measurement_age_seconds": 1.9778384999372065,
+          "mps_allocated_bytes": 10107571200,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 28,
+          "loss": 11.530969738960266
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:23.679152+00:00",
+        "elapsed_seconds": 41.358756500063464,
+        "seconds_since_previous_mark": 1.1169839170761406,
+        "synchronize_seconds": 0.0006361668929457664,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:23.679052+00:00",
+          "elapsed_seconds": 41.35877141705714,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903249920,
+          "rss_measurement_age_seconds": 1.0101364590227604,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 29,
+          "loss": 7.765038847923279
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:24.784685+00:00",
+        "elapsed_seconds": 42.46437554201111,
+        "seconds_since_previous_mark": 1.105619041947648,
+        "synchronize_seconds": 0.0005677500739693642,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:24.784630+00:00",
+          "elapsed_seconds": 42.46439529210329,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903266304,
+          "rss_measurement_age_seconds": 0.022111041005700827,
+          "mps_allocated_bytes": 10107669504,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 30,
+          "loss": 9.86811375617981
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:25.881011+00:00",
+        "elapsed_seconds": 43.560736207989976,
+        "seconds_since_previous_mark": 1.0963606659788638,
+        "synchronize_seconds": 0.0005675419233739376,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:25.880951+00:00",
+          "elapsed_seconds": 43.5607562919613,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903266304,
+          "rss_measurement_age_seconds": 1.1184743749909103,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 31,
+          "loss": 10.506530165672302
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T12:01:26.979986+00:00",
+        "elapsed_seconds": 44.65972691704519,
+        "seconds_since_previous_mark": 1.0989907090552151,
+        "synchronize_seconds": 0.000678208889439702,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:01:26.979889+00:00",
+          "elapsed_seconds": 44.65974558307789,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15558098944,
+          "rss_current_bytes": 903282688,
+          "rss_measurement_age_seconds": 0.13245679205283523,
+          "mps_allocated_bytes": 10107587584,
+          "mps_driver_bytes": 10896982016
+        },
+        "fields": {
+          "update": 32,
+          "loss": 8.42734369635582
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 66.93250112514943,
+    "sampled_peak_driver_bytes": 10896998400
+  },
+  "ended_at_utc": "2026-10-23T12:01:49.252813+00:00"
+}

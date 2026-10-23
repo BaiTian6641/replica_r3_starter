@@ -1,0 +1,866 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T12:02:35.099945+00:00",
+  "protocol_sha256": "6ab75d310ac20e5e092750d8d02d1db0ba2b5c8520dcd3ee50b857d22fe8ba0e",
+  "protocol": {
+    "format": "replica.e4.compositional_eval.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "No-retraining diagnostic separating new-association failure from novel-token copying in the E4 delayed-use candidate.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "candidate_extension": "runs/e4_delayed_attempt01_20261023/selected_extension",
+    "candidate_role": "Trained E4 candidate evaluated without any further optimizer step.",
+    "dataset": {
+      "root": "data/e4_compositional",
+      "records_sha256": "b660fdbc3ee289bf9fdda1dda963ace11c6a6f959435fa2d81447c0e7c50d0db",
+      "queries_sha256": "4662227877e576843e209a30a7c4e0f0f74f5686b22c4ec1d320811b22df027a",
+      "manifest_sha256": "3807962f460b9b8d5cc4f8c083c2099f603f9b106f8b34f8a4f49bff8a4e5630"
+    },
+    "cases": 8,
+    "evaluation": {
+      "arms": [
+        "correct_observation",
+        "shuffled_observation",
+        "zero_state",
+        "fast_disabled"
+      ],
+      "generation": {
+        "max_new_tokens": 6,
+        "greedy": true
+      },
+      "metric": "exact answer; no training"
+    },
+    "interpretation": {
+      "association_signal": "correct-state accuracy above controls with values seen during training",
+      "copy_signal": "held-out novel values from the primary attempt",
+      "no_training": "this run cannot improve capability or publish a candidate"
+    },
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "extension_reloads": 1,
+      "eval_generations": 32
+    },
+    "retention": "Keep report and raw answers; no checkpoint save, no base copy.",
+    "claims": "Diagnostic only; no capability, deployment or generalization claim."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "77deb8eb4282d9547b307bd6a7c6ae2e47cce5f815e88ce5d4a3db5caddb2688",
+  "candidate": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "fast_memory": {
+        "heads": 4,
+        "key_size": 64,
+        "value_size": 64
+      }
+    },
+    "manifest_digest": "77deb8eb4282d9547b307bd6a7c6ae2e47cce5f815e88ce5d4a3db5caddb2688",
+    "regime": "modules_only",
+    "weights_sha256": "c558444c5e8d9b1c1466fcb7671b400e44cf1d71d4628f4729583a81f7636eb8",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 57,
+        "parameters": 7250436,
+        "trainable": 7250436,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "fast_write_encoder.input_norm.weight",
+          "fast_write_encoder.input_norm.bias",
+          "fast_write_encoder.key_projection.weight",
+          "fast_write_encoder.value_projection.weight",
+          "fast_ports.13.gate_logit",
+          "fast_ports.13.query_norm.weight",
+          "fast_ports.13.query_norm.bias",
+          "fast_ports.13.query_projection.weight",
+          "fast_ports.13.output_projection.weight",
+          "fast_ports.27.gate_logit",
+          "fast_ports.27.query_norm.weight",
+          "fast_ports.27.query_norm.bias",
+          "fast_ports.27.query_projection.weight",
+          "fast_ports.27.output_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "fast_write_encoder": [
+        "fast_write_encoder.input_norm.weight",
+        "fast_write_encoder.input_norm.bias",
+        "fast_write_encoder.key_projection.weight",
+        "fast_write_encoder.value_projection.weight"
+      ],
+      "fast_ports": [
+        "fast_ports.13.gate_logit",
+        "fast_ports.13.query_norm.weight",
+        "fast_ports.13.query_norm.bias",
+        "fast_ports.13.query_projection.weight",
+        "fast_ports.13.output_projection.weight",
+        "fast_ports.27.gate_logit",
+        "fast_ports.27.query_norm.weight",
+        "fast_ports.27.query_norm.bias",
+        "fast_ports.27.query_projection.weight",
+        "fast_ports.27.output_projection.weight"
+      ]
+    }
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 57,
+      "parameters": 7250436,
+      "trainable": 7250436,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight",
+        "fast_write_encoder.input_norm.weight",
+        "fast_write_encoder.input_norm.bias",
+        "fast_write_encoder.key_projection.weight",
+        "fast_write_encoder.value_projection.weight",
+        "fast_ports.13.gate_logit",
+        "fast_ports.13.query_norm.weight",
+        "fast_ports.13.query_norm.bias",
+        "fast_ports.13.query_projection.weight",
+        "fast_ports.13.output_projection.weight",
+        "fast_ports.27.gate_logit",
+        "fast_ports.27.query_norm.weight",
+        "fast_ports.27.query_norm.bias",
+        "fast_ports.27.query_projection.weight",
+        "fast_ports.27.output_projection.weight"
+      ]
+    }
+  },
+  "results": {
+    "correct": [
+      {
+        "case_id": "e4_comp_01",
+        "answer": "lake",
+        "expected": "amber",
+        "correct": false,
+        "token_ids": [
+          67701,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_02",
+        "answer": "hot",
+        "expected": "blue",
+        "correct": false,
+        "token_ids": [
+          21687,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_03",
+        "answer": "bronze",
+        "expected": "silver",
+        "correct": false,
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_04",
+        "answer": "joe",
+        "expected": "crimson",
+        "correct": false,
+        "token_ids": [
+          95,
+          4550,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_05",
+        "answer": "bronze",
+        "expected": "teal",
+        "correct": false,
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_06",
+        "answer": "ruby",
+        "expected": "violet",
+        "correct": false,
+        "token_ids": [
+          77876,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_07",
+        "answer": "water",
+        "expected": "ochre",
+        "correct": false,
+        "token_ids": [
+          10418,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_08",
+        "answer": "indigo",
+        "expected": "indigo",
+        "correct": true,
+        "token_ids": [
+          605,
+          14105,
+          1
+        ]
+      }
+    ],
+    "shuffled": [
+      {
+        "case_id": "e4_comp_01",
+        "answer": "apollo",
+        "expected": "amber",
+        "correct": false,
+        "token_ids": [
+          589,
+          35800,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_02",
+        "answer": "hot",
+        "expected": "blue",
+        "correct": false,
+        "token_ids": [
+          21687,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_03",
+        "answer": "bronze",
+        "expected": "silver",
+        "correct": false,
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_04",
+        "answer": "Eclipse",
+        "expected": "crimson",
+        "correct": false,
+        "token_ids": [
+          108509,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_05",
+        "answer": "bronze",
+        "expected": "teal",
+        "correct": false,
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_06",
+        "answer": "thirty",
+        "expected": "violet",
+        "correct": false,
+        "token_ids": [
+          405,
+          6842,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_07",
+        "answer": "threes",
+        "expected": "ochre",
+        "correct": false,
+        "token_ids": [
+          405,
+          7420,
+          1
+        ]
+      },
+      {
+        "case_id": "e4_comp_08",
+        "answer": "indigo",
+        "expected": "indigo",
+        "correct": true,
+        "token_ids": [
+          605,
+          14105,
+          1
+        ]
+      }
+    ],
+    "zero": [
+      {
+        "case_id": "e4_comp_01",
+        "answer": "fast memory",
+        "expected": "amber",
+        "correct": false,
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_02",
+        "answer": "Cobalt",
+        "expected": "blue",
+        "correct": false,
+        "token_ids": [
+          56,
+          47402,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_03",
+        "answer": "fast memory",
+        "expected": "silver",
+        "correct": false,
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_04",
+        "answer": "fast memory",
+        "expected": "crimson",
+        "correct": false,
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_05",
+        "answer": "I don't have access to",
+        "expected": "teal",
+        "correct": false,
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ]
+      },
+      {
+        "case_id": "e4_comp_06",
+        "answer": "I don't have information about",
+        "expected": "violet",
+        "correct": false,
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ]
+      },
+      {
+        "case_id": "e4_comp_07",
+        "answer": "I don't have information about",
+        "expected": "ochre",
+        "correct": false,
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ]
+      },
+      {
+        "case_id": "e4_comp_08",
+        "answer": "Ivory",
+        "expected": "indigo",
+        "correct": false,
+        "token_ids": [
+          20232,
+          797,
+          130073
+        ]
+      }
+    ],
+    "disabled": [
+      {
+        "case_id": "e4_comp_01",
+        "answer": "fast memory",
+        "expected": "amber",
+        "correct": false,
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_02",
+        "answer": "Cobalt",
+        "expected": "blue",
+        "correct": false,
+        "token_ids": [
+          56,
+          47402,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_03",
+        "answer": "fast memory",
+        "expected": "silver",
+        "correct": false,
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_04",
+        "answer": "fast memory",
+        "expected": "crimson",
+        "correct": false,
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ]
+      },
+      {
+        "case_id": "e4_comp_05",
+        "answer": "I don't have access to",
+        "expected": "teal",
+        "correct": false,
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ]
+      },
+      {
+        "case_id": "e4_comp_06",
+        "answer": "I don't have information about",
+        "expected": "violet",
+        "correct": false,
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ]
+      },
+      {
+        "case_id": "e4_comp_07",
+        "answer": "I don't have information about",
+        "expected": "ochre",
+        "correct": false,
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ]
+      },
+      {
+        "case_id": "e4_comp_08",
+        "answer": "Ivory",
+        "expected": "indigo",
+        "correct": false,
+        "token_ids": [
+          20232,
+          797,
+          130073
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "correct": 0.125,
+    "shuffled": 0.125,
+    "zero": 0.0,
+    "disabled": 0.0
+  },
+  "controls_equal_disabled": true,
+  "state_influence": 4,
+  "claims": "No-retraining compositional diagnostic; no capability or deployment claim.",
+  "checks": {
+    "correct_above_controls": false,
+    "zero_equals_disabled": true
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T12:02:35.100280+00:00",
+    "ended_at": "2026-10-23T12:02:48.614065+00:00",
+    "elapsed_seconds": 13.51434575021267,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 53,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15555985408,
+      "rss_peak_sampled_bytes": 3554557952,
+      "mps_allocated_peak_sampled_bytes": 10108024576,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T12:02:35.100976+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T12:02:48.536541+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T12:02:39.318115+00:00",
+        "elapsed_seconds": 4.10219187522307,
+        "seconds_since_previous_mark": 4.10219187522307,
+        "synchronize_seconds": 4.917150363326073e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:02:39.202319+00:00",
+          "elapsed_seconds": 4.102205500006676,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15555985408,
+          "rss_current_bytes": 3462758400,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10104417792,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 57,
+              "parameters": 7250436,
+              "trainable": 7250436,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "fast_write_encoder.input_norm.weight",
+                "fast_write_encoder.input_norm.bias",
+                "fast_write_encoder.key_projection.weight",
+                "fast_write_encoder.value_projection.weight",
+                "fast_ports.13.gate_logit",
+                "fast_ports.13.query_norm.weight",
+                "fast_ports.13.query_norm.bias",
+                "fast_ports.13.query_projection.weight",
+                "fast_ports.13.output_projection.weight",
+                "fast_ports.27.gate_logit",
+                "fast_ports.27.query_norm.weight",
+                "fast_ports.27.query_norm.bias",
+                "fast_ports.27.query_projection.weight",
+                "fast_ports.27.output_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 13.51434575021267,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T12:02:48.614574+00:00"
+}
