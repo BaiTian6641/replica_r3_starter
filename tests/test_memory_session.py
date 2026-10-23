@@ -389,3 +389,17 @@ def test_ranking_requires_eligible_target_and_a_different_record(
         assert not any(summary.requires_grad for _, summary in request.frame.sense.summaries)
         with pytest.raises(ValueError, match="eligible preferred record and a distractor"):
             session.ranking_loss(request, preferred_record_id=preferred)
+
+
+def test_ranking_backward_hook_never_enters_host_storage(owned_session, monkeypatch):
+    session = owned_session
+    admit(session.ledger, source("r1", "blue cat"))
+    admit(session.ledger, source("r2", "blue dog"))
+    request = session.prepare(**prepare_args(), training=True, train_sense=True)
+    loss = session.ranking_loss(request, "r1")
+    def forbidden(*args, **kwargs):
+        raise AssertionError("autograd hooks must not access thread-owned ledger state")
+    monkeypatch.setattr(session, "verify", forbidden)
+    loss.backward()  # host verify happens in session.backward, outside this hook
+    assert any(p.grad is not None for p in session.adapter.reranker.parameters())
+    request.release()

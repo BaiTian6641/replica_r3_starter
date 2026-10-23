@@ -1,0 +1,90 @@
+W1022 22:30:20.536000 84558 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  20%|██        | 77/381 [00:00<00:00, 761.92it/s]Loading weights:  44%|████▎     | 166/381 [00:00<00:00, 832.76it/s]Loading weights:  66%|██████▌   | 251/381 [00:00<00:00, 825.39it/s]Loading weights:  88%|████████▊ | 337/381 [00:00<00:00, 831.93it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 841.47it/s]
+{"phase": "initial_parity_and_generation"}
+/Users/flare/replica_r3_starter/scripts/qualify_architecture.py:175: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  and slot_gradient>0,loss=float(output.loss),slot_gradient_l1=slot_gradient,gradients=audit)
+{"phase": "modules_only_backward"}
+{"phase": "full_augmented_backward"}
+{"phase": "wiring_complete"}
+{"phase": "alignment_update", "update": 1, "mean_response_loss": 14.792598724365234}
+{"phase": "alignment_update", "update": 2, "mean_response_loss": 13.72224473953247}
+{"phase": "alignment_update", "update": 3, "mean_response_loss": 11.540502309799194}
+{"phase": "alignment_update", "update": 4, "mean_response_loss": 9.622641563415527}
+{"phase": "alignment_update", "update": 5, "mean_response_loss": 7.806656241416931}
+{"phase": "alignment_update", "update": 6, "mean_response_loss": 4.614106893539429}
+{"phase": "alignment_update", "update": 7, "mean_response_loss": 2.224937468767166}
+{"phase": "alignment_update", "update": 8, "mean_response_loss": 1.8746803253889084}
+{"phase": "alignment_update", "update": 9, "mean_response_loss": 0.21884024608880281}
+{"phase": "alignment_update", "update": 10, "mean_response_loss": 0.04927862377371639}
+{"phase": "alignment_update", "update": 11, "mean_response_loss": 0.002923729829490185}
+{"phase": "alignment_update", "update": 12, "mean_response_loss": 0.0019357613928150386}
+{"phase": "alignment_update", "update": 13, "mean_response_loss": 0.0005522917927009985}
+{"phase": "alignment_update", "update": 14, "mean_response_loss": 0.0005677193503288436}
+{"phase": "alignment_update", "update": 15, "mean_response_loss": 0.00023021289644020726}
+{"phase": "alignment_update", "update": 16, "mean_response_loss": 9.081593452719972e-05}
+{"phase": "alignment_update", "update": 17, "mean_response_loss": 0.00012725396209134487}
+{"phase": "alignment_update", "update": 18, "mean_response_loss": 0.00017091677909775171}
+{"phase": "alignment_update", "update": 19, "mean_response_loss": 8.470681677863467e-05}
+{"phase": "alignment_update", "update": 20, "mean_response_loss": 4.1110853089776356e-05}
+{"phase": "alignment_update", "update": 21, "mean_response_loss": 3.923331814803532e-05}
+{"phase": "alignment_update", "update": 22, "mean_response_loss": 4.158760930295102e-05}
+{"phase": "alignment_update", "update": 23, "mean_response_loss": 3.103834433204611e-05}
+{"phase": "alignment_update", "update": 24, "mean_response_loss": 2.7492037133924896e-05}
+{"phase": "alignment_update", "update": 25, "mean_response_loss": 2.1993757400196046e-05}
+{"phase": "alignment_update", "update": 26, "mean_response_loss": 2.3111300833988935e-05}
+{"phase": "alignment_update", "update": 27, "mean_response_loss": 2.2545063075085636e-05}
+{"phase": "alignment_update", "update": 28, "mean_response_loss": 1.618249257262505e-05}
+{"phase": "alignment_update", "update": 29, "mean_response_loss": 1.652519517847395e-05}
+{"phase": "alignment_update", "update": 30, "mean_response_loss": 1.3485434010362951e-05}
+{"phase": "alignment_update", "update": 31, "mean_response_loss": 1.250197715307877e-05}
+{"phase": "alignment_update", "update": 32, "mean_response_loss": 1.0609559240037925e-05}
+{"phase": "alignment_generations_complete"}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 154, in verify
+    self.index.verify_selection(request.selection, expected_scope=expected)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/index.py", line 189, in verify_selection
+    snap = self.ledger.snapshot(selection.scope)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/ledger.py", line 309, in snapshot
+    with self._transaction():
+         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/ledger.py", line 206, in _transaction
+    self._db.execute("BEGIN IMMEDIATE" if write else "BEGIN")
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 8387486080 and this is thread id 6239498240.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/qualify_architecture.py", line 388, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/qualify_architecture.py", line 374, in main
+    execute(args,profiler,report)
+  File "/Users/flare/replica_r3_starter/scripts/qualify_architecture.py", line 261, in execute
+    total+=float(loss.detach());session.backward(request,loss)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 233, in backward
+    loss.backward()
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/_tensor.py", line 623, in backward
+    torch.autograd.backward(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/autograd/__init__.py", line 395, in backward
+    _engine_run_backward(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 226, in check_backward
+    self.verify(request)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 161, in verify
+    self._prune_cache(EvidencePin(self.ledger.ledger_id,self.ledger.epoch,'','','',0,'',None,()))
+                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/ledger.py", line 227, in ledger_id
+    return self._meta("ledger_id")
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/ledger.py", line 216, in _meta
+    row = self._db.execute("SELECT value FROM memory_metadata WHERE key=?", (key,)).fetchone()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 8387486080 and this is thread id 6239498240.

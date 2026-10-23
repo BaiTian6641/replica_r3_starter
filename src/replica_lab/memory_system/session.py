@@ -222,8 +222,11 @@ class MemorySession:
         scores = self.adapter.reranker(query, memory.slots.mean(dim=2), valid)
         loss = -(scores.log_softmax(dim=-1)[target & valid]).mean()
         if loss.requires_grad:
+            frame = request.frame
             def check_backward(gradient):
-                self.verify(request)
+                # MPS autograd hooks may run on a worker thread. Keep storage
+                # checks on the host before/after backward; hooks are tensor-only.
+                self.adapter._check_frame(frame)
                 return gradient
             loss.register_hook(check_backward)
         return loss

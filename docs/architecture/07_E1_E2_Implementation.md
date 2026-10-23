@@ -165,3 +165,21 @@ exact task journal and real action/outcome loop. E4 adds temporal neural state
 and compiled artifacts; E5 adds independent candidate evaluation and promotion.
 None is claimed by this E1/E2 implementation. The legacy last-layer adapter and
 its recorded negatives remain reproducible, and `runtime_pilot.py` is untouched.
+
+## Native attempt 1 and boundary fix
+
+Commit `9601399` ran the fixed protocol on MPS. All initial wiring checks passed,
+and after 32 D1 updates the four latent-only generations were exactly correct.
+The run then failed during the first separate ranking backward: a loss hook
+called host SQLite verification from an MPS autograd worker thread. CPU unit
+backward had not exposed that scheduling difference. No final extension had yet
+been exported; the trained in-process state was lost on exit.
+
+The fix makes the hook verify tensor/model frame ownership only. Host epoch and
+scope verification remains immediately before and after backward. A regression
+test forbids host storage access from the ranking hook. The focused affected
+suite passes 60 tests. Attempt 2 repeats the **same** source, seed, cases, update
+counts, optimizer/rates and generation protocol in a fresh directory. This is
+a code-correctness rerun, not a new hyperparameter selection. Both attempts and
+all consumed updates are retained in the final accounting. See the
+[preserved failure analysis](../../reports/e1_e2_native_attempt01_20261023/analysis.json).

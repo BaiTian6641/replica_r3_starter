@@ -172,7 +172,7 @@ def execute(args, profiler, report):
             require(f'{regime}_checkpoint_backward',
                     len(audit['original']['present'])==expected_base and not audit['original']['nonfinite']
                     and set(active_names)<=set(audit['new']['present']) and not audit['new']['nonfinite']
-                    and slot_gradient>0,loss=float(output.loss),slot_gradient_l1=slot_gradient,gradients=audit)
+                    and slot_gradient>0,loss=float(output.loss.detach()),slot_gradient_l1=slot_gradient,gradients=audit)
         del output,full,labels,request
         model.zero_grad(set_to_none=True);gc.collect();torch.mps.empty_cache()
         mark(f'{regime}_backward')
