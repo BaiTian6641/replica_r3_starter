@@ -132,6 +132,47 @@ class CoreState:
 
 
 @dataclass(frozen=True)
+class FastMemorySpec:
+    """Reference four-head fast-state geometry; no native reader is implied."""
+    heads: int = 4
+    key_size: int = 64
+    value_size: int = 64
+
+    def __post_init__(self):
+        for name in ('heads', 'key_size', 'value_size'):
+            value = getattr(self, name)
+            if type(value) is not int or not 1 <= value <= 1024:
+                raise ValueError(f'FastMemorySpec.{name} must be in 1..1024')
+
+
+@dataclass(frozen=True)
+class FastMemoryRead:
+    """One immutable committed fast-state snapshot supplied to a decision."""
+    weights: torch.Tensor  # [1, heads, key, value]
+    producer: str
+    state_digest: str
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if (self.weights.ndim != 4 or self.weights.shape[0] != 1
+                or not self.weights.is_floating_point()
+                or not bool(torch.isfinite(self.weights).all())):
+            raise ValueError('fast weights must be finite [1, heads, key, value]')
+        if not isinstance(self.producer, str) or not self.producer:
+            raise ValueError('fast-memory producer identity required')
+        if not isinstance(self.state_digest, str) or not self.state_digest:
+            raise ValueError('fast-memory state digest required')
+        object.__setattr__(self, '_tensor_stamps', (tensor_stamp(self.weights),))
+
+    def tensors(self):
+        return (self.weights,)
+
+    def assert_immutable(self):
+        if self._tensor_stamps != (tensor_stamp(self.weights),):
+            raise RuntimeError('FastMemoryRead tensor mutated; rebuild at a decision boundary')
+
+
+@dataclass(frozen=True)
 class EvidencePin:
     ledger_id: str
     epoch: int
@@ -224,17 +265,20 @@ class ComponentManifest:
     training_scope: str = 'text_only'
     cached_generation_supported: bool = False
     core: CoreSpec | None = None
+    fast_memory: FastMemorySpec | None = None
 
     def shared_dict(self):
         """Manifest fields that identify the parent, excluding additive E3 state."""
-        return {key: value for key, value in self.to_dict().items() if key != 'core'}
+        return {key: value for key, value in self.to_dict().items()
+                if key not in ('core', 'fast_memory')}
 
     def to_dict(self):
         # A core-less manifest must keep the exact E1/E2 shape and digest so the
         # selected parent extension remains byte-compatible with its receipt.
         value = asdict(self)
-        if value.get('core') is None:
-            value.pop('core', None)
+        for name in ('core', 'fast_memory'):
+            if value.get(name) is None:
+                value.pop(name, None)
         return value
 
     @property
@@ -260,23 +304,32 @@ class DecisionFrame:
     parameter_stamp: tuple
     enabled_ports: tuple[int, ...]
     core: CoreState | None = None
+    fast: FastMemoryRead | None = None
     enabled_branches: tuple[str, ...] = ('memory',)
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
     def tensors(self):
         owned = (self.memory.slots, self.memory.valid, self.sense.prompt_ids,
                  self.sense.prompt_mask, *(x for _, x in self.sense.summaries))
-        return owned if self.core is None else (*owned, *self.core.tensors())
+        if self.core is not None:
+            owned = (*owned, *self.core.tensors())
+        if self.fast is not None:
+            owned = (*owned, *self.fast.tensors())
+        return owned
 
     def __post_init__(self):
         if (not self.enabled_branches
                 or len(set(self.enabled_branches)) != len(self.enabled_branches)
-                or not set(self.enabled_branches) <= {'memory', 'workspace'}):
-            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace')
+                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast'}):
+            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast')
         if 'workspace' in self.enabled_branches and self.core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
+        if 'fast' in self.enabled_branches and self.fast is None:
+            raise ValueError('Fast branch requires an owned FastMemoryRead')
         if self.core is not None:
             self.core.assert_immutable()
+        if self.fast is not None:
+            self.fast.assert_immutable()
         object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(t) for t in self.tensors()))
 
     def branch_enabled(self, name):

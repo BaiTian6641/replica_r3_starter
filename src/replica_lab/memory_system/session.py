@@ -186,7 +186,7 @@ class MemorySession:
                 enabled_ports=None, train_sense=False, task_features=None,
                 previous_core=None, core_impl='recurrent',
                 enabled_inputs=('sense','memory','task'), enabled_branches=None,
-                train_core=False, task_digest=None, revision=None):
+                train_core=False, task_digest=None, revision=None, fast_state=None):
         if core_impl not in {'recurrent', 'feedforward', 'none'}:
             raise ValueError("core_impl must be 'recurrent', 'feedforward' or 'none'")
         if core_impl == 'none':
@@ -252,7 +252,8 @@ class MemorySession:
                         revision=revision, previous=previous,
                         enabled_inputs=tuple(enabled_inputs), implementation=core_impl)
             frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
-                                            core=core,enabled_branches=enabled_branches)
+                                            core=core,enabled_branches=enabled_branches,
+                                            fast=fast_state)
         request = RequestContext(uuid.uuid4().hex,task,frame,selection)
         self.verify(request)
         return request

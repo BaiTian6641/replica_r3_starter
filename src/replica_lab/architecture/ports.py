@@ -140,3 +140,46 @@ class SensePort(nn.Module):
         pooled = (pooled / count).to(hidden.dtype)
         summary = self.projection(pooled).tanh()
         return summary.masked_fill(~available.unsqueeze(-1), 0), available
+
+
+class FastMemoryAccessPort(nn.Module):
+    """Independent gated read of one committed fast-associative snapshot.
+
+    ``weights`` is ``[1, heads, key, value]``. Queries are projected from the
+    native hidden width into the per-head key width, normalized, multiplied by
+    the committed matrices, flattened and projected back. The final projection
+    starts at zero; a disabled, empty or all-zero state contributes exact zero.
+    """
+
+    def __init__(self, hidden_size: int, heads: int = 4, key_size: int = 64,
+                 value_size: int = 64) -> None:
+        super().__init__()
+        if min(hidden_size, heads, key_size, value_size) < 1:
+            raise ValueError('positive fast-port dimensions required')
+        self.hidden_size, self.heads = hidden_size, heads
+        self.key_size, self.value_size = key_size, value_size
+        self.query_norm = nn.LayerNorm(hidden_size)
+        self.query_projection = nn.Linear(hidden_size, heads * key_size, bias=False)
+        self.output_projection = nn.Linear(heads * value_size, hidden_size, bias=False)
+        nn.init.zeros_(self.output_projection.weight)
+        self.gate_logit = nn.Parameter(torch.zeros(()))
+
+    def forward(self, hidden: Tensor, weights: Tensor, enabled: bool = True) -> Tensor:
+        _hidden(hidden, self.hidden_size, 'hidden')
+        if (weights.ndim != 4 or weights.shape[0] != 1
+                or weights.shape[1:] != (self.heads, self.key_size, self.value_size)
+                or not weights.is_floating_point()):
+            raise ValueError('fast weights must be [1, heads, key, value]')
+        if not bool(torch.isfinite(weights).all()):
+            raise ValueError('fast weights must be finite')
+        if not enabled or not bool(weights.any()):
+            return hidden * 0
+        query = self.query_projection(self.query_norm(hidden))
+        query = query.reshape(hidden.shape[0], hidden.shape[1], self.heads,
+                              self.key_size)
+        query = F.normalize(query.float(), dim=-1, eps=1e-6)
+        read = torch.einsum('bthk,hkv->bthv', query,
+                            weights[0].to(query.dtype)).reshape(
+            hidden.shape[0], hidden.shape[1], self.heads * self.value_size)
+        delta = self.gate_logit.sigmoid() * self.output_projection(read)
+        return delta.to(hidden.dtype)

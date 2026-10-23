@@ -1,0 +1,15 @@
+{
+  "format": "replica.e4.fast_read.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Engineering-only native null parity and independent fast-memory reader influence; no training, generation or checkpoint save.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "device": "mps", "dtype": "float32", "native_cache": false,
+  "native_cpu_fallback": false,
+  "fast_memory": {"heads": 4, "key_size": 64, "value_size": 64},
+  "ports": [13, 27], "observer": 41, "memory_width": 256,
+  "prompt_tokens": 64,
+  "checks": ["zero-state fast branch equals native", "nonzero-state fast branch changes logits", "fast branch disabled equals native", "finite logits"],
+  "budget": "one native load, no optimizer update, no generation, no checkpoint save",
+  "retention": "small report and guard only"
+}

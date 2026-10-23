@@ -17,11 +17,13 @@ from transformers.masking_utils import create_causal_mask
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.models.llama import modeling_llama
 
-from .contracts import (ComponentManifest, CoreState, DecisionFrame, InjectFrame,
-                        MemoryRead, PortSpec, RequestContext, SenseFrame, fingerprint)
+from .contracts import (ComponentManifest, CoreState, DecisionFrame, FastMemoryRead,
+                        InjectFrame, MemoryRead, PortSpec, RequestContext, SenseFrame,
+                        fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
-from .ports import MemoryAccessPort, SensePort, WorkspaceAccessPort
+from .ports import (FastMemoryAccessPort, MemoryAccessPort, SensePort,
+                    WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 
 
@@ -53,6 +55,13 @@ class MiniCPM5Adapter(nn.Module):
                                          sorted(set((*self.ports.injection_layers, self.ports.observer_layer)))})
         self.reranker = TrainableRecordReranker(d)
         self.core = self.ff_core = self.workspace_ports = self.task_head = None
+        self.fast_ports = None
+        if manifest.fast_memory is not None:
+            spec = manifest.fast_memory
+            self.fast_ports = nn.ModuleDict({
+                str(i): FastMemoryAccessPort(h, spec.heads, spec.key_size,
+                                             spec.value_size)
+                for i in self.ports.injection_layers})
         if manifest.core is not None:
             manifest.core.validate(self.ports)
             if d != manifest.core.width:
@@ -114,6 +123,14 @@ class MiniCPM5Adapter(nn.Module):
         if self.core is None:
             raise ValueError('Manifest declares no core; core producer identity is undefined')
         return fingerprint(self._core_component_stamp())
+
+    def fast_producer_key(self):
+        if self.fast_ports is None:
+            raise ValueError('Manifest declares no fast memory')
+        return fingerprint({'features': self.producer_key(),
+                            'fast_ports': [(n, id(p), p._version, str(p.dtype),
+                                            str(p.device), p.data_ptr())
+                                           for n, p in self.fast_ports.named_parameters()]})
 
     def build_core_state(self, sense: SenseFrame, memory: MemoryRead, task_features,
                          *, task_digest: str, revision: int, previous: CoreState | None = None,
@@ -203,6 +220,8 @@ class MiniCPM5Adapter(nn.Module):
         prefixes = ['record_writer', 'memory_ports', 'sense_ports', 'reranker']
         if self.core is not None:
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
+        if self.fast_ports is not None:
+            prefixes += ['fast_ports']
         for prefix in prefixes:
             yield from ((f'{prefix}.{n}', p) for n, p in getattr(self, prefix).named_parameters())
 
@@ -215,6 +234,8 @@ class MiniCPM5Adapter(nn.Module):
         prefixes = ['record_writer', 'memory_ports', 'sense_ports', 'reranker']
         if self.core is not None:
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
+        if self.fast_ports is not None:
+            prefixes += ['fast_ports']
         return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
                 for prefix in prefixes}
 
@@ -292,6 +313,11 @@ class MiniCPM5Adapter(nn.Module):
                 core = frame.core
                 hidden = hidden + self.workspace_ports[str(i)](
                     hidden, core.workspace, core.valid, enabled=view.enabled)
+            if (frame is not None and frame.fast is not None and frame.branch_enabled('fast')
+                    and str(i) in self.fast_ports):
+                view = InjectFrame(frame, i)
+                hidden = hidden + self.fast_ports[str(i)](
+                    hidden, frame.fast.weights, enabled=view.enabled)
             if i == stop_layer:
                 return hidden, summaries
         return self.base.model.norm(hidden), summaries
@@ -309,7 +335,7 @@ class MiniCPM5Adapter(nn.Module):
 
     def make_frame(self, decision_id, evidence, memory: MemoryRead, sense: SenseFrame,
                    enabled_ports=None, core: CoreState | None = None,
-                   enabled_branches=None):
+                   enabled_branches=None, fast: FastMemoryRead | None = None):
         if memory.slots.ndim != 4 or memory.slots.shape[0] != 1:
             raise ValueError('One owned request per bank; batch requests explicitly later')
         if memory.slots.shape[1:] != (len(memory.spans), self.ports.slots_per_unit, self.ports.memory_width):
@@ -340,12 +366,27 @@ class MiniCPM5Adapter(nn.Module):
                 raise ValueError('Frame core requires a nonempty exact task digest')
             if core.producer != self.core_producer_key():
                 raise ValueError('Core producer differs from current native/core features')
-        branches = (('memory', 'workspace') if core is not None else ('memory',)) \
-            if enabled_branches is None else tuple(enabled_branches)
+        if fast is not None:
+            if self.fast_ports is None or self.manifest.fast_memory is None:
+                raise ValueError('Fast frame requires a fast-memory manifest')
+            spec = self.manifest.fast_memory
+            if tuple(fast.weights.shape) != (1, spec.heads, spec.key_size, spec.value_size):
+                raise ValueError('Fast weights shape differs from the declared spec')
+            if fast.producer != self.fast_producer_key():
+                raise ValueError('Fast producer differs from current native/port features')
+        default_branches = ['memory']
+        if core is not None:
+            default_branches.append('workspace')
+        if fast is not None:
+            default_branches.append('fast')
+        branches = tuple(default_branches) if enabled_branches is None \
+            else tuple(enabled_branches)
         if 'workspace' in branches and core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
+        if 'fast' in branches and fast is None:
+            raise ValueError('Fast branch requires an owned FastMemoryRead')
         return DecisionFrame(decision_id, evidence, memory, sense, self.manifest.digest,
-                             self.parameter_stamp(), enabled, core, branches)
+                             self.parameter_stamp(), enabled, core, fast, branches)
 
     def _check_frame(self, frame):
         frame.assert_immutable()
@@ -419,13 +460,15 @@ class MiniCPM5Adapter(nn.Module):
         path.mkdir(parents=True, exist_ok=False)
         weights = {n: p.detach().cpu().contiguous() for n, p in self.new_named_parameters()}
         save_file(weights, str(path / 'extensions.safetensors'))
-        fmt = 'replica.minicpm5.extensions.v2' if self.core is not None else 'replica.minicpm5.extensions.v1'
+        fmt = ('replica.minicpm5.extensions.v2'
+               if self.core is not None or self.fast_ports is not None
+               else 'replica.minicpm5.extensions.v1')
         receipt = {'format':fmt,'manifest':self.manifest.to_dict(),
                    'manifest_digest':self.manifest.digest,'regime':self.regime,
                    'weights_sha256':hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest(),
                    'parameters':self.parameter_audit(),'base_saved':False,
                    'notes':'Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.'}
-        if self.core is not None:
+        if self.core is not None or self.fast_ports is not None:
             receipt['components'] = self._component_inventory()
         (path/'manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
         return receipt
@@ -458,7 +501,7 @@ class MiniCPM5Adapter(nn.Module):
                     != receipt.get('weights_sha256')):
                 raise ValueError('Incompatible or changed extension manifest/bytes')
             expected = dict(self._parent_named_parameters())
-            if self.manifest.core is not None:
+            if self.manifest.core is not None or self.fast_ports is not None:
                 if not accept_parent_v1:
                     raise ValueError('Loading the E1/E2 parent v1 extension requires accept_parent_v1=True')
         else:
@@ -469,7 +512,8 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Extension tensor inventory differs')
         with torch.no_grad():
             for n,p in expected.items(): p.copy_(weights[n].to(p.device))
-        if fmt == 'replica.minicpm5.extensions.v1' and self.manifest.core is not None:
+        if fmt == 'replica.minicpm5.extensions.v1' and (self.manifest.core is not None
+                                                        or self.fast_ports is not None):
             parent = set(expected)
             return {**receipt, 'migration':{
                 'accepted_parent_v1': True, 'copied': sorted(parent),
