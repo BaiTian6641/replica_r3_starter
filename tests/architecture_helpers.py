@@ -9,7 +9,7 @@ from replica_lab.architecture.contracts import (
 from replica_lab.architecture.minicpm5 import MiniCPM5Adapter, native_abi_digest
 
 
-def tiny_adapter(regime="modules_only"):
+def tiny_adapter(regime="modules_only", *, core=None):
     """Random local tensors only; never resolves a Hugging Face repository."""
     torch.manual_seed(103)
     torch.set_num_threads(1)
@@ -28,7 +28,7 @@ def tiny_adapter(regime="modules_only"):
         source_seal_digest=fingerprint("tiny-original"),
         tokenizer_digest=fingerprint("tiny-tokenizer"),
         native_config_digest=fingerprint(config.to_dict()),
-        native_abi_digest=native_abi_digest(), ports=ports,
+        native_abi_digest=native_abi_digest(), ports=ports, core=core,
     )
     return MiniCPM5Adapter(LlamaForCausalLM(config), manifest, regime)
 

@@ -1,0 +1,60 @@
+"""E3 prediction monitor head. A monitor logit is never a task fact."""
+from __future__ import annotations
+
+import torch
+from torch import Tensor, nn
+
+from .contracts import CoreSpec
+
+
+class TaskSuccessHead(nn.Module):
+    """One logit from ``[task_features, pooled workspace]``.
+
+    The input vector is detached before the MLP, so this monitor never feeds a
+    gradient back into the core, task encoder or workspace. The returned logit
+    stays attached to this head's own parameters: a separate training driver may
+    backpropagate a supervised success objective into the head only. The head
+    never authorizes a success claim, and no calibration property is claimed or
+    implied.
+    """
+
+    def __init__(self, spec: CoreSpec, hidden: int = 64) -> None:
+        super().__init__()
+        for name in ('width', 'slots', 'task_features'):
+            value = getattr(spec, name)
+            if type(value) is not int or value < 1:
+                raise ValueError(f'CoreSpec.{name} must be a positive integer')
+        if type(hidden) is not int or hidden < 1:
+            raise ValueError('hidden must be a positive integer')
+        self.spec = spec
+        self.mlp = nn.Sequential(
+            nn.Linear(spec.task_features + spec.width, hidden),
+            nn.GELU(),
+            nn.Linear(hidden, 1),
+        )
+
+    def forward(self, task_features: Tensor, workspace: Tensor,
+                valid: Tensor | None = None) -> Tensor:
+        if task_features.ndim != 2 or task_features.shape[0] != 1 \
+                or task_features.shape[1] != self.spec.task_features:
+            raise ValueError(f'task_features must have shape [1, {self.spec.task_features}]')
+        if workspace.ndim != 3 or workspace.shape[0] != 1 \
+                or workspace.shape[1] != self.spec.slots or workspace.shape[-1] != self.spec.width:
+            raise ValueError(f'workspace must have shape [1, {self.spec.slots}, {self.spec.width}]')
+        for value, name in ((task_features, 'task_features'), (workspace, 'workspace')):
+            if not value.is_floating_point() or not bool(torch.isfinite(value).all()):
+                raise ValueError(f'{name} must be finite floating point')
+        if valid is None:
+            valid = torch.ones(1, self.spec.slots, dtype=torch.bool, device=workspace.device)
+        if valid.dtype != torch.bool or tuple(valid.shape) != tuple(workspace.shape[:2]):
+            raise ValueError('valid must be a boolean mask matching [1, slots]')
+        if task_features.device != workspace.device:
+            raise ValueError('task_features and workspace must be on the same device')
+        # Detach only the inputs: the monitor must not train the core, while the
+        # head itself remains trainable by a separate supervised objective.
+        features = task_features.detach()
+        slots = workspace.detach()
+        mask = valid.to(device=slots.device)
+        pooled = slots.masked_fill(~mask.unsqueeze(-1), 0).sum(dim=1) / \
+            mask.sum(dim=1, keepdim=True).clamp_min(1)
+        return self.mlp(torch.cat((features, pooled), dim=-1)).squeeze(-1)

@@ -37,6 +37,101 @@ class PortSpec:
 
 
 @dataclass(frozen=True)
+class CoreSpec:
+    """Declared shared-core geometry; validated against the native port layout.
+
+    ``width`` is the workspace/record-memory width so workspace readers reuse the
+    same projection arithmetic as memory readers. ``ffn_hidden`` is the tied
+    core's four-width feed-forward; ``control_hidden`` sizes the feed-forward
+    control arm to approximately the recurrent core's parameter count.
+    """
+    width: int = 256
+    slots: int = 8
+    steps: int = 2
+    heads: int = 4
+    task_features: int = 24
+    ffn_hidden: int = 1024
+    control_hidden: int = 340
+
+    def validate(self, ports: PortSpec) -> None:
+        for name in ('width', 'slots', 'steps', 'heads', 'task_features',
+                     'ffn_hidden', 'control_hidden'):
+            if type(getattr(self, name)) is not int or getattr(self, name) <= 0:
+                raise ValueError(f'CoreSpec.{name} must be a positive integer')
+        if self.width != ports.memory_width:
+            raise ValueError('Workspace width must equal the record-memory width')
+        if self.width % self.heads:
+            raise ValueError('Workspace width must divide core heads')
+        if self.steps > 8:
+            raise ValueError('Core recurrence is bounded to eight tied iterations')
+
+
+@dataclass(frozen=True)
+class CoreState:
+    """One task-owned latent workspace plus its exact task-feature binding.
+
+    The tensors are owned by one decision boundary. ``producer`` binds the core,
+    task encoder, sensors and memory writer; ``task_digest`` binds the exact task
+    revision; ``revision`` is the exact journal revision that produced it.
+    """
+    workspace: torch.Tensor  # [1, slots, width]
+    valid: torch.Tensor      # [1, slots] bool
+    task_features: torch.Tensor  # [1, task_features] float
+    producer: str
+    task_digest: str
+    revision: int
+    steps: int
+    implementation: str = 'recurrent'
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if (self.workspace.ndim != 3 or self.workspace.shape[0] != 1
+                or self.workspace.shape[1] < 1 or self.workspace.shape[2] < 1):
+            raise ValueError('Core workspace must be [1, slots, width]')
+        if not self.workspace.is_floating_point() or not bool(torch.isfinite(self.workspace).all()):
+            raise ValueError('Core workspace must be finite floating point')
+        if (self.valid.dtype != torch.bool
+                or tuple(self.valid.shape) != tuple(self.workspace.shape[:2])
+                or self.valid.device != self.workspace.device):
+            raise ValueError('Core validity must be a matching boolean mask')
+        if (self.task_features.ndim != 2 or self.task_features.shape[0] != 1
+                or self.task_features.shape[1] < 1
+                or not self.task_features.is_floating_point()
+                or not bool(torch.isfinite(self.task_features).all())
+                or self.task_features.device != self.workspace.device):
+            raise ValueError('Core task features must be finite [1, features] on the workspace device')
+        if not isinstance(self.producer, str) or not self.producer:
+            raise ValueError('Core producer identity required')
+        if type(self.revision) is not int or self.revision < 0:
+            raise ValueError('Core revision must be a nonnegative integer')
+        if type(self.steps) is not int or self.steps < 0:
+            raise ValueError('Core steps must be nonnegative')
+        if self.implementation not in {'recurrent', 'feedforward'}:
+            raise ValueError('Unknown core implementation')
+        object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(t) for t in self.tensors()))
+
+    def tensors(self):
+        return (self.workspace, self.valid, self.task_features)
+
+    def assert_immutable(self):
+        if self._tensor_stamps != tuple(tensor_stamp(t) for t in self.tensors()):
+            raise RuntimeError('CoreState tensor mutated; rebuild at a new decision boundary')
+
+    def detached(self):
+        return CoreState(self.workspace.detach(), self.valid.detach(),
+                         self.task_features.detach(), self.producer, self.task_digest,
+                         self.revision, self.steps, self.implementation)
+
+    def stamp(self):
+        """Stable lineage stamp for journals; never a confidence or truth score."""
+        return fingerprint({'producer': self.producer, 'task_digest': self.task_digest,
+                            'revision': self.revision, 'steps': self.steps,
+                            'implementation': self.implementation,
+                            'workspace': [float(v) for v in self.workspace.detach().cpu().flatten().tolist()],
+                            'valid': [bool(v) for v in self.valid.detach().cpu().flatten().tolist()]})
+
+
+@dataclass(frozen=True)
 class EvidencePin:
     ledger_id: str
     epoch: int
@@ -89,13 +184,25 @@ class SenseFrame:
 
 @dataclass(frozen=True)
 class TaskGraph:
+    """Request-level projection of the authoritative exact task journal.
+
+    The runtime ``ExactTaskState`` owns goal authority, claims, obligations and
+    outcomes. This projection is what a decision frame may carry; ``state_digest``
+    binds the frame to one journal revision.
+    """
     task_id: str
     goal: str
     revision: int = 0
     constraints: tuple[str, ...] = ()
     evidence_ids: tuple[str, ...] = ()
     open_obligations: tuple[str, ...] = ()
-    # E1 carries exact state; learned task transitions belong to E3.
+    success_conditions: tuple[str, ...] = ()
+    state_digest: str = ''
+    budget_remaining: int | None = None
+
+    @property
+    def digest(self):
+        return fingerprint(asdict(self))
 
 
 @dataclass(frozen=True)
@@ -116,9 +223,19 @@ class ComponentManifest:
     format_version: int = 1
     training_scope: str = 'text_only'
     cached_generation_supported: bool = False
+    core: CoreSpec | None = None
+
+    def shared_dict(self):
+        """Manifest fields that identify the parent, excluding additive E3 state."""
+        return {key: value for key, value in self.to_dict().items() if key != 'core'}
 
     def to_dict(self):
-        return asdict(self)
+        # A core-less manifest must keep the exact E1/E2 shape and digest so the
+        # selected parent extension remains byte-compatible with its receipt.
+        value = asdict(self)
+        if value.get('core') is None:
+            value.pop('core', None)
+        return value
 
     @property
     def digest(self):
@@ -142,14 +259,28 @@ class DecisionFrame:
     manifest_digest: str
     parameter_stamp: tuple
     enabled_ports: tuple[int, ...]
+    core: CoreState | None = None
+    enabled_branches: tuple[str, ...] = ('memory',)
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
     def tensors(self):
-        return (self.memory.slots, self.memory.valid, self.sense.prompt_ids,
-                self.sense.prompt_mask, *(x for _, x in self.sense.summaries))
+        owned = (self.memory.slots, self.memory.valid, self.sense.prompt_ids,
+                 self.sense.prompt_mask, *(x for _, x in self.sense.summaries))
+        return owned if self.core is None else (*owned, *self.core.tensors())
 
     def __post_init__(self):
+        if (not self.enabled_branches
+                or len(set(self.enabled_branches)) != len(self.enabled_branches)
+                or not set(self.enabled_branches) <= {'memory', 'workspace'}):
+            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace')
+        if 'workspace' in self.enabled_branches and self.core is None:
+            raise ValueError('Workspace branch requires an owned CoreState')
+        if self.core is not None:
+            self.core.assert_immutable()
         object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(t) for t in self.tensors()))
+
+    def branch_enabled(self, name):
+        return name in self.enabled_branches
 
     def assert_immutable(self):
         if self._tensor_stamps != tuple(tensor_stamp(t) for t in self.tensors()):

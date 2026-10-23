@@ -94,6 +94,17 @@ class MemoryAccessPort(nn.Module):
         return delta.masked_fill(~available[:, None, None], 0).to(hidden.dtype)
 
 
+class WorkspaceAccessPort(MemoryAccessPort):
+    """Masked cross-attention from native tokens into the task-owned workspace.
+
+    Same attention pattern and parameter arithmetic as ``MemoryAccessPort`` but
+    with a fully independent parameter set and gate, reading a ``CoreState``
+    workspace bank instead of record memory. The final output projection is zero
+    initialized, so a disabled port, an empty bank or an all-masked workspace
+    contributes an exact null delta.
+    """
+
+
 class SensePort(nn.Module):
     """One bounded summary of the explicitly masked known-input features.
 

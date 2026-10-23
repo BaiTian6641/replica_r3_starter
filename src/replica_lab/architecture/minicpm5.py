@@ -17,9 +17,11 @@ from transformers.masking_utils import create_causal_mask
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.models.llama import modeling_llama
 
-from .contracts import (ComponentManifest, DecisionFrame, InjectFrame, MemoryRead,
-                        PortSpec, RequestContext, SenseFrame, fingerprint)
-from .ports import MemoryAccessPort, SensePort
+from .contracts import (ComponentManifest, CoreState, DecisionFrame, InjectFrame,
+                        MemoryRead, PortSpec, RequestContext, SenseFrame, fingerprint)
+from .core import CognitiveCore, FeedForwardCore, SOURCES
+from .heads import TaskSuccessHead
+from .ports import MemoryAccessPort, SensePort, WorkspaceAccessPort
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 
 
@@ -50,6 +52,16 @@ class MiniCPM5Adapter(nn.Module):
         self.sense_ports = nn.ModuleDict({str(i): SensePort(h, d) for i in
                                          sorted(set((*self.ports.injection_layers, self.ports.observer_layer)))})
         self.reranker = TrainableRecordReranker(d)
+        self.core = self.ff_core = self.workspace_ports = self.task_head = None
+        if manifest.core is not None:
+            manifest.core.validate(self.ports)
+            if d != manifest.core.width:
+                raise ValueError('Core width must equal the record-memory width')
+            self.core = CognitiveCore(manifest.core)
+            self.ff_core = FeedForwardCore(manifest.core)
+            self.workspace_ports = nn.ModuleDict({str(i): WorkspaceAccessPort(h, d, self.ports.heads)
+                                                  for i in self.ports.injection_layers})
+            self.task_head = TaskSuccessHead(manifest.core)
         self.set_regime(regime)
         self._original_identity = None  # recorded after final device placement
 
@@ -91,9 +103,120 @@ class MiniCPM5Adapter(nn.Module):
     def sense_producer_key(self):
         return fingerprint({'features':self.producer_key(),'sense':[(n,id(p),p._version,str(p.dtype),str(p.device),p.data_ptr()) for n,p in self.sense_ports.named_parameters()]})
 
+    def _core_component_stamp(self):
+        stamp = {'features':self.producer_key()}
+        for prefix in ('core','ff_core','workspace_ports','task_head','sense_ports','record_writer'):
+            stamp[prefix] = [(n,id(p),p._version,str(p.dtype),str(p.device),p.data_ptr())
+                             for n,p in getattr(self,prefix).named_parameters()]
+        return stamp
+
+    def core_producer_key(self):
+        if self.core is None:
+            raise ValueError('Manifest declares no core; core producer identity is undefined')
+        return fingerprint(self._core_component_stamp())
+
+    def build_core_state(self, sense: SenseFrame, memory: MemoryRead, task_features,
+                         *, task_digest: str, revision: int, previous: CoreState | None = None,
+                         enabled_inputs=SOURCES, implementation='recurrent') -> CoreState:
+        """Run the declared core over known-input features; no labels are accepted.
+
+        ``task_digest`` and ``revision`` bind the state to one exact journal
+        revision; they are host-supplied, never derived from tensors.
+        """
+        if self.core is None:
+            raise ValueError('Core state requires a core-bearing manifest')
+        spec = self.manifest.core
+        if implementation not in {'recurrent','feedforward'}:
+            raise ValueError('Unknown core implementation')
+        inputs = tuple(enabled_inputs)
+        if inputs and (set(inputs) - set(SOURCES) or len(set(inputs)) != len(inputs)):
+            raise ValueError('enabled_inputs must be a distinct subset of sense/memory/task')
+        if not isinstance(task_digest, str) or not task_digest:
+            raise ValueError('Core state requires a nonempty host task_digest')
+        if type(revision) is not int or revision < 0:
+            raise ValueError('Core state requires a nonnegative integer journal revision')
+        features = torch.as_tensor(task_features,
+                                   dtype=self.base.get_input_embeddings().weight.dtype
+                                   if not torch.is_tensor(task_features) else task_features.dtype,
+                                   device=self.base.get_input_embeddings().weight.device)
+        if features.ndim == 1 and features.shape[0] == spec.task_features:
+            features = features.unsqueeze(0)
+        if features.ndim != 2 or features.shape != (1, spec.task_features) or not features.is_floating_point() \
+                or not bool(torch.isfinite(features).all()):
+            raise ValueError(f'task_features must be finite floating point [1, {spec.task_features}]')
+        if previous is not None and (not isinstance(previous, CoreState)
+                                     or previous.implementation != 'recurrent'):
+            raise ValueError('Previous core must be a recurrent CoreState owned by this task')
+        if previous is not None and previous.producer != self.core_producer_key():
+            raise ValueError('Previous core producer differs from current core features')
+        if (memory.slots.ndim != 4 or memory.slots.shape[0] != 1
+                or memory.slots.shape[2] != self.ports.slots_per_unit
+                or memory.slots.shape[3] != spec.width):
+            raise ValueError('Memory must hold [1, records, slots, width]')
+        if (memory.valid.dtype != torch.bool
+                or tuple(memory.valid.shape) != tuple(memory.slots.shape[:3])
+                or memory.valid.device != memory.slots.device):
+            raise ValueError('Memory validity must be a matching boolean mask')
+        summaries = [summary for _, summary in sense.summaries]
+        if not summaries:
+            raise ValueError('Sense frame carries no known-input summaries')
+        sense_tokens = torch.cat(summaries, dim=1)
+        sense_valid = torch.ones(1, sense_tokens.shape[1], dtype=torch.bool, device=sense_tokens.device)
+        memory_slots = memory.slots.flatten(1, 2)
+        memory_valid = memory.valid.flatten(1, 2)
+        if implementation == 'recurrent':
+            workspace, valid = self.core(sense_tokens, sense_valid, memory_slots, memory_valid,
+                                         features, previous=None if previous is None else previous.workspace,
+                                         enabled_inputs=inputs)
+            steps = spec.steps
+        else:
+            # Mask before normalization so an all-invalid pool contributes
+            # exactly zero instead of inheriting padded/garbage bytes.
+            pooled_sense = sense_tokens.masked_fill(~sense_valid.unsqueeze(-1), 0).sum(dim=1) / \
+                sense_valid.sum(dim=1, keepdim=True).clamp_min(1)
+            pooled_memory = memory_slots.masked_fill(~memory_valid.unsqueeze(-1), 0).sum(dim=1) / \
+                memory_valid.sum(dim=1, keepdim=True).clamp_min(1)
+            workspace, valid = self.ff_core(pooled_sense, pooled_memory, features)
+            steps = 0
+        return CoreState(workspace, valid, features, self.core_producer_key(), task_digest,
+                         revision, steps, implementation)
+
+    def predict_success(self, core_state: CoreState):
+        """Monitor logit for a core state; detached, never a task fact or authority.
+
+        The head's inputs are detached inside the head, and this boundary also
+        detaches the returned logit so a monitor read can never create a graph
+        that outlives the decision. A separate training driver may call
+        ``task_head`` directly for head-only supervision.
+        """
+        if self.task_head is None:
+            raise ValueError('Success head requires a core-bearing manifest')
+        if not isinstance(core_state, CoreState):
+            raise ValueError('predict_success requires an owned CoreState')
+        core_state.assert_immutable()
+        if core_state.producer != self.core_producer_key():
+            raise ValueError('Core producer differs from current native/core features')
+        return self.task_head(core_state.task_features, core_state.workspace,
+                              core_state.valid).detach()
+
     def new_named_parameters(self):
+        prefixes = ['record_writer', 'memory_ports', 'sense_ports', 'reranker']
+        if self.core is not None:
+            prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
+        for prefix in prefixes:
+            yield from ((f'{prefix}.{n}', p) for n, p in getattr(self, prefix).named_parameters())
+
+    def _parent_named_parameters(self):
+        """Exact E1/E2 new-tensor inventory, without any E3 additions."""
         for prefix in ('record_writer', 'memory_ports', 'sense_ports', 'reranker'):
             yield from ((f'{prefix}.{n}', p) for n, p in getattr(self, prefix).named_parameters())
+
+    def _component_inventory(self):
+        prefixes = ['record_writer', 'memory_ports', 'sense_ports', 'reranker']
+        if self.core is not None:
+            prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
+        return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
+                for prefix in prefixes}
 
     def optimizer_groups(self, base_lr, new_lr):
         groups = []
@@ -158,11 +281,17 @@ class MiniCPM5Adapter(nn.Module):
             if capture and str(i) in self.sense_ports:
                 summary, _ = self.sense_ports[str(i)](hidden, valid)
                 summaries.append((i, summary))
-            if frame is not None and str(i) in self.memory_ports:
+            if frame is not None and str(i) in self.memory_ports and frame.branch_enabled('memory'):
                 view = InjectFrame(frame, i)
                 memory = frame.memory
                 hidden = hidden + self.memory_ports[str(i)](
                     hidden, memory.slots.flatten(1, 2), memory.valid.flatten(1, 2), enabled=view.enabled)
+            if (frame is not None and frame.core is not None and frame.branch_enabled('workspace')
+                    and str(i) in self.workspace_ports):
+                view = InjectFrame(frame, i)
+                core = frame.core
+                hidden = hidden + self.workspace_ports[str(i)](
+                    hidden, core.workspace, core.valid, enabled=view.enabled)
             if i == stop_layer:
                 return hidden, summaries
         return self.base.model.norm(hidden), summaries
@@ -179,7 +308,8 @@ class MiniCPM5Adapter(nn.Module):
         return SenseFrame(tuple(summaries), prompt_ids.clone(), prompt_mask.bool().clone(), self.sense_producer_key())
 
     def make_frame(self, decision_id, evidence, memory: MemoryRead, sense: SenseFrame,
-                   enabled_ports=None):
+                   enabled_ports=None, core: CoreState | None = None,
+                   enabled_branches=None):
         if memory.slots.ndim != 4 or memory.slots.shape[0] != 1:
             raise ValueError('One owned request per bank; batch requests explicitly later')
         if memory.slots.shape[1:] != (len(memory.spans), self.ports.slots_per_unit, self.ports.memory_width):
@@ -200,8 +330,22 @@ class MiniCPM5Adapter(nn.Module):
         enabled = self.ports.injection_layers if enabled_ports is None else tuple(enabled_ports)
         if not set(enabled) <= set(self.ports.injection_layers):
             raise ValueError('Undeclared port')
+        if core is not None:
+            if self.core is None:
+                raise ValueError('Frame core requires a core-bearing manifest')
+            spec = self.manifest.core
+            if tuple(core.task_features.shape) != (1, spec.task_features):
+                raise ValueError(f'Core task features must have shape [1, {spec.task_features}]')
+            if not isinstance(core.task_digest, str) or not core.task_digest:
+                raise ValueError('Frame core requires a nonempty exact task digest')
+            if core.producer != self.core_producer_key():
+                raise ValueError('Core producer differs from current native/core features')
+        branches = (('memory', 'workspace') if core is not None else ('memory',)) \
+            if enabled_branches is None else tuple(enabled_branches)
+        if 'workspace' in branches and core is None:
+            raise ValueError('Workspace branch requires an owned CoreState')
         return DecisionFrame(decision_id, evidence, memory, sense, self.manifest.digest,
-                             self.parameter_stamp(), enabled)
+                             self.parameter_stamp(), enabled, core, branches)
 
     def _check_frame(self, frame):
         frame.assert_immutable()
@@ -275,31 +419,59 @@ class MiniCPM5Adapter(nn.Module):
         path.mkdir(parents=True, exist_ok=False)
         weights = {n: p.detach().cpu().contiguous() for n, p in self.new_named_parameters()}
         save_file(weights, str(path / 'extensions.safetensors'))
-        receipt = {'format':'replica.minicpm5.extensions.v1','manifest':self.manifest.to_dict(),
+        fmt = 'replica.minicpm5.extensions.v2' if self.core is not None else 'replica.minicpm5.extensions.v1'
+        receipt = {'format':fmt,'manifest':self.manifest.to_dict(),
                    'manifest_digest':self.manifest.digest,'regime':self.regime,
                    'weights_sha256':hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest(),
                    'parameters':self.parameter_audit(),'base_saved':False,
                    'notes':'Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.'}
+        if self.core is not None:
+            receipt['components'] = self._component_inventory()
         (path/'manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
         return receipt
 
-    def load_extension(self, directory):
+    def load_extension(self, directory, accept_parent_v1=False):
         from safetensors.torch import load_file
         if (self.regime != 'modules_only' or self._original_identity is None
                 or self._original_identity != self.parameter_stamp(original_only=True)):
             raise RuntimeError('Extension reload requires the unchanged sealed original')
         path = Path(directory)
         receipt = json.loads((path/'manifest.json').read_text())
-        if (receipt.get('format') != 'replica.minicpm5.extensions.v1'
-                or receipt.get('manifest_digest') != self.manifest.digest
-                or receipt.get('manifest') != json.loads(json.dumps(self.manifest.to_dict()))
-                or hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest() != receipt.get('weights_sha256')):
+        fmt = receipt.get('format')
+        if fmt == 'replica.minicpm5.extensions.v2':
+            if set(receipt) != {'format','manifest','manifest_digest','regime','weights_sha256',
+                                'parameters','base_saved','notes','components'}:
+                raise ValueError('Incompatible or changed extension manifest/bytes')
+            if (receipt.get('manifest_digest') != self.manifest.digest
+                    or receipt.get('manifest') != json.loads(json.dumps(self.manifest.to_dict()))
+                    or hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest()
+                    != receipt.get('weights_sha256')):
+                raise ValueError('Incompatible or changed extension manifest/bytes')
+            if receipt.get('components') != json.loads(json.dumps(self._component_inventory())):
+                raise ValueError('Extension component inventory differs')
+            expected = dict(self.new_named_parameters())
+        elif fmt == 'replica.minicpm5.extensions.v1':
+            shared = json.loads(json.dumps(self.manifest.shared_dict()))
+            if (receipt.get('manifest_digest') != fingerprint(self.manifest.shared_dict())
+                    or receipt.get('manifest') != shared
+                    or hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest()
+                    != receipt.get('weights_sha256')):
+                raise ValueError('Incompatible or changed extension manifest/bytes')
+            expected = dict(self._parent_named_parameters())
+            if self.manifest.core is not None:
+                if not accept_parent_v1:
+                    raise ValueError('Loading the E1/E2 parent v1 extension requires accept_parent_v1=True')
+        else:
             raise ValueError('Incompatible or changed extension manifest/bytes')
         weights = load_file(str(path/'extensions.safetensors'))
-        expected = dict(self.new_named_parameters())
         if set(weights) != set(expected) or any(weights[n].shape != p.shape or weights[n].dtype != p.dtype
                                               for n,p in expected.items()):
             raise ValueError('Extension tensor inventory differs')
         with torch.no_grad():
             for n,p in expected.items(): p.copy_(weights[n].to(p.device))
+        if fmt == 'replica.minicpm5.extensions.v1' and self.manifest.core is not None:
+            parent = set(expected)
+            return {**receipt, 'migration':{
+                'accepted_parent_v1': True, 'copied': sorted(parent),
+                'fresh_init': sorted(n for n,_ in self.new_named_parameters() if n not in parent)}}
         return receipt

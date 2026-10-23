@@ -5,7 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import uuid
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 
 import torch
 from safetensors.torch import load_file, save_file
@@ -21,6 +21,26 @@ def pin_selection(selection):
                        selection.branch_id, selection.purpose, selection.as_of,
                        selection.mode, selection.snapshot_at,
                        tuple((r.record_id, r.record_hash) for r in selection.records))
+
+
+@contextmanager
+def frozen_parameters(*modules):
+    """Temporarily freeze optimizer-visible parameters, restoring flags exactly.
+
+    Used when a sensor graph must pass through the core while ``train_core`` is
+    false: gradients may traverse core computations to reach sensors, but the
+    core/task-encoder parameters must not accumulate gradients or stay frozen
+    after this request.
+    """
+    flags = [(p, p.requires_grad) for module in modules for p in module.parameters()
+             if p.requires_grad]
+    try:
+        for parameter, _ in flags:
+            parameter.requires_grad_(False)
+        yield
+    finally:
+        for parameter, flag in flags:
+            parameter.requires_grad_(flag)
 
 
 class MemorySession:
@@ -163,16 +183,31 @@ class MemorySession:
 
     def prepare(self, *, prompt_ids, prompt_mask, query, scope: EligibilityScope,
                 task: TaskGraph, training=False, selection=None, rerank=False,
-                enabled_ports=None, train_sense=False):
+                enabled_ports=None, train_sense=False, task_features=None,
+                previous_core=None, core_impl='recurrent',
+                enabled_inputs=('sense','memory','task'), enabled_branches=None,
+                train_core=False, task_digest=None, revision=None):
+        if core_impl not in {'recurrent', 'feedforward', 'none'}:
+            raise ValueError("core_impl must be 'recurrent', 'feedforward' or 'none'")
+        if core_impl == 'none':
+            if task_features is not None:
+                raise ValueError("core_impl='none' does not accept task_features")
+            if previous_core is not None:
+                raise ValueError("core_impl='none' does not accept a previous core")
+            branches = ('memory',) if enabled_branches is None else tuple(enabled_branches)
+            if 'workspace' in branches:
+                raise ValueError("core_impl='none' cannot enable the workspace branch")
+            enabled_branches = branches
         selection = selection or self.index.retrieve(query, **asdict(scope), limit=self.adapter.ports.max_units)
         self.index.verify_selection(selection, expected_scope=scope)
         pin = pin_selection(selection)
         self._prune_cache(pin)
         context = torch.enable_grad() if training else torch.no_grad()
         with context:
-            # E1/E2 answer loss consumes record slots, not the future E3 sense core.
-            # Avoid retaining a second native graph unless training the explicit rank objective.
-            with (torch.enable_grad() if training and train_sense else torch.no_grad()):
+            # The sense pass keeps autograd when the sensors, the core or the
+            # workspace readers must receive the action loss; otherwise it is
+            # built under no_grad to avoid a second native graph.
+            with (torch.enable_grad() if training and (train_sense or train_core) else torch.no_grad()):
                 sense = self.adapter.sense(prompt_ids, prompt_mask)
             spans = self.spans(selection.records)
             writer_hash = self._writer_hash() if not training and self.cache_dir else 'training-no-slot-cache'
@@ -195,7 +230,29 @@ class MemorySession:
                     1,0,self.adapter.ports.slots_per_unit,self.adapter.ports.memory_width)
                 valid = torch.zeros(slots.shape[:3],dtype=torch.bool,device=self.device)
             memory = MemoryRead(spans,slots,valid,self.adapter.memory_producer_key())
-            frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports)
+            core = None
+            if core_impl != 'none' and self.adapter.core is not None:
+                if task_features is None:
+                    raise ValueError('The core requires host-computed exact task_features; none were supplied')
+                if not isinstance(task_digest, str) or not task_digest or type(revision) is not int or revision < 0:
+                    raise ValueError('The core requires the exact-journal task_digest and revision')
+                # A live previous graph would span decisions; the prior workspace
+                # is always taken as a task-owned value.
+                previous = previous_core.detached() if previous_core is not None else None
+                sensor_only = training and train_sense and not train_core
+                freeze = frozen_parameters(self.adapter.core, self.adapter.ff_core) \
+                    if sensor_only else nullcontext()
+                with (torch.enable_grad() if training and (train_core or sensor_only)
+                      else torch.no_grad()), freeze:
+                    # In the sensor-only arm the action loss traverses a frozen
+                    # core to the sensors; core/task-encoder parameters never
+                    # accumulate gradients and their flags are restored exactly.
+                    core = self.adapter.build_core_state(
+                        sense, memory, task_features, task_digest=task_digest,
+                        revision=revision, previous=previous,
+                        enabled_inputs=tuple(enabled_inputs), implementation=core_impl)
+            frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
+                                            core=core,enabled_branches=enabled_branches)
         request = RequestContext(uuid.uuid4().hex,task,frame,selection)
         self.verify(request)
         return request
