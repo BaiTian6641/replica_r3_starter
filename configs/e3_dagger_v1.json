@@ -1,0 +1,87 @@
+{
+  "format": "replica.e3.dagger.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "DAgger-style aggregation of host teacher labels on model-visited states, modules-only, fresh source-separated evaluation.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_dagger/cases",
+    "manifest_sha256": "302262faefc54dac6caeab6c0648f7a856736e5e8c43c779fd27ea8a30dda2c2",
+    "train": [
+      "dagger_train_01",
+      "dagger_train_02",
+      "dagger_train_03",
+      "dagger_train_04"
+    ],
+    "dev": [
+      "dagger_dev_01"
+    ],
+    "heldout": [
+      "dagger_heldout_01",
+      "dagger_heldout_02",
+      "dagger_heldout_03",
+      "dagger_heldout_04"
+    ]
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable": [
+      "record_writer",
+      "memory_ports",
+      "sense_ports",
+      "reranker",
+      "core",
+      "workspace_ports",
+      "task_head"
+    ],
+    "optimizer": "muon8bit",
+    "auxiliary": "adamw_fp32",
+    "updates": 8,
+    "examples_per_update": 4,
+    "seed": 20261023,
+    "lr_new": 0.005,
+    "lr_muon_new": 0.01,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "warmup_updates": 1,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "max_prompt_tokens": 640,
+    "max_label_tokens": 96,
+    "teacher_policy": "state-conditioned host procedure; labels on model-visited train states only",
+    "previous_workspace": "absent"
+  },
+  "evaluation": {
+    "cases": [
+      "dagger_dev_01",
+      "dagger_heldout_01",
+      "dagger_heldout_02",
+      "dagger_heldout_03",
+      "dagger_heldout_04"
+    ],
+    "mode": "full",
+    "zero_previous_workspace": true,
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128
+  },
+  "checkpoint": {
+    "format": "replica.minicpm5.extensions.v2",
+    "save_policy": "one diagnostic extension export after training; no base save or optimizer checkpoint",
+    "promotion": "opt-in evaluation only"
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "model_loads": 1,
+    "native_jobs": 1
+  },
+  "stop_conditions": [
+    "guard breach",
+    "nonfinite loss/gradient/logits",
+    "8 updates without held-out improvement"
+  ],
+  "claims": "DAgger diagnostic only; no general policy or deployment claim."
+}
