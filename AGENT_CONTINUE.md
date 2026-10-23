@@ -25,8 +25,7 @@ advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
 
 **E4 fast-memory reference (23 October):** staged observation writes, one
 chunk-start commit, bounds/lineage/reset and strict image persistence are
-implemented and tested on the host. Native depth-port attachment, training and
-delayed-use evaluation remain pending. See
+implemented and tested on the host. Opt-in native read ports pass null parity/independent influence; observation-write training and delayed-use evaluation remain pending. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
 **C16 identity contracts (23 October):** source episodes, approved snapshots,

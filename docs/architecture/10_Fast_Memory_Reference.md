@@ -1,7 +1,7 @@
 # E4 reference fast memory: staged observation writes
 
-23 October 2026 UTC. Status: **host reference service implemented and tested;
-not attached to native depth ports, not trained, not evaluated on tasks.**
+23 October 2026 UTC. Status: **host reference service and opt-in native read ports implemented;
+no native write/commit path, training, delayed-use or task evaluation yet.**
 This increment follows the functional linear reference in `neural.py`; it is not
 a reproduction of Titans, TTT, uTTT or MemT-1.0.
 
@@ -46,14 +46,21 @@ tampered file is rejected. `reset` and `invalidate` discard state and pending
 writes and increment a generation. A source correction/revocation must rebuild
 from permitted observations; this is not a claim of neural unlearning.
 
-## 3. What is not connected
+## 3. Native read-port qualification
 
-The native action pass still has no fast-memory reader. No `DecisionFrame` fast
-snapshot, no depth-port read, no end-to-end write from observed tool output and
-no fast-state outer-loop training is implemented. Therefore this increment does
-not establish delayed native use, interference, saturation, task benefit or
-cross-session behavior. Those require a separately preregistered native arm
-with one chunk-start snapshot shared across ports and one deferred commit.
+`FastMemoryAccessPort` is now attached at blocks 13/27 when the manifest
+declares `FastMemorySpec`; `DecisionFrame.fast` carries one immutable committed
+snapshot and the branch has an independent gate. A bounded native MPS check
+(`configs/e4_fast_read_v1.json`) passed: zero-state fast branch **exactly equals**
+native, branch-off exactly equals native, and a nonzero random state changes
+logits by 0.269. Peak sampled driver was 11.0 GiB; no update or checkpoint was
+saved. This qualifies read wiring only.
+
+Still not connected: writing observed tool/source chunks from the runtime into
+the native fast state, a shared chunk-start read across both ports in a real
+episode, outer-loop training of fast writes/queries, delayed-use/interference
+measurements, and cross-session images. Those require a separately preregistered
+native arm with one deferred commit per observation.
 
 ## 4. Tests
 
