@@ -10,7 +10,16 @@ cognitive core, native memory access ports, self-evaluation, bounded learning
 and an authentic personal Replica branch. MiniCPM5-2B is the first technology
 validation model; MiniCPM-V-4.7-1B is the second, with its own native port.
 
-**Implementation follow-up:** [E1/E2 implementation and qualification](07_E1_E2_Implementation.md) records the connected code and completed MPS qualification. Slot-only answers are 4/4 with source-swap/restart controls; reranking quality remains open. See the [native results](../experiments/20261023_E1_E2_Native_Results.md). The research chapters below remain the design baseline.
+**Implementation follow-up:** [E1/E2 implementation](07_E1_E2_Implementation.md),
+[E2 retrieval/capacity](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md),
+[E3 core/action loop](../experiments/20261023_E3_Native_Results.md),
+[E3 set_constant negative](../experiments/20261023_E3_Set_Constant_Results.md),
+[C16 identity](09_Replica_Identity_Interface.md),
+[E4 fast memory](10_Fast_Memory_Reference.md),
+[E4 artifacts](11_Runtime_Artifacts.md) and
+[E5 procedure](../experiments/20261023_E5_Procedure_Results.md) record the
+connected code and measured limits. The research chapters below remain the
+design baseline.
 
 ## Read in this order
 

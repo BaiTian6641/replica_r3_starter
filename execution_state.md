@@ -1,4 +1,13 @@
-# Execution state — E3 core, exact journal and model-driven loop
+# Execution state — E2/E3/C16/E4/E5 integrated build
+
+**Latest verified package (HEAD `cfbed37`, 23 October 2026 UTC).** Full suite
+**1118 passed / 21 subtests**. E2 retrieval/capacity, E3 engineering with two
+negative action-policy families, C16 identity contracts, E4 fast-memory
+read/bridge and typed artifacts, and an accepted E5 **procedure** candidate
+(3/3 held-out, harmful rejection, rollback) are recorded. No neural E5
+candidate, authentic identity conditioning, E6 VLM or delayed fast-memory task
+benefit exists. Active native jobs: none. See the
+[E2/E3/E4/E5 handoff](docs/experiments/20261023_Handoff_E2_E3_E4.md).
 
 **Current work — E3 implemented and native-qualified on 23 October 2026 UTC.**
 The shared width-256/eight-slot/two-iteration core, independent memory and
