@@ -29,15 +29,19 @@ class MemoryAnswerService:
 
     def __init__(self, session, *, pointer_enabled: bool = False,
                  exact_source_fallback: bool = True,
-                 candidate_unit: str = 'token'):
+                 candidate_unit: str = 'token',
+                 record_scope: str = 'all'):
         if not isinstance(pointer_enabled, bool) or not isinstance(exact_source_fallback, bool):
             raise ValueError('answer switches must be boolean')
         if candidate_unit not in ('token', 'word'):
             raise ValueError('candidate_unit must be token or word')
+        if record_scope not in ('all', 'top'):
+            raise ValueError('record_scope must be all or top')
         self.session = session
         self.pointer_enabled = pointer_enabled
         self.exact_source_fallback = exact_source_fallback
         self.candidate_unit = candidate_unit
+        self.record_scope = record_scope
 
     def answer(self, request) -> MemoryAnswer:
         self.session.verify(request)
@@ -46,7 +50,7 @@ class MemoryAnswerService:
             raise ValueError('answer requires an owned request frame')
         if self.pointer_enabled and frame.copy is not None and frame.branch_enabled('copy'):
             pointer: PointerAnswer = self.session.pointer_answer(
-                request, unit=self.candidate_unit)
+                request, unit=self.candidate_unit, record_scope=self.record_scope)
             return MemoryAnswer(
                 text=pointer.text, method='pointer_copy',
                 record_ids=(pointer.record_id,),

@@ -308,7 +308,7 @@ class MemorySession:
         return tuple(groups)
 
     def copy_candidates(self, request, frame=None, *, include_provenance=False,
-                        unit='token'):
+                        unit='token', record_scope='all'):
         """Enumerate contiguous exact source-token spans for pointer copying.
 
         The host does not choose a span; every bounded span is returned, and the
@@ -325,11 +325,20 @@ class MemorySession:
             raise ValueError('Copy frame has no source tokens')
         if unit not in ('token', 'word'):
             raise ValueError('candidate unit must be token or word')
+        if record_scope not in ('all', 'top'):
+            raise ValueError('record_scope must be all or top')
+        allowed = frame.memory.spans
+        if record_scope == 'top':
+            if not allowed:
+                raise ValueError('Top-record copy scope requires a selected record')
+            top = allowed[0].record_id
+            allowed = tuple(span for span in allowed if span.record_id == top)
+            ids = [token for span in allowed for token in span.token_ids]
         candidates, masks = [], []
         provenance = []
         seen = set()
         token_source = []
-        for span in frame.memory.spans:
+        for span in allowed:
             if len(span.token_ids) != span.token_end - span.token_start:
                 raise ValueError('Source span token inventory differs')
             token_source.extend((span.record_id, span.record_hash, span.span_hash)
@@ -374,10 +383,12 @@ class MemorySession:
             return token_ids, token_mask, candidate_mask, tuple(provenance)
         return token_ids, token_mask, candidate_mask
 
-    def pointer_answer(self, request, *, unit: str = 'token') -> PointerAnswer:
+    def pointer_answer(self, request, *, unit: str = 'token',
+                       record_scope: str = 'all') -> PointerAnswer:
         """Return the model-selected exact source span and host provenance."""
         token_ids, token_mask, candidate_mask, provenance = self.copy_candidates(
-            request, include_provenance=True, unit=unit)
+            request, include_provenance=True, unit=unit,
+            record_scope=record_scope)
         scores = self.adapter.pointer_scores(request.frame, token_ids, token_mask,
                                              candidate_mask)
         index = int(scores.argmax(dim=-1)[0])

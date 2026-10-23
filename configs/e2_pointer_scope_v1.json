@@ -1,0 +1,34 @@
+{
+  "format": "replica.e2.pointer_service.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Compare all-record vs top-lexical-record pointer candidates on a third untouched family; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "dataset": {
+    "root": "data/e2_pointer_fresh3",
+    "records_sha256": "60bd6166b3989027a848fb41f5707fccd689d084ef28d857119e354d3996da4e",
+    "queries_sha256": "de5acb30e332112eed4543c3453e35e51a4e9bc9d18a59804a4fb39adc21c151",
+    "manifest_sha256": "18bd78aaf68692fdf5dfaa50018e4b9ff21ebb65ce4efaec24be1ea8bd29a209"
+  },
+  "max_span": 4,
+  "candidate_units": [
+    "word"
+  ],
+  "record_scopes": [
+    "all",
+    "top"
+  ],
+  "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+  "evaluation": {
+    "dev": 0,
+    "heldout": 12,
+    "metric": "exact pointer text and provenance; all vs top lexical record"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "eval_cases": 24,
+    "checkpoint_saves": 0
+  },
+  "claims": "Source-scope diagnostic only; no training or default change."
+}
