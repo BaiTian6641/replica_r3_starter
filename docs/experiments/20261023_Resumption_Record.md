@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the C13 runtime-summary-to-director integration; documentation follows.
+- Last code/test HEAD: the answer-ranking negative control; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
