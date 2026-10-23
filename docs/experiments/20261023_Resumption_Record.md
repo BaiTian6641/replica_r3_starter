@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the commit adding the D2 action residency result; documentation follows.
+- Last code/test HEAD: the commit adding the bf16 D2 action result; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -54,10 +54,10 @@
    material; no personal data is bundled.
 6. **E6 multimodal** requires local MiniCPM-V-4.7-1B weights and a separate
    adapter; unavailable.
-7. **D2 full-backbone action tuning** is not available under the current
-   residency: the first backward reached **40.68 GiB**, above the 40 GiB guard,
-   with no update or checkpoint. A separate activation-offload/bf16 or shorter
-   interface protocol is required.
+7. **D2 full-backbone action tuning** was tested with bf16 compute: 8 updates
+   completed at **39.10 GiB**, but held-out/dev completed **0/6** while repeating
+   `read`; no export. FP32 D2 exceeded 40 GiB. Full-backbone training does not
+   rescue the current action interface.
 
 ## Next executable action
 
