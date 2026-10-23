@@ -1,0 +1,11 @@
+{
+  "schema_version": "replica.validation.e5_procedure.v1",
+  "date_utc": "2026-10-23",
+  "full_suite": {"command": ".venv/bin/python -m pytest -q", "result": "1118 passed, 21 subtests passed", "exit_code": 0},
+  "procedure": {"report": "reports/e5_procedure_20261023/report.json", "heldout_passed": 3, "heldout_cases": 3, "dev_passed": 1, "active_manifest": "b24e7722d6bbf0f5f0975901cc8e7e46293e69badd157fb0a888324d92af3941", "harmful_rejected": true, "rollback_test": "tests/test_procedure_candidate.py::test_accepted_candidate_rollback_returns_to_ancestor"},
+  "procedure_tests": "tests/test_procedure_candidate.py 5 passed; tests/test_runtime_artifacts.py 4 passed",
+  "identity_tests": "tests/test_replica_identity.py 6 passed",
+  "fast_memory_tests": "tests/test_fast_memory.py 4 passed; tests/test_fast_memory_bridge.py 2 passed; tests/test_e4_fast_ports.py 3 passed",
+  "established": "procedure artifact, host execution, independent receipts, publication, harmful rejection, rollback, artifact lifecycles",
+  "not_established": "neural candidate training/gain/retention, learned action policy, delayed fast-memory use, authentic identity fidelity, E6"
+}

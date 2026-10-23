@@ -60,5 +60,169 @@
     "reranking remains opt-in; lexical remains default"
   ],
   "set_constant_result": "reports/e3_set_attempt03_20261023/run_report.json",
-  "fast_read_result": "reports/e4_fast_read_20261023/run_report.json"
+  "fast_read_result": "reports/e4_fast_read_20261023/run_report.json",
+  "component_states": {
+    "C01": {
+      "description": "native text adapter; VLM adapter not implemented",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "frozen source; adapter/native ABI verified",
+      "evaluated": "E1/E2 native text short-context",
+      "qualified": "text short-context"
+    },
+    "C02": {
+      "description": "sense/memory/workspace/fast read ports at 13/27",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "E1/E2/E3 alignment",
+      "evaluated": "E2/E3 native wiring; fast read native",
+      "qualified": "short-context native"
+    },
+    "C03": {
+      "description": "exact temporal ledger",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "host only",
+      "evaluated": "E1/E2 eligibility/correction/restart",
+      "qualified": "short synthetic records"
+    },
+    "C04": {
+      "description": "contextual writer and latents",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "E1/E2 D1; E2 reranker arm",
+      "evaluated": "novel-value failure",
+      "qualified": "short synthetic records only"
+    },
+    "C05": {
+      "description": "lexical/dense/reranker retrieval plus exact fetch",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "reranker explicit ranking only",
+      "evaluated": "held-out top1 0.75 lexical/dense, 0.50 rerank",
+      "qualified": "lexical/dense short-context; rerank opt-in"
+    },
+    "C06": {
+      "description": "fast memory host service, bridge and native read ports",
+      "designed": true,
+      "implemented": true,
+      "integrated": "read path",
+      "trained": "not trained; deterministic encoder",
+      "evaluated": "no delayed-use/saturation/task benefit",
+      "qualified": "read-port engineering only"
+    },
+    "C07": {
+      "description": "Engram-style static lookup",
+      "designed": true,
+      "implemented": false,
+      "integrated": false,
+      "trained": "none",
+      "evaluated": "none",
+      "qualified": "none"
+    },
+    "C08": {
+      "description": "exact task journal and workspace",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "E3 core alignment",
+      "evaluated": "task completion 0/8 and 0/7",
+      "qualified": "engineering/restart only"
+    },
+    "C09": {
+      "description": "shared recurrent core and controls",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "E3 alignment",
+      "evaluated": "negative learned task completion",
+      "qualified": "native wiring/null parity"
+    },
+    "C10": {
+      "description": "typed actions, tools, receipts and restart",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "model policy alignment",
+      "evaluated": "tools/restart pass; model completion 0",
+      "qualified": "host authority/restart"
+    },
+    "C11": {
+      "description": "task-success prediction head",
+      "designed": true,
+      "implemented": true,
+      "integrated": false,
+      "trained": "not trained (single class)",
+      "evaluated": "not calibrated",
+      "qualified": "none"
+    },
+    "C12": {
+      "description": "typed artifacts and procedure candidate",
+      "designed": true,
+      "implemented": true,
+      "integrated": "procedure tool path",
+      "trained": "procedure compiled/evaluated",
+      "evaluated": "procedure 3/3 heldout",
+      "qualified": "procedure; neural candidate pending"
+    },
+    "C13": {
+      "description": "learning director",
+      "designed": true,
+      "implemented": false,
+      "integrated": false,
+      "trained": "none",
+      "evaluated": "none",
+      "qualified": "none"
+    },
+    "C14": {
+      "description": "candidate trainer/evaluator",
+      "designed": true,
+      "implemented": "procedure path",
+      "integrated": "procedure",
+      "trained": "no neural training",
+      "evaluated": "procedure evaluated",
+      "qualified": "neural candidate pending"
+    },
+    "C15": {
+      "description": "extension manifest, artifact catalog and publication/rollback",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "procedure only",
+      "evaluated": "procedure accepted/rejected/rolled back",
+      "qualified": "procedure; neural publisher pending"
+    },
+    "C16": {
+      "description": "identity contracts, modes, null path and optional reader",
+      "designed": true,
+      "implemented": true,
+      "integrated": "prompt path",
+      "trained": "reader unattached",
+      "evaluated": "fictional contracts only",
+      "qualified": "no authentic archive/fidelity"
+    },
+    "C17": {
+      "description": "request-owned frames, worker lock and uncached reads",
+      "designed": true,
+      "implemented": true,
+      "integrated": true,
+      "trained": "n/a",
+      "evaluated": "native qualification",
+      "qualified": "batch-one short-context"
+    },
+    "C18": {
+      "description": "MiniCPM-V native port",
+      "designed": true,
+      "implemented": false,
+      "integrated": false,
+      "trained": "none",
+      "evaluated": "none",
+      "qualified": "none"
+    }
+  }
 }
