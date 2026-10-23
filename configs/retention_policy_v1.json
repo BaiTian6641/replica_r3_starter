@@ -1,0 +1,16 @@
+{
+  "format": "replica.retention.policy.v1",
+  "declared_at_utc": "2026-10-23",
+  "entries": [
+    {"path": "checkpoints/minicpm5_source", "action": "preserve", "reason": "sealed original model source"},
+    {"path": "runs/e1_e2_native_attempt02_20261023/selected_extension", "action": "preserve", "reason": "selected E2 parent extension"},
+    {"path": "runs/e3_set_attempt03_20261023/selected_extension", "action": "preserve", "reason": "selected E3 core/action extension"},
+    {"path": "runs/e2_retrieval_attempt03_20261023/selected_extension", "action": "preserve", "reason": "opt-in reranker candidate"},
+    {"path": "runs/e3_policy_head_attempt03_20261023/policy_head", "action": "preserve", "reason": "rejected policy-head diagnostic"},
+    {"path": "src/replica_lab/runtime_pilot.py", "action": "preserve", "reason": "protected untracked user file; never stage"},
+    {"path": "runs/e2_cross_rerank_attempt01", "action": "deletion_candidate", "reason": "rejected cross-template reranker; its report is retained"},
+    {"path": "runs/e2_cross_rerank_attempt02", "action": "deletion_candidate", "reason": "rejected higher-budget reranker; its report is retained"},
+    {"path": "runs/e3_set_large_attempt01/selected_extension", "action": "deletion_candidate", "reason": "rejected large-family action extension; raw report retained"},
+    {"path": "runs/e3_dagger_attempt01/selected_extension", "action": "deletion_candidate", "reason": "diagnostic DAgger extension; result was negative"}
+  ]
+}
