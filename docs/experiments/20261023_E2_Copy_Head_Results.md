@@ -33,6 +33,12 @@ The relevant record was selected in every case and the answer token was present
 in that record, so this is not an eligibility or retrieval failure. The copy
 bias did not overcome the model's prior or learn a useful exact-token mapping.
 
+A tiny CPU probe on the same head confirms the mechanism is not inert: over 200
+AdamW steps it reduced loss from **4.205 → 4.000**, moved the gate from 0 to
+**1.42**, and raised the copied source-token logit by **+0.10**. The native
+failure is therefore an optimization/data-scale limitation of this additive
+bias design, not a null-path or serialization defect.
+
 ## 3. Classification and decision
 
 **Optimization/representation failure** for this additive logit-bias design:
