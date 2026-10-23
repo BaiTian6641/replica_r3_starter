@@ -29,6 +29,15 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**E4 reference fast memory (23 October).** A functional linear host service now
+supports observation-only staged writes, one deferred commit against a single
+chunk-start state, per-owner/branch scope, bounds, lineage, reset/invalidate and
+strict safetensors image persistence. Focused software tests cover invisibility,
+idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
+rejection. It is **not** attached to native depth ports, trained, or evaluated
+for delayed use/task benefit. See
+[fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+
 **C16 identity interface (23 October).** Versioned source episodes, approved
 conditional principle hypotheses, dated snapshots, mode-bound identity contexts,
 parallel-branch state, correction/revocation handling, a null path and an
