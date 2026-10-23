@@ -40,6 +40,12 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 cross-template reranker (23 October).** Two fresh reranker candidates
+were rejected: 4/8 held-out top1 after 8 updates and **1/8** after 32 updates,
+against lexical **5/8**; the higher-budget arm overfit while training loss fell.
+Lexical remains default; the existing reranker remains opt-in. See
+[cross-template rerank](docs/experiments/20261023_E2_Cross_Template_Rerank_Results.md).
+
 **E2 cross-template retrieval (23 October).** Lexical top-1 **7/12**, native
 dense **5/12**, and the existing opt-in reranker **1/12** on the cross-template
 family; all had recall@4 12/12. The reranker does not transfer to the new

@@ -1,0 +1,12 @@
+{
+  "schema_version": "replica.validation.e2_cross_rerank.v1",
+  "date_utc": "2026-10-23",
+  "attempts": [
+    {"report": "reports/e2_cross_rerank_attempt01/run_report.json", "updates": 8, "heldout_top1": "4/8", "decision": "reject"},
+    {"report": "reports/e2_cross_rerank_attempt02/run_report.json", "updates": 32, "heldout_top1": "1/8", "decision": "reject"}
+  ],
+  "lexical_heldout_top1": "5/8",
+  "default": "lexical unchanged", "candidate": "rejected, not published",
+  "failure_class": "supervision/representation; higher budget overfit",
+  "costs": {"attempt02_wall_seconds": 51.56, "peak_driver_gib": 11.0}
+}
