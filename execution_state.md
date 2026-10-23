@@ -396,6 +396,13 @@ invalidation. It is admission-only: the adapter still re-prefills, no native
 cache is reused and existing native scripts remain serialized by the exclusive
 worker lock. See [request scheduler](docs/architecture/14_Request_Scheduler.md).
 
+**C13 outcome-to-proposal adapter (23 October).** `runtime/learning_cycle.py`
+now turns an actual runtime summary into one bounded director review, with
+success→no-update, repeated-read/malformed→action and receipted failure→procedure
+mapping. It has no publish, execute or goal authority. Four focused tests pass;
+this is integration, not a trained director. See
+[learning director](docs/architecture/13_Learning_Director.md).
+
 **C13 learning director baseline (23 October).** A deterministic director now
 aggregates actual train/development outcomes, diagnoses repeated failure classes,
 and emits at most one bounded `LearningProposal`, a deferral or no update. It

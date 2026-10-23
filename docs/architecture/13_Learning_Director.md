@@ -51,3 +51,17 @@ benefit is claimed.
 requirement, neural label threshold, cost deferral, audit exclusion, invalid
 roles/evidence, and absence of publish/execute APIs. These are interface and
 policy tests, not capability or optimization results.
+
+## Outcome-to-proposal cycle adapter
+
+`runtime/learning_cycle.py` connects an actual completed runtime summary to the
+director. It extracts only observed counters and trace facts, classifies the
+failure, builds one bounded `OutcomeSummary`, and delegates proposal selection.
+A successful episode returns `no_update`; malformed actions, repeated reads and
+false success claims map to the action-policy catalog; a failure with verified
+receipts can map to a procedure proposal. It has no publish, execute or goal
+authority and does not read evaluator gold.
+
+`tests/test_learning_cycle.py` covers success/no-update, repeated-read and
+malformed mapping, procedure proposal, low-label deferral and the summary
+adapter. This is an integration boundary, not a trained or calibrated director.
