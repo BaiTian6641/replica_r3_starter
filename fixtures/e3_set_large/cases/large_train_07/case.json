@@ -1,0 +1,37 @@
+{
+  "format": "replica.e3.fixture.v1",
+  "case_id": "large_train_07",
+  "role": "train",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "Change exactly one numeric constant with set_constant; leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit, and test."
+  ],
+  "allowed_tools": [
+    "read_file",
+    "set_constant",
+    "run_test"
+  ],
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "workspace_entry": "workspace/app_settings.py",
+  "reference_repair": {
+    "path": "workspace/app_settings.py",
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_TIMEOUT_MS = 900\nAUX_DEPTH = 4\nRETRY_ATTEMPTS = 6\n"
+  },
+  "variant": {
+    "constant": "RETRY_ATTEMPTS",
+    "expected_value": 6,
+    "actual_value": 1,
+    "description": "one numeric policy bound below its required minimum"
+  },
+  "source_group": "large_train_c"
+}
