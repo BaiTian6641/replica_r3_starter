@@ -40,6 +40,13 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer context diagnostic (23 October).** A 6-parameter candidate-context
+head over frozen pointer scores scored **12/12** on a new family versus **9/12**
+for the parent pointer, fixing entity-name span errors. It is a diagnostic
+artifact only: not loaded by production `MemoryAnswerService`, not published as
+an active manifest, and not a default. See
+[pointer context results](docs/experiments/20261023_E2_Pointer_Context_Results.md).
+
 **E2 pointer top-record continuation (23 October).** Continuing only the copy
 head on top-record whole-word candidates produced **8/12** on a new family,
 identical to the parent (**8/12**), with flat training loss and identical spans.
