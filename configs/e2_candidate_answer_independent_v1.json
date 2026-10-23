@@ -1,0 +1,39 @@
+{
+  "format": "replica.e2.candidate_answer_independent.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Position-invariant answer scoring: each candidate is scored against the same source/question prefix with no candidate list; fresh family, no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e2_candidate_answers2",
+    "records_sha256": "60a363ae2e420ec305edc85625e8962beccd8426388a1dcc75d6fe5d65dab147",
+    "queries_sha256": "ea481b836934d809ca4dbb1875f8185c68c217b6af61d77aab0b5b18f1c94623",
+    "manifest_sha256": "072d2a698a60e58a1477dd4585205cbed612ca826157e4b17de06c65e9060551"
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "evaluation": {
+    "cases": 4,
+    "prompt_tokens": 1024,
+    "selection": "independent candidate likelihood vs random",
+    "seed": 20261023
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads": 1
+  },
+  "claims": "Position-invariance interface test; no default promotion."
+}

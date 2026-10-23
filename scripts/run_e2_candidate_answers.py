@@ -15,10 +15,11 @@ def main():
  p.add_argument('--output',type=Path,required=True);p.add_argument('--model-path',type=Path,default=ROOT/'checkpoints/minicpm5_source');p.add_argument('--model-lock',type=Path,default=ROOT/'configs/minicpm5_sealed_lock.local.json')
  p.add_argument('--parent-extension',type=Path,default=ROOT/'runs/e3_set_attempt03_20261023/selected_extension');p.add_argument('--selection',choices=['model','random'],default='model');p.add_argument('--seed',type=int,default=20261023)
  p.add_argument('--candidate-order',choices=['canonical','shuffled'],default='canonical')
+ p.add_argument('--candidate-context',choices=['menu','independent'],default='menu')
  a=p.parse_args()
  if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
  a.output.mkdir(parents=True,exist_ok=True);protocol=json.loads(a.protocol.read_text())
- report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'candidate_order':a.candidate_order,'training_updates':0}
+ report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'candidate_order':a.candidate_order,'candidate_context':a.candidate_context,'training_updates':0}
  from replica_lab.profiling import RunProfiler
  from replica_lab.architecture.loading import exclusive_mps_worker
  prof=RunProfiler('mps',a.output,sample_interval=0.1)
@@ -47,9 +48,12 @@ def execute(args,protocol,report,prof):
   source='\n'.join(f"- {r.text}" for r in sel.records)
   candidates=[{'kind':'answer','text':x} for x in q['candidates']]
   if args.candidate_order=='shuffled':rng.shuffle(candidates)
-  prompt=(f"SOURCE RECORDS:\n{source}\n\nQUESTION: {q['query']}\n\n"
-          "CANDIDATE ANSWERS (host enumerates; model scores or random control selects):\n"+
-          '\n'.join('- '+canonical_action(c) for c in candidates))
+  if args.candidate_context=='menu':
+   prompt=(f"SOURCE RECORDS:\n{source}\n\nQUESTION: {q['query']}\n\n"
+           "CANDIDATE ANSWERS (host enumerates; model scores or random control selects):\n"+
+           '\n'.join('- '+canonical_action(c) for c in candidates))
+  else:
+   prompt=f"SOURCE RECORDS:\n{source}\n\nQUESTION: {q['query']}\n"
   ids=encode_prompt(tok,prompt,'mps')
   if ids.shape[1]>int(protocol['evaluation']['prompt_tokens']):raise ValueError('prompt exceeds budget')
   task=TaskGraph(q['case_id'],q['query'],state_digest=q['case_id'],revision=0)
