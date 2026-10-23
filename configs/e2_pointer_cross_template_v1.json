@@ -1,0 +1,33 @@
+{
+  "format": "replica.e2.pointer_context_service.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Cross-template generalization check of the published context head; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "context_head": "runs/e2_pointer_context_attempt04/context_head.safetensors",
+  "context_head_manifest": "runs/e2_pointer_context_attempt04/context_head_manifest.json",
+  "eval_dataset": {
+    "root": "data/e2_pointer_cross_template",
+    "records_sha256": "1b805e205cb414d824c47b48347e45498684aed8f32dd4f418e326da14c8641a",
+    "queries_sha256": "c3189557f9256dc858b701ffbeac71f9e81d5e9ae688405a241a27ff622fa4dc",
+    "manifest_sha256": "fda73b77441a59354e740cb058f53a847a8ea31eb1070e0ea0d55c19a343b5cd"
+  },
+  "max_span": 4,
+  "candidate_unit": "word",
+  "record_scope": "top",
+  "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+  "evaluation": {
+    "heldout": 12,
+    "arms": [
+      "parent_pointer",
+      "context_candidate"
+    ],
+    "metric": "exact copied span"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "eval_cases": 24
+  },
+  "claims": "Template-boundary check only; no default change."
+}
