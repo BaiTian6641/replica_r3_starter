@@ -33,6 +33,11 @@ teacher loss 0.015. This is a second negative action-policy family, not a tool
 defect. Do not rerun a near-identical action arm; target action selection or
 advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
 
+**E2 reader candidate (23 October):** D1 answer-loss training on 24 cases
+left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
+Deferred, no default change. See
+[reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
+
 **E5 neural candidate (23 October):** existing E2 reranker evaluated against
 its parent on held-out sources: top1 0.25 → 0.50, but lexical 0.75. Accepted
 opt-in only; lexical default unchanged. See

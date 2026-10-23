@@ -4,7 +4,7 @@
   "design": "configs/architecture_design_v1.json",
   "documentation": "docs/architecture/08_E3_Implementation.md",
   "E1": "implemented_native_interfaces_qualified",
-  "E2": "implemented_slot_reading_diagnostic_passed_reranker_quality_negative_reader_novel_value_bottleneck",
+  "E2": "implemented_slot_reading_diagnostic_passed_reader_candidate_deferred_novel_value_failure",
   "E3": "implemented_native_engineering_passed_action_policy_negative_two_task_families",
   "E4": "design_pending",
   "E5": "procedure_and_neural_reranker_candidates_evaluated_opt_in",
@@ -13,7 +13,7 @@
     "C01": "native MiniCPM5 text adapter; VLM separate",
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
     "C03": "exact temporal record ledger; task/action integration through the E3 runtime",
-    "C04": "source-prefix contextual writer and content/version-bound inference latents; novel-value reader transfer fails diagnostic",
+    "C04": "contextual writer and D1 answer-loss reader candidate trained; novel-value copy still 0/16",
     "C05": "eligible lexical/native-dense candidates, explicit ranking objective (negative held-out top1), exact fetch; no automatic model-driven paging",
     "C08": "authorized goal, success conditions, constraints, subgoals, claims, obligations and exact journal",
     "C09": "width-256 eight-slot tied core, two iterations, matched feed-forward control and workspace readers; native-qualified",
@@ -24,7 +24,7 @@
     "C16": "identity archive/snapshot/context/modes/branch isolation, null prompt path and optional zero-init reader; no authentic source or trained conditioning",
     "C06": "functional linear host service, observation-to-fast-memory bridge, and opt-in native fast read ports at 13/27 with null parity/independent influence; learned write/query training and delayed-use evaluation pending",
     "C12": "ContextPack/RecordLatent/BranchMemoryImage/ProcedureArtifact/NeuralCandidate metadata and lifecycle registry; procedure candidate compiled/evaluated/published; neural candidate training pending",
-    "C14": "procedure candidate and existing E2 reranker candidate evaluated/published or accepted opt-in; new neural training arm pending"
+    "C14": "procedure candidate accepted; reranker candidate accepted opt-in; D1 reader candidate deferred (0/16)"
   },
   "native_result": "reports/e3_native_attempt03_20261023/run_report.json",
   "interrupted_result": "reports/e3_interrupted_20261023/acceptance.json",
@@ -49,7 +49,8 @@
     "E4 reference host fast memory implemented/tested; native depth-port reads, training and task benefit remain pending",
     "E4 typed artifact registry implemented/tested; no artifact execution, candidate training, acceptance or rollback",
     "E5 procedure candidate accepted 3/3 held-out plus dev; harmful candidate rejected; no neural candidate or learned policy",
-    "E5 neural reranker top1 0.50 vs parent 0.25 on heldout, lexical 0.75; accepted opt-in only"
+    "E5 neural reranker top1 0.50 vs parent 0.25 on heldout, lexical 0.75; accepted opt-in only",
+    "E2 D1 reader candidate 0/16 dev+heldout; loss fell but heldout values were not copied; deferred"
   ],
   "retrieval_result": "reports/e2_retrieval_attempt03_20261023/run_report.json",
   "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",

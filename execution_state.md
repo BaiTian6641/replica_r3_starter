@@ -39,6 +39,16 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**E2 reader candidate (23 October).** A D1 candidate trained `record_writer` and
+both memory readers with answer loss on 24 source-separated cases. Loss fell
+but dev+held-out exact accuracy remained **0/16** for parent and **0/16** for
+candidate; the candidate emitted training values rather than copying held-out
+values despite correct lexical retrieval. Decision: **defer**, no default
+change. This rules out “no answer-loss training” as the sole cause and points to
+reader/writer representation or supervision; the 10 held-out cases must not be
+retuned. See
+[reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
+
 **E5 neural candidate (23 October).** The existing E2 reranker extension was
 evaluated against its parent on source-separated retrieval cases with no new
 training: held-out top-1 **0.25 → 0.50** (parent → candidate), but lexical is

@@ -1,0 +1,1520 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T11:53:07.430227+00:00",
+  "protocol_sha256": "0f92be293639d0f5fa217bd2864a3463f21a0447647469fe69f49d4410b9d303",
+  "protocol": {
+    "format": "replica.e2.reader_candidate.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Targeted E2 reader candidate: answer-loss training on source-separated synthetic values, with parent/candidate held-out evaluation. The earlier diagnostic localized the bottleneck to writer/reader encoding.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "dataset": {
+      "root": "data/e2_reader",
+      "records_sha256": "052016479b16e7d509caca36ea554b139bebf51c04e19d3e37439a72f6005776",
+      "queries_sha256": "0f4bb983de27a0f1900eb94139df1622f32e1de69c176a57e9713feda2a00f55",
+      "manifest_sha256": "85cb19ed2a04f775cb0cc184b62db3d68d134b581791d0f2551b872ce286d92f"
+    },
+    "splits": {
+      "train": 24,
+      "dev": 6,
+      "heldout": 10
+    },
+    "training": {
+      "regime": "modules_only",
+      "trainable": [
+        "record_writer",
+        "memory_ports"
+      ],
+      "optimizer": "muon8bit",
+      "lr_new": 0.01,
+      "lr_muon_new": 0.01,
+      "lr_base": 0.0,
+      "lr_muon_base": 0.0,
+      "updates": 16,
+      "examples_per_update": 4,
+      "warmup_updates": 2,
+      "weight_decay": 0.0,
+      "gradient_clip": 1.0,
+      "seed": 20261023,
+      "example_order": "deterministic round-robin over sorted train cases",
+      "loss": "response-only next-token cross entropy on answer plus EOS; prompt prefix masked",
+      "train_sense": false,
+      "selection": "lexical eligible records, limit 16, bank cap 16 units"
+    },
+    "evaluation": {
+      "dev_cases": 6,
+      "heldout_cases": 10,
+      "generation": {
+        "max_new_tokens": 8,
+        "greedy": true
+      },
+      "metric": "exact stripped answer; retrieval selected IDs preserved; parent/candidate paired"
+    },
+    "decision_rule": {
+      "accept": "candidate held-out exact accuracy above parent and dev not below parent",
+      "reject": "candidate held-out below parent or dev loss",
+      "defer": "otherwise"
+    },
+    "budget": {
+      "model_loads": 1,
+      "extension_reloads": 1,
+      "optimizer_updates": 16,
+      "eval_generations": 34,
+      "checkpoint_saves": 1
+    },
+    "retention": "Keep parent extension, candidate extension, raw prompts/answers and all failures. No base copy or download.",
+    "claims": "Exposed synthetic reader candidate; no generalization, calibrated confidence or task-action claim."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+  "parent": {
+    "format": "replica.minicpm5.extensions.v1",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false
+    },
+    "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+    "regime": "modules_only",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 43,
+        "parameters": 4878850,
+        "trainable": 4878850,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source."
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "checks": {},
+  "parent_results": [
+    {
+      "case_id": "reader_dev_01",
+      "split": "dev",
+      "expected": "azure",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_01_relevant",
+        "reader_dev_01_same_attr",
+        "reader_dev_01_same_entity",
+        "reader_dev_01_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_02",
+      "split": "dev",
+      "expected": "mauve",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_02_relevant",
+        "reader_dev_02_owner",
+        "reader_dev_02_same_attr",
+        "reader_dev_02_same_entity"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_03",
+      "split": "dev",
+      "expected": "umber",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_03_relevant",
+        "reader_dev_03_same_attr",
+        "reader_dev_03_same_entity",
+        "reader_dev_03_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_04",
+      "split": "dev",
+      "expected": "lilac",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_04_relevant",
+        "reader_dev_04_same_attr",
+        "reader_dev_04_same_entity",
+        "reader_dev_04_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_05",
+      "split": "dev",
+      "expected": "flint",
+      "answer": "white",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_05_relevant",
+        "reader_dev_05_same_attr",
+        "reader_dev_05_same_entity",
+        "reader_dev_05_owner"
+      ],
+      "generated_token_ids": [
+        11235,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_06",
+      "split": "dev",
+      "expected": "hazel",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_06_relevant",
+        "reader_dev_06_same_attr",
+        "reader_dev_06_same_entity",
+        "reader_dev_06_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_01",
+      "split": "heldout",
+      "expected": "vermilion",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_01_relevant",
+        "reader_heldout_01_same_attr",
+        "reader_heldout_01_same_entity",
+        "reader_heldout_01_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_02",
+      "split": "heldout",
+      "expected": "cerulean",
+      "answer": "white",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_02_relevant",
+        "reader_heldout_02_same_attr",
+        "reader_heldout_02_same_entity",
+        "reader_heldout_02_owner"
+      ],
+      "generated_token_ids": [
+        11235,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_03",
+      "split": "heldout",
+      "expected": "chartreuse",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_03_relevant",
+        "reader_heldout_03_same_attr",
+        "reader_heldout_03_same_entity",
+        "reader_heldout_03_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_04",
+      "split": "heldout",
+      "expected": "magenta",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_04_relevant",
+        "reader_heldout_04_same_attr",
+        "reader_heldout_04_same_entity",
+        "reader_heldout_04_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_05",
+      "split": "heldout",
+      "expected": "tangerine",
+      "answer": "white",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_05_relevant",
+        "reader_heldout_05_same_attr",
+        "reader_heldout_05_same_entity",
+        "reader_heldout_05_owner"
+      ],
+      "generated_token_ids": [
+        11235,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_06",
+      "split": "heldout",
+      "expected": "periwinkle",
+      "answer": "white",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_06_relevant",
+        "reader_heldout_06_same_attr",
+        "reader_heldout_06_same_entity",
+        "reader_heldout_06_owner"
+      ],
+      "generated_token_ids": [
+        11235,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_07",
+      "split": "heldout",
+      "expected": "turquoise",
+      "answer": "back",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_07_relevant",
+        "reader_heldout_07_same_attr",
+        "reader_heldout_07_same_entity",
+        "reader_heldout_07_owner"
+      ],
+      "generated_token_ids": [
+        3558,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_08",
+      "split": "heldout",
+      "expected": "burgundy",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_08_relevant",
+        "reader_heldout_08_owner",
+        "reader_heldout_08_same_attr",
+        "reader_heldout_08_same_entity"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_09",
+      "split": "heldout",
+      "expected": "auburn",
+      "answer": "the deploy amber",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_09_relevant",
+        "reader_heldout_09_same_attr",
+        "reader_heldout_09_same_entity",
+        "reader_heldout_09_owner"
+      ],
+      "generated_token_ids": [
+        922,
+        34223,
+        59252,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_10",
+      "split": "heldout",
+      "expected": "lavender",
+      "answer": "amber",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_10_relevant",
+        "reader_heldout_10_same_attr",
+        "reader_heldout_10_same_entity",
+        "reader_heldout_10_owner"
+      ],
+      "generated_token_ids": [
+        11368,
+        1
+      ]
+    }
+  ],
+  "parent_metrics": {
+    "dev": 0.0,
+    "heldout": 0.0
+  },
+  "training": {
+    "optimizer": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.01,
+          "weight_decay": 0.0,
+          "param_names": [
+            "record_writer.encoder.input_projection.weight",
+            "record_writer.encoder.attention.in_proj_weight",
+            "record_writer.encoder.attention.out_proj.weight",
+            "memory_ports.13.query_projection.weight",
+            "memory_ports.13.key_projection.weight",
+            "memory_ports.13.value_projection.weight",
+            "memory_ports.13.output_projection.weight",
+            "memory_ports.27.query_projection.weight",
+            "memory_ports.27.key_projection.weight",
+            "memory_ports.27.value_projection.weight",
+            "memory_ports.27.output_projection.weight"
+          ],
+          "tensors": 11,
+          "parameters": 3145728
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.01,
+          "weight_decay": 0.0,
+          "param_names": [
+            "record_writer.encoder.slot_queries",
+            "record_writer.encoder.input_norm.weight",
+            "record_writer.encoder.input_norm.bias",
+            "record_writer.encoder.attention.in_proj_bias",
+            "record_writer.encoder.attention.out_proj.bias",
+            "record_writer.encoder.output_norm.weight",
+            "record_writer.encoder.output_norm.bias",
+            "memory_ports.13.gate_logit",
+            "memory_ports.13.query_norm.weight",
+            "memory_ports.13.query_norm.bias",
+            "memory_ports.13.memory_norm.weight",
+            "memory_ports.13.memory_norm.bias",
+            "memory_ports.27.gate_logit",
+            "memory_ports.27.query_norm.weight",
+            "memory_ports.27.query_norm.bias",
+            "memory_ports.27.memory_norm.weight",
+            "memory_ports.27.memory_norm.bias"
+          ],
+          "tensors": 17,
+          "parameters": 15874
+        }
+      ],
+      "state_tensor_bytes": 0,
+      "state_bytes_by_dtype": {}
+    },
+    "updates": [
+      {
+        "update": 1,
+        "mean_loss": 15.706433925777674
+      },
+      {
+        "update": 2,
+        "mean_loss": 31.8931303024292
+      },
+      {
+        "update": 3,
+        "mean_loss": 37.73782825469971
+      },
+      {
+        "update": 4,
+        "mean_loss": 32.072582721710205
+      },
+      {
+        "update": 5,
+        "mean_loss": 27.142136096954346
+      },
+      {
+        "update": 6,
+        "mean_loss": 28.3956937789917
+      },
+      {
+        "update": 7,
+        "mean_loss": 8.376682251691818
+      },
+      {
+        "update": 8,
+        "mean_loss": 18.390645742416382
+      },
+      {
+        "update": 9,
+        "mean_loss": 22.387409448623657
+      },
+      {
+        "update": 10,
+        "mean_loss": 20.014673471450806
+      },
+      {
+        "update": 11,
+        "mean_loss": 13.003885269165039
+      },
+      {
+        "update": 12,
+        "mean_loss": 16.38790774345398
+      },
+      {
+        "update": 13,
+        "mean_loss": 3.9153466783463955
+      },
+      {
+        "update": 14,
+        "mean_loss": 8.695784091949463
+      },
+      {
+        "update": 15,
+        "mean_loss": 8.833186626434326
+      },
+      {
+        "update": 16,
+        "mean_loss": 8.31783802062273
+      }
+    ]
+  },
+  "candidate_results": [
+    {
+      "case_id": "reader_dev_01",
+      "split": "dev",
+      "expected": "azure",
+      "answer": "silver",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_01_relevant",
+        "reader_dev_01_same_attr",
+        "reader_dev_01_same_entity",
+        "reader_dev_01_owner"
+      ],
+      "generated_token_ids": [
+        108334,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_02",
+      "split": "dev",
+      "expected": "mauve",
+      "answer": "ochre",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_02_relevant",
+        "reader_dev_02_owner",
+        "reader_dev_02_same_attr",
+        "reader_dev_02_same_entity"
+      ],
+      "generated_token_ids": [
+        5157,
+        284,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_03",
+      "split": "dev",
+      "expected": "umber",
+      "answer": "sls",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_03_relevant",
+        "reader_dev_03_same_attr",
+        "reader_dev_03_same_entity",
+        "reader_dev_03_owner"
+      ],
+      "generated_token_ids": [
+        4574,
+        104,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_04",
+      "split": "dev",
+      "expected": "lilac",
+      "answer": "ochre",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_04_relevant",
+        "reader_dev_04_same_attr",
+        "reader_dev_04_same_entity",
+        "reader_dev_04_owner"
+      ],
+      "generated_token_ids": [
+        5157,
+        284,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_05",
+      "split": "dev",
+      "expected": "flint",
+      "answer": "blue",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_05_relevant",
+        "reader_dev_05_same_attr",
+        "reader_dev_05_same_entity",
+        "reader_dev_05_owner"
+      ],
+      "generated_token_ids": [
+        16724,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_dev_06",
+      "split": "dev",
+      "expected": "hazel",
+      "answer": "violet",
+      "correct": false,
+      "selected_records": [
+        "reader_dev_06_relevant",
+        "reader_dev_06_same_attr",
+        "reader_dev_06_same_entity",
+        "reader_dev_06_owner"
+      ],
+      "generated_token_ids": [
+        108113,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_01",
+      "split": "heldout",
+      "expected": "vermilion",
+      "answer": "violet",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_01_relevant",
+        "reader_heldout_01_same_attr",
+        "reader_heldout_01_same_entity",
+        "reader_heldout_01_owner"
+      ],
+      "generated_token_ids": [
+        108113,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_02",
+      "split": "heldout",
+      "expected": "cerulean",
+      "answer": "blue",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_02_relevant",
+        "reader_heldout_02_same_attr",
+        "reader_heldout_02_same_entity",
+        "reader_heldout_02_owner"
+      ],
+      "generated_token_ids": [
+        16724,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_03",
+      "split": "heldout",
+      "expected": "chartreuse",
+      "answer": "violet",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_03_relevant",
+        "reader_heldout_03_same_attr",
+        "reader_heldout_03_same_entity",
+        "reader_heldout_03_owner"
+      ],
+      "generated_token_ids": [
+        108113,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_04",
+      "split": "heldout",
+      "expected": "magenta",
+      "answer": "ochre",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_04_relevant",
+        "reader_heldout_04_same_attr",
+        "reader_heldout_04_same_entity",
+        "reader_heldout_04_owner"
+      ],
+      "generated_token_ids": [
+        5157,
+        284,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_05",
+      "split": "heldout",
+      "expected": "tangerine",
+      "answer": "saffron",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_05_relevant",
+        "reader_heldout_05_same_attr",
+        "reader_heldout_05_same_entity",
+        "reader_heldout_05_owner"
+      ],
+      "generated_token_ids": [
+        104,
+        4264,
+        1870,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_06",
+      "split": "heldout",
+      "expected": "periwinkle",
+      "answer": "violet",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_06_relevant",
+        "reader_heldout_06_same_attr",
+        "reader_heldout_06_same_entity",
+        "reader_heldout_06_owner"
+      ],
+      "generated_token_ids": [
+        108113,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_07",
+      "split": "heldout",
+      "expected": "turquoise",
+      "answer": "blue",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_07_relevant",
+        "reader_heldout_07_same_attr",
+        "reader_heldout_07_same_entity",
+        "reader_heldout_07_owner"
+      ],
+      "generated_token_ids": [
+        16724,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_08",
+      "split": "heldout",
+      "expected": "burgundy",
+      "answer": "bronze",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_08_relevant",
+        "reader_heldout_08_owner",
+        "reader_heldout_08_same_attr",
+        "reader_heldout_08_same_entity"
+      ],
+      "generated_token_ids": [
+        89105,
+        3377,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_09",
+      "split": "heldout",
+      "expected": "auburn",
+      "answer": "copper",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_09_relevant",
+        "reader_heldout_09_same_attr",
+        "reader_heldout_09_same_entity",
+        "reader_heldout_09_owner"
+      ],
+      "generated_token_ids": [
+        2157,
+        3271,
+        1
+      ]
+    },
+    {
+      "case_id": "reader_heldout_10",
+      "split": "heldout",
+      "expected": "lavender",
+      "answer": "ochre",
+      "correct": false,
+      "selected_records": [
+        "reader_heldout_10_relevant",
+        "reader_heldout_10_same_attr",
+        "reader_heldout_10_same_entity",
+        "reader_heldout_10_owner"
+      ],
+      "generated_token_ids": [
+        5157,
+        284,
+        1
+      ]
+    }
+  ],
+  "candidate_metrics": {
+    "dev": 0.0,
+    "heldout": 0.0
+  },
+  "extension": {
+    "path": "runs/e2_reader_candidate_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "7f10eb2a838e639dc773e76e4fa5dc251ec2b1cdef6f6b09dc633858fff17dcc",
+    "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 43,
+        "parameters": 4878850,
+        "trainable": 4878850,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false
+  },
+  "decision": "defer",
+  "deployment": "not_published",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T11:53:07.430577+00:00",
+    "ended_at": "2026-10-23T11:53:43.601869+00:00",
+    "elapsed_seconds": 36.17277599987574,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 155,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15556689920,
+      "rss_peak_sampled_bytes": 3540533248,
+      "mps_allocated_peak_sampled_bytes": 10181570560,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T11:53:07.431331+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T11:53:43.577197+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T11:53:11.651014+00:00",
+        "elapsed_seconds": 4.107388417003676,
+        "seconds_since_previous_mark": 4.107388417003676,
+        "synchronize_seconds": 5.166977643966675e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:11.537808+00:00",
+          "elapsed_seconds": 4.107400082983077,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3295477760,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:18.428379+00:00",
+        "elapsed_seconds": 10.998155124951154,
+        "seconds_since_previous_mark": 6.890766707947478,
+        "synchronize_seconds": 0.0015373330097645521,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:18.428296+00:00",
+          "elapsed_seconds": 10.998170082923025,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3485007872,
+          "rss_measurement_age_seconds": 0.45974608417600393,
+          "mps_allocated_bytes": 10099426304,
+          "mps_driver_bytes": 10890379264
+        },
+        "fields": {
+          "update": 1,
+          "loss": 15.706433925777674
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:19.792455+00:00",
+        "elapsed_seconds": 12.362294999882579,
+        "seconds_since_previous_mark": 1.3641398749314249,
+        "synchronize_seconds": 0.0009139168541878462,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:19.792379+00:00",
+          "elapsed_seconds": 12.362308082869276,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3485007872,
+          "rss_measurement_age_seconds": 1.8238794170320034,
+          "mps_allocated_bytes": 10100753408,
+          "mps_driver_bytes": 10898833408
+        },
+        "fields": {
+          "update": 2,
+          "loss": 31.8931303024292
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:21.379020+00:00",
+        "elapsed_seconds": 13.948916124878451,
+        "seconds_since_previous_mark": 1.5866211249958724,
+        "synchronize_seconds": 0.0008845420088618994,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:21.378935+00:00",
+          "elapsed_seconds": 13.948930124985054,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3521708032,
+          "rss_measurement_age_seconds": 1.2953214580193162,
+          "mps_allocated_bytes": 10102047744,
+          "mps_driver_bytes": 10898849792
+        },
+        "fields": {
+          "update": 3,
+          "loss": 37.73782825469971
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:22.744213+00:00",
+        "elapsed_seconds": 15.31415933300741,
+        "seconds_since_previous_mark": 1.365243208128959,
+        "synchronize_seconds": 0.0009390830527991056,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:22.744123+00:00",
+          "elapsed_seconds": 15.314172666985542,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3539369984,
+          "rss_measurement_age_seconds": 0.5379927079193294,
+          "mps_allocated_bytes": 10103374848,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 4,
+          "loss": 32.072582721710205
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:24.081184+00:00",
+        "elapsed_seconds": 16.651200541993603,
+        "seconds_since_previous_mark": 1.337041208986193,
+        "synchronize_seconds": 0.0009107498917728662,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:24.081109+00:00",
+          "elapsed_seconds": 16.651216041995212,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3539369984,
+          "rss_measurement_age_seconds": 1.8750338330864906,
+          "mps_allocated_bytes": 10103440384,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 5,
+          "loss": 27.142136096954346
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:25.436195+00:00",
+        "elapsed_seconds": 18.006292457925156,
+        "seconds_since_previous_mark": 1.3550919159315526,
+        "synchronize_seconds": 0.0009244158864021301,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:25.436145+00:00",
+          "elapsed_seconds": 18.006301499903202,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3539746816,
+          "rss_measurement_age_seconds": 1.1105858332011849,
+          "mps_allocated_bytes": 10103440384,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 6,
+          "loss": 28.3956937789917
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:26.876597+00:00",
+        "elapsed_seconds": 19.443772124825045,
+        "seconds_since_previous_mark": 1.4374796668998897,
+        "synchronize_seconds": 0.0008991251233965158,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:26.873568+00:00",
+          "elapsed_seconds": 19.443784749833867,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3539910656,
+          "rss_measurement_age_seconds": 0.4176482919137925,
+          "mps_allocated_bytes": 10103358464,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 7,
+          "loss": 8.376682251691818
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:28.197048+00:00",
+        "elapsed_seconds": 20.767193167004734,
+        "seconds_since_previous_mark": 1.3234210421796888,
+        "synchronize_seconds": 0.0009491248056292534,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:28.196935+00:00",
+          "elapsed_seconds": 20.767215916886926,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3539910656,
+          "rss_measurement_age_seconds": 1.7410883749835193,
+          "mps_allocated_bytes": 10103358464,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 8,
+          "loss": 18.390645742416382
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:29.563725+00:00",
+        "elapsed_seconds": 22.133941332809627,
+        "seconds_since_previous_mark": 1.3667481658048928,
+        "synchronize_seconds": 0.0008972911164164543,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:29.563628+00:00",
+          "elapsed_seconds": 22.133955541998148,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 3540533248,
+          "rss_measurement_age_seconds": 0.9854838331229985,
+          "mps_allocated_bytes": 10103374848,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 9,
+          "loss": 22.387409448623657
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:30.913446+00:00",
+        "elapsed_seconds": 23.483724374789745,
+        "seconds_since_previous_mark": 1.3497830419801176,
+        "synchronize_seconds": 0.0009019579738378525,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:30.913360+00:00",
+          "elapsed_seconds": 23.483744707889855,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463498240,
+          "rss_measurement_age_seconds": 0.20544354105368257,
+          "mps_allocated_bytes": 10103374848,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 10,
+          "loss": 20.014673471450806
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:32.217994+00:00",
+        "elapsed_seconds": 24.788349207956344,
+        "seconds_since_previous_mark": 1.3046248331665993,
+        "synchronize_seconds": 0.0008892910555005074,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:32.217928+00:00",
+          "elapsed_seconds": 24.78836162481457,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463498240,
+          "rss_measurement_age_seconds": 1.5100559580605477,
+          "mps_allocated_bytes": 10103440384,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 11,
+          "loss": 13.003885269165039
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:33.576097+00:00",
+        "elapsed_seconds": 26.146501041948795,
+        "seconds_since_previous_mark": 1.3581518339924514,
+        "synchronize_seconds": 0.0009019998833537102,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:33.576025+00:00",
+          "elapsed_seconds": 26.14651416684501,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463825920,
+          "rss_measurement_age_seconds": 0.7555688749998808,
+          "mps_allocated_bytes": 10103440384,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 12,
+          "loss": 16.38790774345398
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:34.925490+00:00",
+        "elapsed_seconds": 27.45904429187067,
+        "seconds_since_previous_mark": 1.3125432499218732,
+        "synchronize_seconds": 0.0009122909978032112,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:34.888515+00:00",
+          "elapsed_seconds": 27.459061957895756,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463875072,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10103358464,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 13,
+          "loss": 3.9153466783463955
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:36.226169+00:00",
+        "elapsed_seconds": 28.79667320777662,
+        "seconds_since_previous_mark": 1.3376289159059525,
+        "synchronize_seconds": 0.0008994168601930141,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:36.226090+00:00",
+          "elapsed_seconds": 28.796687041874975,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463875072,
+          "rss_measurement_age_seconds": 1.337622500024736,
+          "mps_allocated_bytes": 10103358464,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 14,
+          "loss": 8.695784091949463
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:37.582208+00:00",
+        "elapsed_seconds": 30.152750291861594,
+        "seconds_since_previous_mark": 1.3560770840849727,
+        "synchronize_seconds": 0.0009039170108735561,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:37.582112+00:00",
+          "elapsed_seconds": 30.15277237491682,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463924224,
+          "rss_measurement_age_seconds": 0.552094749873504,
+          "mps_allocated_bytes": 10103374848,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 15,
+          "loss": 8.833186626434326
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "reader_update",
+        "timestamp": "2026-10-23T11:53:38.896631+00:00",
+        "elapsed_seconds": 31.467254457995296,
+        "seconds_since_previous_mark": 1.3145041661337018,
+        "synchronize_seconds": 0.0009290829766541719,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:53:38.896560+00:00",
+          "elapsed_seconds": 31.467263666912913,
+          "phase": "reader_update",
+          "rss_peak_process_lifetime_bytes": 15556689920,
+          "rss_current_bytes": 2463924224,
+          "rss_measurement_age_seconds": 1.8665769170038402,
+          "mps_allocated_bytes": 10103374848,
+          "mps_driver_bytes": 10898915328
+        },
+        "fields": {
+          "update": 16,
+          "loss": 8.31783802062273
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 36.17277599987574,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T11:53:43.602611+00:00"
+}
