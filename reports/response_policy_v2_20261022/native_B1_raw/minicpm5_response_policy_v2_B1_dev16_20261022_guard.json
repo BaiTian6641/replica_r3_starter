@@ -1,0 +1,74 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "job": "offline_saved_export_generation",
+  "started_at_utc": "2026-10-23T01:13:28.873576+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/evaluate_text.py",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json",
+    "--data",
+    "reports/response_policy_v2_20261022/dev_cases.jsonl",
+    "--split",
+    "dev",
+    "--output",
+    "runs/minicpm5_response_policy_v2_B1_dev16_20261022",
+    "--device",
+    "mps",
+    "--max-examples",
+    "16",
+    "--max-new-tokens",
+    "32",
+    "--max-length",
+    "512",
+    "--seed",
+    "17"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/minicpm5_response_policy_v2_B1_dev16_20261022",
+  "child_log": "runs/minicpm5_response_policy_v2_B1_dev16_20261022_guard.child.log",
+  "host_samples": "runs/minicpm5_response_policy_v2_B1_dev16_20261022_guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "offline_environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "HF_HUB_DISABLE_TELEMETRY": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "TOKENIZERS_PARALLELISM": "false"
+  },
+  "implementation_sha256": {
+    "scripts/run_generation_preflight.py": "937ecb82b301401500e6c35e704a73679231a9191a75d671c9d10936cd8e3722",
+    "scripts/evaluate_text.py": "010f33197f83b1691d443e11e7b0af51954f3752bf6f1ec69657b2068d7b8ad4",
+    "src/replica_lab/capacity_guard.py": "a29a24b87344e9613b687c0eb3cdd10ffa621081bf80aee1d493dcdeb22220d8"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback is disabled and Hugging Face/Transformers/datasets are offline"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 11.41820012498647,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 42949672960,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1605044797,
+      "memory_free_percent": 89.0
+    },
+    "host_samples": 6,
+    "driver_samples": 102,
+    "peak_driver_bytes": 10840915968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 71.0,
+    "stop_reason": null
+  }
+}

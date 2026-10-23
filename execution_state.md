@@ -1,71 +1,88 @@
-# Execution state — response-contract v1 GPU baseline
+# Execution state — query-policy v2 GPU baseline and host action preparation
 
 22 October 2026, America/Chicago. Branch `codex/d2-capacity-runtime-pilot`.
-The current package releases **2,000 independently solver-verified targets from
-1,000 synthetic worlds**, plus a locked original-model development probe.
-The release contains register XOR, affine arithmetic, finite-state and static
-tool-recovery tasks. Train has 1,200 targets; dev/calibration/promotion/audit
-have 200 each. All roles contain 50% answer, 25% ask and 25% unknown. Fifty-nine
-duplicate-world candidates were resampled; no admitted semantic signatures
-overlap. All cases fit 512 tokens without truncation; maximum native length is
-334. Automated operational review covers 320 episodes / 160 worlds.
+The source-bound infrastructure release remains **2,000 independently verified
+targets / 1,000 synthetic worlds**, four families, 1,200 train and 200 each dev,
+calibration, promotion, audit. All roles are 50% answer, 25% ask and 25% unknown and fit 512
+tokens. All role fixtures are exposed; this is a development infrastructure
+release, not a sealed generalization benchmark.
 
-**Response contract v1 is complete as a measured negative.** Protocol, code and
-exact dev16 inputs were committed at `430e298` before the one native run.
-The same sealed original runs on MPS FP32 with CPU fallback disabled, thinking
-disabled, greedy seed 17 and unchanged cap 32. Only a static family-specific
-instruction appendix changes. Source evidence, labels, IDs and parser stay fixed.
+**The simpler query-policy v2 run is complete as a measured negative.**
+Protocol/code/data/rubric/judge plan were committed at `b2010c2` before the one
+native run. Each query receives exactly its public missing-response policy,
+selected independently of observed missingness and gold labels. Original model,
+evidence, ordered 16 cases, parser, greedy seed 17, cap 32, max 512, thinking disabled and
+MPS FP32 fallback disabled remain fixed. No adaptive native follow-up occurred.
 
-All **16/16 responses are single-line and end with EOS, with zero cap hits**,
-but strict grammar validity is **1/16** and task correctness remains **0/16**.
-Fifteen outputs combine incompatible answer forms/field lists; the one valid FSM
-ask incorrectly requests RULE and SYMBOLS alongside missing START, even though
-RULE and SYMBOLS are already observed. Register/tool outputs also repeat within
-family. Preserve every answer and the prior 0/16 all-capped prose baseline.
+Program task correctness and the independent fresh-context semantic subagent
+both score **4/16**; independently derived expected answers match frozen gold
+on 16/16 cases. All four successes are UNKNOWN. All eight complete cases also
+return UNKNOWN and all four asks name observed fields. This equals the
+constant-UNKNOWN control: the 4/16 score is not useful evidence-responsive gain.
+Program grammar accepts 12/16; all 16 outputs use one line and EOS, with zero
+caps. Judge instruction compliance is 4/16 because it also checks the correct
+case-dependent branch; it is distinct from program grammar validity.
 
-The instruction bundle changes surface/termination behavior, while the new
-failures finish within 9–17 tokens. A budget-only explanation is inadequate.
-Conditional response selection and evidence-use remain unresolved. Copying the
-fallback wording/field-list pattern is a hypothesis, not an identified internal
-mechanism. The local source README recommends sampling settings and demonstrates
-thinking mode; these remain separate unrun decoding controls, never an
-unreported change to this fixed greedy comparison. No optimizer updates occurred,
-so this experiment cannot diagnose Muon.
+The original baseline remains 0/16 with 16 caps; v1 remains 0/16 with 1 valid grammar,
+16 EOS and no caps. V2 changes surface response selection but leaves evidence
+use and missing-field identification unresolved. Query-policy-conditioned
+fallback/abstention is observed; a particular internal mechanism is unproven.
+No arithmetic answer was attempted, so inability to calculate is not isolated.
+No optimizer updates occurred, so this cannot diagnose Muon 8-bit. Sampling or
+thinking changes require separately declared controls. The judge saw only its
+frozen rubric and shuffled allowlisted packet, without gold/fixed scores/IDs;
+one agent over reused exposed cases is not a calibrated independent audit.
 
-Prompt tokens increase from 3,946 to 5,574; generated tokens fall from 512 to 194.
-Maximum native prompt-plus-reference length is 429, no truncation under 512.
-Generation takes **6.681 s**, profiled lifetime **11.359 s**, sampled peak MPS
-live/driver **9.426 / 10.104 GiB**. Exact guard replay passes with zero observed
-swap growth and minimum host-free 71%. RSS/MPS overlap; samples can miss
-transients. The model executes on MPS, with no qualified ANE backend.
+Prompt tokens are 5,294 (original 3,946, v1 5,574); maximum prompt+reference 407,
+without truncation. Outputs total 86 tokens and **4.412 s generation**; profiled
+lifetime **9.031 s**, guard lifetime 11.418 s. Sampled peak MPS live/driver is
+**9.427 / 10.096 GiB**. Process RSS sampled/lifetime is 3.967 / 14.491 GiB. Exact guard
+replay passes: zero observed swap growth, minimum host-free 71%. Counters overlap;
+0.25 s device / 2 s host samples can miss transients. Native inference used MPS;
+ANE execution is not qualified by this backend.
 
-All 36 original file identities and the acquisition receipt remain unchanged;
-the nine-member seal rechecks before/after, and all 1,037 prior experiment
-artifact hashes still match. **Zero downloads, training updates or new
-checkpoints.** Seven small raw evidence files total 148,889 bytes. Selected
-D0/D1/D2 checkpoints and the untracked runtime draft remain untouched.
+The initial fixed-scoring attempt stopped on historical archive path binding:
+retained guard bytes name their original run directories. A separate validation
+reader verifies all 14 historical original/archive files and invokes unchanged
+replay at the original paths. Frozen scorer/spec/parser and current v2 replay
+remain unchanged. The failed attempt and repair provenance are preserved. This
+operational repair changes neither the native outputs nor judgment rules.
 
-The full suite passes **671 tests with one restricted-context MPS skip**; the
-actual native job separately executes on MPS. All 33 stage IDs/dependencies
-remain unchanged. S1.2 is a bounded infrastructure release; S1.4 remains partial
-with residual response-grammar/evidence-use failure. S1.3 admission and S1.5
-remain pending, S2.4 blocked, no model promoted and no native job active.
+**Early S3.1 host action software preparation passes 38 focused tests and 12
+integration checks.** Verify/answer/stop proposals are bounded by source,
+identity, branch, purpose, goal, policy/model hashes and budgets. Actual XOR tool
+results have byte-bound receipts; invented values cannot authorize an answer.
+Revocation invalidates cached current-epoch work. Restart checks the canonical
+journal against an expected binding and caller-trusted head without reexecuting
+tools. No external trusted-head store, crash/concurrent persistence, model
+proposer, evolving subgoals or candidate learning is implemented by this helper.
+S3.1 remains partial; its full S2.5/S1.1 dependencies are unchanged.
 
-Next predeclare a separate minimal query-policy-specific contract: select the
-allowed missing-response branch from the public task instruction, never from
-its gold label or observed missingness; separate required fields from output
-placeholders. Keep old protocols/results immutable. Test decoding changes only
-as separately declared controls. Remaining B0/B1, evidence, retention/calibration,
-public admission and pilot budget/exposure gates still precede training comparison.
+All 36 original file identities and acquisition receipt remain unchanged; the
+nine-member seal rechecks before/after. All 1,060 prior artifact hashes still
+match. **Zero downloads, training updates or new checkpoints.** Seven small
+native evidence files total 142,505 bytes. Selected D0/D1/D2 and useful negative
+exports remain; the untracked runtime draft remains byte-identical and excluded.
+The [final suite](reports/validation_response_policy_v2_final_20261022.json) passes
+**819 tests, one restricted-context MPS skip**. The pre-native suite remains
+798 passed/one skip. All 33 stage IDs/dependencies remain unchanged. S1.4 remains partial with
+abstention collapse; S1.3/S1.5 pending, S2.4 blocked, no model promoted and no
+native job active.
 
-[Preregistered protocol](docs/experiments/20261022_Response_Contract_V1_Protocol.md),
-[results and diagnosis](docs/experiments/20261022_Response_Contract_V1_Results.md),
-[independent paired scoring](reports/response_contract_v1_20261022/native_B1_scoring.json),
-[consolidated evidence](reports/response_contract_experiment_20261022.json),
-[code validation](reports/validation_response_contract_code_20261022.json),
-[source/failed-result preservation](reports/response_contract_source_reuse_20261022.json).
-The [original S1.2 release and failed baseline](docs/experiments/20261022_Infrastructure_Slice_V2.md)
-remain historical evidence with unchanged bytes.
+Next predeclare a separate smallest MPS model-proposal → host verification →
+receipt-bound answer pilot, alongside source-grounding/missing-field controls.
+Do not modify this v2 arm after results. Existing B0/B1 evidence, retention,
+calibration, public admission and budget/exposure gates still precede the fair
+training study. No 20k campaign is admitted.
+
+[Preregistered protocol](docs/experiments/20261022_Response_Policy_V2_Protocol.md),
+[results and diagnosis](docs/experiments/20261022_Response_Policy_V2_Results.md),
+[fixed scoring](reports/response_policy_v2_20261022/native_B1_scoring.json),
+[raw semantic judgment](reports/response_policy_v2_20261022/judge_semantic_raw.json),
+[reconciliation](reports/response_policy_v2_20261022/judge_reconciliation.json),
+[consolidated evidence](reports/response_policy_v2_experiment_20261022.json),
+[source preservation](reports/response_policy_source_reuse_20261022.json),
+[host contract](docs/experiments/20261022_Host_Action_Contract.md).
 
 ## Preserved D2 qualification and storage package
 
@@ -115,6 +132,6 @@ The D2 package's full suite passed **479 tests**, with one restricted-context MP
 
 ## Next concrete gate
 
-S1.2 supplies the bounded 2,000-target release. Response contract v1 resolves cap/termination behavior but leaves strict grammar/evidence-use failures; predeclare the next query-policy-specific development contract, then complete independent evaluation and public admission. The [S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) specifies equal information, parents, fair search and parameter/compute controls; numeric budgets and S1.5 admission remain unresolved. Existing diagnostics do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
+S1.2 supplies the bounded 2,000-target release. Query-policy v2 resolves termination while leaving abstention collapse and evidence-use failures; separately predeclare a grounded model-to-host pilot and complete independent evaluation/public admission. The [S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) specifies equal information, parents, fair search and parameter/compute controls; numeric budgets and S1.5 admission remain unresolved. Existing diagnostics do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
 
 Cognitive contracts, identity/lineage, source permissions and the proposed semi-cognitive loop remain as specified in [the design contracts](docs/experiments/20261022_Cognitive_Contracts.md). Useful memory benefit, ten-cycle learning, authentic Replica fidelity, VLM, augmented KV caching, ANE acceleration and Blackwell residency remain separate open gates.

@@ -1,19 +1,30 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Latest package:** response contract v1 was preregistered in Git at `430e298`
-before the single original-model MPS dev16 run. Same evidence/cases/parser,
-greedy seed 17, cap 32, FP32 and fallback disabled. All 16 answers now use one
-line and EOS with no caps; strict grammar is 1/16 and task correctness 0/16.
-Fifteen outputs mix fallback forms/field lists; the valid FSM ask includes
-observed fields. Preserve the previous all-capped negative and this new result.
-Next predeclare a separate query-policy-specific contract, deriving the missing
-response policy only from the public task instruction, never from gold or case
-missingness. No adaptive follow-up occurred within v1. The suite passes 671
-with one restricted-context MPS skip. Zero downloads, training updates or new
-checkpoints; original/selected models and the untracked runtime draft unchanged.
-Read [protocol](docs/experiments/20261022_Response_Contract_V1_Protocol.md),
-[results](docs/experiments/20261022_Response_Contract_V1_Results.md) and execution_state.md.
-S1.4 remains partial, S1.3/S1.5 pending, S2.4 blocked; native jobs idle.
+**Latest package:** query-policy contract v2 was committed at `b2010c2`
+before its single M2 Ultra MPS FP32 dev16 run, with CPU fallback disabled.
+Each query gets only its publicly requested missing-response policy; evidence,
+labels, parser, greedy seed 17, cap 32 and original model remain fixed. All 16
+outputs are single-line EOS with zero caps. Program grammar is12/16, but
+strict correctness and a fresh-context semantic subagent both score **4/16**.
+All four successes are UNKNOWN; all eight complete cases also return UNKNOWN,
+and all four asks include observed fields. This equals a constant-UNKNOWN
+control and does not establish useful evidence sensitivity. Original and v1
+failures remain byte-identical. A supplemental archive reader repairs historical
+guard path resolution after validating fourteen original/archive file pairs;
+frozen grading and current-run guard replay remain unchanged.
+
+The early S3.1 host action boundary has 38 focused tests and 12 integration
+checks: source-scoped verify/answer/stop, actual XOR tool receipts, budgets,
+current-epoch idempotency, revocation and hash-bound restart with a caller-trusted
+head. This is software preparation; no actual model proposer or learning loop
+has been evaluated. Next separately predeclare the smallest MPS model-proposal
+pilot and its source-grounding controls. S1.4 remains partial; public S1.3 and
+S1.5 admission remain pending and S2.4 training remains blocked. Native jobs
+are idle; final suite 819 passed/one restricted-context MPS skip. Zero downloads,
+updates or new checkpoints. Preserve selected models
+and the untracked runtime draft. Read [v2 results](docs/experiments/20261022_Response_Policy_V2_Results.md),
+[protocol](docs/experiments/20261022_Response_Policy_V2_Protocol.md),
+[host boundary](docs/experiments/20261022_Host_Action_Contract.md) and execution_state.md.
 
 **Current storage state:** the bounded D2 GPU package is complete. The user
 subsequently authorized [post-D2 checkpoint retirement](docs/experiments/20261022_Checkpoint_Retirement_After_D2.md):
@@ -40,7 +51,7 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The current suite passes 671 tests with one restricted-context MPS skip. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
+4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The final integration suite passes 819 tests with one restricted-context MPS skip; the pre-native suite remains 798/one skip. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
 
 ## First session: do concrete work
 

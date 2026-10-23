@@ -1,0 +1,2861 @@
+{
+  "schema_version": "replica.response_policy_generation_score.v2",
+  "status": "completed_independent_response_policy_scoring",
+  "scope": "Three-run descriptive public-policy contract check on sixteen exposed synthetic dev worlds; no training.",
+  "solver_version": "replica.infrastructure-source-solver.v2",
+  "scoring_version": "replica.infrastructure-generation-scoring.v2",
+  "inputs_sha256": {
+    "specification": "90d0cf513c8403dbd2afdb6f21b445a0d04132a574f96ccf1dd0fbf90962c79a",
+    "release_manifest": "53f4842d0ff5e5f991e6b3b365b81e70dc6401bdb93f735cd50600f8a1ea8287",
+    "source_manifest": "01f2d305dc66c987129898fe09d8c8c2640430acfa354e2953f8e66d1e516f9a",
+    "data": "b2528b48b2e5bd9651ea6f84a1b34cc42c7299089afc5d05fa2337fffa7fe814",
+    "generation_report": "ed0a6214fd3aff5947e2cd5f75965e878d9a6887808ba13792c619562008b658",
+    "generations": "ac45fd0da310df231854d746cfebf7759d84936c17db016b59f052b3f3cb32b7",
+    "model_lock": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "response_contract": "13a86d6ad4fe5faa081f34e16530a51e7507e751b1a02d3fbe96991b19d34947",
+    "parent_specification": "4aa7963f038c0ea66570315671f468a0d49a99376f9d002715fcffaba85329f2",
+    "parent_data": "c9db18ab8d7d313da7f5f749c3a855f93fd00f36c934c4ee246ea2da80ea09c7",
+    "preserved_baseline": {
+      "generation_report_path": "reports/infrastructure_preflight_v2_20261022/native_B1_raw/generation_report.json",
+      "generation_report_sha256": "ef8bee9f49276a22fcca7109a34d57c502be49ea34543410f8394ace51c99541",
+      "generations_path": "reports/infrastructure_preflight_v2_20261022/native_B1_raw/generations.jsonl",
+      "generations_sha256": "8ff6e1d2a55724618bf6698fdcec09233de7306e9f456b1cb809b74246df33f7",
+      "scoring_report_path": "reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json",
+      "scoring_report_sha256": "e8623046c7201a59ac0a6ea23cd3b84c1afc34c31e3dd3fdd76d2f7a535f26f2",
+      "guard_path": "reports/infrastructure_preflight_v2_20261022/native_B1_raw/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.json",
+      "guard_sha256": "4cca1ce0b5286621ed8b4166d1ff3fd70872ffa0c5a6ebc81295ea8ffcff8d60"
+    },
+    "previous_v1_specification": "f3c259c29cc5b562c231534adac627be6fdae07f065e53b079ea2ffb24a6aca3",
+    "previous_v1_data": "fb6dad3841ea1aa6b9f8b1b7dd4a34685b7bed99677723abd5157da614ff1c1b",
+    "previous_v1_baseline": {
+      "generation_report_path": "reports/response_contract_v1_20261022/native_B1_raw/generation_report.json",
+      "generation_report_sha256": "1fa22164dc81b77c8149a034c47b741168ca30ddfe2142d27d87212a12023d48",
+      "generations_path": "reports/response_contract_v1_20261022/native_B1_raw/generations.jsonl",
+      "generations_sha256": "693d11a2ff125e418819f5710578672dacf3c8c6803cf7e48b15ecdb15c3040a",
+      "scoring_report_path": "reports/response_contract_v1_20261022/native_B1_scoring.json",
+      "scoring_report_sha256": "a9135ab4f056b5f2088ef7f1e284616a7b52d4a1a5900fc494ee881c879599a3",
+      "guard_path": "reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json",
+      "guard_sha256": "a8bbd455b1cf156e3ce13546073b56c9a0c373f49b42175e654e1fc71e73e77a"
+    }
+  },
+  "implementation_sha256": {
+    "scripts/prepare_infrastructure_preflight.py": "f1570f55c72b915ed264bbbf5c61326bbba0b9711a61d3287b066976eefba16f",
+    "scripts/make_infrastructure_slice.py": "60227c6e65c39026711988f9f13f5db9c15339da90337327b0db39b6b15e8adf",
+    "src/replica_lab/infrastructure_solver.py": "958cf686e26dbf49af0f7eca765167191417ad4fc246b3dbab612325fb5455d6",
+    "src/replica_lab/infrastructure_scoring.py": "0ad38111bbc3c4a247015f889f2b829047dcc2dda2f238116e8d372befe3ec1a",
+    "src/replica_lab/episodes.py": "da2140ac838273ccd02309b691d359a1eadb19183bb4daa6805ddac428838e46",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "scripts/train_text.py": "e98b3807048f4deeb69e697dd6f960f712523c7ab8351252e0f8879d8521be3a",
+    "scripts/evaluate_text.py": "010f33197f83b1691d443e11e7b0af51954f3752bf6f1ec69657b2068d7b8ad4",
+    "scripts/run_generation_preflight.py": "937ecb82b301401500e6c35e704a73679231a9191a75d671c9d10936cd8e3722",
+    "configs/infrastructure_slice_v2_design.json": "500ca42865dac6bab5243639343e4b5bee2c5cce032faf2966a18359c7c5cb25",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92",
+    "src/replica_lab/neural.py": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9",
+    "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+    "scripts/score_infrastructure_generations.py": "e698edfd86d7da724e2849e6eb3ddb3905938372bb881b3701ca18b0d63d63e8",
+    "src/replica_lab/capacity_guard.py": "a29a24b87344e9613b687c0eb3cdd10ffa621081bf80aee1d493dcdeb22220d8",
+    "scripts/validate_d2_experiment.py": "fbd6da1e16cf50f06462195ae838ccc6c7b990a5cd299e031752601a4727de7f",
+    "scripts/prepare_response_contract.py": "aefa079bfe3d0ac6a3c542a8be1aab2eb13842b2cdd8e7883847ab826398f534",
+    "scripts/score_response_contract_generations.py": "2719fc1a61abbe85ad42664b66b0fc219a9f5ab608203955c6175b6eeeb4fd07",
+    "src/replica_lab/response_contract.py": "296b0885867bbe14ee9a7a7ea4582486fddb5eaf1491a2474390fba762014704",
+    "configs/response_contract_v1.json": "8f881ec8b365e70278e2478686a32595268875aec9e3cb470b0f8fda9c0c6735",
+    "scripts/prepare_response_policy_contract.py": "c6406bc3cc7f08b6460bfec159385fe455b2bc868ab606489ff720f8ca5f38e2",
+    "scripts/score_response_policy_generations.py": "c76524cdbd032fc41dbe63cd7d1ce56c480d969498a917424384b0f8cee3c7b4",
+    "src/replica_lab/response_policy_contract.py": "d24544b1993270e7dd532b28061f15fa3b1f50ec371d68ff8af4da7f076d9930",
+    "configs/response_policy_contract_v2.json": "13a86d6ad4fe5faa081f34e16530a51e7507e751b1a02d3fbe96991b19d34947",
+    "configs/response_policy_judge_rubric_v1.json": "0241c3eab7914798e19f6ebaec872c75c015d5496fbfc0ca4b333cffc6d83074"
+  },
+  "source_model": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "small_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "native_weights_rehashed": false
+  },
+  "template_sha256": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+  "guard_replay": {
+    "path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_policy_v2_B1_dev16_20261022_guard.json",
+    "sha256": "bf0dcd95c50bfaae8e27c4bb6573f34fea6cd74d9164ceb6384026a4e72aec2c",
+    "host_trace_sha256": "9f01dc9d53dd571b3dd391e8d1b6812518b4f2ade3d8fd135bd98940bd22f320",
+    "profile_trace_sha256": "ba98a9c0f5de210ace4212b38f5ca99332cf144ce3ae879c8c055fb0b1be719d",
+    "exact_replay": true,
+    "implementation_provenance": {
+      "mode": "current_workspace",
+      "historical_commit": null,
+      "verified_files": 3,
+      "current_workspace_mismatches": []
+    },
+    "policy": {
+      "driver_limit_bytes": 42949672960,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1605044797,
+      "memory_free_percent": 89.0
+    },
+    "host_samples": 6,
+    "driver_samples": 102,
+    "peak_driver_bytes": 10840915968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 71.0,
+    "stop_reason": null
+  },
+  "guard_status": "exact_replay_passed",
+  "overall": {
+    "examples": 16,
+    "format_valid": {
+      "count": 12,
+      "rate": 0.75
+    },
+    "action_correct": {
+      "count": 4,
+      "rate": 0.25
+    },
+    "decision_correct": {
+      "count": 4,
+      "rate": 0.25
+    },
+    "value_correct": {
+      "count": 4,
+      "rate": 0.25
+    },
+    "task_correct": {
+      "count": 4,
+      "rate": 0.25
+    },
+    "exact_text_match": {
+      "count": 4,
+      "rate": 0.25
+    },
+    "ended_by_eos": {
+      "count": 16,
+      "rate": 1.0
+    },
+    "hit_token_budget": {
+      "count": 0,
+      "rate": 0.0
+    },
+    "generated_tokens": 86,
+    "generation_seconds": 4.41164808254689
+  },
+  "by_family": {
+    "affine_mod97": {
+      "examples": 4,
+      "format_valid": {
+        "count": 3,
+        "rate": 0.75
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "value_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "task_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "exact_text_match": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 20,
+      "generation_seconds": 1.0561202499084175
+    },
+    "finite_state": {
+      "examples": 4,
+      "format_valid": {
+        "count": 3,
+        "rate": 0.75
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "value_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "task_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "exact_text_match": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 25,
+      "generation_seconds": 1.1238167078699917
+    },
+    "register_xor8": {
+      "examples": 4,
+      "format_valid": {
+        "count": 3,
+        "rate": 0.75
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "value_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "task_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "exact_text_match": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 19,
+      "generation_seconds": 1.0574549168813974
+    },
+    "tool_recovery": {
+      "examples": 4,
+      "format_valid": {
+        "count": 3,
+        "rate": 0.75
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "value_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "task_correct": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "exact_text_match": {
+        "count": 1,
+        "rate": 0.25
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 22,
+      "generation_seconds": 1.1742562078870833
+    }
+  },
+  "by_action": {
+    "answer": {
+      "examples": 8,
+      "format_valid": {
+        "count": 8,
+        "rate": 1.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 8,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 32,
+      "generation_seconds": 2.005943374708295
+    },
+    "ask": {
+      "examples": 4,
+      "format_valid": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 38,
+      "generation_seconds": 1.4769084579311311
+    },
+    "unknown": {
+      "examples": 4,
+      "format_valid": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "action_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "decision_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "value_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "task_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "exact_text_match": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 16,
+      "generation_seconds": 0.9287962499074638
+    }
+  },
+  "by_scenario": {
+    "late_correction": {
+      "examples": 4,
+      "format_valid": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 16,
+      "generation_seconds": 1.0977545839268714
+    },
+    "late_observation_ask": {
+      "examples": 4,
+      "format_valid": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 16,
+      "generation_seconds": 0.9081887907814234
+    },
+    "late_observation_unknown": {
+      "examples": 4,
+      "format_valid": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "action_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "decision_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "value_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "task_correct": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "exact_text_match": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 16,
+      "generation_seconds": 0.9287962499074638
+    },
+    "tombstone": {
+      "examples": 4,
+      "format_valid": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 38,
+      "generation_seconds": 1.4769084579311311
+    }
+  },
+  "by_query_missing_policy": {
+    "ask": {
+      "examples": 4,
+      "format_valid": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 4,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 38,
+      "generation_seconds": 1.4769084579311311
+    },
+    "unknown": {
+      "examples": 12,
+      "format_valid": {
+        "count": 12,
+        "rate": 1.0
+      },
+      "action_correct": {
+        "count": 4,
+        "rate": 0.3333333333333333
+      },
+      "decision_correct": {
+        "count": 4,
+        "rate": 0.3333333333333333
+      },
+      "value_correct": {
+        "count": 4,
+        "rate": 0.3333333333333333
+      },
+      "task_correct": {
+        "count": 4,
+        "rate": 0.3333333333333333
+      },
+      "exact_text_match": {
+        "count": 4,
+        "rate": 0.3333333333333333
+      },
+      "ended_by_eos": {
+        "count": 12,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 48,
+      "generation_seconds": 2.9347396246157587
+    }
+  },
+  "error_by_family": {
+    "affine_mod97": {
+      "action_error": 2,
+      "correct": 1,
+      "format_error": 1
+    },
+    "finite_state": {
+      "action_error": 2,
+      "correct": 1,
+      "format_error": 1
+    },
+    "register_xor8": {
+      "action_error": 2,
+      "correct": 1,
+      "format_error": 1
+    },
+    "tool_recovery": {
+      "action_error": 2,
+      "correct": 1,
+      "format_error": 1
+    }
+  },
+  "error_by_action": {
+    "answer": {
+      "action_error": 8
+    },
+    "ask": {
+      "format_error": 4
+    },
+    "unknown": {
+      "correct": 4
+    }
+  },
+  "single_line_compliant": {
+    "count": 16,
+    "denominator": 16
+  },
+  "contract_valid": {
+    "count": 12,
+    "denominator": 16
+  },
+  "contract_task_correct": {
+    "count": 4,
+    "denominator": 16
+  },
+  "format_gate_passed": false,
+  "error_histogram": {
+    "action_error": 8,
+    "correct": 4,
+    "format_error": 4
+  },
+  "response_histogram": {
+    "UNKNOWN": 12,
+    "Please provide RULE, INPUT": 1,
+    "Please provide A, X, B": 1,
+    "Please provide NAME. RULE, START, SYMBOLS": 1,
+    "Please provide STATUS, ATTEMPT, LIMIT": 1
+  },
+  "paired_comparison": {
+    "original_overall": {
+      "examples": 16,
+      "format_valid": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "hit_token_budget": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "generated_tokens": 512,
+      "generation_seconds": 13.151422207476571
+    },
+    "previous_v1_overall": {
+      "examples": 16,
+      "format_valid": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 194,
+      "generation_seconds": 6.680834707804024
+    },
+    "current_overall": {
+      "examples": 16,
+      "format_valid": {
+        "count": 12,
+        "rate": 0.75
+      },
+      "action_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "decision_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "value_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "task_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "exact_text_match": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "ended_by_eos": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 86,
+      "generation_seconds": 4.41164808254689
+    },
+    "original_by_family": {
+      "affine_mod97": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "generated_tokens": 128,
+        "generation_seconds": 3.209457125281915
+      },
+      "finite_state": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "generated_tokens": 128,
+        "generation_seconds": 3.3314896661322564
+      },
+      "register_xor8": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "generated_tokens": 128,
+        "generation_seconds": 3.4485869579948485
+      },
+      "tool_recovery": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "generated_tokens": 128,
+        "generation_seconds": 3.1618884580675513
+      }
+    },
+    "previous_v1_by_family": {
+      "affine_mod97": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 42,
+        "generation_seconds": 1.5115981663111597
+      },
+      "finite_state": {
+        "examples": 4,
+        "format_valid": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "action_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "decision_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 48,
+        "generation_seconds": 1.661852209828794
+      },
+      "register_xor8": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 36,
+        "generation_seconds": 1.3883039990905672
+      },
+      "tool_recovery": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 68,
+        "generation_seconds": 2.1190803325735033
+      }
+    },
+    "current_by_family": {
+      "affine_mod97": {
+        "examples": 4,
+        "format_valid": {
+          "count": 3,
+          "rate": 0.75
+        },
+        "action_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "decision_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "value_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "task_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "exact_text_match": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 20,
+        "generation_seconds": 1.0561202499084175
+      },
+      "finite_state": {
+        "examples": 4,
+        "format_valid": {
+          "count": 3,
+          "rate": 0.75
+        },
+        "action_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "decision_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "value_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "task_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "exact_text_match": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 25,
+        "generation_seconds": 1.1238167078699917
+      },
+      "register_xor8": {
+        "examples": 4,
+        "format_valid": {
+          "count": 3,
+          "rate": 0.75
+        },
+        "action_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "decision_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "value_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "task_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "exact_text_match": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 19,
+        "generation_seconds": 1.0574549168813974
+      },
+      "tool_recovery": {
+        "examples": 4,
+        "format_valid": {
+          "count": 3,
+          "rate": 0.75
+        },
+        "action_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "decision_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "value_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "task_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "exact_text_match": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 22,
+        "generation_seconds": 1.1742562078870833
+      }
+    },
+    "original_by_action": {
+      "answer": {
+        "examples": 8,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 8,
+          "rate": 1.0
+        },
+        "generated_tokens": 256,
+        "generation_seconds": 7.003898499300703
+      },
+      "ask": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "generated_tokens": 128,
+        "generation_seconds": 3.0273948330432177
+      },
+      "unknown": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "hit_token_budget": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "generated_tokens": 128,
+        "generation_seconds": 3.12012887513265
+      }
+    },
+    "previous_v1_by_action": {
+      "answer": {
+        "examples": 8,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 8,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 98,
+        "generation_seconds": 3.5546365408226848
+      },
+      "ask": {
+        "examples": 4,
+        "format_valid": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "action_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "decision_correct": {
+          "count": 1,
+          "rate": 0.25
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 50,
+        "generation_seconds": 1.5999220840167254
+      },
+      "unknown": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 46,
+        "generation_seconds": 1.526276082964614
+      }
+    },
+    "current_by_action": {
+      "answer": {
+        "examples": 8,
+        "format_valid": {
+          "count": 8,
+          "rate": 1.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 8,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 32,
+        "generation_seconds": 2.005943374708295
+      },
+      "ask": {
+        "examples": 4,
+        "format_valid": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "action_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "decision_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "value_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "task_correct": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "exact_text_match": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 38,
+        "generation_seconds": 1.4769084579311311
+      },
+      "unknown": {
+        "examples": 4,
+        "format_valid": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "action_correct": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "decision_correct": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "value_correct": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "task_correct": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "exact_text_match": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "ended_by_eos": {
+          "count": 4,
+          "rate": 1.0
+        },
+        "hit_token_budget": {
+          "count": 0,
+          "rate": 0.0
+        },
+        "generated_tokens": 16,
+        "generation_seconds": 0.9287962499074638
+      }
+    },
+    "format_recovered_cases": [
+      "i2s41-de-reg-000.q1",
+      "i2s41-de-reg-001.q1",
+      "i2s41-de-reg-002.q0",
+      "i2s41-de-aff-003.q1",
+      "i2s41-de-aff-000.q1",
+      "i2s41-de-aff-001.q0",
+      "i2s41-de-fsm-002.q1",
+      "i2s41-de-fsm-003.q1",
+      "i2s41-de-fsm-000.q0",
+      "i2s41-de-tool-001.q1",
+      "i2s41-de-tool-002.q1",
+      "i2s41-de-tool-003.q0"
+    ],
+    "format_recovered_but_semantically_wrong": [
+      "i2s41-de-reg-000.q1",
+      "i2s41-de-reg-001.q1",
+      "i2s41-de-aff-003.q1",
+      "i2s41-de-aff-000.q1",
+      "i2s41-de-fsm-002.q1",
+      "i2s41-de-fsm-003.q1",
+      "i2s41-de-tool-001.q1",
+      "i2s41-de-tool-002.q1"
+    ],
+    "task_improved_cases": [
+      "i2s41-de-reg-002.q0",
+      "i2s41-de-aff-001.q0",
+      "i2s41-de-fsm-000.q0",
+      "i2s41-de-tool-003.q0"
+    ]
+  },
+  "examples": [
+    {
+      "id": "i2s41-de-reg-000.q1",
+      "world_id": "i2s41-de-reg-000",
+      "family": "register_xor8",
+      "scenario": "late_correction",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "252",
+      "support_event_ids": [
+        "i2s41-de-reg-000.00-rule",
+        "i2s41-de-reg-000.10-INPUT",
+        "i2s41-de-reg-000.90-correct"
+      ],
+      "group_id": "i2s41-de-reg-000",
+      "source_ids": [
+        "synthetic://i2s41-de-reg-000"
+      ],
+      "prompt_tokens": 287,
+      "prompt_token_ids_sha256": "938352f06b5f97ac7fe51580586bb06449a96bb02493141964632f4b5af9b15e",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.36473329202272,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, INPUT, MASK",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 9
+      },
+      "paired_original": {
+        "completion": "We need to compute INPUT XOR MASK using the observed rule at observation cutoff 9.\n\nGiven:\n- Rule: xor, width 8\n-",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-reg-001.q1",
+      "world_id": "i2s41-de-reg-001",
+      "family": "register_xor8",
+      "scenario": "late_observation_ask",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "113",
+      "support_event_ids": [
+        "i2s41-de-reg-001.00-rule",
+        "i2s41-de-reg-001.10-INPUT",
+        "i2s41-de-reg-001.11-MASK"
+      ],
+      "group_id": "i2s41-de-reg-001",
+      "source_ids": [
+        "synthetic://i2s41-de-reg-001"
+      ],
+      "prompt_tokens": 287,
+      "prompt_token_ids_sha256": "38c0ef5ea339ccb6d361b2051da5f57a64c686a8c5d81cfbee747cad39bfd1d9",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.20117808296345174,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, INPUT, MASK",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 9
+      },
+      "paired_original": {
+        "completion": "We need to compute INPUT XOR MASK using the observed rule at observation cutoff 9.\n\nLet's analyze the observed records:\n\n1. i2s",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-reg-002.q0",
+      "world_id": "i2s41-de-reg-002",
+      "family": "register_xor8",
+      "scenario": "late_observation_unknown",
+      "query_missing_policy": "unknown",
+      "expected_action": "unknown",
+      "expected_response": "UNKNOWN",
+      "support_event_ids": [
+        "i2s41-de-reg-002.00-rule",
+        "i2s41-de-reg-002.10-INPUT"
+      ],
+      "group_id": "i2s41-de-reg-002",
+      "source_ids": [
+        "synthetic://i2s41-de-reg-002"
+      ],
+      "prompt_tokens": 233,
+      "prompt_token_ids_sha256": "376ed0fb258b62159827ed39a0ec0fbfe03143518316b5a4649a3263cb5ecdd7",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.22671495890244842,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": true,
+      "decision_correct": true,
+      "value_correct": true,
+      "task_correct": true,
+      "exact_text_match": true,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": true,
+      "error_kind": "correct",
+      "paired_previous": {
+        "completion": "UNKNOWN, INPUT, MASK",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 9
+      },
+      "paired_original": {
+        "completion": "We need to compute INPUT XOR MASK at observation cutoff 5 using the observed rule. The rule is xor with width 8. The observed fact is",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-reg-003.q0",
+      "world_id": "i2s41-de-reg-003",
+      "family": "register_xor8",
+      "scenario": "tombstone",
+      "query_missing_policy": "ask",
+      "expected_action": "ask",
+      "expected_response": "Please provide MASK.",
+      "support_event_ids": [
+        "i2s41-de-reg-003.00-rule",
+        "i2s41-de-reg-003.10-INPUT"
+      ],
+      "group_id": "i2s41-de-reg-003",
+      "source_ids": [
+        "synthetic://i2s41-de-reg-003"
+      ],
+      "prompt_tokens": 249,
+      "prompt_token_ids_sha256": "a6c636ebfeab5d095b793abff2b8fbdad27420573882ea9a0d41487ca0a454cb",
+      "generated_token_ids": [
+        15256,
+        3211,
+        434,
+        47779,
+        33,
+        114765,
+        130073
+      ],
+      "generated_tokens": 7,
+      "raw_completion": "Please provide RULE, INPUT<|im_end|>",
+      "completion": "Please provide RULE, INPUT",
+      "elapsed_seconds": 0.26482858299277723,
+      "format_valid": false,
+      "parsed_action": null,
+      "decision_type": null,
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": false,
+      "contract_task_correct": false,
+      "error_kind": "format_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, INPUT, MASK",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 9
+      },
+      "paired_original": {
+        "completion": "Apologies, but I'm unable to compute the INPUT XOR MASK. My capabilities are limited to providing information and assistance, and I can't perform complex calculations",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-aff-003.q1",
+      "world_id": "i2s41-de-aff-003",
+      "family": "affine_mod97",
+      "scenario": "late_correction",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "61",
+      "support_event_ids": [
+        "i2s41-de-aff-003.00-rule",
+        "i2s41-de-aff-003.10-A",
+        "i2s41-de-aff-003.11-X",
+        "i2s41-de-aff-003.90-correct"
+      ],
+      "group_id": "i2s41-de-aff-003",
+      "source_ids": [
+        "synthetic://i2s41-de-aff-003"
+      ],
+      "prompt_tokens": 350,
+      "prompt_token_ids_sha256": "8111fb3fb409a3d161f0484cf6f45e96bf974e4438d6373dbadd45d952a595a2",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.23497241688892245,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, A, X, B",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 10
+      },
+      "paired_original": {
+        "completion": "We need to compute the affine result: (A * X + B) % modulus, with modulus=97, operation=affine. Observed facts: A",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-aff-000.q1",
+      "world_id": "i2s41-de-aff-000",
+      "family": "affine_mod97",
+      "scenario": "late_observation_ask",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "79",
+      "support_event_ids": [
+        "i2s41-de-aff-000.00-rule",
+        "i2s41-de-aff-000.10-A",
+        "i2s41-de-aff-000.11-X",
+        "i2s41-de-aff-000.12-B"
+      ],
+      "group_id": "i2s41-de-aff-000",
+      "source_ids": [
+        "synthetic://i2s41-de-aff-000"
+      ],
+      "prompt_tokens": 349,
+      "prompt_token_ids_sha256": "b3ed15a6e6127448fffa6ec905bbe035bc63637fe14060aa7dee3895216bfd7c",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.23017749981954694,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, A, X, B",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 10
+      },
+      "paired_original": {
+        "completion": "We need to compute the affine result using the rule: (A * X + B) % modulus, with modulus=97, operation=\"affine\". The",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-aff-001.q0",
+      "world_id": "i2s41-de-aff-001",
+      "family": "affine_mod97",
+      "scenario": "late_observation_unknown",
+      "query_missing_policy": "unknown",
+      "expected_action": "unknown",
+      "expected_response": "UNKNOWN",
+      "support_event_ids": [
+        "i2s41-de-aff-001.00-rule",
+        "i2s41-de-aff-001.10-A",
+        "i2s41-de-aff-001.11-X"
+      ],
+      "group_id": "i2s41-de-aff-001",
+      "source_ids": [
+        "synthetic://i2s41-de-aff-001"
+      ],
+      "prompt_tokens": 297,
+      "prompt_token_ids_sha256": "e1b733e261695e52ceb7fd2341d517ef8ec145bacb82dec7b61198a94aa9fe5f",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.2301715831272304,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": true,
+      "decision_correct": true,
+      "value_correct": true,
+      "task_correct": true,
+      "exact_text_match": true,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": true,
+      "error_kind": "correct",
+      "paired_previous": {
+        "completion": "UNKNOWN, A, X, B",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 10
+      },
+      "paired_original": {
+        "completion": "We need to compute the affine result using the rule (A * X + B) % modulus, with modulus=97, operation=affine. But we",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-aff-002.q0",
+      "world_id": "i2s41-de-aff-002",
+      "family": "affine_mod97",
+      "scenario": "tombstone",
+      "query_missing_policy": "ask",
+      "expected_action": "ask",
+      "expected_response": "Please provide B.",
+      "support_event_ids": [
+        "i2s41-de-aff-002.00-rule",
+        "i2s41-de-aff-002.10-A",
+        "i2s41-de-aff-002.11-X"
+      ],
+      "group_id": "i2s41-de-aff-002",
+      "source_ids": [
+        "synthetic://i2s41-de-aff-002"
+      ],
+      "prompt_tokens": 313,
+      "prompt_token_ids_sha256": "46c66dafe1387b82df90744e153766e75b76c9c12750bbabdab916ebec16f8d0",
+      "generated_token_ids": [
+        15256,
+        3211,
+        359,
+        33,
+        1372,
+        33,
+        408,
+        130073
+      ],
+      "generated_tokens": 8,
+      "raw_completion": "Please provide A, X, B<|im_end|>",
+      "completion": "Please provide A, X, B",
+      "elapsed_seconds": 0.36079875007271767,
+      "format_valid": false,
+      "parsed_action": null,
+      "decision_type": null,
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": false,
+      "contract_task_correct": false,
+      "error_kind": "format_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE,A,X,B",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 12
+      },
+      "paired_original": {
+        "completion": "I need to compute the affine transformation result using the provided rule and observed values. Let me analyze the information:\n\n- Rule: (A * X + B",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-fsm-002.q1",
+      "world_id": "i2s41-de-fsm-002",
+      "family": "finite_state",
+      "scenario": "late_correction",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "S3",
+      "support_event_ids": [
+        "i2s41-de-fsm-002.00-rule",
+        "i2s41-de-fsm-002.11-SYMBOLS",
+        "i2s41-de-fsm-002.90-correct"
+      ],
+      "group_id": "i2s41-de-fsm-002",
+      "source_ids": [
+        "synthetic://i2s41-de-fsm-002"
+      ],
+      "prompt_tokens": 376,
+      "prompt_token_ids_sha256": "4817bd6e794562d41c3fcdd2da609d6208e554fe41fb35e861460bac25f3e528",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.23984487494453788,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE,START",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 11
+      },
+      "paired_original": {
+        "completion": "We need to determine the final state after consuming SYMBOLS from START using the observed transition rule, up to observation cutoff 9.\n\nGiven:\n- The",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-fsm-003.q1",
+      "world_id": "i2s41-de-fsm-003",
+      "family": "finite_state",
+      "scenario": "late_observation_ask",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "S1",
+      "support_event_ids": [
+        "i2s41-de-fsm-003.00-rule",
+        "i2s41-de-fsm-003.11-SYMBOLS",
+        "i2s41-de-fsm-003.10-START"
+      ],
+      "group_id": "i2s41-de-fsm-003",
+      "source_ids": [
+        "synthetic://i2s41-de-fsm-003"
+      ],
+      "prompt_tokens": 376,
+      "prompt_token_ids_sha256": "cc1ccf60f2147f0193fbffea67537f2b1f885e9d751d5911b12f6daf8d77bd32",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.23115237499587238,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE,START,SYMBOLS",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 15
+      },
+      "paired_original": {
+        "completion": "To determine the final state, I need to simulate the Finite State Machine (FSM) based on the provided transition rules, starting from the initial state \"START",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-fsm-000.q0",
+      "world_id": "i2s41-de-fsm-000",
+      "family": "finite_state",
+      "scenario": "late_observation_unknown",
+      "query_missing_policy": "unknown",
+      "expected_action": "unknown",
+      "expected_response": "UNKNOWN",
+      "support_event_ids": [
+        "i2s41-de-fsm-000.00-rule",
+        "i2s41-de-fsm-000.11-SYMBOLS"
+      ],
+      "group_id": "i2s41-de-fsm-000",
+      "source_ids": [
+        "synthetic://i2s41-de-fsm-000"
+      ],
+      "prompt_tokens": 320,
+      "prompt_token_ids_sha256": "51c354f67a30b6c8c0eb7469275052bdab36f1463d368c1ec346a601370bc560",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.22888395795598626,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": true,
+      "decision_correct": true,
+      "value_correct": true,
+      "task_correct": true,
+      "exact_text_match": true,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": true,
+      "error_kind": "correct",
+      "paired_previous": {
+        "completion": "UNKNOWN,START,SYMBOLS",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 10
+      },
+      "paired_original": {
+        "completion": "We need to determine the final state after consuming SYMBOLS from START using the observed transition rule, at observation cutoff 5.\n\nThe rule is:\n-",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-fsm-001.q0",
+      "world_id": "i2s41-de-fsm-001",
+      "family": "finite_state",
+      "scenario": "tombstone",
+      "query_missing_policy": "ask",
+      "expected_action": "ask",
+      "expected_response": "Please provide START.",
+      "support_event_ids": [
+        "i2s41-de-fsm-001.00-rule",
+        "i2s41-de-fsm-001.11-SYMBOLS"
+      ],
+      "group_id": "i2s41-de-fsm-001",
+      "source_ids": [
+        "synthetic://i2s41-de-fsm-001"
+      ],
+      "prompt_tokens": 336,
+      "prompt_token_ids_sha256": "7d01e0d5d71060ecbcd8cf6ffc3344812ebea729fa71d6e9c5386ff6f8e71f74",
+      "generated_token_ids": [
+        15256,
+        3211,
+        49749,
+        35,
+        434,
+        47779,
+        33,
+        58711,
+        33,
+        21896,
+        8539,
+        54876,
+        130073
+      ],
+      "generated_tokens": 13,
+      "raw_completion": "Please provide NAME. RULE, START, SYMBOLS<|im_end|>",
+      "completion": "Please provide NAME. RULE, START, SYMBOLS",
+      "elapsed_seconds": 0.42393549997359514,
+      "format_valid": false,
+      "parsed_action": null,
+      "decision_type": null,
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": false,
+      "contract_task_correct": false,
+      "error_kind": "format_error",
+      "paired_previous": {
+        "completion": "Please provide RULE, START, SYMBOLS.",
+        "format_valid": true,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 12
+      },
+      "paired_original": {
+        "completion": "Let's break down the problem step by step.\n\n1. **Initial State**: The initial state is START, which corresponds to S0 in the finite state",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-tool-001.q1",
+      "world_id": "i2s41-de-tool-001",
+      "family": "tool_recovery",
+      "scenario": "late_correction",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "VERIFY receipt",
+      "support_event_ids": [
+        "i2s41-de-tool-001.00-rule",
+        "i2s41-de-tool-001.11-ATTEMPT",
+        "i2s41-de-tool-001.12-LIMIT",
+        "i2s41-de-tool-001.90-correct"
+      ],
+      "group_id": "i2s41-de-tool-001",
+      "source_ids": [
+        "synthetic://i2s41-de-tool-001"
+      ],
+      "prompt_tokens": 403,
+      "prompt_token_ids_sha256": "5bc8e2935f208f7f8c675e8b3762a5a67e65a9401951263d1c3235ae406fff03",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.2582040000706911,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 17
+      },
+      "paired_original": {
+        "completion": "The observed rule is `transient_below_limit means STATUS=transient and ATTEMPT<LIMIT` with operation `recovery` and policy `",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-tool-002.q1",
+      "world_id": "i2s41-de-tool-002",
+      "family": "tool_recovery",
+      "scenario": "late_observation_ask",
+      "query_missing_policy": "unknown",
+      "expected_action": "answer",
+      "expected_response": "STOP",
+      "support_event_ids": [
+        "i2s41-de-tool-002.00-rule",
+        "i2s41-de-tool-002.11-ATTEMPT",
+        "i2s41-de-tool-002.12-LIMIT",
+        "i2s41-de-tool-002.10-STATUS"
+      ],
+      "group_id": "i2s41-de-tool-002",
+      "source_ids": [
+        "synthetic://i2s41-de-tool-002"
+      ],
+      "prompt_tokens": 404,
+      "prompt_token_ids_sha256": "e480af14b94f528b1c0bd689e25c45bd3428888a1bf4daa912a9b129db81db16",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.2456808330025524,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": false,
+      "error_kind": "action_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 17
+      },
+      "paired_original": {
+        "completion": "The observed rule is `transient_below_limit means STATUS=transient and ATTEMPT<LIMIT` with operation `recovery` and policy `",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-tool-003.q0",
+      "world_id": "i2s41-de-tool-003",
+      "family": "tool_recovery",
+      "scenario": "late_observation_unknown",
+      "query_missing_policy": "unknown",
+      "expected_action": "unknown",
+      "expected_response": "UNKNOWN",
+      "support_event_ids": [
+        "i2s41-de-tool-003.00-rule",
+        "i2s41-de-tool-003.11-ATTEMPT",
+        "i2s41-de-tool-003.12-LIMIT"
+      ],
+      "group_id": "i2s41-de-tool-003",
+      "source_ids": [
+        "synthetic://i2s41-de-tool-003"
+      ],
+      "prompt_tokens": 349,
+      "prompt_token_ids_sha256": "96afd2bde19be0954f12593534a359997b1783c79471457f8afcad812a6ba57e",
+      "generated_token_ids": [
+        90809,
+        22036,
+        67,
+        130073
+      ],
+      "generated_tokens": 4,
+      "raw_completion": "UNKNOWN<|im_end|>",
+      "completion": "UNKNOWN",
+      "elapsed_seconds": 0.2430257499217987,
+      "format_valid": true,
+      "parsed_action": "unknown",
+      "decision_type": "unknown",
+      "parsed_value": null,
+      "action_correct": true,
+      "decision_correct": true,
+      "value_correct": true,
+      "task_correct": true,
+      "exact_text_match": true,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": true,
+      "contract_task_correct": true,
+      "error_kind": "correct",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 17
+      },
+      "paired_original": {
+        "completion": "The observed retry rule specifies a condition of \"transient_below_limit means STATUS=transient and ATTEMPT<LIMIT\". The observed records show",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    },
+    {
+      "id": "i2s41-de-tool-000.q0",
+      "world_id": "i2s41-de-tool-000",
+      "family": "tool_recovery",
+      "scenario": "tombstone",
+      "query_missing_policy": "ask",
+      "expected_action": "ask",
+      "expected_response": "Please provide STATUS.",
+      "support_event_ids": [
+        "i2s41-de-tool-000.00-rule",
+        "i2s41-de-tool-000.11-ATTEMPT",
+        "i2s41-de-tool-000.12-LIMIT"
+      ],
+      "group_id": "i2s41-de-tool-000",
+      "source_ids": [
+        "synthetic://i2s41-de-tool-000"
+      ],
+      "prompt_tokens": 365,
+      "prompt_token_ids_sha256": "4071cf30c20d16d5bb29d6f50af84defc4c62d54cf713ad5a490e0c9357ebcd4",
+      "generated_token_ids": [
+        15256,
+        3211,
+        98768,
+        33,
+        51466,
+        4123,
+        7049,
+        33,
+        98270,
+        130073
+      ],
+      "generated_tokens": 10,
+      "raw_completion": "Please provide STATUS, ATTEMPT, LIMIT<|im_end|>",
+      "completion": "Please provide STATUS, ATTEMPT, LIMIT",
+      "elapsed_seconds": 0.4273456248920411,
+      "format_valid": false,
+      "parsed_action": null,
+      "decision_type": null,
+      "parsed_value": null,
+      "action_correct": false,
+      "decision_correct": false,
+      "value_correct": false,
+      "task_correct": false,
+      "exact_text_match": false,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scoring_version": "replica.infrastructure-generation-scoring.v2",
+      "single_line_compliant": true,
+      "contract_valid": false,
+      "contract_task_correct": false,
+      "error_kind": "format_error",
+      "paired_previous": {
+        "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": true,
+        "hit_token_budget": false,
+        "generated_tokens": 17
+      },
+      "paired_original": {
+        "completion": "Based on the observed records, the rule `transient_below_limit` triggers a `RETRY lookup` when `STATUS=transient` and",
+        "format_valid": false,
+        "task_correct": false,
+        "ended_by_eos": false,
+        "hit_token_budget": true,
+        "generated_tokens": 32
+      }
+    }
+  ],
+  "legacy_fields_ignored": [
+    "XOR-only descriptions",
+    "fixture_task_accuracy",
+    "backend correctness scores"
+  ],
+  "limitations": [
+    "Instruction wording was chosen after observing both failed development runs",
+    "Strict whole-response grammar is unchanged; no answer extraction or semantic grading is performed by this scorer",
+    "A separate authorized subagent semantic judgment may be reported with its own rubric and rationale",
+    "The appendix uses only public family and the query's stated missing-response policy, never true missingness or labels",
+    "Single-line metric ignores outer whitespace consistently with the unchanged strict scorer",
+    "Same selected worlds, source evidence, targets, tokenizer, model and native budgets; only instruction differs",
+    "Sixteen exposed dev cases cannot establish architecture gain, calibration, retention or promotion",
+    "Native weights remain covered by launch seal and original retained source evidence"
+  ],
+  "validation_repair": {
+    "schema_version": "replica.response_policy_archive_resolution.v1",
+    "status": "exact_historical_archive_resolution_passed",
+    "original_validation_failure": "ValueError: Guard output belongs to another run",
+    "failure_reason": "Archived guard bytes retain their original runs directory; the frozen scorer passed the archive directory to exact replay.",
+    "repair_scope": "Historical path resolution only after all seven original/archive files match the predeclared hashes; current v2 guard validation remains unchanged.",
+    "supplementary_script_path": "/Users/flare/replica_r3_starter/scripts/score_response_policy_archive_repair.py",
+    "supplementary_script_sha256": "f3cc79109e142d90cf8ab78ae83c8a60c19f27a2e4ef10349a14a3e7cd3666aa",
+    "frozen_scorer_sha256": "c76524cdbd032fc41dbe63cd7d1ce56c480d969498a917424384b0f8cee3c7b4",
+    "specification_sha256": "90d0cf513c8403dbd2afdb6f21b445a0d04132a574f96ccf1dd0fbf90962c79a",
+    "grading_projection_and_native_settings_changed": false,
+    "historical_archives": [
+      {
+        "baseline_key": "preserved_baseline",
+        "archive_directory": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw",
+        "original_directory": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022",
+        "archive_guard_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.json",
+        "manifest_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_archive_manifest.json",
+        "manifest_sha256": "189e529b7b320ab9226db6672fad0c3480c99b303a4693426dea78c344617e1d",
+        "historical_specification_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/evaluation_spec.json",
+        "historical_specification_sha256": "4aa7963f038c0ea66570315671f468a0d49a99376f9d002715fcffaba85329f2",
+        "files": [
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022/generation_report.json",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/generation_report.json",
+            "sha256": "ef8bee9f49276a22fcca7109a34d57c502be49ea34543410f8394ace51c99541",
+            "bytes": 60281,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022/generations.jsonl",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/generations.jsonl",
+            "sha256": "8ff6e1d2a55724618bf6698fdcec09233de7306e9f456b1cb809b74246df33f7",
+            "bytes": 16158,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022/profile_samples.jsonl",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/profile_samples.jsonl",
+            "sha256": "5a54035cd2cf10a701c7e565cc01d13838940d4e0f34f3b5d3b411e178a0fb24",
+            "bytes": 57105,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022/profile_summary.json",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/profile_summary.json",
+            "sha256": "cd30c12f12c925ffc2e4e940fb99c14a1fdc16590dade60fd2d27f1f0a10ec64",
+            "bytes": 29879,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.json",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.json",
+            "sha256": "4cca1ce0b5286621ed8b4166d1ff3fd70872ffa0c5a6ebc81295ea8ffcff8d60",
+            "bytes": 2565,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.child.log",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.child.log",
+            "sha256": "2245d69cae7603ef2ecb1735a7848930d4e6c7be0f3179a0c80f1088665d240b",
+            "bytes": 2919,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.host.jsonl",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.host.jsonl",
+            "sha256": "29d6787dba7be1d976bc0ade915d050a6a1675193df7504aa0eb729f0703859c",
+            "bytes": 995,
+            "byte_identical": true
+          }
+        ],
+        "guard_replays": [
+          {
+            "path": "/Users/flare/replica_r3_starter/reports/infrastructure_preflight_v2_20261022/native_B1_raw/minicpm5_infrastructure_v2_B1_dev16_20261022_guard.json",
+            "sha256": "4cca1ce0b5286621ed8b4166d1ff3fd70872ffa0c5a6ebc81295ea8ffcff8d60",
+            "host_trace_sha256": "29d6787dba7be1d976bc0ade915d050a6a1675193df7504aa0eb729f0703859c",
+            "profile_trace_sha256": "5a54035cd2cf10a701c7e565cc01d13838940d4e0f34f3b5d3b411e178a0fb24",
+            "exact_replay": true,
+            "implementation_provenance": {
+              "mode": "current_workspace",
+              "historical_commit": null,
+              "verified_files": 3,
+              "current_workspace_mismatches": []
+            },
+            "policy": {
+              "driver_limit_bytes": 42949672960,
+              "swap_growth_limit_bytes": 536870912,
+              "minimum_free_percent": 15,
+              "sustained_host_samples": 3
+            },
+            "baseline": {
+              "swap_used_bytes": 1605044797,
+              "memory_free_percent": 89.0
+            },
+            "host_samples": 10,
+            "driver_samples": 136,
+            "peak_driver_bytes": 10824138752,
+            "peak_swap_growth_bytes": 0,
+            "minimum_observed_free_percent": 71.0,
+            "stop_reason": null
+          }
+        ]
+      },
+      {
+        "baseline_key": "previous_v1_baseline",
+        "archive_directory": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw",
+        "original_directory": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022",
+        "archive_guard_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json",
+        "manifest_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_archive_manifest.json",
+        "manifest_sha256": "1c5c2da0fe22f2fc45ee8e0c930adc31115dfdce0bedf3a96468a82fc0bf119f",
+        "historical_specification_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/evaluation_spec.json",
+        "historical_specification_sha256": "f3c259c29cc5b562c231534adac627be6fdae07f065e53b079ea2ffb24a6aca3",
+        "files": [
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022/generation_report.json",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/generation_report.json",
+            "sha256": "1fa22164dc81b77c8149a034c47b741168ca30ddfe2142d27d87212a12023d48",
+            "bytes": 52842,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022/generations.jsonl",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/generations.jsonl",
+            "sha256": "693d11a2ff125e418819f5710578672dacf3c8c6803cf7e48b15ecdb15c3040a",
+            "bytes": 11306,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022/profile_samples.jsonl",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/profile_samples.jsonl",
+            "sha256": "1d95af46278866a625332278b50b4cbcda8601354fa5dbfd940023069ffd93f4",
+            "bytes": 48703,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022/profile_summary.json",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/profile_summary.json",
+            "sha256": "61dfa6863e092863648e77de757514d721a8ec0e52850cab17912b5f088be1b5",
+            "bytes": 29843,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json",
+            "sha256": "a8bbd455b1cf156e3ce13546073b56c9a0c373f49b42175e654e1fc71e73e77a",
+            "bytes": 2569,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022_guard.child.log",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.child.log",
+            "sha256": "eff35b736fab948816d192446c7324fe28ea7472a66583c63989e02e6f7f05a1",
+            "bytes": 2926,
+            "byte_identical": true
+          },
+          {
+            "original_path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022_guard.host.jsonl",
+            "archive_path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.host.jsonl",
+            "sha256": "8e4c74b5a88a879970e9ef6904e4c0d3a0f1e78e6813051906553cc81612932d",
+            "bytes": 700,
+            "byte_identical": true
+          }
+        ],
+        "guard_replays": [
+          {
+            "path": "/Users/flare/replica_r3_starter/reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json",
+            "sha256": "a8bbd455b1cf156e3ce13546073b56c9a0c373f49b42175e654e1fc71e73e77a",
+            "host_trace_sha256": "8e4c74b5a88a879970e9ef6904e4c0d3a0f1e78e6813051906553cc81612932d",
+            "profile_trace_sha256": "1d95af46278866a625332278b50b4cbcda8601354fa5dbfd940023069ffd93f4",
+            "exact_replay": true,
+            "implementation_provenance": {
+              "mode": "current_workspace",
+              "historical_commit": null,
+              "verified_files": 3,
+              "current_workspace_mismatches": []
+            },
+            "policy": {
+              "driver_limit_bytes": 42949672960,
+              "swap_growth_limit_bytes": 536870912,
+              "minimum_free_percent": 15,
+              "sustained_host_samples": 3
+            },
+            "baseline": {
+              "swap_used_bytes": 1605044797,
+              "memory_free_percent": 89.0
+            },
+            "host_samples": 7,
+            "driver_samples": 111,
+            "peak_driver_bytes": 10849304576,
+            "peak_swap_growth_bytes": 0,
+            "minimum_observed_free_percent": 71.0,
+            "stop_reason": null
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -18,16 +18,20 @@ This early scope restores R2's complete-simple-loop priority. It does **not** co
 
 ## S3.1 — Connect a frozen manifest to a host-owned runtime
 
-**Status:** `pending`. **Dependencies:** S2.5, S1.1.
+**Status:** `partial_software_action_contract_preparation`. **Dependencies:** S2.5, S1.1 (unchanged for full completion).
 
 For full selected-system completion, bind model inference to scoped evidence ledger, typed task workspace, permitted real tools and event journal after S2.5. Activate one identity mode and immutable base/extensions manifest; model output proposes actions but host code validates scope/budget and executes actual tools. Early fixed-baseline preparation above can proceed before that completion dependency.
 
-- **Artifact:** planned: runtime event/action schema and model-host adapter; planned: restart/scope/deletion integration report.
+The [bounded host action contract](../experiments/20261022_Host_Action_Contract.md), preregistered in `b2010c2`, now supplies strict `verify`/`answer`/`stop` proposals, host-stamped provenance, actual pure-XOR receipts and a canonical hash-chained journal. Its [fixture report](../../reports/host_action_contract_20261022/report.json) passes **12 actual host checks**, alongside **38 focused tests**. The host checks model-declared proposals against explicit scope, identity and budgets; a matching successful receipt from the current epoch is required to release an answer. Wrong-scope input, fabricated receipts, missing/malformed registers, budget excess and stale receipt/answer reuse are refused or recorded as actual failures. Duplicate actions and restart do not execute the tool again; source updates invalidate live receipts before cached answers can return.
+
+These are deterministic software checks. No model is loaded and no neural proposer, training, learning or publication runs. Restart restores the static bound goal, recorded receipts and spent budgets; evolving goals, subgoals, hypotheses and next-action workspace remain pending, so the full task-restart gate is unqualified. Hash chaining checks integrity relative to a separately trusted head; it does not authenticate sources or erase historical source bytes. The fixture has no KV/recurrent/fast state to invalidate. Ask/retrieve/revise actions, actual model proposals and experience-to-learning integration remain pending. The existing untracked runtime draft is preserved separately.
+
+- **Artifact:** implemented: bounded host action schema, pure-tool receipt boundary and deterministic restart/invalidation fixtures; planned: actual model-host adapter and full restart/scope/deletion integration report.
 - **Interface:** Sense/route/core/inject/action proposal -> host validator -> real observation/verifier -> branch-owned experience -> ledger. Manifest binds base, tokenizer/processor, ports, writer/reader/core/action/calibration/director versions, task schema, identity and permissions. Decision state carries a pinned evidence revision.
 - **Test gate:** Actual observations revise goals/subgoals/hypotheses; simulated outcomes stay hypothetical. Exact goal/action journal reconstructs the task after restart, rather than merely restoring records. Wrong-scope/expired records are hidden; selected-source invalidation/revocation blocks affected running output/actions and discards dependent workspace/KV/recurrent/fast state before rebuild. Base hash stays fixed. No generated text grants authority. Early-pilot results remain partial until selected-architecture binding passes.
 - **Resources:** Local deterministic tools and CPU journal first; bounded MPS inference. Avoid arbitrary shell execution grammar.
 - **Failure policy:** Reject invalid proposals without side effects and preserve trace. Repair host contracts before allowing autonomous candidate training.
-- **Next smallest task:** Begin the independent fixed-baseline pilot with a typed goal/subgoal/evidence/hypothesis/action journal, one solver-backed tool and an explicit answer/ask/retrieve/verify/revise/stop grammar; retain S2.5 for full completion.
+- **Next smallest task:** Once the action-prompt protocol is qualified, predeclare one frozen-original M2 Ultra MPS proposal → host validation → actual pure-tool receipt → model-answer roundtrip with fixed decision, tool and generation budgets. Preserve actual malformed proposals and tool failures. This is the independent early pilot, not S2.4 architecture training; richer task state, experience-to-learning plumbing and S2.5 binding remain required for full completion.
 
 ## S3.2 — Train and measure the action policy and capability calibration
 

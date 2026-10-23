@@ -1,19 +1,30 @@
 # Coding-agent continuation instruction
 
-**Latest package:** response contract v1 was preregistered in Git at `430e298`
-before the single original-model MPS dev16 run. Same evidence/cases/parser,
-greedy seed 17, cap 32, FP32 and fallback disabled. All 16 answers now use one
-line and EOS with no caps; strict grammar is 1/16 and task correctness 0/16.
-Fifteen outputs mix fallback forms/field lists; the valid FSM ask includes
-observed fields. Preserve the previous all-capped negative and this new result.
-Next predeclare a separate query-policy-specific contract, deriving the missing
-response policy only from the public task instruction, never from gold or case
-missingness. No adaptive follow-up occurred within v1. The suite passes 671
-with one restricted-context MPS skip. Zero downloads, training updates or new
-checkpoints; original/selected models and the untracked runtime draft unchanged.
-Read [protocol](docs/experiments/20261022_Response_Contract_V1_Protocol.md),
-[results](docs/experiments/20261022_Response_Contract_V1_Results.md) and execution_state.md.
-S1.4 remains partial, S1.3/S1.5 pending, S2.4 blocked; native jobs idle.
+**Latest package:** query-policy contract v2 was committed at `b2010c2`
+before its single M2 Ultra MPS FP32 dev16 run, with CPU fallback disabled.
+Each query gets only its publicly requested missing-response policy; evidence,
+labels, parser, greedy seed 17, cap 32 and original model remain fixed. All 16
+outputs are single-line EOS with zero caps. Program grammar is12/16, but
+strict correctness and a fresh-context semantic subagent both score **4/16**.
+All four successes are UNKNOWN; all eight complete cases also return UNKNOWN,
+and all four asks include observed fields. This equals a constant-UNKNOWN
+control and does not establish useful evidence sensitivity. Original and v1
+failures remain byte-identical. A supplemental archive reader repairs historical
+guard path resolution after validating fourteen original/archive file pairs;
+frozen grading and current-run guard replay remain unchanged.
+
+The early S3.1 host action boundary has 38 focused tests and 12 integration
+checks: source-scoped verify/answer/stop, actual XOR tool receipts, budgets,
+current-epoch idempotency, revocation and hash-bound restart with a caller-trusted
+head. This is software preparation; no actual model proposer or learning loop
+has been evaluated. Next separately predeclare the smallest MPS model-proposal
+pilot and its source-grounding controls. S1.4 remains partial; public S1.3 and
+S1.5 admission remain pending and S2.4 training remains blocked. Native jobs
+are idle; final suite 819 passed/one restricted-context MPS skip. Zero downloads,
+updates or new checkpoints. Preserve selected models
+and the untracked runtime draft. Read [v2 results](docs/experiments/20261022_Response_Policy_V2_Results.md),
+[protocol](docs/experiments/20261022_Response_Policy_V2_Protocol.md),
+[host boundary](docs/experiments/20261022_Host_Action_Contract.md) and execution_state.md.
 
 **Current storage state:** the bounded D2 GPU package is complete. The user
 subsequently authorized [post-D2 checkpoint retirement](docs/experiments/20261022_Checkpoint_Retirement_After_D2.md):
@@ -38,7 +49,7 @@ maintenance alone does not authorize unrelated training campaigns.
 
 Preserve the setup choice: experimental Muon 8-bit on the M2 Ultra Mac Studio (64 GiB), then the later RTX PRO 4000 Blackwell SFF (24 GB). Auxiliary FP32 AdamW keeps embeddings/head/slot queries eligible. Reuse the locked environment, sealed original and completed checkpoints; do not reacquire another revision or silently substitute AdamW. Preserve the historical constant-zero failure and the successful eight-update tiny-overfit result (export train 8/8, dev 14/16); its diagnostic checkpoint remains selected. No architecture or post-freeze learning candidate was promoted. CUDA full-text residency still needs the separate P2 path.
 
-Current branch is `codex/d2-capacity-runtime-pilot`. S0.5 bounded D0/D2 actual 256/512 capacity and S2.3 D2 tiny memorization/scope/restart pass. D2 stops at update 8 after 8/8 at updates 4 and 8; saved-export train 8/8 and dev 14/16, all EOS at cap 256. All 381 originals and 48 added tensors change; all recorded guards pass. D1 memorization and its failed arm remain preserved. The historical D2 suite passed 479 tests with one restricted-context MPS skip; the response-contract package above passes 671/one skip. Source and acquisition receipt remain unchanged. Read execution_state.md and reports/native_augmented_D2_experiment_20261022.json. Continue the separate query-policy-specific output-contract development gate and independent S1 admission/evaluation; preserve the S2.4 fair-comparison proposal without launching the 20k campaign. Useful gain, retention and full learning-loop integration remain pending.
+Current branch is `codex/d2-capacity-runtime-pilot`. S0.5 bounded D0/D2 actual 256/512 capacity and S2.3 D2 tiny memorization/scope/restart pass. D2 stops at update 8 after 8/8 at updates 4 and 8; saved-export train 8/8 and dev 14/16, all EOS at cap 256. All 381 originals and 48 added tensors change; all recorded guards pass. D1 memorization and its failed arm remain preserved. The historical D2 suite passed 479 tests with one restricted-context MPS skip; the final v2 integration package passes 819/one skip; preregistration remains 798/one skip. Source and acquisition receipt remain unchanged. Read execution_state.md and reports/native_augmented_D2_experiment_20261022.json. Continue source-grounding qualification, separately predeclared model-to-host pilot and independent S1 admission/evaluation; preserve the S2.4 fair-comparison proposal without launching the 20k campaign. Useful gain, retention and full learning-loop integration remain pending.
 
 **Hardware requirement:** native model training and generation on this Mac must use `--device mps`, with CPU fallback disabled. CPU is for host I/O, data/weight verification and small contract tests. Neural Engine execution requires a separately qualified backend; do not describe MPS as ANE or silently substitute CPU model execution. See docs/experiments/20261022_Apple_Accelerators.md.
 

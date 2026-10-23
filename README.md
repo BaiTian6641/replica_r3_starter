@@ -8,20 +8,24 @@ This package contains an executable research starter, detailed construction docu
 
 ## Current progress — 22 October 2026 (America/Chicago)
 
-Released **2,000 source-bound synthetic targets across four task families**,
-all independently verified and under 512 tokens. The one-line response contract
-was committed before its M2 Ultra GPU run. It produces **16/16 single-line EOS
-responses with no cap hits**, but only **1/16 valid grammar and 0/16 correct
-answers**: outputs combine fallback forms or ask for facts already present.
-The prior capped failure remains preserved. Peak MPS driver memory is
-**10.104 GiB**, with no observed swap growth. No downloads, training or new
-checkpoints occurred. The full suite passes **671 tests, one skip**.
+Released **2,000 source-bound synthetic targets across four task families**.
+The simpler query-policy contract was committed at `b2010c2` before its M2 Ultra
+GPU run. Strict evaluation and an independent semantic subagent both score
+**4/16**, equal to a constant-UNKNOWN control: all eight complete cases fail
+through abstention. All 16 responses use one line and EOS;12/16 satisfy program
+grammar. The original and v1 failures remain preserved. Sampled peak MPS driver
+memory is **10.096 GiB**, with zero observed swap growth. The existing local
+model was reused; no downloads, training updates or new checkpoints occurred.
+Final software validation: **819 passed, one restricted-context MPS skip**.
 
-Read the [paired results and diagnosis](docs/experiments/20261022_Response_Contract_V1_Results.md)
-and [current execution state](execution_state.md). The next development gate is
-a separately predeclared query-policy-specific response contract; public admission
-and remaining evaluation controls still precede S2.4 training. Selected D0/D1/D2
-checkpoints and the single original model remain preserved.
+The early host action contract now tests real source verification, bound tool
+receipts, budgets, revocation and restart in 12 integration checks plus 38 focused
+tests. Actual model proposals and learning remain unqualified. Read the
+[v2 results and diagnosis](docs/experiments/20261022_Response_Policy_V2_Results.md),
+[host contract](docs/experiments/20261022_Host_Action_Contract.md) and
+[current execution state](execution_state.md). Source grounding and a separately
+predeclared MPS model-to-host pilot are next; S1.5 admission still blocks S2.4
+training. The single original model and selected D0/D1/D2 checkpoints remain.
 
 ## Local setup — 22 October 2026 (America/Chicago)
 

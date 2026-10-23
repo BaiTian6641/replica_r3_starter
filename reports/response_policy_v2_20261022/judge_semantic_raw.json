@@ -1,0 +1,205 @@
+{
+  "schema_version": "replica.semantic_judge_review.v1",
+  "reviewed_at_utc": "2026-10-23T01:16:07.917500+00:00",
+  "permitted_input_sha256": {
+    "packet.json": "f80cd4586ea2ff9286b41e411684cf5abd31eb94d5550c5c0b43303374c32ec0",
+    "response_policy_judge_rubric_v1.json": "0241c3eab7914798e19f6ebaec872c75c015d5496fbfc0ca4b333cffc6d83074"
+  },
+  "method": "fresh_context_independent_semantic_review",
+  "method_notes": [
+    "Read only the designated rubric and prepared case packet. Independently derived all expected answers by reasoning from the public queries and observed evidence; no programmatic task solvers or scorers were used.",
+    "The judgment category describes semantic correctness. Instruction compliance checks the conditional response grammar as well as one-line form and exact missing-name selection/order. Thus UNKNOWN when all inputs are available is both semantically wrong and outside that case's required result form.",
+    "All completions have one-line form. The instruction-compliance failures identified here concern the permitted conditional response or missing-name grammar rather than line count.",
+    "An unsupported UNKNOWN when all required records are observed is not evidence grounded. Requests for records that are already observed are not evidence grounded.",
+    "These are the original independent judgments; later reconciliation must be recorded separately without overwriting this artifact."
+  ],
+  "limitations": "One agent on sixteen reused development worlds. This semantic review is not a calibrated external benchmark, an independent scientific audit, or a model-promotion gate. Judge model/version/sampling are not assumed. No gold labels, fixed scorer grades, mappings, prior experiments, or evaluation reports were consulted.",
+  "cases": [
+    {
+      "opaque_id": "J01",
+      "independently_derived_expected": "79",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, A=47, X=4, and B=85 are all observed by cutoff 9, including B observed at 8. The rule gives 47*4+85=273; subtracting 2*97 leaves 79. UNKNOWN incorrectly treats the available inputs as insufficient and violates the integer-only form for this available-input case.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J02",
+      "independently_derived_expected": "UNKNOWN",
+      "semantic_correct": true,
+      "instruction_compliant": true,
+      "evidence_grounded": true,
+      "judgment_category": "correct",
+      "rationale": "The transition RULE and SYMBOLS=aaa are present by cutoff 5, but START is absent. START is expressly required, so the final state cannot be selected from the supplied start information. UNKNOWN is the requested one-line missing-field decision.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J03",
+      "independently_derived_expected": "STOP",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "All required records are present by cutoff 9: STATUS=transient, ATTEMPT=7, LIMIT=2, and RULE. The condition ATTEMPT<LIMIT is false because 7 is not less than 2, and STATUS is not ok. The otherwise policy therefore yields STOP. UNKNOWN is unsupported and is not the prescribed action form for present inputs.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J04",
+      "independently_derived_expected": "S1",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, SYMBOLS=baa, and START=S0 are all observed by cutoff 9; START was observed at 8. Consuming left to right gives S0 --b--> S1 --a--> S0 --a--> S1. The final state is S1, so UNKNOWN is an unsupported missing-field decision and fails the required state-only response form.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J05",
+      "independently_derived_expected": "VERIFY receipt",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, ATTEMPT=1, LIMIT=6, and STATUS=ok are observed by cutoff 9, with STATUS observed at 8. The ok policy directly specifies VERIFY receipt. UNKNOWN is unsupported by the complete evidence and violates the action-only form for available inputs.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J06",
+      "independently_derived_expected": "Please provide MASK.",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE specifies 8-bit XOR and INPUT=20 is observed by cutoff 5. Only MASK is absent, so the correct request is Please provide MASK. The response instead requests the already observed RULE and INPUT and omits the missing MASK. It is semantically wrong, unsupported, and fails the required missing-name selection and terminal-period grammar.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J07",
+      "independently_derived_expected": "Please provide STATUS.",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, ATTEMPT=3, and LIMIT=5 are observed by cutoff 5, while STATUS is absent. The correct request therefore names STATUS alone. The response also requests the already observed ATTEMPT and LIMIT, which materially misstates what is missing, and lacks the contract's terminal period.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J08",
+      "independently_derived_expected": "252",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, INPUT=59, and MASK=199 are all observed by cutoff 9, with MASK observed at 8. In 8-bit binary, 00111011 XOR 11000111 equals 11111100, or 252. UNKNOWN is unsupported by the complete inputs and violates the available-input integer response form.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J09",
+      "independently_derived_expected": "UNKNOWN",
+      "semantic_correct": true,
+      "instruction_compliant": true,
+      "evidence_grounded": true,
+      "judgment_category": "correct",
+      "rationale": "RULE, ATTEMPT=7, and LIMIT=4 are present by cutoff 5, but the required STATUS is absent. The task expressly requires UNKNOWN when any required item is missing. In addition, without STATUS the ok branch cannot be excluded. The one-line UNKNOWN is correct and grounded.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J10",
+      "independently_derived_expected": "UNKNOWN",
+      "semantic_correct": true,
+      "instruction_compliant": true,
+      "evidence_grounded": true,
+      "judgment_category": "correct",
+      "rationale": "The 8-bit XOR RULE and INPUT=117 are observed by cutoff 5, while MASK is absent. The XOR result is unavailable from the supplied records, and the task specifies UNKNOWN for a missing required item. The response exactly follows that one-line decision grammar.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J11",
+      "independently_derived_expected": "Please provide B.",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "The affine RULE, A=52, and X=79 are observed by cutoff 5; B alone is absent. The correct request is Please provide B. The response includes the already observed A and X, so its missing-field claim is materially false and it violates the absent-names-only grammar, as well as omitting the terminal period.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J12",
+      "independently_derived_expected": "UNKNOWN",
+      "semantic_correct": true,
+      "instruction_compliant": true,
+      "evidence_grounded": true,
+      "judgment_category": "correct",
+      "rationale": "RULE, A=10, and X=25 are observed by cutoff 5, but required B is absent. The affine result depends on B, and the requested missing-field response is UNKNOWN. The completion is a clear, correct, grounded one-line decision.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J13",
+      "independently_derived_expected": "113",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, INPUT=48, and MASK=65 are all observed by cutoff 9, including MASK observed at 8. In 8-bit binary, 00110000 XOR 01000001 equals 01110001, or 113. UNKNOWN incorrectly asserts insufficiency of the observed inputs and violates the integer-only form for available inputs.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J14",
+      "independently_derived_expected": "Please provide START.",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "The transition RULE and SYMBOLS=bab are present by cutoff 5, while START alone is absent. The appropriate request is Please provide START. The response leaves NAME unreplaced and lists RULE and SYMBOLS alongside START; interpreting that list as requested fields includes already observed records. This supplies no correct absent-only decision and violates the prescribed request grammar. The material extra-field error makes it incorrect without needing to resolve the placeholder's wording favorably.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J15",
+      "independently_derived_expected": "61",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, A=53, X=41, and B=22 are all observed by cutoff 9, with B observed at 8. The rule gives 53*41+22=2195; subtracting 22*97=2134 leaves 61. UNKNOWN is unsupported by the complete evidence and violates the required integer result form.",
+      "confidence_low_medium_high": "high"
+    },
+    {
+      "opaque_id": "J16",
+      "independently_derived_expected": "S3",
+      "semantic_correct": false,
+      "instruction_compliant": false,
+      "evidence_grounded": false,
+      "judgment_category": "incorrect",
+      "rationale": "RULE, SYMBOLS=ab, and START=S2 are all observed by cutoff 9, with START observed at 8. Consuming the symbols gives S2 --a--> S3 --b--> S3, so the final state is S3. UNKNOWN is an unsupported missing-field conclusion and violates the state-only form for present inputs.",
+      "confidence_low_medium_high": "high"
+    }
+  ],
+  "summary": {
+    "case_count": 16,
+    "semantic_correct_count": 4,
+    "semantic_incorrect_count": 12,
+    "semantic_ambiguous_count": 0,
+    "semantic_correct_fraction": 0.25,
+    "instruction_compliant_count": 4,
+    "evidence_grounded_count": 4,
+    "strict_correct_definition": "semantic_correct and instruction_compliant and evidence_grounded",
+    "strict_correct_count": 4,
+    "strict_correct_fraction": 0.25,
+    "semantic_strict_disagreement_count": 0,
+    "semantic_correct_opaque_ids": [
+      "J02",
+      "J09",
+      "J10",
+      "J12"
+    ],
+    "one_line_completion_count": 16,
+    "findings": [
+      "Eight cases have all required items observed by their cutoff. Each of those completions is UNKNOWN and is semantically incorrect.",
+      "Four missing-field cases correctly return UNKNOWN.",
+      "Four request-style missing-field cases ask for already observed fields; these are substantive evidence errors in addition to response-grammar violations.",
+      "No response presents contradictory candidate results requiring an ambiguous semantic classification."
+    ]
+  }
+}

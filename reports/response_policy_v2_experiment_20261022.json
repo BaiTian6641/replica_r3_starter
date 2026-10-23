@@ -1,0 +1,325 @@
+{
+  "schema_version": "replica.response_policy_experiment.v2",
+  "status": "completed_predeclared_baseline_with_abstention_collapse_and_early_host_software_preparation",
+  "completed_at_utc": "2026-10-23T01:24:28.956183+00:00",
+  "preregistration_git_commit": "b2010c2acc827fcbf4454df652a62835f8615715",
+  "preregistration_committed_before_native_generation": true,
+  "frozen_protocol_inputs_unchanged_after_results": true,
+  "native_jobs_in_protocol": 1,
+  "adaptive_followups": 0,
+  "protocol": "docs/experiments/20261022_Response_Policy_V2_Protocol.md",
+  "results": "docs/experiments/20261022_Response_Policy_V2_Results.md",
+  "independent_fixed_scoring": "reports/response_policy_v2_20261022/native_B1_scoring.json",
+  "semantic_agent_judgment": "reports/response_policy_v2_20261022/judge_semantic_raw.json",
+  "judge_reconciliation": "reports/response_policy_v2_20261022/judge_reconciliation.json",
+  "fixed_conditions": {
+    "device": "mps",
+    "dtype": "float32",
+    "cpu_fallback": false,
+    "model_path": "checkpoints/minicpm5_source",
+    "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "examples": 16,
+    "worlds": 16,
+    "case_ids": [
+      "i2s41-de-reg-000.q1",
+      "i2s41-de-reg-001.q1",
+      "i2s41-de-reg-002.q0",
+      "i2s41-de-reg-003.q0",
+      "i2s41-de-aff-003.q1",
+      "i2s41-de-aff-000.q1",
+      "i2s41-de-aff-001.q0",
+      "i2s41-de-aff-002.q0",
+      "i2s41-de-fsm-002.q1",
+      "i2s41-de-fsm-003.q1",
+      "i2s41-de-fsm-000.q0",
+      "i2s41-de-fsm-001.q0",
+      "i2s41-de-tool-001.q1",
+      "i2s41-de-tool-002.q1",
+      "i2s41-de-tool-003.q0",
+      "i2s41-de-tool-000.q0"
+    ],
+    "greedy_seed": 17,
+    "thinking": false,
+    "max_new_tokens": 32,
+    "max_length": 512,
+    "missing_policy_selection": "Public canonical query text only; no gold or observed missingness."
+  },
+  "comparison": {
+    "original": {
+      "examples": 16,
+      "format_valid": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "hit_token_budget": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "generated_tokens": 512,
+      "generation_seconds": 13.151422207476571
+    },
+    "previous_v1": {
+      "examples": 16,
+      "format_valid": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 194,
+      "generation_seconds": 6.680834707804024
+    },
+    "current_v2": {
+      "examples": 16,
+      "format_valid": {
+        "count": 12,
+        "rate": 0.75
+      },
+      "action_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "decision_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "value_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "task_correct": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "exact_text_match": {
+        "count": 4,
+        "rate": 0.25
+      },
+      "ended_by_eos": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 86,
+      "generation_seconds": 4.41164808254689
+    },
+    "single_line_compliant": 16,
+    "program_grammar_valid": 12,
+    "semantic_agent_correct": 4,
+    "judge_instruction_compliant": 4,
+    "semantic_fixed_task_agreements": 16,
+    "independently_derived_expected_agreements": 16,
+    "constant_UNKNOWN_control_correct": 4,
+    "answer_correct": 0,
+    "answer_examples": 8,
+    "ask_correct": 0,
+    "ask_examples": 4,
+    "unknown_correct": 4,
+    "unknown_examples": 4,
+    "format_gate_passed": false,
+    "useful_evidence_sensitive_gain_demonstrated": false
+  },
+  "resource": {
+    "memory_bytes": {
+      "rss_peak_process_lifetime_bytes": 15559589888,
+      "rss_peak_sampled_bytes": 4259086336,
+      "mps_allocated_peak_sampled_bytes": 10122167808,
+      "mps_driver_peak_sampled_bytes": 10840915968
+    },
+    "profile_elapsed_seconds": 9.030689750099555,
+    "guard_elapsed_seconds": 11.41820012498647,
+    "generation_seconds": 4.41164808254689,
+    "prompt_tokens": 5294,
+    "generated_tokens": 86,
+    "max_prompt_plus_reference_tokens": 407,
+    "truncated_cases": 0,
+    "guard_status": "completed_within_declared_sampled_limits",
+    "exact_guard_replay_passed": true,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 71.0,
+    "limitations": [
+      "MPS driver and process RSS overlap; do not add them.",
+      ".25s device and2s host sampling may miss transients; system pressure/swap are not process-attributable.",
+      "No qualified Neural Engine backend in this experiment."
+    ]
+  },
+  "failure_analysis": {
+    "verified": [
+      "Twelve UNKNOWN completions follow the twelve unknown-policy queries, including all eight complete-evidence cases.",
+      "All four ask-policy completions request observed fields; XOR additionally omits missing MASK, FSM copies NAME.",
+      "All four correct answers are UNKNOWN, equal to the constant-UNKNOWN selected-case control.",
+      "Both current judging methods agree on every case and all independently reasoned references match frozen targets.",
+      "One-line/EOS improved without evidence-sensitive success; more output budget alone does not explain short completed wrong answers.",
+      "No optimizer updates occurred, so Muon8-bit behavior is not diagnosed."
+    ],
+    "unresolved_hypotheses": [
+      "Fallback wording salience or instruction processing",
+      "Input representation or conditional source parsing",
+      "Greedy/thinking mode interaction; qualify separately without changing multiple factors together."
+    ],
+    "claim_boundary": "Exposed synthetic development cases, three sequential prompt interventions; no independent confirmation, useful architecture gain or model promotion."
+  },
+  "validation_reader_repair": {
+    "issue": "reports/response_policy_v2_20261022/initial_scoring_validation_issue.json",
+    "status": "exact_historical_archive_resolution_passed",
+    "scope": "Only two exact pinned historical archive-to-original path pairs, after14 byte-identical file checks; unchanged guard replay then runs. Current-run validation and frozen grades/settings are unchanged.",
+    "focused_tests": 21,
+    "native_rerun": false
+  },
+  "early_host_architecture": {
+    "stage": "S3.1",
+    "status": "partial_software_action_contract_preparation",
+    "contract": "docs/experiments/20261022_Host_Action_Contract.md",
+    "report": "reports/host_action_contract_20261022/report.json",
+    "focused_tests": 38,
+    "integration_checks": 12,
+    "actual_pure_tool_executed": true,
+    "neural_proposer_evaluated": false,
+    "model_loaded": false,
+    "learning_implemented": false,
+    "capabilities": [
+      "Source/subject/branch/identity/purpose/time scoped proposals and budgets",
+      "Actual XOR verification with byte-bound current-epoch tool receipt required for release",
+      "Current-epoch idempotency and revocation before cached result reuse",
+      "Canonical journal restart relative to expected binding and caller-retained trusted head"
+    ],
+    "limits": [
+      "Static goal and action trace only; no evolving task workspace/subgoals",
+      "No external trust store/source authentication, historical erasure or crash/concurrent transactions",
+      "No ask/retrieve/revise, neural cache state, actual model action policy or candidate learning"
+    ],
+    "full_dependencies_unchanged": [
+      "S2.5",
+      "S1.1"
+    ]
+  },
+  "preservation": {
+    "source_report": "reports/response_policy_source_reuse_20261022.json",
+    "source_files_unchanged": 36,
+    "sealed_members_verified_before_after": 9,
+    "prior_artifact_hashes_reverified": 1060,
+    "failed_original_v1_files_spec_pinned": 18,
+    "archive_files": 7,
+    "archive_bytes": 142505,
+    "original_small_run_retained_for_exact_replay": true,
+    "downloads": 0,
+    "training_updates": 0,
+    "new_checkpoints": 0,
+    "selected_checkpoints_preserved": true,
+    "protected_runtime_draft_sha256": "2433cb7296fda0cb306529a19429ff41fe0d43192720086dee572ec4a42970f9"
+  },
+  "validation": {
+    "report": "reports/validation_response_policy_v2_final_20261022.json",
+    "passed": 819,
+    "skipped": 1,
+    "code_file_hashes_reverified": 102,
+    "preregistration_code_hashes_unchanged": 100,
+    "stage_ids_and_dependencies_unchanged": 33,
+    "bundle_report": "reports/bundle_validation_response_policy_results_20261022.json"
+  },
+  "next_smallest_action": "Separately predeclare source-grounding/missing-field qualification and a bounded frozen-original MPS model proposal to real host verification/receipt/answer pilot. Retain failed proposals and enforce source identity, epoch and budget contracts. No further v2 native jobs or training campaign admitted.",
+  "pending": [
+    "S1.4 model evidence/retention/calibration controls",
+    "S1.3 public admission and adapters",
+    "S1.5 pilot release/budget/exposure",
+    "S2.4 fair training comparison",
+    "S2.5 selected architecture",
+    "Actual neural action policy, candidate learning and promotion"
+  ],
+  "artifact_sha256": {
+    "reports/response_policy_v2_20261022/.DS_Store": "0f514133d3cc3e35f4691ef7f1e00ff1b245f9aff4f01c29ce50ecb966d156ec",
+    "reports/response_policy_v2_20261022/dev_cases.jsonl": "b2528b48b2e5bd9651ea6f84a1b34cc42c7299089afc5d05fa2337fffa7fe814",
+    "reports/response_policy_v2_20261022/evaluation_spec.json": "90d0cf513c8403dbd2afdb6f21b445a0d04132a574f96ccf1dd0fbf90962c79a",
+    "reports/response_policy_v2_20261022/initial_scoring_validation_issue.json": "7f0e539c367e336881d32f8d020cb6efd46d18ae6d6090aebc1eab09f5b1f959",
+    "reports/response_policy_v2_20261022/judge_packet/input_manifest.json": "0458a9fc1db74cd367cbc6bc30b377d17889c916fa30d4ac2821faeb29ad7eae",
+    "reports/response_policy_v2_20261022/judge_packet/mapping.json": "1c291933b67abe4ff83ee85b2d8af7c1cdf2c6480b4e960b96756ea54291c9d4",
+    "reports/response_policy_v2_20261022/judge_packet/packet.json": "f80cd4586ea2ff9286b41e411684cf5abd31eb94d5550c5c0b43303374c32ec0",
+    "reports/response_policy_v2_20261022/judge_plan.json": "fcc03755bb02d95fb6c5c2d610828dae4ac0e18d04e2aed457eaac8027477b50",
+    "reports/response_policy_v2_20261022/judge_reconciliation.json": "262502d8fb4cbe2282a6a9f78c83d351847c05365846058c0aab63ce6702a936",
+    "reports/response_policy_v2_20261022/judge_semantic_raw.json": "cfb74cd3347b44494d92b300fda23cd3986c58f866adff60dabd159bb33c8338",
+    "reports/response_policy_v2_20261022/native_B1_raw/generation_report.json": "ed0a6214fd3aff5947e2cd5f75965e878d9a6887808ba13792c619562008b658",
+    "reports/response_policy_v2_20261022/native_B1_raw/generations.jsonl": "ac45fd0da310df231854d746cfebf7759d84936c17db016b59f052b3f3cb32b7",
+    "reports/response_policy_v2_20261022/native_B1_raw/minicpm5_response_policy_v2_B1_dev16_20261022_guard.child.log": "2838e64c89252efd5dbe6f8e2171f8da58cced00b3bf0989a41da4d27523eecb",
+    "reports/response_policy_v2_20261022/native_B1_raw/minicpm5_response_policy_v2_B1_dev16_20261022_guard.host.jsonl": "9f01dc9d53dd571b3dd391e8d1b6812518b4f2ade3d8fd135bd98940bd22f320",
+    "reports/response_policy_v2_20261022/native_B1_raw/minicpm5_response_policy_v2_B1_dev16_20261022_guard.json": "bf0dcd95c50bfaae8e27c4bb6573f34fea6cd74d9164ceb6384026a4e72aec2c",
+    "reports/response_policy_v2_20261022/native_B1_raw/profile_samples.jsonl": "ba98a9c0f5de210ace4212b38f5ca99332cf144ce3ae879c8c055fb0b1be719d",
+    "reports/response_policy_v2_20261022/native_B1_raw/profile_summary.json": "ddf8b10a1365dc70d40a794b21832123908be7bc05826e9f40e57c10c0fd7bb1",
+    "reports/response_policy_v2_20261022/native_B1_scoring.json": "171171965f4d9ca23ea1050a44a94f783f07ec02e667919e7314bb45f5047f22",
+    "reports/response_policy_v2_20261022/native_archive_manifest.json": "bfe8ceed5f72be62cee852d94b08f172e7435b4694ebc3e2ec72cfb4d1d89a57",
+    "reports/response_policy_v2_20261022/native_launch.json": "ef2845c7f39caf90240fa01c1181c2c8805b957561474a7448790c67e7a71c6c",
+    "reports/response_policy_v2_20261022/token_accounting.json": "3f5a5a0d677b7616097a856a03706f0f4e4b98d08da6c54d595da6f4475a11cb",
+    "reports/response_policy_source_reuse_20261022.json": "6e0aa511f135cfaf94f6309b10b81c5b77c6d73a94a08d9ec806ec865d9b2abc",
+    "reports/validation_response_policy_v2_final_20261022.json": "380dff63d44e6055240d2c85c82c065b8a2b8dfd73f6b94a67b6d470f0669d55",
+    "reports/tests_response_policy_v2_final_20261022.xml": "a18beede42f4c9b9dda38b50973a2e0b6ad85d832cb49f6b1ebc1471f44a7d2e",
+    "reports/test_output_response_policy_v2_final_20261022.txt": "933249da97f8469183adff43c5613aa9938c2945edcae389ec2c168a0479bb07",
+    "docs/experiments/20261022_Response_Policy_V2_Results.md": "05e95273cc4640d1d2b2d5f8dd5df28d2a435bf67ce50e9ebbb451fc91e6a2aa",
+    "docs/experiments/20261022_Response_Policy_V2_Protocol.md": "9ea968b2b819b67107c5e11ab71edcc2252c729cba626f6ecc20cb540005f33a",
+    "docs/experiments/20261022_Host_Action_Contract.md": "176c0255c2aede479df7ef2d2933e8e987826ad86ae3076059ea98b79b79ceb1",
+    "configs/response_policy_contract_v2.json": "13a86d6ad4fe5faa081f34e16530a51e7507e751b1a02d3fbe96991b19d34947",
+    "configs/response_policy_judge_rubric_v1.json": "0241c3eab7914798e19f6ebaec872c75c015d5496fbfc0ca4b333cffc6d83074",
+    "src/replica_lab/host_action_contract.py": "8934b598993bbe623a24a7a1ea1142958aa79fd70fb0b8a4eb3e2014e82b560a",
+    "scripts/check_host_action_contract.py": "0858058885e775997f19081f3529686bc00ae682dbf386c3d3e137503ff58ef0",
+    "scripts/score_response_policy_archive_repair.py": "f3cc79109e142d90cf8ab78ae83c8a60c19f27a2e4ef10349a14a3e7cd3666aa",
+    "tests/test_response_policy_archive_repair.py": "bec3117201db5dc13afb90f2214c8c8e7f1f114db7639b2e5d9afed6a4d5ba1b",
+    "reports/host_action_contract_20261022/budget_failures.jsonl": "4eff5d8ac6423eb05f53cb67158b6bf762cf63f3bb5bddad3155a91cc42f7121",
+    "reports/host_action_contract_20261022/malformed_tool_failure.jsonl": "611513d9332f397dea7a51d47f49d404ea33e2065235c56db2e8e6dc8aea2a19",
+    "reports/host_action_contract_20261022/missing_tool_failure.jsonl": "6bf2becc592874e418916486f5abd69c8238fe0a7883d8a010c200d00f2ce481",
+    "reports/host_action_contract_20261022/report.json": "e83750caf674cc1901d3ba50e0321e12850ca47e5a9ff932c513fd4e96512e10",
+    "reports/host_action_contract_20261022/success_after_invalidation.jsonl": "55d07bb60b81bfc853bdb999d236dd93a1b5e718e25fcffca45f2d9f6f2f63fb",
+    "reports/host_action_contract_20261022/success_before_restart.jsonl": "c7f6e1757017f2297aaf5de271ede5b71f1943a1d4040add2a7c819cac248352",
+    "reports/bundle_validation_response_policy_results_20261022.json": "75d0e8ab122bc8c6f96b928594d5dfdb0a39fe84feb4f8c364df490ae30c3cd6"
+  }
+}

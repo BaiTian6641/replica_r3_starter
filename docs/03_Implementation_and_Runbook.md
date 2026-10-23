@@ -6,25 +6,35 @@
 
 ## 1. What the delivered code actually does
 
-The [S1.2 v2 release](experiments/20261022_Infrastructure_Slice_V2.md) now
+The [S1.2 v2 release](experiments/20261022_Infrastructure_Slice_V2.md)
 contains 2,000 solver-backed targets from 1,000 worlds/four shared mechanisms.
 Offline native tokenization admits every case under 512 without truncation
-(maximum 334 tokens). The original frozen B1 format/cap negative remains
-preserved: 0/16 task-correct and format-valid, all capped at 32 tokens, no EOS.
-The predeclared [one-line contract v1](experiments/20261022_Response_Contract_V1_Protocol.md)
-rerun keeps the same sixteen cases, local original model, parser and cap. Its
-[result](experiments/20261022_Response_Contract_V1_Results.md) has 16/16
-single-line responses and EOS with zero caps, but only 1/16 grammar/contract-valid
-and 0/16 task-correct. Fifteen responses mix incompatible formats; the one valid
-ask includes already supplied fields. Conditional-format selection and evidence
-use remain failures, so budget alone cannot explain the outcome. No post-result
-prompt, cap or parser changes were run. Next predeclare a separate v2 grammar
-with two branches selected by public query policy, without using gold labels or
-observed missingness to select the instruction. Full retention, calibration and
-model evidence controls remain pending. [Public metadata review](experiments/20261022_Public_Source_Admission_Review.md)
-leaves both public candidates quarantined. S1.5 admission still blocks the
-[S2.4 screen proposal](experiments/20261022_S2_4_Screen_Proposal.md); this
-package performs no training or checkpoint save.
+(maximum 334 tokens). The original capped 0/16 and [contract-v1 0/16
+negative](experiments/20261022_Response_Contract_V1_Results.md) remain intact.
+The [query-policy v2 protocol](experiments/20261022_Response_Policy_V2_Protocol.md),
+committed as `b2010c2`, changes only the instruction appendix and selects one
+fallback from the public query, never gold or observed missingness. The same
+sixteen-case M2 Ultra GPU probe gives **4/16 strict-correct**, **12/16 legal grammar forms**, and
+**16/16 single-line responses with EOS and zero caps**. A fresh-context subagent
+independently judges **4/16 semantically correct and 4/16 instruction-compliant**;
+agent instruction compliance and program grammar measure different things.
+All successes are UNKNOWN, matching the selected constant control at 4/16;
+all eight complete-evidence answers fail and four asks request observed facts.
+[Results and diagnosis](experiments/20261022_Response_Policy_V2_Results.md)
+therefore record abstention collapse, without a useful reasoning or architecture
+gain. No downloads, optimizer updates or checkpoints were made. Next separately
+qualify source grounding/input projection and upstream sampling/thinking before
+training, without changing all settings together. [Public metadata review](experiments/20261022_Public_Source_Admission_Review.md)
+keeps both candidates quarantined; retention/calibration/evidence controls and
+S1.5 admission still block the [S2.4 screen](experiments/20261022_S2_4_Screen_Proposal.md).
+
+Parallel early S3.1 [host action preparation](experiments/20261022_Host_Action_Contract.md)
+passes 12 integration checks and 38 focused tests for actual pure XOR tool
+receipts, scope/budgets, epoch invalidation and journal restart. Those proposals
+are deterministic fixtures. An actual neural proposer, learned policy, evolving
+task workspace and learning loop remain unqualified. Full S3.1 retains its
+S2.5/S1.1 dependencies; next predeclare a fixed-original MPS proposer and tool
+receipt qualification under its own protocol.
 
 | Component | Delivered behavior | Important boundary |
 |---|---|---|
@@ -47,6 +57,8 @@ package performs no training or checkpoint save.
 | make_infrastructure_slice.py / infrastructure_solver.py | 2,000 source-bound targets / 1,000 worlds; independent raw-source chronology/solver checks; action/length/role accounting and duplicate rejection | Four mechanisms and grammar shared across roles; exposed audit/promotion fixtures, no unseen-mechanism or authentic-personal claim |
 | infrastructure_scoring.py / prepare_infrastructure_preflight.py | Strict whole-response action/task parsing; CPU constant/missing-fact controls; offline native token accounting and pinned 16-dev-world B1 case/spec packet | Semantic evaluator controls do not measure model evidence sensitivity; broad retention, calibration and useful-gain comparison remain pending |
 | response_contract.py / prepare_response_contract.py / score_response_contract_generations.py | Family-only prompt appendix; exact parent cases/evidence/model/settings and negative archive binding; independent paired token/source replay, single-line and task scores | Contract v1 reaches EOS without caps but remains 0/16 task-correct; no training, new checkpoint, broad-quality or causal-sentence claim |
+| response_policy_contract.py / prepare_response_policy_contract.py / score_response_policy_generations.py | Exactly one fallback from canonical public query text; original/v1 negative pinning; strict source/token replay with separate predeclared semantic agent review | V2 reaches 4/16, equal to constant UNKNOWN; grammar and agent instruction compliance remain separate metrics; no quality or architecture gain |
+| host_action_contract.py / check_host_action_contract.py | Bounded verify/answer/stop proposals, actual pure XOR receipts, scoped observations, epochs, idempotency and chained journal replay | 12 fixture integration checks and 38 focused tests; no neural policy, trained learner, full workspace restart or production authority boundary |
 | make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
 | capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
 | run_generation_preflight.py | Standalone offline MPS evaluator watchdog; driver/host thresholds and final trace drain | Sampled operational guard; original training watchdog stays unchanged |
@@ -427,28 +439,29 @@ source-writer view. Maximum full length is 334, with zero truncation under
 training budget. The generator manifest's pending token-admission field is
 superseded by this external, release-hash-bound accounting report.
 
-S1.4 supplies strict parser/control contracts and two frozen-original B1
-development observations on the same sixteen ordered worlds. The original
-0/16 task/format result with all 16 capped and no EOS remains unchanged. The
-[contract-v1 protocol](experiments/20261022_Response_Contract_V1_Protocol.md),
-committed as `430e298` before generation, adds a static family-only instruction.
-One native M2 Ultra GPU job keeps greedy cap 32, ceiling 512, seed 17, MPS FP32,
-CPU fallback disabled, the source model/template and parser fixed. Independent
-[paired scoring](../reports/response_contract_v1_20261022/native_B1_scoring.json)
-reports 16/16 single-line and EOS, zero caps, 1/16 grammar/contract-valid and
-0/16 task-correct. Fifteen format errors mix UNKNOWN with field lists; the one
-grammar-valid ask requests RULE/SYMBOLS that were already observed. This leaves
-evidence-use and conditional-format failures, and rules out budget as a complete
-explanation. It does not isolate which sentence helps or establish general
-semantic inability. Exact guard replay passes with zero observed swap growth;
-the [result record](experiments/20261022_Response_Contract_V1_Results.md) owns
-memory/timing and raw evidence. The code suite passes 671 tests with one
-restricted-context MPS skip, separately from failed native task acceptance.
-There are zero downloads, optimizer updates or new checkpoints, and no adaptive
-post-result rerun. Preserve both negatives before predeclaring a separate v2
-query-policy-specific two-branch grammar, selected from public query text rather
-than expected action/value or observed missingness. Missing/shuffled-evidence
-model controls and independent retention/calibration cases remain required.
+S1.4 supplies fixed parser/control contracts and three original-model B1
+observations on the same sixteen ordered development worlds. The original
+0/16 task/format result with all responses capped remains preserved.
+[Contract v1](experiments/20261022_Response_Contract_V1_Protocol.md), precommitted
+as `430e298`, obtains all EOS/single-line and zero caps but only 1/16 grammar
+and 0/16 correct. [Query-policy v2](experiments/20261022_Response_Policy_V2_Protocol.md),
+precommitted as `b2010c2`, selects one fallback from public query text alone.
+With the original model/evidence/template, greedy cap32, ceiling512, seed17,
+MPS FP32/no CPU fallback and strict parser fixed, v2 gives 4/16 strict-correct, 12/16 legal grammar forms,
+all EOS/single-line and no caps. A separately predeclared fresh-context agent
+judges 4/16 semantically correct and 4/16 instruction-compliant. Program grammar
+accepts legal forms independently of factual correctness; the agent also checks
+policy and observed evidence. Keep those metrics separate. All four successes
+are UNKNOWN, equal to the selected constant control; all eight complete-evidence
+answers fail and four asks request supplied facts. The [result record](experiments/20261022_Response_Policy_V2_Results.md)
+preserves errors and profiles. The predeclared suite passes 798 tests/one restricted-context MPS skip;
+final integration including 21 archive-reader tests passes **819 tests/one skip**.
+These software checks are separate from native task acceptance. There are zero downloads, optimizer
+updates or checkpoints. No adaptive v2 prompt/parser/cap/decoder rerun occurred.
+Next separately predeclare source-grounding/input-projection diagnosis and
+upstream sampling/thinking qualification, rather than changing all settings
+together. Missing/shuffled-evidence model controls and independent
+retention/calibration cases remain required.
 [S1.3 metadata](experiments/20261022_Public_Source_Admission_Review.md)
 pins public candidates but leaves component terms, linked pairs/split overlap
 and adapters unresolved; no public corpus is admitted.
@@ -471,6 +484,15 @@ Exit: selected interface or justified negative result, task/retention/calibratio
 ### P5 - Complete learned operating and learning loop
 
 Implement a bounded action grammar, real permitted tool results, experience capture, capability ledger, learning-proposal generation and candidate trainer invocation. First use supervised action/director data, then compare fixed and learned selection. Keep verification and publication in trusted host code.
+
+The [early S3.1 host action contract](experiments/20261022_Host_Action_Contract.md)
+now passes 12 integration checks and 38 focused tests with deterministic
+proposals, actual pure XOR success/failure receipts, scope/budget enforcement,
+epoch invalidation and journal restart. Goal and action history persist;
+evolving task workspace, actual neural proposals, learned policy and learning
+remain pending. The next bounded step is a separately predeclared fixed-original
+MPS proposer against host tool/receipt outcomes. This early software preparation
+does not pass full S3.1 or remove its S2.5/S1.1 dependencies.
 
 Connect model inference to the ledger and candidate registry. Replace fixed symbolic demo decisions with actual model proposals and real neural/skill candidate updates. Add a generation path that reconstructs support/workspace correctly; re-prefill is an acceptable initial route before cache optimization.
 

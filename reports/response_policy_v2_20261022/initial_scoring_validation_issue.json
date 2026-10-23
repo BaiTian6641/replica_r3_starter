@@ -1,0 +1,31 @@
+{
+  "schema_version": "replica.scoring_validation_issue.v1",
+  "recorded_at_utc": "2026-10-23T01:16:58.176961+00:00",
+  "status": "initial_strict_scoring_failed_before_result_write",
+  "command": [
+    ".venv/bin/python",
+    "scripts/score_response_policy_generations.py",
+    "--release",
+    "data/diagnostics/infrastructure_slice_v2",
+    "--spec",
+    "reports/response_policy_v2_20261022/evaluation_spec.json",
+    "--generation-report",
+    "runs/minicpm5_response_policy_v2_B1_dev16_20261022/generation_report.json",
+    "--generations",
+    "runs/minicpm5_response_policy_v2_B1_dev16_20261022/generations.jsonl",
+    "--guard",
+    "runs/minicpm5_response_policy_v2_B1_dev16_20261022_guard.json",
+    "--output",
+    "reports/response_policy_v2_20261022/native_B1_scoring.json"
+  ],
+  "error_type": "ValueError",
+  "error": "Guard output belongs to another run",
+  "location": "scripts/score_response_policy_generations.py:_previous_runs -> historical V1.score_generation -> BASE._guard -> validate_d2_experiment.replay_guard",
+  "cause": "Archived historical generation reports were passed with archived guard files, but guard.output names each original run directory. The frozen guard auditor correctly refuses a different directory. Original raw runs still exist with identical preserved bytes.",
+  "native_generation_status": "completed_native_generation_preflight",
+  "native_job_repeated": false,
+  "frozen_spec_modified": false,
+  "frozen_parser_modified": false,
+  "frozen_scorer_modified": false,
+  "repair_plan": "A separately versioned supplementary validator resolves only two pinned historical archives to original recorded directories after verifying all seven raw files byte-for-byte and replaying both guards. Current v2 validation is unchanged. Preserve this initial issue and repair provenance."
+}

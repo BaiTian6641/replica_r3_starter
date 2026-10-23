@@ -240,7 +240,7 @@
     {
       "id": "S1.4",
       "title": "Lock generation, retention, calibration and evidence controls",
-      "status": "partial_response_contract_v1_residual_format_semantic_failure",
+      "status": "partial_query_policy_v2_abstention_collapse",
       "depends_on": [
         "S1.1",
         "S0.3"
@@ -266,13 +266,27 @@
         "reports/response_contract_v1_20261022/native_B1_scoring.json",
         "docs/experiments/20261022_Response_Contract_V1_Protocol.md",
         "docs/experiments/20261022_Response_Contract_V1_Results.md",
-        "planned: full retention/calibration/model-evidence-control score matrix"
+        "configs/response_policy_contract_v2.json",
+        "configs/response_policy_judge_rubric_v1.json",
+        "src/replica_lab/response_policy_contract.py",
+        "scripts/prepare_response_policy_contract.py",
+        "scripts/score_response_policy_generations.py",
+        "tests/test_response_policy_contract.py",
+        "tests/test_score_response_policy_generations.py",
+        "reports/response_policy_v2_20261022/evaluation_spec.json",
+        "reports/response_policy_v2_20261022/native_B1_scoring.json",
+        "reports/response_policy_v2_20261022/judge_semantic_raw.json",
+        "docs/experiments/20261022_Response_Policy_V2_Protocol.md",
+        "docs/experiments/20261022_Response_Policy_V2_Results.md",
+        "planned: full retention/calibration/model-evidence-control score matrix",
+        "scripts/score_response_policy_archive_repair.py",
+        "tests/test_response_policy_archive_repair.py"
       ],
       "interface": "Role-separated case manifest -> model generation -> fixed parser/solver -> per-family scores and paired/clustered uncertainty. Calibration thresholds use their own split.",
-      "acceptance_gate": "Strict whole-response action/task parser and independent solver remain fixed; CPU best constant UNKNOWN: 50/200 dev. The original B1 negative is preserved: 0/16 task-correct and format-valid, all 16 capped at 32 with no EOS. Precommitted contract-v1 prompt-only rerun on the same 16 ordered cases produces 16/16 single-line responses and EOS, zero caps, 1/16 grammar/contract-valid and 0/16 task-correct: 15 format errors and one incorrect missing-field value. Its 16/16 grammar/single-line/EOS gate fails. UNKNOWN/field-list mixtures and an ask for already observed RULE/SYMBOLS leave conditional-format and evidence-use failures; budget alone cannot explain the result and no causal sentence is isolated. No parser/cap/prompt changes followed scoring. Full suite: 671 passed with one restricted-context MPS skip is separate from native task failure. Model shuffled/missing-evidence controls, retention, calibration and matched architecture compute remain pending.",
-      "resources": "One contract-v1 frozen-original B1 job on the same 16 ordered dev worlds/four shared mechanisms, host-compiled eligible evidence; greedy cap 32, ceiling 512, seed 17, M2 Ultra MPS FP32 with CPU fallback disabled. Protocol commit 430e298 precedes native generation; no adaptive additional run. Exact guard replay passes, observed swap growth 0. Reused original local model and preserved old negative archive; zero downloads, optimizer updates or new checkpoints. Dated result and raw reports own measured memory/timing.",
+      "acceptance_gate": "Original and contract-v1 negatives remain preserved. Public-query-policy v2, precommitted as b2010c2, produces 16/16 single-line responses and EOS, zero caps. The unchanged strict parser gives 4/16 task-correct and 12/16 legal grammar forms; supplemental historical archive resolution and exact guard replay pass. A fresh-context agent independently judges 4/16 semantically correct and 4/16 instruction-compliant; agent instruction compliance and program grammar are different metrics. All four correct cases are UNKNOWN, equal to the selected dev16 constant-UNKNOWN control. All eight complete-evidence answers fail; four other responses request already observed fields. The format gate fails and no useful gain or architecture advantage is established. The predeclared suite passes798 tests/one restricted-context MPS skip; final integration including the21 archive-reader tests passes819/one skip. Software success remains separate from native task acceptance. Model shuffled/missing-evidence controls, retention, calibration and matched architecture compute remain pending.",
+      "resources": "One v2 frozen-original B1 M2 Ultra GPU job after predeclaration commit b2010c2; same16 ordered dev worlds, source evidence, local original model/template, greedy cap32, ceiling512, seed17, MPS FP32/no CPU fallback. Separate predeclared fresh-context semantic review uses no gold/fixed scores in its packet. Zero downloads, optimizer updates or new checkpoints. Original/v1 failures remain byte-bound; final result owns native profiles and the passed byte-bound archived-guard replay.",
       "on_failure": "Preserve raw failures and the unchanged parser. Predeclare a separate development prompt/budget protocol before another run; no after-result tuning under the original protocol, sealed-evidence relabelling or model promotion.",
-      "next_smallest_task": "Predeclare a separate v2 development protocol with a query-policy-specific two-branch grammar to remove ambiguous OR and discourage placeholder copying; select policy from public query text only, never gold action/value or observed missingness. Preserve v1 and the original negative, then qualify B0/B1, shuffled/missing-evidence and independent retention/calibration controls before training comparisons. S1.4 remains partial; S1.3/S1.5 pending and S2.4 blocked.",
+      "next_smallest_task": "Preserve all three runs and distinguish v2 abstention collapse from successful reasoning. Separately predeclare a source-grounding/input-projection diagnosis and upstream sampling/thinking qualification; do not change all inference settings as one uncontrolled bundle. Qualify B0/B1, shuffled/missing-evidence and independent retention/calibration controls before training comparisons. Independent early S3.1 host preparation may qualify a fixed-original MPS proposer and real tool receipts under its own protocol. S1.4 partial, S1.3/S1.5 pending, S2.4 blocked.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -424,21 +438,26 @@
     {
       "id": "S3.1",
       "title": "Connect a frozen manifest to a host-owned runtime",
-      "status": "pending",
+      "status": "partial_software_action_contract_preparation",
       "depends_on": [
         "S2.5",
         "S1.1"
       ],
       "task": "Bind model inference to scoped evidence ledger, task workspace, permitted real tools and event journal. Activate one identity mode and immutable base/extensions manifest; model output proposes actions but host code validates scope/budget and executes actual tools.",
       "artifacts": [
-        "planned: runtime event/action schema and model-host adapter",
-        "planned: restart/scope/deletion integration report"
+        "src/replica_lab/host_action_contract.py",
+        "scripts/check_host_action_contract.py",
+        "tests/test_host_action_contract.py",
+        "docs/experiments/20261022_Host_Action_Contract.md",
+        "reports/host_action_contract_20261022/report.json",
+        "planned: real neural proposer/model-host adapter",
+        "planned: full task-workspace restart/scope/deletion integration report"
       ],
       "interface": "Model action proposal -> host validator -> tool observation -> branch-owned experience -> ledger. Manifest binds base, tokenizer, writer, reader, task schema and permissions.",
-      "acceptance_gate": "Actual observations drive revisions, records survive restart, wrong-scope/expired records are hidden, deletion invalidates derived eligibility and base hash stays fixed. No generated text can grant tool authority.",
-      "resources": "Local deterministic tools and CPU journal first; bounded MPS inference. Avoid arbitrary shell execution grammar.",
+      "acceptance_gate": "Bounded host software preparation passes12 integration checks and38 focused tests: actual pure XOR tool success/failure, receipt-bound answers, scoped observations, epoch invalidation, idempotency and journal restart. Proposals are deterministic fixtures, not model generations. Goal and action trace persist; learned task workspace, neural policy, experience-to-learning and full task restart remain pending. Full selected-system S3.1 acceptance still depends on S2.5 and S1.1: actual observations drive model revisions, wrong-scope/expired records are hidden, deletion invalidates derived eligibility and base hash stays fixed. Generated text cannot grant authority.",
+      "resources": "CPU host files, journal replay and pure solver only; no model loaded, trained or downloaded, and no checkpoints saved. A future fixed-original neural proposer must run on the M2 Ultra MPS GPU with its own predeclared protocol and guard.",
       "on_failure": "Reject invalid proposals without side effects and preserve trace. Repair host contracts before allowing autonomous candidate training.",
-      "next_smallest_task": "Implement a bounded answer/ask/retrieve/verify/stop action schema against one solver-backed tool.",
+      "next_smallest_task": "Predeclare and qualify one fixed-original MPS proposer against the bounded host action grammar and actual tool/receipt outcomes; retain failed proposals, separate neural correctness from host enforcement, and do not claim the full S3.1 gate or a learned policy. Keep S2.5/S1.1 dependencies unchanged.",
       "document": "docs/stages/04_Learned_Operating_Loop.md"
     },
     {
@@ -1010,7 +1029,13 @@
       "S1.1"
     ],
     "full_S3_1_selected_architecture_dependency_unchanged": "S2.5",
-    "contract": "docs/experiments/20261022_Cognitive_Contracts.md"
+    "contract": "docs/experiments/20261022_Cognitive_Contracts.md",
+    "host_action_contract": "docs/experiments/20261022_Host_Action_Contract.md",
+    "host_action_contract_status": "partial_software_action_contract_preparation",
+    "host_action_integration_checks_passed": 12,
+    "host_action_focused_tests_passed": 38,
+    "neural_proposer_qualified": false,
+    "learning_implemented": false
   },
   "native_D2_observation": {
     "status": "qualified_bounded_scope_memorization_capacity_resume",
@@ -1203,67 +1228,74 @@
     "remaining": "Inherited source terms, complete linked pairs, split overlap and adapter admission."
   },
   "infrastructure_evaluation_observation": {
-    "status": "partial_response_contract_v1_residual_format_semantic_failure",
-    "spec": "reports/response_contract_v1_20261022/evaluation_spec.json",
-    "controls": "reports/infrastructure_preflight_v2_20261022/constant_controls.json",
-    "native_preflight_outcome_authority": "docs/experiments/20261022_Response_Contract_V1_Results.md",
-    "native_scope": "Frozen original B1 with static family-only response contract; same 16 ordered dev worlds and source evidence as preserved baseline, same greedy cap 32, seed 17, ceiling 512, native template, MPS FP32/no CPU fallback and strict parser; no training.",
+    "status": "partial_query_policy_v2_abstention_collapse",
+    "spec": "reports/response_policy_v2_20261022/evaluation_spec.json",
+    "protocol": "docs/experiments/20261022_Response_Policy_V2_Protocol.md",
+    "protocol_commit_before_generation": "b2010c2",
+    "native_preflight_outcome_authority": "docs/experiments/20261022_Response_Policy_V2_Results.md",
+    "scoring_report": "reports/response_policy_v2_20261022/native_B1_scoring.json",
+    "semantic_judge_report": "reports/response_policy_v2_20261022/judge_semantic_raw.json",
+    "native_scope": "Frozen original B1; same16 ordered dev worlds/evidence/labels/model/template/cap32/ceiling512/seed17/MPS FP32/no fallback. Deterministic appendix selects exactly one fallback from public canonical query text, never observed missingness or gold.",
+    "native_result": {
+      "examples": 16,
+      "strict_task_correct": 4,
+      "format_valid": 12,
+      "single_line_compliant": 16,
+      "ended_by_eos": 16,
+      "hit_token_budget": 0,
+      "format_gate_passed": false,
+      "strict_validation_status": "validated_exact_historical_archive_resolution_and_guard_replay",
+      "response_histogram": {
+        "UNKNOWN": 12,
+        "asks_for_observed_fields": 4
+      },
+      "all_correct_cases": "The four expected UNKNOWN cases; no correct complete-evidence answer or ask.",
+      "strict_parser_changed_after_results": false,
+      "adaptive_post_result_runs": 0,
+      "error_histogram": {
+        "action_error": 8,
+        "correct": 4,
+        "format_error": 4
+      }
+    },
+    "semantic_judge": {
+      "fresh_context": true,
+      "gold_and_fixed_scores_in_packet": false,
+      "semantic_correct": 4,
+      "instruction_compliant": 4,
+      "examples": 16,
+      "metric_boundary": "Agent instruction compliance evaluates query policy and factual use; program grammar only checks permitted response forms. Publish separately."
+    },
+    "selected_dev16_constant_UNKNOWN": {
+      "correct": 4,
+      "examples": 16,
+      "matched_by_current_model": true
+    },
     "best_dev_constant": {
       "response": "UNKNOWN",
       "correct": 50,
       "examples": 200
     },
+    "interpretation": "V2 resolves some invalid forms but collapses toward abstention: all8 complete-evidence answers fail and4 asks request observed fields. Its4/16 equals the constant-UNKNOWN control, not useful quality or architecture gain.",
+    "downloads": 0,
+    "optimizer_updates": 0,
+    "checkpoint_saves": 0,
+    "native_jobs": 1,
     "model_shuffled_missing_evidence_controls": "pending",
     "retention_and_calibration": "pending",
     "S1_4_complete": false,
-    "scoring_report": "reports/response_contract_v1_20261022/native_B1_scoring.json",
-    "native_result": {
-      "examples": 16,
-      "strict_task_correct": 0,
-      "format_valid": 1,
-      "single_line_compliant": 16,
-      "contract_valid": 1,
-      "format_gate_passed": false,
-      "hit_token_budget": 0,
-      "max_new_tokens": 32,
-      "ended_by_eos": 16,
-      "distinct_completions": 8,
-      "error_histogram": {
-        "format_error": 15,
-        "value_error": 1
-      },
-      "observed_behavior": "UNKNOWN/field-list mixtures in 15 malformed outputs; the sole grammar-valid ask also requests RULE/SYMBOLS already observed.",
-      "interpretation": "The instruction intervention produces short ended responses but leaves conditional-format and evidence-use failures. Budget alone cannot explain the result; no causal sentence, broad capability or architecture gain is established.",
-      "strict_parser_changed_after_results": false,
-      "adaptive_post_result_runs": 0
-    },
-    "native_resources": {
-      "sampled_peak_live_mps_gib": 9.426406860351562,
-      "sampled_peak_driver_mps_gib": 10.104202270507812,
-      "profile_lifetime_seconds": 11.359285249840468,
-      "generation_seconds": 6.680834707804024,
-      "generated_tokens": 194,
-      "guard_exact_replay_passed": true,
-      "observed_swap_growth_bytes": 0,
-      "optimizer_updates": 0,
-      "checkpoint_saves": 0,
-      "downloads": 0,
-      "native_jobs": 1
-    },
-    "next_development_probe": "Predeclare a separate v2 two-branch response grammar selected from public query missing-field policy only, never gold action/value or observed missingness. Remove ambiguous OR and discourage placeholder copying; keep parser fixed and preserve both negatives. Broader S1.4 controls and S1.3/S1.5 admission remain pending.",
-    "code_suite": {
-      "passed": 671,
+    "predeclared_code_suite": {
+      "passed": 798,
       "restricted_context_mps_skip": 1,
-      "scope": "Software checks, separate from failed native task acceptance."
+      "scope": "Software checks before native run; distinct from native task acceptance and later archive-reader repair tests."
     },
-    "protocol": "docs/experiments/20261022_Response_Contract_V1_Protocol.md",
-    "protocol_commit_before_generation": "430e298",
-    "original_preflight": {
-      "status": "partial_strictparser_controls_16dev_format_cap_failure",
-      "spec": "reports/infrastructure_preflight_v2_20261022/evaluation_spec.json",
+    "next_development_probe": "Separately predeclare source-grounding/input-projection and upstream sampling/thinking qualifications without changing all settings together. Early S3.1 fixed-original MPS proposer/tool-receipt qualification may proceed under its own protocol; training admission remains blocked.",
+    "previous_v1": {
+      "status": "partial_response_contract_v1_residual_format_semantic_failure",
+      "spec": "reports/response_contract_v1_20261022/evaluation_spec.json",
       "controls": "reports/infrastructure_preflight_v2_20261022/constant_controls.json",
-      "native_preflight_outcome_authority": "docs/experiments/20261022_Infrastructure_Slice_V2.md",
-      "native_scope": "Frozen original B1; 16 dev worlds/four shared mechanisms; greedy cap 32, MPS FP32, no CPU fallback; host-compiled evidence snapshot; no training or checkpoint.",
+      "native_preflight_outcome_authority": "docs/experiments/20261022_Response_Contract_V1_Results.md",
+      "native_scope": "Frozen original B1 with static family-only response contract; same 16 ordered dev worlds and source evidence as preserved baseline, same greedy cap 32, seed 17, ceiling 512, native template, MPS FP32/no CPU fallback and strict parser; no training.",
       "best_dev_constant": {
         "response": "UNKNOWN",
         "correct": 50,
@@ -1272,34 +1304,104 @@
       "model_shuffled_missing_evidence_controls": "pending",
       "retention_and_calibration": "pending",
       "S1_4_complete": false,
-      "scoring_report": "reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json",
+      "scoring_report": "reports/response_contract_v1_20261022/native_B1_scoring.json",
       "native_result": {
         "examples": 16,
         "strict_task_correct": 0,
-        "format_valid": 0,
-        "hit_token_budget": 16,
+        "format_valid": 1,
+        "single_line_compliant": 16,
+        "contract_valid": 1,
+        "format_gate_passed": false,
+        "hit_token_budget": 0,
         "max_new_tokens": 32,
-        "ended_by_eos": 0,
-        "distinct_completions": 15,
-        "observed_behavior": "Prose before required compact answers.",
-        "interpretation": "Descriptive format/cap failure under the frozen contract; not a proven cause, general semantic failure or comparable architecture-quality result.",
-        "strict_parser_changed_after_results": false
+        "ended_by_eos": 16,
+        "distinct_completions": 8,
+        "error_histogram": {
+          "format_error": 15,
+          "value_error": 1
+        },
+        "observed_behavior": "UNKNOWN/field-list mixtures in 15 malformed outputs; the sole grammar-valid ask also requests RULE/SYMBOLS already observed.",
+        "interpretation": "The instruction intervention produces short ended responses but leaves conditional-format and evidence-use failures. Budget alone cannot explain the result; no causal sentence, broad capability or architecture gain is established.",
+        "strict_parser_changed_after_results": false,
+        "adaptive_post_result_runs": 0
       },
       "native_resources": {
-        "sampled_peak_live_mps_gib": 9.416171,
-        "sampled_peak_driver_mps_gib": 10.080765,
-        "profile_lifetime_seconds": 17.7864,
+        "sampled_peak_live_mps_gib": 9.426406860351562,
+        "sampled_peak_driver_mps_gib": 10.104202270507812,
+        "profile_lifetime_seconds": 11.359285249840468,
+        "generation_seconds": 6.680834707804024,
+        "generated_tokens": 194,
         "guard_exact_replay_passed": true,
         "observed_swap_growth_bytes": 0,
         "optimizer_updates": 0,
-        "checkpoint_saves": 0
+        "checkpoint_saves": 0,
+        "downloads": 0,
+        "native_jobs": 1
       },
-      "next_development_probe": "Versioned one-line output contract, parser fixed; any prompt/cap changes predeclared before rerun.",
+      "next_development_probe": "Predeclare a separate v2 two-branch response grammar selected from public query missing-field policy only, never gold action/value or observed missingness. Remove ambiguous OR and discourage placeholder copying; keep parser fixed and preserve both negatives. Broader S1.4 controls and S1.3/S1.5 admission remain pending.",
       "code_suite": {
-        "passed": 613,
+        "passed": 671,
         "restricted_context_mps_skip": 1,
-        "scope": "Software checks, separate from native task acceptance."
+        "scope": "Software checks, separate from failed native task acceptance."
+      },
+      "protocol": "docs/experiments/20261022_Response_Contract_V1_Protocol.md",
+      "protocol_commit_before_generation": "430e298",
+      "original_preflight": {
+        "status": "partial_strictparser_controls_16dev_format_cap_failure",
+        "spec": "reports/infrastructure_preflight_v2_20261022/evaluation_spec.json",
+        "controls": "reports/infrastructure_preflight_v2_20261022/constant_controls.json",
+        "native_preflight_outcome_authority": "docs/experiments/20261022_Infrastructure_Slice_V2.md",
+        "native_scope": "Frozen original B1; 16 dev worlds/four shared mechanisms; greedy cap 32, MPS FP32, no CPU fallback; host-compiled evidence snapshot; no training or checkpoint.",
+        "best_dev_constant": {
+          "response": "UNKNOWN",
+          "correct": 50,
+          "examples": 200
+        },
+        "model_shuffled_missing_evidence_controls": "pending",
+        "retention_and_calibration": "pending",
+        "S1_4_complete": false,
+        "scoring_report": "reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json",
+        "native_result": {
+          "examples": 16,
+          "strict_task_correct": 0,
+          "format_valid": 0,
+          "hit_token_budget": 16,
+          "max_new_tokens": 32,
+          "ended_by_eos": 0,
+          "distinct_completions": 15,
+          "observed_behavior": "Prose before required compact answers.",
+          "interpretation": "Descriptive format/cap failure under the frozen contract; not a proven cause, general semantic failure or comparable architecture-quality result.",
+          "strict_parser_changed_after_results": false
+        },
+        "native_resources": {
+          "sampled_peak_live_mps_gib": 9.416171,
+          "sampled_peak_driver_mps_gib": 10.080765,
+          "profile_lifetime_seconds": 17.7864,
+          "guard_exact_replay_passed": true,
+          "observed_swap_growth_bytes": 0,
+          "optimizer_updates": 0,
+          "checkpoint_saves": 0
+        },
+        "next_development_probe": "Versioned one-line output contract, parser fixed; any prompt/cap changes predeclared before rerun.",
+        "code_suite": {
+          "passed": 613,
+          "restricted_context_mps_skip": 1,
+          "scope": "Software checks, separate from native task acceptance."
+        }
       }
+    },
+    "archive_reader_repair": {
+      "script": "scripts/score_response_policy_archive_repair.py",
+      "status": "exact_historical_archive_resolution_passed",
+      "frozen_code_spec_and_grades_unchanged": true,
+      "purpose": "Verify receipt-bound archived bytes and resolve historical run paths while preserving the original guard.output and frozen scoring implementation."
+    },
+    "code_suite": {
+      "passed": 819,
+      "restricted_context_mps_skip": 1,
+      "archive_reader_focused_tests": 21,
+      "report": "reports/tests_response_policy_v2_final_20261022.xml",
+      "scope": "Final software integration; distinct from unchanged native format/task failure and prior798-test preregistration suite."
     }
   }
 }
