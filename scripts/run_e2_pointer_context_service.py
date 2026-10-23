@@ -22,14 +22,23 @@ def execute(args,profiler,report):
     if sha(data/'records.jsonl')!=protocol['eval_dataset']['records_sha256']: raise ValueError('records changed')
     ctx_manifest=json.loads((ROOT/protocol['context_head_manifest']).read_text())
     if sha(ROOT/protocol['context_head'])!=ctx_manifest['weights_sha256']: raise ValueError('context head bytes changed')
-    pointer_manifest=json.loads((Path(args.model_path).parent.parent/ROOT/protocol['pointer_extension']/'manifest.json').read_text()) if False else json.loads((ROOT/protocol['pointer_extension']/'manifest.json').read_text())
+    pointer_manifest=json.loads((ROOT/protocol['pointer_extension']/'manifest.json').read_text())
     if pointer_manifest['weights_sha256']!=ctx_manifest['parent_pointer_weights_sha256']: raise ValueError('context head parent pointer differs')
     queries=rows(data/'queries.jsonl'); records=[MemoryRecord(**r) for r in rows(data/'records.jsonl')]
     model,tok,lock=load_local_mps(args.model_path,args.model_lock,profiler=profiler,
         copy=CopySpec(max_tokens=512,mode='pointer',max_span=protocol['max_span']))
     receipt=model.load_extension(Path(protocol['pointer_extension']))
     head=CandidateContextHead().to('mps')
-    head.load_state_dict(load_file(str(ROOT/protocol['context_head'])))
+    raw_state=load_file(str(ROOT/protocol['context_head']))
+    if set(raw_state)=={'weight','bias'}:
+        # The first diagnostic artifact stored the bare Linear names; map
+        # explicitly and keep strict inventory checking.
+        state={f'linear.{name}':value for name,value in raw_state.items()}
+    else:
+        state=raw_state
+    if set(state)!={'linear.weight','linear.bias'}:
+        raise ValueError('context head tensor inventory differs')
+    head.load_state_dict(state, strict=True)
     head.eval()
     report.update(source_lock=lock,manifest_digest=model.manifest.digest,pointer=receipt,
                   context_head=ctx_manifest)
