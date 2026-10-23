@@ -220,7 +220,8 @@ def execute(args, profiler, report):
                                   'replica.e2_capacity.qualification.v6',
                                   'replica.e2_capacity.qualification.v7',
                                   'replica.e2_capacity.qualification.v8',
-                                  'replica.e2_capacity.qualification.v9'):
+                                  'replica.e2_capacity.qualification.v9',
+                                  'replica.e2_capacity.qualification.v10'):
         raise ValueError('Unknown capacity protocol')
     data_root = ROOT / protocol['dataset']['root']
     manifest = json.loads((data_root / 'manifest.json').read_text())
