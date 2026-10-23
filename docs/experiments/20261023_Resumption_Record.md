@@ -4,7 +4,8 @@
 
 - Branch: `codex/d2-capacity-runtime-pilot`
 - Base HEAD before this package: `fd9ea17`; code commit `6e8ec34` adds the
-  capacity, action-menu and scheduler corrections; documentation follows.
+  capacity, action-menu and scheduler corrections; documentation commit
+  `7a7d03d` adds the research cross-check and status reconciliation.
 - Full suite after this package: **1211 passed, 21 subtests** in 147.24 s.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified. No native job is active.
