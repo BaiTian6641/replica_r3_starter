@@ -317,6 +317,13 @@ scored **0/4**, and random scored **0/4**. The canonical result was a position
 artifact. Candidate ranking is not established outside the repair family. See
 [answer candidate results](docs/experiments/20261023_E2_Candidate_Answer_Results.md).
 
+**E3 candidate order control (23 October).** A fresh repair family scored
+**3/3** with canonical and **3/3** with shuffled menus; selected repair indices
+changed (4 vs 1), ruling out a fixed-position artifact. Peak 15.15 GiB, 31.6 s
+per arm, no training. Across four fresh repair families: **17/17 (15/15
+held-out)**; random 0/11. This does not generalize to source-answer ranking. See
+[candidate order results](docs/experiments/20261023_E3_Candidate_Order_Results.md).
+
 **E3 filtered candidate restart (23 October).** A fresh three-case family was
 interrupted after two decisions per case (0/3), then resumed in a fresh process
 with exact journal/workspace reuse; the filtered menu excluded values already
