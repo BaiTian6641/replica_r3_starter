@@ -56,15 +56,24 @@ native, branch-off exactly equals native, and a nonzero random state changes
 logits by 0.269. Peak sampled driver was 11.0 GiB; no update or checkpoint was
 saved. This qualifies read wiring only.
 
-Still not connected: writing observed tool/source chunks from the runtime into
-the native fast state, a shared chunk-start read across both ports in a real
-episode, outer-loop training of fast writes/queries, delayed-use/interference
-measurements, and cross-session images. Those require a separately preregistered
-native arm with one deferred commit per observation.
+An optional host bridge now connects actual `read_file`/`run_test` observations
+to the session: it stages one observation, commits once, and passes the committed
+state to the next `ProposalRequest`; `SessionProposer` converts it to a
+`FastMemoryRead` only when the adapter declares fast ports. Verification-only
+receipts are excluded. This path is tested with a deterministic, **untrained**
+token encoder; it proves scheduling and state ownership, not semantic usefulness.
+
+Still not connected: outer-loop training of fast write/query projections, a
+delayed-use/interference native task study, cross-session image reload in the
+runtime, and a learned encoder. Those require a separately preregistered native
+arm with one deferred commit per observation and a new evaluation set.
 
 ## 4. Tests
 
 `tests/test_fast_memory.py` covers staged-write invisibility, single-commit
 idempotency, reset/shuffled-state controls, chunk token bounds, invalidation,
 persistence round-trip and rejection of cross-branch, cross-producer and
-tampered images. These are software contracts, not learned capability.
+tampered images. `tests/test_fast_memory_bridge.py` covers duplicate
+observation idempotency and runtime propagation of committed read/test
+observations into the next decision. These are software contracts, not learned
+capability.

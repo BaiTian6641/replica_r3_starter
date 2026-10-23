@@ -34,7 +34,7 @@ supports observation-only staged writes, one deferred commit against a single
 chunk-start state, per-owner/branch scope, bounds, lineage, reset/invalidate and
 strict safetensors image persistence. Focused software tests cover invisibility,
 idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
-rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). It is **not** trained, has no observation-write/commit path in a real episode, and is not evaluated for delayed use/task benefit. See
+rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
 **C16 identity interface (23 October).** Versioned source episodes, approved

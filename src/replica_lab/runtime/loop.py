@@ -11,7 +11,10 @@ become failed outcomes and the loop continues within budget.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
+import json
 import time
+from typing import Any
 
 import torch
 
@@ -47,6 +50,7 @@ class ProposalRequest:
     generated_token_budget: int
     task_digest: str
     revision: int
+    fast_state: Any | None = None
 
     def __post_init__(self):
         if not isinstance(self.prompt_text, str) or not self.prompt_text:
@@ -150,7 +154,7 @@ class TaskRuntime:
                  max_proposal_bytes: int = MAX_PROPOSAL_BYTES,
                  workspace_width: int = DEFAULT_WORKSPACE_WIDTH,
                  shuffled_workspace: CoreState | None = None,
-                 identity=None):
+                 identity=None, fast_memory=None):
         if mode not in MODES:
             raise ValueError(f'Unknown runtime mode: {mode!r}')
         self.tools = tools
@@ -172,6 +176,12 @@ class TaskRuntime:
             if not isinstance(identity, IdentityContext):
                 raise ValueError('identity must be an IdentityContext or None')
         self.identity = identity
+        if fast_memory is not None and not hasattr(fast_memory, 'observe'):
+            raise ValueError('fast_memory must expose observe() and snapshot()')
+        self.fast_memory = fast_memory
+        self.fast_state = fast_memory.snapshot() if fast_memory is not None else None
+        self.fast_observed = 0
+        self.fast_error = None
         self.state: ExactTaskState | None = None
         self.previous_workspace: CoreState | None = None
         self._verifier: JournalVerifier | None = None
@@ -399,7 +409,7 @@ class TaskRuntime:
         prompt = self._build_prompt(state)
         request = ProposalRequest(prompt, features, previous_workspace, self.mode,
                                   self.max_prompt_tokens, self.generated_token_budget,
-                                  state.digest, state.revision)
+                                  state.digest, state.revision, self.fast_state)
         output = proposer(request)
         if not isinstance(output, ProposalOutput):
             raise ValueError('Proposer must return a ProposalOutput')
@@ -446,6 +456,7 @@ class TaskRuntime:
                                        f'validation_denied: {validation.reason}')
         frame = self._journal_intent_and_execute(parsed.proposal, validation, state,
                                                  idempotency_key)
+        self._observe_fast_memory(frame)
         self._load()
         met = bool(self.state.satisfied_conditions(self.verifier))
         claimed = parsed.proposal.kind in ('stop', 'answer')
@@ -491,6 +502,45 @@ class TaskRuntime:
             decision_seq, output, prompt, prompt_sha, features, started, parsed,
             action_id, idempotency_key, f'budget_exhausted: {reason}',
             notes=('budget_exhausted',))
+
+    def _observe_fast_memory(self, frame: OutcomeFrame) -> None:
+        """Feed one actual host observation into the optional fast state."""
+        if self.fast_memory is None or frame.verifier != 'host_tools':
+            return
+        if frame.status not in ('completed', 'failed'):
+            return
+        result = dict(frame.result) if isinstance(frame.result, dict) else {}
+        if result.get('kind') in ('verify_success', 'stop', 'answer'):
+            return
+        text = ''
+        for key in ('content', 'excerpt', 'stdout_excerpt', 'stderr_excerpt', 'text'):
+            value = result.get(key)
+            if isinstance(value, str) and value:
+                text = value
+                break
+        source_hash = result.get('sha256') if isinstance(result.get('sha256'), str) else None
+        receipt = dict(frame.receipt or {})
+        if not text:
+            for key in ('stdout_excerpt', 'stderr_excerpt'):
+                value = receipt.get(key)
+                if isinstance(value, str) and value:
+                    text = value
+                    break
+        if not text:
+            return
+        if source_hash is None:
+            source_hash = receipt.get('receipt_sha256')
+        if not isinstance(source_hash, str) or len(source_hash) != 64:
+            source_hash = hashlib.sha256(
+                json.dumps(result, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        try:
+            receipt_value = self.fast_memory.observe(
+                frame.action_id, text, source_hash=source_hash)
+            if receipt_value is not None:
+                self.fast_observed += 1
+                self.fast_state = self.fast_memory.snapshot()
+        except Exception as error:
+            self.fast_error = f'{type(error).__name__}: {error}'
 
     def _finish_denied(self, decision_seq, output, prompt, prompt_sha, features,
                        started, parsed: ParsedProposal, action_id, idempotency_key,
@@ -864,6 +914,8 @@ class TaskRuntime:
             'satisfied_conditions': list(self.state.satisfied_conditions(self.verifier)),
             'budget': self.state.budget.to_dict(),
             'feature_vector': feature_vector,
+            'fast_memory': {'observed': self.fast_observed,
+                            'error': self.fast_error} if self.fast_memory is not None else None,
             'trace': [asdict(item) for item in trace],
         }
 
@@ -941,7 +993,7 @@ class SessionProposer:
 
     def __call__(self, request: ProposalRequest) -> ProposalOutput:
         import torch
-        from ..architecture.contracts import TaskGraph, fingerprint
+        from ..architecture.contracts import FastMemoryRead, TaskGraph, fingerprint
         from ..architecture.loading import encode_prompt
         mode = request.mode
         core_disabled = self.core_disabled or mode == 'core_disabled'
@@ -966,6 +1018,20 @@ class SessionProposer:
         task_features = None if no_core else torch.tensor(
             [request.task_features], dtype=torch.float32, device=self.device)
         notes = [f'mode={mode}']
+        fast_read = None
+        if request.fast_state is not None and getattr(self.session.adapter, 'fast_ports', None) is not None:
+            state = request.fast_state
+            if tuple(state.weights.shape) == (1, self.session.adapter.manifest.fast_memory.heads,
+                                              self.session.adapter.manifest.fast_memory.key_size,
+                                              self.session.adapter.manifest.fast_memory.value_size):
+                fast_read = FastMemoryRead(
+                    state.weights.to(device=self.device),
+                    self.session.adapter.fast_producer_key(), state.digest)
+                notes.append('fast_state=committed')
+            else:
+                notes.append('fast_state_discarded: shape_mismatch')
+        elif request.fast_state is not None:
+            notes.append('fast_state_discarded: no_native_fast_ports')
         if extra_inference:
             # Exactly one additional known-input sense pass; it creates no frame
             # and feeds no reader, and the normal prepare starts from scratch.
@@ -1000,7 +1066,8 @@ class SessionProposer:
                       task_features=task_features, previous_core=previous_core,
                       core_impl=core_impl, enabled_inputs=self.enabled_inputs,
                       enabled_branches=branches,
-                      task_digest=request.task_digest, revision=request.revision)
+                      task_digest=request.task_digest, revision=request.revision,
+                      fast_state=fast_read)
         leased = self.session.prepare(**kwargs)
         try:
             result = self.session.generate(leased,

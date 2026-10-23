@@ -202,6 +202,8 @@ class FastMemorySession:
         """Stage one observed event against the current chunk-start state."""
         _identifier(observation_id, 'observation_id')
         _sha(source_hash, 'source_hash')
+        if any(event_id == observation_id for event_id, _ in self._state.lineage):
+            return False
         if self._state.chunk_index >= self.config.max_chunks:
             raise ValueError('fast-memory chunk bound reached; rebuild or reset')
         if (keys.ndim != 3 or values.ndim != 3 or keys.shape[0] != 1
@@ -242,7 +244,7 @@ class FastMemorySession:
             writes = [FastWrite(keys, values, start.chunk_index)
                       for keys, values, _ in self._pending.values()]
             next_state = self._primitive(head).update_shared_chunk(
-                FastState(start.weights[:, head]), writes)
+                FastState(start.weights[:, head], start.chunk_index), writes)
             weights.append(next_state.weights)
         combined = torch.stack(weights, dim=1)
         tokens = sum(item[0].shape[1] for item in self._pending.values())
