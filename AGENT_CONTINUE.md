@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 contextual writer (23 October):** loss 50.1→8.3 but train 3/24,
+heldout 0/8, controls 0/8; rejected. See
+[contextual writer results](docs/experiments/20261023_E4_Contextual_Writer_Results.md).
+
 **E2 exact-span pointer (23 October):** opt-in novel-value copy, dev 3/6,
 heldout 2/10, shuffled 0/16; flat training loss, no default. See
 [pointer results](docs/experiments/20261023_E2_Pointer_Copy_Results.md).

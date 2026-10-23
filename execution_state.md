@@ -33,6 +33,12 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 contextual writer (23 October).** A new source-feature writer reduced
+training loss **50.1→8.3**, but train exact was **3/24**, held-out **0/8**, and
+shuffled/zero/disabled all 0/8. State influence is present; reliable novel-value
+copy is not. Rejected; exact text remains preferred. See
+[contextual writer results](docs/experiments/20261023_E4_Contextual_Writer_Results.md).
+
 **E2 exact-span pointer (23 October).** A pointer over exact selected-record
 spans produced **3/6 dev** and **2/10 held-out** correct novel values, with
 **0/6 and 0/10** for shuffled source spans. It emits source token IDs directly

@@ -1,0 +1,2672 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T13:00:57.019313+00:00",
+  "protocol_sha256": "0666641aa23ff3381dfd2b7b78544104643788ad3538e376ce36824e8b1491bc",
+  "protocol": {
+    "format": "replica.e4.contextual.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Fast-memory delayed-use candidate using contextual source hidden features from the frozen backbone, with a new held-out family and controls.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "dataset": {
+      "root": "data/e4_contextual",
+      "records_sha256": "40cb7679c1de512ef675504f1b95e3c2ed7ec028296da8e6c7566b0b6f660914",
+      "queries_sha256": "1f80b089035aa93574125d2031cb99cc11ebbb36e83d063723a2e62da7048030",
+      "manifest_sha256": "be82aa0836236807a558a1f39772d55f4e88437f44ce0e63b7102177b9d7d7e1"
+    },
+    "fast_memory": {
+      "heads": 4,
+      "key_size": 64,
+      "value_size": 64,
+      "learning_rate": 0.1,
+      "decay": 0.0,
+      "max_update_norm": 1.0,
+      "max_tokens_per_chunk": 128,
+      "max_image_bytes": 1048576
+    },
+    "source_features": "frozen native hidden features at source layer 13; one page observation -> one commit",
+    "training": {
+      "regime": "modules_only",
+      "trainable": [
+        "fast_write_encoder",
+        "fast_ports"
+      ],
+      "optimizer": "muon8bit",
+      "lr_new": 0.02,
+      "lr_muon_new": 0.02,
+      "lr_base": 0.0,
+      "lr_muon_base": 0.0,
+      "updates": 32,
+      "examples_per_update": 4,
+      "warmup_updates": 2,
+      "weight_decay": 0.0,
+      "gradient_clip": 1.0,
+      "seed": 20261023,
+      "loss": "response-only answer cross entropy; source page only in write, query only in prompt",
+      "train_sense": false,
+      "selection": "empty record bank; fast state supplies observation"
+    },
+    "evaluation": {
+      "dev_cases": 6,
+      "heldout_cases": 8,
+      "arms": [
+        "correct_observation",
+        "shuffled_observation",
+        "zero_state",
+        "fast_disabled"
+      ],
+      "generation": {
+        "max_new_tokens": 6,
+        "greedy": true
+      },
+      "restart": "persist first heldout image and reload into fresh FastMemorySession"
+    },
+    "decision_rule": {
+      "accept": "correct heldout > shuffled/zero/disabled and dev not below disabled",
+      "reject": "no gain",
+      "defer": "ambiguous"
+    },
+    "budget": {
+      "model_loads": 1,
+      "extension_reloads": 1,
+      "optimizer_updates": 32,
+      "eval_generations": 96,
+      "checkpoint_saves": 1
+    },
+    "claims": "Contextual-writer delayed-use candidate; synthetic pages; no general capability or personal claim."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "77deb8eb4282d9547b307bd6a7c6ae2e47cce5f815e88ce5d4a3db5caddb2688",
+  "parent_migration": {
+    "accepted_parent_v1": true,
+    "copied": [
+      "memory_ports.13.gate_logit",
+      "memory_ports.13.key_projection.weight",
+      "memory_ports.13.memory_norm.bias",
+      "memory_ports.13.memory_norm.weight",
+      "memory_ports.13.output_projection.weight",
+      "memory_ports.13.query_norm.bias",
+      "memory_ports.13.query_norm.weight",
+      "memory_ports.13.query_projection.weight",
+      "memory_ports.13.value_projection.weight",
+      "memory_ports.27.gate_logit",
+      "memory_ports.27.key_projection.weight",
+      "memory_ports.27.memory_norm.bias",
+      "memory_ports.27.memory_norm.weight",
+      "memory_ports.27.output_projection.weight",
+      "memory_ports.27.query_norm.bias",
+      "memory_ports.27.query_norm.weight",
+      "memory_ports.27.query_projection.weight",
+      "memory_ports.27.value_projection.weight",
+      "record_writer.encoder.attention.in_proj_bias",
+      "record_writer.encoder.attention.in_proj_weight",
+      "record_writer.encoder.attention.out_proj.bias",
+      "record_writer.encoder.attention.out_proj.weight",
+      "record_writer.encoder.input_norm.bias",
+      "record_writer.encoder.input_norm.weight",
+      "record_writer.encoder.input_projection.weight",
+      "record_writer.encoder.output_norm.bias",
+      "record_writer.encoder.output_norm.weight",
+      "record_writer.encoder.slot_queries",
+      "reranker.query_norm.bias",
+      "reranker.query_norm.weight",
+      "reranker.query_projection.weight",
+      "reranker.record_norm.bias",
+      "reranker.record_norm.weight",
+      "reranker.record_projection.weight",
+      "sense_ports.13.input_norm.bias",
+      "sense_ports.13.input_norm.weight",
+      "sense_ports.13.projection.weight",
+      "sense_ports.27.input_norm.bias",
+      "sense_ports.27.input_norm.weight",
+      "sense_ports.27.projection.weight",
+      "sense_ports.41.input_norm.bias",
+      "sense_ports.41.input_norm.weight",
+      "sense_ports.41.projection.weight"
+    ],
+    "fresh_init": [
+      "fast_ports.13.gate_logit",
+      "fast_ports.13.output_projection.weight",
+      "fast_ports.13.query_norm.bias",
+      "fast_ports.13.query_norm.weight",
+      "fast_ports.13.query_projection.weight",
+      "fast_ports.27.gate_logit",
+      "fast_ports.27.output_projection.weight",
+      "fast_ports.27.query_norm.bias",
+      "fast_ports.27.query_norm.weight",
+      "fast_ports.27.query_projection.weight",
+      "fast_write_encoder.input_norm.bias",
+      "fast_write_encoder.input_norm.weight",
+      "fast_write_encoder.key_projection.weight",
+      "fast_write_encoder.value_projection.weight"
+    ]
+  },
+  "fast_spec": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "learning_rate": 0.1,
+    "decay": 0.0,
+    "max_update_norm": 1.0,
+    "max_tokens_per_chunk": 128,
+    "max_image_bytes": 1048576
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 57,
+      "parameters": 7250436,
+      "trainable": 7250436,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight",
+        "fast_write_encoder.input_norm.weight",
+        "fast_write_encoder.input_norm.bias",
+        "fast_write_encoder.key_projection.weight",
+        "fast_write_encoder.value_projection.weight",
+        "fast_ports.13.gate_logit",
+        "fast_ports.13.query_norm.weight",
+        "fast_ports.13.query_norm.bias",
+        "fast_ports.13.query_projection.weight",
+        "fast_ports.13.output_projection.weight",
+        "fast_ports.27.gate_logit",
+        "fast_ports.27.query_norm.weight",
+        "fast_ports.27.query_norm.bias",
+        "fast_ports.27.query_projection.weight",
+        "fast_ports.27.output_projection.weight"
+      ]
+    }
+  },
+  "checks": {
+    "correct_state_above_controls": false,
+    "state_image_reload_equal": true,
+    "generation_finite_tokens": true,
+    "no_prompt_source": true
+  },
+  "parent_disabled": [
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "teal",
+      "case_id": "e4_dev_01",
+      "split": "dev"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "silver",
+      "case_id": "e4_dev_02",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have access to",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        3870,
+        317
+      ],
+      "correct": false,
+      "expected": "bronze",
+      "case_id": "e4_dev_03",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "indigo",
+      "case_id": "e4_dev_04",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "copper",
+      "case_id": "e4_dev_05",
+      "split": "dev"
+    },
+    {
+      "answer": "Field",
+      "token_ids": [
+        21563,
+        130073
+      ],
+      "correct": false,
+      "expected": "slate",
+      "case_id": "e4_dev_06",
+      "split": "dev"
+    },
+    {
+      "answer": "I don't have access to",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        3870,
+        317
+      ],
+      "correct": false,
+      "expected": "khaki",
+      "case_id": "e4_heldout_01",
+      "split": "heldout"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "sienna",
+      "case_id": "e4_heldout_02",
+      "split": "heldout"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "cobalt",
+      "case_id": "e4_heldout_03",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "ochre2",
+      "case_id": "e4_heldout_04",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "mauve2",
+      "case_id": "e4_heldout_05",
+      "split": "heldout"
+    },
+    {
+      "answer": "I don't have information about",
+      "token_ids": [
+        62,
+        1770,
+        728,
+        558,
+        1982,
+        850
+      ],
+      "correct": false,
+      "expected": "olive2",
+      "case_id": "e4_heldout_06",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "plum2",
+      "case_id": "e4_heldout_07",
+      "split": "heldout"
+    },
+    {
+      "answer": "fast memory",
+      "token_ids": [
+        10504,
+        5577,
+        130073
+      ],
+      "correct": false,
+      "expected": "rose2",
+      "case_id": "e4_heldout_08",
+      "split": "heldout"
+    }
+  ],
+  "training": {
+    "optimizer": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.02,
+          "weight_decay": 0.0,
+          "param_names": [
+            "fast_write_encoder.key_projection.weight",
+            "fast_write_encoder.value_projection.weight",
+            "fast_ports.13.query_projection.weight",
+            "fast_ports.13.output_projection.weight",
+            "fast_ports.27.query_projection.weight",
+            "fast_ports.27.output_projection.weight"
+          ],
+          "tensors": 6,
+          "parameters": 2359296
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.02,
+          "weight_decay": 0.0,
+          "param_names": [
+            "fast_write_encoder.input_norm.weight",
+            "fast_write_encoder.input_norm.bias",
+            "fast_ports.13.gate_logit",
+            "fast_ports.13.query_norm.weight",
+            "fast_ports.13.query_norm.bias",
+            "fast_ports.27.gate_logit",
+            "fast_ports.27.query_norm.weight",
+            "fast_ports.27.query_norm.bias"
+          ],
+          "tensors": 8,
+          "parameters": 12290
+        }
+      ],
+      "state_tensor_bytes": 0,
+      "state_bytes_by_dtype": {}
+    },
+    "updates": [
+      {
+        "update": 1,
+        "mean_loss": 50.0912971496582
+      },
+      {
+        "update": 2,
+        "mean_loss": 48.26121425628662
+      },
+      {
+        "update": 3,
+        "mean_loss": 53.7310266494751
+      },
+      {
+        "update": 4,
+        "mean_loss": 49.71870708465576
+      },
+      {
+        "update": 5,
+        "mean_loss": 42.67868518829346
+      },
+      {
+        "update": 6,
+        "mean_loss": 43.29710578918457
+      },
+      {
+        "update": 7,
+        "mean_loss": 33.20693874359131
+      },
+      {
+        "update": 8,
+        "mean_loss": 35.44253635406494
+      },
+      {
+        "update": 9,
+        "mean_loss": 33.423694133758545
+      },
+      {
+        "update": 10,
+        "mean_loss": 34.49250411987305
+      },
+      {
+        "update": 11,
+        "mean_loss": 27.923112392425537
+      },
+      {
+        "update": 12,
+        "mean_loss": 29.53806209564209
+      },
+      {
+        "update": 13,
+        "mean_loss": 23.35701560974121
+      },
+      {
+        "update": 14,
+        "mean_loss": 21.252949714660645
+      },
+      {
+        "update": 15,
+        "mean_loss": 19.730327486991882
+      },
+      {
+        "update": 16,
+        "mean_loss": 23.689053535461426
+      },
+      {
+        "update": 17,
+        "mean_loss": 15.260082602500916
+      },
+      {
+        "update": 18,
+        "mean_loss": 16.41677498817444
+      },
+      {
+        "update": 19,
+        "mean_loss": 15.160610437393188
+      },
+      {
+        "update": 20,
+        "mean_loss": 13.361557960510254
+      },
+      {
+        "update": 21,
+        "mean_loss": 12.59799611568451
+      },
+      {
+        "update": 22,
+        "mean_loss": 16.17497706413269
+      },
+      {
+        "update": 23,
+        "mean_loss": 11.396718263626099
+      },
+      {
+        "update": 24,
+        "mean_loss": 10.968209028244019
+      },
+      {
+        "update": 25,
+        "mean_loss": 11.038722276687622
+      },
+      {
+        "update": 26,
+        "mean_loss": 10.820629835128784
+      },
+      {
+        "update": 27,
+        "mean_loss": 8.749204516410828
+      },
+      {
+        "update": 28,
+        "mean_loss": 12.098990797996521
+      },
+      {
+        "update": 29,
+        "mean_loss": 8.712611436843872
+      },
+      {
+        "update": 30,
+        "mean_loss": 8.29770827293396
+      },
+      {
+        "update": 31,
+        "mean_loss": 8.62767767906189
+      },
+      {
+        "update": 32,
+        "mean_loss": 8.312676668167114
+      }
+    ]
+  },
+  "extension": {
+    "path": "runs/e4_contextual_attempt01/selected_extension",
+    "format": "replica.minicpm5.extensions.v2",
+    "weights_sha256": "815f6c857db356ddcab6a05ba31dab3495ba70516b0d4ad5b262dcfefb39bb44",
+    "manifest_digest": "77deb8eb4282d9547b307bd6a7c6ae2e47cce5f815e88ce5d4a3db5caddb2688",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 57,
+        "parameters": 7250436,
+        "trainable": 7250436,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "fast_write_encoder.input_norm.weight",
+          "fast_write_encoder.input_norm.bias",
+          "fast_write_encoder.key_projection.weight",
+          "fast_write_encoder.value_projection.weight",
+          "fast_ports.13.gate_logit",
+          "fast_ports.13.query_norm.weight",
+          "fast_ports.13.query_norm.bias",
+          "fast_ports.13.query_projection.weight",
+          "fast_ports.13.output_projection.weight",
+          "fast_ports.27.gate_logit",
+          "fast_ports.27.query_norm.weight",
+          "fast_ports.27.query_norm.bias",
+          "fast_ports.27.query_projection.weight",
+          "fast_ports.27.output_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false
+  },
+  "candidate": {
+    "correct": [
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "teal",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "jade",
+        "token_ids": [
+          95,
+          1090,
+          1
+        ],
+        "correct": false,
+        "expected": "silver",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "bronze",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "mauve",
+        "token_ids": [
+          758,
+          50119,
+          1
+        ],
+        "correct": false,
+        "expected": "indigo",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "copper",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "slate",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "khaki",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "sienna",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "cobalt",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "ochre2",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "only",
+        "token_ids": [
+          9993,
+          1
+        ],
+        "correct": false,
+        "expected": "mauve2",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "olive2",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "plum2",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "rose2",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ],
+    "shuffled": [
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "teal",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "jade",
+        "token_ids": [
+          95,
+          1090,
+          1
+        ],
+        "correct": false,
+        "expected": "silver",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "bronze",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "rose",
+        "token_ids": [
+          14093,
+          1
+        ],
+        "correct": false,
+        "expected": "indigo",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "copper",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "slate",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "orange",
+        "token_ids": [
+          30958,
+          1
+        ],
+        "correct": false,
+        "expected": "khaki",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "sienna",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "peach",
+        "token_ids": [
+          427,
+          675,
+          1
+        ],
+        "correct": false,
+        "expected": "cobalt",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "ochre2",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "only",
+        "token_ids": [
+          9993,
+          1
+        ],
+        "correct": false,
+        "expected": "mauve2",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "apples",
+        "token_ids": [
+          1593,
+          1008,
+          1
+        ],
+        "correct": false,
+        "expected": "olive2",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "ruby",
+        "token_ids": [
+          77876,
+          1
+        ],
+        "correct": false,
+        "expected": "plum2",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "bronze",
+        "token_ids": [
+          89105,
+          3377,
+          1
+        ],
+        "correct": false,
+        "expected": "rose2",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ],
+    "zero": [
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "teal",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "silver",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "bronze",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "indigo",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "copper",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "Field",
+        "token_ids": [
+          21563,
+          130073
+        ],
+        "correct": false,
+        "expected": "slate",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "khaki",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "sienna",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "cobalt",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "ochre2",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "mauve2",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "olive2",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "plum2",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "rose2",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ],
+    "disabled": [
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "teal",
+        "case_id": "e4_dev_01",
+        "split": "dev"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "silver",
+        "case_id": "e4_dev_02",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "bronze",
+        "case_id": "e4_dev_03",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "indigo",
+        "case_id": "e4_dev_04",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "copper",
+        "case_id": "e4_dev_05",
+        "split": "dev"
+      },
+      {
+        "answer": "Field",
+        "token_ids": [
+          21563,
+          130073
+        ],
+        "correct": false,
+        "expected": "slate",
+        "case_id": "e4_dev_06",
+        "split": "dev"
+      },
+      {
+        "answer": "I don't have access to",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          3870,
+          317
+        ],
+        "correct": false,
+        "expected": "khaki",
+        "case_id": "e4_heldout_01",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "sienna",
+        "case_id": "e4_heldout_02",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "cobalt",
+        "case_id": "e4_heldout_03",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "ochre2",
+        "case_id": "e4_heldout_04",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "mauve2",
+        "case_id": "e4_heldout_05",
+        "split": "heldout"
+      },
+      {
+        "answer": "I don't have information about",
+        "token_ids": [
+          62,
+          1770,
+          728,
+          558,
+          1982,
+          850
+        ],
+        "correct": false,
+        "expected": "olive2",
+        "case_id": "e4_heldout_06",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "plum2",
+        "case_id": "e4_heldout_07",
+        "split": "heldout"
+      },
+      {
+        "answer": "fast memory",
+        "token_ids": [
+          10504,
+          5577,
+          130073
+        ],
+        "correct": false,
+        "expected": "rose2",
+        "case_id": "e4_heldout_08",
+        "split": "heldout"
+      }
+    ]
+  },
+  "metrics": {
+    "correct": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "shuffled": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "zero": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "disabled": {
+      "dev": 0.0,
+      "heldout": 0.0
+    }
+  },
+  "train_correct": 0.125,
+  "train_results": [
+    {
+      "answer": "bronx",
+      "token_ids": [
+        89105,
+        109,
+        1
+      ],
+      "correct": false,
+      "expected": "violet",
+      "case_id": "e4_train_01",
+      "split": "train"
+    },
+    {
+      "answer": "cove",
+      "token_ids": [
+        88,
+        888,
+        1
+      ],
+      "correct": false,
+      "expected": "crimson",
+      "case_id": "e4_train_02",
+      "split": "train"
+    },
+    {
+      "answer": "ruby",
+      "token_ids": [
+        77876,
+        1
+      ],
+      "correct": false,
+      "expected": "emerald",
+      "case_id": "e4_train_03",
+      "split": "train"
+    },
+    {
+      "answer": "sapphire",
+      "token_ids": [
+        104,
+        1593,
+        15950,
+        1
+      ],
+      "correct": false,
+      "expected": "saffron",
+      "case_id": "e4_train_04",
+      "split": "train"
+    },
+    {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "ivory",
+      "case_id": "e4_train_05",
+      "split": "train"
+    },
+    {
+      "answer": "mauve",
+      "token_ids": [
+        758,
+        50119,
+        1
+      ],
+      "correct": false,
+      "expected": "quartz",
+      "case_id": "e4_train_06",
+      "split": "train"
+    },
+    {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "topaz",
+      "case_id": "e4_train_07",
+      "split": "train"
+    },
+    {
+      "answer": "bronze",
+      "token_ids": [
+        89105,
+        3377,
+        1
+      ],
+      "correct": false,
+      "expected": "coral",
+      "case_id": "e4_train_08",
+      "split": "train"
+    },
+    {
+      "answer": "japan",
+      "token_ids": [
+        95,
+        4939,
+        1
+      ],
+      "correct": false,
+      "expected": "pearl",
+      "case_id": "e4_train_09",
+      "split": "train"
+    },
+    {
+      "answer": "c",
+      "token_ids": [
+        88,
+        1
+      ],
+      "correct": false,
+      "expected": "olive",
+      "case_id": "e4_train_10",
+      "split": "train"
+    },
+    {
+      "answer": "ruby",
+      "token_ids": [
+        77876,
+        1
+      ],
+      "correct": true,
+      "expected": "ruby",
+      "case_id": "e4_train_11",
+      "split": "train"
+    },
+    {
+      "answer": "jade",
+      "token_ids": [
+        95,
+        1090,
+        1
+      ],
+      "correct": true,
+      "expected": "jade",
+      "case_id": "e4_train_12",
+      "split": "train"
+    },
+    {
+      "answer": "orange",
+      "token_ids": [
+        30958,
+        1
+      ],
+      "correct": false,
+      "expected": "azure",
+      "case_id": "e4_train_13",
+      "split": "train"
+    },
+    {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "mauve",
+      "case_id": "e4_train_14",
+      "split": "train"
+    },
+    {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "umber",
+      "case_id": "e4_train_15",
+      "split": "train"
+    },
+    {
+      "answer": "only",
+      "token_ids": [
+        9993,
+        1
+      ],
+      "correct": false,
+      "expected": "lilac",
+      "case_id": "e4_train_16",
+      "split": "train"
+    },
+    {
+      "answer": "only",
+      "token_ids": [
+        9993,
+        1
+      ],
+      "correct": false,
+      "expected": "hazel",
+      "case_id": "e4_train_17",
+      "split": "train"
+    },
+    {
+      "answer": "bronze",
+      "token_ids": [
+        89105,
+        3377,
+        1
+      ],
+      "correct": false,
+      "expected": "maroon",
+      "case_id": "e4_train_18",
+      "split": "train"
+    },
+    {
+      "answer": "ruby",
+      "token_ids": [
+        77876,
+        1
+      ],
+      "correct": false,
+      "expected": "mint",
+      "case_id": "e4_train_19",
+      "split": "train"
+    },
+    {
+      "answer": "jade",
+      "token_ids": [
+        95,
+        1090,
+        1
+      ],
+      "correct": false,
+      "expected": "navy",
+      "case_id": "e4_train_20",
+      "split": "train"
+    },
+    {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": true,
+      "expected": "peach",
+      "case_id": "e4_train_21",
+      "split": "train"
+    },
+    {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "plum",
+      "case_id": "e4_train_22",
+      "split": "train"
+    },
+    {
+      "answer": "ruby",
+      "token_ids": [
+        77876,
+        1
+      ],
+      "correct": false,
+      "expected": "rust",
+      "case_id": "e4_train_23",
+      "split": "train"
+    },
+    {
+      "answer": "only",
+      "token_ids": [
+        9993,
+        1
+      ],
+      "correct": false,
+      "expected": "sage",
+      "case_id": "e4_train_24",
+      "split": "train"
+    }
+  ],
+  "restart": {
+    "image": {
+      "format": "replica.fast_memory.image.v1",
+      "schema": "replica.fast_memory.state.v1",
+      "scope": {
+        "subject_id": "e4_contextual",
+        "branch_id": "e4_heldout_01",
+        "purpose": "delayed_use_eval",
+        "mode": "parallel_replica",
+        "source_epoch": 0
+      },
+      "producer": "92f4ad4fe99140e053d482ee3e8bd63f522dd2a0bc57775c7803ce60ec1d7497",
+      "config": {
+        "key_size": 64,
+        "value_size": 64,
+        "heads": 4,
+        "learning_rate": 0.1,
+        "decay": 0.0,
+        "max_update_norm": 1.0,
+        "max_chunks": 4096,
+        "max_tokens_per_chunk": 128,
+        "max_image_bytes": 1048576
+      },
+      "weights_sha256": "a6ffb1b86c03cbe5219ab527ffa2542daa275248246641a50ab86a784d16249e",
+      "state_digest": "8906da4b2383f8c0c53e8ce9ea779ca59b21f4b02eb5a7339da060d041791c72",
+      "chunk_index": 1,
+      "update_count": 1,
+      "cursor": 36,
+      "generation": 0,
+      "lineage": [
+        [
+          "heldout-observation",
+          "6064e7ac6545bcff7df1db72fc3ada15af82b10a73a89a7c5d22dbb99b1f4255"
+        ]
+      ]
+    },
+    "state_digest_equal": true,
+    "reloaded_answer": {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "khaki"
+    },
+    "correct_answer": {
+      "answer": "peach",
+      "token_ids": [
+        427,
+        675,
+        1
+      ],
+      "correct": false,
+      "expected": "khaki"
+    },
+    "answer_equal": true
+  },
+  "decision": "reject",
+  "deployment": "not_published",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T13:00:57.019658+00:00",
+    "ended_at": "2026-10-23T13:02:11.800920+00:00",
+    "elapsed_seconds": 74.78001266717911,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 320,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15587295232,
+      "rss_peak_sampled_bytes": 3428270080,
+      "mps_allocated_peak_sampled_bytes": 10228459520,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T13:00:57.020362+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T13:02:11.776879+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T13:01:01.252817+00:00",
+        "elapsed_seconds": 4.123472209088504,
+        "seconds_since_previous_mark": 4.123472209088504,
+        "synchronize_seconds": 4.708068445324898e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:01.143210+00:00",
+          "elapsed_seconds": 4.1234862501733005,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3185672192,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10104417792,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 57,
+              "parameters": 7250436,
+              "trainable": 7250436,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "fast_write_encoder.input_norm.weight",
+                "fast_write_encoder.input_norm.bias",
+                "fast_write_encoder.key_projection.weight",
+                "fast_write_encoder.value_projection.weight",
+                "fast_ports.13.gate_logit",
+                "fast_ports.13.query_norm.weight",
+                "fast_ports.13.query_norm.bias",
+                "fast_ports.13.query_projection.weight",
+                "fast_ports.13.output_projection.weight",
+                "fast_ports.27.gate_logit",
+                "fast_ports.27.query_norm.weight",
+                "fast_ports.27.query_norm.bias",
+                "fast_ports.27.query_projection.weight",
+                "fast_ports.27.output_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:07.389445+00:00",
+        "elapsed_seconds": 10.369527792092413,
+        "seconds_since_previous_mark": 6.246055583003908,
+        "synchronize_seconds": 0.0011904998682439327,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:07.389370+00:00",
+          "elapsed_seconds": 10.369539000093937,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3294969856,
+          "rss_measurement_age_seconds": 1.932659124955535,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10896687104
+        },
+        "fields": {
+          "update": 1,
+          "loss": 50.0912971496582
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:08.686103+00:00",
+        "elapsed_seconds": 11.666165459202603,
+        "seconds_since_previous_mark": 1.2966376671101898,
+        "synchronize_seconds": 0.0006578329484909773,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:08.686028+00:00",
+          "elapsed_seconds": 11.666176542174071,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3383590912,
+          "rss_measurement_age_seconds": 1.0962862910237163,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10913464320
+        },
+        "fields": {
+          "update": 2,
+          "loss": 48.26121425628662
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:10.053386+00:00",
+        "elapsed_seconds": 13.03343537519686,
+        "seconds_since_previous_mark": 1.3672699159942567,
+        "synchronize_seconds": 0.0006283328402787447,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:10.053321+00:00",
+          "elapsed_seconds": 13.033447209047154,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3405037568,
+          "rss_measurement_age_seconds": 0.36151158320717514,
+          "mps_allocated_bytes": 10107522048,
+          "mps_driver_bytes": 10913595392
+        },
+        "fields": {
+          "update": 3,
+          "loss": 53.7310266494751
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:11.338238+00:00",
+        "elapsed_seconds": 14.318245292175561,
+        "seconds_since_previous_mark": 1.284809916978702,
+        "synchronize_seconds": 0.0006432908121496439,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:11.338152+00:00",
+          "elapsed_seconds": 14.31825637514703,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3405037568,
+          "rss_measurement_age_seconds": 1.6463297919835895,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10913595392
+        },
+        "fields": {
+          "update": 4,
+          "loss": 49.71870708465576
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:12.727731+00:00",
+        "elapsed_seconds": 15.707722750026733,
+        "seconds_since_previous_mark": 1.3894774578511715,
+        "synchronize_seconds": 0.00066370889544487,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:12.727655+00:00",
+          "elapsed_seconds": 15.707734834169969,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3412606976,
+          "rss_measurement_age_seconds": 0.9185872909147292,
+          "mps_allocated_bytes": 10107505664,
+          "mps_driver_bytes": 10922016768
+        },
+        "fields": {
+          "update": 5,
+          "loss": 42.67868518829346
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:14.015758+00:00",
+        "elapsed_seconds": 16.995735792210326,
+        "seconds_since_previous_mark": 1.288013042183593,
+        "synchronize_seconds": 0.0006328339222818613,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:14.015691+00:00",
+          "elapsed_seconds": 16.99575308407657,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3427942400,
+          "rss_measurement_age_seconds": 0.0806787081528455,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 6,
+          "loss": 43.29710578918457
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:15.312690+00:00",
+        "elapsed_seconds": 18.292626042151824,
+        "seconds_since_previous_mark": 1.296890249941498,
+        "synchronize_seconds": 0.0006712090689688921,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:15.312600+00:00",
+          "elapsed_seconds": 18.292636792175472,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3427942400,
+          "rss_measurement_age_seconds": 1.3775711660273373,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 7,
+          "loss": 33.20693874359131
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:16.735435+00:00",
+        "elapsed_seconds": 19.71535333408974,
+        "seconds_since_previous_mark": 1.4227272919379175,
+        "synchronize_seconds": 0.0006966670043766499,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:16.735353+00:00",
+          "elapsed_seconds": 19.715366292046383,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3428155392,
+          "rss_measurement_age_seconds": 0.675476083997637,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 8,
+          "loss": 35.44253635406494
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:18.129909+00:00",
+        "elapsed_seconds": 21.05462866718881,
+        "seconds_since_previous_mark": 1.3392753330990672,
+        "synchronize_seconds": 0.0006447918713092804,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:18.074651+00:00",
+          "elapsed_seconds": 21.054641959024593,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3428270080,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10107522048,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 9,
+          "loss": 33.423694133758545
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:19.439686+00:00",
+        "elapsed_seconds": 22.419548417208716,
+        "seconds_since_previous_mark": 1.364919750019908,
+        "synchronize_seconds": 0.0006732079200446606,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:19.439594+00:00",
+          "elapsed_seconds": 22.419561584014446,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 3428270080,
+          "rss_measurement_age_seconds": 1.3649219169747084,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 10,
+          "loss": 34.49250411987305
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:20.788529+00:00",
+        "elapsed_seconds": 23.76836445904337,
+        "seconds_since_previous_mark": 1.3488160418346524,
+        "synchronize_seconds": 0.0006443341262638569,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:20.788433+00:00",
+          "elapsed_seconds": 23.76837950013578,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343288832,
+          "rss_measurement_age_seconds": 0.5259569999761879,
+          "mps_allocated_bytes": 10107505664,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 11,
+          "loss": 27.923112392425537
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:22.125318+00:00",
+        "elapsed_seconds": 25.105173834133893,
+        "seconds_since_previous_mark": 1.3368093750905246,
+        "synchronize_seconds": 0.0006112500559538603,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:22.125263+00:00",
+          "elapsed_seconds": 25.105183167150244,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343288832,
+          "rss_measurement_age_seconds": 1.8627489579375833,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 12,
+          "loss": 29.53806209564209
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:23.398898+00:00",
+        "elapsed_seconds": 26.378695709165186,
+        "seconds_since_previous_mark": 1.2735218750312924,
+        "synchronize_seconds": 0.0006356248632073402,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:23.398807+00:00",
+          "elapsed_seconds": 26.378707917174324,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343665664,
+          "rss_measurement_age_seconds": 1.0309442500583827,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 13,
+          "loss": 23.35701560974121
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:24.699433+00:00",
+        "elapsed_seconds": 27.67921058414504,
+        "seconds_since_previous_mark": 1.3005148749798536,
+        "synchronize_seconds": 0.0006123750936239958,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:24.699347+00:00",
+          "elapsed_seconds": 27.67922945902683,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343780352,
+          "rss_measurement_age_seconds": 0.22715450008399785,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 14,
+          "loss": 21.252949714660645
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:25.988321+00:00",
+        "elapsed_seconds": 28.968057292047888,
+        "seconds_since_previous_mark": 1.2888467079028487,
+        "synchronize_seconds": 0.0006189169362187386,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:25.988212+00:00",
+          "elapsed_seconds": 28.96806870913133,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343780352,
+          "rss_measurement_age_seconds": 1.5159943329636008,
+          "mps_allocated_bytes": 10107522048,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 15,
+          "loss": 19.730327486991882
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:27.316521+00:00",
+        "elapsed_seconds": 30.296245417091995,
+        "seconds_since_previous_mark": 1.3281881250441074,
+        "synchronize_seconds": 0.0006644579116255045,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:27.316424+00:00",
+          "elapsed_seconds": 30.296258042100817,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343829504,
+          "rss_measurement_age_seconds": 0.7451155828312039,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 16,
+          "loss": 23.689053535461426
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:28.608931+00:00",
+        "elapsed_seconds": 31.556011292152107,
+        "seconds_since_previous_mark": 1.2597658750601113,
+        "synchronize_seconds": 0.0006166249513626099,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:28.576211+00:00",
+          "elapsed_seconds": 31.556024375138804,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343911424,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10107505664,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 17,
+          "loss": 15.260082602500916
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:29.889743+00:00",
+        "elapsed_seconds": 32.86943475017324,
+        "seconds_since_previous_mark": 1.3134234580211341,
+        "synchronize_seconds": 0.0006242499221116304,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:29.889656+00:00",
+          "elapsed_seconds": 32.869447542121634,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 2343911424,
+          "rss_measurement_age_seconds": 1.3134230410214514,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 18,
+          "loss": 16.41677498817444
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:31.167574+00:00",
+        "elapsed_seconds": 34.147248667199165,
+        "seconds_since_previous_mark": 1.2778139170259237,
+        "synchronize_seconds": 0.0006300420500338078,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:31.167492+00:00",
+          "elapsed_seconds": 34.14726125006564,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 931971072,
+          "rss_measurement_age_seconds": 0.4461505829822272,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 19,
+          "loss": 15.160610437393188
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:32.509945+00:00",
+        "elapsed_seconds": 35.48959941719659,
+        "seconds_since_previous_mark": 1.342350749997422,
+        "synchronize_seconds": 0.0006077908910810947,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:32.509865+00:00",
+          "elapsed_seconds": 35.4896115839947,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 931971072,
+          "rss_measurement_age_seconds": 1.7885003748815507,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 20,
+          "loss": 13.361557960510254
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:33.801120+00:00",
+        "elapsed_seconds": 36.78074529208243,
+        "seconds_since_previous_mark": 1.2911458748858422,
+        "synchronize_seconds": 0.0006240420043468475,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:33.801033+00:00",
+          "elapsed_seconds": 36.780758667038754,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932020224,
+          "rss_measurement_age_seconds": 0.98968141595833,
+          "mps_allocated_bytes": 10107522048,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 21,
+          "loss": 12.59799611568451
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:35.082979+00:00",
+        "elapsed_seconds": 38.06258345907554,
+        "seconds_since_previous_mark": 1.2818381669931114,
+        "synchronize_seconds": 0.000630208058282733,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:35.082896+00:00",
+          "elapsed_seconds": 38.062602209160104,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932085760,
+          "rss_measurement_age_seconds": 0.19208841701038182,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 22,
+          "loss": 16.17497706413269
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:36.350993+00:00",
+        "elapsed_seconds": 39.33057237509638,
+        "seconds_since_previous_mark": 1.2679889160208404,
+        "synchronize_seconds": 0.0006310420576483011,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:36.350903+00:00",
+          "elapsed_seconds": 39.33058475004509,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932085760,
+          "rss_measurement_age_seconds": 1.4600724999327213,
+          "mps_allocated_bytes": 10107505664,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 23,
+          "loss": 11.396718263626099
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:37.671344+00:00",
+        "elapsed_seconds": 40.65091629209928,
+        "seconds_since_previous_mark": 1.3203439170029014,
+        "synchronize_seconds": 0.0006228748243302107,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:37.671269+00:00",
+          "elapsed_seconds": 40.650928042130545,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932118528,
+          "rss_measurement_age_seconds": 0.7099705419968814,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 24,
+          "loss": 10.968209028244019
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:38.938816+00:00",
+        "elapsed_seconds": 41.91835141717456,
+        "seconds_since_previous_mark": 1.2674351250752807,
+        "synchronize_seconds": 0.0006304169073700905,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:38.938727+00:00",
+          "elapsed_seconds": 41.918365167221054,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932118528,
+          "rss_measurement_age_seconds": 1.9774080000352114,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 25,
+          "loss": 11.038722276687622
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:40.219204+00:00",
+        "elapsed_seconds": 43.19873870909214,
+        "seconds_since_previous_mark": 1.2803872919175774,
+        "synchronize_seconds": 0.0006059159059077501,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:40.219135+00:00",
+          "elapsed_seconds": 43.198751042131335,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932151296,
+          "rss_measurement_age_seconds": 1.1603956250473857,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 26,
+          "loss": 10.820629835128784
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:41.521344+00:00",
+        "elapsed_seconds": 44.50084225018509,
+        "seconds_since_previous_mark": 1.3021035410929471,
+        "synchronize_seconds": 0.0006296669598668814,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:41.521264+00:00",
+          "elapsed_seconds": 44.500862459186465,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932151296,
+          "rss_measurement_age_seconds": 0.375179291004315,
+          "mps_allocated_bytes": 10107522048,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 27,
+          "loss": 8.749204516410828
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:42.791973+00:00",
+        "elapsed_seconds": 45.771459084004164,
+        "seconds_since_previous_mark": 1.2706168338190764,
+        "synchronize_seconds": 0.0006242080125957727,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:42.791897+00:00",
+          "elapsed_seconds": 45.77146958420053,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932151296,
+          "rss_measurement_age_seconds": 1.6457875410560519,
+          "mps_allocated_bytes": 10107538432,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 28,
+          "loss": 12.098990797996521
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:44.154612+00:00",
+        "elapsed_seconds": 47.13406362500973,
+        "seconds_since_previous_mark": 1.3626045410055667,
+        "synchronize_seconds": 0.000667500076815486,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:44.154526+00:00",
+          "elapsed_seconds": 47.13407966704108,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932184064,
+          "rss_measurement_age_seconds": 0.9125271250959486,
+          "mps_allocated_bytes": 10107505664,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 29,
+          "loss": 8.712611436843872
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:45.470248+00:00",
+        "elapsed_seconds": 48.449663417181,
+        "seconds_since_previous_mark": 1.3155997921712697,
+        "synchronize_seconds": 0.0006674169562757015,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:45.470151+00:00",
+          "elapsed_seconds": 48.44968341710046,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932184064,
+          "rss_measurement_age_seconds": 0.1357595829758793,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 30,
+          "loss": 8.29770827293396
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:46.775528+00:00",
+        "elapsed_seconds": 49.75493000005372,
+        "seconds_since_previous_mark": 1.3052665828727186,
+        "synchronize_seconds": 0.0006420838180929422,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:46.775437+00:00",
+          "elapsed_seconds": 49.75494404206984,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932184064,
+          "rss_measurement_age_seconds": 1.4410131250042468,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 31,
+          "loss": 8.62767767906189
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "delayed_update",
+        "timestamp": "2026-10-23T13:01:48.104147+00:00",
+        "elapsed_seconds": 51.08352666720748,
+        "seconds_since_previous_mark": 1.3285966671537608,
+        "synchronize_seconds": 0.0006459159776568413,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:01:48.104057+00:00",
+          "elapsed_seconds": 51.08354050014168,
+          "phase": "delayed_update",
+          "rss_peak_process_lifetime_bytes": 15587295232,
+          "rss_current_bytes": 932233216,
+          "rss_measurement_age_seconds": 0.6868574160616845,
+          "mps_allocated_bytes": 10107554816,
+          "mps_driver_bytes": 10930438144
+        },
+        "fields": {
+          "update": 32,
+          "loss": 8.312676668167114
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 74.78001266717911,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T13:02:11.801934+00:00"
+}
