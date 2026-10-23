@@ -53,11 +53,16 @@ class MemoryAnswerService:
         if not spans:
             return MemoryAnswer('', 'unavailable', (), (), (), None, False)
         texts = []
+        record_ids, span_hashes, source_ids = [], [], []
         for span in spans:
-            texts.append(self.session.exact_text(request, span))
+            exact = self.session.exact_text(request, span)
+            texts.append(exact.text)
+            record_ids.append(exact.record_id)
+            span_hashes.append(exact.span_hash)
+            source_ids.append(exact.source_hash)
         return MemoryAnswer(
             text='\n'.join(texts), method='exact_source',
-            record_ids=tuple(dict.fromkeys(span.record_id for span in spans)),
-            span_hashes=tuple(span.span_hash for span in spans),
-            source_ids=tuple(dict.fromkeys(span.source_hash for span in spans)),
+            record_ids=tuple(dict.fromkeys(record_ids)),
+            span_hashes=tuple(span_hashes),
+            source_ids=tuple(dict.fromkeys(source_ids)),
             producer=frame.memory.producer, exact_source=True)

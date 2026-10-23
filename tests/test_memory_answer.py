@@ -18,7 +18,9 @@ class FakeSession:
     def pointer_answer(self, req):
         from replica_lab.memory_system.session import PointerAnswer
         return PointerAnswer((1,2),'amber','r1','h1','s1',('r1',),0,1,'p')
-    def exact_text(self, req, span): return f'text:{span.record_id}'
+    def exact_text(self, req, span):
+        return type('Exact', (), {'text': f'text:{span.record_id}', 'record_id': span.record_id,
+                                  'span_hash': span.span_hash, 'source_hash': span.source_hash})()
 
 def make(pointer=True):
     span=Span('r1','s1','src1'); frame=Frame(pointer, type('M',(),{'producer':'p'})())
