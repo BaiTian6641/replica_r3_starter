@@ -2,9 +2,9 @@
 
 23 October 2026 UTC / 22 October America/Chicago. This increment implements the
 first two packages of the [build sequence](05_Implementation_Sequence.md).
-The pre-run revision records software construction and the fixed qualification
-protocol. Native results are added after execution; test counts alone do not
-establish useful model memory.
+**Native follow-up:** E1 and the bounded E2 slot-reading diagnostic pass on the
+M2 Ultra GPU. See the [results and limitations](../experiments/20261023_E1_E2_Native_Results.md).
+The reranker remains1/2 on its tiny diagnostic; E3 and broader quality remain open.
 
 ## Connected implementation
 
@@ -144,7 +144,7 @@ output and a persistent ledger. For example, after the extension exists:
   --report reports/my_session.guard.json \
   -- --device mps --output runs/my_session \
   --ledger private/replica/records.sqlite \
-  --extension runs/e1_e2_native_20261023/selected_extension \
+  --extension runs/e1_e2_native_attempt02_20261023/selected_extension \
   --query 'What is the approved release label for project Aster?' \
   --subject example --branch main --purpose project_assistance --as-of 10
 ```
