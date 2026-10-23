@@ -186,8 +186,14 @@ class ParsedProposal:
             raise ValueError('Raw proposal bytes must be preserved')
 
 
+# Native tokenizers append decoder stop markers after the emitted JSON. They are
+# transport artifacts, not a second action; arbitrary prose remains rejected.
+_TRAILING_SPECIAL_TOKENS = re.compile(
+    r'(?:</s>|<\|im_end\|>|<\|endoftext\|>|<\|end\|>|<pad>)+\s*$')
+
+
 def _extract_single_object(text: str):
-    stripped = text.strip()
+    stripped = _TRAILING_SPECIAL_TOKENS.sub('', text).strip()
     fence = re.fullmatch(r'```(?:json)?\s*(.*?)\s*```', stripped, re.DOTALL)
     if fence is not None:
         stripped = fence.group(1).strip()

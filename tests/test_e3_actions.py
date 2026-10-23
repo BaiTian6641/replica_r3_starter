@@ -37,6 +37,15 @@ class TestParsing:
             '```json\n{"kind": "stop"}\n```', ALLOWED)
         assert parsed.status == 'ok' and parsed.kind == 'stop'
 
+    @pytest.mark.parametrize('suffix', ['</s>', '<|im_end|>', '</s><|im_end|>',
+                                        '<|endoftext|>', '<pad>'])
+    def test_decoder_stop_tokens_are_transport_not_actions(self, suffix):
+        raw = json.dumps({'kind': 'read', 'path': 'workspace/config.json'}) + suffix
+        parsed = parse_action_proposal(raw, ALLOWED)
+        assert parsed.status == 'ok' and parsed.kind == 'read'
+        assert parsed.raw == raw.encode('utf-8')
+        assert parse_action_proposal(raw + ' trailing prose', ALLOWED).status == 'denied'
+
     @pytest.mark.parametrize('raw,reason', [
         ('', 'empty_proposal'),
         ('not json at all', 'malformed_json'),
