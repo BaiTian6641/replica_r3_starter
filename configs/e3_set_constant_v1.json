@@ -1,0 +1,167 @@
+{
+  "format": "replica.e3.qualification.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Separately declared narrower E3 task family after the write_file arm failed. The model selects a bounded set_constant tool; the host never chooses the repair.",
+  "task_family": "set_constant",
+  "repair_tool": "set_constant",
+  "workspace_history": "disabled (workspace rebuilt each decision; previous-workspace recurrence is not used)",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "parent_use": [
+    "initialization_of_E2_components_after_validated_migration",
+    "regression_reference"
+  ],
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "sampling": "greedy",
+  "thinking": false,
+  "ports": [
+    13,
+    27
+  ],
+  "observer": 41,
+  "source_tokens_per_unit": 128,
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_set/cases",
+    "manifest": "fixtures/e3_set/cases/manifest.json",
+    "manifest_sha256": "b9df60081aa20833d81e28362853e0ce463c06fb50e9e1af956125fe9b3a0c01",
+    "train": [
+      "set_train_retry_01",
+      "set_train_timeout_02",
+      "set_train_backoff_03",
+      "set_train_poll_04"
+    ],
+    "dev": [
+      "set_dev_retry_05"
+    ],
+    "heldout": [
+      "set_heldout_timeout_06",
+      "set_heldout_backoff_07",
+      "set_heldout_poll_08"
+    ],
+    "interrupted": [
+      "set_interrupted_retry_09"
+    ],
+    "roles_note": "Fresh source groups; none were used in prior E3 training or evaluation. Held-out groups are assessed once."
+  },
+  "alignment": {
+    "regime": "modules_only",
+    "frozen": "all 2516756480 original parameters (381 tensors)",
+    "trainable_components": [
+      "record_writer",
+      "memory_ports",
+      "sense_ports",
+      "reranker",
+      "core",
+      "workspace_ports",
+      "task_head"
+    ],
+    "optimizer": "muon8bit",
+    "auxiliary_optimizer": "adamw (FP32)",
+    "updates": 16,
+    "examples_per_update": 4,
+    "example_order": "deterministic round-robin over (train case, teacher step) sorted by case id and step",
+    "seed": 20261023,
+    "lr_new": 0.005,
+    "lr_muon_new": 0.01,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "loss": "teacher-forced next-token cross entropy on the set_constant action JSON plus EOS; prompt prefix masked",
+    "train_core": true,
+    "train_sense": true,
+    "previous_workspace_during_alignment": "absent",
+    "max_prompt_tokens": 640,
+    "max_label_tokens": 96,
+    "teacher_steps_per_case": 5,
+    "teacher_policy": "read_file -> run_test -> set_constant -> run_test -> stop; host-authored labels only, never evaluation action selection"
+  },
+  "generation": {
+    "max_new_tokens": 128,
+    "max_prompt_tokens": 640,
+    "reprefill": true,
+    "stop": "EOS or token limit",
+    "raw_output_policy": "retain all IDs/text including malformed"
+  },
+  "budgets": {
+    "decisions_per_episode": 7,
+    "tool_calls_per_episode": 4,
+    "generated_tokens_per_decision": 128,
+    "prompt_tokens_per_decision": 640,
+    "wall_seconds_per_episode": 300
+  },
+  "evaluation": {
+    "full_episodes": [
+      "set_dev_retry_05",
+      "set_heldout_timeout_06",
+      "set_heldout_backoff_07",
+      "set_heldout_poll_08"
+    ],
+    "control_case": "set_dev_retry_05",
+    "control_modes": [
+      "core_disabled",
+      "ff_core",
+      "extra_inference"
+    ],
+    "interrupted_case": "set_interrupted_retry_09",
+    "interruption_plan": "CLI process 1 observes the failing test, host correction bumps revision, process 2 resumes with workspace_zero",
+    "success_rule": "only the independent evaluator command may satisfy the success condition",
+    "scores": [
+      "host-verified completion",
+      "selected action/tool arguments",
+      "tool exit codes",
+      "plan change after failure",
+      "malformed actions",
+      "false success claims",
+      "decisions/tokens/tool calls/wall time"
+    ]
+  },
+  "success_head": {
+    "kind": "task-success prediction from detached task features plus pooled first-decision workspace",
+    "train_if_labels_at_least": 7,
+    "require_both_classes": true,
+    "optimizer": "adamw",
+    "steps": 300,
+    "lr": 0.01,
+    "weight_decay": 0.0,
+    "loss": "binary cross entropy with logits",
+    "report": [
+      "label count/class balance",
+      "training loss",
+      "Brier on same exposed labels",
+      "no-calibration claim"
+    ],
+    "authority": "prediction only; never declares success"
+  },
+  "checkpoint": {
+    "format": "replica.minicpm5.extensions.v2",
+    "save_policy": "one final extension-only export after alignment and optional success-head fitting; no base copy or optimizer checkpoint",
+    "base_saved": false,
+    "storage_root": "runs/"
+  },
+  "stop_conditions": [
+    "capacity guard stop",
+    "nonfinite loss/gradient/logits",
+    "declared budget exhausted",
+    "journal binding/chain failure"
+  ],
+  "claims": {
+    "implemented": "bounded set_constant tool, fresh task family, model-driven loop and restart",
+    "trained": "modules-only alignment on fresh train trajectories",
+    "measured": "held-out task completion, action/argument correctness, controls and costs",
+    "not_claimed": "generalization, calibrated confidence, write_file repair, self-improvement"
+  }
+}

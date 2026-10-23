@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from types import MappingProxyType
 import json
+import math
 import re
 import uuid
 
@@ -43,6 +44,7 @@ KIND_SCHEMAS = {
 TOOL_ARGUMENT_SCHEMAS = {
     'read_file': {'path': (str, True, MAX_PATH_ARGUMENT)},
     'write_file': {'path': (str, True, MAX_PATH_ARGUMENT), 'content': (str, True, 8 * 1024)},
+    'set_constant': {'name': (str, True, 64), 'value': (float, True, None)},
     'run_test': {},
 }
 
@@ -54,6 +56,16 @@ def validate_tool_arguments(tool: str, arguments) -> dict:
         raise ValueError(f'Unknown tool {tool!r}')
     if not isinstance(arguments, dict):
         raise ValueError('Tool arguments must be an object')
+    if tool == 'set_constant':
+        if set(arguments) != {'name', 'value'}:
+            raise ValueError('set_constant requires exactly name and value')
+        name, value = arguments['name'], arguments['value']
+        if (not isinstance(name, str) or not re.fullmatch(r'[A-Z][A-Z0-9_]{0,63}', name)):
+            raise ValueError('constant name must be UPPER_SNAKE_CASE')
+        if type(value) not in (int, float) or isinstance(value, bool) \
+                or not math.isfinite(float(value)) or abs(float(value)) > 1e9:
+            raise ValueError('constant value must be a finite bounded number')
+        return {'name': name, 'value': value}
     unexpected = sorted(set(arguments) - set(schema))
     if unexpected:
         raise ValueError(f'Unexpected tool arguments: {unexpected}')

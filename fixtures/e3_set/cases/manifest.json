@@ -1,0 +1,98 @@
+{
+  "format": "replica.e3_set.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "cases": [
+    {
+      "case_id": "set_train_retry_01",
+      "role": "train",
+      "source_group": "train_a",
+      "constant": "RETRY_ATTEMPTS",
+      "actual": 2,
+      "expected": 5
+    },
+    {
+      "case_id": "set_train_timeout_02",
+      "role": "train",
+      "source_group": "train_a",
+      "constant": "REQUEST_TIMEOUT_MS",
+      "actual": 1500,
+      "expected": 9000
+    },
+    {
+      "case_id": "set_train_backoff_03",
+      "role": "train",
+      "source_group": "train_b",
+      "constant": "BACKOFF_SECONDS",
+      "actual": 0.2,
+      "expected": 1.5
+    },
+    {
+      "case_id": "set_train_poll_04",
+      "role": "train",
+      "source_group": "train_b",
+      "constant": "POLL_ATTEMPTS",
+      "actual": 3,
+      "expected": 8
+    },
+    {
+      "case_id": "set_dev_retry_05",
+      "role": "dev",
+      "source_group": "dev_a",
+      "constant": "MAX_RETRIES",
+      "actual": 1,
+      "expected": 4
+    },
+    {
+      "case_id": "set_heldout_timeout_06",
+      "role": "heldout",
+      "source_group": "heldout_a",
+      "constant": "CONNECT_TIMEOUT_MS",
+      "actual": 500,
+      "expected": 2500
+    },
+    {
+      "case_id": "set_heldout_backoff_07",
+      "role": "heldout",
+      "source_group": "heldout_b",
+      "constant": "BACKOFF_SECONDS",
+      "actual": 0.1,
+      "expected": 1.5
+    },
+    {
+      "case_id": "set_heldout_poll_08",
+      "role": "heldout",
+      "source_group": "heldout_c",
+      "constant": "POLL_ATTEMPTS",
+      "actual": 2,
+      "expected": 7
+    },
+    {
+      "case_id": "set_interrupted_retry_09",
+      "role": "interrupted",
+      "source_group": "interrupted_a",
+      "constant": "MAX_RETRIES",
+      "actual": 2,
+      "expected": 6
+    }
+  ],
+  "splits": {
+    "train": [
+      "set_train_retry_01",
+      "set_train_timeout_02",
+      "set_train_backoff_03",
+      "set_train_poll_04"
+    ],
+    "dev": [
+      "set_dev_retry_05"
+    ],
+    "heldout": [
+      "set_heldout_timeout_06",
+      "set_heldout_backoff_07",
+      "set_heldout_poll_08"
+    ],
+    "interrupted": [
+      "set_interrupted_retry_09"
+    ]
+  }
+}

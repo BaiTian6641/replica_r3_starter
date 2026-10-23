@@ -19,7 +19,7 @@ ACTION_STATES = ('proposed', 'attempted', 'completed', 'denied', 'failed')
 OUTCOME_STATUSES = ('completed', 'denied', 'failed', 'pending_input')
 OBLIGATION_STATES = ('unresolved', 'satisfied')
 EVIDENCE_KINDS = ('receipt', 'observation', 'record')
-TOOL_KINDS = ('read_file', 'write_file', 'run_test')
+TOOL_KINDS = ('read_file', 'write_file', 'set_constant', 'run_test')
 PATCH_OPS = ('add_claim', 'revise_claim', 'add_subgoal', 'add_obligation',
              'satisfy_obligation', 'add_evidence', 'set_subgoal_state', 'note')
 AUTHORS = ('host', 'model')

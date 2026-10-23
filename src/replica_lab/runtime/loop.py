@@ -343,6 +343,9 @@ class TaskRuntime:
         if 'write_file' in state.allowed_tools:
             instructions.append('{"kind": "invoke_tool", "tool": "write_file",'
                                 ' "arguments": {"path": "workspace/...", "content": "..."}}')
+        if 'set_constant' in state.allowed_tools:
+            instructions.append('{"kind": "invoke_tool", "tool": "set_constant",'
+                                ' "arguments": {"name": "CONSTANT_NAME", "value": 0}}')
         if 'run_test' in state.allowed_tools:
             instructions.append('{"kind": "invoke_tool", "tool": "run_test",'
                                 ' "arguments": {}}')

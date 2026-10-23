@@ -142,22 +142,31 @@ class TeacherProposer:
                               notes=('teacher_label',))
 
 
-def teacher_actions(tools):
+def teacher_actions(tools, repair_tool='write_file'):
     repair = tools.reference_repair
     if not repair or repair.get('path') != tools.workspace_entry:
         raise ValueError('Fixture reference repair must target the workspace entry')
+    if repair_tool == 'set_constant':
+        variant = tools.variant
+        change = {'kind': 'invoke_tool', 'tool': 'set_constant',
+                  'arguments': {'name': variant['constant'],
+                                'value': variant['expected_value']}}
+    elif repair_tool == 'write_file':
+        change = {'kind': 'invoke_tool', 'tool': 'write_file',
+                  'arguments': {'path': repair['path'], 'content': repair['content']}}
+    else:
+        raise ValueError(f'Unsupported repair tool: {repair_tool}')
     return [
         {'kind': 'read', 'path': tools.workspace_entry},
         {'kind': 'invoke_tool', 'tool': 'run_test', 'arguments': {}},
-        {'kind': 'invoke_tool', 'tool': 'write_file',
-         'arguments': {'path': repair['path'], 'content': repair['content']}},
+        change,
         {'kind': 'invoke_tool', 'tool': 'run_test', 'arguments': {}},
         {'kind': 'stop'},
     ]
 
 
 def run_teacher(case_dir, work_dir, *, tokenizer, subject, branch, purpose,
-                max_prompt_tokens, max_generated_tokens):
+                max_prompt_tokens, max_generated_tokens, repair_tool='write_file'):
     from replica_lab.runtime.journal import TaskJournal
     from replica_lab.runtime.loop import TaskRuntime
     from replica_lab.runtime.tools import FixtureWorkspace
@@ -174,7 +183,7 @@ def run_teacher(case_dir, work_dir, *, tokenizer, subject, branch, purpose,
                               generated_token_budget=max_generated_tokens, budget=budget)
         runtime.initialize(initial_state(tools, subject=subject, branch=branch,
                                          purpose=purpose, budget=budget))
-        proposer = TeacherProposer(teacher_actions(tools), tokenizer,
+        proposer = TeacherProposer(teacher_actions(tools, repair_tool), tokenizer,
                                    max_prompt_tokens=max_prompt_tokens,
                                    max_generated_tokens=max_generated_tokens)
         summary = runtime.run(proposer, max_decisions=6)
@@ -300,7 +309,8 @@ def run_alignment_arm(model, session, tokenizer, examples, *, core_impl, protoco
     return audit
 
 
-def proposer_for_mode(session, tokenizer, tools, *, mode, scope, subject):
+def proposer_for_mode(session, tokenizer, tools, *, mode, scope, subject,
+                      zero_previous=False):
     from replica_lab.runtime.loop import SessionProposer
     common = dict(task_id=tools.case_id, goal=tools.goal, scope=scope, device='mps')
     if mode == 'core_disabled':
@@ -313,6 +323,9 @@ def proposer_for_mode(session, tokenizer, tools, *, mode, scope, subject):
     if mode == 'extra_inference':
         return SessionProposer(session, tokenizer, enabled_branches=('memory',),
                                extra_inference_pass=True, **common)
+    if zero_previous:
+        return SessionProposer(session, tokenizer, zero_previous_workspace=True,
+                               **common)
     return SessionProposer(session, tokenizer, **common)
 
 
@@ -336,7 +349,7 @@ def plan_change_after_failure(trace):
 
 def run_episode(case_dir, work_dir, *, session, tokenizer, mode, subject, purpose,
                 budget, max_prompt_tokens, generated_token_budget, shuffled=None,
-                mark=None):
+                mark=None, zero_previous=False):
     from replica_lab.memory_system import EligibilityScope
     from replica_lab.runtime.journal import TaskJournal
     from replica_lab.runtime.loop import TaskRuntime
@@ -359,7 +372,7 @@ def run_episode(case_dir, work_dir, *, session, tokenizer, mode, subject, purpos
         runtime.initialize(initial_state(tools, subject=subject, branch=branch,
                                          purpose=purpose, budget=budget))
         proposer = proposer_for_mode(session, tokenizer, tools, mode=mode, scope=scope,
-                                     subject=subject)
+                                     subject=subject, zero_previous=zero_previous)
         summary = runtime.run(proposer, max_decisions=budget.max_decisions)
         final = runtime.state
         stored = store.load()
@@ -372,6 +385,7 @@ def run_episode(case_dir, work_dir, *, session, tokenizer, mode, subject, purpos
             'workspace_stored_matches': bool(stored is not None
                                              and stored.task_digest == final.digest),
             'last_workspace_discard': runtime.last_workspace_discard,
+            'workspace_history_disabled': bool(zero_previous),
             'journal': {'path': str((work_dir / 'journal.sqlite').resolve()),
                         'head': journal.head, 'events': len(journal.events())},
             'actions': [a.to_dict() for a in final.actions],
@@ -503,6 +517,11 @@ def execute(args, profiler, report):
         raise ValueError('Protocol alignment budget is empty')
     evaluation = protocol['evaluation']
     budgets = protocol['budgets']
+    repair_tool = protocol.get('repair_tool', 'write_file')
+    zero_previous = protocol.get('workspace_history') == 'disabled'
+    fixture_manifest = Path(protocol['fixtures']['manifest'])
+    if sha256_bytes(fixture_manifest.read_bytes()) != protocol['fixtures']['manifest_sha256']:
+        raise ValueError('Fixture manifest differs from the preregistered hash')
 
     torch.manual_seed(protocol['alignment']['seed'])
     model, tokenizer, source_lock = load_local_mps(
@@ -651,7 +670,8 @@ def execute(args, profiler, report):
         result = run_teacher(cases[case_id]['dir'], work, tokenizer=tokenizer,
                              subject=subject, branch=case_id, purpose=purpose,
                              max_prompt_tokens=int(alignment['max_prompt_tokens']),
-                             max_generated_tokens=int(alignment['max_label_tokens']))
+                             max_generated_tokens=int(alignment['max_label_tokens']),
+                             repair_tool=repair_tool)
         if not result['summary']['success']:
             raise AssertionError(f'Teacher trajectory failed for {case_id}')
         for example in result['examples']:
@@ -719,7 +739,8 @@ def execute(args, profiler, report):
             cases[case_id]['dir'], work, session=session, tokenizer=tokenizer, mode='full',
             subject=subject, purpose=purpose, budget=episode_budget,
             max_prompt_tokens=int(budgets['prompt_tokens_per_decision']),
-            generated_token_budget=int(budgets['generated_tokens_per_decision']), mark=mark)
+            generated_token_budget=int(budgets['generated_tokens_per_decision']), mark=mark,
+            zero_previous=zero_previous)
         episodes.append(result)
         if case_id == evaluation['control_case']:
             dev_store = store_path
@@ -737,7 +758,8 @@ def execute(args, profiler, report):
             budget=episode_budget,
             max_prompt_tokens=int(budgets['prompt_tokens_per_decision']),
             generated_token_budget=int(budgets['generated_tokens_per_decision']),
-            shuffled=shuffled_core if mode == 'workspace_shuffled' else None, mark=mark)
+            shuffled=shuffled_core if mode == 'workspace_shuffled' else None, mark=mark,
+            zero_previous=zero_previous)
         control_reports.append(result)
     restore_new_parameters(model, recurrent_snapshot)
     model.eval()
@@ -903,7 +925,8 @@ def preflight(args, profiler, report):
                               tokenizer=tokenizer, subject=subject, branch=case_id,
                               purpose=purpose,
                               max_prompt_tokens=int(protocol['alignment']['max_prompt_tokens']),
-                              max_generated_tokens=int(protocol['alignment']['max_label_tokens']))
+                              max_generated_tokens=int(protocol['alignment']['max_label_tokens']),
+                              repair_tool=protocol.get('repair_tool', 'write_file'))
         if not teacher['summary']['success']:
             raise AssertionError('Preflight teacher trajectory failed')
         example = max(teacher['examples'], key=lambda item: item['prompt_tokens'])

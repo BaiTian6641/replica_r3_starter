@@ -21,7 +21,7 @@ from .actions import TOOL_ARGUMENT_SCHEMAS, validate_tool_arguments
 
 CASE_FORMAT = 'replica.e3.fixture.v1'
 ROLES = ('train', 'dev', 'heldout', 'interrupted')
-KNOWN_TOOLS = ('read_file', 'write_file', 'run_test')
+KNOWN_TOOLS = ('read_file', 'write_file', 'set_constant', 'run_test')
 MAX_READ_BYTES = 16 * 1024
 MAX_WRITE_BYTES = 8 * 1024
 MAX_OUTPUT_BYTES = 20 * 1024
@@ -267,6 +267,48 @@ class FixtureWorkspace:
         return {'status': 'ok', 'kind': 'write_file', 'path': args['path'],
                 'sha256': sha256_bytes(content), 'size': len(content), 'created': created}
 
+    def set_constant(self, arguments: dict) -> dict:
+        """Bounded repair: replace exactly one numeric module-level assignment."""
+        import re
+        try:
+            args = validate_tool_arguments('set_constant', arguments)
+        except ValueError as error:
+            return {'status': 'denied', 'kind': 'set_constant', 'error': str(error)}
+        parts = _case_workspace_parts(self.workspace_entry, 'workspace_entry')
+        relative = 'workspace/' + '/'.join(parts)
+        target = self.workspace_dir.joinpath(*parts)
+        if not target.exists() or target.is_symlink() or not target.is_file():
+            return {'status': 'error', 'kind': 'set_constant', 'error': 'not_a_regular_file',
+                    'path': relative}
+        raw = target.read_bytes()
+        if len(raw) > MAX_WRITE_BYTES:
+            return {'status': 'denied', 'kind': 'set_constant', 'error': 'file_too_large'}
+        try:
+            text = raw.decode('utf-8')
+        except UnicodeDecodeError:
+            return {'status': 'error', 'kind': 'set_constant', 'error': 'not_utf8'}
+        pattern = re.compile(
+            r'^([ \t]*)' + re.escape(args['name']) + r'([ \t]*=[ \t]*)'
+            r'(-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)([ \t]*)$',
+            re.MULTILINE)
+        matches = list(pattern.finditer(text))
+        if len(matches) != 1:
+            return {'status': 'denied', 'kind': 'set_constant',
+                    'error': f'constant_must_occur_exactly_once:{args["name"]}',
+                    'occurrences': len(matches)}
+        match = matches[0]
+        old_value = match.group(3)
+        new_value = str(int(args['value'])) if type(args['value']) is int else repr(args['value'])
+        updated = text[:match.start(3)] + new_value + text[match.end(3):]
+        written = self.write_file({'path': relative, 'content': updated})
+        if written.get('status') != 'ok':
+            return {'status': 'error', 'kind': 'set_constant',
+                    'error': written.get('error', 'write_failed')}
+        return {'status': 'ok', 'kind': 'set_constant', 'name': args['name'],
+                'old_value': old_value, 'new_value': new_value,
+                'path': relative, 'sha256': written['sha256'],
+                'receipt': written}
+
     def _run_evaluator(self) -> dict:
         command = [sys.executable, self.evaluator_rel]
         workspace_before = self.workspace_hashes()
@@ -327,6 +369,8 @@ class FixtureWorkspace:
             handlers['read_file'] = self.read_file
         if 'write_file' in allowed:
             handlers['write_file'] = self.write_file
+        if 'set_constant' in allowed:
+            handlers['set_constant'] = self.set_constant
         if 'run_test' in allowed:
             handlers['run_test'] = self.run_test
         return ToolRegistry(handlers)
