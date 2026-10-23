@@ -47,7 +47,9 @@
     "weight_decay": 0.0,
     "gradient_clip": 1.0,
     "previous_workspace": "absent",
-    "teacher_policy": "read_file -> run_test -> set_constant -> run_test -> stop; labels only"
+    "teacher_policy": "read_file -> run_test -> set_constant -> run_test -> stop; labels only",
+    "max_prompt_tokens": 640,
+    "max_label_tokens": 96
   },
   "evaluation": {
     "cases": [
@@ -82,5 +84,14 @@
     "memory pressure",
     "8 updates without held-out improvement"
   ],
-  "claims": "Full-backbone action diagnostic only; no quality or architecture-benefit claim unless held-out completions occur."
+  "claims": "Full-backbone action diagnostic only; no quality or architecture-benefit claim unless held-out completions occur.",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  }
 }
