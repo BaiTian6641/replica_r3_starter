@@ -63,7 +63,7 @@ def execute(args,protocol,report,prof):
  receipt=model.load_extension(args.parent_extension);report.update(manifest=model.manifest.to_dict(),manifest_digest=model.manifest.digest,source_lock=lock,parent_receipt=receipt)
  ledger=RecordLedger(args.output/'ledger.sqlite');subject='candidate-rerank';purpose='candidate-rerank';root=ROOT/protocol['fixtures']['root'];cases=protocol['evaluation']['cases']
  if not args.resume:
-  for cid in protocol['fixtures']['dev']+protocol['fixtures']['heldout']:admit_policy(ledger,FixtureWorkspace(root/cid),subject=subject,branch=cid,purpose=purpose)
+  for cid in protocol['fixtures'].get('dev',[])+protocol['fixtures']['heldout']:admit_policy(ledger,FixtureWorkspace(root/cid),subject=subject,branch=cid,purpose=purpose)
  session=MemorySession(model,tok,ledger,max_candidate_units=16);episodes=[]
  for cid in cases:
   tools=FixtureWorkspace(root/cid);scope=EligibilityScope(subject,cid,purpose,0,'assistant_for_source',None)
