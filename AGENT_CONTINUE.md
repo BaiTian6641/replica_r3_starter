@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 fresh mixed family (23 October):** 3/4 no-head completions with new
+constant names/values; the miss was a new-constant name typo with rejected stop
+claims. See [fresh mixed results](docs/experiments/20261023_E3_Fresh_Mixed_Controls_Results.md).
+
 **E3 fresh-process restart (23 October):** copied mixed repair case; process 1
 observed exit 1, process 2 resumed journal and completed; **12/12** acceptance.
 See [restart results](docs/experiments/20261023_E3_Mixed_Restart_Results.md).

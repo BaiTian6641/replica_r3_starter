@@ -33,6 +33,14 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 fresh mixed family (23 October).** Four new held-out cases with constant
+names/values absent from accepted training produced **3/4 completions** with no
+head. The miss was `fresh_heldout_repair_02`: the model generated `12` but
+misspelled the new constant name (`QUUEUE_DEPTH`/`QUUE_DEPTH`); the host rejected
+both mutations and both stop claims. This is an argument-generation boundary,
+not a tool/parser failure. See
+[fresh mixed results](docs/experiments/20261023_E3_Fresh_Mixed_Controls_Results.md).
+
 **E3 mixed fresh-process restart (23 October).** Process 1 read and observed
 evaluator exit 1, then stopped at the declared step limit; process 2 resumed the
 same journal and ledger, applied exactly one `set_constant(POLL_ATTEMPTS=7)`,
