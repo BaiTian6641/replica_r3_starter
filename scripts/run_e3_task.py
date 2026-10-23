@@ -316,7 +316,8 @@ def execute(args, tools, case, report):
     runtime = TaskRuntime(
         tools, journal, workspace_store=workspace_store, mode=args.mode,
         max_prompt_tokens=args.max_prompt_tokens,
-        generated_token_budget=args.max_new_tokens, shuffled_workspace=shuffled)
+        generated_token_budget=args.max_new_tokens, shuffled_workspace=shuffled,
+        action_guard=args.action_guard)
     if not journal.initialize_done():
         runtime.initialize(build_initial_state(tools, args))
     recovered = runtime.recover()

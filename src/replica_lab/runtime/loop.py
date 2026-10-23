@@ -154,7 +154,7 @@ class TaskRuntime:
                  max_proposal_bytes: int = MAX_PROPOSAL_BYTES,
                  workspace_width: int = DEFAULT_WORKSPACE_WIDTH,
                  shuffled_workspace: CoreState | None = None,
-                 identity=None, fast_memory=None):
+                 identity=None, fast_memory=None, action_guard=False):
         if mode not in MODES:
             raise ValueError(f'Unknown runtime mode: {mode!r}')
         self.tools = tools
@@ -176,6 +176,7 @@ class TaskRuntime:
             if not isinstance(identity, IdentityContext):
                 raise ValueError('identity must be an IdentityContext or None')
         self.identity = identity
+        self.action_guard = bool(action_guard)
         if fast_memory is not None and not hasattr(fast_memory, 'observe'):
             raise ValueError('fast_memory must expose observe() and snapshot()')
         self.fast_memory = fast_memory
@@ -300,6 +301,47 @@ class TaskRuntime:
             return None, 'incompatible_implementation'
         return core, None
 
+    # ---- state-dependent action-space guard --------------------------------
+    def _guard_state(self, state: ExactTaskState) -> dict:
+        """Return no-progress read/test facts from actual action history.
+
+        This guard never reads the evaluator, reference repair or expected value.
+        It only prevents a repeated read of an unchanged file and a repeated
+        test after a failed test without a successful workspace mutation.
+        """
+        mutation_tools = {'set_constant', 'write_file'}
+        last_mutation = -1
+        for index, action in enumerate(state.actions):
+            if action.kind == 'invoke_tool' and action.tool in mutation_tools                     and action.state == 'completed':
+                last_mutation = index
+        recent = state.actions[last_mutation + 1:]
+        outcomes = {outcome.action_id: outcome for outcome in state.outcomes}
+        reads = set()
+        failed_test = False
+        for action in recent:
+            outcome = outcomes.get(action.action_id)
+            if action.kind == 'read' and outcome is not None                     and outcome.status == 'completed':
+                path = action.args.get('path')
+                if isinstance(path, str):
+                    reads.add(path)
+            if action.kind == 'invoke_tool' and action.tool == 'run_test'                     and outcome is not None and outcome.status == 'failed':
+                failed_test = True
+        return {'reads_since_mutation': tuple(sorted(reads)),
+                'failed_test_since_mutation': failed_test,
+                'last_mutation_index': last_mutation}
+
+    def _guard_denial(self, proposal: ActionProposal, state: ExactTaskState):
+        if not self.action_guard:
+            return None
+        guard = self._guard_state(state)
+        if proposal.kind == 'read':
+            path = proposal.args.get('path')
+            if isinstance(path, str) and path in guard['reads_since_mutation']:
+                return 'repeated_read_without_workspace_change'
+        if proposal.kind == 'invoke_tool' and proposal.args.get('tool') == 'run_test'                 and guard['failed_test_since_mutation']:
+            return 'repeated_test_without_workspace_change'
+        return None
+
     # ---- prompt -------------------------------------------------------------
     def _build_prompt(self, state: ExactTaskState) -> str:
         lines = [f'TASK {state.task_id} (revision {state.revision})',
@@ -365,6 +407,16 @@ class TaskRuntime:
             lines.append(f'LAST OBSERVATION (excerpt, status {last.status}):')
             lines.append(_observation_excerpt(last))
         lines.append('ALLOWED TOOLS: ' + (', '.join(state.allowed_tools) or 'none'))
+        if self.action_guard:
+            guard = self._guard_state(state)
+            blocked = []
+            if guard['reads_since_mutation']:
+                blocked.append('read of: ' + ', '.join(guard['reads_since_mutation']))
+            if guard['failed_test_since_mutation']:
+                blocked.append('run_test (a test already failed without a successful change)')
+            lines.append('ACTION-SPACE GUARD (host-enforced; no expected repair supplied):')
+            lines.append('- unavailable now: ' + ('; '.join(blocked) if blocked else 'none'))
+            lines.append('- choose a different allowed action; the model still chooses tool and arguments')
 
         instructions = ['Respond with exactly one JSON object and nothing else.',
                         'Kinds and arguments:',
@@ -467,6 +519,11 @@ class TaskRuntime:
             return self._finish_denied(decision_seq, output, prompt, prompt_sha,
                                        features, started, parsed, action_id, idempotency_key,
                                        f'validation_denied: {validation.reason}')
+        guard_denial = self._guard_denial(parsed.proposal, state)
+        if guard_denial is not None:
+            return self._finish_denied(decision_seq, output, prompt, prompt_sha,
+                                       features, started, parsed, action_id, idempotency_key,
+                                       f'action_guard: {guard_denial}')
         frame = self._journal_intent_and_execute(parsed.proposal, validation, state,
                                                  idempotency_key)
         self._observe_fast_memory(frame)

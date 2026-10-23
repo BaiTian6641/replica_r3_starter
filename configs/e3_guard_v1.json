@@ -1,0 +1,77 @@
+{
+  "format": "replica.e3.guard.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Distinguish redundant-read/repeated-test interface failure from repair selection on a fresh family. Guard is general and does not read evaluator/reference repair.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures_root": "fixtures/e3_guard/cases",
+  "manifest_sha256": "d649bc0521daace596bd5de4d378c3093d1a85ade1042876d4cd04359481e5fd",
+  "cases": [
+    {
+      "case_id": "guard_heldout_clock_01",
+      "role": "heldout",
+      "source_group": "guard_heldout_a",
+      "constant": "CLOCK_SKEW_MS",
+      "actual": 120,
+      "expected": 800
+    },
+    {
+      "case_id": "guard_heldout_queue_02",
+      "role": "heldout",
+      "source_group": "guard_heldout_b",
+      "constant": "QUEUE_DEPTH",
+      "actual": 4,
+      "expected": 12
+    },
+    {
+      "case_id": "guard_heldout_grace_03",
+      "role": "heldout",
+      "source_group": "guard_heldout_c",
+      "constant": "SHUTDOWN_GRACE_S",
+      "actual": 0.2,
+      "expected": 1.2
+    },
+    {
+      "case_id": "guard_dev_cache_04",
+      "role": "dev",
+      "source_group": "guard_dev_a",
+      "constant": "CACHE_TTL_S",
+      "actual": 0.5,
+      "expected": 3.5
+    }
+  ],
+  "roles": {
+    "heldout": [
+      "guard_heldout_clock_01",
+      "guard_heldout_queue_02",
+      "guard_heldout_grace_03"
+    ],
+    "dev": [
+      "guard_dev_cache_04"
+    ]
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads_per_episode": 1,
+    "parent_extension_only": true
+  },
+  "arms": {
+    "guard": {
+      "action_guard": true
+    },
+    "control": {
+      "action_guard": false
+    }
+  },
+  "budgets": {
+    "decisions": 7,
+    "tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128
+  },
+  "acceptance": {
+    "guard_improves": "guard heldout completions > control",
+    "report": "actual independent evaluator and tool receipts; guard denials are not completions"
+  },
+  "claims": "Interface effect only; no training, quality or general action-policy claim."
+}
