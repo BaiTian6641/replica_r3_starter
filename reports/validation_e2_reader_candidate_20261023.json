@@ -1,0 +1,17 @@
+{
+  "schema_version": "replica.validation.e2_reader_candidate.v1",
+  "date_utc": "2026-10-23",
+  "full_suite": {"command": ".venv/bin/python -m pytest -q", "result": "1120 passed, 21 subtests passed", "exit_code": 0},
+  "report": "reports/e2_reader_candidate_20261023/run_report.json",
+  "protocol": "configs/e2_reader_candidate_v1.json",
+  "dataset": {"train": 24, "dev": 6, "heldout": 10},
+  "training": {"updates": 16, "examples_per_update": 4, "loss_first": 15.706, "loss_last": 8.318, "optimizer_updates": 16},
+  "parent": {"dev_exact": "0/6", "heldout_exact": "0/10"},
+  "candidate": {"dev_exact": "0/6", "heldout_exact": "0/10"},
+  "decision": "defer",
+  "deployment": "not_published",
+  "retrieval": "lexical selected the expected record for all cases",
+  "costs": {"profiled_wall_seconds": 36.17, "peak_driver_gib": 11.0, "extension_bytes": 19523348},
+  "established": "answer-loss training executes and changes behavior; small D1 budget does not copy held-out values",
+  "not_established": "novel-value reading, reader capacity, broad retention, default-reader change"
+}
