@@ -33,6 +33,13 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**Memory answer facade (23 October).** `MemoryAnswerService` connects the
+opt-in pointer and exact-source evidence without generating a replacement
+answer: pointer results carry record/span/source provenance; disabled or
+unavailable pointer paths return exact source spans, never a host-chosen value.
+Behavioral pointer metrics are unchanged. See
+[memory answer path](docs/architecture/12_Memory_Answer_Path.md).
+
 **E4 permitted replay (23 October).** After correction/revocation, the host can
 reset fast memory and replay a bounded sequence of still-permitted
 `(observation_id, text, source_hash)` observations. Runtime replay clears

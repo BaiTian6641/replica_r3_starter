@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**Memory answer facade (23 October):** opt-in pointer provenance or exact-source
+fallback, never fabricated; pointer metrics unchanged. See
+[memory answer path](docs/architecture/12_Memory_Answer_Path.md).
+
 **E4 permitted replay (23 October):** bounded host replay after correction
 rebuilds fast state, clears workspace, rejects generated text; no learned benefit.
 See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
