@@ -1,0 +1,61 @@
+{
+  "format": "replica.e2.copy_head.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Train only the record-token copy head on fresh novel-value data; compare copy-enabled vs disabled generation. Base and E2 writer frozen.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e2_copy",
+    "records_sha256": "2bea5441655dde84a6dda0f54a2e5f6bb3e90536ee1dab3ee4ebe447ab4dcac8",
+    "queries_sha256": "a2519fbba1b2656d480aee533911db61a1522c43885e63f39ae94d0cf744d13c",
+    "manifest_sha256": "adcd37e00c5896a0859426602488258860290064f19f2f07af208a96c1f0dd86"
+  },
+  "copy": {
+    "max_tokens": 512
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable": [
+      "copy_head"
+    ],
+    "optimizer": "muon8bit",
+    "lr_new": 0.01,
+    "lr_muon_new": 0.01,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "updates": 16,
+    "examples_per_update": 4,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "seed": 20261023,
+    "loss": "response-only answer cross entropy with copy candidates from selected records",
+    "selection": "lexical eligible records, 16-unit bank cap"
+  },
+  "evaluation": {
+    "dev": 6,
+    "heldout": 10,
+    "arms": [
+      "copy_enabled",
+      "copy_disabled"
+    ],
+    "generation": {
+      "max_new_tokens": 8,
+      "greedy": true
+    },
+    "metric": "exact answer; selected record IDs retained"
+  },
+  "decision_rule": {
+    "accept_opt_in": "enabled held-out > disabled and dev not below disabled",
+    "reject": "enabled at or below disabled",
+    "defer": "otherwise"
+  },
+  "budget": {
+    "model_loads": 1,
+    "extension_reloads": 1,
+    "optimizer_updates": 16,
+    "eval_generations": 32,
+    "checkpoint_saves": 1
+  },
+  "retention": "Keep parent, copy extension, raw answers and failures; no base copy.",
+  "claims": "Novel-value copy candidate only; no general retrieval, calibration or personal claim."
+}
