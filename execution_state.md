@@ -297,6 +297,15 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 candidate reranking (23 October).** A host-enumerated action menu with
+the model scoring each candidate produced **5/5 completions (4/4 held-out)**
+with zero false success claims; the same-menu random control produced **0/5**
+with two false claims per episode. Model peak **16.23 GiB**, 56 s. This is an
+opt-in narrower ranking interface, not a free-form action policy; the menu
+contains the disclosed repair value and the family is small. Free-form action
+results remain negative. See
+[candidate-rerank results](docs/experiments/20261023_E3_Candidate_Rerank_Results.md).
+
 **E3 DAgger aggregation (23 October).** Initial accepted E3 extension completed
 **2/5** fresh held-out/dev episodes. After 8 modules-only aggregation updates on
 26 host-teacher-labelled model states, it completed **0/5**; training loss fell
