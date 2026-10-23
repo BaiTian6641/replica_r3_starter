@@ -1,0 +1,38 @@
+{
+  "format": "replica.e3.fixture.v1",
+  "case_id": "mixed_train_repair_01",
+  "role": "train",
+  "goal": "The policy test for workspace/app_settings.py must pass. Inspect the configuration, run the evaluator, and if a required bound fails change exactly that one numeric constant with set_constant; if it already passes, stop without editing.",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "If a repair is needed, change exactly one numeric constant with set_constant and leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit and test."
+  ],
+  "allowed_tools": [
+    "read_file",
+    "set_constant",
+    "run_test"
+  ],
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "workspace_entry": "workspace/app_settings.py",
+  "reference_repair": {
+    "path": "workspace/app_settings.py",
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nBACKOFF_SECONDS = 0.4\nREQUEST_TIMEOUT_MS = 1200\nRETRY_ATTEMPTS = 5\n"
+  },
+  "variant": {
+    "constant": "RETRY_ATTEMPTS",
+    "expected_value": 5,
+    "actual_value": 2,
+    "description": "one numeric policy bound below its required minimum"
+  },
+  "requires_repair": true,
+  "source_group": "train_repair_a"
+}

@@ -37,11 +37,12 @@ def parse_examples(role_cases, output, tokenizer, protocol):
     for case_id in role_cases:
         case_dir=Path(protocol['fixtures']['root'])/case_id
         tools=FixtureWorkspace(case_dir)
+        actions = protocol['teacher'].get('pass_actions') if case_id in             protocol['teacher'].get('pass_cases', ()) else None
         result=run_teacher(case_dir, output/'teacher'/case_id, tokenizer=tokenizer,
             subject=protocol['subject'], branch=case_id, purpose=protocol['purpose'],
             max_prompt_tokens=int(protocol['teacher']['max_prompt_tokens']),
             max_generated_tokens=int(protocol['teacher']['max_generated_tokens']),
-            repair_tool='set_constant')
+            repair_tool='set_constant', actions=actions)
         if not result['summary']['success']:
             raise AssertionError(f'teacher failed: {case_id}')
         for item in result['examples']:
@@ -93,8 +94,8 @@ def execute(args,profiler,report):
     protocol=json.loads(args.protocol.read_text())
     if protocol['source_revision']!='f97400052a43d642bbc6e9975e2397e3ae6a6b52':
         raise ValueError('source revision mismatch')
-    if protocol['extension']!='runs/e3_set_attempt03_20261023/selected_extension':
-        raise ValueError('unexpected accepted E3 extension')
+    if not Path(protocol['extension']).exists():
+        raise ValueError('accepted E3 extension missing')
     core_spec=CoreSpec(**protocol['core'])
     model,tok,lock=load_local_mps(args.model_path,args.model_lock,profiler=profiler,core=core_spec)
     receipt=model.load_extension(Path(protocol['extension']))
@@ -158,11 +159,39 @@ def execute(args,profiler,report):
                 'labels':[KINDS[int(v)] for v in truth.tolist()]}
         results[name]['class_majority']={'train':max(Counter(KINDS[int(v)] for v in y[roles==0].tolist()).values())/int((roles==0).sum()),
                                          'heldout':max(Counter(KINDS[int(v)] for v in y[roles==2].tolist()).values())/int((roles==2).sum())}
+    # Step-only baseline: a classifier that knows only the trajectory step.
+    # This must be reported because teacher sequences can make step position a
+    # shortcut label. It is computed from train labels only.
+    from collections import Counter as _Counter
+    train_rows=[r for r in rows if r['role']=='train']
+    global_label=_Counter(r['label'] for r in train_rows).most_common(1)[0][0]
+    by_step={}
+    for r in train_rows:
+        by_step.setdefault(r['step'],_Counter())[r['label']]+=1
+    step_label={step:counts.most_common(1)[0][0] for step,counts in by_step.items()}
+    for role,flag in (('train',0),('dev',1),('heldout',2)):
+        selected=[r for r in rows if {'train':0,'dev':1,'heldout':2}[r['role']]==flag]
+        preds=[step_label.get(r['step'],global_label) for r in selected]
+        truth=[r['label'] for r in selected]
+        results.setdefault('step_only',{})[role]={
+            'count':len(selected),'accuracy':sum(a==b for a,b in zip(preds,truth))/len(selected),
+            'predictions':preds,'labels':truth}
+    results['step_only']['rule']='train-majority label per teacher step; global train majority for unseen steps'
     report['probe']=results
     report['status']='completed'
-    report['decision']=('representation_signal' if results['joint']['heldout']['accuracy']>0.5
-                        and results['joint']['heldout']['accuracy']>results['joint']['class_majority']['heldout']
-                        else 'representation_negative')
+    joint=results['joint']['heldout']['accuracy']
+    baseline=max(results['joint']['class_majority']['heldout'],results['step_only']['heldout']['accuracy'])
+    margin=float(protocol['probe'].get('decision_margin',0.1))
+    if joint>0.5 and joint>baseline+margin:
+        decision='representation_signal'
+    elif joint>baseline:
+        decision='inconclusive'
+    else:
+        decision='representation_negative'
+    report['decision']=decision
+    report['decision_baseline']={'joint_heldout':joint,'class_majority_heldout':results['joint']['class_majority']['heldout'],
+                                  'step_only_heldout':results['step_only']['heldout']['accuracy'],
+                                  'required_margin':margin}
     report['claims']='Diagnostic only: prompt-only core states, host-authored teacher labels, no policy deployment, no task completion.'
     ledger.close()
 
@@ -190,5 +219,7 @@ def main():
         report['costs']={'profiled_wall_seconds':(profile or {}).get('elapsed_seconds'),'sampled_peak_driver_bytes':mem.get('mps_driver_peak_sampled_bytes')}
         report['ended_at_utc']=datetime.now(timezone.utc).isoformat()
         (a.output/('run_report.json' if report['status']=='completed' else 'failure_report.json')).write_text(json.dumps(report,indent=2)+'\n')
-    print(json.dumps({'status':report['status'],'decision':report.get('decision'),'probe':{k:{r:(v.get(r,{}).get('accuracy') if isinstance(v.get(r),dict) else None) for r in ('train','dev','heldout')} for k,v in report.get('probe',{}).items()}}))
+    print(json.dumps({'status':report['status'],'decision':report.get('decision'),
+                      'baseline':report.get('decision_baseline'),
+                      'probe':{k:{r:(v.get(r,{}).get('accuracy') if isinstance(v.get(r),dict) else None) for r in ('train','dev','heldout')} for k,v in report.get('probe',{}).items()}}))
 if __name__=='__main__': main()

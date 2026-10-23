@@ -1,0 +1,102 @@
+{
+  "format": "replica.e3.policy_probe.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "bounded_repair",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "extension_role": "Accepted E3 set_constant engineering extension; frozen for this probe.",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_mixed/cases",
+    "manifest": "fixtures/e3_mixed/cases/manifest.json",
+    "manifest_sha256": "217408f05ad6d1cdfa693ba7ad2f31c61c02e38ff88e76d8989865149084e9a5",
+    "train": [
+      "mixed_train_repair_01",
+      "mixed_train_repair_02",
+      "mixed_train_pass_03",
+      "mixed_train_pass_04"
+    ],
+    "dev": [
+      "mixed_dev_repair_05",
+      "mixed_dev_pass_06"
+    ],
+    "heldout": [
+      "mixed_heldout_repair_07",
+      "mixed_heldout_repair_08",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ]
+  },
+  "subject": "e3_fixture",
+  "teacher": {
+    "max_prompt_tokens": 640,
+    "max_generated_tokens": 96,
+    "policy": "repair: read->run_test->set_constant->run_test->stop; pass: read->run_test->stop",
+    "pass_cases": [
+      "mixed_train_pass_03",
+      "mixed_train_pass_04",
+      "mixed_dev_pass_06",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ],
+    "pass_actions": [
+      {
+        "kind": "read",
+        "path": "workspace/app_settings.py"
+      },
+      {
+        "kind": "invoke_tool",
+        "tool": "run_test",
+        "arguments": {}
+      },
+      {
+        "kind": "stop"
+      }
+    ]
+  },
+  "probe": {
+    "representation": "pooled prompt-only core workspace plus task_features",
+    "classifier": "two-layer 64-hidden MLP, 240 AdamW steps, lr 0.01, seed 20261023",
+    "classes": [
+      "read",
+      "run_test",
+      "set_constant",
+      "stop"
+    ],
+    "ablations": [
+      "workspace_only",
+      "task_only"
+    ],
+    "step_baseline": "train-majority action kind per trajectory step; global train majority for unseen steps",
+    "decision_margin": 0.1,
+    "metric": "next-action-kind accuracy per role",
+    "heldout_use": "assessed once"
+  },
+  "decision_rule": {
+    "representation_signal": "joint held-out accuracy > max(step-only, class-majority) + 0.10 and > 0.5",
+    "inconclusive": "joint above baseline but not by the declared margin",
+    "representation_negative": "joint at or below baseline"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "native_forwards": 40,
+    "eval_generations": 0,
+    "checkpoint_saves": 0
+  },
+  "stop_conditions": [
+    "guard failure",
+    "nonfinite core state",
+    "teacher receipt failure"
+  ],
+  "retention": "Keep raw teacher receipts, vectors and report; no extension or checkpoint save.",
+  "claims": "Mixed-outcome representation probe only; no policy, deployment or task-completion claim."
+}

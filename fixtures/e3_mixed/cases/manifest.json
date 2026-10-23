@@ -1,0 +1,85 @@
+{
+  "format": "replica.e3_mixed.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py must pass. Inspect the configuration, run the evaluator, and if a required bound fails change exactly that one numeric constant with set_constant; if it already passes, stop without editing.",
+  "cases": [
+    {
+      "case_id": "mixed_train_repair_01",
+      "role": "train",
+      "source_group": "train_repair_a",
+      "requires_repair": true
+    },
+    {
+      "case_id": "mixed_train_repair_02",
+      "role": "train",
+      "source_group": "train_repair_b",
+      "requires_repair": true
+    },
+    {
+      "case_id": "mixed_train_pass_03",
+      "role": "train",
+      "source_group": "train_pass_a",
+      "requires_repair": false
+    },
+    {
+      "case_id": "mixed_train_pass_04",
+      "role": "train",
+      "source_group": "train_pass_b",
+      "requires_repair": false
+    },
+    {
+      "case_id": "mixed_dev_repair_05",
+      "role": "dev",
+      "source_group": "dev_repair_a",
+      "requires_repair": true
+    },
+    {
+      "case_id": "mixed_dev_pass_06",
+      "role": "dev",
+      "source_group": "dev_pass_a",
+      "requires_repair": false
+    },
+    {
+      "case_id": "mixed_heldout_repair_07",
+      "role": "heldout",
+      "source_group": "heldout_repair_a",
+      "requires_repair": true
+    },
+    {
+      "case_id": "mixed_heldout_repair_08",
+      "role": "heldout",
+      "source_group": "heldout_repair_b",
+      "requires_repair": true
+    },
+    {
+      "case_id": "mixed_heldout_pass_09",
+      "role": "heldout",
+      "source_group": "heldout_pass_a",
+      "requires_repair": false
+    },
+    {
+      "case_id": "mixed_heldout_pass_10",
+      "role": "heldout",
+      "source_group": "heldout_pass_b",
+      "requires_repair": false
+    }
+  ],
+  "splits": {
+    "train": [
+      "mixed_train_repair_01",
+      "mixed_train_repair_02",
+      "mixed_train_pass_03",
+      "mixed_train_pass_04"
+    ],
+    "dev": [
+      "mixed_dev_repair_05",
+      "mixed_dev_pass_06"
+    ],
+    "heldout": [
+      "mixed_heldout_repair_07",
+      "mixed_heldout_repair_08",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ]
+  }
+}

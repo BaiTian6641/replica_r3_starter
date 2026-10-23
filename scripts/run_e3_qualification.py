@@ -166,7 +166,8 @@ def teacher_actions(tools, repair_tool='write_file'):
 
 
 def run_teacher(case_dir, work_dir, *, tokenizer, subject, branch, purpose,
-                max_prompt_tokens, max_generated_tokens, repair_tool='write_file'):
+                max_prompt_tokens, max_generated_tokens, repair_tool='write_file',
+                actions=None):
     from replica_lab.runtime.journal import TaskJournal
     from replica_lab.runtime.loop import TaskRuntime
     from replica_lab.runtime.tools import FixtureWorkspace
@@ -183,7 +184,8 @@ def run_teacher(case_dir, work_dir, *, tokenizer, subject, branch, purpose,
                               generated_token_budget=max_generated_tokens, budget=budget)
         runtime.initialize(initial_state(tools, subject=subject, branch=branch,
                                          purpose=purpose, budget=budget))
-        proposer = TeacherProposer(teacher_actions(tools, repair_tool), tokenizer,
+        queued = teacher_actions(tools, repair_tool) if actions is None else actions
+        proposer = TeacherProposer(queued, tokenizer,
                                    max_prompt_tokens=max_prompt_tokens,
                                    max_generated_tokens=max_generated_tokens)
         summary = runtime.run(proposer, max_decisions=6)
