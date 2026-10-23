@@ -1,0 +1,252 @@
+{
+  "schema_version": "replica.response_contract_experiment.v1",
+  "status": "completed_predeclared_baseline_with_residual_format_and_evidence_failure",
+  "completed_at_utc": "2026-10-23T00:58:15.276090+00:00",
+  "preregistration_git_commit": "430e2986fbc8ce8010990067bb9bd1b8bc89e142",
+  "preregistration_committed_before_native_generation": true,
+  "frozen_protocol_inputs_unchanged_after_results": true,
+  "native_jobs_in_protocol": 1,
+  "adaptive_followups": 0,
+  "protocol": "docs/experiments/20261022_Response_Contract_V1_Protocol.md",
+  "results": "docs/experiments/20261022_Response_Contract_V1_Results.md",
+  "independent_scoring": "reports/response_contract_v1_20261022/native_B1_scoring.json",
+  "independent_source_review": "reports/response_contract_residual_error_review_20261022.json",
+  "fixed_conditions": {
+    "device": "mps",
+    "dtype": "float32",
+    "cpu_fallback": false,
+    "model_path": "checkpoints/minicpm5_source",
+    "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "examples": 16,
+    "worlds": 16,
+    "cases_order": [
+      "i2s41-de-reg-000.q1",
+      "i2s41-de-reg-001.q1",
+      "i2s41-de-reg-002.q0",
+      "i2s41-de-reg-003.q0",
+      "i2s41-de-aff-003.q1",
+      "i2s41-de-aff-000.q1",
+      "i2s41-de-aff-001.q0",
+      "i2s41-de-aff-002.q0",
+      "i2s41-de-fsm-002.q1",
+      "i2s41-de-fsm-003.q1",
+      "i2s41-de-fsm-000.q0",
+      "i2s41-de-fsm-001.q0",
+      "i2s41-de-tool-001.q1",
+      "i2s41-de-tool-002.q1",
+      "i2s41-de-tool-003.q0",
+      "i2s41-de-tool-000.q0"
+    ],
+    "cap": 32,
+    "max_length": 512,
+    "seed": 17,
+    "decoding": "greedy",
+    "thinking": false,
+    "strict_parser_unchanged": true,
+    "source_evidence_and_labels_unchanged": true
+  },
+  "comparison": {
+    "old": {
+      "examples": 16,
+      "format_valid": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "action_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "decision_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "hit_token_budget": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "generated_tokens": 512,
+      "generation_seconds": 13.151422207476571
+    },
+    "new": {
+      "examples": 16,
+      "format_valid": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "action_correct": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "decision_correct": {
+        "count": 1,
+        "rate": 0.0625
+      },
+      "value_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "task_correct": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "exact_text_match": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "ended_by_eos": {
+        "count": 16,
+        "rate": 1.0
+      },
+      "hit_token_budget": {
+        "count": 0,
+        "rate": 0.0
+      },
+      "generated_tokens": 194,
+      "generation_seconds": 6.680834707804024
+    },
+    "single_line": {
+      "count": 16,
+      "denominator": 16
+    },
+    "contract_valid": {
+      "count": 1,
+      "denominator": 16
+    },
+    "format_gate_passed": false,
+    "error_histogram": {
+      "format_error": 15,
+      "value_error": 1
+    },
+    "unchanged_task_correct": 0,
+    "prompt_tokens_before": 3946,
+    "prompt_tokens_after": 5574,
+    "added_prompt_tokens": 1628,
+    "new_max_prompt_plus_reference_tokens": 429,
+    "truncated": 0
+  },
+  "resource": {
+    "memory_bytes": {
+      "rss_peak_process_lifetime_bytes": 15558639616,
+      "rss_peak_sampled_bytes": 3722428416,
+      "mps_allocated_peak_sampled_bytes": 10121527296,
+      "mps_driver_peak_sampled_bytes": 10849304576
+    },
+    "profile_elapsed_seconds": 11.359285249840468,
+    "guard_replay": {
+      "path": "/Users/flare/replica_r3_starter/runs/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json",
+      "sha256": "a8bbd455b1cf156e3ce13546073b56c9a0c373f49b42175e654e1fc71e73e77a",
+      "host_trace_sha256": "8e4c74b5a88a879970e9ef6904e4c0d3a0f1e78e6813051906553cc81612932d",
+      "profile_trace_sha256": "1d95af46278866a625332278b50b4cbcda8601354fa5dbfd940023069ffd93f4",
+      "exact_replay": true,
+      "implementation_provenance": {
+        "mode": "current_workspace",
+        "historical_commit": null,
+        "verified_files": 3,
+        "current_workspace_mismatches": []
+      },
+      "policy": {
+        "driver_limit_bytes": 42949672960,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15,
+        "sustained_host_samples": 3
+      },
+      "baseline": {
+        "swap_used_bytes": 1605044797,
+        "memory_free_percent": 89.0
+      },
+      "host_samples": 7,
+      "driver_samples": 111,
+      "peak_driver_bytes": 10849304576,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 71.0,
+      "stop_reason": null
+    },
+    "guard_status": "exact_replay_passed",
+    "native_raw_bytes": 148889
+  },
+  "failure_analysis": {
+    "verified": [
+      "Old prose ends at the cap; v1 short single-line outputs naturally end in EOS without caps",
+      "Fifteen current responses violate response grammar by mixing fallback forms or field lists",
+      "The one grammatical FSM ask incorrectly includes already observed RULE and SYMBOLS",
+      "All sixteen expected answers/support sets match independent raw-source reconstruction",
+      "No optimizer updates occurred; this cannot diagnose Muon"
+    ],
+    "hypotheses_not_proven": [
+      "fallback wording or field-list copying",
+      "conditional branch confusion",
+      "failure to bind observed RULE/FACT values",
+      "sensitivity to greedy/thinking settings compared with upstream usage guidance"
+    ],
+    "budget_only_explanation_sufficient": false,
+    "broader_semantic_ability_not_established": true
+  },
+  "preservation": {
+    "source_report": "reports/response_contract_source_reuse_20261022.json",
+    "source_files_unchanged": 36,
+    "sealed_members_before_after": 9,
+    "prior_experiment_artifact_pins_preserved": 1037,
+    "original_failed_files_pinned": 9,
+    "model_downloads": 0,
+    "training_updates": 0,
+    "new_checkpoints": 0,
+    "selected_models_preserved": true,
+    "untouched_untracked_draft": "src/replica_lab/runtime_pilot.py"
+  },
+  "validation": {
+    "report": "reports/validation_response_contract_code_20261022.json",
+    "passed": 671,
+    "skipped": 1,
+    "code_file_hashes_reverified": 92,
+    "stage_ids_and_dependencies_unchanged": 33
+  },
+  "next_smallest_action": "Predeclare a separate minimal query-policy-specific response contract: choose the missing-response branch from public task wording only, keep source facts distinct from response placeholders and retain strict scoring. Independently qualify any sampling/thinking change in a separate contrast. No v2 native run is part of v1.",
+  "pending": [
+    "S1.4 evidence sensitivity/retention/calibration",
+    "S1.3 public admission/adapters",
+    "S1.5 pilot release/budget/exposure",
+    "S2.4 fair architecture screen",
+    "model promotion"
+  ],
+  "artifact_sha256": {
+    "reports/response_contract_v1_20261022/dev_cases.jsonl": "fb6dad3841ea1aa6b9f8b1b7dd4a34685b7bed99677723abd5157da614ff1c1b",
+    "reports/response_contract_v1_20261022/evaluation_spec.json": "f3c259c29cc5b562c231534adac627be6fdae07f065e53b079ea2ffb24a6aca3",
+    "reports/response_contract_v1_20261022/native_B1_raw/generation_report.json": "1fa22164dc81b77c8149a034c47b741168ca30ddfe2142d27d87212a12023d48",
+    "reports/response_contract_v1_20261022/native_B1_raw/generations.jsonl": "693d11a2ff125e418819f5710578672dacf3c8c6803cf7e48b15ecdb15c3040a",
+    "reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.child.log": "eff35b736fab948816d192446c7324fe28ea7472a66583c63989e02e6f7f05a1",
+    "reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.host.jsonl": "8e4c74b5a88a879970e9ef6904e4c0d3a0f1e78e6813051906553cc81612932d",
+    "reports/response_contract_v1_20261022/native_B1_raw/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json": "a8bbd455b1cf156e3ce13546073b56c9a0c373f49b42175e654e1fc71e73e77a",
+    "reports/response_contract_v1_20261022/native_B1_raw/profile_samples.jsonl": "1d95af46278866a625332278b50b4cbcda8601354fa5dbfd940023069ffd93f4",
+    "reports/response_contract_v1_20261022/native_B1_raw/profile_summary.json": "61dfa6863e092863648e77de757514d721a8ec0e52850cab17912b5f088be1b5",
+    "reports/response_contract_v1_20261022/native_B1_scoring.json": "a9135ab4f056b5f2088ef7f1e284616a7b52d4a1a5900fc494ee881c879599a3",
+    "reports/response_contract_v1_20261022/native_archive_manifest.json": "1c5c2da0fe22f2fc45ee8e0c930adc31115dfdce0bedf3a96468a82fc0bf119f",
+    "reports/response_contract_v1_20261022/native_launch.json": "dc989f7afaba07d20d538020ce5ac94397e01ad87f88f04f8432e06fbc8ab810",
+    "reports/response_contract_v1_20261022/token_accounting.json": "498a0e9bf208bed305807708adce9d055e683189101f4cf36d79a8e5387b17fc",
+    "configs/response_contract_v1.json": "8f881ec8b365e70278e2478686a32595268875aec9e3cb470b0f8fda9c0c6735",
+    "docs/experiments/20261022_Response_Contract_V1_Protocol.md": "f71c78f34b9ce5edd9578f12801641eaeb1655f5fb61c39258a6755e53bf4239",
+    "docs/experiments/20261022_Response_Contract_V1_Results.md": "7033d0ec4de3a6eb0b09fab1961b9af804e17b00bedc5f8bf0aa9bf7ac65109d",
+    "reports/response_contract_failure_analysis_20261022.json": "2a974d6a66e947ae669c15ce8e4675c3fdac634f9e2e1fc1584d27780978438c",
+    "reports/response_contract_residual_error_review_20261022.json": "1466a03f711144f456258ec60eaf6e9be1e1c4255e542e716b456ecb085d6d85",
+    "reports/response_contract_source_reuse_20261022.json": "06aa03e2e1e7b5ebc0fa924df2182f980ef0c5443a22bfe2d2b91e7c34dab27c",
+    "reports/validation_response_contract_code_20261022.json": "2e85c56a36d043dcef00f09ae9b70ec2016d1d02ffed67926802279a9ba10553",
+    "reports/tests_response_contract_20261022.xml": "0c20aeb28677e5106904a434602032faac6dccce671a2820d60765eb9dd31935",
+    "reports/test_output_response_contract_20261022.txt": "fa5c4b87f0fd7cc64abc5152ca3aab0376ab3a3575e6428cbba38e3c190e4648",
+    "reports/bundle_validation_response_contract_predeclared_20261022.json": "21761bf1ed5152f899211bce32d54acba91dd63a6643584a24592f42fbc7cb5a"
+  }
+}

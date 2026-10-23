@@ -8,19 +8,20 @@ This package contains an executable research starter, detailed construction docu
 
 ## Current progress — 22 October 2026 (America/Chicago)
 
-Released **2,000 source-bound synthetic targets across four task mechanisms**,
-independently checked from 1,000 worlds. All fit 512 tokens without truncation
-(maximum 334). The frozen original's 16-case MPS GPU preflight stays within its
-memory guard, peaking at **10.081 GiB driver**, but scores **0/16 strict answers**:
-all responses spend the 32-token cap on prose. This output-format/cap failure
-is preserved for the next versioned development probe. No training, checkpoint
-saves or model downloads occurred. The full suite passes **613 tests, one skip**.
+Released **2,000 source-bound synthetic targets across four task families**,
+all independently verified and under 512 tokens. The one-line response contract
+was committed before its M2 Ultra GPU run. It produces **16/16 single-line EOS
+responses with no cap hits**, but only **1/16 valid grammar and 0/16 correct
+answers**: outputs combine fallback forms or ask for facts already present.
+The prior capped failure remains preserved. Peak MPS driver memory is
+**10.104 GiB**, with no observed swap growth. No downloads, training or new
+checkpoints occurred. The full suite passes **671 tests, one skip**.
 
-Read the [release/results record](docs/experiments/20261022_Infrastructure_Slice_V2.md)
-and [current execution state](execution_state.md). Public sources remain
-quarantined pending admission; independent evaluation and S1.5 still precede
-the [S2.4 comparison proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md).
-Selected D0/D1/D2 checkpoints and the single original model remain preserved.
+Read the [paired results and diagnosis](docs/experiments/20261022_Response_Contract_V1_Results.md)
+and [current execution state](execution_state.md). The next development gate is
+a separately predeclared query-policy-specific response contract; public admission
+and remaining evaluation controls still precede S2.4 training. Selected D0/D1/D2
+checkpoints and the single original model remain preserved.
 
 ## Local setup — 22 October 2026 (America/Chicago)
 

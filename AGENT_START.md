@@ -1,14 +1,19 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Latest package:** S1.2 now has a source-bound 2,000-target/four-mechanism
-infrastructure release. The original-model MPS dev16 probe passes resource
-guards but scores 0/16 strict/format: all 16 hit cap 32 on prose, no EOS. This is a
-preserved development output-contract negative. Predeclare a versioned explicit
-one-line output contract before another probe; do not loosen the parser or
-rewrite this result. The suite passes 613 with one restricted-context MPS skip.
-Read [the release/result record](docs/experiments/20261022_Infrastructure_Slice_V2.md)
-and execution_state.md. No downloads, updates or checkpoints were created.
-S1.3 source admission, remaining S1.4 controls and S1.5 still precede S2.4.
+**Latest package:** response contract v1 was preregistered in Git at `430e298`
+before the single original-model MPS dev16 run. Same evidence/cases/parser,
+greedy seed 17, cap 32, FP32 and fallback disabled. All 16 answers now use one
+line and EOS with no caps; strict grammar is 1/16 and task correctness 0/16.
+Fifteen outputs mix fallback forms/field lists; the valid FSM ask includes
+observed fields. Preserve the previous all-capped negative and this new result.
+Next predeclare a separate query-policy-specific contract, deriving the missing
+response policy only from the public task instruction, never from gold or case
+missingness. No adaptive follow-up occurred within v1. The suite passes 671
+with one restricted-context MPS skip. Zero downloads, training updates or new
+checkpoints; original/selected models and the untracked runtime draft unchanged.
+Read [protocol](docs/experiments/20261022_Response_Contract_V1_Protocol.md),
+[results](docs/experiments/20261022_Response_Contract_V1_Results.md) and execution_state.md.
+S1.4 remains partial, S1.3/S1.5 pending, S2.4 blocked; native jobs idle.
 
 **Current storage state:** the bounded D2 GPU package is complete. The user
 subsequently authorized [post-D2 checkpoint retirement](docs/experiments/20261022_Checkpoint_Retirement_After_D2.md):
@@ -35,7 +40,7 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The current suite passes 613 tests with one restricted-context MPS skip. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
+4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The current suite passes 671 tests with one restricted-context MPS skip. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
 
 ## First session: do concrete work
 

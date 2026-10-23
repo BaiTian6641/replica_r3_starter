@@ -1,4 +1,4 @@
-# Execution state — S1 infrastructure release and native evaluation
+# Execution state — response-contract v1 GPU baseline
 
 22 October 2026, America/Chicago. Branch `codex/d2-capacity-runtime-pilot`.
 The current package releases **2,000 independently solver-verified targets from
@@ -10,47 +10,62 @@ duplicate-world candidates were resampled; no admitted semantic signatures
 overlap. All cases fit 512 tokens without truncation; maximum native length is
 334. Automated operational review covers 320 episodes / 160 worlds.
 
-**Native execution passes; the first output contract fails.** The same sealed
-original B1 model runs on MPS FP32 with CPU fallback disabled, greedy cap 32,
-seed 17, on 16 predeclared distinct dev worlds. Independent whole-response
-scoring finds **0/16 task-correct, 0/16 format-valid, 16 cap hits, no EOS**.
-Fifteen distinct completions spend the budget on explanatory prose. Preserve
-this negative; it is different from the historical constant-zero collapse.
-An instruction/budget mismatch is a hypothesis, not a measured causal result
-or a general semantic-ability conclusion. No parser/cap change followed scoring.
+**Response contract v1 is complete as a measured negative.** Protocol, code and
+exact dev16 inputs were committed at `430e298` before the one native run.
+The same sealed original runs on MPS FP32 with CPU fallback disabled, thinking
+disabled, greedy seed 17 and unchanged cap 32. Only a static family-specific
+instruction appendix changes. Source evidence, labels, IDs and parser stay fixed.
 
-The sampled peak MPS live / driver is **9.416 / 10.081 GiB**, generation takes
-13.151 s and profiled lifetime is 17.786 s. The exact guard replay passes with
-zero observed swap growth and minimum host-free 71%. MPS/RSS overlap and
-samples can miss transients. The model does not use a qualified ANE backend.
-All original 36 file identities and the acquisition receipt remain unchanged;
-the nine-file seal rechecks before and after. **Zero model downloads, optimizer
-updates or checkpoint saves.** Seven small raw evidence files total 169,902
-bytes; selected D0/D1/D2 and final negative checkpoints remain preserved.
+All **16/16 responses are single-line and end with EOS, with zero cap hits**,
+but strict grammar validity is **1/16** and task correctness remains **0/16**.
+Fifteen outputs combine incompatible answer forms/field lists; the one valid FSM
+ask incorrectly requests RULE and SYMBOLS alongside missing START, even though
+RULE and SYMBOLS are already observed. Register/tool outputs also repeat within
+family. Preserve every answer and the prior 0/16 all-capped prose baseline.
 
-The suite passes **613 tests, one restricted-context MPS skip**; the native run
-above separately executes on MPS. All 33 stage IDs/dependencies remain intact.
-Public source review pins candidate revisions but admits no corpus: inherited
-terms, exact history versions, identity overlap and adapters remain unresolved.
-S1.2 is a bounded infrastructure release; S1.4 remains partial with a format/cap
-failure; S1.3 and S1.5 remain pending. S2.4 is a blocked comparison proposal.
-All mechanisms/grammar are shared across roles; audit/promotion packets are
-exposed synthetic fixtures. Host code selects active evidence before the model
-sees it. No sealed audit, autonomous temporal retrieval or useful-gain claim.
+The instruction bundle changes surface/termination behavior, while the new
+failures finish within 9–17 tokens. A budget-only explanation is inadequate.
+Conditional response selection and evidence-use remain unresolved. Copying the
+fallback wording/field-list pattern is a hypothesis, not an identified internal
+mechanism. The local source README recommends sampling settings and demonstrates
+thinking mode; these remain separate unrun decoding controls, never an
+unreported change to this fixed greedy comparison. No optimizer updates occurred,
+so this experiment cannot diagnose Muon.
 
-Next predeclare a **versioned explicit one-line output contract** and fixed-budget
-B1 development probe, retaining this negative. Then finish B0/B1 evidence,
-retention/calibration and shuffled/missing-evidence controls, public source
-admission and the S1.5 mixture/budget/exposure plan before comparison training.
-No native job remains active; no model is promoted. Preserve the untracked
-`src/replica_lab/runtime_pilot.py` draft without including it in this package.
+Prompt tokens increase from 3,946 to 5,574; generated tokens fall from 512 to 194.
+Maximum native prompt-plus-reference length is 429, no truncation under 512.
+Generation takes **6.681 s**, profiled lifetime **11.359 s**, sampled peak MPS
+live/driver **9.426 / 10.104 GiB**. Exact guard replay passes with zero observed
+swap growth and minimum host-free 71%. RSS/MPS overlap; samples can miss
+transients. The model executes on MPS, with no qualified ANE backend.
 
-[Release and results](docs/experiments/20261022_Infrastructure_Slice_V2.md),
-[consolidated evidence](reports/infrastructure_slice_v2_experiment_20261022.json),
-[independent native scoring](reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json),
-[code validation](reports/validation_infrastructure_v2_20261022.json),
-[source admission review](docs/experiments/20261022_Public_Source_Admission_Review.md),
-[comparison proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md).
+All 36 original file identities and the acquisition receipt remain unchanged;
+the nine-member seal rechecks before/after, and all 1,037 prior experiment
+artifact hashes still match. **Zero downloads, training updates or new
+checkpoints.** Seven small raw evidence files total 148,889 bytes. Selected
+D0/D1/D2 checkpoints and the untracked runtime draft remain untouched.
+
+The full suite passes **671 tests with one restricted-context MPS skip**; the
+actual native job separately executes on MPS. All 33 stage IDs/dependencies
+remain unchanged. S1.2 is a bounded infrastructure release; S1.4 remains partial
+with residual response-grammar/evidence-use failure. S1.3 admission and S1.5
+remain pending, S2.4 blocked, no model promoted and no native job active.
+
+Next predeclare a separate minimal query-policy-specific contract: select the
+allowed missing-response branch from the public task instruction, never from
+its gold label or observed missingness; separate required fields from output
+placeholders. Keep old protocols/results immutable. Test decoding changes only
+as separately declared controls. Remaining B0/B1, evidence, retention/calibration,
+public admission and pilot budget/exposure gates still precede training comparison.
+
+[Preregistered protocol](docs/experiments/20261022_Response_Contract_V1_Protocol.md),
+[results and diagnosis](docs/experiments/20261022_Response_Contract_V1_Results.md),
+[independent paired scoring](reports/response_contract_v1_20261022/native_B1_scoring.json),
+[consolidated evidence](reports/response_contract_experiment_20261022.json),
+[code validation](reports/validation_response_contract_code_20261022.json),
+[source/failed-result preservation](reports/response_contract_source_reuse_20261022.json).
+The [original S1.2 release and failed baseline](docs/experiments/20261022_Infrastructure_Slice_V2.md)
+remain historical evidence with unchanged bytes.
 
 ## Preserved D2 qualification and storage package
 
@@ -100,6 +115,6 @@ The D2 package's full suite passed **479 tests**, with one restricted-context MP
 
 ## Next concrete gate
 
-S1.2 now supplies the bounded 2,000-target release above. Resolve its native output-format/cap failure with a versioned development contract, then complete independent evaluation and public admission. The [S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) specifies equal information, parents, fair search and parameter/compute controls; numeric budgets and S1.5 admission remain unresolved. Existing diagnostics do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
+S1.2 supplies the bounded 2,000-target release. Response contract v1 resolves cap/termination behavior but leaves strict grammar/evidence-use failures; predeclare the next query-policy-specific development contract, then complete independent evaluation and public admission. The [S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) specifies equal information, parents, fair search and parameter/compute controls; numeric budgets and S1.5 admission remain unresolved. Existing diagnostics do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
 
 Cognitive contracts, identity/lineage, source permissions and the proposed semi-cognitive loop remain as specified in [the design contracts](docs/experiments/20261022_Cognitive_Contracts.md). Useful memory benefit, ten-cycle learning, authentic Replica fidelity, VLM, augmented KV caching, ANE acceleration and Blackwell residency remain separate open gates.

@@ -240,7 +240,7 @@
     {
       "id": "S1.4",
       "title": "Lock generation, retention, calibration and evidence controls",
-      "status": "partial_strictparser_controls_16dev_format_cap_failure",
+      "status": "partial_response_contract_v1_residual_format_semantic_failure",
       "depends_on": [
         "S1.1",
         "S0.3"
@@ -255,13 +255,24 @@
         "reports/infrastructure_preflight_v2_20261022/constant_controls.json",
         "docs/experiments/20261022_Infrastructure_Slice_V2.md",
         "reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json",
+        "configs/response_contract_v1.json",
+        "src/replica_lab/response_contract.py",
+        "scripts/prepare_response_contract.py",
+        "scripts/score_response_contract_generations.py",
+        "tests/test_response_contract.py",
+        "tests/test_score_response_contract_generations.py",
+        "reports/response_contract_v1_20261022/evaluation_spec.json",
+        "reports/response_contract_v1_20261022/token_accounting.json",
+        "reports/response_contract_v1_20261022/native_B1_scoring.json",
+        "docs/experiments/20261022_Response_Contract_V1_Protocol.md",
+        "docs/experiments/20261022_Response_Contract_V1_Results.md",
         "planned: full retention/calibration/model-evidence-control score matrix"
       ],
       "interface": "Role-separated case manifest -> model generation -> fixed parser/solver -> per-family scores and paired/clustered uncertainty. Calibration thresholds use their own split.",
-      "acceptance_gate": "Strict whole-response action/task parser and independent solver contracts implemented; CPU best constant UNKNOWN: 50/200 dev. Native frozen-original B1: 0/16 strict task-correct and format-valid; 16/16 capped at 32 tokens, 0 EOS, 15 distinct completions and prose before compact answers. This fails the declared format/cap contract without establishing a specific cause, general semantic inability or comparable architecture quality. Parser unchanged after scoring. Model shuffled/missing-evidence controls, retention, calibration and matched architecture compute remain pending.",
-      "resources": "Frozen-original B1 on 16 dev worlds/four shared mechanisms, host-compiled eligible evidence; greedy cap 32, ceiling 512, MPS FP32/fallback disabled. Sampled live/driver peaks 9.416171/10.080765 GiB; profile lifetime 17.7864 seconds. Exact guard replay passes, observed swap growth 0. No optimizer update, acquisition or checkpoint save.",
-      "on_failure": "Fix parser or case validity on development only; version the changed evaluator. Exposed audit cases are retired from sealed claims.",
-      "next_smallest_task": "Predeclare a versioned one-line output-contract development experiment; keep the existing strict parser fixed and record any prompt/cap change before a bounded rerun. Resolve format/cap behavior before training comparisons, then qualify B0/B1, shuffled/missing-evidence and independent retention/calibration controls. Preserve this negative; S1.4 remains partial.",
+      "acceptance_gate": "Strict whole-response action/task parser and independent solver remain fixed; CPU best constant UNKNOWN: 50/200 dev. The original B1 negative is preserved: 0/16 task-correct and format-valid, all 16 capped at 32 with no EOS. Precommitted contract-v1 prompt-only rerun on the same 16 ordered cases produces 16/16 single-line responses and EOS, zero caps, 1/16 grammar/contract-valid and 0/16 task-correct: 15 format errors and one incorrect missing-field value. Its 16/16 grammar/single-line/EOS gate fails. UNKNOWN/field-list mixtures and an ask for already observed RULE/SYMBOLS leave conditional-format and evidence-use failures; budget alone cannot explain the result and no causal sentence is isolated. No parser/cap/prompt changes followed scoring. Full suite: 671 passed with one restricted-context MPS skip is separate from native task failure. Model shuffled/missing-evidence controls, retention, calibration and matched architecture compute remain pending.",
+      "resources": "One contract-v1 frozen-original B1 job on the same 16 ordered dev worlds/four shared mechanisms, host-compiled eligible evidence; greedy cap 32, ceiling 512, seed 17, M2 Ultra MPS FP32 with CPU fallback disabled. Protocol commit 430e298 precedes native generation; no adaptive additional run. Exact guard replay passes, observed swap growth 0. Reused original local model and preserved old negative archive; zero downloads, optimizer updates or new checkpoints. Dated result and raw reports own measured memory/timing.",
+      "on_failure": "Preserve raw failures and the unchanged parser. Predeclare a separate development prompt/budget protocol before another run; no after-result tuning under the original protocol, sealed-evidence relabelling or model promotion.",
+      "next_smallest_task": "Predeclare a separate v2 development protocol with a query-policy-specific two-branch grammar to remove ambiguous OR and discourage placeholder copying; select policy from public query text only, never gold action/value or observed missingness. Preserve v1 and the original negative, then qualify B0/B1, shuffled/missing-evidence and independent retention/calibration controls before training comparisons. S1.4 remains partial; S1.3/S1.5 pending and S2.4 blocked.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -1192,11 +1203,11 @@
     "remaining": "Inherited source terms, complete linked pairs, split overlap and adapter admission."
   },
   "infrastructure_evaluation_observation": {
-    "status": "partial_strictparser_controls_16dev_format_cap_failure",
-    "spec": "reports/infrastructure_preflight_v2_20261022/evaluation_spec.json",
+    "status": "partial_response_contract_v1_residual_format_semantic_failure",
+    "spec": "reports/response_contract_v1_20261022/evaluation_spec.json",
     "controls": "reports/infrastructure_preflight_v2_20261022/constant_controls.json",
-    "native_preflight_outcome_authority": "docs/experiments/20261022_Infrastructure_Slice_V2.md",
-    "native_scope": "Frozen original B1; 16 dev worlds/four shared mechanisms; greedy cap 32, MPS FP32, no CPU fallback; host-compiled evidence snapshot; no training or checkpoint.",
+    "native_preflight_outcome_authority": "docs/experiments/20261022_Response_Contract_V1_Results.md",
+    "native_scope": "Frozen original B1 with static family-only response contract; same 16 ordered dev worlds and source evidence as preserved baseline, same greedy cap 32, seed 17, ceiling 512, native template, MPS FP32/no CPU fallback and strict parser; no training.",
     "best_dev_constant": {
       "response": "UNKNOWN",
       "correct": 50,
@@ -1205,33 +1216,90 @@
     "model_shuffled_missing_evidence_controls": "pending",
     "retention_and_calibration": "pending",
     "S1_4_complete": false,
-    "scoring_report": "reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json",
+    "scoring_report": "reports/response_contract_v1_20261022/native_B1_scoring.json",
     "native_result": {
       "examples": 16,
       "strict_task_correct": 0,
-      "format_valid": 0,
-      "hit_token_budget": 16,
+      "format_valid": 1,
+      "single_line_compliant": 16,
+      "contract_valid": 1,
+      "format_gate_passed": false,
+      "hit_token_budget": 0,
       "max_new_tokens": 32,
-      "ended_by_eos": 0,
-      "distinct_completions": 15,
-      "observed_behavior": "Prose before required compact answers.",
-      "interpretation": "Descriptive format/cap failure under the frozen contract; not a proven cause, general semantic failure or comparable architecture-quality result.",
-      "strict_parser_changed_after_results": false
+      "ended_by_eos": 16,
+      "distinct_completions": 8,
+      "error_histogram": {
+        "format_error": 15,
+        "value_error": 1
+      },
+      "observed_behavior": "UNKNOWN/field-list mixtures in 15 malformed outputs; the sole grammar-valid ask also requests RULE/SYMBOLS already observed.",
+      "interpretation": "The instruction intervention produces short ended responses but leaves conditional-format and evidence-use failures. Budget alone cannot explain the result; no causal sentence, broad capability or architecture gain is established.",
+      "strict_parser_changed_after_results": false,
+      "adaptive_post_result_runs": 0
     },
     "native_resources": {
-      "sampled_peak_live_mps_gib": 9.416171,
-      "sampled_peak_driver_mps_gib": 10.080765,
-      "profile_lifetime_seconds": 17.7864,
+      "sampled_peak_live_mps_gib": 9.426406860351562,
+      "sampled_peak_driver_mps_gib": 10.104202270507812,
+      "profile_lifetime_seconds": 11.359285249840468,
+      "generation_seconds": 6.680834707804024,
+      "generated_tokens": 194,
       "guard_exact_replay_passed": true,
       "observed_swap_growth_bytes": 0,
       "optimizer_updates": 0,
-      "checkpoint_saves": 0
+      "checkpoint_saves": 0,
+      "downloads": 0,
+      "native_jobs": 1
     },
-    "next_development_probe": "Versioned one-line output contract, parser fixed; any prompt/cap changes predeclared before rerun.",
+    "next_development_probe": "Predeclare a separate v2 two-branch response grammar selected from public query missing-field policy only, never gold action/value or observed missingness. Remove ambiguous OR and discourage placeholder copying; keep parser fixed and preserve both negatives. Broader S1.4 controls and S1.3/S1.5 admission remain pending.",
     "code_suite": {
-      "passed": 613,
+      "passed": 671,
       "restricted_context_mps_skip": 1,
-      "scope": "Software checks, separate from native task acceptance."
+      "scope": "Software checks, separate from failed native task acceptance."
+    },
+    "protocol": "docs/experiments/20261022_Response_Contract_V1_Protocol.md",
+    "protocol_commit_before_generation": "430e298",
+    "original_preflight": {
+      "status": "partial_strictparser_controls_16dev_format_cap_failure",
+      "spec": "reports/infrastructure_preflight_v2_20261022/evaluation_spec.json",
+      "controls": "reports/infrastructure_preflight_v2_20261022/constant_controls.json",
+      "native_preflight_outcome_authority": "docs/experiments/20261022_Infrastructure_Slice_V2.md",
+      "native_scope": "Frozen original B1; 16 dev worlds/four shared mechanisms; greedy cap 32, MPS FP32, no CPU fallback; host-compiled evidence snapshot; no training or checkpoint.",
+      "best_dev_constant": {
+        "response": "UNKNOWN",
+        "correct": 50,
+        "examples": 200
+      },
+      "model_shuffled_missing_evidence_controls": "pending",
+      "retention_and_calibration": "pending",
+      "S1_4_complete": false,
+      "scoring_report": "reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json",
+      "native_result": {
+        "examples": 16,
+        "strict_task_correct": 0,
+        "format_valid": 0,
+        "hit_token_budget": 16,
+        "max_new_tokens": 32,
+        "ended_by_eos": 0,
+        "distinct_completions": 15,
+        "observed_behavior": "Prose before required compact answers.",
+        "interpretation": "Descriptive format/cap failure under the frozen contract; not a proven cause, general semantic failure or comparable architecture-quality result.",
+        "strict_parser_changed_after_results": false
+      },
+      "native_resources": {
+        "sampled_peak_live_mps_gib": 9.416171,
+        "sampled_peak_driver_mps_gib": 10.080765,
+        "profile_lifetime_seconds": 17.7864,
+        "guard_exact_replay_passed": true,
+        "observed_swap_growth_bytes": 0,
+        "optimizer_updates": 0,
+        "checkpoint_saves": 0
+      },
+      "next_development_probe": "Versioned one-line output contract, parser fixed; any prompt/cap changes predeclared before rerun.",
+      "code_suite": {
+        "passed": 613,
+        "restricted_context_mps_skip": 1,
+        "scope": "Software checks, separate from native task acceptance."
+      }
     }
   }
 }

@@ -9,12 +9,18 @@
 The [S1.2 v2 release](experiments/20261022_Infrastructure_Slice_V2.md) now
 contains 2,000 solver-backed targets from 1,000 worlds/four shared mechanisms.
 Offline native tokenization admits every case under 512 without truncation
-(maximum 334 tokens). The frozen-original B1 probe is a bounded S1.4
-format/cap negative: 0/16 task-correct and format-valid, all capped at 32 tokens,
-no EOS and 15 distinct completions. Prose precedes the required compact answers;
-the cause is not isolated, and this is not a comparable quality result. Keep
-the strict parser fixed and predeclare a versioned one-line output-contract
-development probe before training comparisons. Full retention, calibration and
+(maximum 334 tokens). The original frozen B1 format/cap negative remains
+preserved: 0/16 task-correct and format-valid, all capped at 32 tokens, no EOS.
+The predeclared [one-line contract v1](experiments/20261022_Response_Contract_V1_Protocol.md)
+rerun keeps the same sixteen cases, local original model, parser and cap. Its
+[result](experiments/20261022_Response_Contract_V1_Results.md) has 16/16
+single-line responses and EOS with zero caps, but only 1/16 grammar/contract-valid
+and 0/16 task-correct. Fifteen responses mix incompatible formats; the one valid
+ask includes already supplied fields. Conditional-format selection and evidence
+use remain failures, so budget alone cannot explain the outcome. No post-result
+prompt, cap or parser changes were run. Next predeclare a separate v2 grammar
+with two branches selected by public query policy, without using gold labels or
+observed missingness to select the instruction. Full retention, calibration and
 model evidence controls remain pending. [Public metadata review](experiments/20261022_Public_Source_Admission_Review.md)
 leaves both public candidates quarantined. S1.5 admission still blocks the
 [S2.4 screen proposal](experiments/20261022_S2_4_Screen_Proposal.md); this
@@ -40,6 +46,7 @@ package performs no training or checkpoint save.
 | make_fixtures.py | 32 train + 16 dev solver-verified synthetic examples | Plumbing data only |
 | make_infrastructure_slice.py / infrastructure_solver.py | 2,000 source-bound targets / 1,000 worlds; independent raw-source chronology/solver checks; action/length/role accounting and duplicate rejection | Four mechanisms and grammar shared across roles; exposed audit/promotion fixtures, no unseen-mechanism or authentic-personal claim |
 | infrastructure_scoring.py / prepare_infrastructure_preflight.py | Strict whole-response action/task parsing; CPU constant/missing-fact controls; offline native token accounting and pinned 16-dev-world B1 case/spec packet | Semantic evaluator controls do not measure model evidence sensitivity; broad retention, calibration and useful-gain comparison remain pending |
+| response_contract.py / prepare_response_contract.py / score_response_contract_generations.py | Family-only prompt appendix; exact parent cases/evidence/model/settings and negative archive binding; independent paired token/source replay, single-line and task scores | Contract v1 reaches EOS without caps but remains 0/16 task-correct; no training, new checkpoint, broad-quality or causal-sentence claim |
 | make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
 | capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
 | run_generation_preflight.py | Standalone offline MPS evaluator watchdog; driver/host thresholds and final trace drain | Sampled operational guard; original training watchdog stays unchanged |
@@ -420,21 +427,29 @@ source-writer view. Maximum full length is 334, with zero truncation under
 training budget. The generator manifest's pending token-admission field is
 superseded by this external, release-hash-bound accounting report.
 
-S1.4 currently supplies strict parser/control contracts and a frozen-original
-B1 development preflight on 16 worlds: greedy cap 32, MPS FP32, ceiling 512,
-CPU fallback disabled, existing local source only. The dated release/preflight
-record owns raw generation and guard outcomes. No optimizer update or model
-checkpoint is part of this package. Strict rescoring gives 0/16 task-correct
-and format-valid, all 16 capped, no EOS, 15 distinct completions, with prose
-before the compact responses. Preserve that negative and its unchanged parser;
-it does not prove a specific cause or general semantic failure. Sampled live
-and driver MPS peaks are 9.416/10.081 GiB, profiled lifetime 17.7864 seconds;
-exact guard replay passes with zero observed swap growth. The code suite
-passes 613 tests with one restricted-context MPS skip, separately from native
-task acceptance. Next predeclare a versioned one-line output-contract
-development experiment with any prompt/cap changes frozen before rerunning,
-then qualify missing/shuffled-evidence model controls and independent
-retention/calibration cases. [S1.3 metadata](experiments/20261022_Public_Source_Admission_Review.md)
+S1.4 supplies strict parser/control contracts and two frozen-original B1
+development observations on the same sixteen ordered worlds. The original
+0/16 task/format result with all 16 capped and no EOS remains unchanged. The
+[contract-v1 protocol](experiments/20261022_Response_Contract_V1_Protocol.md),
+committed as `430e298` before generation, adds a static family-only instruction.
+One native M2 Ultra GPU job keeps greedy cap 32, ceiling 512, seed 17, MPS FP32,
+CPU fallback disabled, the source model/template and parser fixed. Independent
+[paired scoring](../reports/response_contract_v1_20261022/native_B1_scoring.json)
+reports 16/16 single-line and EOS, zero caps, 1/16 grammar/contract-valid and
+0/16 task-correct. Fifteen format errors mix UNKNOWN with field lists; the one
+grammar-valid ask requests RULE/SYMBOLS that were already observed. This leaves
+evidence-use and conditional-format failures, and rules out budget as a complete
+explanation. It does not isolate which sentence helps or establish general
+semantic inability. Exact guard replay passes with zero observed swap growth;
+the [result record](experiments/20261022_Response_Contract_V1_Results.md) owns
+memory/timing and raw evidence. The code suite passes 671 tests with one
+restricted-context MPS skip, separately from failed native task acceptance.
+There are zero downloads, optimizer updates or new checkpoints, and no adaptive
+post-result rerun. Preserve both negatives before predeclaring a separate v2
+query-policy-specific two-branch grammar, selected from public query text rather
+than expected action/value or observed missingness. Missing/shuffled-evidence
+model controls and independent retention/calibration cases remain required.
+[S1.3 metadata](experiments/20261022_Public_Source_Admission_Review.md)
 pins public candidates but leaves component terms, linked pairs/split overlap
 and adapters unresolved; no public corpus is admitted.
 

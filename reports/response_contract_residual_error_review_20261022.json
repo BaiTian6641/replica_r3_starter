@@ -1,0 +1,1627 @@
+{
+  "schema_version": "replica.response_contract_residual_review.v1",
+  "reviewed_at_utc": "2026-10-23T00:55:21.519940+00:00",
+  "status": "all16_raw_source_and_semantic_reviews_passed_predictions_still_failed",
+  "review_scope": "Post-run independent raw-source replay; no model loaded, training, regrading, or adaptive native follow-up. Source chronology and operations reconstructed directly from raw bytes, without importing the generator or infrastructure solver. Raw-source labels are compared only after independent reconstruction. This review is operational evidence, not a human annotation study.",
+  "preregistration_commit": "430e2986fbc8ce8010990067bb9bd1b8bc89e142",
+  "inputs_sha256": {
+    "configs/response_contract_v1.json": "8f881ec8b365e70278e2478686a32595268875aec9e3cb470b0f8fda9c0c6735",
+    "reports/response_contract_v1_20261022/native_B1_scoring.json": "a9135ab4f056b5f2088ef7f1e284616a7b52d4a1a5900fc494ee881c879599a3",
+    "reports/response_contract_v1_20261022/evaluation_spec.json": "f3c259c29cc5b562c231534adac627be6fdae07f065e53b079ea2ffb24a6aca3",
+    "runs/minicpm5_response_contract_v1_B1_dev16_20261022/profile_summary.json": "61dfa6863e092863648e77de757514d721a8ec0e52850cab17912b5f088be1b5",
+    "runs/minicpm5_response_contract_v1_B1_dev16_20261022_guard.json": "a8bbd455b1cf156e3ce13546073b56c9a0c373f49b42175e654e1fc71e73e77a",
+    "data/diagnostics/infrastructure_slice_v2/source_manifest.json": "01f2d305dc66c987129898fe09d8c8c2640430acfa354e2953f8e66d1e516f9a",
+    "data/diagnostics/infrastructure_slice_v2/canonical/dev_episodes.jsonl": "da36485b846fcc8c1a67e7669a894b872c36ec2643379285f1b5452fbdc85e00",
+    "checkpoints/minicpm5_source/README.md": "674de0c58b2f7f3bedec4b296c20afbebdf17be9654bd39de242a3597aa40e45",
+    "checkpoints/minicpm5_source/config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180"
+  },
+  "raw_source_review": {
+    "cases": 16,
+    "distinct_worlds": 16,
+    "source_bytes_and_event_spans_verified": true,
+    "active_event_order_matches_scoring_support": true,
+    "independent_expected_matches": 16,
+    "full_evidence_cases": 8,
+    "missing_evidence_cases": 8,
+    "all_missing_cases_have_exactly_one_missing_fact": true,
+    "all_cases_have_observed_rule": true
+  },
+  "verified_observations": {
+    "task_correct": 0,
+    "grammar_valid": 1,
+    "single_line_compliant": 16,
+    "ended_by_eos": 16,
+    "hit_token_budget": 0,
+    "generated_token_range_including_eos": [
+      9,
+      17
+    ],
+    "generated_tokens_total": 194,
+    "format_errors": 15,
+    "value_errors": 1,
+    "responses_with_UNKNOWN_token": 15,
+    "responses_combining_UNKNOWN_and_Please_provide": 7,
+    "responses_mentioning_observed_field_names": 16,
+    "family_response_summaries": {
+      "register_xor8": {
+        "cases": 4,
+        "distinct_completions": 1,
+        "response_histogram": {
+          "UNKNOWN, INPUT, MASK": 4
+        },
+        "full_evidence_cases": 2,
+        "missing_evidence_cases": 2
+      },
+      "affine_mod97": {
+        "cases": 4,
+        "distinct_completions": 2,
+        "response_histogram": {
+          "UNKNOWN, A, X, B": 3,
+          "UNKNOWN, Please provide RULE,A,X,B": 1
+        },
+        "full_evidence_cases": 2,
+        "missing_evidence_cases": 2
+      },
+      "finite_state": {
+        "cases": 4,
+        "distinct_completions": 4,
+        "response_histogram": {
+          "UNKNOWN, Please provide RULE,START": 1,
+          "UNKNOWN, Please provide RULE,START,SYMBOLS": 1,
+          "UNKNOWN,START,SYMBOLS": 1,
+          "Please provide RULE, START, SYMBOLS.": 1
+        },
+        "full_evidence_cases": 2,
+        "missing_evidence_cases": 2
+      },
+      "tool_recovery": {
+        "cases": 4,
+        "distinct_completions": 1,
+        "response_histogram": {
+          "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT": 4
+        },
+        "full_evidence_cases": 2,
+        "missing_evidence_cases": 2
+      }
+    },
+    "format_gate_passed": false
+  },
+  "interpretation": {
+    "supported": [
+      "The instruction bundle changed exposed-development output behavior: old16cap/noEOS/prose became16single-line/EOS/no-cap completions, while task correctness stayed0/16.",
+      "A budget-only explanation is inadequate for the residual errors: every response terminates at9–17generatedtokens includingEOS below32.",
+      "All8 full-evidence cases still fail; all8 missing-evidence cases also fail. The one grammatical ask requests observedRULE/SYMBOLS in addition to absentSTART.",
+      "Register and tool families each produce one repeated completion across their four distinct cases, including answer/ask/unknown targets. This is family-level output repetition, not globalconstant-zero output."
+    ],
+    "hypotheses_not_proven": [
+      "The combined UNKNOWN-or-ask wording and field-order placeholder may encourage copying a fallback form and conflating response branches.",
+      "The model may fail to bind JSON facts to required fields or select the missing-value policy.",
+      "The changed response bundle, increased prompt tokens, and observed dev reuse do not isolate any individual sentence or latent internal mechanism."
+    ],
+    "not_diagnosed": [
+      "Muon optimizer behavior: frozen baseline has no optimizer updates.",
+      "Hardware/source corruption: current placement, byte checks and guard pass; this probe cannot establish a hidden cause.",
+      "General model inability, architecture benefit, retention or broad generalization."
+    ]
+  },
+  "execution": {
+    "generation_seconds": 6.680834707804024,
+    "profile_seconds": 11.359285249840468,
+    "guard_seconds": 13.740730624878779,
+    "memory_bytes": {
+      "rss_peak_process_lifetime_bytes": 15558639616,
+      "rss_peak_sampled_bytes": 3722428416,
+      "mps_allocated_peak_sampled_bytes": 10121527296,
+      "mps_driver_peak_sampled_bytes": 10849304576
+    },
+    "memory_GiB": {
+      "rss_peak_process_lifetime_bytes": 14.4901123046875,
+      "rss_peak_sampled_bytes": 3.4667816162109375,
+      "mps_allocated_peak_sampled_bytes": 9.426406860351562,
+      "mps_driver_peak_sampled_bytes": 10.104202270507812
+    },
+    "guard_peak_swap_growth_bytes": 0,
+    "guard_minimum_sampled_host_free_percent": 71.0,
+    "guard_exact_replay": true,
+    "memory_limitations": "MPS live/driver and RSS overlap and must not be summed. MPS sampling .25s and host/RSS2s may miss transients; process-lifetime RSS is a high-water mark."
+  },
+  "future_proposal_only": {
+    "version": "Separate future v2 protocol required before any execution",
+    "proposal": "Separate the two missing-response policies. Select the appendix using only the public original query instruction and family, never the gold action/response or observed value/missingness. Make available evidence fields distinct from output placeholders and specify one complete response branch. Keep independent source verification and whole-response scoring.",
+    "not_done": "No v2 contract, prompt edits, adaptive follow-up or training occurred within the v1 protocol."
+  },
+  "cases": [
+    {
+      "id": "i2s41-de-reg-000.q1",
+      "world_id": "i2s41-de-reg-000",
+      "family": "register_xor8",
+      "scenario": "late_correction",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-reg-000.jsonl",
+      "raw_source_sha256": "1445e8c5068f90a01b94877ae21875a65ad95835327411196e9241e0813fdac3",
+      "event_spans_verified": [
+        {
+          "byte_end": 659,
+          "byte_start": 427,
+          "event_id": "i2s41-de-reg-000.00-rule",
+          "sha256": "5b3365fa2b920c3f96d7947fa083930d5436e2ed4e3bc43e52dd1ad9fdf1d231"
+        },
+        {
+          "byte_end": 890,
+          "byte_start": 659,
+          "event_id": "i2s41-de-reg-000.10-INPUT",
+          "sha256": "d01d186176cdc4c3ffc6ebe410b3ea27902bb0a122654db12de79d30c1a57b67"
+        },
+        {
+          "byte_end": 1120,
+          "byte_start": 890,
+          "event_id": "i2s41-de-reg-000.11-MASK",
+          "sha256": "fe4dbe5364a46bcd012a044253bdb8ad2150a31f74275ee27a599039a5133642"
+        },
+        {
+          "byte_end": 1375,
+          "byte_start": 1120,
+          "event_id": "i2s41-de-reg-000.90-correct",
+          "sha256": "d4ff9ab6e41c73a85fecba8dbb340da26d1148ebd3f120d837c88bdf56761fc1"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-reg-000.00-rule",
+        "i2s41-de-reg-000.10-INPUT",
+        "i2s41-de-reg-000.90-correct"
+      ],
+      "rule": {
+        "operation": "xor",
+        "width": 8
+      },
+      "observed_facts": {
+        "INPUT": 59,
+        "MASK": 199
+      },
+      "observed_items": [
+        "RULE",
+        "INPUT",
+        "MASK"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "252",
+      "reasoning_trace": {
+        "operation": "xor",
+        "input": 59,
+        "mask": 199,
+        "result": 252
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, INPUT, MASK",
+      "generated_tokens_including_terminal_eos": 9,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "INPUT",
+        "MASK"
+      ],
+      "output_mentions_observed_items": [
+        "INPUT",
+        "MASK"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-reg-001.q1",
+      "world_id": "i2s41-de-reg-001",
+      "family": "register_xor8",
+      "scenario": "late_observation_ask",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-reg-001.jsonl",
+      "raw_source_sha256": "7b6e5e03f10edbc52df38e764ba6be640400ac4548f090f05eeea137e2080b3c",
+      "event_spans_verified": [
+        {
+          "byte_end": 664,
+          "byte_start": 432,
+          "event_id": "i2s41-de-reg-001.00-rule",
+          "sha256": "cfe024af822752e72fd51e3d8cbad1f5b8959e77ad1b979d3cdf34a454761e84"
+        },
+        {
+          "byte_end": 895,
+          "byte_start": 664,
+          "event_id": "i2s41-de-reg-001.10-INPUT",
+          "sha256": "aeee5ae53d6621928b75a8d050fcc794f4c1689c20d84d31ef061fd1e92dd444"
+        },
+        {
+          "byte_end": 1124,
+          "byte_start": 895,
+          "event_id": "i2s41-de-reg-001.11-MASK",
+          "sha256": "bc23ece7887702f766a79dcb17297ebb2c37f985658df80762a8c7fd51e49ad1"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-reg-001.00-rule",
+        "i2s41-de-reg-001.10-INPUT",
+        "i2s41-de-reg-001.11-MASK"
+      ],
+      "rule": {
+        "operation": "xor",
+        "width": 8
+      },
+      "observed_facts": {
+        "INPUT": 48,
+        "MASK": 65
+      },
+      "observed_items": [
+        "RULE",
+        "INPUT",
+        "MASK"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "113",
+      "reasoning_trace": {
+        "operation": "xor",
+        "input": 48,
+        "mask": 65,
+        "result": 113
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, INPUT, MASK",
+      "generated_tokens_including_terminal_eos": 9,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "INPUT",
+        "MASK"
+      ],
+      "output_mentions_observed_items": [
+        "INPUT",
+        "MASK"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-reg-002.q0",
+      "world_id": "i2s41-de-reg-002",
+      "family": "register_xor8",
+      "scenario": "late_observation_unknown",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-reg-002.jsonl",
+      "raw_source_sha256": "4f1477d528bb0fe7d4b6ff54d8e09f6c15f844051be8e13308082d28984d0784",
+      "event_spans_verified": [
+        {
+          "byte_end": 668,
+          "byte_start": 436,
+          "event_id": "i2s41-de-reg-002.00-rule",
+          "sha256": "4fe8d7af2cc20867324cfb18f8c948f17c3647923559c5f6af037ad4af2ff142"
+        },
+        {
+          "byte_end": 900,
+          "byte_start": 668,
+          "event_id": "i2s41-de-reg-002.10-INPUT",
+          "sha256": "2ed465d5f8e355cefc9b30680b05594640c9a63f89e5f9d51f41bddd0d977f53"
+        },
+        {
+          "byte_end": 1129,
+          "byte_start": 900,
+          "event_id": "i2s41-de-reg-002.11-MASK",
+          "sha256": "b2ccf5d8238d826b63696767eb7cd8d987c78e3f2f621148514cbf092f7ea18d"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-reg-002.00-rule",
+        "i2s41-de-reg-002.10-INPUT"
+      ],
+      "rule": {
+        "operation": "xor",
+        "width": 8
+      },
+      "observed_facts": {
+        "INPUT": 117
+      },
+      "observed_items": [
+        "RULE",
+        "INPUT"
+      ],
+      "missing_items": [
+        "MASK"
+      ],
+      "independent_action": "unknown",
+      "independent_response": "UNKNOWN",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "unknown",
+        "missing_items": [
+          "MASK"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, INPUT, MASK",
+      "generated_tokens_including_terminal_eos": 9,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "INPUT",
+        "MASK"
+      ],
+      "output_mentions_observed_items": [
+        "INPUT"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-reg-003.q0",
+      "world_id": "i2s41-de-reg-003",
+      "family": "register_xor8",
+      "scenario": "tombstone",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-reg-003.jsonl",
+      "raw_source_sha256": "fd119d01d2c44e6cff31b9c7cf4e417e804f0931b4b07810c7116871a9632c3e",
+      "event_spans_verified": [
+        {
+          "byte_end": 653,
+          "byte_start": 421,
+          "event_id": "i2s41-de-reg-003.00-rule",
+          "sha256": "776171a058d888b82a9ae985ec57985042367b766984e17aa2e82f7da74f4af9"
+        },
+        {
+          "byte_end": 884,
+          "byte_start": 653,
+          "event_id": "i2s41-de-reg-003.10-INPUT",
+          "sha256": "64f399ace83285f5e2880c1fdb477a10de97ea79eca65492e5b7333c65cd12c7"
+        },
+        {
+          "byte_end": 1113,
+          "byte_start": 884,
+          "event_id": "i2s41-de-reg-003.11-MASK",
+          "sha256": "a88c430e18f207a91d5c54a347ed4bb518c1b840417ee1af789d2834498baa3f"
+        },
+        {
+          "byte_end": 1332,
+          "byte_start": 1113,
+          "event_id": "i2s41-de-reg-003.99-delete",
+          "sha256": "a409b90dc97ffceb21363c9f0512d213510dfb6540d900030e4fde1467a9804f"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-reg-003.00-rule",
+        "i2s41-de-reg-003.10-INPUT"
+      ],
+      "rule": {
+        "operation": "xor",
+        "width": 8
+      },
+      "observed_facts": {
+        "INPUT": 20
+      },
+      "observed_items": [
+        "RULE",
+        "INPUT"
+      ],
+      "missing_items": [
+        "MASK"
+      ],
+      "independent_action": "ask",
+      "independent_response": "Please provide MASK.",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "ask",
+        "missing_items": [
+          "MASK"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, INPUT, MASK",
+      "generated_tokens_including_terminal_eos": 9,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "INPUT",
+        "MASK"
+      ],
+      "output_mentions_observed_items": [
+        "INPUT"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-aff-003.q1",
+      "world_id": "i2s41-de-aff-003",
+      "family": "affine_mod97",
+      "scenario": "late_correction",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-aff-003.jsonl",
+      "raw_source_sha256": "743bd53376d9a98c2d7dcd652181fbbcfa73d8db231eb35428a9cf3d01de2d7e",
+      "event_spans_verified": [
+        {
+          "byte_end": 705,
+          "byte_start": 426,
+          "event_id": "i2s41-de-aff-003.00-rule",
+          "sha256": "081fb50723cd6405092df2cc05f246f70252e7a89b662a6c7e47db06ffa8b541"
+        },
+        {
+          "byte_end": 928,
+          "byte_start": 705,
+          "event_id": "i2s41-de-aff-003.10-A",
+          "sha256": "1e7b3dd5dd16f6fb4885070ebabafb7f098d93cb2ca8364c93c3c4ae3a8c565d"
+        },
+        {
+          "byte_end": 1151,
+          "byte_start": 928,
+          "event_id": "i2s41-de-aff-003.11-X",
+          "sha256": "1de31361c3237975af7461cc3e9bdaabfb09398eb755c2b9704a99cebed73fed"
+        },
+        {
+          "byte_end": 1374,
+          "byte_start": 1151,
+          "event_id": "i2s41-de-aff-003.12-B",
+          "sha256": "4a1d6a88438f86f39f7d74c184f001093639b0c5a2903057d4002ffecb2d39d8"
+        },
+        {
+          "byte_end": 1622,
+          "byte_start": 1374,
+          "event_id": "i2s41-de-aff-003.90-correct",
+          "sha256": "a4f98beaa9df9b49f69e88f53fea6289b8fc0401c7ab4347d98c0eab9b27fc5a"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-aff-003.00-rule",
+        "i2s41-de-aff-003.10-A",
+        "i2s41-de-aff-003.11-X",
+        "i2s41-de-aff-003.90-correct"
+      ],
+      "rule": {
+        "expression": "(A * X + B) % modulus",
+        "modulus": 97,
+        "operation": "affine"
+      },
+      "observed_facts": {
+        "A": 53,
+        "X": 41,
+        "B": 22
+      },
+      "observed_items": [
+        "RULE",
+        "A",
+        "X",
+        "B"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "61",
+      "reasoning_trace": {
+        "operation": "affine",
+        "product": 2173,
+        "sum": 2195,
+        "modulus": 97,
+        "result": 61
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, A, X, B",
+      "generated_tokens_including_terminal_eos": 10,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "A",
+        "X",
+        "B"
+      ],
+      "output_mentions_observed_items": [
+        "A",
+        "X",
+        "B"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-aff-000.q1",
+      "world_id": "i2s41-de-aff-000",
+      "family": "affine_mod97",
+      "scenario": "late_observation_ask",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-aff-000.jsonl",
+      "raw_source_sha256": "486e3e0bfa3bd7875a4ad6ef1f9545c4e2bfd547108afd1b5984ebd6ee00bf96",
+      "event_spans_verified": [
+        {
+          "byte_end": 710,
+          "byte_start": 431,
+          "event_id": "i2s41-de-aff-000.00-rule",
+          "sha256": "e96f4a64afd863a2c9251a72cb84467d879988d366ab7dcb2af677de26ce7c08"
+        },
+        {
+          "byte_end": 933,
+          "byte_start": 710,
+          "event_id": "i2s41-de-aff-000.10-A",
+          "sha256": "2a8caf0ea28bd2760855bf30b76e16d72539f59bcbf362c8b29dcfa7089b42e1"
+        },
+        {
+          "byte_end": 1155,
+          "byte_start": 933,
+          "event_id": "i2s41-de-aff-000.11-X",
+          "sha256": "635bfb6f19def60630f2bf32566196d96de87eedf957123b92c0398eb253e474"
+        },
+        {
+          "byte_end": 1378,
+          "byte_start": 1155,
+          "event_id": "i2s41-de-aff-000.12-B",
+          "sha256": "e08986770e0565816f5db802e178710e21f6f1b4ed4a3f50a27f7e02d285d2ad"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-aff-000.00-rule",
+        "i2s41-de-aff-000.10-A",
+        "i2s41-de-aff-000.11-X",
+        "i2s41-de-aff-000.12-B"
+      ],
+      "rule": {
+        "expression": "(A * X + B) % modulus",
+        "modulus": 97,
+        "operation": "affine"
+      },
+      "observed_facts": {
+        "A": 47,
+        "X": 4,
+        "B": 85
+      },
+      "observed_items": [
+        "RULE",
+        "A",
+        "X",
+        "B"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "79",
+      "reasoning_trace": {
+        "operation": "affine",
+        "product": 188,
+        "sum": 273,
+        "modulus": 97,
+        "result": 79
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, A, X, B",
+      "generated_tokens_including_terminal_eos": 10,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "A",
+        "X",
+        "B"
+      ],
+      "output_mentions_observed_items": [
+        "A",
+        "X",
+        "B"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-aff-001.q0",
+      "world_id": "i2s41-de-aff-001",
+      "family": "affine_mod97",
+      "scenario": "late_observation_unknown",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-aff-001.jsonl",
+      "raw_source_sha256": "df72b346a320171170c4552dac6abb3213225adcefca587be0ed8b455ed33891",
+      "event_spans_verified": [
+        {
+          "byte_end": 714,
+          "byte_start": 435,
+          "event_id": "i2s41-de-aff-001.00-rule",
+          "sha256": "b1140b28a1dc66ad114877c8e750cf3929cfcb3c3b7a30f2e6f04be55e754e29"
+        },
+        {
+          "byte_end": 937,
+          "byte_start": 714,
+          "event_id": "i2s41-de-aff-001.10-A",
+          "sha256": "1627af9ba9e7dda3f3b5c18e7e9cf55ca68f3d1540edc9252ecd7f98484f1c9b"
+        },
+        {
+          "byte_end": 1160,
+          "byte_start": 937,
+          "event_id": "i2s41-de-aff-001.11-X",
+          "sha256": "9e8a951e5da29dea07af30faba182a5fd3349f3d5d093ea1d9ba93ee63f02cf0"
+        },
+        {
+          "byte_end": 1383,
+          "byte_start": 1160,
+          "event_id": "i2s41-de-aff-001.12-B",
+          "sha256": "378043e14fd29a69fdb6508430008afecd13a00f173c0d05283747d160f6997e"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-aff-001.00-rule",
+        "i2s41-de-aff-001.10-A",
+        "i2s41-de-aff-001.11-X"
+      ],
+      "rule": {
+        "expression": "(A * X + B) % modulus",
+        "modulus": 97,
+        "operation": "affine"
+      },
+      "observed_facts": {
+        "A": 10,
+        "X": 25
+      },
+      "observed_items": [
+        "RULE",
+        "A",
+        "X"
+      ],
+      "missing_items": [
+        "B"
+      ],
+      "independent_action": "unknown",
+      "independent_response": "UNKNOWN",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "unknown",
+        "missing_items": [
+          "B"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, A, X, B",
+      "generated_tokens_including_terminal_eos": 10,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "A",
+        "X",
+        "B"
+      ],
+      "output_mentions_observed_items": [
+        "A",
+        "X"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-aff-002.q0",
+      "world_id": "i2s41-de-aff-002",
+      "family": "affine_mod97",
+      "scenario": "tombstone",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-aff-002.jsonl",
+      "raw_source_sha256": "4e0d49ca1ece42b05918944697fcdea9ab54da1db0af790be978997a21c63ce7",
+      "event_spans_verified": [
+        {
+          "byte_end": 699,
+          "byte_start": 420,
+          "event_id": "i2s41-de-aff-002.00-rule",
+          "sha256": "6314c660b61e85ab49313726580e2b32c0a68fdee50b5419e653d2dda20eb47c"
+        },
+        {
+          "byte_end": 922,
+          "byte_start": 699,
+          "event_id": "i2s41-de-aff-002.10-A",
+          "sha256": "3b0dbf6ce6a906bf6cfb373f3a2d4b1ab1a1225cd1ca61713b2abdb71c732c34"
+        },
+        {
+          "byte_end": 1145,
+          "byte_start": 922,
+          "event_id": "i2s41-de-aff-002.11-X",
+          "sha256": "a093f1bf4a84292fe42c334f2a743eace4a78c9889ed4cd7839dd726220a9d59"
+        },
+        {
+          "byte_end": 1368,
+          "byte_start": 1145,
+          "event_id": "i2s41-de-aff-002.12-B",
+          "sha256": "159c55f65ed22775c8795eb7892d256f9be7cbff7a36ce3d4884200280ce86e9"
+        },
+        {
+          "byte_end": 1584,
+          "byte_start": 1368,
+          "event_id": "i2s41-de-aff-002.99-delete",
+          "sha256": "1345331136c0fb47ece86696752da8f4c13f7cbe8c72d72e9e9c7978a09acbf1"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-aff-002.00-rule",
+        "i2s41-de-aff-002.10-A",
+        "i2s41-de-aff-002.11-X"
+      ],
+      "rule": {
+        "expression": "(A * X + B) % modulus",
+        "modulus": 97,
+        "operation": "affine"
+      },
+      "observed_facts": {
+        "A": 52,
+        "X": 79
+      },
+      "observed_items": [
+        "RULE",
+        "A",
+        "X"
+      ],
+      "missing_items": [
+        "B"
+      ],
+      "independent_action": "ask",
+      "independent_response": "Please provide B.",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "ask",
+        "missing_items": [
+          "B"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE,A,X,B",
+      "generated_tokens_including_terminal_eos": 12,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "A",
+        "X",
+        "B"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "A",
+        "X"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "A",
+        "X"
+      ]
+    },
+    {
+      "id": "i2s41-de-fsm-002.q1",
+      "world_id": "i2s41-de-fsm-002",
+      "family": "finite_state",
+      "scenario": "late_correction",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-fsm-002.jsonl",
+      "raw_source_sha256": "d79b0bf7c5d71c6ca69f554e031fc4583061bc309e7364ef58969900d73a84c8",
+      "event_spans_verified": [
+        {
+          "byte_end": 869,
+          "byte_start": 426,
+          "event_id": "i2s41-de-fsm-002.00-rule",
+          "sha256": "ea3f8ea2e6f24a3fd94194320228d816267d8df5bfd3953dd954041fabfba5fb"
+        },
+        {
+          "byte_end": 1108,
+          "byte_start": 869,
+          "event_id": "i2s41-de-fsm-002.11-SYMBOLS",
+          "sha256": "59d6213274305e5555850f7a4c802625ef92de66d0e64fc5fe5f9f737356f468"
+        },
+        {
+          "byte_end": 1343,
+          "byte_start": 1108,
+          "event_id": "i2s41-de-fsm-002.10-START",
+          "sha256": "00a0799ed205f4911391b9642d34c6d4a6a85ab81945970c1582cfcdf9ee2e8e"
+        },
+        {
+          "byte_end": 1603,
+          "byte_start": 1343,
+          "event_id": "i2s41-de-fsm-002.90-correct",
+          "sha256": "4d8e38b40b414143f545e36e15bc8c57f0dd195f871656833c0d1fecefec5684"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-fsm-002.00-rule",
+        "i2s41-de-fsm-002.11-SYMBOLS",
+        "i2s41-de-fsm-002.90-correct"
+      ],
+      "rule": {
+        "consume": "SYMBOLS left to right starting at START",
+        "operation": "finite_state",
+        "transitions": {
+          "S0": {
+            "a": "S2",
+            "b": "S0"
+          },
+          "S1": {
+            "a": "S1",
+            "b": "S2"
+          },
+          "S2": {
+            "a": "S3",
+            "b": "S1"
+          },
+          "S3": {
+            "a": "S0",
+            "b": "S3"
+          }
+        }
+      },
+      "observed_facts": {
+        "SYMBOLS": "ab",
+        "START": "S2"
+      },
+      "observed_items": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "S3",
+      "reasoning_trace": {
+        "operation": "finite_state",
+        "symbols": "ab",
+        "state_path": [
+          "S2",
+          "S3",
+          "S3"
+        ],
+        "result": "S3"
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE,START",
+      "generated_tokens_including_terminal_eos": 11,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "START"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "START"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "START"
+      ]
+    },
+    {
+      "id": "i2s41-de-fsm-003.q1",
+      "world_id": "i2s41-de-fsm-003",
+      "family": "finite_state",
+      "scenario": "late_observation_ask",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-fsm-003.jsonl",
+      "raw_source_sha256": "0a1157496bc28c5f4fd4219cdafd2d9c141fb2c4b2d01502d7d1802f231188aa",
+      "event_spans_verified": [
+        {
+          "byte_end": 874,
+          "byte_start": 431,
+          "event_id": "i2s41-de-fsm-003.00-rule",
+          "sha256": "a51b1c6588485a42a233a3a8e6886e75138af3c4b13a6de34bfdb5df205dc768"
+        },
+        {
+          "byte_end": 1114,
+          "byte_start": 874,
+          "event_id": "i2s41-de-fsm-003.11-SYMBOLS",
+          "sha256": "879c208d9de1176d9a9d8f53f3b4a2b1e7dd383f297e30ebe4eb89d8943b705e"
+        },
+        {
+          "byte_end": 1349,
+          "byte_start": 1114,
+          "event_id": "i2s41-de-fsm-003.10-START",
+          "sha256": "c2d54832fe76e0b9b5b9c49e525519b98df87d2f91ebb9f0abfc9c7f135bb5dc"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-fsm-003.00-rule",
+        "i2s41-de-fsm-003.11-SYMBOLS",
+        "i2s41-de-fsm-003.10-START"
+      ],
+      "rule": {
+        "consume": "SYMBOLS left to right starting at START",
+        "operation": "finite_state",
+        "transitions": {
+          "S0": {
+            "a": "S1",
+            "b": "S1"
+          },
+          "S1": {
+            "a": "S0",
+            "b": "S2"
+          },
+          "S2": {
+            "a": "S3",
+            "b": "S3"
+          },
+          "S3": {
+            "a": "S2",
+            "b": "S0"
+          }
+        }
+      },
+      "observed_facts": {
+        "SYMBOLS": "baa",
+        "START": "S0"
+      },
+      "observed_items": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "S1",
+      "reasoning_trace": {
+        "operation": "finite_state",
+        "symbols": "baa",
+        "state_path": [
+          "S0",
+          "S1",
+          "S0",
+          "S1"
+        ],
+        "result": "S1"
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE,START,SYMBOLS",
+      "generated_tokens_including_terminal_eos": 15,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ]
+    },
+    {
+      "id": "i2s41-de-fsm-000.q0",
+      "world_id": "i2s41-de-fsm-000",
+      "family": "finite_state",
+      "scenario": "late_observation_unknown",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-fsm-000.jsonl",
+      "raw_source_sha256": "b4065c047104861b67be068f40b4d421be91ea37bfefc7cfb730f009c17de799",
+      "event_spans_verified": [
+        {
+          "byte_end": 878,
+          "byte_start": 435,
+          "event_id": "i2s41-de-fsm-000.00-rule",
+          "sha256": "41fb09d43f2f18f62e4a7fd7400f181d387bd5e1217f1d579b7e2b4df4e7f5a2"
+        },
+        {
+          "byte_end": 1118,
+          "byte_start": 878,
+          "event_id": "i2s41-de-fsm-000.11-SYMBOLS",
+          "sha256": "2800b9005fffacc7f53cc03d3fdc2a483e08efc60f139576d94425f2dd20db46"
+        },
+        {
+          "byte_end": 1353,
+          "byte_start": 1118,
+          "event_id": "i2s41-de-fsm-000.10-START",
+          "sha256": "6f6941976d95e9cb58e4b7311873826ae7764ea83473efd3bd055eef6c67d83d"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-fsm-000.00-rule",
+        "i2s41-de-fsm-000.11-SYMBOLS"
+      ],
+      "rule": {
+        "consume": "SYMBOLS left to right starting at START",
+        "operation": "finite_state",
+        "transitions": {
+          "S0": {
+            "a": "S3",
+            "b": "S1"
+          },
+          "S1": {
+            "a": "S0",
+            "b": "S0"
+          },
+          "S2": {
+            "a": "S2",
+            "b": "S2"
+          },
+          "S3": {
+            "a": "S1",
+            "b": "S3"
+          }
+        }
+      },
+      "observed_facts": {
+        "SYMBOLS": "aaa"
+      },
+      "observed_items": [
+        "RULE",
+        "SYMBOLS"
+      ],
+      "missing_items": [
+        "START"
+      ],
+      "independent_action": "unknown",
+      "independent_response": "UNKNOWN",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "unknown",
+        "missing_items": [
+          "START"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN,START,SYMBOLS",
+      "generated_tokens_including_terminal_eos": 10,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "START",
+        "SYMBOLS"
+      ],
+      "output_mentions_observed_items": [
+        "SYMBOLS"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true
+    },
+    {
+      "id": "i2s41-de-fsm-001.q0",
+      "world_id": "i2s41-de-fsm-001",
+      "family": "finite_state",
+      "scenario": "tombstone",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-fsm-001.jsonl",
+      "raw_source_sha256": "e5a2012933c08a729b2d5cef5b836ed87a15d31680ee06e14f3b83bc2facf9ff",
+      "event_spans_verified": [
+        {
+          "byte_end": 863,
+          "byte_start": 420,
+          "event_id": "i2s41-de-fsm-001.00-rule",
+          "sha256": "1717e29f272adb0ef81f511ced69363653d44c50dbbc57442aa999a057262cbd"
+        },
+        {
+          "byte_end": 1103,
+          "byte_start": 863,
+          "event_id": "i2s41-de-fsm-001.11-SYMBOLS",
+          "sha256": "fdcfad8246aaaa99ecd3d90c4ecacdae6e408372cf70288732680ba194ed421a"
+        },
+        {
+          "byte_end": 1338,
+          "byte_start": 1103,
+          "event_id": "i2s41-de-fsm-001.10-START",
+          "sha256": "f3d1522a6c0e7c7390f841b9b29977ac1aeb7dd5963fa13289ed0e6f1f0a5af6"
+        },
+        {
+          "byte_end": 1558,
+          "byte_start": 1338,
+          "event_id": "i2s41-de-fsm-001.99-delete",
+          "sha256": "d847ae313d79f8a4262fc44ce38440cfe128b9e24e79b53f1d3a6cc81bf972f4"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-fsm-001.00-rule",
+        "i2s41-de-fsm-001.11-SYMBOLS"
+      ],
+      "rule": {
+        "consume": "SYMBOLS left to right starting at START",
+        "operation": "finite_state",
+        "transitions": {
+          "S0": {
+            "a": "S2",
+            "b": "S3"
+          },
+          "S1": {
+            "a": "S3",
+            "b": "S0"
+          },
+          "S2": {
+            "a": "S0",
+            "b": "S2"
+          },
+          "S3": {
+            "a": "S1",
+            "b": "S1"
+          }
+        }
+      },
+      "observed_facts": {
+        "SYMBOLS": "bab"
+      },
+      "observed_items": [
+        "RULE",
+        "SYMBOLS"
+      ],
+      "missing_items": [
+        "START"
+      ],
+      "independent_action": "ask",
+      "independent_response": "Please provide START.",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "ask",
+        "missing_items": [
+          "START"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "Please provide RULE, START, SYMBOLS.",
+      "generated_tokens_including_terminal_eos": 12,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "value_error",
+      "scorer_format_valid": true,
+      "output_field_name_mentions": [
+        "RULE",
+        "START",
+        "SYMBOLS"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "SYMBOLS"
+      ],
+      "review_note": "Well-formed ask names RULE and SYMBOLS although both are observed; only START is absent.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "explicit_ask_for_already_observed_items": [
+        "RULE",
+        "SYMBOLS"
+      ]
+    },
+    {
+      "id": "i2s41-de-tool-001.q1",
+      "world_id": "i2s41-de-tool-001",
+      "family": "tool_recovery",
+      "scenario": "late_correction",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-tool-001.jsonl",
+      "raw_source_sha256": "94ee0b77762ac896b2b3c5cacbe2bd621e1d7ffa5436a9b55bace779e034a45a",
+      "event_spans_verified": [
+        {
+          "byte_end": 864,
+          "byte_start": 431,
+          "event_id": "i2s41-de-tool-001.00-rule",
+          "sha256": "7a56f5ec54819cabe5ae7d99cd0113cb01c01e99c2d4a3ab70102e048c0b364f"
+        },
+        {
+          "byte_end": 1100,
+          "byte_start": 864,
+          "event_id": "i2s41-de-tool-001.11-ATTEMPT",
+          "sha256": "e60b7626ee0b9b720ad8a74d21d7ba2a4394c2eb03986eb6d70441eb62ac90dc"
+        },
+        {
+          "byte_end": 1332,
+          "byte_start": 1100,
+          "event_id": "i2s41-de-tool-001.12-LIMIT",
+          "sha256": "a330a4b1dea612c0c190413675e2222ed8add726c63162002f1b1a0b35f847b4"
+        },
+        {
+          "byte_end": 1578,
+          "byte_start": 1332,
+          "event_id": "i2s41-de-tool-001.10-STATUS",
+          "sha256": "540897e874057f7625084b68398c5928c0fd997de29ec5688a2cfbc8f1cd4f82"
+        },
+        {
+          "byte_end": 1843,
+          "byte_start": 1578,
+          "event_id": "i2s41-de-tool-001.90-correct",
+          "sha256": "9b21c16a54d0f75eb825f9f6beb16103eb02841104f3e0c428a68dbbb0e54d2d"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-tool-001.00-rule",
+        "i2s41-de-tool-001.11-ATTEMPT",
+        "i2s41-de-tool-001.12-LIMIT",
+        "i2s41-de-tool-001.90-correct"
+      ],
+      "rule": {
+        "condition": "transient_below_limit means STATUS=transient and ATTEMPT<LIMIT",
+        "operation": "recovery",
+        "policy": {
+          "ok": "VERIFY receipt",
+          "otherwise": "STOP",
+          "transient_below_limit": "RETRY lookup"
+        },
+        "tool": "lookup"
+      },
+      "observed_facts": {
+        "ATTEMPT": 1,
+        "LIMIT": 6,
+        "STATUS": "ok"
+      },
+      "observed_items": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "VERIFY receipt",
+      "reasoning_trace": {
+        "operation": "recovery",
+        "status": "ok",
+        "attempt": 1,
+        "limit": 6,
+        "attempt_below_limit": true,
+        "policy_branch": "ok",
+        "result": "VERIFY receipt"
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+      "generated_tokens_including_terminal_eos": 17,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ]
+    },
+    {
+      "id": "i2s41-de-tool-002.q1",
+      "world_id": "i2s41-de-tool-002",
+      "family": "tool_recovery",
+      "scenario": "late_observation_ask",
+      "cutoff": 9,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-tool-002.jsonl",
+      "raw_source_sha256": "61cf579db2e9833b8f35a1f22607a20efb1d94639b9a8f735700ef4854c70b37",
+      "event_spans_verified": [
+        {
+          "byte_end": 869,
+          "byte_start": 436,
+          "event_id": "i2s41-de-tool-002.00-rule",
+          "sha256": "7ef9c41b5a0debb7c40031fad197bdd6f69fabc2e07161347e543c75d2a1a3d5"
+        },
+        {
+          "byte_end": 1105,
+          "byte_start": 869,
+          "event_id": "i2s41-de-tool-002.11-ATTEMPT",
+          "sha256": "55459f42ab776aa47c85f65a2aa72914ce09654c57c9a57c86164bd0d65a0dd6"
+        },
+        {
+          "byte_end": 1337,
+          "byte_start": 1105,
+          "event_id": "i2s41-de-tool-002.12-LIMIT",
+          "sha256": "e4402d86b09b1c5b6fc41dc05fc601f38a84144b750ec1395ac3bcd22e155117"
+        },
+        {
+          "byte_end": 1583,
+          "byte_start": 1337,
+          "event_id": "i2s41-de-tool-002.10-STATUS",
+          "sha256": "c010c21e0518216ec15b9dba94e90029111d659de4b70680ee01b8a89b40dd24"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-tool-002.00-rule",
+        "i2s41-de-tool-002.11-ATTEMPT",
+        "i2s41-de-tool-002.12-LIMIT",
+        "i2s41-de-tool-002.10-STATUS"
+      ],
+      "rule": {
+        "condition": "transient_below_limit means STATUS=transient and ATTEMPT<LIMIT",
+        "operation": "recovery",
+        "policy": {
+          "ok": "VERIFY receipt",
+          "otherwise": "STOP",
+          "transient_below_limit": "RETRY lookup"
+        },
+        "tool": "lookup"
+      },
+      "observed_facts": {
+        "ATTEMPT": 7,
+        "LIMIT": 2,
+        "STATUS": "transient"
+      },
+      "observed_items": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "missing_items": [],
+      "independent_action": "answer",
+      "independent_response": "STOP",
+      "reasoning_trace": {
+        "operation": "recovery",
+        "status": "transient",
+        "attempt": 7,
+        "limit": 2,
+        "attempt_below_limit": false,
+        "policy_branch": "otherwise",
+        "result": "STOP"
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+      "generated_tokens_including_terminal_eos": 17,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ]
+    },
+    {
+      "id": "i2s41-de-tool-003.q0",
+      "world_id": "i2s41-de-tool-003",
+      "family": "tool_recovery",
+      "scenario": "late_observation_unknown",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-tool-003.jsonl",
+      "raw_source_sha256": "c253b69b195625b7fd8988c990b32392dbb2aec2fe331a02870e72bdc70bdec0",
+      "event_spans_verified": [
+        {
+          "byte_end": 873,
+          "byte_start": 440,
+          "event_id": "i2s41-de-tool-003.00-rule",
+          "sha256": "e14f35a524931869f2a50a822c65e26c2a91caef59257a90bb9985f1f5f2dfc2"
+        },
+        {
+          "byte_end": 1109,
+          "byte_start": 873,
+          "event_id": "i2s41-de-tool-003.11-ATTEMPT",
+          "sha256": "35b730784b9c499be81fa49f3fef353b37746b1d42f9ecdd9edf8e3d21ebae9a"
+        },
+        {
+          "byte_end": 1341,
+          "byte_start": 1109,
+          "event_id": "i2s41-de-tool-003.12-LIMIT",
+          "sha256": "02100bdef88eb11861a8409110955f9d33122c6697fd58bc1feb68dd69abb91d"
+        },
+        {
+          "byte_end": 1580,
+          "byte_start": 1341,
+          "event_id": "i2s41-de-tool-003.10-STATUS",
+          "sha256": "468a473d132e68b91ac7180163719ccb214c0f7b9399ec4629678b6a66bb2e57"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-tool-003.00-rule",
+        "i2s41-de-tool-003.11-ATTEMPT",
+        "i2s41-de-tool-003.12-LIMIT"
+      ],
+      "rule": {
+        "condition": "transient_below_limit means STATUS=transient and ATTEMPT<LIMIT",
+        "operation": "recovery",
+        "policy": {
+          "ok": "VERIFY receipt",
+          "otherwise": "STOP",
+          "transient_below_limit": "RETRY lookup"
+        },
+        "tool": "lookup"
+      },
+      "observed_facts": {
+        "ATTEMPT": 7,
+        "LIMIT": 4
+      },
+      "observed_items": [
+        "RULE",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "missing_items": [
+        "STATUS"
+      ],
+      "independent_action": "unknown",
+      "independent_response": "UNKNOWN",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "unknown",
+        "missing_items": [
+          "STATUS"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+      "generated_tokens_including_terminal_eos": 17,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "ATTEMPT",
+        "LIMIT"
+      ]
+    },
+    {
+      "id": "i2s41-de-tool-000.q0",
+      "world_id": "i2s41-de-tool-000",
+      "family": "tool_recovery",
+      "scenario": "tombstone",
+      "cutoff": 5,
+      "raw_source_path": "data/diagnostics/infrastructure_slice_v2/raw_sources/i2s41-de-tool-000.jsonl",
+      "raw_source_sha256": "c6a58d1fd77c2853a14f6b8e8cf44549af933621278b09ea755a373e6ccc65f9",
+      "event_spans_verified": [
+        {
+          "byte_end": 858,
+          "byte_start": 425,
+          "event_id": "i2s41-de-tool-000.00-rule",
+          "sha256": "f54198405191d3ec5c94304a1375d19aac3c06208970b96a06ab1f448f5df50c"
+        },
+        {
+          "byte_end": 1094,
+          "byte_start": 858,
+          "event_id": "i2s41-de-tool-000.11-ATTEMPT",
+          "sha256": "8bed307d193a490bf414daac8ee802dfaaddad87df931b19284a6b293076bbfa"
+        },
+        {
+          "byte_end": 1326,
+          "byte_start": 1094,
+          "event_id": "i2s41-de-tool-000.12-LIMIT",
+          "sha256": "9f863c7330a085cac6daed79fbfaccbc8558377e7da2c3e86e531ef1c4642ade"
+        },
+        {
+          "byte_end": 1565,
+          "byte_start": 1326,
+          "event_id": "i2s41-de-tool-000.10-STATUS",
+          "sha256": "69bd43ebd0464f5ad88b30a3f28c5cab11627adb7e376d9aa3eb626ddcc87d4c"
+        },
+        {
+          "byte_end": 1789,
+          "byte_start": 1565,
+          "event_id": "i2s41-de-tool-000.99-delete",
+          "sha256": "f80d001104bd8a81dd3418dd0ae6bc568d5032284e1597292a9f2c5360e810e1"
+        }
+      ],
+      "active_event_ids": [
+        "i2s41-de-tool-000.00-rule",
+        "i2s41-de-tool-000.11-ATTEMPT",
+        "i2s41-de-tool-000.12-LIMIT"
+      ],
+      "rule": {
+        "condition": "transient_below_limit means STATUS=transient and ATTEMPT<LIMIT",
+        "operation": "recovery",
+        "policy": {
+          "ok": "VERIFY receipt",
+          "otherwise": "STOP",
+          "transient_below_limit": "RETRY lookup"
+        },
+        "tool": "lookup"
+      },
+      "observed_facts": {
+        "ATTEMPT": 3,
+        "LIMIT": 5
+      },
+      "observed_items": [
+        "RULE",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "missing_items": [
+        "STATUS"
+      ],
+      "independent_action": "ask",
+      "independent_response": "Please provide STATUS.",
+      "reasoning_trace": {
+        "operation": "missing_evidence",
+        "public_query_policy": "ask",
+        "missing_items": [
+          "STATUS"
+        ]
+      },
+      "matches_frozen_expected": true,
+      "completion": "UNKNOWN, Please provide RULE, STATUS, ATTEMPT, LIMIT",
+      "generated_tokens_including_terminal_eos": 17,
+      "ended_by_eos": true,
+      "hit_token_budget": false,
+      "scorer_error_kind": "format_error",
+      "scorer_format_valid": false,
+      "output_field_name_mentions": [
+        "RULE",
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "output_mentions_observed_items": [
+        "RULE",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "review_note": "Malformed whole response mixes UNKNOWN with field names and/or ask text; no substring receives task credit. Ask text also names observed items, while the whole completion remains malformed.",
+      "lexical_mentions_are_not_automatically_missingness_claims": true,
+      "malformed_ask_text_names_observed_items": [
+        "RULE",
+        "ATTEMPT",
+        "LIMIT"
+      ]
+    }
+  ],
+  "local_primary_document_review": {
+    "README_path": "checkpoints/minicpm5_source/README.md",
+    "README_sha256": "674de0c58b2f7f3bedec4b296c20afbebdf17be9654bd39de242a3597aa40e45",
+    "official_pinned_URL": "https://huggingface.co/openbmb/MiniCPM5-2B/blob/f97400052a43d642bbc6e9975e2397e3ae6a6b52/README.md",
+    "sampling_recommendation": {
+      "temperature": 1.0,
+      "top_p": 0.95,
+      "min_p": 0.0
+    },
+    "repetitive_output_suggestion": {
+      "repetition_penalty": 1.05
+    },
+    "README_lines": [
+      283,
+      285,
+      377
+    ],
+    "quickstart_enable_thinking": true,
+    "native_config_architectures": [
+      "LlamaForCausalLM"
+    ],
+    "native_config_auto_map_present": false,
+    "interpretation": "Official local guidance supplies a separate future inference-settings hypothesis. It does not establish the cause of this dev failure. Locked v1 remains greedy and thinking-disabled; no sampling/thinking follow-up ran and no settings changed after results."
+  },
+  "lexical_mention_interpretation": "Output field-name mentions are lexical observations, not automatically assertions that each named field is missing. The well-formed FSM ask explicitly requests observed RULE/SYMBOLS; malformed UNKNOWN-plus-list outputs receive no inferred intended answer or task credit."
+}
