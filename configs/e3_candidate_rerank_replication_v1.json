@@ -1,0 +1,56 @@
+{
+  "format": "replica.e3.candidate_rerank_replication.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fresh-family replication of model-scored candidate reranking against a same-menu random control; no training or retuning.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_candidate2/cases",
+    "manifest_sha256": "675057839187e179a5227f2ce0be270e1f64a0958f9118a5b06249b1689a583b",
+    "dev": [
+      "cand2_dev_01"
+    ],
+    "heldout": [
+      "cand2_heldout_01",
+      "cand2_heldout_02",
+      "cand2_heldout_03",
+      "cand2_heldout_04",
+      "cand2_heldout_05"
+    ]
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "evaluation": {
+    "cases": [
+      "cand2_dev_01",
+      "cand2_heldout_01",
+      "cand2_heldout_02",
+      "cand2_heldout_03",
+      "cand2_heldout_04",
+      "cand2_heldout_05"
+    ],
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 1024,
+    "generated_tokens": 128
+  },
+  "interface": "same host candidate menu; model argmin vs random same-menu control",
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads": 1
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "claims": "Replication only; no default promotion or general free-form policy claim."
+}

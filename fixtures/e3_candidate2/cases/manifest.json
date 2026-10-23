@@ -1,0 +1,67 @@
+{
+  "format": "replica.e3_candidate2.dataset.v1",
+  "created_at_utc": "2026-10-23",
+  "goal": "The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.",
+  "cases": [
+    {
+      "case_id": "cand2_dev_01",
+      "role": "dev",
+      "source_group": "cand2_dev_a",
+      "constant": "COOLDOWN_MS",
+      "actual": 120,
+      "expected": 900
+    },
+    {
+      "case_id": "cand2_heldout_01",
+      "role": "heldout",
+      "source_group": "cand2_heldout_a",
+      "constant": "MAX_CONN",
+      "actual": 4,
+      "expected": 18
+    },
+    {
+      "case_id": "cand2_heldout_02",
+      "role": "heldout",
+      "source_group": "cand2_heldout_b",
+      "constant": "HEARTBEAT_S",
+      "actual": 0.4,
+      "expected": 2.2
+    },
+    {
+      "case_id": "cand2_heldout_03",
+      "role": "heldout",
+      "source_group": "cand2_heldout_c",
+      "constant": "READ_TIMEOUT_MS",
+      "actual": 500,
+      "expected": 3100
+    },
+    {
+      "case_id": "cand2_heldout_04",
+      "role": "heldout",
+      "source_group": "cand2_heldout_d",
+      "constant": "QUEUE_LIMIT",
+      "actual": 6,
+      "expected": 26
+    },
+    {
+      "case_id": "cand2_heldout_05",
+      "role": "heldout",
+      "source_group": "cand2_heldout_e",
+      "constant": "BATCH_SIZE",
+      "actual": 8,
+      "expected": 64
+    }
+  ],
+  "splits": {
+    "dev": [
+      "cand2_dev_01"
+    ],
+    "heldout": [
+      "cand2_heldout_01",
+      "cand2_heldout_02",
+      "cand2_heldout_03",
+      "cand2_heldout_04",
+      "cand2_heldout_05"
+    ]
+  }
+}
