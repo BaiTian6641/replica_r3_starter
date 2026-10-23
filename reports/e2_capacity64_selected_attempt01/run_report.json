@@ -1,0 +1,2674 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T15:01:09.468953+00:00",
+  "arguments": {
+    "device": "mps",
+    "output": "runs/e2_capacity64_selected_attempt01",
+    "protocol": "configs/e2_capacity64_selected_v1.json",
+    "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "model_lock": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+    "parent_extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension"
+  },
+  "protocol_sha256": "ea1355f4042c8150bf3803b1387a6a586f0d0a358a87e89cca4e809987443c82",
+  "protocol": {
+    "format": "replica.e2_capacity.qualification.v4",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Qualify the selected E2 extension at 64 units with the validated max_units-only migration; inference and modules-only backward only.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_capacity64",
+      "manifest": "data/e2_capacity64/manifest.json",
+      "manifest_sha256": "06e1065842ecb6bc7cead0a8e06e661f63c29c00c417444cc7a251298b34b886",
+      "records_sha256": "140400c96c07438a0bc3a6f66a395afa5625628b6b1d8e3e2ebdccbe3987a519"
+    },
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "device": "mps",
+    "dtype": "float32",
+    "native_cache": false,
+    "native_cpu_fallback": false,
+    "scope": {
+      "source_tokens_per_unit": 128,
+      "max_units": 64,
+      "slots_per_unit": 4,
+      "memory_width": 256,
+      "ports": [
+        13,
+        27
+      ],
+      "observer": 41,
+      "training": "modules_only backward; no optimizer step; base frozen"
+    },
+    "schedule": {
+      "inference": [
+        {
+          "id": "inf_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u16_p128",
+          "units": 16,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u32_p128",
+          "units": 32,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u48_p128",
+          "units": 48,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u64_p128",
+          "units": 64,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u64_p256",
+          "units": 64,
+          "prompt_tokens": 256,
+          "generate_tokens": 8
+        }
+      ],
+      "training": [
+        {
+          "id": "train_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u16_p128",
+          "units": 16,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u32_p128",
+          "units": 32,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u48_p128",
+          "units": 48,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u64_p128",
+          "units": 64,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u64_p256",
+          "units": 64,
+          "prompt_tokens": 256,
+          "label_tokens": 16
+        }
+      ]
+    },
+    "measurements": [
+      "actual source-token counts per unit",
+      "selected unit count",
+      "source encode seconds",
+      "writer seconds",
+      "sense pass seconds",
+      "action forward seconds",
+      "generation seconds and generated tokens",
+      "training prepare/forward/backward seconds",
+      "sampled MPS allocated/driver bytes",
+      "process RSS bytes",
+      "guard thresholds"
+    ],
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "one_native_job": true
+    },
+    "stop_conditions": [
+      "declared guard threshold breach",
+      "nonfinite logits/loss/gradients",
+      "schedule point raises an unexpected error",
+      "stale telemetry"
+    ],
+    "exclusions": [
+      "No D2 original-weight capacity arm is declared or run here.",
+      "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+    ],
+    "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim.",
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "points": 12,
+      "source_units": 64,
+      "expected_storage_mib": 8,
+      "no_base_save": true
+    },
+    "migration": "port_capacity_only"
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "implementation_sha256": {
+    "scripts/run_e2_capacity.py": "eff2a04c3f3a1849de0ae3ef7c4b5f620217075326da67d5a210cb25a14b535b",
+    "src/replica_lab/memory_system/answer.py": "4b722c2738a20fe6da53730c2ace3a0a37d43ef8fe6fbbec74206539b377a212",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "b238fa0e3d0e59bf140767e8213f9c2269c4a87848a129e5960c9157f6129b2f",
+    "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+    "src/replica_lab/memory_system/context.py": "ea1b8a954aae9b7e59845fd5f1db4ef4ef81ac66a32d45723849860c67175ef2",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/architecture/loading.py": "ffdee8328ae6afc40b6b1eadc1abe57ca2950c2b125b6b7e6d32b3a4beeba57d",
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/ports.py": "3d983e8313eb2c7c3cde748c9f8c0b6f384add27d6db5f9098e5ba21816dccfe",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/minicpm5.py": "47b6b302cd0f77a291896585f73d843d6d8cc0556e75e5b04984030e0e5997a9",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/contracts.py": "f07792fe958a432d7cd37d0cbb4f1289f3714033247cc5aceed9e8f2e3ab8464",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf"
+  },
+  "free_disk_before_bytes": 627988377600,
+  "downloads": 0,
+  "original_model_loads": 1,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+  },
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 64,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false
+  },
+  "manifest_digest": "5bcd9d327a575f73453cc6ab9e5861f88f30246b5b0f25ed7a4b88795fee427f",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "dataset": {
+    "manifest": {
+      "format": "replica.e2_capacity.dataset.v3",
+      "created_at_utc": "2026-10-23",
+      "subject_id": "e2_capacity64",
+      "branch_id": "capacity",
+      "purpose": "capacity_probe",
+      "as_of": 10,
+      "records": 61,
+      "units": 64,
+      "short_records": 60,
+      "long_record_spans": 4,
+      "token_counts": {
+        "cap64_short_01": 128,
+        "cap64_short_02": 128,
+        "cap64_short_03": 128,
+        "cap64_short_04": 128,
+        "cap64_short_05": 128,
+        "cap64_short_06": 128,
+        "cap64_short_07": 128,
+        "cap64_short_08": 128,
+        "cap64_short_09": 128,
+        "cap64_short_10": 128,
+        "cap64_short_11": 128,
+        "cap64_short_12": 128,
+        "cap64_short_13": 128,
+        "cap64_short_14": 128,
+        "cap64_short_15": 128,
+        "cap64_short_16": 128,
+        "cap64_short_17": 128,
+        "cap64_short_18": 128,
+        "cap64_short_19": 128,
+        "cap64_short_20": 128,
+        "cap64_short_21": 128,
+        "cap64_short_22": 128,
+        "cap64_short_23": 128,
+        "cap64_short_24": 128,
+        "cap64_short_25": 128,
+        "cap64_short_26": 128,
+        "cap64_short_27": 128,
+        "cap64_short_28": 128,
+        "cap64_short_29": 128,
+        "cap64_short_30": 128,
+        "cap64_short_31": 128,
+        "cap64_short_32": 128,
+        "cap64_short_33": 128,
+        "cap64_short_34": 128,
+        "cap64_short_35": 128,
+        "cap64_short_36": 128,
+        "cap64_short_37": 128,
+        "cap64_short_38": 128,
+        "cap64_short_39": 128,
+        "cap64_short_40": 128,
+        "cap64_short_41": 128,
+        "cap64_short_42": 128,
+        "cap64_short_43": 128,
+        "cap64_short_44": 128,
+        "cap64_short_45": 128,
+        "cap64_short_46": 128,
+        "cap64_short_47": 128,
+        "cap64_short_48": 128,
+        "cap64_short_49": 128,
+        "cap64_short_50": 128,
+        "cap64_short_51": 128,
+        "cap64_short_52": 128,
+        "cap64_short_53": 128,
+        "cap64_short_54": 128,
+        "cap64_short_55": 128,
+        "cap64_short_56": 128,
+        "cap64_short_57": 128,
+        "cap64_short_58": 128,
+        "cap64_short_59": 128,
+        "cap64_short_60": 128,
+        "cap64_long": 507
+      },
+      "files": {
+        "records_sha256": "140400c96c07438a0bc3a6f66a395afa5625628b6b1d8e3e2ebdccbe3987a519"
+      },
+      "claims": "Synthetic 64-unit capacity bank; no labels or quality claim."
+    },
+    "records_sha256": "140400c96c07438a0bc3a6f66a395afa5625628b6b1d8e3e2ebdccbe3987a519"
+  },
+  "parent_extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf"
+  },
+  "checks": {},
+  "points": [
+    {
+      "id": "inf_u1_p64",
+      "phase": "inference",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        26765,
+        33,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.07813708391040564,
+      "writer_seconds": 0.01271416712552309,
+      "sense_seconds": 0.06246916693635285,
+      "action_forward_seconds": 0.06299879192374647,
+      "generation_seconds": 0.28974441695027053,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 10586875392,
+      "mps_driver_after_bytes": 11016994816,
+      "wall_seconds": 0.5425492911599576,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10746216448
+    },
+    {
+      "id": "inf_u16_p128",
+      "phase": "inference",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.4019650830887258,
+      "writer_seconds": 0.026987291872501373,
+      "sense_seconds": 0.07044933410361409,
+      "action_forward_seconds": 0.08540820912458003,
+      "generation_seconds": 0.36821045889519155,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11166166528,
+      "mps_driver_after_bytes": 12321456128,
+      "wall_seconds": 0.9859990000259131,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10815668224
+    },
+    {
+      "id": "inf_u32_p128",
+      "phase": "inference",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.8300842500757426,
+      "writer_seconds": 0.0274341250769794,
+      "sense_seconds": 0.07033695816062391,
+      "action_forward_seconds": 0.08560808398760855,
+      "generation_seconds": 0.3710705831181258,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11243192320,
+      "mps_driver_after_bytes": 12380176384,
+      "wall_seconds": 1.4233337920159101,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u48_p128",
+      "phase": "inference",
+      "declared_units": 48,
+      "actual_units": 48,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 1.2233958339784294,
+      "writer_seconds": 0.16570000001229346,
+      "sense_seconds": 0.07093241577968001,
+      "action_forward_seconds": 0.08449995890259743,
+      "generation_seconds": 0.359880916075781,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11319104000,
+      "mps_driver_after_bytes": 12464029696,
+      "wall_seconds": 1.9463294171728194,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10828251136
+    },
+    {
+      "id": "inf_u64_p128",
+      "phase": "inference",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 1.6498877920676023,
+      "writer_seconds": 0.08114737505093217,
+      "sense_seconds": 0.07104645879007876,
+      "action_forward_seconds": 0.0846223330590874,
+      "generation_seconds": 0.36468791705556214,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11394974720,
+      "mps_driver_after_bytes": 12547915776,
+      "wall_seconds": 2.2970123749691993,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10828251136
+    },
+    {
+      "id": "inf_u64_p256",
+      "phase": "inference",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "generated_tokens": 3,
+      "generated_token_ids": [
+        316,
+        59252,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 1.6538591659627855,
+      "writer_seconds": 0.019372374983504415,
+      "sense_seconds": 0.11619816697202623,
+      "action_forward_seconds": 0.12645841715857387,
+      "generation_seconds": 0.3807934171054512,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 12479119360,
+      "mps_driver_after_bytes": 13621657600,
+      "wall_seconds": 2.342674291925505,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10828251136
+    },
+    {
+      "id": "train_u1_p64",
+      "phase": "training",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128
+      ],
+      "prepare_seconds": 0.10588870896026492,
+      "forward_seconds": 0.0814970419742167,
+      "backward_seconds": 0.19103633309714496,
+      "loss": 3.0648581981658936,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10151901952,
+      "mps_driver_after_bytes": 10879746048,
+      "wall_seconds": 0.41808549989946187,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10828251136
+    },
+    {
+      "id": "train_u16_p128",
+      "phase": "training",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.45813183300197124,
+      "forward_seconds": 0.10611258284188807,
+      "backward_seconds": 0.21754141617566347,
+      "loss": 3.1597471237182617,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10204131584,
+      "mps_driver_after_bytes": 10972053504,
+      "wall_seconds": 0.8217785421293229,
+      "mps_allocated_before_bytes": 10095979520,
+      "mps_driver_before_bytes": 10837688320
+    },
+    {
+      "id": "train_u32_p128",
+      "phase": "training",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.48957258416339755,
+      "forward_seconds": 0.10451783402822912,
+      "backward_seconds": 0.22042699996381998,
+      "loss": 3.1543188095092773,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10220056832,
+      "mps_driver_after_bytes": 11030773760,
+      "wall_seconds": 0.8589807921089232,
+      "mps_allocated_before_bytes": 10111708160,
+      "mps_driver_before_bytes": 10971906048
+    },
+    {
+      "id": "train_u48_p128",
+      "phase": "training",
+      "declared_units": 48,
+      "actual_units": 48,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.5734744160436094,
+      "forward_seconds": 0.10678129200823605,
+      "backward_seconds": 0.22751095821149647,
+      "loss": 3.1517364978790283,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10236899584,
+      "mps_driver_after_bytes": 11089494016,
+      "wall_seconds": 0.9536649999208748,
+      "mps_allocated_before_bytes": 10128485376,
+      "mps_driver_before_bytes": 11030626304
+    },
+    {
+      "id": "train_u64_p128",
+      "phase": "training",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.5752125829458237,
+      "forward_seconds": 0.10272462503053248,
+      "backward_seconds": 0.2293644160963595,
+      "loss": 3.3207178115844727,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10253701376,
+      "mps_driver_after_bytes": 11156619264,
+      "wall_seconds": 0.9555407499428838,
+      "mps_allocated_before_bytes": 10145262592,
+      "mps_driver_before_bytes": 11089346560
+    },
+    {
+      "id": "train_u64_p256",
+      "phase": "training",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.2860552500933409,
+      "forward_seconds": 0.16393562499433756,
+      "backward_seconds": 0.348019375000149,
+      "loss": 3.2766475677490234,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10323762688,
+      "mps_driver_after_bytes": 12383453184,
+      "wall_seconds": 0.847093417076394,
+      "mps_allocated_before_bytes": 10161998848,
+      "mps_driver_before_bytes": 11148066816
+    }
+  ],
+  "bank": {
+    "units": 64,
+    "source_span_tokens": [
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      123
+    ],
+    "record_ids": [
+      "cap64_short_01",
+      "cap64_short_02",
+      "cap64_short_03",
+      "cap64_short_04",
+      "cap64_short_05",
+      "cap64_short_06",
+      "cap64_short_07",
+      "cap64_short_08",
+      "cap64_short_09",
+      "cap64_short_10",
+      "cap64_short_11",
+      "cap64_short_12",
+      "cap64_short_13",
+      "cap64_short_14",
+      "cap64_short_15",
+      "cap64_short_16",
+      "cap64_short_17",
+      "cap64_short_18",
+      "cap64_short_19",
+      "cap64_short_20",
+      "cap64_short_21",
+      "cap64_short_22",
+      "cap64_short_23",
+      "cap64_short_24",
+      "cap64_short_25",
+      "cap64_short_26",
+      "cap64_short_27",
+      "cap64_short_28",
+      "cap64_short_29",
+      "cap64_short_30",
+      "cap64_short_31",
+      "cap64_short_32",
+      "cap64_short_33",
+      "cap64_short_34",
+      "cap64_short_35",
+      "cap64_short_36",
+      "cap64_short_37",
+      "cap64_short_38",
+      "cap64_short_39",
+      "cap64_short_40",
+      "cap64_short_41",
+      "cap64_short_42",
+      "cap64_short_43",
+      "cap64_short_44",
+      "cap64_short_45",
+      "cap64_short_46",
+      "cap64_short_47",
+      "cap64_short_48",
+      "cap64_short_49",
+      "cap64_short_50",
+      "cap64_short_51",
+      "cap64_short_52",
+      "cap64_short_53",
+      "cap64_short_54",
+      "cap64_short_55",
+      "cap64_short_56",
+      "cap64_short_57",
+      "cap64_short_58",
+      "cap64_short_59",
+      "cap64_short_60",
+      "cap64_long",
+      "cap64_long",
+      "cap64_long",
+      "cap64_long"
+    ]
+  },
+  "summary": {
+    "largest_inference_units": 64,
+    "largest_training_units": 64,
+    "largest_prompt_tokens": 256,
+    "largest_source_span_tokens": 128,
+    "points": 12,
+    "inference_points": 6,
+    "training_points": 6,
+    "wall_seconds": 14.632562499959022,
+    "d2_arm": "not declared or run"
+  },
+  "acceptance": {
+    "completed_all_points": true,
+    "schedule_ascending": true,
+    "configured_max_not_claimed_as_exercised": true,
+    "training_scope": "modules_only backward; no optimizer step",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim."
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T15:01:09.471684+00:00",
+    "ended_at": "2026-10-23T15:01:28.581767+00:00",
+    "elapsed_seconds": 19.110027499962598,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 183,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15556886528,
+      "rss_peak_sampled_bytes": 4052107264,
+      "mps_allocated_peak_sampled_bytes": 12479642624,
+      "mps_driver_peak_sampled_bytes": 13621673984
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T15:01:09.472399+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T15:01:28.495361+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 71%",
+      "memory_free_percent": 71.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T15:01:13.558266+00:00",
+        "elapsed_seconds": 4.086481041042134,
+        "seconds_since_previous_mark": 4.086481041042134,
+        "synchronize_seconds": 6.9588422775268555e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:13.558190+00:00",
+          "elapsed_seconds": 4.086493249982595,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 345964544,
+          "rss_measurement_age_seconds": 1.9988002497702837,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T15:01:14.344544+00:00",
+        "elapsed_seconds": 4.872777082957327,
+        "seconds_since_previous_mark": 0.7862960419151932,
+        "synchronize_seconds": 7.4999406933784485e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:14.344487+00:00",
+          "elapsed_seconds": 4.872786165913567,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 3852894208,
+          "rss_measurement_age_seconds": 0.7769549589138478,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 11016994816
+        },
+        "fields": {
+          "point": "inf_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.5425492911599576
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T15:01:15.338880+00:00",
+        "elapsed_seconds": 5.867069165920839,
+        "seconds_since_previous_mark": 0.9942920829635113,
+        "synchronize_seconds": 2.125045284628868e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:15.338783+00:00",
+          "elapsed_seconds": 5.867091290885583,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 3852894208,
+          "rss_measurement_age_seconds": 1.7712688748724759,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12321456128
+        },
+        "fields": {
+          "point": "inf_u16_p128",
+          "units": 16,
+          "tokens": 128,
+          "wall_seconds": 0.9859990000259131
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T15:01:16.784122+00:00",
+        "elapsed_seconds": 7.312317082891241,
+        "seconds_since_previous_mark": 1.445247916970402,
+        "synchronize_seconds": 3.6670826375484467e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:16.784037+00:00",
+          "elapsed_seconds": 7.3123291248921305,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4000268288,
+          "rss_measurement_age_seconds": 1.158480083802715,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12380176384
+        },
+        "fields": {
+          "point": "inf_u32_p128",
+          "units": 32,
+          "tokens": 128,
+          "wall_seconds": 1.4233337920159101
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T15:01:18.753064+00:00",
+        "elapsed_seconds": 9.28125120792538,
+        "seconds_since_previous_mark": 1.9689341250341386,
+        "synchronize_seconds": 2.500135451555252e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:18.752978+00:00",
+          "elapsed_seconds": 9.281271832995117,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4000514048,
+          "rss_measurement_age_seconds": 1.110239875037223,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12464029696
+        },
+        "fields": {
+          "point": "inf_u48_p128",
+          "units": 48,
+          "tokens": 128,
+          "wall_seconds": 1.9463294171728194
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T15:01:21.074275+00:00",
+        "elapsed_seconds": 11.602456791093573,
+        "seconds_since_previous_mark": 2.3212055831681937,
+        "synchronize_seconds": 2.3329630494117737e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:21.074192+00:00",
+          "elapsed_seconds": 11.602465790929273,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4001497088,
+          "rss_measurement_age_seconds": 1.4025602920446545,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12547915776
+        },
+        "fields": {
+          "point": "inf_u64_p128",
+          "units": 64,
+          "tokens": 128,
+          "wall_seconds": 2.2970123749691993
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T15:01:23.443188+00:00",
+        "elapsed_seconds": 13.971334165893495,
+        "seconds_since_previous_mark": 2.368877374799922,
+        "synchronize_seconds": 1.7499551177024841e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:23.443089+00:00",
+          "elapsed_seconds": 13.971352375112474,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4002791424,
+          "rss_measurement_age_seconds": 1.7433688750024885,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 13621657600
+        },
+        "fields": {
+          "point": "inf_u64_p256",
+          "units": 64,
+          "tokens": 256,
+          "wall_seconds": 2.342674291925505
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T15:01:23.896215+00:00",
+        "elapsed_seconds": 14.424422041047364,
+        "seconds_since_previous_mark": 0.4530878751538694,
+        "synchronize_seconds": 3.2079406082630157e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:23.896168+00:00",
+          "elapsed_seconds": 14.424429290927947,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4018847744,
+          "rss_measurement_age_seconds": 0.1709410829935223,
+          "mps_allocated_bytes": 10095979520,
+          "mps_driver_bytes": 10879746048
+        },
+        "fields": {
+          "point": "train_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.41808549989946187
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T15:01:24.733076+00:00",
+        "elapsed_seconds": 15.261252500116825,
+        "seconds_since_previous_mark": 0.8368304590694606,
+        "synchronize_seconds": 2.166023477911949e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:24.733003+00:00",
+          "elapsed_seconds": 15.261263125110418,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4018847744,
+          "rss_measurement_age_seconds": 1.0077812920790166,
+          "mps_allocated_bytes": 10111708160,
+          "mps_driver_bytes": 10972053504
+        },
+        "fields": {
+          "point": "train_u16_p128",
+          "units": 16,
+          "tokens": 128,
+          "wall_seconds": 0.8217785421293229
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T15:01:25.607130+00:00",
+        "elapsed_seconds": 16.135287374956533,
+        "seconds_since_previous_mark": 0.8740348748397082,
+        "synchronize_seconds": 2.4158507585525513e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:25.607041+00:00",
+          "elapsed_seconds": 16.13529658294283,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4018847744,
+          "rss_measurement_age_seconds": 1.8818218749947846,
+          "mps_allocated_bytes": 10128485376,
+          "mps_driver_bytes": 11030773760
+        },
+        "fields": {
+          "point": "train_u32_p128",
+          "units": 32,
+          "tokens": 128,
+          "wall_seconds": 0.8589807921089232
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T15:01:26.575287+00:00",
+        "elapsed_seconds": 17.1034742500633,
+        "seconds_since_previous_mark": 0.9681868751067668,
+        "synchronize_seconds": 4.37488779425621e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:26.575231+00:00",
+          "elapsed_seconds": 17.103482333011925,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4042014720,
+          "rss_measurement_age_seconds": 0.8273336249403656,
+          "mps_allocated_bytes": 10145262592,
+          "mps_driver_bytes": 11089494016
+        },
+        "fields": {
+          "point": "train_u48_p128",
+          "units": 48,
+          "tokens": 128,
+          "wall_seconds": 0.9536649999208748
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T15:01:27.545646+00:00",
+        "elapsed_seconds": 18.073813166003674,
+        "seconds_since_previous_mark": 0.9703389159403741,
+        "synchronize_seconds": 3.2922253012657166e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:27.545575+00:00",
+          "elapsed_seconds": 18.073822875041515,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4042014720,
+          "rss_measurement_age_seconds": 1.7976818748284131,
+          "mps_allocated_bytes": 10161998848,
+          "mps_driver_bytes": 11156619264
+        },
+        "fields": {
+          "point": "train_u64_p128",
+          "units": 64,
+          "tokens": 128,
+          "wall_seconds": 0.9555407499428838
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T15:01:28.409452+00:00",
+        "elapsed_seconds": 18.937606333056465,
+        "seconds_since_previous_mark": 0.8637931670527905,
+        "synchronize_seconds": 4.916917532682419e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:28.409371+00:00",
+          "elapsed_seconds": 18.937616874929518,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4052107264,
+          "rss_measurement_age_seconds": 0.6428199580404907,
+          "mps_allocated_bytes": 10161998848,
+          "mps_driver_bytes": 12383453184
+        },
+        "fields": {
+          "point": "train_u64_p256",
+          "units": 64,
+          "tokens": 256,
+          "wall_seconds": 0.847093417076394
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_complete",
+        "timestamp": "2026-10-23T15:01:28.434661+00:00",
+        "elapsed_seconds": 18.962847500108182,
+        "seconds_since_previous_mark": 0.02524116705171764,
+        "synchronize_seconds": 2.874992787837982e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T15:01:28.434611+00:00",
+          "elapsed_seconds": 18.962855332996696,
+          "phase": "capacity_complete",
+          "rss_peak_process_lifetime_bytes": 15556886528,
+          "rss_current_bytes": 4052107264,
+          "rss_measurement_age_seconds": 0.6680581669788808,
+          "mps_allocated_bytes": 10161998848,
+          "mps_driver_bytes": 11301158912
+        },
+        "fields": {
+          "points": 12
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 19.110027499962598,
+    "sampled_peak_driver_bytes": 13621673984,
+    "sampled_peak_rss_bytes": 4052107264,
+    "new_original_checkpoints": 0,
+    "downloads": 0
+  },
+  "free_disk_after_bytes": 627986837504,
+  "artifact_bytes": 248250,
+  "ended_at_utc": "2026-10-23T15:01:28.582641+00:00"
+}

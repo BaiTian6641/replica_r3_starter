@@ -175,3 +175,19 @@ may only increase. The selected extension passed the same 12 points: peak
 save or optimizer update. The qualified selected-weight maximum is therefore
 **32 units** for this synthetic workload.
 [Selected report](../../reports/e2_capacity32_selected_attempt01/run_report.json).
+
+## 7. Follow-up: selected 64-unit capacity (23 October)
+
+The same selected E2 extension and validated `max_units`-only migration were
+exercised on a fresh 64-unit bank (60 short records plus one four-chunk record).
+
+| Workload | Actual units | Prompt tokens | Result |
+|---|---:|---:|---|
+| Inference | 1, 16, 32, 48, 64 | 64, 128, 256 | all finite |
+| Modules-only backward | 1, 16, 32, 48, 64 | 64, 128, 256 | finite; 28 gradient tensors |
+
+All 12 points completed. Peak sampled driver memory **12.69 GiB**, profiled wall
+**19.1 s**, zero observed swap growth, 69% minimum free. No optimizer update, no
+base save, no checkpoint. This is capacity only, not answer quality or a
+longer-source-length claim.
+[Report](../../reports/e2_capacity64_selected_attempt01/run_report.json).
