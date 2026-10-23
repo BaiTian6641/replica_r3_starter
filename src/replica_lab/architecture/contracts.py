@@ -149,10 +149,16 @@ class FastMemorySpec:
 class CopySpec:
     """Bounded exact record-token copy interface for answer-time copying."""
     max_tokens: int = 512
+    mode: str = 'logit_bias'
+    max_span: int = 4
 
     def __post_init__(self):
         if type(self.max_tokens) is not int or not 1 <= self.max_tokens <= 2048:
             raise ValueError('CopySpec.max_tokens must be in 1..2048')
+        if self.mode not in {'logit_bias', 'pointer'}:
+            raise ValueError('CopySpec.mode must be logit_bias or pointer')
+        if type(self.max_span) is not int or not 1 <= self.max_span <= 32:
+            raise ValueError('CopySpec.max_span must be in 1..32')
 
 
 @dataclass(frozen=True)

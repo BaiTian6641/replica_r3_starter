@@ -283,3 +283,50 @@ class RecordCopyHead(nn.Module):
     @staticmethod
     def _vocab_hint(token_ids: Tensor) -> int:
         return int(token_ids.max().item()) + 1
+
+class RecordPointerHead(nn.Module):
+    """Score contiguous exact source-token spans for pointer copying.
+
+    The caller supplies candidate spans, their frozen token embeddings and a
+    valid mask. The selected span is decoded directly; this head does not alter
+    LM logits and cannot select records or declare success.
+    """
+
+    def __init__(self, hidden_size: int) -> None:
+        super().__init__()
+        if hidden_size < 1:
+            raise ValueError('positive hidden_size required')
+        self.hidden_size = hidden_size
+        self.query_norm = nn.LayerNorm(hidden_size)
+        self.key_norm = nn.LayerNorm(hidden_size)
+        self.query_projection = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.key_projection = nn.Linear(hidden_size, hidden_size, bias=False)
+
+    def forward(self, query: Tensor, token_embeddings: Tensor,
+                token_mask: Tensor, candidate_mask: Tensor) -> Tensor:
+        if query.ndim == 2:
+            query = query.unsqueeze(1)
+        _hidden(query, self.hidden_size, 'query')
+        if query.shape[0] != 1 or query.shape[1] != 1:
+            raise ValueError('pointer query must be one row and one position')
+        if (token_embeddings.ndim != 4 or token_embeddings.shape[0] != 1
+                or token_embeddings.shape[-1] != self.hidden_size
+                or token_mask.shape != token_embeddings.shape[:3]
+                or candidate_mask.shape != token_embeddings.shape[:2]):
+            raise ValueError('pointer candidates must be [1, candidates, span, hidden]')
+        if token_mask.dtype != torch.bool or candidate_mask.dtype != torch.bool:
+            raise ValueError('pointer masks must be boolean')
+        for value, name in ((query, 'query'), (token_embeddings, 'token_embeddings')):
+            if not value.is_floating_point() or not bool(torch.isfinite(value).all()):
+                raise ValueError(f'{name} must be finite floating point')
+        if not bool(candidate_mask.any()):
+            return query.new_zeros(1, token_embeddings.shape[1])
+        q = F.normalize(self.query_projection(self.query_norm(query)).float(),
+                        dim=-1, eps=1e-6)
+        k = self.key_projection(self.key_norm(token_embeddings)).float()
+        k = k.masked_fill(~token_mask.unsqueeze(-1), 0)
+        pooled = k.sum(dim=2)
+        count = token_mask.sum(dim=2).clamp_min(1).unsqueeze(-1)
+        pooled = F.normalize((pooled / count).squeeze(2), dim=-1, eps=1e-6)
+        scores = (q * pooled).sum(dim=-1) / (self.hidden_size ** 0.5)
+        return scores.masked_fill(~candidate_mask, -1e9)

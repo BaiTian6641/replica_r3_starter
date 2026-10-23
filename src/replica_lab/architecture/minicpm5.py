@@ -23,7 +23,8 @@ from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
-                    RecordCopyHead, SensePort, WorkspaceAccessPort)
+                    RecordCopyHead, RecordPointerHead, SensePort,
+                    WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 
 
@@ -58,7 +59,8 @@ class MiniCPM5Adapter(nn.Module):
         self.fast_ports = self.fast_write_encoder = None
         self.copy_head = None
         if manifest.copy is not None:
-            self.copy_head = RecordCopyHead(h)
+            self.copy_head = (RecordPointerHead(h) if manifest.copy.mode == 'pointer'
+                              else RecordCopyHead(h))
         if manifest.fast_memory is not None:
             spec = manifest.fast_memory
             self.fast_write_encoder = FastWriteEncoder(h, spec.key_size, spec.value_size)
@@ -443,6 +445,21 @@ class MiniCPM5Adapter(nn.Module):
         return DecisionFrame(decision_id, evidence, memory, sense, self.manifest.digest,
                              self.parameter_stamp(), enabled, core, fast, copy, branches)
 
+    def pointer_scores(self, frame, candidate_ids, token_mask, candidate_mask):
+        """Score exact source-token spans from the prompt's final hidden state."""
+        if self.manifest.copy is None or self.manifest.copy.mode != 'pointer':
+            raise ValueError('Pointer scoring requires a pointer copy manifest')
+        self._check_frame(frame)
+        if self.copy_head is None or frame.copy is None:
+            raise ValueError('Pointer scoring requires an owned copy frame')
+        ids, mask = frame.sense.prompt_ids, frame.sense.prompt_mask
+        hidden, _ = self._native(ids, mask, frame=frame)
+        query = hidden[:, -1]
+        if token_mask.shape != candidate_ids.shape or token_mask.dtype != torch.bool:
+            raise ValueError('pointer token mask must be boolean matching candidates')
+        embeddings = self.base.get_input_embeddings()(candidate_ids)
+        return self.copy_head(query, embeddings, token_mask, candidate_mask)
+
     def _check_frame(self, frame):
         frame.assert_immutable()
         if frame.manifest_digest != self.manifest.digest or frame.parameter_stamp != self.parameter_stamp():
@@ -467,7 +484,8 @@ class MiniCPM5Adapter(nn.Module):
         hidden, _ = self._native(input_ids, mask, frame=frame)
         logits = self.base.lm_head(hidden[:, -logits_to_keep:] if logits_to_keep else hidden)
         if (frame.copy is not None and frame.branch_enabled('copy')
-                and self.copy_head is not None and frame.copy.token_ids.shape[1] > 0):
+                and self.copy_head is not None and frame.copy.token_ids.shape[1] > 0
+                and self.manifest.copy is not None and self.manifest.copy.mode == 'logit_bias'):
             copy_hidden = hidden[:, -logits_to_keep:] if logits_to_keep else hidden
             embeddings = self.base.get_input_embeddings()(frame.copy.token_ids)
             bias = self.copy_head(copy_hidden, embeddings, frame.copy.token_ids,

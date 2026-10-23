@@ -269,6 +269,47 @@ class MemorySession:
         self.verify(request)
         return request
 
+    def copy_candidates(self, request, frame=None):
+        """Enumerate contiguous exact source-token spans for pointer copying.
+
+        The host does not choose a span; every bounded span is returned, and the
+        pointer model scores them. Candidate tensors are owned by the request
+        frame's CopyRead and source bindings.
+        """
+        self.verify(request)
+        frame = request.frame if frame is None else frame
+        if frame.copy is None or self.adapter.manifest.copy is None:
+            raise ValueError('Copy candidates require a copy-bearing frame')
+        spec = self.adapter.manifest.copy
+        ids = frame.copy.token_ids[0].tolist()
+        if not ids:
+            raise ValueError('Copy frame has no source tokens')
+        candidates, masks = [], []
+        seen = set()
+        for start in range(len(ids)):
+            for length in range(1, min(spec.max_span, len(ids) - start) + 1):
+                seq = tuple(ids[start:start + length])
+                if seq in seen:
+                    continue
+                seen.add(seq)
+                candidates.append(seq + (0,) * (spec.max_span - length))
+                masks.append((True,) * length + (False,) * (spec.max_span - length))
+                if len(candidates) > 2048:
+                    raise ValueError('Pointer candidate budget exceeded')
+        token_ids = torch.tensor([candidates], dtype=torch.long, device=self.device)
+        token_mask = torch.tensor([masks], dtype=torch.bool, device=self.device)
+        candidate_mask = torch.ones(1, len(candidates), dtype=torch.bool,
+                                    device=self.device)
+        return token_ids, token_mask, candidate_mask
+
+    def pointer_answer(self, request):
+        """Return the model-selected exact source span (no LM generation)."""
+        token_ids, token_mask, candidate_mask = self.copy_candidates(request)
+        scores = self.adapter.pointer_scores(request.frame, token_ids, token_mask,
+                                             candidate_mask)
+        index = int(scores.argmax(dim=-1)[0])
+        return tuple(int(x) for x in token_ids[0, index][token_mask[0, index]].tolist())
+
     def forward(self, request, input_ids, *, labels=None, attention_mask=None):
         self.verify(request)
         return self.adapter.forward_with_frame(input_ids,request.frame,labels=labels,attention_mask=attention_mask)
