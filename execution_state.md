@@ -46,6 +46,12 @@ against lexical **5/8**; the higher-budget arm overfit while training loss fell.
 Lexical remains default; the existing reranker remains opt-in. See
 [cross-template rerank](docs/experiments/20261023_E2_Cross_Template_Rerank_Results.md).
 
+**E2 8192-unit guard boundary (23 October).** A single-point 8192-unit probe
+hit the capacity guard during source-writer processing at **48.08 GiB** sampled
+peak, above the 40 GiB policy; no update or checkpoint. The selected-weight
+maximum remains **4096 units**; 8192 is measured as a boundary, not a pass. See
+[capacity results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+
 **E2 4096-unit selected capacity (23 October).** The selected extension passed
 all 12 inference/modules-only backward points on a fresh 4096-unit bank: peak
 driver **30.59 GiB**, **559.4 s**, zero swap growth, 28 gradient tensors. No base

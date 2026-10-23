@@ -272,3 +272,15 @@ This is the upper tested point: doubling to 8192 would be expected to exceed
 the 40 GiB guard, so it was not run. Capacity only; no quality or longer-source
 claim.
 [Report](../../reports/e2_capacity4096_selected_attempt01/run_report.json).
+
+## 13. Upper boundary: 8192-unit guard probe
+
+A single 8192-unit point was attempted as a guard boundary. The 1-unit point
+completed; during the 8192-unit source-writer phase the sampled MPS driver
+memory reached **51.63 GB (48.08 GiB)**, above the 40 GiB policy. The guard
+stopped the child (exit -2) after 224 s. No writer/action evaluation or
+optimizer step completed, and no checkpoint was written.
+
+The selected-weight maximum remains **4096 units** for the synthetic 128-token
+span bank. 8192 is a measured guard boundary, not a capacity result.
+[Failure report](../../reports/e2_capacity8192_selected_attempt01/failure_report.json).

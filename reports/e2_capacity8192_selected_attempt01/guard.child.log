@@ -1,0 +1,20 @@
+W1023 12:19:05.846000 78307 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 864.59it/s]Loading weights:  48%|████▊     | 182/381 [00:00<00:00, 871.33it/s]Loading weights:  71%|███████   | 271/381 [00:00<00:00, 860.46it/s]Loading weights:  94%|█████████▍| 358/381 [00:00<00:00, 850.01it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 866.61it/s]
+{"phase": "capacity_inference", "point": "inf_u1_p64", "units": 1, "tokens": 64, "wall_seconds": 2.914760666899383}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 394, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 367, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 289, in execute
+    result = inference_point(torch, model, tokenizer, session, scope, task,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 115, in inference_point
+    (slots, slots_valid), writer_seconds = timed(
+                                           ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py", line 43, in timed
+    torch.mps.synchronize()
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/mps/__init__.py", line 32, in synchronize
+    return torch._C._mps_deviceSynchronize()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
