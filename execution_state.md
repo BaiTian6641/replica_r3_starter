@@ -40,6 +40,12 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 cross-template retrieval (23 October).** Lexical top-1 **7/12**, native
+dense **5/12**, and the existing opt-in reranker **1/12** on the cross-template
+family; all had recall@4 12/12. The reranker does not transfer to the new
+phrasing and remains opt-in; lexical remains default. See
+[cross-template retrieval](docs/experiments/20261023_E2_Cross_Template_Retrieval_Results.md).
+
 **E2 cross-template boundary (23 October).** A fresh varied-phrasing family
 had lexical top-1 **7/12** (recall@4 12/12), so the top-record context test is
 confounded. Parent pointer scored 3/12 and context candidate 6/12 among the
