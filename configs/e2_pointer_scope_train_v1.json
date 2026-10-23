@@ -1,0 +1,50 @@
+{
+  "format": "replica.e2.pointer_scope_train.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Continue the published pointer head on top-record whole-word candidates; evaluate parent/candidate on a fresh untouched family.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "train_dataset": {
+    "root": "data/e2_copy",
+    "records_sha256": "2bea5441655dde84a6dda0f54a2e5f6bb3e90536ee1dab3ee4ebe447ab4dcac8",
+    "queries_sha256": "a2519fbba1b2656d480aee533911db61a1522c43885e63f39ae94d0cf744d13c",
+    "manifest_sha256": "adcd37e00c5896a0859426602488258860290064f19f2f07af208a96c1f0dd86"
+  },
+  "eval_dataset": {
+    "root": "data/e2_pointer_scope2",
+    "manifest_sha256": "e027563fb6900492bfb76904ae850c7ebaa8b30a3ec943ad4411d7afc6dbde5a"
+  },
+  "candidate_scope": "top_lexical_record",
+  "candidate_unit": "word",
+  "max_span": 4,
+  "training": {
+    "trainable": [
+      "copy_head"
+    ],
+    "updates": 16,
+    "examples_per_update": 4,
+    "lr": 0.005,
+    "lr_muon": 0.005,
+    "seed": 20261023,
+    "loss": "cross entropy over top-record whole-word candidates; target decoded answer span"
+  },
+  "evaluation": {
+    "heldout": 12,
+    "arms": [
+      "parent_pointer_top",
+      "candidate_pointer_top"
+    ],
+    "metric": "exact copied span"
+  },
+  "decision_rule": {
+    "accept_opt_in": "candidate heldout > parent",
+    "reject": "candidate at or below parent"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 16,
+    "eval_cases": 24,
+    "checkpoint_saves": 1
+  },
+  "claims": "Top-record pointer continuation; no default change or broad generalization claim."
+}
