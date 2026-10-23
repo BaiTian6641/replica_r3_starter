@@ -1,43 +1,27 @@
 # Execution state — E2/E3/C16/E4/E5 integrated build
 
-**Latest verified package (HEAD `d48e90a`, 23 October 2026 UTC).** Full suite
-**1118 passed / 21 subtests**. E2 retrieval/capacity, E3 engineering with two
-negative action-policy families, C16 identity contracts, E4 fast-memory
-read/bridge and typed artifacts, an accepted E5 **procedure** candidate
-(3/3 held-out, harmful rejection, rollback), and an accepted **opt-in** neural
-reranker candidate (held-out top1 0.25→0.50, still below lexical 0.75) are recorded. No neural E5
-candidate, authentic identity conditioning, E6 VLM or delayed fast-memory task
-benefit exists. Active native jobs: none. See the
+**Latest verified package (23 October 2026 UTC).** Full suite **1125 passed /
+21 subtests**. The connected E3 mixed-outcome family now has **4/4
+head-conditioned and 4/4 no-head completions**, and the copied-case
+fresh-process restart passes **12/12** acceptance checks. Earlier write_file and
+set_constant negatives remain preserved; this is a bounded synthetic result, not
+general capability. E2 retrieval/capacity, C16 identity contracts, E4 fast
+memory/artifacts (delayed-use candidate rejected), and E5 procedure plus opt-in
+reranker remain as recorded. No active native job. See the
 [E2/E3/E4/E5 handoff](docs/experiments/20261023_Handoff_E2_E3_E4.md).
 
-**Current work — E3 implemented and native-qualified on 23 October 2026 UTC.**
-The shared width-256/eight-slot/two-iteration core, independent memory and
-workspace readers at blocks 13/27, exact task journal, typed actions, real
-fixture tools, independent success check, controls and fresh-process restart are
-connected. **Engineering acceptance passes; learned task completion is
-negative.** All eight model-driven episodes failed host verification. The
-full-core arm repeated `read`; the workspace-zero control reached a failing test
-and wrote an invalid repair; the feed-forward/core-disabled/extra-inference arms
-failed differently. **56 decisions, 32 tool calls, 3 malformed actions, 13
-false success claims, 0 completions.** No model-written success statement was
-accepted.
-
-The E2 parent was used as validated initialization and regression reference: 43
-parent tensors copied exactly, 51 E3 tensors kept at fresh initialization; all
-43 parent tensors matched the artifact after migration. The success head was
-not trained because the eight actual outcomes were all negative. Peak sampled
-driver memory is **14.72 GiB**, zero observed swap growth, 65% minimum free;
-the final v2 extension is **37,588,831 bytes**. One extension only; no base copy,
-optimizer checkpoint, download or Neural Engine claim. The sealed source remains
-unchanged.
-
-Fresh-process interruption used the guarded CLI: process 1 observed the failing
-test at revision 10; a CPU host correction bumped to revision 11 and invalidated
-the stored workspace; process 2 rejected `stale_revision`, did not re-execute
-completed actions, spent the remaining five decisions and failed to repair. The
-split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
-task completion, independent pass, landed repair and reference-file equality
-fail.
+**Current work — E3 bounded mixed-outcome completion and restart (23 October
+2026 UTC).** The shared width-256/eight-slot/two-iteration core, independent
+memory/workspace readers, exact task journal, typed actions, real fixture tools,
+independent success check and fresh-process restart are connected. On the mixed
+family, **4/4 head-conditioned and 4/4 no-head episodes completed** with correct
+repairs/passing evaluators, 0 malformed actions and 0 false success claims. The
+action-kind head is rejected (no measured benefit). Fresh-process continuation
+passes **12/12**: process 1 observed exit 1 and stopped; process 2 resumed the
+same journal/ledger, repaired once, passed the evaluator and did not replay
+completed actions. The success head remains **untrained/uncalibrated**; no
+general capability, confidence or personal-fidelity claim. The sealed source
+is unchanged and no native job is active.
 
 **E2 reader candidate (23 October).** A D1 candidate trained `record_writer` and
 both memory readers with answer loss on 24 source-separated cases. Loss fell

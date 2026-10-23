@@ -1,31 +1,25 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current work — E3 implemented and native-qualified on 23 October 2026 UTC.**
-The shared width-256/eight-slot/two-iteration core, independent memory and
-workspace readers at blocks 13/27, exact task journal, typed actions, real
-fixture tools, independent success check and fresh-process restart are
-connected. Read the [E3 implementation](docs/architecture/08_E3_Implementation.md)
-and [native results](docs/experiments/20261023_E3_Native_Results.md).
+**Current work — E3 bounded mixed-outcome completion and restart on 23 October
+2026 UTC.** The shared width-256/eight-slot/two-iteration core, independent
+memory/workspace readers, exact task journal, typed actions, real fixture tools
+and independent verifier are connected. On a fresh synthetic mixed family (pass
+cases stop after verification; repair cases change one constant), **4/4
+head-conditioned and 4/4 no-head held-out episodes completed** with correct
+repairs, passing evaluators, 0 malformed actions and 0 false success claims. The
+action-kind head was rejected: no-head controls had identical action kinds, so
+the head has no measured benefit. **Fresh-process continuation passes 12/12**:
+process 1 observed evaluator exit 1 and stopped after two decisions; process 2
+resumed the same journal and ledger, applied the single repair, passed the
+evaluator and did not replay completed actions.
 
-**Engineering acceptance passes; learned task completion is negative.** All
-eight model-driven episodes failed independent verification: the full-core arm
-repeated `read`, the workspace-zero control reached a failing test and wrote an
-invalid repair, and the other controls failed differently. Totals: 56 decisions,
-32 tool calls, 3 malformed actions, 13 false success claims and 0 completions.
-The success head was not trained because all eight actual outcomes were
-negative. No model-written success statement was accepted.
-
-The E2 parent extension was used as validated initialization and regression
-reference: 43 tensors copied exactly, 51 E3 tensors freshly initialized, 43/43
-parent tensors equal to the artifact. Peak sampled driver memory is **14.72 GiB**
-with zero observed swap growth; the final v2 extension is **35.85 MiB**; no base
-copy, optimizer checkpoint, download or Neural Engine claim.
-
-Fresh-process interruption: process 1 observed the failing test, a CPU host
-correction bumped revision 10→11, and process 2 rejected the stale workspace,
-did not re-execute completed actions, spent the remaining decisions and still
-failed to repair. The split acceptance is **10/14**; restart/idempotency
-engineering passes, learned completion does not.
+Earlier `write_file` and `set_constant` families remain preserved negatives
+(0/8 and 0/7); the bounded mixed success is not a general capability claim. The
+success head is still **untrained and uncalibrated**. E2 novel-value reading
+remains 0/16, E4 delayed use was rejected (0/8 held-out; compositional 1/8 with
+no control gain), E5 procedure publication/rollback passes, and C16 identity
+conditioning awaits authentic permitted source. Full suite **1125 passed / 21
+subtests**. No active native job; no base copy, download or Neural Engine claim.
 
 **E3 narrower repair (23 October):** fresh `set_constant` family passes
 all engineering checks but scores **0/7**; the model repeats `read` despite
@@ -71,8 +65,8 @@ opt-in only; lexical default unchanged. See
 
 **E5 procedure candidate (23 October):** a compiled repair procedure passed
 3/3 held-out + dev with independent receipts, published with harmful-candidate
-rejection and rollback. No neural candidate or learned action policy; model
-action remains 0/7. See
+rejection and rollback. No neural candidate or learned action policy was
+promoted by that package; the later mixed family completed 4/4 with and without a head. See
 [procedure results](docs/experiments/20261023_E5_Procedure_Results.md).
 
 **E4 typed artifacts (23 October):** kind-specific ContextPack/RecordLatent/

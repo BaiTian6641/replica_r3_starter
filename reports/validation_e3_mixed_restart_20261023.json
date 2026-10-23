@@ -1,16 +1,37 @@
 {
   "schema_version": "replica.validation.e3_mixed_restart.v1",
   "date_utc": "2026-10-23",
-  "full_suite": {"command": ".venv/bin/python -m pytest -q", "result": "1123 passed, 21 subtests passed", "exit_code": 0},
+  "full_suite": {
+    "command": ".venv/bin/python -m pytest -q",
+    "result": "1125 passed, 21 subtests passed",
+    "exit_code": 0
+  },
   "acceptance": "reports/e3_mixed_restart_attempt02/acceptance.json",
   "checks_passed": 12,
   "checks_total": 12,
-  "process1": {"decisions": 2, "success": false, "observed_test_exit": 1},
-  "process2": {"decisions": 4, "success": true, "repair": {"name": "POLL_ATTEMPTS", "value": 7}, "evaluator_exit": 0},
+  "process1": {
+    "decisions": 2,
+    "success": false,
+    "observed_test_exit": 1
+  },
+  "process2": {
+    "decisions": 4,
+    "success": true,
+    "repair": {
+      "name": "POLL_ATTEMPTS",
+      "value": 7
+    },
+    "evaluator_exit": 0
+  },
   "no_completed_action_replay": true,
   "evaluator_unmodified": true,
-  "costs": {"process1_guard_seconds": 13.5, "process2_guard_seconds": 22.6,
-            "process1_peak_driver_gib": 11.0, "process2_peak_driver_gib": 10.02,
-            "optimizer_updates": 0, "checkpoint_saves": 0},
+  "costs": {
+    "process1_guard_seconds": 13.5,
+    "process2_guard_seconds": 22.6,
+    "process1_peak_driver_gib": 11.0,
+    "process2_peak_driver_gib": 10.02,
+    "optimizer_updates": 0,
+    "checkpoint_saves": 0
+  },
   "scope": "One copied synthetic mixed case; no generalization claim."
 }
