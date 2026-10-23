@@ -9,8 +9,8 @@ from pathlib import Path
 for key in ('HF_HUB_OFFLINE','TRANSFORMERS_OFFLINE','HF_DATASETS_OFFLINE'): os.environ[key]='1'
 os.environ['PYTORCH_ENABLE_MPS_FALLBACK']='0'
 ROOT=Path(__file__).resolve().parents[1]; sys.path.insert(0,str(ROOT/'src')); sys.path.insert(0,str(ROOT/'scripts'))
-from run_e3_qualification import (admit_policy, build_action_batch, build_initial_state,
-    component_binding, policy_text, run_episode, run_teacher, selection_for)
+from run_e3_qualification import (admit_policy, build_action_batch, run_episode,
+    run_teacher, selection_for)
 def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def main():
     p=argparse.ArgumentParser(description=__doc__)
