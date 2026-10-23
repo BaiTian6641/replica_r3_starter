@@ -93,7 +93,9 @@ class RequestScheduler:
         self._active: RequestLease | None = None
         self._generation = 0
         self._events = []
-        self._invalidated = set()
+        # Request IDs are revoked for the scheduler's lifetime. This makes a
+        # host invalidation effective even when it arrives before admission.
+        self._invalidated_requests: dict[str, str] = {}
 
     def active(self):
         with self._state_lock:
@@ -105,7 +107,7 @@ class RequestScheduler:
 
     def invalidate(self, request_id, reason='host_invalidation'):
         with self._state_lock:
-            self._invalidated.add((request_id, self._generation))
+            self._invalidated_requests[request_id] = reason
             if self._active is not None and self._active.ownership.request_id == request_id:
                 self._active.invalidate(reason)
 
@@ -118,6 +120,16 @@ class RequestScheduler:
         lease = None
         try:
             with self._state_lock:
+                revoked = self._invalidated_requests.get(ownership.request_id)
+                if revoked is not None:
+                    self._events.append({'event': 'refused', 'request_id': ownership.request_id,
+                                         'task_digest': ownership.task_digest,
+                                         'revision': ownership.revision,
+                                         'evidence_epoch': ownership.evidence_epoch,
+                                         'generation': self._generation,
+                                         'reason': revoked})
+                    raise RuntimeError(
+                        f'invalidated_before_admission: {ownership.request_id}: {revoked}')
                 self._generation += 1
                 lease = RequestLease(ownership)
                 self._active = lease
@@ -126,8 +138,6 @@ class RequestScheduler:
                                      'revision': ownership.revision,
                                      'evidence_epoch': ownership.evidence_epoch,
                                      'generation': self._generation})
-                if (ownership.request_id, self._generation) in self._invalidated:
-                    lease.invalidate('invalidated_before_admission')
             yield lease
             lease.assert_current()
         finally:

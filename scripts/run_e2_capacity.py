@@ -44,6 +44,12 @@ def timed(torch, action):
     return value, time.perf_counter() - start
 
 
+def inference_call(torch, action):
+    """Run an inference-only producer without retaining an autograd graph."""
+    with torch.no_grad():
+        return action()
+
+
 def make_prompt(tokenizer, target):
     from replica_lab.architecture.loading import encode_prompt
     filler = ('The capacity probe records routine configuration notes, scheduling, '
@@ -113,9 +119,12 @@ def inference_point(torch, model, tokenizer, session, scope, task, records, poin
         hidden[0, index, :feature.shape[1]] = feature[0]
         valid_hidden[0, index, :feature.shape[1]] = True
     (slots, slots_valid), writer_seconds = timed(
-        torch, lambda: model.record_writer(hidden, valid_hidden))
+        torch, lambda: inference_call(
+            torch, lambda: model.record_writer(hidden, valid_hidden)))
     memory = MemoryRead(spans, slots, slots_valid, model.memory_producer_key())
-    sense, sense_seconds = timed(torch, lambda: model.sense(prompt_ids, prompt_mask))
+    sense, sense_seconds = timed(
+        torch, lambda: inference_call(
+            torch, lambda: model.sense(prompt_ids, prompt_mask)))
     evidence = pin_selection(selection)
     frame = model.make_frame(f'capacity-{point["id"]}', evidence, memory, sense)
     request = RequestContext(f'capacity-{point["id"]}', task, frame, selection)

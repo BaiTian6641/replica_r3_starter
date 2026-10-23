@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+import math
 from typing import Any, Sequence
 
 MAX_CANDIDATES = 8
@@ -18,6 +19,22 @@ MAX_TARGET_TOKENS = 96
 
 def canonical_action(value: dict) -> str:
     return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+
+
+def _numeric_candidate(value):
+    """Accept host-read numeric strings without accepting booleans or NaN."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        number = float(value)
+    elif isinstance(value, str):
+        try:
+            number = float(value.strip())
+        except ValueError:
+            return None
+    else:
+        return None
+    return number if math.isfinite(number) else None
 
 
 def build_action_menu(tools, state) -> tuple[dict, ...]:
@@ -52,13 +69,14 @@ def build_action_menu(tools, state) -> tuple[dict, ...]:
             pass
     try:
         for item in tools.constant_candidates():
-            if not item.get('name') or not isinstance(item.get('value'), (int, float)):
+            name = item.get('name')
+            value = _numeric_candidate(item.get('value'))
+            if not name or value is None:
                 continue
-            if item['name'] == invalid_name and float(item['value']) < invalid_threshold:
+            if name == invalid_name and value < invalid_threshold:
                 continue
             candidates.append({'kind': 'invoke_tool', 'tool': 'set_constant',
-                               'arguments': {'name': item['name'],
-                                             'value': float(item['value'])}})
+                               'arguments': {'name': name, 'value': value}})
     except Exception:
         pass
     result, seen = [], set()

@@ -33,6 +33,18 @@ def test_invalidation_stops_the_lease_and_cannot_be_reused():
     assert scheduler.active() is None
 
 
+def test_pre_admission_invalidation_blocks_the_operation():
+    scheduler = RequestScheduler()
+    scheduler.invalidate('r1', 'source_revoked')
+    ran = []
+    with pytest.raises(RuntimeError, match='invalidated_before_admission'):
+        scheduler.run(owner(), lambda lease: ran.append(True))
+    assert ran == []
+    assert scheduler.active() is None
+    assert scheduler.events()[-1]['event'] == 'refused'
+    assert scheduler.events()[-1]['reason'] == 'source_revoked'
+
+
 def test_second_thread_is_refused_rather_than_mixed():
     scheduler = RequestScheduler()
     entered = threading.Event()
