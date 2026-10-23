@@ -515,6 +515,38 @@ def execute(args, profiler, report):
                   packages={name: importlib.metadata.version(name)
                             for name in ('torch', 'transformers', 'safetensors')})
 
+    # Null parity belongs to the freshly initialized core adapter: the E2 parent
+    # extension is intentionally nonzero, so parity is measured before loading it.
+    from replica_lab.architecture.contracts import EvidencePin, MemoryRead
+    parity_prompt = tokenizer('E3 core parity probe: configuration policy test.',
+                              add_special_tokens=False)['input_ids'][:64]
+    parity_ids = torch.tensor([parity_prompt], dtype=torch.long, device='mps')
+    parity_mask = torch.ones_like(parity_ids, dtype=torch.bool)
+    empty_slots = model.base.get_input_embeddings().weight.new_zeros(
+        1, 0, model.ports.slots_per_unit, model.ports.memory_width)
+    empty_valid = torch.zeros(1, 0, model.ports.slots_per_unit, dtype=torch.bool,
+                              device='mps')
+    parity_memory = MemoryRead((), empty_slots, empty_valid, model.memory_producer_key())
+    parity_sense = model.sense(parity_ids, parity_mask)
+    parity_core = model.build_core_state(
+        parity_sense, parity_memory, torch.zeros(1, core_spec.task_features, device='mps'),
+        task_digest='parity-probe', revision=0)
+    parity_evidence = EvidencePin('parity-ledger', 0, 'probe', 'probe', 'parity', 0,
+                                  'assistant_for_source', None, ())
+    parity_frame = model.make_frame('parity-decision', parity_evidence, parity_memory,
+                                    parity_sense, core=parity_core,
+                                    enabled_branches=('memory', 'workspace'))
+    with torch.no_grad():
+        native = model.base(input_ids=parity_ids, attention_mask=parity_mask,
+                            use_cache=False).logits
+        augmented = model.forward_with_frame(parity_ids, parity_frame).logits
+        difference = float((native - augmented).abs().max())
+    report['checks']['initial_null_native_parity'] = {
+        'passed': difference <= 1e-5, 'max_absolute_difference': difference}
+    if difference > 1e-5:
+        raise AssertionError('initial_null_native_parity')
+    del native, augmented, parity_frame, parity_core, parity_sense, parity_memory, empty_slots
+
     parent_extension = Path(args.parent_extension)
     migration = model.load_extension(parent_extension, accept_parent_v1=True)
     report['parent_migration'] = migration.get('migration') or {'accepted_parent_v1': False}
@@ -560,32 +592,13 @@ def execute(args, profiler, report):
         if not value:
             raise AssertionError(name)
 
-    # ---- native null parity and independent branch influence -------------
-    probe_prompt = tokenizer('E3 core parity probe: configuration policy test.',
-                             add_special_tokens=False)['input_ids'][:64]
-    prompt_ids = torch.tensor([probe_prompt], dtype=torch.long, device='mps')
-    prompt_mask = torch.ones_like(prompt_ids, dtype=torch.bool)
+    # ---- independent branch influence after parent migration --------------
+    prompt_ids = parity_ids
+    prompt_mask = parity_mask
     probe_scope = scopes['train_retry_01']
     probe_task = tools_by_case['train_retry_01']
     from replica_lab.architecture.contracts import TaskGraph
     features = torch.zeros(1, 24, device='mps')
-    request = session.prepare(prompt_ids=prompt_ids, prompt_mask=prompt_mask,
-                              query=probe_task.goal, scope=probe_scope,
-                              task=TaskGraph('probe', probe_task.goal),
-                              selection=selections['train_retry_01'],
-                              task_features=features, task_digest='probe-digest',
-                              revision=0)
-    try:
-        with torch.no_grad():
-            native = model.base(input_ids=prompt_ids,
-                                attention_mask=prompt_mask, use_cache=False).logits
-            augmented = session.forward(request, prompt_ids).logits
-            difference = float((native - augmented).abs().max())
-        require('initial_null_native_parity', difference <= 1e-5,
-                max_absolute_difference=difference)
-        del native, augmented
-    finally:
-        request.release()
     initial_ports = {name: parameter.detach().clone()
                      for name, parameter in model.memory_ports.named_parameters()}
     initial_workspace = {name: parameter.detach().clone()
