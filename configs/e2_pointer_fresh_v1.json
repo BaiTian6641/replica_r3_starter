@@ -1,0 +1,27 @@
+{
+  "format": "replica.e2.pointer_service.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fresh-value consumer check of the published pointer candidate; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "dataset": {
+    "root": "data/e2_pointer_fresh",
+    "records_sha256": "ba37a70ce4bf807c3ab84e8f231935a373033320a40fe1690301751b611ad91b",
+    "queries_sha256": "b1de316e3bd3fa50fad485d6f3f3826d977ca275980a1a1cc20a5206567caa5e",
+    "manifest_sha256": "70f7d1a27415e2169d5f6d22ac426f5d0ae0c36addb13e9b5a21fed4c63fc0a8"
+  },
+  "max_span": 4,
+  "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+  "evaluation": {
+    "dev": 0,
+    "heldout": 12,
+    "metric": "exact pointer text and provenance; no training"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "eval_cases": 12,
+    "checkpoint_saves": 0
+  },
+  "claims": "Fresh-value consumer check only; no default change."
+}
