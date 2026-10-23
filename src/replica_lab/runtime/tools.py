@@ -267,6 +267,40 @@ class FixtureWorkspace:
         return {'status': 'ok', 'kind': 'write_file', 'path': args['path'],
                 'sha256': sha256_bytes(content), 'size': len(content), 'created': created}
 
+    def constant_candidates(self) -> tuple[dict, ...]:
+        """Return exact current numeric assignments from the workspace entry.
+
+        This is host-read evidence for prompt context, never a repair choice and
+        never an expected value. The evaluator and case metadata are excluded.
+        """
+        import re
+        parts = _case_workspace_parts(self.workspace_entry, 'workspace_entry')
+        target = self.workspace_dir.joinpath(*parts)
+        if not target.exists() or target.is_symlink() or not target.is_file():
+            return ()
+        raw = target.read_bytes()
+        if len(raw) > MAX_READ_BYTES:
+            return ()
+        try:
+            text = raw.decode('utf-8')
+        except UnicodeDecodeError:
+            return ()
+        pattern = re.compile(
+            r'^[ \t]*([A-Z][A-Z0-9_]{0,63})[ \t]*=[ \t]*'
+            r'(-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)[ \t]*$',
+            re.MULTILINE)
+        result = []
+        seen = set()
+        for match in pattern.finditer(text):
+            name, value = match.group(1), match.group(2)
+            if name in seen:
+                continue
+            seen.add(name)
+            if len(result) >= 32:
+                break
+            result.append({'name': name, 'value': value})
+        return tuple(result)
+
     def set_constant(self, arguments: dict) -> dict:
         """Bounded repair: replace exactly one numeric module-level assignment."""
         import re

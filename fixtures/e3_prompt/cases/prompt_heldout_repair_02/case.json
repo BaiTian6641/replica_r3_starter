@@ -1,0 +1,38 @@
+{
+  "format": "replica.e3.fixture.v1",
+  "case_id": "prompt_heldout_repair_02",
+  "role": "heldout",
+  "goal": "The policy test for workspace/app_settings.py must pass. Inspect the configuration, run the evaluator, and if a required bound fails change exactly that one numeric constant with set_constant; if it already passes, stop without editing.",
+  "success_condition": {
+    "condition_id": "evaluator_test_passes",
+    "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+  },
+  "constraints": [
+    "Only workspace/app_settings.py may be modified.",
+    "If a repair is needed, change exactly one numeric constant with set_constant and leave every other setting untouched.",
+    "Do not modify anything under the evaluator directory.",
+    "Use only the allowed tools to inspect, edit and test."
+  ],
+  "allowed_tools": [
+    "read_file",
+    "set_constant",
+    "run_test"
+  ],
+  "workspace_files": [
+    "workspace/app_settings.py"
+  ],
+  "evaluator": "evaluator/test_policy.py",
+  "workspace_entry": "workspace/app_settings.py",
+  "reference_repair": {
+    "path": "workspace/app_settings.py",
+    "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nMAX_CONNECTIONS = 24\nIDLE_TIMEOUT_SECONDS = 90\nBATCH_SIZE = 64\n"
+  },
+  "variant": {
+    "constant": "BATCH_SIZE",
+    "expected_value": 64,
+    "actual_value": 8,
+    "description": "one numeric policy bound below its required minimum"
+  },
+  "requires_repair": true,
+  "source_group": "prompt_repair_b"
+}

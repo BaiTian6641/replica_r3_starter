@@ -309,6 +309,19 @@ class TaskRuntime:
         if state.constraints:
             lines.append('CONSTRAINTS:')
             lines += [f'- {c.text}' for c in state.constraints]
+        if 'set_constant' in state.allowed_tools:
+            # Exact context from the task-owned workspace entry. This lists all
+            # current names and values, never the evaluator bound or a chosen
+            # repair; the model still selects the action and value.
+            try:
+                candidates = self.tools.constant_candidates()
+            except Exception:
+                candidates = ()
+            if candidates:
+                lines.append('EXACT WORKSPACE CONSTANTS (host-read current values; '
+                             'no expected bound supplied):')
+                lines.append('- ' + ', '.join(f"{item['name']}={item['value']}"
+                                               for item in candidates))
         if self.identity is not None:
             from ..replica.identity import render_identity_context
             identity_text = render_identity_context(self.identity)

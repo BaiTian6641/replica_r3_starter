@@ -1,0 +1,43 @@
+{
+  "format": "replica.e3.mixed_controls.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "bounded_repair",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_prompt/cases",
+    "manifest": "fixtures/e3_prompt/cases/manifest.json",
+    "manifest_sha256": "39fe82ea86997ba3b34c0f77d038c4037490642d1b1941e298afb5ec17cb22e8",
+    "heldout": [
+      "prompt_heldout_repair_01",
+      "prompt_heldout_repair_02",
+      "prompt_heldout_pass_03",
+      "prompt_heldout_pass_04"
+    ]
+  },
+  "subject": "e3_fixture",
+  "episodes": {
+    "decisions": 7,
+    "tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128,
+    "success": "independent evaluator exit status only",
+    "workspace_history": "disabled"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "episodes": 4,
+    "checkpoint_saves": 0
+  },
+  "claims": "Fresh prompt-evidence arm only; no training, publication or general-capability claim."
+}
