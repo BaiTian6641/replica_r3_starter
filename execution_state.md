@@ -10,7 +10,7 @@ memory/artifacts (delayed-use candidate rejected), and E5 procedure plus opt-in
 reranker remain as recorded. No active native job. See the
 [E2/E3/E4/E5 handoff](docs/experiments/20261023_Handoff_E2_E3_E4.md).
 
-**Current work — E3 bounded mixed-outcome completion and restart (23 October
+**Current work — integrated E2/E3/C13/C16/C17 with measured boundaries (23 October
 2026 UTC).** The shared width-256/eight-slot/two-iteration core, independent
 memory/workspace readers, exact task journal, typed actions, real fixture tools,
 independent success check and fresh-process restart are connected. On the mixed
