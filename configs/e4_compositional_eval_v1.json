@@ -1,0 +1,41 @@
+{
+  "format": "replica.e4.compositional_eval.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "No-retraining diagnostic separating new-association failure from novel-token copying in the E4 delayed-use candidate.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "candidate_extension": "runs/e4_delayed_attempt01_20261023/selected_extension",
+  "candidate_role": "Trained E4 candidate evaluated without any further optimizer step.",
+  "dataset": {
+    "root": "data/e4_compositional",
+    "records_sha256": "b660fdbc3ee289bf9fdda1dda963ace11c6a6f959435fa2d81447c0e7c50d0db",
+    "queries_sha256": "4662227877e576843e209a30a7c4e0f0f74f5686b22c4ec1d320811b22df027a",
+    "manifest_sha256": "3807962f460b9b8d5cc4f8c083c2099f603f9b106f8b34f8a4f49bff8a4e5630"
+  },
+  "cases": 8,
+  "evaluation": {
+    "arms": [
+      "correct_observation",
+      "shuffled_observation",
+      "zero_state",
+      "fast_disabled"
+    ],
+    "generation": {
+      "max_new_tokens": 6,
+      "greedy": true
+    },
+    "metric": "exact answer; no training"
+  },
+  "interpretation": {
+    "association_signal": "correct-state accuracy above controls with values seen during training",
+    "copy_signal": "held-out novel values from the primary attempt",
+    "no_training": "this run cannot improve capability or publish a candidate"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "extension_reloads": 1,
+    "eval_generations": 32
+  },
+  "retention": "Keep report and raw answers; no checkpoint save, no base copy.",
+  "claims": "Diagnostic only; no capability, deployment or generalization claim."
+}
