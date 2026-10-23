@@ -31,6 +31,7 @@ def action_kind(target_text):
 
 def parse_examples(role_cases, output, tokenizer, protocol):
     from run_e3_qualification import run_teacher
+    from replica_lab.architecture.contracts import TaskGraph
     from replica_lab.runtime.tools import FixtureWorkspace
     examples=[]; reports=[]
     for case_id in role_cases:
@@ -48,6 +49,8 @@ def parse_examples(role_cases, output, tokenizer, protocol):
             item['role']='train' if case_id in protocol['fixtures']['train'] else (
                 'dev' if case_id in protocol['fixtures']['dev'] else 'heldout')
             item['action_kind']=action_kind(item['target_text'])
+            item['task_graph']=TaskGraph(case_id, tools.goal,
+                state_digest=item['task_digest'], revision=item['revision'])
             examples.append(item)
         reports.append({'case_id':case_id,'steps':len(result['examples']),'success':True})
     return examples,reports
