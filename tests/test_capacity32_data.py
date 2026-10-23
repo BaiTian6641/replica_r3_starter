@@ -22,7 +22,7 @@ def test_capacity32_manifest_and_spans():
             from types import SimpleNamespace
             class Session(MemorySession):
                 def __init__(self):
-                    self.ledger=ledger; self.tokenizer=tok; self._cache={}
+                    self.ledger=ledger; self.tokenizer=tok; self._cache={}; self.max_candidate_units=64
                     self.adapter=SimpleNamespace(ports=SimpleNamespace(source_tokens=128))
             session=Session()
             spans=session.spans(records)
