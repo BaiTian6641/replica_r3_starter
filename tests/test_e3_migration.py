@@ -236,3 +236,44 @@ def test_v1_into_core_less_adapter_is_behavior_identical(tmp_path):
             return adapter.forward_with_frame(frame=frame, **action_batch(frame)).logits
 
     torch.testing.assert_close(logits(restored), logits(parent), atol=0, rtol=0)
+
+
+def test_port_capacity_only_migration_preserves_tensors_and_rejects_other_changes(tmp_path):
+    from architecture_helpers import synthetic_frame
+    from replica_lab.architecture.contracts import PortSpec
+
+    parent = tiny_adapter().eval()
+    parent.seal_original_identity()
+    destination = tmp_path / 'capacity-parent'
+    parent.save_extension(destination)
+
+    base = tiny_adapter()
+    target_ports = PortSpec(**{**base.ports.__dict__, 'max_units': base.ports.max_units + 4})
+    target = MiniCPM5Adapter(base.base, replace(base.manifest, ports=target_ports),
+                             'modules_only').eval()
+    target.seal_original_identity()
+    receipt = target.load_extension(destination, accept_parent_v1=True,
+                                    port_capacity_migration=True)
+    assert receipt['migration']['port_capacity_only'] is True
+    assert receipt['migration']['parent_max_units'] == parent.ports.max_units
+    assert receipt['migration']['target_max_units'] == target_ports.max_units
+    weights = load_file(str(destination / 'extensions.safetensors'))
+    for name, parameter in target.new_named_parameters():
+        torch.testing.assert_close(parameter, weights[name], atol=0, rtol=0)
+
+    wrong_base = tiny_adapter()
+    wrong = MiniCPM5Adapter(wrong_base.base,
+                            replace(wrong_base.manifest, source_revision='different-source'),
+                            'modules_only').eval()
+    wrong.seal_original_identity()
+    with pytest.raises(ValueError, match='migration'):
+        wrong.load_extension(destination, accept_parent_v1=True,
+                             port_capacity_migration=True)
+
+    shrunk = MiniCPM5Adapter(base.base, replace(base.manifest, ports=PortSpec(
+        **{**base.ports.__dict__, 'max_units': base.ports.max_units - 1})),
+        'modules_only').eval()
+    shrunk.seal_original_identity()
+    with pytest.raises(ValueError, match='max_units'):
+        shrunk.load_extension(destination, accept_parent_v1=True,
+                              port_capacity_migration=True)

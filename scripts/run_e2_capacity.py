@@ -237,8 +237,10 @@ def execute(args, profiler, report):
     from replica_lab.architecture.contracts import PortSpec
     model, tokenizer, source_lock = load_local_mps(
         args.model_path, args.model_lock, profiler=profiler,
-        ports=PortSpec(max_units=declared_units) if parent is None else None)
-    parent_receipt = model.load_extension(parent) if parent is not None else None
+        ports=PortSpec(max_units=declared_units))
+    parent_receipt = (model.load_extension(parent, accept_parent_v1=True,
+                                           port_capacity_migration=True)
+                      if parent is not None else None)
     report.update(manifest=model.manifest.to_dict(), manifest_digest=model.manifest.digest,
                   source_lock=source_lock, parameters=model.parameter_audit(),
                   dataset={'manifest': manifest,

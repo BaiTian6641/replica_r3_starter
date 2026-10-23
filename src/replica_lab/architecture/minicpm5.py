@@ -589,7 +589,8 @@ class MiniCPM5Adapter(nn.Module):
         (path/'manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
         return receipt
 
-    def load_extension(self, directory, accept_parent_v1=False):
+    def load_extension(self, directory, accept_parent_v1=False,
+                       port_capacity_migration=False):
         from safetensors.torch import load_file
         if (self.regime != 'modules_only' or self._original_identity is None
                 or self._original_identity != self.parameter_stamp(original_only=True)):
@@ -611,10 +612,31 @@ class MiniCPM5Adapter(nn.Module):
             expected = dict(self.new_named_parameters())
         elif fmt == 'replica.minicpm5.extensions.v1':
             shared = json.loads(json.dumps(self.manifest.shared_dict()))
-            if (receipt.get('manifest_digest') != fingerprint(self.manifest.shared_dict())
-                    or receipt.get('manifest') != shared
-                    or hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest()
-                    != receipt.get('weights_sha256')):
+            receipt_manifest = receipt.get('manifest')
+            capacity_migration = False
+            if receipt_manifest != shared:
+                if not port_capacity_migration:
+                    raise ValueError('Incompatible or changed extension manifest/bytes')
+                if receipt.get('manifest_digest') != fingerprint(receipt_manifest):
+                    raise ValueError('Parent manifest digest is inconsistent')
+                if not isinstance(receipt_manifest, dict):
+                    raise ValueError('Parent manifest is malformed')
+                parent_ports = dict(receipt_manifest.get('ports') or {})
+                target_ports = dict(shared.get('ports') or {})
+                if (set(parent_ports) != set(target_ports)
+                        or {k: v for k, v in parent_ports.items() if k != 'max_units'}
+                        != {k: v for k, v in target_ports.items() if k != 'max_units'}
+                        or type(parent_ports.get('max_units')) is not int
+                        or type(target_ports.get('max_units')) is not int
+                        or target_ports['max_units'] < parent_ports['max_units']):
+                    raise ValueError('Port-capacity migration changes more than max_units')
+                for key in set(shared) - {'ports'}:
+                    if receipt_manifest.get(key) != shared[key]:
+                        raise ValueError('Port-capacity migration changes another manifest field')
+                capacity_migration = True
+            if (not capacity_migration and receipt.get('manifest') != shared) or \
+                    hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest() \
+                    != receipt.get('weights_sha256'):
                 raise ValueError('Incompatible or changed extension manifest/bytes')
             expected = dict(self._parent_named_parameters())
             if (self.manifest.core is not None or self.fast_ports is not None
@@ -629,11 +651,17 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Extension tensor inventory differs')
         with torch.no_grad():
             for n,p in expected.items(): p.copy_(weights[n].to(p.device))
-        if fmt == 'replica.minicpm5.extensions.v1' and (self.manifest.core is not None
-                                                        or self.fast_ports is not None
-                                                        or self.identity_reader is not None):
+        if fmt == 'replica.minicpm5.extensions.v1' and (
+                self.manifest.core is not None or self.fast_ports is not None
+                or self.identity_reader is not None or port_capacity_migration):
             parent = set(expected)
-            return {**receipt, 'migration':{
+            migration = {
                 'accepted_parent_v1': True, 'copied': sorted(parent),
-                'fresh_init': sorted(n for n,_ in self.new_named_parameters() if n not in parent)}}
+                'fresh_init': sorted(n for n,_ in self.new_named_parameters() if n not in parent)}
+            if port_capacity_migration:
+                migration.update({
+                    'port_capacity_only': True,
+                    'parent_max_units': int(receipt_manifest['ports']['max_units']),
+                    'target_max_units': int(shared['ports']['max_units'])})
+            return {**receipt, 'migration': migration}
         return receipt
