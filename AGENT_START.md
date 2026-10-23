@@ -38,6 +38,11 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 mixed-outcome probe (23 October):** 1.00 kind accuracy vs 0.875
+step-only, 0.375 majority on 16 held-out states; representation signal only,
+no policy head or action generation. See
+[mixed probe results](docs/experiments/20261023_E3_Mixed_Policy_Probe_Results.md).
+
 **E3 policy probe (23 October):** prompt-only core states classified action
 kinds at 100%, but all teacher trajectories share the same 5-step order; result
 is step-confounded and inconclusive. No policy head promoted. See

@@ -49,6 +49,13 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 mixed-outcome probe (23 October).** A mixed pass/repair family has
+different labels at the post-test step. A 64-hidden probe on prompt-only core
+states reaches **1.00** held-out action-kind accuracy versus **0.875** step-only
+and **0.375** class-majority; this is representation information, not generated
+actions or task completion. No policy head was deployed. See
+[mixed probe results](docs/experiments/20261023_E3_Mixed_Policy_Probe_Results.md).
+
 **E3 policy probe (23 October).** Prompt-only core states from eight actual
 teacher trajectories classified next action kinds at **100%** for joint,
 workspace-only and task-only features. All trajectories share the same
