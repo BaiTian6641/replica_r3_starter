@@ -1,0 +1,77 @@
+{
+  "format": "replica.e3.policy_probe.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "bounded_repair",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "extension_role": "Accepted E3 set_constant engineering extension; frozen for this probe.",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_set/cases",
+    "manifest": "fixtures/e3_set/cases/manifest.json",
+    "manifest_sha256": "b9df60081aa20833d81e28362853e0ce463c06fb50e9e1af956125fe9b3a0c01",
+    "train": [
+      "set_train_retry_01",
+      "set_train_timeout_02",
+      "set_train_backoff_03",
+      "set_train_poll_04"
+    ],
+    "dev": [
+      "set_dev_retry_05"
+    ],
+    "heldout": [
+      "set_heldout_timeout_06",
+      "set_heldout_backoff_07",
+      "set_heldout_poll_08"
+    ]
+  },
+  "subject": "e3_fixture",
+  "teacher": {
+    "max_prompt_tokens": 640,
+    "max_generated_tokens": 96,
+    "policy": "read_file -> run_test -> set_constant -> run_test -> stop; host-authored actual receipts only"
+  },
+  "probe": {
+    "representation": "pooled prompt-only core workspace plus task_features",
+    "classifier": "two-layer 64-hidden MLP, 240 AdamW steps, lr 0.01, seed 20261023",
+    "classes": [
+      "read",
+      "run_test",
+      "set_constant",
+      "stop"
+    ],
+    "ablations": [
+      "workspace_only",
+      "task_only"
+    ],
+    "metric": "next-action-kind accuracy per role",
+    "train_examples": "train teacher steps only",
+    "heldout_use": "assessed once, no head selection or tuning"
+  },
+  "decision_rule": {
+    "representation_signal": "joint held-out accuracy > 0.5 and > held-out class majority",
+    "representation_negative": "otherwise"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "native_forwards": "one prompt-only core state per teacher step",
+    "eval_generations": 0,
+    "checkpoint_saves": 0
+  },
+  "stop_conditions": [
+    "guard failure",
+    "nonfinite core state",
+    "teacher receipt failure"
+  ],
+  "retention": "Keep raw teacher receipts, core vectors and probe report; no extension or checkpoint save.",
+  "claims": "Representation diagnostic only; no action-policy, deployment or task-completion claim."
+}
