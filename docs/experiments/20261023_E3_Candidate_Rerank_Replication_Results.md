@@ -26,3 +26,12 @@ than generating a repair. Both families are small and now exposed; no broader
 generalization, default promotion or free-form policy claim follows. The random
 control establishes that the menu alone is insufficient, but does not isolate
 which model features drive ranking.
+
+## Reusable integration smoke
+
+The menu/scoring logic was extracted into
+`src/replica_lab/runtime/candidate_actions.py` (`build_action_menu`,
+`CandidateReranker`) and the experiment runner now calls that implementation.
+A post-refactor smoke on the replication family reproduced **6/6 (5/5 held-out)**
+with zero false success claims, peak **15.12 GiB**, 66.5 s. This verifies the
+reusable component without adding a new behavior claim.

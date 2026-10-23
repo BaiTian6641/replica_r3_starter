@@ -297,6 +297,13 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 candidate reranker integration (23 October).** Menu construction and model
+scoring moved into the reusable `runtime/candidate_actions.py` component; the
+experiment runner now calls it. A post-refactor smoke reproduced **6/6 (5/5
+held-out)** with zero false success claims at 15.12 GiB, 66.5 s. This is a
+refactor/verification, not a new capability arm. See
+[candidate rerank results](docs/experiments/20261023_E3_Candidate_Rerank_Replication_Results.md).
+
 **E3 candidate reranking replication (23 October).** A fresh 1-dev/5-heldout
 family repeated the result: model **6/6 (5/5 held-out)** vs same-menu random
 **0/6**, zero false success claims. Across two fresh families: **11/11 episodes,
