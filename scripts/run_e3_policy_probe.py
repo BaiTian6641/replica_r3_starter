@@ -108,13 +108,19 @@ def execute(args,profiler,report):
     ledger=RecordLedger(args.output/'policy_probe.sqlite')
     session=MemorySession(model,tok,ledger,max_candidate_units=64)
     subject,purpose=protocol['subject'],protocol['purpose']
-    scopes={}; selections={}
+    scopes={}; selections={}; tools_by_case={}
     from replica_lab.runtime.tools import FixtureWorkspace
+    # Admit every policy first; retrieval is epoch-bound and later admissions
+    # intentionally invalidate earlier selections.
     for case_id in cases:
         tools=FixtureWorkspace(Path(protocol['fixtures']['root'])/case_id)
+        tools_by_case[case_id]=tools
         admit_policy(ledger,tools,subject=subject,branch=case_id,purpose=purpose)
-        scope=EligibilityScope(subject,case_id,purpose,0,'assistant_for_source',None)
-        scopes[case_id]=scope; selections[case_id]=selection_for(session,scope,tools.goal)
+        scopes[case_id]=EligibilityScope(subject,case_id,purpose,0,
+                                          'assistant_for_source',None)
+    for case_id in cases:
+        selections[case_id]=selection_for(session,scopes[case_id],
+                                           tools_by_case[case_id].goal)
     rows=[]
     for item in examples:
         ids=tokenize_prompt(tok,item['prompt_text'],'mps')
