@@ -290,6 +290,13 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**C17 request admission (23 October).** A single-job `RequestScheduler` now
+binds each admitted operation to request/task/revision/evidence/branch/producer
+identity, refuses a second concurrent admission, and supports explicit host
+invalidation. It is admission-only: the adapter still re-prefills, no native
+cache is reused and existing native scripts remain serialized by the exclusive
+worker lock. See [request scheduler](docs/architecture/14_Request_Scheduler.md).
+
 **C13 learning director baseline (23 October).** A deterministic director now
 aggregates actual train/development outcomes, diagnoses repeated failure classes,
 and emits at most one bounded `LearningProposal`, a deferral or no update. It
