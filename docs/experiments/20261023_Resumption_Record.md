@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the retention manifest and its tests; documentation follows.
+- Last code/test HEAD: the repair candidate order control; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -46,10 +46,11 @@
    (9/9 held-out) vs same-menu random **0/11**, with zero false success across
    two small fresh families. The menu/scoring component is reusable and its
    post-refactor smoke reproduced 6/6 (5/5 held-out). Fresh-process restart
-   with values already contradicted by the observed failure removed completed
-   **3/3** on a new fresh family (process 1 was 0/3). Aggregate candidate ranking
-   is **14/14 (12/12 held-out)** vs random 0/11. It is opt-in, narrow, and not a
-   free-form policy generalization.
+   with values already contradicted by the observed failure completed **3/3**
+   on a new fresh family (process 1 was 0/3). A canonical/shuffled menu control
+   both scored **3/3**, ruling out a fixed position. Aggregate repair ranking is
+   now **17/17 (15/15 held-out)** vs random 0/11. It is opt-in, narrow, and not
+   a free-form policy generalization.
 2. **Learned C13 director** has no trained ranking policy or checked-proposal
    dataset. A runtime-summary adapter now connects actual outcomes to the
    deterministic director, but this is not a capability result.
