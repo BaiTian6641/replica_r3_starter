@@ -17,7 +17,7 @@ class FakeSession:
     def verify(self, req): self.verified=True
     def pointer_answer(self, req):
         from replica_lab.memory_system.session import PointerAnswer
-        return PointerAnswer((1,2),'amber','r1','h1','s1',('r1',),0,1,'p')
+        return PointerAnswer((1,2),'amber','r1','h1','s1',('r1',),0,1,'p',('src-hash',))
     def exact_text(self, req, span):
         return type('Exact', (), {'text': f'text:{span.record_id}', 'record_id': span.record_id,
                                   'span_hash': span.span_hash, 'source_hash': span.source_hash})()
@@ -30,7 +30,7 @@ def test_pointer_path_is_opt_in_and_provenanced():
     s,req,span=make(True); svc=MemoryAnswerService(s,pointer_enabled=True)
     a=svc.answer(req)
     assert a.method=='pointer_copy' and a.text=='amber' and a.record_ids==('r1',)
-    assert a.span_hashes==('s1',) and a.source_ids==('r1',)
+    assert a.span_hashes==('s1',) and a.source_ids==('r1',) and a.source_hashes==('src-hash',)
 
 def test_exact_source_fallback_when_pointer_disabled():
     s,req,span=make(True); req.frame.memory.spans=(span,)

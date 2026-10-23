@@ -21,6 +21,7 @@ class MemoryAnswer:
     source_ids: tuple[str, ...]
     producer: str | None
     exact_source: bool
+    source_hashes: tuple[str, ...] = ()
 
 
 class MemoryAnswerService:
@@ -46,7 +47,7 @@ class MemoryAnswerService:
                 record_ids=(pointer.record_id,),
                 span_hashes=(pointer.span_hash,),
                 source_ids=pointer.source_ids, producer=pointer.producer,
-                exact_source=True)
+                exact_source=True, source_hashes=pointer.source_hashes)
         if not self.exact_source_fallback:
             return MemoryAnswer('', 'unavailable', (), (), (), None, False)
         spans = tuple(frame.memory.spans)
@@ -64,5 +65,6 @@ class MemoryAnswerService:
             text='\n'.join(texts), method='exact_source',
             record_ids=tuple(dict.fromkeys(record_ids)),
             span_hashes=tuple(span_hashes),
-            source_ids=tuple(dict.fromkeys(source_ids)),
-            producer=frame.memory.producer, exact_source=True)
+            source_ids=tuple(dict.fromkeys(record_ids)),
+            producer=frame.memory.producer, exact_source=True,
+            source_hashes=tuple(dict.fromkeys(source_ids)))

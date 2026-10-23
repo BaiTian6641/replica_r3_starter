@@ -1,0 +1,964 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T13:35:27.916901+00:00",
+  "protocol_sha256": "63e470d80d675c3bd040877635b8305eb5dae6fdefcd39a847e4d7dd94952a4b",
+  "protocol": {
+    "format": "replica.e2.pointer_service.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Exercise the published pointer candidate through MemoryAnswerService with exact-source fallback; no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "extension": "runs/e2_pointer_head_attempt02/selected_extension",
+    "dataset": {
+      "root": "data/e2_copy",
+      "records_sha256": "2bea5441655dde84a6dda0f54a2e5f6bb3e90536ee1dab3ee4ebe447ab4dcac8",
+      "queries_sha256": "a2519fbba1b2656d480aee533911db61a1522c43885e63f39ae94d0cf744d13c",
+      "manifest_sha256": "adcd37e00c5896a0859426602488258860290064f19f2f07af208a96c1f0dd86"
+    },
+    "max_span": 4,
+    "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+    "evaluation": {
+      "dev": 6,
+      "heldout": 10,
+      "metric": "exact pointer text; provenance and exact fallback require nonempty IDs/hashes"
+    },
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "eval_cases": 16,
+      "checkpoint_saves": 0
+    },
+    "claims": "Consumer check only; no new candidate, training or default activation."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+  "extension": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "copy": {
+        "max_tokens": 512,
+        "mode": "pointer",
+        "max_span": 4
+      }
+    },
+    "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+    "regime": "modules_only",
+    "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 49,
+        "parameters": 13275650,
+        "trainable": 13275650,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "copy_head.query_norm.weight",
+          "copy_head.query_norm.bias",
+          "copy_head.key_norm.weight",
+          "copy_head.key_norm.bias",
+          "copy_head.query_projection.weight",
+          "copy_head.key_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "copy_head": [
+        "copy_head.query_norm.weight",
+        "copy_head.query_norm.bias",
+        "copy_head.key_norm.weight",
+        "copy_head.key_norm.bias",
+        "copy_head.query_projection.weight",
+        "copy_head.key_projection.weight"
+      ]
+    }
+  },
+  "pointer": [
+    {
+      "case_id": "copy_dev_01",
+      "split": "dev",
+      "text": "flint",
+      "expected": "mauve",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_dev_01_same_entity"
+      ],
+      "span_hashes": [
+        "dc9446515a51e6fd48f1c3b0ee4409c451de84df610d1aaf5fd9b23a212797b5"
+      ],
+      "source_ids": [
+        "copy_dev_01_same_entity"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_dev_02",
+      "split": "dev",
+      "text": "hazel",
+      "expected": "umber",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_dev_02_same_entity"
+      ],
+      "span_hashes": [
+        "24265d878b114c7d777a67d5bd2761155cd0efc1a49730f045f01cab46881d02"
+      ],
+      "source_ids": [
+        "copy_dev_02_same_entity"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_dev_03",
+      "split": "dev",
+      "text": "maroon",
+      "expected": "lilac",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_dev_03_same_entity"
+      ],
+      "span_hashes": [
+        "81f945691e34676a31e7f9b7afb40a0491b3ef654bbd2a2abd43c90e0f7d65a5"
+      ],
+      "source_ids": [
+        "copy_dev_03_same_entity"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_dev_04",
+      "split": "dev",
+      "text": "flint",
+      "expected": "flint",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_dev_04_relevant"
+      ],
+      "span_hashes": [
+        "edc5196f26b822ca657c1bba44a2f049e44cca50decd11a15bdf57c220391441"
+      ],
+      "source_ids": [
+        "copy_dev_04_relevant"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_dev_05",
+      "split": "dev",
+      "text": "hazel",
+      "expected": "hazel",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_dev_05_relevant"
+      ],
+      "span_hashes": [
+        "bfd9b8c74843544d92ed15e76819279afc44930db01e2436edda8bfe5b0e62af"
+      ],
+      "source_ids": [
+        "copy_dev_05_relevant"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_dev_06",
+      "split": "dev",
+      "text": "maroon",
+      "expected": "maroon",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_dev_06_relevant"
+      ],
+      "span_hashes": [
+        "789ceab2545018c0cc1cc45c7bd41f9da696d2779c00689426d8e922848d2b2a"
+      ],
+      "source_ids": [
+        "copy_dev_06_relevant"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_01",
+      "split": "heldout",
+      "text": "Flint",
+      "expected": "mint",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_01_relevant"
+      ],
+      "span_hashes": [
+        "84038a883b6269562e36bd724c4634a089adacf8b3a825bce461404a31787aaf"
+      ],
+      "source_ids": [
+        "copy_heldout_01_relevant"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_02",
+      "split": "heldout",
+      "text": "navy",
+      "expected": "navy",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_02_relevant"
+      ],
+      "span_hashes": [
+        "79415f824e6fb418c7e1b5bc00394f306f948516bfad5ffc37cf0ea12ece6f28"
+      ],
+      "source_ids": [
+        "copy_heldout_02_relevant"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_03",
+      "split": "heldout",
+      "text": "magenta",
+      "expected": "peach",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_03_same_attr"
+      ],
+      "span_hashes": [
+        "178e5b1203a6d81eb0388e1c1240d46bd725647104ff7a6fd376a707377cd9c8"
+      ],
+      "source_ids": [
+        "copy_heldout_03_same_attr"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_04",
+      "split": "heldout",
+      "text": "amber",
+      "expected": "plum",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_04_same_attr"
+      ],
+      "span_hashes": [
+        "54bae2b6da9763a8e39dc9f798e3ae35b5bf756eee63151129d9eb7e5cf425cd"
+      ],
+      "source_ids": [
+        "copy_heldout_04_same_attr"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_05",
+      "split": "heldout",
+      "text": "blue",
+      "expected": "rust",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_05_same_attr"
+      ],
+      "span_hashes": [
+        "87e8ac2f55102d46dd384a0459d9133287b9d4a479b9d40c07aaf43ead2cb001"
+      ],
+      "source_ids": [
+        "copy_heldout_05_same_attr"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_06",
+      "split": "heldout",
+      "text": "silver",
+      "expected": "sage",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_06_same_attr"
+      ],
+      "span_hashes": [
+        "2951b1a48157f92bee6cdf65f41eebc9705389b54b72a987f2cd95c6fd829f40"
+      ],
+      "source_ids": [
+        "copy_heldout_06_same_attr"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_07",
+      "split": "heldout",
+      "text": "crimson",
+      "expected": "vermilion",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_07_same_attr"
+      ],
+      "span_hashes": [
+        "4cb572e438cba4b96f68a95926e7edbfd6c0b8544899ec5ca44867fd127d3ae4"
+      ],
+      "source_ids": [
+        "copy_heldout_07_same_attr"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_08",
+      "split": "heldout",
+      "text": "amber",
+      "expected": "cerulean",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_08_same_entity"
+      ],
+      "span_hashes": [
+        "1a7d6fab4165b6841fa95473d81361daaa413e3d1d5f20a289b2b07b496306ee"
+      ],
+      "source_ids": [
+        "copy_heldout_08_same_entity"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_09",
+      "split": "heldout",
+      "text": "blue",
+      "expected": "chartreuse",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_09_same_entity"
+      ],
+      "span_hashes": [
+        "cba4f8d46f924026881da9cbb7aff1cdd240dba171ecea3d7a8f1ea2dc03c3aa"
+      ],
+      "source_ids": [
+        "copy_heldout_09_same_entity"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    },
+    {
+      "case_id": "copy_heldout_10",
+      "split": "heldout",
+      "text": "magenta",
+      "expected": "magenta",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "copy_heldout_10_relevant"
+      ],
+      "span_hashes": [
+        "83b9873709af0c4d08a8863a0c13704b01de00f9e38a7852782420d0e798f4d2"
+      ],
+      "source_ids": [
+        "copy_heldout_10_relevant"
+      ],
+      "producer": "ef6815d92934467bbe8659780e6e41068c537d179df1139766b1ec151f1fc7b0"
+    }
+  ],
+  "exact_source": [
+    {
+      "case_id": "copy_dev_01",
+      "split": "dev",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_dev_01_relevant",
+        "copy_dev_01_same_attr",
+        "copy_dev_01_same_entity",
+        "copy_dev_01_owner"
+      ],
+      "span_hashes": [
+        "c9e3e5e0a4e1d060b43bfc27a088dab82e070ae6f806548682298fafa98a221d",
+        "7a804624bb39ddb2c355a394ba2c005b14fa850fc70e103571be452c020834df",
+        "dc9446515a51e6fd48f1c3b0ee4409c451de84df610d1aaf5fd9b23a212797b5",
+        "99767df1667caca861428e3700336f9d6f6a8827a7f312ee1d7e784f34e21a80"
+      ],
+      "text_sha256": "cfba71980dc958c9423fb0501c548326e2bd8863df02d406107ee700a58209ba"
+    },
+    {
+      "case_id": "copy_dev_02",
+      "split": "dev",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_dev_02_relevant",
+        "copy_dev_02_owner",
+        "copy_dev_02_same_attr",
+        "copy_dev_02_same_entity"
+      ],
+      "span_hashes": [
+        "9b0d8ef39b54c0db67e6a632d3a29534062901ef99fb5cf40223cebae728b445",
+        "fa7bf53c0ce3771d49370b3ef4e8a1a0e70c04e18593e1cfeb9338e9de26a4bd",
+        "df4084af7352dcf536418533d40aca66c52e56d3894dc99f3a7ac588308e745e",
+        "24265d878b114c7d777a67d5bd2761155cd0efc1a49730f045f01cab46881d02"
+      ],
+      "text_sha256": "5d78a2caa0e6a61787dd22d2c3d18d1229f4eb883733654e81f4a50f088093fd"
+    },
+    {
+      "case_id": "copy_dev_03",
+      "split": "dev",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_dev_03_relevant",
+        "copy_dev_03_same_attr",
+        "copy_dev_03_same_entity",
+        "copy_dev_03_owner"
+      ],
+      "span_hashes": [
+        "82c712e50242208fc4c7e9dbf57f836bfbe65a7d2f5264a4eb045bfb10efdcec",
+        "fa0283a6bf2f7bcc7ec17b84203633e11d135fbfdfa12479f078c0c601139f76",
+        "81f945691e34676a31e7f9b7afb40a0491b3ef654bbd2a2abd43c90e0f7d65a5",
+        "1247bc570caa8798d661dcc09bc929209fca8e2a94e758a4d3b931f38b6412a8"
+      ],
+      "text_sha256": "870a1fa4da9e6417db68f0daf163ac49c79a73cf9575e42ea7606c05b37a7491"
+    },
+    {
+      "case_id": "copy_dev_04",
+      "split": "dev",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_dev_04_relevant",
+        "copy_dev_04_same_attr",
+        "copy_dev_04_same_entity",
+        "copy_dev_04_owner"
+      ],
+      "span_hashes": [
+        "edc5196f26b822ca657c1bba44a2f049e44cca50decd11a15bdf57c220391441",
+        "ef639b2d23cd9ae62389ef81dcc01d69901d0870e103a4e6e6cf25585a892c12",
+        "3f0646df455ba021f345a6ee4b98a3a858f9170c076b5196e35f8cb4f5838ae1",
+        "db83651d4136fdf3294fa45aad6c515b6f33ee555f66a14dae942fa97789d68e"
+      ],
+      "text_sha256": "30cc6cbbf2005bfaf09c105a8387b14efed67e9851c25f579f9323e9dfde79ba"
+    },
+    {
+      "case_id": "copy_dev_05",
+      "split": "dev",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_dev_05_relevant",
+        "copy_dev_05_same_attr",
+        "copy_dev_05_same_entity",
+        "copy_dev_05_owner"
+      ],
+      "span_hashes": [
+        "bfd9b8c74843544d92ed15e76819279afc44930db01e2436edda8bfe5b0e62af",
+        "fa4e425cf8aceb75396d0494d7c1a063273812b099a330f1cee1c2dc6493bd7b",
+        "7f07a439f43d4a74dcb78942d749e858e68fe73774c30e52a3d63f829b4afd3b",
+        "1e459b2a25365c936e54a627650c3f9691aca672e0e8f7cd64f419c2376a359b"
+      ],
+      "text_sha256": "090942b5b9acd03909cb293d9e136539854420c2ff6a7e5cf7c95b13f223b263"
+    },
+    {
+      "case_id": "copy_dev_06",
+      "split": "dev",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_dev_06_relevant",
+        "copy_dev_06_same_attr",
+        "copy_dev_06_same_entity",
+        "copy_dev_06_owner"
+      ],
+      "span_hashes": [
+        "789ceab2545018c0cc1cc45c7bd41f9da696d2779c00689426d8e922848d2b2a",
+        "2854a2b6329b986809af3efa99564a577e92a616be661dfa6a1be3ad903bd2bd",
+        "65e4461674ee59be8e74440430d1690f4703d1c57b60be164e940a064a7e2f42",
+        "adc8f2e6339c71da0779557ee5682dabb64d72d95202bf35bc7fc5ef04ae2fb0"
+      ],
+      "text_sha256": "2f294e2bd95b5946048a95346aa5078a31d25b6f9d8b6913f0b7d1bef483edc2"
+    },
+    {
+      "case_id": "copy_heldout_01",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_01_relevant",
+        "copy_heldout_01_same_attr",
+        "copy_heldout_01_same_entity",
+        "copy_heldout_01_owner"
+      ],
+      "span_hashes": [
+        "84038a883b6269562e36bd724c4634a089adacf8b3a825bce461404a31787aaf",
+        "f71033df2bb6517f9beebbad5e1469699bb77fc787f9e685cc7d141f34203486",
+        "2e1ab6ab1338e1affd287467ecaa4ab01902c2d0c66cff27a4892196d0a02aaf",
+        "308dcd88eee530f9d4d8714c777d33699d0901ac0e9d4f060dd3da58a0cdaa75"
+      ],
+      "text_sha256": "cc0ffcea40fcb894f7932ad86c55276b6bbe3c54a67c060b62c30e5804f5fe87"
+    },
+    {
+      "case_id": "copy_heldout_02",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_02_relevant",
+        "copy_heldout_02_same_attr",
+        "copy_heldout_02_same_entity",
+        "copy_heldout_02_owner"
+      ],
+      "span_hashes": [
+        "79415f824e6fb418c7e1b5bc00394f306f948516bfad5ffc37cf0ea12ece6f28",
+        "5c06649e858aba6ee33a5b3a0c0d686977a4a851aebe961b9c53d842f13edd17",
+        "9a3b48b01d41c96510642dad4fc3bb7831791774f8e574ca322aedab84c26aa0",
+        "fa96fb53755f56364cac8891c03f1fdc35c3e9dfbe306b5c75e0ec2da463f24f"
+      ],
+      "text_sha256": "a737ae0fafde4d080f5ab17e972e25ef5c7f9c2142661da07df5a0b28f1f1b70"
+    },
+    {
+      "case_id": "copy_heldout_03",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_03_relevant",
+        "copy_heldout_03_same_attr",
+        "copy_heldout_03_same_entity",
+        "copy_heldout_03_owner"
+      ],
+      "span_hashes": [
+        "e7336ec5ed51b71d330b8891c017d05e30ad067e95c03fca175babe5873a1730",
+        "178e5b1203a6d81eb0388e1c1240d46bd725647104ff7a6fd376a707377cd9c8",
+        "471686425f7eca9beef0c36512f22c55b363f9f3c612684f0e0b0b2b3ee5338e",
+        "97edd7517de185cf132ca38cea4eda1af463050a166051539701548dadb17bcd"
+      ],
+      "text_sha256": "6712c8fff60d2cfc004a7f26bc763f413b93b7cfcc354aa649ff630ca56c4655"
+    },
+    {
+      "case_id": "copy_heldout_04",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_04_relevant",
+        "copy_heldout_04_same_attr",
+        "copy_heldout_04_same_entity",
+        "copy_heldout_04_owner"
+      ],
+      "span_hashes": [
+        "926f30f00fd102ef850e04b9ac8ab1764cacc4217ff43fe963c69312ef0f1d1d",
+        "54bae2b6da9763a8e39dc9f798e3ae35b5bf756eee63151129d9eb7e5cf425cd",
+        "92f3634a1e9b758c934f7648add6535056ce1690ddb9ec28839a9b603f784cb5",
+        "d8930c6e3d261f5fa7d3422965c6211d32fedfd0c8ad0e9bc8cd0763e8300d82"
+      ],
+      "text_sha256": "81586f092ddcde03b2c92391b377a0245d20a9d88c4847d21b947490d5813bf0"
+    },
+    {
+      "case_id": "copy_heldout_05",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_05_relevant",
+        "copy_heldout_05_same_attr",
+        "copy_heldout_05_same_entity",
+        "copy_heldout_05_owner"
+      ],
+      "span_hashes": [
+        "38a194b8267bc69c632fe6408eb4dfaf4e39b326d58786cc0451a08284e73918",
+        "87e8ac2f55102d46dd384a0459d9133287b9d4a479b9d40c07aaf43ead2cb001",
+        "b9bf4933e9967b8938a08113d54bee8986c56fadebbd127908ff2b611961964a",
+        "0c374805bb60e170084745dc342ea6aed02a037db573a6df90395f1fba959953"
+      ],
+      "text_sha256": "90d52761b43017f0e13196b62cb4c47a6897a9f70e589631eb945c608c0995a1"
+    },
+    {
+      "case_id": "copy_heldout_06",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_06_relevant",
+        "copy_heldout_06_same_attr",
+        "copy_heldout_06_same_entity",
+        "copy_heldout_06_owner"
+      ],
+      "span_hashes": [
+        "31ece0c8065dd2da902abe5b5745137011b0e103e3a21e4dc8e2a997a9048e4c",
+        "2951b1a48157f92bee6cdf65f41eebc9705389b54b72a987f2cd95c6fd829f40",
+        "fcecf0d63cb581d833e2f07c27333c495763e8ef5924b196edfc2ff98ea61bcb",
+        "1f3f8930aeeb26719f3b264ae5cf2fea1ad5bda04816efb7b4cf55c98d2bf46d"
+      ],
+      "text_sha256": "f24d53bf5cfd641f32f1d5594af9d885e666badba180515e08b4e7895fd9b103"
+    },
+    {
+      "case_id": "copy_heldout_07",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_07_relevant",
+        "copy_heldout_07_same_attr",
+        "copy_heldout_07_same_entity",
+        "copy_heldout_07_owner"
+      ],
+      "span_hashes": [
+        "314e12b6bf9cf0597d1434165a1db2ae34279bba2030d424692009654c0a8c8e",
+        "4cb572e438cba4b96f68a95926e7edbfd6c0b8544899ec5ca44867fd127d3ae4",
+        "368e9db4fa9ebe282fe1a3392bf350aa198858c00b63d71b80f9a8c85f70dc23",
+        "eb3d763b345d8c5c16bd63cec6840f86d207bfb522a6b3fa1416498a4f4d9454"
+      ],
+      "text_sha256": "840aaef87c21532a5271e14209a9303ab232ccdff683ac746e5439d0ee71a91d"
+    },
+    {
+      "case_id": "copy_heldout_08",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_08_relevant",
+        "copy_heldout_08_owner",
+        "copy_heldout_08_same_attr",
+        "copy_heldout_08_same_entity"
+      ],
+      "span_hashes": [
+        "26f318906656ace71183166d8dd297d9ff394a64fdb46db7afa9519218aafa2e",
+        "73ea395a9cf3d8c375d4a949ee9dc6bcbe358336f0780327f0f9e44b8d572343",
+        "994c43778b9a7a3619237915da01e489a1423aa2ee5d17f2db6db1f46506fa4c",
+        "1a7d6fab4165b6841fa95473d81361daaa413e3d1d5f20a289b2b07b496306ee"
+      ],
+      "text_sha256": "b4eaa9cb47c1caaa6db3d215d853b29bcb7573c2d251a25d71312f816696b946"
+    },
+    {
+      "case_id": "copy_heldout_09",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_09_relevant",
+        "copy_heldout_09_same_attr",
+        "copy_heldout_09_same_entity",
+        "copy_heldout_09_owner"
+      ],
+      "span_hashes": [
+        "38a88391fb4f2b350e900c073b329b09a09b52f8ea802f1c0a45182c7519b48d",
+        "6356905d1b2bd2467689d95adefdc47c090d70176e0fa3289e2fda86ad89532c",
+        "cba4f8d46f924026881da9cbb7aff1cdd240dba171ecea3d7a8f1ea2dc03c3aa",
+        "be134b498e013ea5256778cad10e7acdd6619354a7193c9366a079864eed5e35"
+      ],
+      "text_sha256": "e573fbf875b34b6ebd40447a6a6f7e967c5743f0f4f9f8ed733c1801f7de65de"
+    },
+    {
+      "case_id": "copy_heldout_10",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "copy_heldout_10_relevant",
+        "copy_heldout_10_same_attr",
+        "copy_heldout_10_same_entity",
+        "copy_heldout_10_owner"
+      ],
+      "span_hashes": [
+        "83b9873709af0c4d08a8863a0c13704b01de00f9e38a7852782420d0e798f4d2",
+        "140e4f8d097e3a1ae57d0bc14606b9806d9e5eabc68649735f60075ae898983a",
+        "39ff0a1c391a8612f2cfa3c62935a88c2cf1c7fe72075c1f439664042c39c433",
+        "45ff502ef91e8d0ae8afc14baf8cf8b9db7c02e9092db0896aa32c04208fce45"
+      ],
+      "text_sha256": "18ae684cd1b1ccc750c970df4ac5fa478342cfd5bcdab621d0bcd27cea42f34a"
+    }
+  ],
+  "metrics": {
+    "dev": {
+      "count": 6,
+      "correct": 3,
+      "accuracy": 0.5
+    },
+    "heldout": {
+      "count": 10,
+      "correct": 2,
+      "accuracy": 0.2
+    }
+  },
+  "checks": {
+    "all_pointer_method": true,
+    "all_pointer_provenance": true,
+    "all_exact_fallback": true
+  },
+  "claims": "Bounded consumer check of published pointer and exact-source fallback; no training or default change.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T13:35:27.917251+00:00",
+    "ended_at": "2026-10-23T13:35:35.879335+00:00",
+    "elapsed_seconds": 7.961940832901746,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 32,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15584280576,
+      "rss_peak_sampled_bytes": 3309305856,
+      "mps_allocated_peak_sampled_bytes": 10408742400,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T13:35:27.917938+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T13:35:35.805934+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 73%",
+      "memory_free_percent": 73.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T13:35:32.125437+00:00",
+        "elapsed_seconds": 4.099624332971871,
+        "seconds_since_previous_mark": 4.099624332971871,
+        "synchronize_seconds": 5.208887159824371e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:35:32.016970+00:00",
+          "elapsed_seconds": 4.099636999890208,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15584280576,
+          "rss_current_bytes": 3149709312,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10128518144,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 49,
+              "parameters": 13275650,
+              "trainable": 13275650,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "copy_head.query_norm.weight",
+                "copy_head.query_norm.bias",
+                "copy_head.key_norm.weight",
+                "copy_head.key_norm.bias",
+                "copy_head.query_projection.weight",
+                "copy_head.key_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 7.961940832901746,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T13:35:35.879879+00:00"
+}

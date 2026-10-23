@@ -40,6 +40,14 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer consumer (23 October).** `MemoryAnswerService` was exercised on
+the published pointer extension: pointer dev **3/6**, held-out **2/10**, and all
+16 requests had complete record/span/source-hash provenance; the exact-source
+fallback also passed. Two API defects were fixed: unwrapping `ExactSpan.text`
+and separating record IDs from source hashes. No training, checkpoint or default
+change. See
+[pointer consumer results](docs/experiments/20261023_E2_Pointer_Service_Results.md).
+
 **E4 permitted replay (23 October).** After correction/revocation, the host can
 reset fast memory and replay a bounded sequence of still-permitted
 `(observation_id, text, source_hash)` observations. Runtime replay clears

@@ -1,0 +1,16 @@
+W1023 08:35:05.881000 33565 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 858.92it/s]Loading weights:  47%|████▋     | 180/381 [00:00<00:00, 885.90it/s]Loading weights:  72%|███████▏  | 275/381 [00:00<00:00, 905.65it/s]Loading weights:  96%|█████████▌| 366/381 [00:00<00:00, 867.68it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 898.19it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_service.py", line 83, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_service.py", line 74, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_service.py", line 42, in execute
+    exact=MemoryAnswerService(session,pointer_enabled=False).answer(req)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/answer.py", line 59, in answer
+    text='\n'.join(texts), method='exact_source',
+         ^^^^^^^^^^^^^^^^
+TypeError: sequence item 0: expected str instance, ExactSpan found

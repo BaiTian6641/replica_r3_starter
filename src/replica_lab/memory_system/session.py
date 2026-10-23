@@ -28,6 +28,7 @@ class PointerAnswer:
     candidate_index: int
     candidate_count: int
     producer: str
+    source_hashes: tuple[str, ...] = ()
 
 
 def pin_selection(selection):
@@ -346,7 +347,8 @@ class MemorySession:
                                                        skip_special_tokens=True).strip(),
             record_id=record_id, record_hash=record_hash, span_hash=span_hash,
             source_ids=source_ids, candidate_index=index,
-            candidate_count=len(provenance), producer=request.frame.copy.producer)
+            candidate_count=len(provenance), producer=request.frame.copy.producer,
+            source_hashes=tuple(dict.fromkeys(item[1] for item in source)))
 
     def forward(self, request, input_ids, *, labels=None, attention_mask=None):
         self.verify(request)

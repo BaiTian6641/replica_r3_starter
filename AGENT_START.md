@@ -36,6 +36,10 @@ Deferred, no default change. See
 fallback, never fabricated; pointer metrics unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer consumer (23 October):** published pointer through answer service,
+dev 3/6, heldout 2/10, complete provenance; exact fallback passes; no default
+change. See [consumer results](docs/experiments/20261023_E2_Pointer_Service_Results.md).
+
 **E4 permitted replay (23 October):** bounded host replay after correction
 rebuilds fast state, clears workspace, rejects generated text; no learned benefit.
 See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
