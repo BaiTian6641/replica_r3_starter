@@ -20,14 +20,18 @@ def main():
  p.add_argument('--seed',type=int,default=20261023)
  p.add_argument('--max-steps',type=int,default=None)
  p.add_argument('--resume',action='store_true')
+ p.add_argument('--resume-from',type=Path)
  a=p.parse_args()
- if a.resume:
-  if not a.output.is_dir():p.error('--resume requires an existing output directory')
- else:
-  if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
-  a.output.mkdir(parents=True,exist_ok=True)
+ if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
+ a.output.mkdir(parents=True,exist_ok=True)
+ if a.resume_from is not None:
+  import shutil
+  if not a.resume_from.is_dir():p.error('--resume-from source is missing')
+  shutil.copytree(a.resume_from,a.output,dirs_exist_ok=True);a.resume=True
+ elif a.resume:
+  p.error('--resume requires --resume-from')
  protocol=json.loads(a.protocol.read_text())
- report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'seed':a.seed,'resumed':bool(a.resume),'downloads':0,'training_updates':0}
+ report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'seed':a.seed,'resumed':bool(a.resume),'resume_from':str(a.resume_from) if a.resume_from else None,'downloads':0,'training_updates':0}
  from replica_lab.profiling import RunProfiler
  from replica_lab.architecture.loading import exclusive_mps_worker
  prof=RunProfiler('mps',a.output,sample_interval=0.1)
