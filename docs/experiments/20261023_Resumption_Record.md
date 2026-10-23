@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the commit adding the bf16 D2 action result; documentation follows.
+- Last code/test HEAD: the commit adding the DAgger action result; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -40,10 +40,11 @@
 ## Current failures / unfinished work
 
 1. **E3 model action selection remains negative.** The original family was
-   0/7; guard and control were 0/4; constrained decoding was 0/1; and a fresh
-   12-train large family reached teacher loss 0.0276 but completed **0/9**
-   (0/6 held-out) while emitting `read`. Larger supervision did not fix action
-   selection. A new representation or full-backbone arm is required.
+   0/7; guard/control 0/4; constrained decoding 0/1; a 12-train family was 0/9;
+   and DAgger over 26 model-state labels degraded a fresh **2/5** baseline to
+   **0/5**. Larger supervision, interface masks, DAgger and full-backbone bf16
+   did not produce a useful action policy. A new action representation or task
+   interface is required.
 2. **Learned C13 director** has no trained ranking policy or checked-proposal
    dataset. The deterministic baseline is not a capability result.
 3. **C17 native cache reuse** is not implemented; admission and an exact-key
