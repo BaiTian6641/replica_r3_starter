@@ -144,3 +144,24 @@ or run** in this increment.
 The fixtures are exposed synthetic development data. The held-out groups are
 source-separated but not a sealed external benchmark; no broad generalization
 or calibrated-confidence claim follows.
+
+## 6. Follow-up: 32-unit architecture capacity (23 October)
+
+A fresh 32-unit synthetic bank (28 short records plus one four-chunk record) was
+declared before execution. The selected E2 extension declares
+`PortSpec.max_units=16`; an attempted selected-weight 32-unit run stopped at
+that hard limit and is preserved as failed evidence.
+
+A separate **architecture-only** arm used a 32-unit `PortSpec`, no selected
+extension and random E2 ports. It is not a selected-weight or quality result.
+
+| Workload | Actual units | Prompt tokens | Result |
+|---|---:|---:|---|
+| Inference | 1, 8, 16, 24, 32 | 64, 128, 256 | all finite |
+| Modules-only backward | 1, 8, 16, 24, 32 | 64, 128, 256 | finite; 28 gradient tensors |
+
+All 12 points completed. Peak sampled driver memory **12.57 GiB**, profiled wall
+**17.4 s**, zero observed swap growth, 68% minimum free. No optimizer update, no
+base copy, no checkpoint. The selected-weight qualified maximum remains **16
+units**; 32 units is an architecture-capacity result only.
+[Report](../../reports/e2_capacity32_architecture_attempt03/run_report.json).

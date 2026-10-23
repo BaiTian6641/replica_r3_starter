@@ -46,6 +46,15 @@ against lexical **5/8**; the higher-budget arm overfit while training loss fell.
 Lexical remains default; the existing reranker remains opt-in. See
 [cross-template rerank](docs/experiments/20261023_E2_Cross_Template_Rerank_Results.md).
 
+**E2 32-unit architecture capacity (23 October).** A fresh 32-unit bank passed
+all 12 inference/modules-only backward points under the guard: peak driver
+**12.57 GiB**, 17.4 s, zero swap growth, 68% minimum free, 28 gradient tensors.
+This used a 32-unit `PortSpec` with random E2 ports and **no selected
+extension**; the selected-weight path remains capped at 16 because its manifest
+declares `max_units=16`. The attempted selected-weight 32-unit run is preserved
+as failed evidence. See
+[capacity results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
+
 **E2 cross-template retrieval (23 October).** Lexical top-1 **7/12**, native
 dense **5/12**, and the existing opt-in reranker **1/12** on the cross-template
 family; all had recall@4 12/12. The reranker does not transfer to the new

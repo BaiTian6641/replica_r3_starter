@@ -1,0 +1,1940 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T14:24:12.634754+00:00",
+  "arguments": {
+    "device": "mps",
+    "output": "runs/e2_capacity32_architecture_attempt03",
+    "protocol": "configs/e2_capacity32_architecture_v1.json",
+    "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "model_lock": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+    "parent_extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension"
+  },
+  "protocol_sha256": "65dd3b90f01cf61d6c0e7177fa41badcad5d975b3da8a14da98dac728f4aa5c4",
+  "protocol": {
+    "format": "replica.e2_capacity.qualification.v3",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Architecture-only 32-unit port capacity; no selected extension or base save. Separated from the 16-unit selected-weight qualification.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_capacity32",
+      "manifest": "data/e2_capacity32/manifest.json",
+      "manifest_sha256": "9fa16cc7e8c6fe441c10365a245e8563feef3f05f216edf3296df924398544f2",
+      "records_sha256": "e043cc4cc8a5391d14d129844720339065eefc598a48e78c821343b162b37a8b"
+    },
+    "parent_extension": null,
+    "device": "mps",
+    "dtype": "float32",
+    "native_cache": false,
+    "native_cpu_fallback": false,
+    "scope": {
+      "source_tokens_per_unit": 128,
+      "max_units": 32,
+      "slots_per_unit": 4,
+      "memory_width": 256,
+      "ports": [
+        13,
+        27
+      ],
+      "observer": 41,
+      "training": "modules_only backward; no optimizer step; base frozen"
+    },
+    "schedule": {
+      "inference": [
+        {
+          "id": "inf_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u8_p128",
+          "units": 8,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u16_p128",
+          "units": 16,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u24_p128",
+          "units": 24,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u32_p128",
+          "units": 32,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u32_p256",
+          "units": 32,
+          "prompt_tokens": 256,
+          "generate_tokens": 8
+        }
+      ],
+      "training": [
+        {
+          "id": "train_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u8_p128",
+          "units": 8,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u16_p128",
+          "units": 16,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u24_p128",
+          "units": 24,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u32_p128",
+          "units": 32,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u32_p256",
+          "units": 32,
+          "prompt_tokens": 256,
+          "label_tokens": 16
+        }
+      ]
+    },
+    "measurements": [
+      "actual source-token counts per unit",
+      "selected unit count",
+      "source encode seconds",
+      "writer seconds",
+      "sense pass seconds",
+      "action forward seconds",
+      "generation seconds and generated tokens",
+      "training prepare/forward/backward seconds",
+      "sampled MPS allocated/driver bytes",
+      "process RSS bytes",
+      "guard thresholds"
+    ],
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "one_native_job": true
+    },
+    "stop_conditions": [
+      "declared guard threshold breach",
+      "nonfinite logits/loss/gradients",
+      "schedule point raises an unexpected error",
+      "stale telemetry"
+    ],
+    "exclusions": [
+      "No D2 original-weight capacity arm is declared or run here.",
+      "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+    ],
+    "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+    "claims": "Architecture port capacity only; random E2 ports, no selected extension, no quality or training claim.",
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "points": 12,
+      "source_units": 32,
+      "expected_storage_mib": 8,
+      "no_base_save": true
+    },
+    "capacity_variant": "architecture_only_random_ports",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 32,
+      "source_tokens": 128,
+      "heads": 4
+    }
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "implementation_sha256": {
+    "scripts/run_e2_capacity.py": "8af680a312254ca2da559883f856848ccea318d4f7d02ea542e8813d99892837",
+    "src/replica_lab/memory_system/answer.py": "4b722c2738a20fe6da53730c2ace3a0a37d43ef8fe6fbbec74206539b377a212",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "b238fa0e3d0e59bf140767e8213f9c2269c4a87848a129e5960c9157f6129b2f",
+    "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+    "src/replica_lab/memory_system/context.py": "ea1b8a954aae9b7e59845fd5f1db4ef4ef81ac66a32d45723849860c67175ef2",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/architecture/loading.py": "ffdee8328ae6afc40b6b1eadc1abe57ca2950c2b125b6b7e6d32b3a4beeba57d",
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/ports.py": "3d983e8313eb2c7c3cde748c9f8c0b6f384add27d6db5f9098e5ba21816dccfe",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/minicpm5.py": "efeef88466871baabca1b71d69338bb3e0ead4300a8625c649a0473f10a32d59",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/contracts.py": "f07792fe958a432d7cd37d0cbb4f1289f3714033247cc5aceed9e8f2e3ab8464",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf"
+  },
+  "free_disk_before_bytes": 629371703296,
+  "downloads": 0,
+  "original_model_loads": 1,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+  },
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 32,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false
+  },
+  "manifest_digest": "7b3ac69118538da05b8fc0c96484b381ea8601d7c4447ee0572b3cc0e250a8b8",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "dataset": {
+    "manifest": {
+      "format": "replica.e2_capacity.dataset.v2",
+      "created_at_utc": "2026-10-23",
+      "subject_id": "e2_capacity32",
+      "branch_id": "capacity",
+      "purpose": "capacity_probe",
+      "as_of": 10,
+      "records": 29,
+      "units": 32,
+      "short_records": 28,
+      "long_record_spans": 4,
+      "token_counts": {
+        "cap32_short_01": 128,
+        "cap32_short_02": 128,
+        "cap32_short_03": 128,
+        "cap32_short_04": 128,
+        "cap32_short_05": 128,
+        "cap32_short_06": 128,
+        "cap32_short_07": 128,
+        "cap32_short_08": 128,
+        "cap32_short_09": 128,
+        "cap32_short_10": 128,
+        "cap32_short_11": 128,
+        "cap32_short_12": 128,
+        "cap32_short_13": 128,
+        "cap32_short_14": 128,
+        "cap32_short_15": 128,
+        "cap32_short_16": 128,
+        "cap32_short_17": 128,
+        "cap32_short_18": 128,
+        "cap32_short_19": 128,
+        "cap32_short_20": 128,
+        "cap32_short_21": 128,
+        "cap32_short_22": 128,
+        "cap32_short_23": 128,
+        "cap32_short_24": 128,
+        "cap32_short_25": 128,
+        "cap32_short_26": 128,
+        "cap32_short_27": 128,
+        "cap32_short_28": 128,
+        "cap32_long": 507
+      },
+      "files": {
+        "records_sha256": "e043cc4cc8a5391d14d129844720339065eefc598a48e78c821343b162b37a8b"
+      },
+      "claims": "Synthetic 32-unit capacity bank; no labels or quality claim."
+    },
+    "records_sha256": "e043cc4cc8a5391d14d129844720339065eefc598a48e78c821343b162b37a8b"
+  },
+  "parent_extension": null,
+  "checks": {},
+  "points": [
+    {
+      "id": "inf_u1_p64",
+      "phase": "inference",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "generated_tokens": 8,
+      "generated_token_ids": [
+        7326,
+        304,
+        20324,
+        33,
+        75725,
+        316,
+        12586,
+        6038
+      ],
+      "source_span_tokens": [
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.08932220796123147,
+      "writer_seconds": 0.013510416029021144,
+      "sense_seconds": 0.05956058390438557,
+      "action_forward_seconds": 0.06253829086199403,
+      "generation_seconds": 0.5868584159761667,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 10586351104,
+      "mps_driver_after_bytes": 11016994816,
+      "wall_seconds": 0.8994036249350756,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10746216448
+    },
+    {
+      "id": "inf_u8_p128",
+      "phase": "inference",
+      "declared_units": 8,
+      "actual_units": 8,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 8,
+      "generated_token_ids": [
+        33,
+        7326,
+        304,
+        12586,
+        33,
+        316,
+        12586,
+        6038
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.19801191706210375,
+      "writer_seconds": 0.015774790896102786,
+      "sense_seconds": 0.06980766705237329,
+      "action_forward_seconds": 0.08568054088391364,
+      "generation_seconds": 0.7514222918543965,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11128210944,
+      "mps_driver_after_bytes": 12313067520,
+      "wall_seconds": 1.1457965839654207,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10815668224
+    },
+    {
+      "id": "inf_u16_p128",
+      "phase": "inference",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 8,
+      "generated_token_ids": [
+        33,
+        7326,
+        304,
+        12586,
+        33,
+        316,
+        12586,
+        6038
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.38963054213672876,
+      "writer_seconds": 0.016473666997626424,
+      "sense_seconds": 0.07004983304068446,
+      "action_forward_seconds": 0.08363320794887841,
+      "generation_seconds": 0.743075542151928,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11166166528,
+      "mps_driver_after_bytes": 12321456128,
+      "wall_seconds": 1.3244702920783311,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u24_p128",
+      "phase": "inference",
+      "declared_units": 24,
+      "actual_units": 24,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 8,
+      "generated_token_ids": [
+        33,
+        7326,
+        304,
+        12586,
+        33,
+        316,
+        12586,
+        6038
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.6261376249603927,
+      "writer_seconds": 0.016829832922667265,
+      "sense_seconds": 0.07024291693232954,
+      "action_forward_seconds": 0.08721995912492275,
+      "generation_seconds": 0.7163246250711381,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11204745216,
+      "mps_driver_after_bytes": 12336136192,
+      "wall_seconds": 1.5500140839722008,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u32_p128",
+      "phase": "inference",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 8,
+      "generated_token_ids": [
+        33,
+        7326,
+        304,
+        12586,
+        33,
+        316,
+        12586,
+        6038
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 0.8214348331093788,
+      "writer_seconds": 0.02834154199808836,
+      "sense_seconds": 0.07131591718643904,
+      "action_forward_seconds": 0.08618779107928276,
+      "generation_seconds": 0.768892833031714,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11244101632,
+      "mps_driver_after_bytes": 12386467840,
+      "wall_seconds": 1.8121808329597116,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10826153984
+    },
+    {
+      "id": "inf_u32_p256",
+      "phase": "inference",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "generated_tokens": 8,
+      "generated_token_ids": [
+        316,
+        12586,
+        6038,
+        35,
+        416,
+        6927,
+        6927,
+        20028
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 0.7832424170337617,
+      "writer_seconds": 0.019451499916613102,
+      "sense_seconds": 0.11603945796377957,
+      "action_forward_seconds": 0.12744241603650153,
+      "generation_seconds": 1.0394250000827014,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 12327492608,
+      "mps_driver_after_bytes": 13493764096,
+      "wall_seconds": 2.11629333300516,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10834542592
+    },
+    {
+      "id": "train_u1_p64",
+      "phase": "training",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128
+      ],
+      "prepare_seconds": 0.11166920885443687,
+      "forward_seconds": 0.09625058295205235,
+      "backward_seconds": 0.16142745804972947,
+      "loss": 1.384753942489624,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 2,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10151901952,
+      "mps_driver_after_bytes": 10879746048,
+      "wall_seconds": 0.40490566683001816,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10834542592
+    },
+    {
+      "id": "train_u8_p128",
+      "phase": "training",
+      "declared_units": 8,
+      "actual_units": 8,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.25685637490823865,
+      "forward_seconds": 0.11066104099154472,
+      "backward_seconds": 0.24369570799171925,
+      "loss": 3.3314385414123535,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 2,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10195710208,
+      "mps_driver_after_bytes": 12020629504,
+      "wall_seconds": 0.6440416669938713,
+      "mps_allocated_before_bytes": 10095979520,
+      "mps_driver_before_bytes": 10837688320
+    },
+    {
+      "id": "train_u16_p128",
+      "phase": "training",
+      "declared_units": 16,
+      "actual_units": 16,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.326765458798036,
+      "forward_seconds": 0.10334837506525218,
+      "backward_seconds": 0.2472365410067141,
+      "loss": 3.3314385414123535,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 2,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10204131584,
+      "mps_driver_after_bytes": 12045795328,
+      "wall_seconds": 0.7135185420047492,
+      "mps_allocated_before_bytes": 10103319552,
+      "mps_driver_before_bytes": 10938351616
+    },
+    {
+      "id": "train_u24_p128",
+      "phase": "training",
+      "declared_units": 24,
+      "actual_units": 24,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 0.28495479212142527,
+      "forward_seconds": 0.1117463749833405,
+      "backward_seconds": 0.2515391248743981,
+      "loss": 3.3314385414123535,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 2,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10212552960,
+      "mps_driver_after_bytes": 12079349760,
+      "wall_seconds": 0.6860128331463784,
+      "mps_allocated_before_bytes": 10111708160,
+      "mps_driver_before_bytes": 10971906048
+    },
+    {
+      "id": "train_u32_p128",
+      "phase": "training",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.3120018329937011,
+      "forward_seconds": 0.12650475022383034,
+      "backward_seconds": 0.26009804103523493,
+      "loss": 3.3314385414123535,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 2,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10220933376,
+      "mps_driver_after_bytes": 12112920576,
+      "wall_seconds": 0.7355385001283139,
+      "mps_allocated_before_bytes": 10120096768,
+      "mps_driver_before_bytes": 10997071872
+    },
+    {
+      "id": "train_u32_p256",
+      "phase": "training",
+      "declared_units": 32,
+      "actual_units": 32,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.12945520807988942,
+      "forward_seconds": 0.17605825001373887,
+      "backward_seconds": 0.3415241250768304,
+      "loss": 1.5954570770263672,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 2,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10288700928,
+      "mps_driver_after_bytes": 12266012672,
+      "wall_seconds": 0.6867904579266906,
+      "mps_allocated_before_bytes": 10128444416,
+      "mps_driver_before_bytes": 11022237696
+    }
+  ],
+  "bank": {
+    "units": 32,
+    "source_span_tokens": [
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      123
+    ],
+    "record_ids": [
+      "cap32_short_01",
+      "cap32_short_02",
+      "cap32_short_03",
+      "cap32_short_04",
+      "cap32_short_05",
+      "cap32_short_06",
+      "cap32_short_07",
+      "cap32_short_08",
+      "cap32_short_09",
+      "cap32_short_10",
+      "cap32_short_11",
+      "cap32_short_12",
+      "cap32_short_13",
+      "cap32_short_14",
+      "cap32_short_15",
+      "cap32_short_16",
+      "cap32_short_17",
+      "cap32_short_18",
+      "cap32_short_19",
+      "cap32_short_20",
+      "cap32_short_21",
+      "cap32_short_22",
+      "cap32_short_23",
+      "cap32_short_24",
+      "cap32_short_25",
+      "cap32_short_26",
+      "cap32_short_27",
+      "cap32_short_28",
+      "cap32_long",
+      "cap32_long",
+      "cap32_long",
+      "cap32_long"
+    ]
+  },
+  "summary": {
+    "largest_inference_units": 32,
+    "largest_training_units": 32,
+    "largest_prompt_tokens": 256,
+    "largest_source_span_tokens": 128,
+    "points": 12,
+    "inference_points": 6,
+    "training_points": 6,
+    "wall_seconds": 13.00533162499778,
+    "d2_arm": "not declared or run"
+  },
+  "acceptance": {
+    "completed_all_points": true,
+    "schedule_ascending": true,
+    "configured_max_not_claimed_as_exercised": true,
+    "training_scope": "modules_only backward; no optimizer step",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim."
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T14:24:12.637537+00:00",
+    "ended_at": "2026-10-23T14:24:30.003789+00:00",
+    "elapsed_seconds": 17.36612504092045,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 169,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15557296128,
+      "rss_peak_sampled_bytes": 3452338176,
+      "mps_allocated_peak_sampled_bytes": 12344210688,
+      "mps_driver_peak_sampled_bytes": 13493780480
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T14:24:12.638273+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T14:24:29.926015+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 70%",
+      "memory_free_percent": 70.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T14:24:16.844954+00:00",
+        "elapsed_seconds": 4.089705375023186,
+        "seconds_since_previous_mark": 4.089705375023186,
+        "synchronize_seconds": 5.95790334045887e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:16.727285+00:00",
+          "elapsed_seconds": 4.089715332956985,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3258122240,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T14:24:17.765785+00:00",
+        "elapsed_seconds": 5.1281333330553025,
+        "seconds_since_previous_mark": 1.0384279580321163,
+        "synchronize_seconds": 3.4170225262641907e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:17.765720+00:00",
+          "elapsed_seconds": 5.128143375040963,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3258122240,
+          "rss_measurement_age_seconds": 1.0384257498662919,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 11016994816
+        },
+        "fields": {
+          "point": "inf_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.8994036249350756
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T14:24:18.923255+00:00",
+        "elapsed_seconds": 6.2855789579916745,
+        "seconds_since_previous_mark": 1.157445624936372,
+        "synchronize_seconds": 4.084082320332527e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:18.923177+00:00",
+          "elapsed_seconds": 6.285597583046183,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3410706432,
+          "rss_measurement_age_seconds": 0.14553137496113777,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12313067520
+        },
+        "fields": {
+          "point": "inf_u8_p128",
+          "units": 8,
+          "tokens": 128,
+          "wall_seconds": 1.1457965839654207
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T14:24:20.272040+00:00",
+        "elapsed_seconds": 7.634333041030914,
+        "seconds_since_previous_mark": 1.348754083039239,
+        "synchronize_seconds": 2.040993422269821e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:20.271941+00:00",
+          "elapsed_seconds": 7.634353083092719,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3410706432,
+          "rss_measurement_age_seconds": 1.494294707896188,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12321456128
+        },
+        "fields": {
+          "point": "inf_u16_p128",
+          "units": 16,
+          "tokens": 128,
+          "wall_seconds": 1.3244702920783311
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T14:24:21.846875+00:00",
+        "elapsed_seconds": 9.209182457998395,
+        "seconds_since_previous_mark": 1.5748494169674814,
+        "synchronize_seconds": 3.416091203689575e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:21.846802+00:00",
+          "elapsed_seconds": 9.20919100008905,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3412115456,
+          "rss_measurement_age_seconds": 1.0288936670403928,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12336136192
+        },
+        "fields": {
+          "point": "inf_u24_p128",
+          "units": 24,
+          "tokens": 128,
+          "wall_seconds": 1.5500140839722008
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T14:24:23.687237+00:00",
+        "elapsed_seconds": 11.049540207954124,
+        "seconds_since_previous_mark": 1.8403577499557287,
+        "synchronize_seconds": 4.749977961182594e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:23.687175+00:00",
+          "elapsed_seconds": 11.049549875082448,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3412492288,
+          "rss_measurement_age_seconds": 0.7699444168247283,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12386467840
+        },
+        "fields": {
+          "point": "inf_u32_p128",
+          "units": 32,
+          "tokens": 128,
+          "wall_seconds": 1.8121808329597116
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T14:24:25.828859+00:00",
+        "elapsed_seconds": 13.191124208038673,
+        "seconds_since_previous_mark": 2.141584000084549,
+        "synchronize_seconds": 5.166977643966675e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:25.828779+00:00",
+          "elapsed_seconds": 13.191136666107923,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3413475328,
+          "rss_measurement_age_seconds": 0.8933658751193434,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 13493764096
+        },
+        "fields": {
+          "point": "inf_u32_p256",
+          "units": 32,
+          "tokens": 256,
+          "wall_seconds": 2.11629333300516
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T14:24:26.260775+00:00",
+        "elapsed_seconds": 13.623040291015059,
+        "seconds_since_previous_mark": 0.43191608297638595,
+        "synchronize_seconds": 2.2919848561286926e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:26.260697+00:00",
+          "elapsed_seconds": 13.623051333008334,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3413475328,
+          "rss_measurement_age_seconds": 1.325270334025845,
+          "mps_allocated_bytes": 10095979520,
+          "mps_driver_bytes": 10879746048
+        },
+        "fields": {
+          "point": "train_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.40490566683001816
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T14:24:26.918152+00:00",
+        "elapsed_seconds": 14.280428875004873,
+        "seconds_since_previous_mark": 0.6573885839898139,
+        "synchronize_seconds": 3.834022209048271e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:26.918091+00:00",
+          "elapsed_seconds": 14.28043833305128,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3413475328,
+          "rss_measurement_age_seconds": 1.9826545000541955,
+          "mps_allocated_bytes": 10103319552,
+          "mps_driver_bytes": 12020629504
+        },
+        "fields": {
+          "point": "train_u8_p128",
+          "units": 8,
+          "tokens": 128,
+          "wall_seconds": 0.6440416669938713
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T14:24:27.654205+00:00",
+        "elapsed_seconds": 15.016461624996737,
+        "seconds_since_previous_mark": 0.736032749991864,
+        "synchronize_seconds": 2.291053533554077e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:27.654130+00:00",
+          "elapsed_seconds": 15.016473582945764,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3444588544,
+          "rss_measurement_age_seconds": 0.6906558750197291,
+          "mps_allocated_bytes": 10111708160,
+          "mps_driver_bytes": 12045795328
+        },
+        "fields": {
+          "point": "train_u16_p128",
+          "units": 16,
+          "tokens": 128,
+          "wall_seconds": 0.7135185420047492
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T14:24:28.363101+00:00",
+        "elapsed_seconds": 15.725368625018746,
+        "seconds_since_previous_mark": 0.708907000022009,
+        "synchronize_seconds": 2.00001522898674e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:28.363042+00:00",
+          "elapsed_seconds": 15.725376666057855,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3444588544,
+          "rss_measurement_age_seconds": 1.3995585420634598,
+          "mps_allocated_bytes": 10120096768,
+          "mps_driver_bytes": 12079349760
+        },
+        "fields": {
+          "point": "train_u24_p128",
+          "units": 24,
+          "tokens": 128,
+          "wall_seconds": 0.6860128331463784
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T14:24:29.121047+00:00",
+        "elapsed_seconds": 16.483297999948263,
+        "seconds_since_previous_mark": 0.7579293749295175,
+        "synchronize_seconds": 3.2079406082630157e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:29.120981+00:00",
+          "elapsed_seconds": 16.483314708108082,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3452338176,
+          "rss_measurement_age_seconds": 0.09076458308845758,
+          "mps_allocated_bytes": 10128444416,
+          "mps_driver_bytes": 12112920576
+        },
+        "fields": {
+          "point": "train_u32_p128",
+          "units": 32,
+          "tokens": 128,
+          "wall_seconds": 0.7355385001283139
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T14:24:29.838290+00:00",
+        "elapsed_seconds": 17.198384250048548,
+        "seconds_since_previous_mark": 0.7150862501002848,
+        "synchronize_seconds": 2.499902620911598e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:29.836071+00:00",
+          "elapsed_seconds": 17.19839583290741,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3452338176,
+          "rss_measurement_age_seconds": 0.8058540830388665,
+          "mps_allocated_bytes": 10128444416,
+          "mps_driver_bytes": 12266012672
+        },
+        "fields": {
+          "point": "train_u32_p256",
+          "units": 32,
+          "tokens": 256,
+          "wall_seconds": 0.6867904579266906
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_complete",
+        "timestamp": "2026-10-23T14:24:29.871905+00:00",
+        "elapsed_seconds": 17.23418812500313,
+        "seconds_since_previous_mark": 0.03580387495458126,
+        "synchronize_seconds": 2.3748725652694702e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:24:29.871873+00:00",
+          "elapsed_seconds": 17.234192915959284,
+          "phase": "capacity_complete",
+          "rss_peak_process_lifetime_bytes": 15557296128,
+          "rss_current_bytes": 3452338176,
+          "rss_measurement_age_seconds": 0.8416355829685926,
+          "mps_allocated_bytes": 10128444416,
+          "mps_driver_bytes": 11175329792
+        },
+        "fields": {
+          "points": 12
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 17.36612504092045,
+    "sampled_peak_driver_bytes": 13493780480,
+    "sampled_peak_rss_bytes": 3452338176,
+    "new_original_checkpoints": 0,
+    "downloads": 0
+  },
+  "free_disk_after_bytes": 629370253312,
+  "artifact_bytes": 192493,
+  "ended_at_utc": "2026-10-23T14:24:30.004809+00:00"
+}
