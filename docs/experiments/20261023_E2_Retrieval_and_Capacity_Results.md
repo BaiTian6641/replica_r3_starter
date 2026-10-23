@@ -238,3 +238,20 @@ All 12 points completed. Peak sampled driver memory **14.62 GiB**, profiled wall
 closes the tested selected-weight capacity ladder at 512 units for a synthetic
 128-token-span bank; it is not an answer-quality or longer-source-length claim.
 [Report](../../reports/e2_capacity512_selected_attempt01/run_report.json).
+
+## 11. Follow-up: selected 1024-unit capacity (23 October)
+
+The selected extension and migration passed a fresh 1024-unit bank
+(1020 short records plus one four-chunk record).
+
+| Workload | Actual units | Prompt tokens | Result |
+|---|---:|---:|---|
+| Inference | 1, 256, 512, 768, 1024 | 64, 128, 256 | all finite |
+| Modules-only backward | 1, 256, 512, 768, 1024 | 64, 128, 256 | finite; 28 gradient tensors |
+
+All 12 points completed. Peak sampled driver memory **16.90 GiB**, profiled wall
+**142.6 s**, zero observed swap growth, no base save or optimizer update.
+This is a synthetic 128-token-span capacity result; it is not an answer-quality
+or longer-source-length claim. The tested selected-weight ladder is 32/64/128/
+256/512/1024 units.
+[Report](../../reports/e2_capacity1024_selected_attempt01/run_report.json).
