@@ -33,6 +33,12 @@ teacher loss 0.015. This is a second negative action-policy family, not a tool
 defect. Do not rerun a near-identical action arm; target action selection or
 advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
 
+**E4 typed artifacts (23 October):** kind-specific ContextPack/RecordLatent/
+BranchMemoryImage/ProcedureArtifact/NeuralCandidate metadata, lifecycle and
+dependency invalidation are implemented/tested. No execution, candidate
+training or publication yet. See
+[typed artifacts](docs/architecture/11_Runtime_Artifacts.md).
+
 **E4 fast-memory reference (23 October):** staged observation writes, one
 chunk-start commit, bounds/lineage/reset and strict image persistence are
 implemented and tested on the host. Opt-in native read ports pass null parity/independent influence; an untrained observation bridge now commits actual read/test observations into the next decision. Learned writes and delayed-use evaluation remain pending. See

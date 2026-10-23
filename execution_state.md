@@ -29,6 +29,16 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**E4 typed artifacts (23 October).** ContextPack, RecordLatent,
+BranchMemoryImage, ProcedureArtifact and NeuralCandidate metadata contracts now
+have kind-specific lifecycles, source/parent dependency tracking, expiry,
+payload rejection and transitive invalidation. The registry prevents a view
+artifact from being accepted like a trained candidate and keeps proposed
+candidates from self-certifying. No artifact execution, candidate training,
+independent acceptance or transactional publication exists; the next step is a
+bounded E5 candidate. See
+[typed artifacts](docs/architecture/11_Runtime_Artifacts.md).
+
 **E4 reference fast memory (23 October).** A functional linear host service now
 supports observation-only staged writes, one deferred commit against a single
 chunk-start state, per-owner/branch scope, bounds, lineage, reset/invalidate and
