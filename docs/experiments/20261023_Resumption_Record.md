@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: `2a971c7 experiment: record negative action-space guard`; documentation-only commits follow.
+- Last code/test HEAD: `bfb64eb experiment: record constrained-action interface failure`; documentation follow-ups may be later.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -40,7 +40,9 @@
 
 1. **E3 model action selection remains negative.** Fresh `set_constant` guard
    and control both completed **0/4**; the model repeated `read` even when the
-   guard denied it. The prompt/interface guard is not enough.
+   guard denied it. A constrained token-mask arm was aborted at smoke because it
+   produced `.read`/malformed JSON (0/1). These are action-selection and decoding
+   failures, not evidence for another prompt-only mask.
 2. **Learned C13 director** has no trained ranking policy or checked-proposal
    dataset. The deterministic baseline is not a capability result.
 3. **C17 native cache reuse** is not implemented; admission only, fresh
@@ -60,9 +62,10 @@
 Choose **one** new action-policy mechanism, declare a fresh family and protocol
 before execution, and do not reuse the exposed guard cases for tuning:
 
-- constrained action-kind decoding (with argument generation kept separate), or
-- a D1/D2 separated action-policy candidate with an explicit optimizer/residency
-  plan and independent held-out evaluation.
+- a trained D1/D2 action-policy candidate with an explicit optimizer/residency
+  plan and independent held-out evaluation, or
+- a genuinely different action representation with fresh supervision; do not
+  repeat the prompt guard or token-mask interface.
 
 Require actual independent task completions, 0 false success claims, restart
 continuation, and measured tool/token/memory costs. A failed arm must preserve
