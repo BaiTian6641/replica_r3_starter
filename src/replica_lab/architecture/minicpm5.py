@@ -17,13 +17,13 @@ from transformers.masking_utils import create_causal_mask
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.models.llama import modeling_llama
 
-from .contracts import (ComponentManifest, CoreState, DecisionFrame, FastMemoryRead,
-                        InjectFrame, MemoryRead, PortSpec, RequestContext, SenseFrame,
-                        fingerprint)
+from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
+                        FastMemoryRead, InjectFrame, MemoryRead, PortSpec,
+                        RequestContext, SenseFrame, fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
-                    SensePort, WorkspaceAccessPort)
+                    RecordCopyHead, SensePort, WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 
 
@@ -56,6 +56,9 @@ class MiniCPM5Adapter(nn.Module):
         self.reranker = TrainableRecordReranker(d)
         self.core = self.ff_core = self.workspace_ports = self.task_head = None
         self.fast_ports = self.fast_write_encoder = None
+        self.copy_head = None
+        if manifest.copy is not None:
+            self.copy_head = RecordCopyHead(h)
         if manifest.fast_memory is not None:
             spec = manifest.fast_memory
             self.fast_write_encoder = FastWriteEncoder(h, spec.key_size, spec.value_size)
@@ -124,6 +127,14 @@ class MiniCPM5Adapter(nn.Module):
         if self.core is None:
             raise ValueError('Manifest declares no core; core producer identity is undefined')
         return fingerprint(self._core_component_stamp())
+
+    def copy_producer_key(self):
+        if self.copy_head is None:
+            raise ValueError('Manifest declares no copy branch')
+        return fingerprint({'features': self.producer_key(),
+                            'copy_head': [(n, id(p), p._version, str(p.dtype),
+                                          str(p.device), p.data_ptr())
+                                         for n, p in self.copy_head.named_parameters()]})
 
     def fast_producer_key(self):
         if self.fast_ports is None or self.fast_write_encoder is None:
@@ -250,6 +261,8 @@ class MiniCPM5Adapter(nn.Module):
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
         if self.fast_ports is not None:
             prefixes += ['fast_write_encoder', 'fast_ports']
+        if self.copy_head is not None:
+            prefixes += ['copy_head']
         for prefix in prefixes:
             yield from ((f'{prefix}.{n}', p) for n, p in getattr(self, prefix).named_parameters())
 
@@ -264,6 +277,8 @@ class MiniCPM5Adapter(nn.Module):
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
         if self.fast_ports is not None:
             prefixes += ['fast_write_encoder', 'fast_ports']
+        if self.copy_head is not None:
+            prefixes += ['copy_head']
         return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
                 for prefix in prefixes}
 
@@ -363,7 +378,8 @@ class MiniCPM5Adapter(nn.Module):
 
     def make_frame(self, decision_id, evidence, memory: MemoryRead, sense: SenseFrame,
                    enabled_ports=None, core: CoreState | None = None,
-                   enabled_branches=None, fast: FastMemoryRead | None = None):
+                   enabled_branches=None, fast: FastMemoryRead | None = None,
+                   copy: CopyRead | None = None):
         if memory.slots.ndim != 4 or memory.slots.shape[0] != 1:
             raise ValueError('One owned request per bank; batch requests explicitly later')
         if memory.slots.shape[1:] != (len(memory.spans), self.ports.slots_per_unit, self.ports.memory_width):
@@ -402,19 +418,30 @@ class MiniCPM5Adapter(nn.Module):
                 raise ValueError('Fast weights shape differs from the declared spec')
             if fast.producer != self.fast_producer_key():
                 raise ValueError('Fast producer differs from current native/port features')
+        if copy is not None:
+            if self.copy_head is None or self.manifest.copy is None:
+                raise ValueError('Copy frame requires a copy-bearing manifest')
+            if copy.token_ids.shape[1] > self.manifest.copy.max_tokens:
+                raise ValueError('Copy candidates exceed the declared bound')
+            if copy.producer != self.copy_producer_key():
+                raise ValueError('Copy producer differs from current native features/head')
         default_branches = ['memory']
         if core is not None:
             default_branches.append('workspace')
         if fast is not None:
             default_branches.append('fast')
+        if copy is not None:
+            default_branches.append('copy')
         branches = tuple(default_branches) if enabled_branches is None \
             else tuple(enabled_branches)
         if 'workspace' in branches and core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
         if 'fast' in branches and fast is None:
             raise ValueError('Fast branch requires an owned FastMemoryRead')
+        if 'copy' in branches and copy is None:
+            raise ValueError('Copy branch requires an owned CopyRead')
         return DecisionFrame(decision_id, evidence, memory, sense, self.manifest.digest,
-                             self.parameter_stamp(), enabled, core, fast, branches)
+                             self.parameter_stamp(), enabled, core, fast, copy, branches)
 
     def _check_frame(self, frame):
         frame.assert_immutable()
@@ -439,6 +466,17 @@ class MiniCPM5Adapter(nn.Module):
                 raise ValueError('Training requires all response logits')
         hidden, _ = self._native(input_ids, mask, frame=frame)
         logits = self.base.lm_head(hidden[:, -logits_to_keep:] if logits_to_keep else hidden)
+        if (frame.copy is not None and frame.branch_enabled('copy')
+                and self.copy_head is not None and frame.copy.token_ids.shape[1] > 0):
+            copy_hidden = hidden[:, -logits_to_keep:] if logits_to_keep else hidden
+            embeddings = self.base.get_input_embeddings()(frame.copy.token_ids)
+            bias = self.copy_head(copy_hidden, embeddings, frame.copy.token_ids,
+                                  frame.copy.mask)
+            if bias.shape[-1] > logits.shape[-1]:
+                raise ValueError('Copy candidate token exceeds the LM vocabulary')
+            if bias.shape[-1] < logits.shape[-1]:
+                bias = torch.nn.functional.pad(bias, (0, logits.shape[-1] - bias.shape[-1]))
+            logits = logits + bias
         loss = (self.base.loss_function(logits=logits, labels=labels, vocab_size=self.base.config.vocab_size)
                 if labels is not None else None)
         if loss is not None and loss.requires_grad:
@@ -489,14 +527,14 @@ class MiniCPM5Adapter(nn.Module):
         weights = {n: p.detach().cpu().contiguous() for n, p in self.new_named_parameters()}
         save_file(weights, str(path / 'extensions.safetensors'))
         fmt = ('replica.minicpm5.extensions.v2'
-               if self.core is not None or self.fast_ports is not None
+               if self.core is not None or self.fast_ports is not None or self.copy_head is not None
                else 'replica.minicpm5.extensions.v1')
         receipt = {'format':fmt,'manifest':self.manifest.to_dict(),
                    'manifest_digest':self.manifest.digest,'regime':self.regime,
                    'weights_sha256':hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest(),
                    'parameters':self.parameter_audit(),'base_saved':False,
                    'notes':'Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.'}
-        if self.core is not None or self.fast_ports is not None:
+        if self.core is not None or self.fast_ports is not None or self.copy_head is not None:
             receipt['components'] = self._component_inventory()
         (path/'manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
         return receipt
@@ -529,7 +567,7 @@ class MiniCPM5Adapter(nn.Module):
                     != receipt.get('weights_sha256')):
                 raise ValueError('Incompatible or changed extension manifest/bytes')
             expected = dict(self._parent_named_parameters())
-            if self.manifest.core is not None or self.fast_ports is not None:
+            if self.manifest.core is not None or self.fast_ports is not None or self.copy_head is not None:
                 if not accept_parent_v1:
                     raise ValueError('Loading the E1/E2 parent v1 extension requires accept_parent_v1=True')
         else:

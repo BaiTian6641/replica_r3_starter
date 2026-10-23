@@ -146,6 +146,46 @@ class FastMemorySpec:
 
 
 @dataclass(frozen=True)
+class CopySpec:
+    """Bounded exact record-token copy interface for answer-time copying."""
+    max_tokens: int = 512
+
+    def __post_init__(self):
+        if type(self.max_tokens) is not int or not 1 <= self.max_tokens <= 2048:
+            raise ValueError('CopySpec.max_tokens must be in 1..2048')
+
+
+@dataclass(frozen=True)
+class CopyRead:
+    """Exact source token IDs supplied to the optional copy head."""
+    token_ids: torch.Tensor  # [1, candidates] int64
+    mask: torch.Tensor  # [1, candidates] bool
+    producer: str
+    source_digest: str
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if (self.token_ids.ndim != 2 or self.token_ids.shape[0] != 1
+                or self.token_ids.dtype != torch.long
+                or tuple(self.mask.shape) != tuple(self.token_ids.shape)
+                or self.mask.dtype != torch.bool):
+            raise ValueError('copy tensors must be [1, candidates] int64/bool')
+        if not isinstance(self.producer, str) or not self.producer:
+            raise ValueError('copy producer identity required')
+        if not isinstance(self.source_digest, str) or not self.source_digest:
+            raise ValueError('copy source digest required')
+        object.__setattr__(self, '_tensor_stamps',
+                           (tensor_stamp(self.token_ids), tensor_stamp(self.mask)))
+
+    def tensors(self):
+        return (self.token_ids, self.mask)
+
+    def assert_immutable(self):
+        if self._tensor_stamps != (tensor_stamp(self.token_ids), tensor_stamp(self.mask)):
+            raise RuntimeError('CopyRead tensors mutated; rebuild at a decision boundary')
+
+
+@dataclass(frozen=True)
 class FastMemoryRead:
     """One immutable committed fast-state snapshot supplied to a decision."""
     weights: torch.Tensor  # [1, heads, key, value]
@@ -266,17 +306,18 @@ class ComponentManifest:
     cached_generation_supported: bool = False
     core: CoreSpec | None = None
     fast_memory: FastMemorySpec | None = None
+    copy: CopySpec | None = None
 
     def shared_dict(self):
-        """Manifest fields that identify the parent, excluding additive E3 state."""
+        """Manifest fields that identify the parent, excluding additive state."""
         return {key: value for key, value in self.to_dict().items()
-                if key not in ('core', 'fast_memory')}
+                if key not in ('core', 'fast_memory', 'copy')}
 
     def to_dict(self):
         # A core-less manifest must keep the exact E1/E2 shape and digest so the
         # selected parent extension remains byte-compatible with its receipt.
         value = asdict(self)
-        for name in ('core', 'fast_memory'):
+        for name in ('core', 'fast_memory', 'copy'):
             if value.get(name) is None:
                 value.pop(name, None)
         return value
@@ -305,6 +346,7 @@ class DecisionFrame:
     enabled_ports: tuple[int, ...]
     core: CoreState | None = None
     fast: FastMemoryRead | None = None
+    copy: CopyRead | None = None
     enabled_branches: tuple[str, ...] = ('memory',)
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
@@ -315,21 +357,27 @@ class DecisionFrame:
             owned = (*owned, *self.core.tensors())
         if self.fast is not None:
             owned = (*owned, *self.fast.tensors())
+        if self.copy is not None:
+            owned = (*owned, *self.copy.tensors())
         return owned
 
     def __post_init__(self):
         if (not self.enabled_branches
                 or len(set(self.enabled_branches)) != len(self.enabled_branches)
-                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast'}):
-            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast')
+                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast', 'copy'}):
+            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast/copy')
         if 'workspace' in self.enabled_branches and self.core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
         if 'fast' in self.enabled_branches and self.fast is None:
             raise ValueError('Fast branch requires an owned FastMemoryRead')
+        if 'copy' in self.enabled_branches and self.copy is None:
+            raise ValueError('Copy branch requires an owned CopyRead')
         if self.core is not None:
             self.core.assert_immutable()
         if self.fast is not None:
             self.fast.assert_immutable()
+        if self.copy is not None:
+            self.copy.assert_immutable()
         object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(t) for t in self.tensors()))
 
     def branch_enabled(self, name):

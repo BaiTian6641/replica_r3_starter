@@ -218,3 +218,68 @@ class FastMemoryAccessPort(nn.Module):
             hidden.shape[0], hidden.shape[1], self.heads * self.value_size)
         delta = self.gate_logit.sigmoid() * self.output_projection(read)
         return delta.to(hidden.dtype)
+
+class RecordCopyHead(nn.Module):
+    """Add a learned logit bias for exact tokens present in selected records.
+
+    The host supplies already-eligible record token IDs and their frozen
+    embeddings. Queries come from native hidden states; a scalar gate starts at
+    zero, so an absent/disabled/untrained copy branch is exactly null. The head
+    never chooses a record, mutates source text or declares success; it only
+    exposes source-token candidates to the decoder.
+    """
+
+    def __init__(self, hidden_size: int) -> None:
+        super().__init__()
+        if hidden_size < 1:
+            raise ValueError('positive hidden_size required')
+        self.hidden_size = hidden_size
+        self.query_norm = nn.LayerNorm(hidden_size)
+        self.key_norm = nn.LayerNorm(hidden_size)
+        self.query_projection = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.key_projection = nn.Linear(hidden_size, hidden_size, bias=False)
+        self.gate_logit = nn.Parameter(torch.zeros(()))
+
+    def forward(self, hidden: Tensor, token_embeddings: Tensor,
+                token_ids: Tensor, mask: Tensor | None = None,
+                enabled: bool = True) -> Tensor:
+        _hidden(hidden, self.hidden_size, 'hidden')
+        if token_embeddings.ndim != 3 or token_embeddings.shape[-1] != self.hidden_size \
+                or token_embeddings.shape[0] != hidden.shape[0]:
+            raise ValueError('token_embeddings must match hidden batch and width')
+        if token_ids.ndim != 2 or tuple(token_ids.shape) != tuple(token_embeddings.shape[:2]) \
+                or token_ids.dtype != torch.long:
+            raise ValueError('token_ids must be [batch, candidates] int64')
+        if mask is None:
+            mask = torch.ones(token_ids.shape, dtype=torch.bool,
+                              device=token_ids.device)
+        if mask.dtype != torch.bool or tuple(mask.shape) != tuple(token_ids.shape):
+            raise ValueError('copy mask must be boolean [batch, candidates]')
+        for value, name in ((hidden, 'hidden'), (token_embeddings, 'token_embeddings')):
+            if not value.is_floating_point() or not bool(torch.isfinite(value).all()):
+                raise ValueError(f'{name} must be finite floating point')
+        if not enabled or token_ids.shape[1] == 0 or not bool(mask.any()):
+            return hidden.new_zeros(*hidden.shape[:2], self._vocab_hint(token_ids))
+        available = mask
+        query = F.normalize(self.query_projection(self.query_norm(hidden)).float(),
+                            dim=-1, eps=1e-6)
+        keys = F.normalize(self.key_projection(self.key_norm(token_embeddings)).float(),
+                           dim=-1, eps=1e-6)
+        scores = torch.einsum('bnd,bcd->bnc', query, keys) / (self.hidden_size ** 0.5)
+        scores = scores.masked_fill(~available[:, None, :], -1e9)
+        weights = scores.softmax(dim=-1) * available[:, None, :].to(scores.dtype)
+        weights = weights * torch.tanh(self.gate_logit)
+        # Scatter exact candidate token IDs into the decoder vocabulary. This
+        # is source-token copying, not a learned vocabulary classifier.
+        vocab = int(token_ids.max().item()) + 1
+        # The caller normally supplies the model vocabulary; size the bias from
+        # the maximum observed ID and let the adapter pad it to its LM head.
+        expanded = token_ids.unsqueeze(1).expand(-1, hidden.shape[1], -1)
+        bias = token_ids.new_zeros((hidden.shape[0], hidden.shape[1], vocab),
+                                   dtype=weights.dtype)
+        bias = bias.scatter_add(2, expanded, weights)
+        return bias.to(hidden.dtype)
+
+    @staticmethod
+    def _vocab_hint(token_ids: Tensor) -> int:
+        return int(token_ids.max().item()) + 1

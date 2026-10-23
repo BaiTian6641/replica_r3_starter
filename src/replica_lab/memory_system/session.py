@@ -12,7 +12,7 @@ from safetensors.torch import load_file, save_file
 
 from .ledger import EligibilityScope, RecordLedger
 from .index import RetrievalIndex, DenseRecordVector
-from ..architecture.contracts import (EvidencePin, MemoryRead, PendingWrite,
+from ..architecture.contracts import (CopyRead, EvidencePin, MemoryRead, PendingWrite,
                                      RequestContext, SourceSpan, TaskGraph, fingerprint)
 
 
@@ -230,6 +230,17 @@ class MemorySession:
                     1,0,self.adapter.ports.slots_per_unit,self.adapter.ports.memory_width)
                 valid = torch.zeros(slots.shape[:3],dtype=torch.bool,device=self.device)
             memory = MemoryRead(spans,slots,valid,self.adapter.memory_producer_key())
+            copy_state = None
+            if self.adapter.manifest.copy is not None:
+                copy_ids = tuple(token for span in spans for token in span.token_ids)
+                if len(copy_ids) > self.adapter.manifest.copy.max_tokens:
+                    raise ValueError('Copy candidate budget exceeded; narrow the selected records')
+                copy_tokens = torch.tensor([copy_ids], dtype=torch.long, device=self.device)
+                copy_mask = torch.ones(1, len(copy_ids), dtype=torch.bool,
+                                       device=self.device)
+                copy_state = CopyRead(
+                    copy_tokens, copy_mask, self.adapter.copy_producer_key(),
+                    fingerprint(tuple((span.record_id, span.span_hash) for span in spans)))
             core = None
             if core_impl != 'none' and self.adapter.core is not None:
                 if task_features is None:
@@ -253,7 +264,7 @@ class MemorySession:
                         enabled_inputs=tuple(enabled_inputs), implementation=core_impl)
             frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
                                             core=core,enabled_branches=enabled_branches,
-                                            fast=fast_state)
+                                            fast=fast_state, copy=copy_state)
         request = RequestContext(uuid.uuid4().hex,task,frame,selection)
         self.verify(request)
         return request
