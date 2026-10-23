@@ -255,3 +255,20 @@ This is a synthetic 128-token-span capacity result; it is not an answer-quality
 or longer-source-length claim. The tested selected-weight ladder is 32/64/128/
 256/512/1024 units.
 [Report](../../reports/e2_capacity1024_selected_attempt01/run_report.json).
+
+## 12. Follow-up: selected 4096-unit capacity (23 October)
+
+The selected extension and migration passed a fresh 4096-unit bank
+(4092 short records plus one four-chunk record).
+
+| Workload | Actual units | Prompt tokens | Result |
+|---|---:|---:|---|
+| Inference | 1, 1024, 2048, 3072, 4096 | 64, 128, 256 | all finite |
+| Modules-only backward | 1, 1024, 2048, 3072, 4096 | 64, 128, 256 | finite; 28 gradient tensors |
+
+All 12 points completed. Peak sampled driver memory **30.59 GiB**, profiled wall
+**559.4 s**, zero observed swap growth, no base save or optimizer update.
+This is the upper tested point: doubling to 8192 would be expected to exceed
+the 40 GiB guard, so it was not run. Capacity only; no quality or longer-source
+claim.
+[Report](../../reports/e2_capacity4096_selected_attempt01/run_report.json).
