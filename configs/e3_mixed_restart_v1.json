@@ -18,14 +18,30 @@
     "max_tool_calls": 4,
     "max_prompt_tokens": 640,
     "max_new_tokens": 128,
-    "core": {"width": 256, "slots": 8, "steps": 2, "heads": 4,
-             "task_features": 24, "ffn_hidden": 1024, "control_hidden": 340}
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    }
   },
   "processes": [
-    {"name": "process1", "mode": "full", "max_steps": 2,
-     "expected": "read + failing run_test, no repair, success false"},
-    {"name": "process2", "mode": "workspace_zero", "max_steps": 5,
-     "expected": "resume journal, repair once, passing evaluator, success true"}
+    {
+      "name": "process1",
+      "mode": "workspace_zero",
+      "max_steps": 2,
+      "expected": "read + failing run_test, no repair, success false",
+      "note": "workspace history disabled to match the mixed task arm; process1 must still stop after two decisions without a repair"
+    },
+    {
+      "name": "process2",
+      "mode": "workspace_zero",
+      "max_steps": 5,
+      "expected": "resume journal, repair once, passing evaluator, success true"
+    }
   ],
   "checks": [
     "process1 observed a nonzero evaluator exit and did not complete",
@@ -35,7 +51,11 @@
     "exactly one set_constant repair landed and the evaluator passed",
     "no malformed action or false success claim was accepted"
   ],
-  "budget": {"native_model_loads": 2, "optimizer_updates": 0, "checkpoint_saves": 0,
-             "downloads": 0},
+  "budget": {
+    "native_model_loads": 2,
+    "optimizer_updates": 0,
+    "checkpoint_saves": 0,
+    "downloads": 0
+  },
   "claims": "One copied synthetic case; fresh-process engineering and task completion, not generalization."
 }
