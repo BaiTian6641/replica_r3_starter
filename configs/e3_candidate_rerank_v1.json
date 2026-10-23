@@ -1,0 +1,54 @@
+{
+  "format": "replica.e3.candidate_rerank.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Score host-enumerated valid action candidates with the model and execute the model-selected one; fresh family, no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_candidate/cases",
+    "manifest_sha256": "6b2482cdf57cf1655c2e78fa4051e3ae2ac6f141add2f3056ece4a8425bca53e",
+    "dev": [
+      "cand_dev_01"
+    ],
+    "heldout": [
+      "cand_heldout_01",
+      "cand_heldout_02",
+      "cand_heldout_03",
+      "cand_heldout_04"
+    ]
+  },
+  "interface": {
+    "candidates": "read, run_test, stop, plus set_constant candidates derived from the observed failure and current constants",
+    "selection": "model likelihood over candidate JSON strings; host executes argmin",
+    "no_hidden_repair": "host does not choose the selected candidate and does not remove the correct option"
+  },
+  "evaluation": {
+    "cases": [
+      "cand_dev_01",
+      "cand_heldout_01",
+      "cand_heldout_02",
+      "cand_heldout_03",
+      "cand_heldout_04"
+    ],
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 1024,
+    "generated_tokens": 128,
+    "mode": "full"
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads": 1
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "checkpoint": {
+    "base_saved": false,
+    "extension": "unchanged parent"
+  },
+  "claims": "Action-interface diagnostic only; no training, default promotion or general capability claim."
+}
