@@ -1,0 +1,73 @@
+{
+  "format": "replica.e4.contextual.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fast-memory delayed-use candidate using contextual source hidden features from the frozen backbone, with a new held-out family and controls.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e4_contextual",
+    "records_sha256": "40cb7679c1de512ef675504f1b95e3c2ed7ec028296da8e6c7566b0b6f660914",
+    "queries_sha256": "1f80b089035aa93574125d2031cb99cc11ebbb36e83d063723a2e62da7048030",
+    "manifest_sha256": "be82aa0836236807a558a1f39772d55f4e88437f44ce0e63b7102177b9d7d7e1"
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "learning_rate": 0.1,
+    "decay": 0.0,
+    "max_update_norm": 1.0,
+    "max_tokens_per_chunk": 128,
+    "max_image_bytes": 1048576
+  },
+  "source_features": "frozen native hidden features at source layer 13; one page observation -> one commit",
+  "training": {
+    "regime": "modules_only",
+    "trainable": [
+      "fast_write_encoder",
+      "fast_ports"
+    ],
+    "optimizer": "muon8bit",
+    "lr_new": 0.02,
+    "lr_muon_new": 0.02,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "updates": 32,
+    "examples_per_update": 4,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "seed": 20261023,
+    "loss": "response-only answer cross entropy; source page only in write, query only in prompt",
+    "train_sense": false,
+    "selection": "empty record bank; fast state supplies observation"
+  },
+  "evaluation": {
+    "dev_cases": 6,
+    "heldout_cases": 8,
+    "arms": [
+      "correct_observation",
+      "shuffled_observation",
+      "zero_state",
+      "fast_disabled"
+    ],
+    "generation": {
+      "max_new_tokens": 6,
+      "greedy": true
+    },
+    "restart": "persist first heldout image and reload into fresh FastMemorySession"
+  },
+  "decision_rule": {
+    "accept": "correct heldout > shuffled/zero/disabled and dev not below disabled",
+    "reject": "no gain",
+    "defer": "ambiguous"
+  },
+  "budget": {
+    "model_loads": 1,
+    "extension_reloads": 1,
+    "optimizer_updates": 32,
+    "eval_generations": 96,
+    "checkpoint_saves": 1
+  },
+  "claims": "Contextual-writer delayed-use candidate; synthetic pages; no general capability or personal claim."
+}
