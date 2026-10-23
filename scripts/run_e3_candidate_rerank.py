@@ -15,10 +15,12 @@ def main():
  p.add_argument('--protocol',type=Path,default=ROOT/'configs/e3_candidate_rerank_v1.json');p.add_argument('--output',type=Path,required=True)
  p.add_argument('--model-path',type=Path,default=ROOT/'checkpoints/minicpm5_source');p.add_argument('--model-lock',type=Path,default=ROOT/'configs/minicpm5_sealed_lock.local.json')
  p.add_argument('--parent-extension',type=Path,default=ROOT/'runs/e3_set_attempt03_20261023/selected_extension')
+ p.add_argument('--selection',choices=['model','random'],default='model')
+ p.add_argument('--seed',type=int,default=20261023)
  a=p.parse_args()
  if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
  a.output.mkdir(parents=True,exist_ok=True);protocol=json.loads(a.protocol.read_text())
- report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'downloads':0,'training_updates':0}
+ report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'seed':a.seed,'downloads':0,'training_updates':0}
  from replica_lab.profiling import RunProfiler
  from replica_lab.architecture.loading import exclusive_mps_worker
  prof=RunProfiler('mps',a.output,sample_interval=0.1)
@@ -86,27 +88,31 @@ def execute(args,protocol,report,prof):
   tools=FixtureWorkspace(work/'case');journal=TaskJournal.open(work/'task.sqlite',component_binding(tools,subject=subject,branch=cid,purpose=purpose));store=WorkspaceStore(work/'workspace')
   runtime=TaskRuntime(tools,journal,workspace_store=store,mode='full',max_prompt_tokens=int(protocol['evaluation']['prompt_tokens']),generated_token_budget=int(protocol['evaluation']['generated_tokens']),budget=budget)
   runtime.initialize(initial_state(tools,subject=subject,branch=cid,purpose=purpose,budget=budget))
-  traces=[];score_rows=[]
+  traces=[];score_rows=[];rng=__import__('random').Random(args.seed)
   for step in range(int(protocol['evaluation']['max_decisions'])):
    if runtime.state.is_complete(runtime.verifier):break
    cands=menu(tools,runtime.state)
-   prompt=runtime._build_prompt(runtime.state)+'\nCANDIDATE ACTIONS (model scores each; host executes the argmin):\n'+'\n'.join('- '+canonical(c) for c in cands)
+   prompt=runtime._build_prompt(runtime.state)+'\nCANDIDATE ACTIONS (host enumerates; model scores or random control selects):\n'+'\n'.join('- '+canonical(c) for c in cands)
    ids=encode_prompt(tok,prompt,'mps')
    if ids.shape[1]>int(protocol['evaluation']['prompt_tokens']):raise ValueError('candidate prompt exceeds budget')
-   sel=session.index.retrieve(tools.goal,**asdict(scope),limit=1)
-   task=TaskGraph(cid,tools.goal,state_digest=runtime.state.digest,revision=runtime.state.revision)
-   request=session.prepare(prompt_ids=ids,prompt_mask=torch.ones_like(ids,dtype=torch.bool),query=tools.goal,scope=scope,task=task,selection=sel,task_features=runtime.state.features(),task_digest=runtime.state.digest,revision=runtime.state.revision,previous_core=None,core_impl='recurrent',enabled_branches=('memory','workspace'))
    scores=[]
-   try:
-    with torch.no_grad():
-     for c in cands:
-      raw=canonical(c);target=tok(raw,add_special_tokens=False)['input_ids']+[tok.eos_token_id];t=torch.tensor([target],dtype=torch.long,device='mps');all_ids=torch.cat((ids,t),dim=1);mask=torch.ones_like(all_ids,dtype=torch.bool);labels=all_ids.clone();labels[:,:ids.shape[1]]=-100
-      out=session.forward(request,all_ids,labels=labels,attention_mask=mask);scores.append(float(out.loss.detach()))
-   finally:request.release()
-   best=min(range(len(cands)),key=lambda i:(scores[i],i));chosen=cands[best];raw=canonical(chosen);profile=score_rows.append({'step':len(traces)+1,'candidates':cands,'scores':scores,'chosen':best});prof.mark('candidate_choice',case=cid,step=len(traces)+1,chosen=best,score=scores[best])
+   if args.selection=='model':
+    sel=session.index.retrieve(tools.goal,**asdict(scope),limit=1)
+    task=TaskGraph(cid,tools.goal,state_digest=runtime.state.digest,revision=runtime.state.revision)
+    request=session.prepare(prompt_ids=ids,prompt_mask=torch.ones_like(ids,dtype=torch.bool),query=tools.goal,scope=scope,task=task,selection=sel,task_features=runtime.state.features(),task_digest=runtime.state.digest,revision=runtime.state.revision,previous_core=None,core_impl='recurrent',enabled_branches=('memory','workspace'))
+    try:
+     with torch.no_grad():
+      for c in cands:
+       raw=canonical(c);target=tok(raw,add_special_tokens=False)['input_ids']+[tok.eos_token_id];t=torch.tensor([target],dtype=torch.long,device='mps');all_ids=torch.cat((ids,t),dim=1);mask=torch.ones_like(all_ids,dtype=torch.bool);labels=all_ids.clone();labels[:,:ids.shape[1]]=-100
+       out=session.forward(request,all_ids,labels=labels,attention_mask=mask);scores.append(float(out.loss.detach()))
+    finally:request.release()
+    best=min(range(len(cands)),key=lambda i:(scores[i],i))
+   else:
+    best=rng.randrange(len(cands))
+   chosen=cands[best];raw=canonical(chosen);score_rows.append({'step':len(traces)+1,'candidates':cands,'scores':scores,'chosen':best});prof.mark('candidate_choice',case=cid,step=len(traces)+1,chosen=best,score=scores[best] if scores else None)
    target=tok(raw,add_special_tokens=False)['input_ids']+[tok.eos_token_id]
    trace=runtime.decide(OneAction(raw,int(ids.shape[1]),target));traces.append(trace);profile
    if runtime.state.is_complete(runtime.verifier):break
-  success=bool(runtime.state.is_complete(runtime.verifier));episodes.append({'case_id':cid,'role':tools.role,'success':success,'decisions':len(traces),'tool_calls':runtime.state.budget.used_tool_calls,'prompt_tokens':runtime.state.budget.used_prompt_tokens,'generated_tokens':runtime.state.budget.used_generated_tokens,'false_success_claims':sum(1 for t in traces if t.success_claimed and not t.success_condition_met),'actions':[(t.action or {}).get('kind') for t in traces],'tools':[(t.action or {}).get('tool') for t in traces],'candidate_scores':score_rows,'trace':[asdict(t) for t in traces],'evaluator_pass':tools.verify_success().get('passed')});journal.close()
+  success=bool(runtime.state.is_complete(runtime.verifier));episodes.append({'case_id':cid,'role':tools.role,'success':success,'decisions':len(traces),'tool_calls':runtime.state.budget.used_tool_calls,'prompt_tokens':runtime.state.budget.used_prompt_tokens,'generated_tokens':runtime.state.budget.used_generated_tokens,'false_success_claims':sum(1 for t in traces if t.success_claimed and not t.success_condition_met),'actions':[(t.action or {}).get('kind') for t in traces],'tools':[((t.action or {}).get('args') or {}).get('tool') for t in traces],'candidate_scores':score_rows,'trace':[asdict(t) for t in traces],'evaluator_pass':tools.verify_success().get('passed')});journal.close()
  report['episodes']=episodes;report['completions']=f"{sum(x['success'] for x in episodes)}/{len(episodes)}";report['heldout_completions']=f"{sum(x['success'] for x in episodes if x['role']=='heldout')}/{sum(1 for x in episodes if x['role']=='heldout')}";report['status']='completed';report['claims']='Model-scored candidate action interface; no training, no default promotion.';ledger.close()
 if __name__=='__main__':main()
