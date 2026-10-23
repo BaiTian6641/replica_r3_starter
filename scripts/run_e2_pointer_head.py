@@ -35,12 +35,13 @@ def prepare(session,tok,q,template,*,copy_enabled=True):
     return session.prepare(prompt_ids=ids,prompt_mask=mask,query=q['query'],scope=scope_for(q),
         task=TaskGraph(q['case_id'],q['query']),selection=sel,core_impl='none',
         enabled_branches=('memory','copy') if copy_enabled else ('memory',))
-def target_index(session,req,target_ids):
+def target_index(session,tok,req,target_text):
     cand,cmask,_=session.copy_candidates(req)
     for i in range(cand.shape[1]):
         seq=tuple(int(x) for x in cand[0,i][cmask[0,i]].tolist())
-        if seq==tuple(target_ids): return i
-    raise ValueError(f'target span absent: {target_ids}')
+        if tok.decode(list(seq),skip_special_tokens=True).strip().casefold() == target_text.casefold():
+            return i
+    raise ValueError(f'target span absent: {target_text}')
 def execute(args,profiler,report):
     import torch
     from replica_lab.architecture.contracts import CopySpec,TaskGraph
@@ -72,7 +73,6 @@ def execute(args,profiler,report):
         optimizer.zero_grad(set_to_none=True); total=0.0
         for offset in range(int(protocol['examples_per_update'])):
             q=train[(4*(update-1)+offset)%len(train)]
-            ids=tok(q['expected_answer'],add_special_tokens=False)['input_ids']
             probe=prepare(session,tok,q,template)
             prompt_ids=probe.frame.sense.prompt_ids.clone()
             prompt_mask=probe.frame.sense.prompt_mask.clone()
@@ -83,7 +83,7 @@ def execute(args,profiler,report):
                     selection=selection,core_impl='none',
                     enabled_branches=('memory','copy')) as req:
                 cand,cmask,valid=session.copy_candidates(req)
-                target=target_index(session,req,ids)
+                target=target_index(session,tok,req,q['expected_answer'])
                 scores=model.pointer_scores(req.frame,cand,cmask,valid)
                 loss=torch.nn.functional.cross_entropy(scores,torch.tensor([target],device='mps'))
                 total+=float(loss.detach()); session.backward(req,loss)
