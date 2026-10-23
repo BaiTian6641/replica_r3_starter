@@ -1,0 +1,50 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-23T16:48:39.311987+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_e2_capacity.py",
+    "--device",
+    "mps",
+    "--protocol",
+    "configs/e2_capacity256_selected_v1.json",
+    "--output",
+    "runs/e2_capacity256_selected_attempt01"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/e2_capacity256_selected_attempt01",
+  "child_log": "reports/e2_capacity256_selected_attempt01.guard.child.log",
+  "host_samples": "reports/e2_capacity256_selected_attempt01.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "d212bca072a965517e6c263010cf93258297f6fac119307e8e7d18df74f388b8",
+    "src/replica_lab/capacity_guard.py": "a29a24b87344e9613b687c0eb3cdd10ffa621081bf80aee1d493dcdeb22220d8"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 45.9643591248896,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 42949672960,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1504381501,
+      "memory_free_percent": 85.0
+    },
+    "host_samples": 23,
+    "driver_samples": 415,
+    "peak_driver_bytes": 14498283520,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 62.0,
+    "stop_reason": null
+  }
+}

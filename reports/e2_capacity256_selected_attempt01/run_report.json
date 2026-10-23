@@ -1,0 +1,7282 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T16:48:41.283643+00:00",
+  "arguments": {
+    "device": "mps",
+    "output": "runs/e2_capacity256_selected_attempt01",
+    "protocol": "configs/e2_capacity256_selected_v1.json",
+    "model_path": "/Users/flare/replica_r3_starter/checkpoints/minicpm5_source",
+    "model_lock": "/Users/flare/replica_r3_starter/configs/minicpm5_sealed_lock.local.json",
+    "parent_extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension"
+  },
+  "protocol_sha256": "0150705b9a3c47160757860caf7868c4771999304dc8337d437f204d0041a9f4",
+  "protocol": {
+    "format": "replica.e2_capacity.qualification.v6",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Qualify the selected E2 extension at 64 units with the validated max_units-only migration; inference and modules-only backward only.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "dataset": {
+      "root": "data/e2_capacity256",
+      "manifest": "data/e2_capacity256/manifest.json",
+      "manifest_sha256": "19589ed9bf962e630d0365121f84db0cd873b0e02cb8316a20f486d1024bdc70",
+      "records_sha256": "ea71f978da94b3259a66f5b78465bbbe57cc9e9ecd60fe76d8af5ee0eb4b66ca"
+    },
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "device": "mps",
+    "dtype": "float32",
+    "native_cache": false,
+    "native_cpu_fallback": false,
+    "scope": {
+      "source_tokens_per_unit": 128,
+      "max_units": 256,
+      "slots_per_unit": 4,
+      "memory_width": 256,
+      "ports": [
+        13,
+        27
+      ],
+      "observer": 41,
+      "training": "modules_only backward; no optimizer step; base frozen"
+    },
+    "schedule": {
+      "inference": [
+        {
+          "id": "inf_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u64_p128",
+          "units": 64,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u128_p128",
+          "units": 128,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u192_p128",
+          "units": 192,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u256_p128",
+          "units": 256,
+          "prompt_tokens": 128,
+          "generate_tokens": 8
+        },
+        {
+          "id": "inf_u256_p256",
+          "units": 256,
+          "prompt_tokens": 256,
+          "generate_tokens": 8
+        }
+      ],
+      "training": [
+        {
+          "id": "train_u1_p64",
+          "units": 1,
+          "prompt_tokens": 64,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u64_p128",
+          "units": 64,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u128_p128",
+          "units": 128,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u192_p128",
+          "units": 192,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u256_p128",
+          "units": 256,
+          "prompt_tokens": 128,
+          "label_tokens": 16
+        },
+        {
+          "id": "train_u256_p256",
+          "units": 256,
+          "prompt_tokens": 256,
+          "label_tokens": 16
+        }
+      ]
+    },
+    "measurements": [
+      "actual source-token counts per unit",
+      "selected unit count",
+      "source encode seconds",
+      "writer seconds",
+      "sense pass seconds",
+      "action forward seconds",
+      "generation seconds and generated tokens",
+      "training prepare/forward/backward seconds",
+      "sampled MPS allocated/driver bytes",
+      "process RSS bytes",
+      "guard thresholds"
+    ],
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "one_native_job": true
+    },
+    "stop_conditions": [
+      "declared guard threshold breach",
+      "nonfinite logits/loss/gradients",
+      "schedule point raises an unexpected error",
+      "stale telemetry"
+    ],
+    "exclusions": [
+      "No D2 original-weight capacity arm is declared or run here.",
+      "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+    ],
+    "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim.",
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "points": 12,
+      "source_units": 256,
+      "expected_storage_mib": 8,
+      "no_base_save": true
+    },
+    "migration": "port_capacity_only"
+  },
+  "packages": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0"
+  },
+  "implementation_sha256": {
+    "scripts/run_e2_capacity.py": "a81d24acc8ee97c5ccfa14fc8d46e439eb0d3e9a05c27f4909d7af45eedea42c",
+    "src/replica_lab/memory_system/answer.py": "4b722c2738a20fe6da53730c2ace3a0a37d43ef8fe6fbbec74206539b377a212",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "b238fa0e3d0e59bf140767e8213f9c2269c4a87848a129e5960c9157f6129b2f",
+    "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+    "src/replica_lab/memory_system/context.py": "ea1b8a954aae9b7e59845fd5f1db4ef4ef81ac66a32d45723849860c67175ef2",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/architecture/loading.py": "ffdee8328ae6afc40b6b1eadc1abe57ca2950c2b125b6b7e6d32b3a4beeba57d",
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/ports.py": "3d983e8313eb2c7c3cde748c9f8c0b6f384add27d6db5f9098e5ba21816dccfe",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/minicpm5.py": "47b6b302cd0f77a291896585f73d843d6d8cc0556e75e5b04984030e0e5997a9",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/contracts.py": "f07792fe958a432d7cd37d0cbb4f1289f3714033247cc5aceed9e8f2e3ab8464",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf"
+  },
+  "free_disk_before_bytes": 626380017664,
+  "downloads": 0,
+  "original_model_loads": 1,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "TRANSFORMERS_OFFLINE": "1",
+    "HF_DATASETS_OFFLINE": "1",
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0"
+  },
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 256,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false
+  },
+  "manifest_digest": "7ae5fac528ce36a8ab1f6b088e5d8d8a76b08753e50cd01e6bfd457471c0f88f",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 43,
+      "parameters": 4878850,
+      "trainable": 4878850,
+      "names": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias",
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight",
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight",
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ]
+    }
+  },
+  "dataset": {
+    "manifest": {
+      "format": "replica.e2_capacity.dataset.v5",
+      "created_at_utc": "2026-10-23",
+      "subject_id": "e2_capacity256",
+      "branch_id": "capacity",
+      "purpose": "capacity_probe",
+      "as_of": 10,
+      "records": 253,
+      "units": 256,
+      "short_records": 252,
+      "long_record_spans": 4,
+      "token_counts": {
+        "cap256_short_01": 128,
+        "cap256_short_02": 128,
+        "cap256_short_03": 128,
+        "cap256_short_04": 128,
+        "cap256_short_05": 128,
+        "cap256_short_06": 128,
+        "cap256_short_07": 128,
+        "cap256_short_08": 128,
+        "cap256_short_09": 128,
+        "cap256_short_10": 128,
+        "cap256_short_11": 128,
+        "cap256_short_12": 128,
+        "cap256_short_13": 128,
+        "cap256_short_14": 128,
+        "cap256_short_15": 128,
+        "cap256_short_16": 128,
+        "cap256_short_17": 128,
+        "cap256_short_18": 128,
+        "cap256_short_19": 128,
+        "cap256_short_20": 128,
+        "cap256_short_21": 128,
+        "cap256_short_22": 128,
+        "cap256_short_23": 128,
+        "cap256_short_24": 128,
+        "cap256_short_25": 128,
+        "cap256_short_26": 128,
+        "cap256_short_27": 128,
+        "cap256_short_28": 128,
+        "cap256_short_29": 128,
+        "cap256_short_30": 128,
+        "cap256_short_31": 128,
+        "cap256_short_32": 128,
+        "cap256_short_33": 128,
+        "cap256_short_34": 128,
+        "cap256_short_35": 128,
+        "cap256_short_36": 128,
+        "cap256_short_37": 128,
+        "cap256_short_38": 128,
+        "cap256_short_39": 128,
+        "cap256_short_40": 128,
+        "cap256_short_41": 128,
+        "cap256_short_42": 128,
+        "cap256_short_43": 128,
+        "cap256_short_44": 128,
+        "cap256_short_45": 128,
+        "cap256_short_46": 128,
+        "cap256_short_47": 128,
+        "cap256_short_48": 128,
+        "cap256_short_49": 128,
+        "cap256_short_50": 128,
+        "cap256_short_51": 128,
+        "cap256_short_52": 128,
+        "cap256_short_53": 128,
+        "cap256_short_54": 128,
+        "cap256_short_55": 128,
+        "cap256_short_56": 128,
+        "cap256_short_57": 128,
+        "cap256_short_58": 128,
+        "cap256_short_59": 128,
+        "cap256_short_60": 128,
+        "cap256_short_61": 128,
+        "cap256_short_62": 128,
+        "cap256_short_63": 128,
+        "cap256_short_64": 128,
+        "cap256_short_65": 128,
+        "cap256_short_66": 128,
+        "cap256_short_67": 128,
+        "cap256_short_68": 128,
+        "cap256_short_69": 128,
+        "cap256_short_70": 128,
+        "cap256_short_71": 128,
+        "cap256_short_72": 128,
+        "cap256_short_73": 128,
+        "cap256_short_74": 128,
+        "cap256_short_75": 128,
+        "cap256_short_76": 128,
+        "cap256_short_77": 128,
+        "cap256_short_78": 128,
+        "cap256_short_79": 128,
+        "cap256_short_80": 128,
+        "cap256_short_81": 128,
+        "cap256_short_82": 128,
+        "cap256_short_83": 128,
+        "cap256_short_84": 128,
+        "cap256_short_85": 128,
+        "cap256_short_86": 128,
+        "cap256_short_87": 128,
+        "cap256_short_88": 128,
+        "cap256_short_89": 128,
+        "cap256_short_90": 128,
+        "cap256_short_91": 128,
+        "cap256_short_92": 128,
+        "cap256_short_93": 128,
+        "cap256_short_94": 128,
+        "cap256_short_95": 128,
+        "cap256_short_96": 128,
+        "cap256_short_97": 128,
+        "cap256_short_98": 128,
+        "cap256_short_99": 128,
+        "cap256_short_100": 128,
+        "cap256_short_101": 128,
+        "cap256_short_102": 128,
+        "cap256_short_103": 128,
+        "cap256_short_104": 128,
+        "cap256_short_105": 128,
+        "cap256_short_106": 128,
+        "cap256_short_107": 128,
+        "cap256_short_108": 128,
+        "cap256_short_109": 128,
+        "cap256_short_110": 128,
+        "cap256_short_111": 128,
+        "cap256_short_112": 128,
+        "cap256_short_113": 128,
+        "cap256_short_114": 128,
+        "cap256_short_115": 128,
+        "cap256_short_116": 128,
+        "cap256_short_117": 128,
+        "cap256_short_118": 128,
+        "cap256_short_119": 128,
+        "cap256_short_120": 128,
+        "cap256_short_121": 128,
+        "cap256_short_122": 128,
+        "cap256_short_123": 128,
+        "cap256_short_124": 128,
+        "cap256_short_125": 128,
+        "cap256_short_126": 128,
+        "cap256_short_127": 128,
+        "cap256_short_128": 128,
+        "cap256_short_129": 128,
+        "cap256_short_130": 128,
+        "cap256_short_131": 128,
+        "cap256_short_132": 128,
+        "cap256_short_133": 128,
+        "cap256_short_134": 128,
+        "cap256_short_135": 128,
+        "cap256_short_136": 128,
+        "cap256_short_137": 128,
+        "cap256_short_138": 128,
+        "cap256_short_139": 128,
+        "cap256_short_140": 128,
+        "cap256_short_141": 128,
+        "cap256_short_142": 128,
+        "cap256_short_143": 128,
+        "cap256_short_144": 128,
+        "cap256_short_145": 128,
+        "cap256_short_146": 128,
+        "cap256_short_147": 128,
+        "cap256_short_148": 128,
+        "cap256_short_149": 128,
+        "cap256_short_150": 128,
+        "cap256_short_151": 128,
+        "cap256_short_152": 128,
+        "cap256_short_153": 128,
+        "cap256_short_154": 128,
+        "cap256_short_155": 128,
+        "cap256_short_156": 128,
+        "cap256_short_157": 128,
+        "cap256_short_158": 128,
+        "cap256_short_159": 128,
+        "cap256_short_160": 128,
+        "cap256_short_161": 128,
+        "cap256_short_162": 128,
+        "cap256_short_163": 128,
+        "cap256_short_164": 128,
+        "cap256_short_165": 128,
+        "cap256_short_166": 128,
+        "cap256_short_167": 128,
+        "cap256_short_168": 128,
+        "cap256_short_169": 128,
+        "cap256_short_170": 128,
+        "cap256_short_171": 128,
+        "cap256_short_172": 128,
+        "cap256_short_173": 128,
+        "cap256_short_174": 128,
+        "cap256_short_175": 128,
+        "cap256_short_176": 128,
+        "cap256_short_177": 128,
+        "cap256_short_178": 128,
+        "cap256_short_179": 128,
+        "cap256_short_180": 128,
+        "cap256_short_181": 128,
+        "cap256_short_182": 128,
+        "cap256_short_183": 128,
+        "cap256_short_184": 128,
+        "cap256_short_185": 128,
+        "cap256_short_186": 128,
+        "cap256_short_187": 128,
+        "cap256_short_188": 128,
+        "cap256_short_189": 128,
+        "cap256_short_190": 128,
+        "cap256_short_191": 128,
+        "cap256_short_192": 128,
+        "cap256_short_193": 128,
+        "cap256_short_194": 128,
+        "cap256_short_195": 128,
+        "cap256_short_196": 128,
+        "cap256_short_197": 128,
+        "cap256_short_198": 128,
+        "cap256_short_199": 128,
+        "cap256_short_200": 128,
+        "cap256_short_201": 128,
+        "cap256_short_202": 128,
+        "cap256_short_203": 128,
+        "cap256_short_204": 128,
+        "cap256_short_205": 128,
+        "cap256_short_206": 128,
+        "cap256_short_207": 128,
+        "cap256_short_208": 128,
+        "cap256_short_209": 128,
+        "cap256_short_210": 128,
+        "cap256_short_211": 128,
+        "cap256_short_212": 128,
+        "cap256_short_213": 128,
+        "cap256_short_214": 128,
+        "cap256_short_215": 128,
+        "cap256_short_216": 128,
+        "cap256_short_217": 128,
+        "cap256_short_218": 128,
+        "cap256_short_219": 128,
+        "cap256_short_220": 128,
+        "cap256_short_221": 128,
+        "cap256_short_222": 128,
+        "cap256_short_223": 128,
+        "cap256_short_224": 128,
+        "cap256_short_225": 128,
+        "cap256_short_226": 128,
+        "cap256_short_227": 128,
+        "cap256_short_228": 128,
+        "cap256_short_229": 128,
+        "cap256_short_230": 128,
+        "cap256_short_231": 128,
+        "cap256_short_232": 128,
+        "cap256_short_233": 128,
+        "cap256_short_234": 128,
+        "cap256_short_235": 128,
+        "cap256_short_236": 128,
+        "cap256_short_237": 128,
+        "cap256_short_238": 128,
+        "cap256_short_239": 128,
+        "cap256_short_240": 128,
+        "cap256_short_241": 128,
+        "cap256_short_242": 128,
+        "cap256_short_243": 128,
+        "cap256_short_244": 128,
+        "cap256_short_245": 128,
+        "cap256_short_246": 128,
+        "cap256_short_247": 128,
+        "cap256_short_248": 128,
+        "cap256_short_249": 128,
+        "cap256_short_250": 128,
+        "cap256_short_251": 128,
+        "cap256_short_252": 128,
+        "cap256_long": 507
+      },
+      "files": {
+        "records_sha256": "ea71f978da94b3259a66f5b78465bbbe57cc9e9ecd60fe76d8af5ee0eb4b66ca"
+      },
+      "claims": "Synthetic 256-unit capacity bank; no labels or quality claim."
+    },
+    "records_sha256": "ea71f978da94b3259a66f5b78465bbbe57cc9e9ecd60fe76d8af5ee0eb4b66ca"
+  },
+  "parent_extension": {
+    "path": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "format": "replica.minicpm5.extensions.v1",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf"
+  },
+  "checks": {},
+  "points": [
+    {
+      "id": "inf_u1_p64",
+      "phase": "inference",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        26765,
+        33,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 0.07842562510631979,
+      "writer_seconds": 0.016169624868780375,
+      "sense_seconds": 0.05937187490053475,
+      "action_forward_seconds": 0.06685229111462831,
+      "generation_seconds": 0.31829275004565716,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 10586875392,
+      "mps_driver_after_bytes": 11016994816,
+      "wall_seconds": 0.6103463328909129,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10746200064
+    },
+    {
+      "id": "inf_u64_p128",
+      "phase": "inference",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 1.633829833008349,
+      "writer_seconds": 0.0349541250616312,
+      "sense_seconds": 0.07080720807425678,
+      "action_forward_seconds": 0.08819745806977153,
+      "generation_seconds": 0.39391816686838865,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11395539968,
+      "mps_driver_after_bytes": 12539527168,
+      "wall_seconds": 2.302062249975279,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10815668224
+    },
+    {
+      "id": "inf_u128_p128",
+      "phase": "inference",
+      "declared_units": 128,
+      "actual_units": 128,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 3.2316545420326293,
+      "writer_seconds": 0.021962624974548817,
+      "sense_seconds": 0.0726234579924494,
+      "action_forward_seconds": 0.0880828748922795,
+      "generation_seconds": 0.39946054201573133,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 11697548544,
+      "mps_driver_after_bytes": 12841517056,
+      "wall_seconds": 3.9036947910208255,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u192_p128",
+      "phase": "inference",
+      "declared_units": 192,
+      "actual_units": 192,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ]
+      ],
+      "source_encode_seconds": 4.821841500001028,
+      "writer_seconds": 0.0668069168459624,
+      "sense_seconds": 0.09331279178149998,
+      "action_forward_seconds": 0.08719166601076722,
+      "generation_seconds": 0.3901899161282927,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 12001785344,
+      "mps_driver_after_bytes": 12514361344,
+      "wall_seconds": 5.570569541770965,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u256_p128",
+      "phase": "inference",
+      "declared_units": 256,
+      "actual_units": 256,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "generated_tokens": 4,
+      "generated_token_ids": [
+        33,
+        75725,
+        836,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 6.44950233399868,
+      "writer_seconds": 0.161809666082263,
+      "sense_seconds": 0.07150187506340444,
+      "action_forward_seconds": 0.08687729109078646,
+      "generation_seconds": 0.38807008299045265,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 12304801536,
+      "mps_driver_after_bytes": 12581470208,
+      "wall_seconds": 7.277189667103812,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "inf_u256_p256",
+      "phase": "inference",
+      "declared_units": 256,
+      "actual_units": 256,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "generated_tokens": 3,
+      "generated_token_ids": [
+        316,
+        59252,
+        1
+      ],
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "source_span_token_ranges": [
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          0,
+          128
+        ],
+        [
+          128,
+          256
+        ],
+        [
+          256,
+          384
+        ],
+        [
+          384,
+          507
+        ]
+      ],
+      "source_encode_seconds": 6.424210499972105,
+      "writer_seconds": 0.054065417032688856,
+      "sense_seconds": 0.11609566607512534,
+      "action_forward_seconds": 0.13239291682839394,
+      "generation_seconds": 0.4000850000884384,
+      "logits_finite": true,
+      "mps_allocated_after_bytes": 13389175552,
+      "mps_driver_after_bytes": 14498267136,
+      "wall_seconds": 7.240630083018914,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10819862528
+    },
+    {
+      "id": "train_u1_p64",
+      "phase": "training",
+      "declared_units": 1,
+      "actual_units": 1,
+      "declared_prompt_tokens": 64,
+      "actual_prompt_tokens": 64,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128
+      ],
+      "prepare_seconds": 0.10993358283303678,
+      "forward_seconds": 0.08306483319029212,
+      "backward_seconds": 0.1561968750320375,
+      "loss": 3.0648581981658936,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10151901952,
+      "mps_driver_after_bytes": 10875551744,
+      "wall_seconds": 0.4204226250294596,
+      "mps_allocated_before_bytes": 10094930944,
+      "mps_driver_before_bytes": 10824056832
+    },
+    {
+      "id": "train_u64_p128",
+      "phase": "training",
+      "declared_units": 64,
+      "actual_units": 64,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 1.7385187500622123,
+      "forward_seconds": 0.11516824993304908,
+      "backward_seconds": 0.22979116695933044,
+      "loss": 3.1511945724487305,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10253938944,
+      "mps_driver_after_bytes": 11144019968,
+      "wall_seconds": 2.1637156249489635,
+      "mps_allocated_before_bytes": 10095979520,
+      "mps_driver_before_bytes": 10833494016
+    },
+    {
+      "id": "train_u128_p128",
+      "phase": "training",
+      "declared_units": 128,
+      "actual_units": 128,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 1.8512295000255108,
+      "forward_seconds": 0.11508541600778699,
+      "backward_seconds": 0.25224412488751113,
+      "loss": 3.146254062652588,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10321113600,
+      "mps_driver_after_bytes": 11387289600,
+      "wall_seconds": 2.311664832988754,
+      "mps_allocated_before_bytes": 10162039808,
+      "mps_driver_before_bytes": 11143872512
+    },
+    {
+      "id": "train_u192_p128",
+      "phase": "training",
+      "declared_units": 192,
+      "actual_units": 192,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128
+      ],
+      "prepare_seconds": 2.0656081249471754,
+      "forward_seconds": 0.20766987511888146,
+      "backward_seconds": 0.291144167073071,
+      "loss": 3.145575523376465,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10388484864,
+      "mps_driver_after_bytes": 11622170624,
+      "wall_seconds": 2.6663434579968452,
+      "mps_allocated_before_bytes": 10229148672,
+      "mps_driver_before_bytes": 11378753536
+    },
+    {
+      "id": "train_u256_p128",
+      "phase": "training",
+      "declared_units": 256,
+      "actual_units": 256,
+      "declared_prompt_tokens": 128,
+      "actual_prompt_tokens": 128,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 2.2283642911352217,
+      "forward_seconds": 0.11071312497369945,
+      "backward_seconds": 0.32608929090201855,
+      "loss": 3.2418229579925537,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10455815168,
+      "mps_driver_after_bytes": 11865456640,
+      "wall_seconds": 2.775443166960031,
+      "mps_allocated_before_bytes": 10296257536,
+      "mps_driver_before_bytes": 11613634560
+    },
+    {
+      "id": "train_u256_p256",
+      "phase": "training",
+      "declared_units": 256,
+      "actual_units": 256,
+      "declared_prompt_tokens": 256,
+      "actual_prompt_tokens": 256,
+      "label_tokens": 16,
+      "source_span_tokens": [
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        128,
+        123
+      ],
+      "prepare_seconds": 0.7460679160431027,
+      "forward_seconds": 0.17522324994206429,
+      "backward_seconds": 0.4439839590340853,
+      "loss": 3.252260684967041,
+      "new_gradient_present": 28,
+      "new_gradient_nonzero": 28,
+      "nonfinite_gradients": false,
+      "mps_allocated_after_bytes": 10524238080,
+      "mps_driver_after_bytes": 13092290560,
+      "wall_seconds": 1.4792383338790387,
+      "mps_allocated_before_bytes": 10363325440,
+      "mps_driver_before_bytes": 11848515584
+    }
+  ],
+  "bank": {
+    "units": 256,
+    "source_span_tokens": [
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      128,
+      123
+    ],
+    "record_ids": [
+      "cap256_short_01",
+      "cap256_short_02",
+      "cap256_short_03",
+      "cap256_short_04",
+      "cap256_short_05",
+      "cap256_short_06",
+      "cap256_short_07",
+      "cap256_short_08",
+      "cap256_short_09",
+      "cap256_short_10",
+      "cap256_short_11",
+      "cap256_short_12",
+      "cap256_short_13",
+      "cap256_short_14",
+      "cap256_short_15",
+      "cap256_short_16",
+      "cap256_short_17",
+      "cap256_short_18",
+      "cap256_short_19",
+      "cap256_short_20",
+      "cap256_short_21",
+      "cap256_short_22",
+      "cap256_short_23",
+      "cap256_short_24",
+      "cap256_short_25",
+      "cap256_short_26",
+      "cap256_short_27",
+      "cap256_short_28",
+      "cap256_short_29",
+      "cap256_short_30",
+      "cap256_short_31",
+      "cap256_short_32",
+      "cap256_short_33",
+      "cap256_short_34",
+      "cap256_short_35",
+      "cap256_short_36",
+      "cap256_short_37",
+      "cap256_short_38",
+      "cap256_short_39",
+      "cap256_short_40",
+      "cap256_short_41",
+      "cap256_short_42",
+      "cap256_short_43",
+      "cap256_short_44",
+      "cap256_short_45",
+      "cap256_short_46",
+      "cap256_short_47",
+      "cap256_short_48",
+      "cap256_short_49",
+      "cap256_short_50",
+      "cap256_short_51",
+      "cap256_short_52",
+      "cap256_short_53",
+      "cap256_short_54",
+      "cap256_short_55",
+      "cap256_short_56",
+      "cap256_short_57",
+      "cap256_short_58",
+      "cap256_short_59",
+      "cap256_short_60",
+      "cap256_short_61",
+      "cap256_short_62",
+      "cap256_short_63",
+      "cap256_short_64",
+      "cap256_short_65",
+      "cap256_short_66",
+      "cap256_short_67",
+      "cap256_short_68",
+      "cap256_short_69",
+      "cap256_short_70",
+      "cap256_short_71",
+      "cap256_short_72",
+      "cap256_short_73",
+      "cap256_short_74",
+      "cap256_short_75",
+      "cap256_short_76",
+      "cap256_short_77",
+      "cap256_short_78",
+      "cap256_short_79",
+      "cap256_short_80",
+      "cap256_short_81",
+      "cap256_short_82",
+      "cap256_short_83",
+      "cap256_short_84",
+      "cap256_short_85",
+      "cap256_short_86",
+      "cap256_short_87",
+      "cap256_short_88",
+      "cap256_short_89",
+      "cap256_short_90",
+      "cap256_short_91",
+      "cap256_short_92",
+      "cap256_short_93",
+      "cap256_short_94",
+      "cap256_short_95",
+      "cap256_short_96",
+      "cap256_short_97",
+      "cap256_short_98",
+      "cap256_short_99",
+      "cap256_short_100",
+      "cap256_short_101",
+      "cap256_short_102",
+      "cap256_short_103",
+      "cap256_short_104",
+      "cap256_short_105",
+      "cap256_short_106",
+      "cap256_short_107",
+      "cap256_short_108",
+      "cap256_short_109",
+      "cap256_short_110",
+      "cap256_short_111",
+      "cap256_short_112",
+      "cap256_short_113",
+      "cap256_short_114",
+      "cap256_short_115",
+      "cap256_short_116",
+      "cap256_short_117",
+      "cap256_short_118",
+      "cap256_short_119",
+      "cap256_short_120",
+      "cap256_short_121",
+      "cap256_short_122",
+      "cap256_short_123",
+      "cap256_short_124",
+      "cap256_short_125",
+      "cap256_short_126",
+      "cap256_short_127",
+      "cap256_short_128",
+      "cap256_short_129",
+      "cap256_short_130",
+      "cap256_short_131",
+      "cap256_short_132",
+      "cap256_short_133",
+      "cap256_short_134",
+      "cap256_short_135",
+      "cap256_short_136",
+      "cap256_short_137",
+      "cap256_short_138",
+      "cap256_short_139",
+      "cap256_short_140",
+      "cap256_short_141",
+      "cap256_short_142",
+      "cap256_short_143",
+      "cap256_short_144",
+      "cap256_short_145",
+      "cap256_short_146",
+      "cap256_short_147",
+      "cap256_short_148",
+      "cap256_short_149",
+      "cap256_short_150",
+      "cap256_short_151",
+      "cap256_short_152",
+      "cap256_short_153",
+      "cap256_short_154",
+      "cap256_short_155",
+      "cap256_short_156",
+      "cap256_short_157",
+      "cap256_short_158",
+      "cap256_short_159",
+      "cap256_short_160",
+      "cap256_short_161",
+      "cap256_short_162",
+      "cap256_short_163",
+      "cap256_short_164",
+      "cap256_short_165",
+      "cap256_short_166",
+      "cap256_short_167",
+      "cap256_short_168",
+      "cap256_short_169",
+      "cap256_short_170",
+      "cap256_short_171",
+      "cap256_short_172",
+      "cap256_short_173",
+      "cap256_short_174",
+      "cap256_short_175",
+      "cap256_short_176",
+      "cap256_short_177",
+      "cap256_short_178",
+      "cap256_short_179",
+      "cap256_short_180",
+      "cap256_short_181",
+      "cap256_short_182",
+      "cap256_short_183",
+      "cap256_short_184",
+      "cap256_short_185",
+      "cap256_short_186",
+      "cap256_short_187",
+      "cap256_short_188",
+      "cap256_short_189",
+      "cap256_short_190",
+      "cap256_short_191",
+      "cap256_short_192",
+      "cap256_short_193",
+      "cap256_short_194",
+      "cap256_short_195",
+      "cap256_short_196",
+      "cap256_short_197",
+      "cap256_short_198",
+      "cap256_short_199",
+      "cap256_short_200",
+      "cap256_short_201",
+      "cap256_short_202",
+      "cap256_short_203",
+      "cap256_short_204",
+      "cap256_short_205",
+      "cap256_short_206",
+      "cap256_short_207",
+      "cap256_short_208",
+      "cap256_short_209",
+      "cap256_short_210",
+      "cap256_short_211",
+      "cap256_short_212",
+      "cap256_short_213",
+      "cap256_short_214",
+      "cap256_short_215",
+      "cap256_short_216",
+      "cap256_short_217",
+      "cap256_short_218",
+      "cap256_short_219",
+      "cap256_short_220",
+      "cap256_short_221",
+      "cap256_short_222",
+      "cap256_short_223",
+      "cap256_short_224",
+      "cap256_short_225",
+      "cap256_short_226",
+      "cap256_short_227",
+      "cap256_short_228",
+      "cap256_short_229",
+      "cap256_short_230",
+      "cap256_short_231",
+      "cap256_short_232",
+      "cap256_short_233",
+      "cap256_short_234",
+      "cap256_short_235",
+      "cap256_short_236",
+      "cap256_short_237",
+      "cap256_short_238",
+      "cap256_short_239",
+      "cap256_short_240",
+      "cap256_short_241",
+      "cap256_short_242",
+      "cap256_short_243",
+      "cap256_short_244",
+      "cap256_short_245",
+      "cap256_short_246",
+      "cap256_short_247",
+      "cap256_short_248",
+      "cap256_short_249",
+      "cap256_short_250",
+      "cap256_short_251",
+      "cap256_short_252",
+      "cap256_long",
+      "cap256_long",
+      "cap256_long",
+      "cap256_long"
+    ]
+  },
+  "summary": {
+    "largest_inference_units": 256,
+    "largest_training_units": 256,
+    "largest_prompt_tokens": 256,
+    "largest_source_span_tokens": 128,
+    "points": 12,
+    "inference_points": 6,
+    "training_points": 6,
+    "wall_seconds": 38.9844008339569,
+    "d2_arm": "not declared or run"
+  },
+  "acceptance": {
+    "completed_all_points": true,
+    "schedule_ascending": true,
+    "configured_max_not_claimed_as_exercised": true,
+    "training_scope": "modules_only backward; no optimizer step",
+    "claims": "Capacity only; no generation-quality or architecture-benefit claim."
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T16:48:41.286271+00:00",
+    "ended_at": "2026-10-23T16:49:24.724647+00:00",
+    "elapsed_seconds": 43.43895295797847,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 401,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15557738496,
+      "rss_peak_sampled_bytes": 3543498752,
+      "mps_allocated_peak_sampled_bytes": 13408056320,
+      "mps_driver_peak_sampled_bytes": 14498283520
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T16:48:41.287027+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 85%",
+      "memory_free_percent": 85.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T16:49:24.679381+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 65%",
+      "memory_free_percent": 65.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T16:48:45.316257+00:00",
+        "elapsed_seconds": 4.029982833191752,
+        "seconds_since_previous_mark": 4.029982833191752,
+        "synchronize_seconds": 5.875015631318092e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:48:45.316210+00:00",
+          "elapsed_seconds": 4.029994582990184,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 345899008,
+          "rss_measurement_age_seconds": 1.919042999856174,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:48:46.267578+00:00",
+        "elapsed_seconds": 4.981246249983087,
+        "seconds_since_previous_mark": 0.9512634167913347,
+        "synchronize_seconds": 3.1660310924053192e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:48:46.267469+00:00",
+          "elapsed_seconds": 4.981265458045527,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3471654912,
+          "rss_measurement_age_seconds": 0.8476134999655187,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 11016994816
+        },
+        "fields": {
+          "point": "inf_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.6103463328909129
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:48:48.578680+00:00",
+        "elapsed_seconds": 7.292437999974936,
+        "seconds_since_previous_mark": 2.311191749991849,
+        "synchronize_seconds": 2.084067091345787e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:48:48.578621+00:00",
+          "elapsed_seconds": 7.292447166051716,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3505946624,
+          "rss_measurement_age_seconds": 1.081386333098635,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12539527168
+        },
+        "fields": {
+          "point": "inf_u64_p128",
+          "units": 64,
+          "tokens": 128,
+          "wall_seconds": 2.302062249975279
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:48:52.506996+00:00",
+        "elapsed_seconds": 11.220797500107437,
+        "seconds_since_previous_mark": 3.928359500132501,
+        "synchronize_seconds": 2.00001522898674e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:48:52.506930+00:00",
+          "elapsed_seconds": 11.220807583071291,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3509338112,
+          "rss_measurement_age_seconds": 0.9936152079608291,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12841517056
+        },
+        "fields": {
+          "point": "inf_u128_p128",
+          "units": 128,
+          "tokens": 128,
+          "wall_seconds": 3.9036947910208255
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:48:58.106056+00:00",
+        "elapsed_seconds": 16.81993587501347,
+        "seconds_since_previous_mark": 5.599138374906033,
+        "synchronize_seconds": 4.333211109042168e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:48:58.105996+00:00",
+          "elapsed_seconds": 16.8199458331801,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3510206464,
+          "rss_measurement_age_seconds": 0.530055790906772,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12514361344
+        },
+        "fields": {
+          "point": "inf_u192_p128",
+          "units": 192,
+          "tokens": 128,
+          "wall_seconds": 5.570569541770965
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:49:05.408874+00:00",
+        "elapsed_seconds": 24.1228437081445,
+        "seconds_since_previous_mark": 7.30290783313103,
+        "synchronize_seconds": 2.1669548004865646e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:05.408809+00:00",
+          "elapsed_seconds": 24.122853458160535,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3510337536,
+          "rss_measurement_age_seconds": 1.774874165887013,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 12581470208
+        },
+        "fields": {
+          "point": "inf_u256_p128",
+          "units": 256,
+          "tokens": 128,
+          "wall_seconds": 7.277189667103812
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_inference",
+        "timestamp": "2026-10-23T16:49:12.676584+00:00",
+        "elapsed_seconds": 31.390662958147004,
+        "seconds_since_previous_mark": 7.267819250002503,
+        "synchronize_seconds": 1.834006980061531e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:12.676534+00:00",
+          "elapsed_seconds": 31.390671166125685,
+          "phase": "capacity_inference",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3512516608,
+          "rss_measurement_age_seconds": 0.8620317908935249,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 14498267136
+        },
+        "fields": {
+          "point": "inf_u256_p256",
+          "units": 256,
+          "tokens": 256,
+          "wall_seconds": 7.240630083018914
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:49:13.141112+00:00",
+        "elapsed_seconds": 31.855178290978074,
+        "seconds_since_previous_mark": 0.4645153328310698,
+        "synchronize_seconds": 1.7920974642038345e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:13.141044+00:00",
+          "elapsed_seconds": 31.855188833083957,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3512516608,
+          "rss_measurement_age_seconds": 1.3265462908893824,
+          "mps_allocated_bytes": 10095979520,
+          "mps_driver_bytes": 10875551744
+        },
+        "fields": {
+          "point": "train_u1_p64",
+          "units": 1,
+          "tokens": 64,
+          "wall_seconds": 0.4204226250294596
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:49:15.319788+00:00",
+        "elapsed_seconds": 34.033827083185315,
+        "seconds_since_previous_mark": 2.178648792207241,
+        "synchronize_seconds": 3.875000402331352e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:15.319666+00:00",
+          "elapsed_seconds": 34.03384075011127,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 3543498752,
+          "rss_measurement_age_seconds": 1.4787019160576165,
+          "mps_allocated_bytes": 10162039808,
+          "mps_driver_bytes": 11144019968
+        },
+        "fields": {
+          "point": "train_u64_p128",
+          "units": 64,
+          "tokens": 128,
+          "wall_seconds": 2.1637156249489635
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:49:17.646519+00:00",
+        "elapsed_seconds": 36.36063175019808,
+        "seconds_since_previous_mark": 2.326804667012766,
+        "synchronize_seconds": 4.166970029473305e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:17.646439+00:00",
+          "elapsed_seconds": 36.360642166109756,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 2178613248,
+          "rss_measurement_age_seconds": 1.7618688330985606,
+          "mps_allocated_bytes": 10229148672,
+          "mps_driver_bytes": 11387289600
+        },
+        "fields": {
+          "point": "train_u128_p128",
+          "units": 128,
+          "tokens": 128,
+          "wall_seconds": 2.311664832988754
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:49:20.327480+00:00",
+        "elapsed_seconds": 39.04163262504153,
+        "seconds_since_previous_mark": 2.6810008748434484,
+        "synchronize_seconds": 3.458932042121887e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:20.327406+00:00",
+          "elapsed_seconds": 39.04164333315566,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 2186723328,
+          "rss_measurement_age_seconds": 0.4295962080359459,
+          "mps_allocated_bytes": 10296257536,
+          "mps_driver_bytes": 11622170624
+        },
+        "fields": {
+          "point": "train_u192_p128",
+          "units": 192,
+          "tokens": 128,
+          "wall_seconds": 2.6663434579968452
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:49:23.117557+00:00",
+        "elapsed_seconds": 41.83171983319335,
+        "seconds_since_previous_mark": 2.7900872081518173,
+        "synchronize_seconds": 4.37488779425621e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:23.117458+00:00",
+          "elapsed_seconds": 41.831732083112,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 2190114816,
+          "rss_measurement_age_seconds": 1.1103446669876575,
+          "mps_allocated_bytes": 10363325440,
+          "mps_driver_bytes": 11865456640
+        },
+        "fields": {
+          "point": "train_u256_p128",
+          "units": 256,
+          "tokens": 128,
+          "wall_seconds": 2.775443166960031
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_training",
+        "timestamp": "2026-10-23T16:49:24.615356+00:00",
+        "elapsed_seconds": 43.32958795805462,
+        "seconds_since_previous_mark": 1.4978681248612702,
+        "synchronize_seconds": 3.7080608308315277e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:24.615304+00:00",
+          "elapsed_seconds": 43.32959483307786,
+          "phase": "capacity_training",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 2201272320,
+          "rss_measurement_age_seconds": 0.5923712910152972,
+          "mps_allocated_bytes": 10363325440,
+          "mps_driver_bytes": 13092290560
+        },
+        "fields": {
+          "point": "train_u256_p256",
+          "units": 256,
+          "tokens": 256,
+          "wall_seconds": 1.4792383338790387
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "capacity_complete",
+        "timestamp": "2026-10-23T16:49:24.641205+00:00",
+        "elapsed_seconds": 43.35544504108839,
+        "seconds_since_previous_mark": 0.025857083033770323,
+        "synchronize_seconds": 2.5420449674129486e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:49:24.641160+00:00",
+          "elapsed_seconds": 43.35545162507333,
+          "phase": "capacity_complete",
+          "rss_peak_process_lifetime_bytes": 15557738496,
+          "rss_current_bytes": 2201272320,
+          "rss_measurement_age_seconds": 0.6182293328456581,
+          "mps_allocated_bytes": 10363325440,
+          "mps_driver_bytes": 12001607680
+        },
+        "fields": {
+          "points": 12
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 43.43895295797847,
+    "sampled_peak_driver_bytes": 14498283520,
+    "sampled_peak_rss_bytes": 3543498752,
+    "new_original_checkpoints": 0,
+    "downloads": 0
+  },
+  "free_disk_after_bytes": 626381778944,
+  "artifact_bytes": 667639,
+  "ended_at_utc": "2026-10-23T16:49:24.725486+00:00"
+}
