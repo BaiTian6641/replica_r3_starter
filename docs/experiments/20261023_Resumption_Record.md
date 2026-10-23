@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the 128-unit capacity qualification; documentation follows.
+- Last code/test HEAD: the 256-unit capacity qualification; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -20,8 +20,8 @@
   `runs/e3_policy_head_attempt03_20261023/policy_head` (head rejected as
   no-benefit).
 - Latest selected-capacity evidence:
-  `reports/e2_capacity128_selected_attempt01/run_report.json` (128 units,
-  12.93 GiB, 27.2 s).
+  `reports/e2_capacity256_selected_attempt01/run_report.json` (256 units,
+  13.50 GiB, 43.4 s).
 - Latest negative action evidence:
   `reports/e3_guard_attempt01/` and
   `[E3 action guard](20261023_E3_Action_Guard_Results.md)`.
