@@ -40,10 +40,12 @@ class HeadProposer:
         mask=torch.ones_like(ids,dtype=torch.bool)
         task=TaskGraph(self.task_id,self.goal,revision=request.revision,
                        state_digest=request.task_digest)
+        previous = (self.base._on_device(request.previous_workspace)
+                    if request.previous_workspace is not None else None)
         probe=self.session.prepare(prompt_ids=ids,prompt_mask=mask,query=self.goal,
             scope=self.scope,task=task,task_features=torch.tensor([request.task_features],
             dtype=torch.float32,device='mps'),task_digest=request.task_digest,
-            revision=request.revision,previous_core=request.previous_workspace,
+            revision=request.revision,previous_core=previous,
             core_impl='recurrent',enabled_branches=('memory','workspace'))
         try:
             core=probe.frame.core
