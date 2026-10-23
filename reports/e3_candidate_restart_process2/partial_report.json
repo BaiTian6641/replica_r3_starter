@@ -1,0 +1,2473 @@
+{
+  "status": "partial",
+  "started_at_utc": "2026-10-23T16:09:54.920163+00:00",
+  "protocol_sha256": "b82eff6484c0ef428bd596351bf4fd22daacee8624a9cf9a8c56cabd850e0dc2",
+  "protocol": {
+    "format": "replica.e3.candidate_restart.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Fresh-process continuation of candidate-ranked repair after an observed failure; exact journal/workspace persistence, no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+    "fixtures": {
+      "root": "fixtures/e3_candidate_restart/cases",
+      "manifest_sha256": "16e61a2781170644b332c4deb48ab581d6c18cc2b638eef5b864351fd7a28eed",
+      "heldout": [
+        "restart_heldout_01",
+        "restart_heldout_02"
+      ]
+    },
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    },
+    "processes": {
+      "one": {
+        "max_steps": 2,
+        "expect": "observed read + failed test; no success"
+      },
+      "two": {
+        "max_steps": 5,
+        "expect": "reload journal/workspace; complete if model ranks valid repair"
+      }
+    },
+    "evaluation": {
+      "cases": [
+        "restart_heldout_01",
+        "restart_heldout_02"
+      ],
+      "max_decisions": 7,
+      "max_tool_calls": 4,
+      "prompt_tokens": 1024,
+      "generated_tokens": 128
+    },
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "native_jobs": 1
+    },
+    "claims": "Restart/interface integration only; no training or default promotion."
+  },
+  "selection_mode": "model",
+  "seed": 20261023,
+  "resumed": true,
+  "resume_from": "runs/e3_candidate_restart_process1",
+  "downloads": 0,
+  "training_updates": 0,
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 16,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false,
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    }
+  },
+  "manifest_digest": "5db8ca2213d654ab9d1b892af6064786540f9032206cadfb570f79e68425c31d",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parent_receipt": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "core": {
+        "width": 256,
+        "slots": 8,
+        "steps": 2,
+        "heads": 4,
+        "task_features": 24,
+        "ffn_hidden": 1024,
+        "control_hidden": 340
+      }
+    },
+    "manifest_digest": "5db8ca2213d654ab9d1b892af6064786540f9032206cadfb570f79e68425c31d",
+    "regime": "modules_only",
+    "weights_sha256": "dff846ddce3d2313736d2680ea3bb475dcf8b06af482c2501bcb83e61400b467",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 94,
+        "parameters": 9392456,
+        "trainable": 9392456,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "core.slot_queries",
+          "core.type_embeddings",
+          "core.gate_self_logit",
+          "core.gate_cross_logit",
+          "core.gate_ffn_logit",
+          "core.self_norm.weight",
+          "core.self_norm.bias",
+          "core.cross_norm.weight",
+          "core.cross_norm.bias",
+          "core.ffn_norm.weight",
+          "core.ffn_norm.bias",
+          "core.source_norm.weight",
+          "core.source_norm.bias",
+          "core.self_q.weight",
+          "core.self_k.weight",
+          "core.self_v.weight",
+          "core.self_o.weight",
+          "core.cross_q.weight",
+          "core.cross_k.weight",
+          "core.cross_v.weight",
+          "core.cross_o.weight",
+          "core.ff_up.weight",
+          "core.ff_down.weight",
+          "core.task_encoder.projection.weight",
+          "core.task_encoder.norm.weight",
+          "core.task_encoder.norm.bias",
+          "ff_core.ff_up.weight",
+          "ff_core.ff_gate.weight",
+          "ff_core.ff_down.weight",
+          "workspace_ports.13.gate_logit",
+          "workspace_ports.13.query_norm.weight",
+          "workspace_ports.13.query_norm.bias",
+          "workspace_ports.13.memory_norm.weight",
+          "workspace_ports.13.memory_norm.bias",
+          "workspace_ports.13.query_projection.weight",
+          "workspace_ports.13.key_projection.weight",
+          "workspace_ports.13.value_projection.weight",
+          "workspace_ports.13.output_projection.weight",
+          "workspace_ports.27.gate_logit",
+          "workspace_ports.27.query_norm.weight",
+          "workspace_ports.27.query_norm.bias",
+          "workspace_ports.27.memory_norm.weight",
+          "workspace_ports.27.memory_norm.bias",
+          "workspace_ports.27.query_projection.weight",
+          "workspace_ports.27.key_projection.weight",
+          "workspace_ports.27.value_projection.weight",
+          "workspace_ports.27.output_projection.weight",
+          "task_head.mlp.0.weight",
+          "task_head.mlp.0.bias",
+          "task_head.mlp.2.weight",
+          "task_head.mlp.2.bias"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "core": [
+        "core.slot_queries",
+        "core.type_embeddings",
+        "core.gate_self_logit",
+        "core.gate_cross_logit",
+        "core.gate_ffn_logit",
+        "core.self_norm.weight",
+        "core.self_norm.bias",
+        "core.cross_norm.weight",
+        "core.cross_norm.bias",
+        "core.ffn_norm.weight",
+        "core.ffn_norm.bias",
+        "core.source_norm.weight",
+        "core.source_norm.bias",
+        "core.self_q.weight",
+        "core.self_k.weight",
+        "core.self_v.weight",
+        "core.self_o.weight",
+        "core.cross_q.weight",
+        "core.cross_k.weight",
+        "core.cross_v.weight",
+        "core.cross_o.weight",
+        "core.ff_up.weight",
+        "core.ff_down.weight",
+        "core.task_encoder.projection.weight",
+        "core.task_encoder.norm.weight",
+        "core.task_encoder.norm.bias"
+      ],
+      "ff_core": [
+        "ff_core.ff_up.weight",
+        "ff_core.ff_gate.weight",
+        "ff_core.ff_down.weight"
+      ],
+      "workspace_ports": [
+        "workspace_ports.13.gate_logit",
+        "workspace_ports.13.query_norm.weight",
+        "workspace_ports.13.query_norm.bias",
+        "workspace_ports.13.memory_norm.weight",
+        "workspace_ports.13.memory_norm.bias",
+        "workspace_ports.13.query_projection.weight",
+        "workspace_ports.13.key_projection.weight",
+        "workspace_ports.13.value_projection.weight",
+        "workspace_ports.13.output_projection.weight",
+        "workspace_ports.27.gate_logit",
+        "workspace_ports.27.query_norm.weight",
+        "workspace_ports.27.query_norm.bias",
+        "workspace_ports.27.memory_norm.weight",
+        "workspace_ports.27.memory_norm.bias",
+        "workspace_ports.27.query_projection.weight",
+        "workspace_ports.27.key_projection.weight",
+        "workspace_ports.27.value_projection.weight",
+        "workspace_ports.27.output_projection.weight"
+      ],
+      "task_head": [
+        "task_head.mlp.0.weight",
+        "task_head.mlp.0.bias",
+        "task_head.mlp.2.weight",
+        "task_head.mlp.2.bias"
+      ]
+    }
+  },
+  "episodes": [
+    {
+      "case_id": "restart_heldout_01",
+      "role": "heldout",
+      "success": false,
+      "decisions": 5,
+      "tool_calls": 4,
+      "prompt_tokens": 4529,
+      "generated_tokens": 142,
+      "false_success_claims": 1,
+      "actions": [
+        "invoke_tool",
+        "invoke_tool",
+        "invoke_tool",
+        "stop",
+        "invoke_tool"
+      ],
+      "tools": [
+        "set_constant",
+        "run_test",
+        "set_constant",
+        null,
+        "set_constant"
+      ],
+      "candidate_scores": [
+        {
+          "step": 1,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1300.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1430.0
+              }
+            }
+          ],
+          "scores": [
+            1.8776105642318726,
+            0.16168588399887085,
+            2.538684129714966,
+            0.2712170481681824,
+            0.07113774865865707,
+            0.11017566919326782
+          ],
+          "chosen": 4
+        },
+        {
+          "step": 2,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1300.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1430.0
+              }
+            }
+          ],
+          "scores": [
+            1.794594168663025,
+            0.0024608317762613297,
+            3.541934013366699,
+            1.1629825830459595,
+            0.9388277530670166,
+            0.9735438823699951
+          ],
+          "chosen": 1
+        },
+        {
+          "step": 3,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1300.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1430.0
+              }
+            }
+          ],
+          "scores": [
+            1.5009381771087646,
+            0.35922181606292725,
+            1.466769814491272,
+            0.1517978012561798,
+            0.027833478525280952,
+            0.07942429929971695
+          ],
+          "chosen": 4
+        },
+        {
+          "step": 4,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1300.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1430.0
+              }
+            }
+          ],
+          "scores": [
+            0.6620076298713684,
+            0.7604624032974243,
+            0.0061331274919211864,
+            0.6720274686813354,
+            0.6074600219726562,
+            0.662147045135498
+          ],
+          "chosen": 2
+        },
+        {
+          "step": 5,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1300.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 1430.0
+              }
+            }
+          ],
+          "scores": [
+            1.143890142440796,
+            0.38032829761505127,
+            0.7771205306053162,
+            0.16838718950748444,
+            0.04179835319519043,
+            0.0878886803984642
+          ],
+          "chosen": 4
+        }
+      ],
+      "trace": [
+        {
+          "sequence": 3,
+          "prompt_text": "TASK restart_heldout_01 (revision 10)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \nLAST OUTCOME: failed\nLAST OBSERVATION (excerpt, status failed):\nF\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150 not greater than or equal to 1300 : COOLDOWN_MS=150 needs COOLDOWN_MS >= 1300\n\n----------------------------------------\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "6278b5b2d8cca660466b206b025c25fe607e2dc065d79c27d32892a8934cc34f",
+          "prompt_tokens": 732,
+          "task_features": [
+            0.3125,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.0,
+            0.125,
+            0.25,
+            0.2857142857142857,
+            0.5,
+            0.1263640873015873,
+            1.0,
+            0.0,
+            0.0,
+            0.25,
+            0.7142857142857143
+          ],
+          "state_digest": "e6770f6fcfcaf2abcdbbd86775f716cd037c98b7bcc67bb5cffce1587a8670a7",
+          "revision": 15,
+          "raw_text": "{\"arguments\":{\"name\":\"COOLDOWN_MS\",\"value\":150.0},\"kind\":\"invoke_tool\",\"tool\":\"set_constant\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            12880,
+            2075,
+            4441,
+            8527,
+            21944,
+            32343,
+            84,
+            3801,
+            2131,
+            3971,
+            977,
+            4070,
+            35,
+            37,
+            20765,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            1731,
+            101904,
+            11395,
+            1
+          ],
+          "generated_tokens": 30,
+          "frame_digest": "200a92c4b51414469a798e078ae7a3caf2032382e163997308e0641bcb97e591",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "a37281f9a0565727ee24340abb771c5b1b212b4ec69af21710f7c6ef560a8a17",
+            "idempotency_key": "ea65f17062162deef563b40ace0d67bcff2d820f1f45eb7e60716e9dcaf4d11f",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              },
+              "tool": "set_constant"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-a37281f9a0565727",
+            "action_id": "a37281f9a0565727ee24340abb771c5b1b212b4ec69af21710f7c6ef560a8a17",
+            "status": "completed",
+            "result": {
+              "status": "ok",
+              "kind": "set_constant",
+              "name": "COOLDOWN_MS",
+              "old_value": "150",
+              "new_value": "150.0",
+              "path": "workspace/app_settings.py",
+              "sha256": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7",
+              "receipt": {
+                "status": "ok",
+                "kind": "write_file",
+                "path": "workspace/app_settings.py",
+                "sha256": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7",
+                "size": 113,
+                "created": false
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "6a1e5daee858407b944feffd910f62d0ba38218dd25244e3ce7c0d07f2995301"
+            ]
+          },
+          "receipts": [
+            {
+              "status": "ok",
+              "kind": "write_file",
+              "path": "workspace/app_settings.py",
+              "sha256": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7",
+              "size": 113,
+              "created": false
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.007781499996781349,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 4,
+          "prompt_text": "TASK restart_heldout_01 (revision 15)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \nLAST OUTCOME: completed\nLAST OBSERVATION (excerpt, status completed):\n(no text observation)\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "009af69529d54092cc671bf5771cc4125a841237f5c9f53f78f162c55312dd08",
+          "prompt_tokens": 615,
+          "task_features": [
+            0.46875,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.375,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.0,
+            0.125,
+            0.375,
+            0.42857142857142855,
+            0.75,
+            0.2208581349206349,
+            0.0,
+            0.0,
+            1.0,
+            0.25,
+            0.5714285714285714
+          ],
+          "state_digest": "d453464683ff7cfffd57904e22dde25d6d5eea1586b2e3123930211f30c33d91",
+          "revision": 20,
+          "raw_text": "{\"arguments\":{},\"kind\":\"invoke_tool\",\"tool\":\"run_test\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            93216,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            20648,
+            9913,
+            11395,
+            1
+          ],
+          "generated_tokens": 16,
+          "frame_digest": "a5439317a4bb6963d8a190326c1cf6573142b039cf2ee51fc965a6773d0be61f",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "6acba21e71a5754b4a4436345ea93f45bce80b08abbb373a9fab1960aa734eba",
+            "idempotency_key": "fe9aa5553b2496af96b66c81c6cb8f4e475647f6a4ead108a09a4d3065ad3393",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {},
+              "tool": "run_test"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-6acba21e71a5754b",
+            "action_id": "6acba21e71a5754b4a4436345ea93f45bce80b08abbb373a9fab1960aa734eba",
+            "status": "failed",
+            "result": {
+              "status": "error",
+              "kind": "run_test",
+              "receipt": {
+                "kind": "run_test",
+                "command": [
+                  "/Users/flare/replica_r3_starter/.venv/bin/python",
+                  "evaluator/test_policy.py"
+                ],
+                "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case",
+                "exit_code": 1,
+                "timed_out": false,
+                "duration_ms": 84,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "128d8b09949720edc52c57dfacf73207a7c0df61b31fb5726fe3ee3ac1bb0883",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150.0 not greater than or equal to 1300 : COOLDOWN_MS=150.0 needs COOLDOWN_MS >= 1300\n\n------------------------------------",
+                "workspace_hashes_before": {
+                  "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+                },
+                "workspace_hashes_after": {
+                  "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+                },
+                "receipt_sha256": "e3612a38ebddcfa19faf32b2e893da7c3cfd1e52584bc0f342875f41b5186010"
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "ca013df2b92ebcf9c0b99a55ceddb5dd3e658c7fdec440f51dfa85d47e7fb042"
+            ]
+          },
+          "receipts": [
+            {
+              "kind": "run_test",
+              "command": [
+                "/Users/flare/replica_r3_starter/.venv/bin/python",
+                "evaluator/test_policy.py"
+              ],
+              "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case",
+              "exit_code": 1,
+              "timed_out": false,
+              "duration_ms": 84,
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stderr_sha256": "128d8b09949720edc52c57dfacf73207a7c0df61b31fb5726fe3ee3ac1bb0883",
+              "stdout_excerpt": "",
+              "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150.0 not greater than or equal to 1300 : COOLDOWN_MS=150.0 needs COOLDOWN_MS >= 1300\n\n------------------------------------",
+              "workspace_hashes_before": {
+                "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+              },
+              "workspace_hashes_after": {
+                "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+              },
+              "receipt_sha256": "e3612a38ebddcfa19faf32b2e893da7c3cfd1e52584bc0f342875f41b5186010"
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.0915256671141833,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 5,
+          "prompt_text": "TASK restart_heldout_01 (revision 20)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \n- invoke_tool(run_test) -> failed \nLAST OUTCOME: failed\nLAST OBSERVATION (excerpt, status failed):\nF\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150.0 not greater than or equal to 1300 : COOLDOWN_MS=150.0 needs COOLDOWN_MS >= 1300\n\n------------------------------------\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "b4a7c38e85084d50fbc1615c2be4fd87bdca94dc436a76efa9daacd20633e172",
+          "prompt_tokens": 758,
+          "task_features": [
+            0.625,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.0,
+            0.25,
+            0.5,
+            0.5714285714285714,
+            1.0,
+            0.29910714285714285,
+            1.0,
+            0.0,
+            0.0,
+            0.25,
+            0.4285714285714286
+          ],
+          "state_digest": "5e3e38e4ccee705cb98358a64a9985ffda1c1431e04f7a697608f9a90b3ae881",
+          "revision": 23,
+          "raw_text": "{\"arguments\":{\"name\":\"COOLDOWN_MS\",\"value\":150.0},\"kind\":\"invoke_tool\",\"tool\":\"set_constant\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            12880,
+            2075,
+            4441,
+            8527,
+            21944,
+            32343,
+            84,
+            3801,
+            2131,
+            3971,
+            977,
+            4070,
+            35,
+            37,
+            20765,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            1731,
+            101904,
+            11395,
+            1
+          ],
+          "generated_tokens": 30,
+          "frame_digest": "200a92c4b51414469a798e078ae7a3caf2032382e163997308e0641bcb97e591",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "9ab12e5ef245ed6439ff5ec04851f82bc637d22c37de781d5a7357342813c517",
+            "idempotency_key": "2e9b4fc9fa372ebbace3dde2ec67022c65f5a44e49422d328ddfc74b1d9f2f88",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              },
+              "tool": "set_constant"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-9ab12e5ef245ed64",
+            "action_id": "9ab12e5ef245ed6439ff5ec04851f82bc637d22c37de781d5a7357342813c517",
+            "status": "denied",
+            "result": {
+              "reason": "validation_denied: budget_exhausted",
+              "raw_sha256": "200a92c4b51414469a798e078ae7a3caf2032382e163997308e0641bcb97e591",
+              "raw_bytes": 93
+            },
+            "error": null,
+            "spent": {},
+            "verifier": "host_runtime",
+            "observation_ids": []
+          },
+          "receipts": [],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.004793083993718028,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 6,
+          "prompt_text": "TASK restart_heldout_01 (revision 23)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool -> denied validation_denied: budget_exhausted\nLAST OUTCOME: denied\nLAST OBSERVATION (excerpt, status denied):\nvalidation_denied: budget_exhausted\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "b3470bee50c07efa7c0618e38e3408fbc6a56e2569e98d10f9cb6783e9e19692",
+          "prompt_tokens": 645,
+          "task_features": [
+            0.71875,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.125,
+            0.25,
+            0.625,
+            0.7142857142857143,
+            1.0,
+            0.3968253968253968,
+            0.0,
+            1.0,
+            0.0,
+            0.25,
+            0.2857142857142857
+          ],
+          "state_digest": "7acfd6624b3f96a4a5879ad171b26790849f01c71160522b37c51462a4c9777e",
+          "revision": 27,
+          "raw_text": "{\"kind\":\"stop\"}",
+          "generated_token_ids": [
+            4945,
+            13412,
+            4441,
+            30921,
+            11395,
+            1
+          ],
+          "generated_tokens": 6,
+          "frame_digest": "0cb7960d34bb6addec6e648f95b83763a2eba5cbbc520a52a55e7903320ab677",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "3cfc388ac8110c02c5ae0f8c88d2cc93a1f4cfdb850fba8e4163b695e3bcb48b",
+            "idempotency_key": "d48e43491f24c3579a9570285e290eab7d275f97562332fff0fab24bc7e0fc28",
+            "kind": "stop",
+            "args": {},
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-3cfc388ac8110c02",
+            "action_id": "3cfc388ac8110c02c5ae0f8c88d2cc93a1f4cfdb850fba8e4163b695e3bcb48b",
+            "status": "failed",
+            "result": {
+              "status": "error",
+              "kind": "stop",
+              "claimed": true,
+              "verified": false,
+              "receipt": {
+                "kind": "verify_success",
+                "command": [
+                  "/Users/flare/replica_r3_starter/.venv/bin/python",
+                  "evaluator/test_policy.py"
+                ],
+                "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case",
+                "exit_code": 1,
+                "timed_out": false,
+                "duration_ms": 77,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "128d8b09949720edc52c57dfacf73207a7c0df61b31fb5726fe3ee3ac1bb0883",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150.0 not greater than or equal to 1300 : COOLDOWN_MS=150.0 needs COOLDOWN_MS >= 1300\n\n------------------------------------",
+                "workspace_hashes_before": {
+                  "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+                },
+                "workspace_hashes_after": {
+                  "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+                },
+                "passed": false,
+                "condition_ids": [
+                  "evaluator_test_passes"
+                ],
+                "receipt_sha256": "e3ccdddd64645165e43982394c711f23065f3e18f76afa0955d06581eb338e1a"
+              }
+            },
+            "error": "success_condition_not_met",
+            "spent": {
+              "tool_calls": 0
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "6dabab7dae870634b17c5b0cf21f36e12c3e4a1bb3e117cce98f04d757dfb96f"
+            ]
+          },
+          "receipts": [
+            {
+              "kind": "verify_success",
+              "command": [
+                "/Users/flare/replica_r3_starter/.venv/bin/python",
+                "evaluator/test_policy.py"
+              ],
+              "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case",
+              "exit_code": 1,
+              "timed_out": false,
+              "duration_ms": 77,
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stderr_sha256": "128d8b09949720edc52c57dfacf73207a7c0df61b31fb5726fe3ee3ac1bb0883",
+              "stdout_excerpt": "",
+              "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150.0 not greater than or equal to 1300 : COOLDOWN_MS=150.0 needs COOLDOWN_MS >= 1300\n\n------------------------------------",
+              "workspace_hashes_before": {
+                "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+              },
+              "workspace_hashes_after": {
+                "app_settings.py": "a7899773d9e0c6f72aade1924482823dd5ec5ed7c19e17738453d9f471810cf7"
+              },
+              "passed": false,
+              "condition_ids": [
+                "evaluator_test_passes"
+              ],
+              "receipt_sha256": "e3ccdddd64645165e43982394c711f23065f3e18f76afa0955d06581eb338e1a"
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": true,
+          "decision_wall_seconds": 0.08446970907971263,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 7,
+          "prompt_text": "TASK restart_heldout_01 (revision 27)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool -> denied validation_denied: budget_exhausted\n- stop -> failed success_condition_not_met\nLAST OUTCOME: failed success_condition_not_met\nLAST OBSERVATION (excerpt, status failed):\nF\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150.0 not greater than or equal to 1300 : COOLDOWN_MS=150.0 needs COOLDOWN_MS >= 1300\n\n------------------------------------\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "6c8bfdac8696ee8867a60c6229d552f7b5a7a8c9eb6267d1fc4e5e8d438870ba",
+          "prompt_tokens": 790,
+          "task_features": [
+            0.84375,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.625,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.125,
+            0.375,
+            0.75,
+            0.8571428571428571,
+            1.0,
+            0.4775545634920635,
+            1.0,
+            0.0,
+            0.0,
+            0.25,
+            0.1428571428571429
+          ],
+          "state_digest": "50a7e77a44d48caeef33ca9ee144ff34a57b68f6e1924e2e1c9735a53303dfc0",
+          "revision": 30,
+          "raw_text": "{\"arguments\":{\"name\":\"COOLDOWN_MS\",\"value\":150.0},\"kind\":\"invoke_tool\",\"tool\":\"set_constant\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            12880,
+            2075,
+            4441,
+            8527,
+            21944,
+            32343,
+            84,
+            3801,
+            2131,
+            3971,
+            977,
+            4070,
+            35,
+            37,
+            20765,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            1731,
+            101904,
+            11395,
+            1
+          ],
+          "generated_tokens": 30,
+          "frame_digest": "200a92c4b51414469a798e078ae7a3caf2032382e163997308e0641bcb97e591",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "e6e3dfd26ee5223ce77bebe5ecf4942f88e093f1374b3371b0bc5e3eede4dee1",
+            "idempotency_key": "240cf18c5cb7af3aeb06d22b03475462a924fa312794250a6d1eda84dccd099b",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {
+                "name": "COOLDOWN_MS",
+                "value": 150.0
+              },
+              "tool": "set_constant"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-e6e3dfd26ee5223c",
+            "action_id": "e6e3dfd26ee5223ce77bebe5ecf4942f88e093f1374b3371b0bc5e3eede4dee1",
+            "status": "denied",
+            "result": {
+              "reason": "validation_denied: budget_exhausted",
+              "raw_sha256": "200a92c4b51414469a798e078ae7a3caf2032382e163997308e0641bcb97e591",
+              "raw_bytes": 93
+            },
+            "error": null,
+            "spent": {},
+            "verifier": "host_runtime",
+            "observation_ids": []
+          },
+          "receipts": [],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.005948957987129688,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        }
+      ],
+      "evaluator_pass": false
+    },
+    {
+      "case_id": "restart_heldout_02",
+      "role": "heldout",
+      "success": true,
+      "decisions": 4,
+      "tool_calls": 4,
+      "prompt_tokens": 3574,
+      "generated_tokens": 96,
+      "false_success_claims": 0,
+      "actions": [
+        "invoke_tool",
+        "invoke_tool",
+        "invoke_tool",
+        "stop"
+      ],
+      "tools": [
+        "set_constant",
+        "run_test",
+        "run_test",
+        null
+      ],
+      "candidate_scores": [
+        {
+          "step": 1,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 21.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 5.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 23.1
+              }
+            }
+          ],
+          "scores": [
+            1.8955129384994507,
+            0.15433712303638458,
+            2.6389050483703613,
+            0.03649429604411125,
+            0.2730030417442322,
+            0.18073736131191254
+          ],
+          "chosen": 3
+        },
+        {
+          "step": 2,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 21.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 5.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 23.1
+              }
+            }
+          ],
+          "scores": [
+            1.869114875793457,
+            0.0025220306124538183,
+            3.5077807903289795,
+            0.9120917916297913,
+            1.02737295627594,
+            1.0029256343841553
+          ],
+          "chosen": 1
+        },
+        {
+          "step": 3,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 21.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 5.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 23.1
+              }
+            }
+          ],
+          "scores": [
+            1.4087365865707397,
+            0.002333152573555708,
+            1.8668760061264038,
+            0.7031866908073425,
+            0.7969179153442383,
+            0.713597297668457
+          ],
+          "chosen": 1
+        },
+        {
+          "step": 4,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 21.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 5.0
+              }
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "set_constant",
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 23.1
+              }
+            }
+          ],
+          "scores": [
+            0.6477295160293579,
+            0.803087055683136,
+            0.009512289427220821,
+            0.6150178909301758,
+            0.5974375605583191,
+            0.6190207600593567
+          ],
+          "chosen": 2
+        }
+      ],
+      "trace": [
+        {
+          "sequence": 3,
+          "prompt_text": "TASK restart_heldout_02 (revision 10)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_LIMIT=9, MAX_CONN=5\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \nLAST OUTCOME: failed\nLAST OBSERVATION (excerpt, status failed):\nF\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_02/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 5 not greater than or equal to 21 : MAX_CONN=5 needs MAX_CONN >= 21\n\n------------------------------------------------------\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "fb72b8e7fae1bf9a7d359a578f08120df8d20c8f5cfb0ecfc76bf6350d15795f",
+          "prompt_tokens": 717,
+          "task_features": [
+            0.3125,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.0,
+            0.125,
+            0.25,
+            0.2857142857142857,
+            0.5,
+            0.1259920634920635,
+            1.0,
+            0.0,
+            0.0,
+            0.25,
+            0.7142857142857143
+          ],
+          "state_digest": "a9fd5ccd45dd81163a6ab1d837945974f0361ae4789be88420c51a5392c21250",
+          "revision": 15,
+          "raw_text": "{\"arguments\":{\"name\":\"MAX_CONN\",\"value\":21.0},\"kind\":\"invoke_tool\",\"tool\":\"set_constant\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            12880,
+            2075,
+            4441,
+            27986,
+            68684,
+            67,
+            2131,
+            3971,
+            977,
+            1305,
+            35,
+            37,
+            20765,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            1731,
+            101904,
+            11395,
+            1
+          ],
+          "generated_tokens": 28,
+          "frame_digest": "5e46fefc52a096797f63c2fe1933f667acbbb57c5a25dad8a4a1c10334ef9478",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "f796d2c675db92b22475ead2c74c902a03246796495b5c43f2b2d829677a2658",
+            "idempotency_key": "9e31b9b01f7905f60d2b31fda5252d72384217443a52151632b40c3416c421eb",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {
+                "name": "MAX_CONN",
+                "value": 21.0
+              },
+              "tool": "set_constant"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-f796d2c675db92b2",
+            "action_id": "f796d2c675db92b22475ead2c74c902a03246796495b5c43f2b2d829677a2658",
+            "status": "completed",
+            "result": {
+              "status": "ok",
+              "kind": "set_constant",
+              "name": "MAX_CONN",
+              "old_value": "5",
+              "new_value": "21.0",
+              "path": "workspace/app_settings.py",
+              "sha256": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a",
+              "receipt": {
+                "status": "ok",
+                "kind": "write_file",
+                "path": "workspace/app_settings.py",
+                "sha256": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a",
+                "size": 109,
+                "created": false
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "dd3513f98e911e609260867de74d49871403feebe6211a5adabce8cd59edfd5f"
+            ]
+          },
+          "receipts": [
+            {
+              "status": "ok",
+              "kind": "write_file",
+              "path": "workspace/app_settings.py",
+              "sha256": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a",
+              "size": 109,
+              "created": false
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.0049117919988930225,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 4,
+          "prompt_text": "TASK restart_heldout_02 (revision 15)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_LIMIT=9, MAX_CONN=21.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \nLAST OUTCOME: completed\nLAST OBSERVATION (excerpt, status completed):\n(no text observation)\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "db4575e2a125ad17e2833a5d4418c703ef2af28e08a62f97d0bdca1d73635917",
+          "prompt_tokens": 606,
+          "task_features": [
+            0.46875,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.375,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            0.0,
+            0.125,
+            0.375,
+            0.42857142857142855,
+            0.75,
+            0.2183779761904762,
+            0.0,
+            0.0,
+            1.0,
+            0.25,
+            0.5714285714285714
+          ],
+          "state_digest": "d263229d809befe7ad24150ff5092fe4175b445c612edeb7aa13b69d6775ebb3",
+          "revision": 20,
+          "raw_text": "{\"arguments\":{},\"kind\":\"invoke_tool\",\"tool\":\"run_test\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            93216,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            20648,
+            9913,
+            11395,
+            1
+          ],
+          "generated_tokens": 16,
+          "frame_digest": "a5439317a4bb6963d8a190326c1cf6573142b039cf2ee51fc965a6773d0be61f",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "2a2496324542dd15e97c809a2241ad41c9aedf3e5a1f8cc244f5adb45b276853",
+            "idempotency_key": "f659063c10bff2ed18721228b186bea40626147d640434429fec7dbd9775717e",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {},
+              "tool": "run_test"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-2a2496324542dd15",
+            "action_id": "2a2496324542dd15e97c809a2241ad41c9aedf3e5a1f8cc244f5adb45b276853",
+            "status": "completed",
+            "result": {
+              "status": "ok",
+              "kind": "run_test",
+              "receipt": {
+                "kind": "run_test",
+                "command": [
+                  "/Users/flare/replica_r3_starter/.venv/bin/python",
+                  "evaluator/test_policy.py"
+                ],
+                "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_02/case",
+                "exit_code": 0,
+                "timed_out": false,
+                "duration_ms": 77,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+                "stdout_excerpt": "",
+                "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+                "workspace_hashes_before": {
+                  "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+                },
+                "workspace_hashes_after": {
+                  "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+                },
+                "receipt_sha256": "053a2175a48a771ee172a5283bff068324a9d9b1abfe703c1e359481ad49fa07"
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "3bd4d26cc4073768e060004c696d9d54b3099e16edafeb2f712481d91d46542a"
+            ]
+          },
+          "receipts": [
+            {
+              "kind": "run_test",
+              "command": [
+                "/Users/flare/replica_r3_starter/.venv/bin/python",
+                "evaluator/test_policy.py"
+              ],
+              "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_02/case",
+              "exit_code": 0,
+              "timed_out": false,
+              "duration_ms": 77,
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+              "stdout_excerpt": "",
+              "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+              "workspace_hashes_before": {
+                "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+              },
+              "workspace_hashes_after": {
+                "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+              },
+              "receipt_sha256": "053a2175a48a771ee172a5283bff068324a9d9b1abfe703c1e359481ad49fa07"
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.08320933394134045,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 5,
+          "prompt_text": "TASK restart_heldout_02 (revision 20)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_LIMIT=9, MAX_CONN=21.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \n- invoke_tool(run_test) -> completed \nLAST OUTCOME: completed\nLAST OBSERVATION (excerpt, status completed):\n.\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "35226b8ca0b543085e5b7a5a995244c8d2ece05e6c03c8a3764469110d4262bd",
+          "prompt_tokens": 629,
+          "task_features": [
+            0.625,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.375,
+            0.0,
+            0.125,
+            0.5,
+            0.5714285714285714,
+            1.0,
+            0.2955109126984127,
+            0.0,
+            0.0,
+            1.0,
+            0.25,
+            0.4285714285714286
+          ],
+          "state_digest": "49e3f94204fcd6a5d8dcecc5964b6e3a3ab3b869da02310f87bef720a9aa2d32",
+          "revision": 23,
+          "raw_text": "{\"arguments\":{},\"kind\":\"invoke_tool\",\"tool\":\"run_test\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            93216,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            20648,
+            9913,
+            11395,
+            1
+          ],
+          "generated_tokens": 16,
+          "frame_digest": "a5439317a4bb6963d8a190326c1cf6573142b039cf2ee51fc965a6773d0be61f",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "52292ef2b61c20f0a8a602632e0fbf844339fbfa86abfad45610ee8b5d3b24d6",
+            "idempotency_key": "e85ee4ceade3867b56221e06135bae7dd5740caa6a8de2e871f50aa41266712f",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {},
+              "tool": "run_test"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-52292ef2b61c20f0",
+            "action_id": "52292ef2b61c20f0a8a602632e0fbf844339fbfa86abfad45610ee8b5d3b24d6",
+            "status": "denied",
+            "result": {
+              "reason": "validation_denied: budget_exhausted",
+              "raw_sha256": "a5439317a4bb6963d8a190326c1cf6573142b039cf2ee51fc965a6773d0be61f",
+              "raw_bytes": 55
+            },
+            "error": null,
+            "spent": {},
+            "verifier": "host_runtime",
+            "observation_ids": []
+          },
+          "receipts": [],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.004491042112931609,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 6,
+          "prompt_text": "TASK restart_heldout_02 (revision 23)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_LIMIT=9, MAX_CONN=21.0\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \n- invoke_tool(run_test) -> failed \n- invoke_tool(set_constant) -> completed \n- invoke_tool(run_test) -> completed \n- invoke_tool -> denied validation_denied: budget_exhausted\nLAST OUTCOME: denied\nLAST OBSERVATION (excerpt, status denied):\nvalidation_denied: budget_exhausted\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "772d0b4350a7fc83a0603d7b5cef52bac662ff45b53be891efc24ed0eb512503",
+          "prompt_tokens": 636,
+          "task_features": [
+            0.71875,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.375,
+            0.125,
+            0.125,
+            0.625,
+            0.7142857142857143,
+            1.0,
+            0.37549603174603174,
+            0.0,
+            1.0,
+            0.0,
+            0.25,
+            0.2857142857142857
+          ],
+          "state_digest": "e23a76f9c60479ff21bc2ae70ce7d870335a82037bce8dadc264d6ab7c4a523e",
+          "revision": 27,
+          "raw_text": "{\"kind\":\"stop\"}",
+          "generated_token_ids": [
+            4945,
+            13412,
+            4441,
+            30921,
+            11395,
+            1
+          ],
+          "generated_tokens": 6,
+          "frame_digest": "0cb7960d34bb6addec6e648f95b83763a2eba5cbbc520a52a55e7903320ab677",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "eea6212ac8d901845dfd37d178fc6a05ec376dd41ef478674bff50a2f4e05338",
+            "idempotency_key": "b25e89bc3c0672b2ea1fdf575a9c640e3ffd4936dc841e83cbbbee1fc6ae8857",
+            "kind": "stop",
+            "args": {},
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-eea6212ac8d90184",
+            "action_id": "eea6212ac8d901845dfd37d178fc6a05ec376dd41ef478674bff50a2f4e05338",
+            "status": "completed",
+            "result": {
+              "status": "ok",
+              "kind": "stop",
+              "claimed": true,
+              "verified": true,
+              "receipt": {
+                "kind": "verify_success",
+                "command": [
+                  "/Users/flare/replica_r3_starter/.venv/bin/python",
+                  "evaluator/test_policy.py"
+                ],
+                "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_02/case",
+                "exit_code": 0,
+                "timed_out": false,
+                "duration_ms": 82,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+                "stdout_excerpt": "",
+                "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+                "workspace_hashes_before": {
+                  "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+                },
+                "workspace_hashes_after": {
+                  "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+                },
+                "passed": true,
+                "condition_ids": [
+                  "evaluator_test_passes"
+                ],
+                "receipt_sha256": "2bef4094be1d1d0d9fb6259b2ee90158520ccd15633ccbb369ce7349d83a3076"
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 0
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "708ded58d7f865d352aa89d72b83b3a897bc943a7da321fd127aa4fb70fd9790"
+            ]
+          },
+          "receipts": [
+            {
+              "kind": "verify_success",
+              "command": [
+                "/Users/flare/replica_r3_starter/.venv/bin/python",
+                "evaluator/test_policy.py"
+              ],
+              "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process2/episodes/restart_heldout_02/case",
+              "exit_code": 0,
+              "timed_out": false,
+              "duration_ms": 82,
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+              "stdout_excerpt": "",
+              "stderr_excerpt": ".\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK\n",
+              "workspace_hashes_before": {
+                "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+              },
+              "workspace_hashes_after": {
+                "app_settings.py": "cd0a9d861367dae0ffe64e3d32eab6c8bc4355a345dc07affad30bf2f8377d7a"
+              },
+              "passed": true,
+              "condition_ids": [
+                "evaluator_test_passes"
+              ],
+              "receipt_sha256": "2bef4094be1d1d0d9fb6259b2ee90158520ccd15633ccbb369ce7349d83a3076"
+            }
+          ],
+          "success_condition_met": true,
+          "success_claimed": true,
+          "decision_wall_seconds": 0.08906091703101993,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        }
+      ],
+      "evaluator_pass": true
+    }
+  ],
+  "completions": "1/2",
+  "heldout_completions": "1/2",
+  "claims": "Model-scored candidate action interface; no training, no default promotion.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T16:09:54.920893+00:00",
+    "ended_at": "2026-10-23T16:10:18.803815+00:00",
+    "elapsed_seconds": 23.883155166869983,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 222,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15558623232,
+      "rss_peak_sampled_bytes": 3529752576,
+      "mps_allocated_peak_sampled_bytes": 11528673792,
+      "mps_driver_peak_sampled_bytes": 16252059648
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T16:09:54.921607+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 85%",
+      "memory_free_percent": 85.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T16:10:18.726360+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 59%",
+      "memory_free_percent": 59.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T16:09:58.892732+00:00",
+        "elapsed_seconds": 3.971796792000532,
+        "seconds_since_previous_mark": 3.971796792000532,
+        "synchronize_seconds": 5.709007382392883e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:09:58.892662+00:00",
+          "elapsed_seconds": 3.9718087918590754,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 345964544,
+          "rss_measurement_age_seconds": 1.8694616658613086,
+          "mps_allocated_bytes": 10113019904,
+          "mps_driver_bytes": 10754605056
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 94,
+              "parameters": 9392456,
+              "trainable": 9392456,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "core.slot_queries",
+                "core.type_embeddings",
+                "core.gate_self_logit",
+                "core.gate_cross_logit",
+                "core.gate_ffn_logit",
+                "core.self_norm.weight",
+                "core.self_norm.bias",
+                "core.cross_norm.weight",
+                "core.cross_norm.bias",
+                "core.ffn_norm.weight",
+                "core.ffn_norm.bias",
+                "core.source_norm.weight",
+                "core.source_norm.bias",
+                "core.self_q.weight",
+                "core.self_k.weight",
+                "core.self_v.weight",
+                "core.self_o.weight",
+                "core.cross_q.weight",
+                "core.cross_k.weight",
+                "core.cross_v.weight",
+                "core.cross_o.weight",
+                "core.ff_up.weight",
+                "core.ff_down.weight",
+                "core.task_encoder.projection.weight",
+                "core.task_encoder.norm.weight",
+                "core.task_encoder.norm.bias",
+                "ff_core.ff_up.weight",
+                "ff_core.ff_gate.weight",
+                "ff_core.ff_down.weight",
+                "workspace_ports.13.gate_logit",
+                "workspace_ports.13.query_norm.weight",
+                "workspace_ports.13.query_norm.bias",
+                "workspace_ports.13.memory_norm.weight",
+                "workspace_ports.13.memory_norm.bias",
+                "workspace_ports.13.query_projection.weight",
+                "workspace_ports.13.key_projection.weight",
+                "workspace_ports.13.value_projection.weight",
+                "workspace_ports.13.output_projection.weight",
+                "workspace_ports.27.gate_logit",
+                "workspace_ports.27.query_norm.weight",
+                "workspace_ports.27.query_norm.bias",
+                "workspace_ports.27.memory_norm.weight",
+                "workspace_ports.27.memory_norm.bias",
+                "workspace_ports.27.query_projection.weight",
+                "workspace_ports.27.key_projection.weight",
+                "workspace_ports.27.value_projection.weight",
+                "workspace_ports.27.output_projection.weight",
+                "task_head.mlp.0.weight",
+                "task_head.mlp.0.bias",
+                "task_head.mlp.2.weight",
+                "task_head.mlp.2.bias"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:01.417519+00:00",
+        "elapsed_seconds": 6.49661812488921,
+        "seconds_since_previous_mark": 2.5248213328886777,
+        "synchronize_seconds": 1.0875053703784943e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:01.417459+00:00",
+          "elapsed_seconds": 6.496628124965355,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3422044160,
+          "rss_measurement_age_seconds": 0.2915475000627339,
+          "mps_allocated_bytes": 10113312512,
+          "mps_driver_bytes": 14076821504
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 1,
+          "chosen": 4,
+          "score": 0.07113774865865707
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:03.382068+00:00",
+        "elapsed_seconds": 8.461178457830101,
+        "seconds_since_previous_mark": 1.9645603329408914,
+        "synchronize_seconds": 7.2089023888111115e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:03.382001+00:00",
+          "elapsed_seconds": 8.461188666988164,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3438755840,
+          "rss_measurement_age_seconds": 0.2131894170306623,
+          "mps_allocated_bytes": 10113311744,
+          "mps_driver_bytes": 14076903424
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 2,
+          "chosen": 1,
+          "score": 0.0024608317762613297
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:05.741573+00:00",
+        "elapsed_seconds": 10.820739042013884,
+        "seconds_since_previous_mark": 2.3595605841837823,
+        "synchronize_seconds": 7.00005330145359e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:05.741538+00:00",
+          "elapsed_seconds": 10.82074424996972,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3456532480,
+          "rss_measurement_age_seconds": 0.5530053749680519,
+          "mps_allocated_bytes": 10113312768,
+          "mps_driver_bytes": 16251731968
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 3,
+          "chosen": 4,
+          "score": 0.027833478525280952
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:07.747421+00:00",
+        "elapsed_seconds": 12.82659091684036,
+        "seconds_since_previous_mark": 2.005851874826476,
+        "synchronize_seconds": 7.4999406933784485e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:07.747373+00:00",
+          "elapsed_seconds": 12.826597082894295,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3471638528,
+          "rss_measurement_age_seconds": 0.5464947079308331,
+          "mps_allocated_bytes": 10113312000,
+          "mps_driver_bytes": 16251813888
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 4,
+          "chosen": 2,
+          "score": 0.0061331274919211864
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:10.208244+00:00",
+        "elapsed_seconds": 15.287430624943227,
+        "seconds_since_previous_mark": 2.460839708102867,
+        "synchronize_seconds": 7.874798029661179e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:10.208190+00:00",
+          "elapsed_seconds": 15.28743708296679,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3482976256,
+          "rss_measurement_age_seconds": 0.9924547499977052,
+          "mps_allocated_bytes": 10113313024,
+          "mps_driver_bytes": 16251895808
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 5,
+          "chosen": 4,
+          "score": 0.04179835319519043
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:12.508043+00:00",
+        "elapsed_seconds": 17.587271249853075,
+        "seconds_since_previous_mark": 2.299840624909848,
+        "synchronize_seconds": 6.500165909528732e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:12.508009+00:00",
+          "elapsed_seconds": 17.587274624966085,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3494772736,
+          "rss_measurement_age_seconds": 1.2867817499209195,
+          "mps_allocated_bytes": 10113599232,
+          "mps_driver_bytes": 16251961344
+        },
+        "fields": {
+          "case": "restart_heldout_02",
+          "step": 1,
+          "chosen": 3,
+          "score": 0.03649429604411125
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:14.461689+00:00",
+        "elapsed_seconds": 19.540936374804005,
+        "seconds_since_previous_mark": 1.9536651249509305,
+        "synchronize_seconds": 7.583992555737495e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:14.461656+00:00",
+          "elapsed_seconds": 19.540941249812022,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3507765248,
+          "rss_measurement_age_seconds": 1.2176846249494702,
+          "mps_allocated_bytes": 10113598208,
+          "mps_driver_bytes": 16252026880
+        },
+        "fields": {
+          "case": "restart_heldout_02",
+          "step": 2,
+          "chosen": 1,
+          "score": 0.0025220306124538183
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:16.524692+00:00",
+        "elapsed_seconds": 21.603966916911304,
+        "seconds_since_previous_mark": 2.063030542107299,
+        "synchronize_seconds": 7.500173524022102e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:16.524668+00:00",
+          "elapsed_seconds": 21.603970457799733,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3517038592,
+          "rss_measurement_age_seconds": 1.2524101249873638,
+          "mps_allocated_bytes": 10113598464,
+          "mps_driver_bytes": 16224813056
+        },
+        "fields": {
+          "case": "restart_heldout_02",
+          "step": 3,
+          "chosen": 1,
+          "score": 0.002333152573555708
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:10:18.512429+00:00",
+        "elapsed_seconds": 23.591699082870036,
+        "seconds_since_previous_mark": 1.9877321659587324,
+        "synchronize_seconds": 1.058308407664299e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:10:18.512383+00:00",
+          "elapsed_seconds": 23.591705499915406,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15558623232,
+          "rss_current_bytes": 3529752576,
+          "rss_measurement_age_seconds": 1.2334574998822063,
+          "mps_allocated_bytes": 10113598464,
+          "mps_driver_bytes": 16224878592
+        },
+        "fields": {
+          "case": "restart_heldout_02",
+          "step": 4,
+          "chosen": 2,
+          "score": 0.009512289427220821
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 23.883155166869983,
+    "sampled_peak_driver_bytes": 16252059648,
+    "sampled_peak_rss_bytes": 3529752576
+  },
+  "ended_at_utc": "2026-10-23T16:10:18.804486+00:00"
+}

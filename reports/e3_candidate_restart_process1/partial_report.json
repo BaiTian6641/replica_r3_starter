@@ -1,0 +1,1304 @@
+{
+  "status": "partial",
+  "started_at_utc": "2026-10-23T16:09:36.895209+00:00",
+  "protocol_sha256": "b82eff6484c0ef428bd596351bf4fd22daacee8624a9cf9a8c56cabd850e0dc2",
+  "protocol": {
+    "format": "replica.e3.candidate_restart.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Fresh-process continuation of candidate-ranked repair after an observed failure; exact journal/workspace persistence, no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+    "fixtures": {
+      "root": "fixtures/e3_candidate_restart/cases",
+      "manifest_sha256": "16e61a2781170644b332c4deb48ab581d6c18cc2b638eef5b864351fd7a28eed",
+      "heldout": [
+        "restart_heldout_01",
+        "restart_heldout_02"
+      ]
+    },
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    },
+    "processes": {
+      "one": {
+        "max_steps": 2,
+        "expect": "observed read + failed test; no success"
+      },
+      "two": {
+        "max_steps": 5,
+        "expect": "reload journal/workspace; complete if model ranks valid repair"
+      }
+    },
+    "evaluation": {
+      "cases": [
+        "restart_heldout_01",
+        "restart_heldout_02"
+      ],
+      "max_decisions": 7,
+      "max_tool_calls": 4,
+      "prompt_tokens": 1024,
+      "generated_tokens": 128
+    },
+    "limits": {
+      "driver_gib": 40,
+      "swap_growth_mib": 512,
+      "minimum_free_percent": 15,
+      "native_jobs": 1
+    },
+    "claims": "Restart/interface integration only; no training or default promotion."
+  },
+  "selection_mode": "model",
+  "seed": 20261023,
+  "resumed": false,
+  "resume_from": null,
+  "downloads": 0,
+  "training_updates": 0,
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 16,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "text_only",
+    "cached_generation_supported": false,
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "steps": 2,
+      "heads": 4,
+      "task_features": 24,
+      "ffn_hidden": 1024,
+      "control_hidden": 340
+    }
+  },
+  "manifest_digest": "5db8ca2213d654ab9d1b892af6064786540f9032206cadfb570f79e68425c31d",
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "parent_receipt": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "core": {
+        "width": 256,
+        "slots": 8,
+        "steps": 2,
+        "heads": 4,
+        "task_features": 24,
+        "ffn_hidden": 1024,
+        "control_hidden": 340
+      }
+    },
+    "manifest_digest": "5db8ca2213d654ab9d1b892af6064786540f9032206cadfb570f79e68425c31d",
+    "regime": "modules_only",
+    "weights_sha256": "dff846ddce3d2313736d2680ea3bb475dcf8b06af482c2501bcb83e61400b467",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 94,
+        "parameters": 9392456,
+        "trainable": 9392456,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "core.slot_queries",
+          "core.type_embeddings",
+          "core.gate_self_logit",
+          "core.gate_cross_logit",
+          "core.gate_ffn_logit",
+          "core.self_norm.weight",
+          "core.self_norm.bias",
+          "core.cross_norm.weight",
+          "core.cross_norm.bias",
+          "core.ffn_norm.weight",
+          "core.ffn_norm.bias",
+          "core.source_norm.weight",
+          "core.source_norm.bias",
+          "core.self_q.weight",
+          "core.self_k.weight",
+          "core.self_v.weight",
+          "core.self_o.weight",
+          "core.cross_q.weight",
+          "core.cross_k.weight",
+          "core.cross_v.weight",
+          "core.cross_o.weight",
+          "core.ff_up.weight",
+          "core.ff_down.weight",
+          "core.task_encoder.projection.weight",
+          "core.task_encoder.norm.weight",
+          "core.task_encoder.norm.bias",
+          "ff_core.ff_up.weight",
+          "ff_core.ff_gate.weight",
+          "ff_core.ff_down.weight",
+          "workspace_ports.13.gate_logit",
+          "workspace_ports.13.query_norm.weight",
+          "workspace_ports.13.query_norm.bias",
+          "workspace_ports.13.memory_norm.weight",
+          "workspace_ports.13.memory_norm.bias",
+          "workspace_ports.13.query_projection.weight",
+          "workspace_ports.13.key_projection.weight",
+          "workspace_ports.13.value_projection.weight",
+          "workspace_ports.13.output_projection.weight",
+          "workspace_ports.27.gate_logit",
+          "workspace_ports.27.query_norm.weight",
+          "workspace_ports.27.query_norm.bias",
+          "workspace_ports.27.memory_norm.weight",
+          "workspace_ports.27.memory_norm.bias",
+          "workspace_ports.27.query_projection.weight",
+          "workspace_ports.27.key_projection.weight",
+          "workspace_ports.27.value_projection.weight",
+          "workspace_ports.27.output_projection.weight",
+          "task_head.mlp.0.weight",
+          "task_head.mlp.0.bias",
+          "task_head.mlp.2.weight",
+          "task_head.mlp.2.bias"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "core": [
+        "core.slot_queries",
+        "core.type_embeddings",
+        "core.gate_self_logit",
+        "core.gate_cross_logit",
+        "core.gate_ffn_logit",
+        "core.self_norm.weight",
+        "core.self_norm.bias",
+        "core.cross_norm.weight",
+        "core.cross_norm.bias",
+        "core.ffn_norm.weight",
+        "core.ffn_norm.bias",
+        "core.source_norm.weight",
+        "core.source_norm.bias",
+        "core.self_q.weight",
+        "core.self_k.weight",
+        "core.self_v.weight",
+        "core.self_o.weight",
+        "core.cross_q.weight",
+        "core.cross_k.weight",
+        "core.cross_v.weight",
+        "core.cross_o.weight",
+        "core.ff_up.weight",
+        "core.ff_down.weight",
+        "core.task_encoder.projection.weight",
+        "core.task_encoder.norm.weight",
+        "core.task_encoder.norm.bias"
+      ],
+      "ff_core": [
+        "ff_core.ff_up.weight",
+        "ff_core.ff_gate.weight",
+        "ff_core.ff_down.weight"
+      ],
+      "workspace_ports": [
+        "workspace_ports.13.gate_logit",
+        "workspace_ports.13.query_norm.weight",
+        "workspace_ports.13.query_norm.bias",
+        "workspace_ports.13.memory_norm.weight",
+        "workspace_ports.13.memory_norm.bias",
+        "workspace_ports.13.query_projection.weight",
+        "workspace_ports.13.key_projection.weight",
+        "workspace_ports.13.value_projection.weight",
+        "workspace_ports.13.output_projection.weight",
+        "workspace_ports.27.gate_logit",
+        "workspace_ports.27.query_norm.weight",
+        "workspace_ports.27.query_norm.bias",
+        "workspace_ports.27.memory_norm.weight",
+        "workspace_ports.27.memory_norm.bias",
+        "workspace_ports.27.query_projection.weight",
+        "workspace_ports.27.key_projection.weight",
+        "workspace_ports.27.value_projection.weight",
+        "workspace_ports.27.output_projection.weight"
+      ],
+      "task_head": [
+        "task_head.mlp.0.weight",
+        "task_head.mlp.0.bias",
+        "task_head.mlp.2.weight",
+        "task_head.mlp.2.bias"
+      ]
+    }
+  },
+  "episodes": [
+    {
+      "case_id": "restart_heldout_01",
+      "role": "heldout",
+      "success": false,
+      "decisions": 2,
+      "tool_calls": 2,
+      "prompt_tokens": 989,
+      "generated_tokens": 30,
+      "false_success_claims": 0,
+      "actions": [
+        "read",
+        "invoke_tool"
+      ],
+      "tools": [
+        null,
+        "run_test"
+      ],
+      "candidate_scores": [
+        {
+          "step": 1,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            }
+          ],
+          "scores": [
+            0.00040677053038962185,
+            0.9551011919975281,
+            3.857126235961914
+          ],
+          "chosen": 0
+        },
+        {
+          "step": 2,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            }
+          ],
+          "scores": [
+            2.0991528034210205,
+            0.0025939501356333494,
+            5.003587245941162
+          ],
+          "chosen": 1
+        }
+      ],
+      "trace": [
+        {
+          "sequence": 1,
+          "prompt_text": "TASK restart_heldout_01 (revision 0)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "662795fc9d720a530c9368e98a20f76e5566616f57123905a7a60356cc5f9db5",
+          "prompt_tokens": 463,
+          "task_features": [
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            1.0
+          ],
+          "state_digest": "b4c79564e99091d836fb1c7b1f3cb17ff92ce849b84a954a0331739fbbcae687",
+          "revision": 5,
+          "raw_text": "{\"kind\":\"read\",\"path\":\"workspace/app_settings.py\"}",
+          "generated_token_ids": [
+            4945,
+            13412,
+            4441,
+            1584,
+            2131,
+            7346,
+            4441,
+            93521,
+            36011,
+            26883,
+            53543,
+            8095,
+            11395,
+            1
+          ],
+          "generated_tokens": 14,
+          "frame_digest": "d2ef92dd0ea19c7c18bb30a8f0c0c06c3b0a7c2e5f11dfd0e9b8fc72f03d0f96",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "59bb95b63cc9af2793cd99a5bbc99ffb03a0850b079f9b82dea3e640a670a4e9",
+            "idempotency_key": "ffecbd4254e998e58cf84fd837f3ba1cf78b3f3ad8d9a8c5676a26dcae7a284e",
+            "kind": "read",
+            "args": {
+              "path": "workspace/app_settings.py"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-59bb95b63cc9af27",
+            "action_id": "59bb95b63cc9af2793cd99a5bbc99ffb03a0850b079f9b82dea3e640a670a4e9",
+            "status": "completed",
+            "result": {
+              "status": "ok",
+              "kind": "read_file",
+              "path": "workspace/app_settings.py",
+              "sha256": "c9567ebe5ccff45577f3f3e4418523002700dd7422f45f2aece588c9bfb36d3d",
+              "size": 111,
+              "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_DEPTH = 3\nCOOLDOWN_MS = 150\n",
+              "excerpt": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_DEPTH = 3\nCOOLDOWN_MS = 150\n"
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "8eb89caa652ae71932b7d06b218f430ed817a744321dff448d003703e0bb547b"
+            ]
+          },
+          "receipts": [],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.0028791248332709074,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 2,
+          "prompt_text": "TASK restart_heldout_01 (revision 5)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_DEPTH=3, COOLDOWN_MS=150\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \nLAST OUTCOME: completed\nLAST OBSERVATION (excerpt, status completed):\n\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_DEPTH = 3\nCOOLDOWN_MS = 150\n\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "7c6627fa898f4a0d95b312269dff3a2b224d4a9606d15d470a1c9c9f9b82c33e",
+          "prompt_tokens": 526,
+          "task_features": [
+            0.15625,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.0,
+            0.0,
+            0.125,
+            0.14285714285714285,
+            0.25,
+            0.05915178571428571,
+            0.0,
+            0.0,
+            1.0,
+            0.25,
+            0.8571428571428572
+          ],
+          "state_digest": "eae4e303be660f318267dddf680cdc318233ef102b0a347a2098113798857446",
+          "revision": 10,
+          "raw_text": "{\"arguments\":{},\"kind\":\"invoke_tool\",\"tool\":\"run_test\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            93216,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            20648,
+            9913,
+            11395,
+            1
+          ],
+          "generated_tokens": 16,
+          "frame_digest": "a5439317a4bb6963d8a190326c1cf6573142b039cf2ee51fc965a6773d0be61f",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "18cccf05ab84e74b42adc7effadc780dbc34612c2e65f5d514c20451b3538d1f",
+            "idempotency_key": "c206ed26f4d7c5b8279a4de79e13e4874892f9aa583bb9e6c2c6ccfed52b87e7",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {},
+              "tool": "run_test"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-18cccf05ab84e74b",
+            "action_id": "18cccf05ab84e74b42adc7effadc780dbc34612c2e65f5d514c20451b3538d1f",
+            "status": "failed",
+            "result": {
+              "status": "error",
+              "kind": "run_test",
+              "receipt": {
+                "kind": "run_test",
+                "command": [
+                  "/Users/flare/replica_r3_starter/.venv/bin/python",
+                  "evaluator/test_policy.py"
+                ],
+                "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_01/case",
+                "exit_code": 1,
+                "timed_out": false,
+                "duration_ms": 77,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "5279b3e95c44e4e194ee8987e6d6c2ddd60fe7b472101898485f0f4023433516",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150 not greater than or equal to 1300 : COOLDOWN_MS=150 needs COOLDOWN_MS >= 1300\n\n----------------------------------------",
+                "workspace_hashes_before": {
+                  "app_settings.py": "c9567ebe5ccff45577f3f3e4418523002700dd7422f45f2aece588c9bfb36d3d"
+                },
+                "workspace_hashes_after": {
+                  "app_settings.py": "c9567ebe5ccff45577f3f3e4418523002700dd7422f45f2aece588c9bfb36d3d"
+                },
+                "receipt_sha256": "24562de49a4e70763ba354c440e07592572fe47fb95ef8507f4a2d4c7901e5a0"
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "4ce32113939213862551958890a63a45319ecd9cbd1abcdcf940869b8a16a019"
+            ]
+          },
+          "receipts": [
+            {
+              "kind": "run_test",
+              "command": [
+                "/Users/flare/replica_r3_starter/.venv/bin/python",
+                "evaluator/test_policy.py"
+              ],
+              "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_01/case",
+              "exit_code": 1,
+              "timed_out": false,
+              "duration_ms": 77,
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stderr_sha256": "5279b3e95c44e4e194ee8987e6d6c2ddd60fe7b472101898485f0f4023433516",
+              "stdout_excerpt": "",
+              "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_01/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 150 not greater than or equal to 1300 : COOLDOWN_MS=150 needs COOLDOWN_MS >= 1300\n\n----------------------------------------",
+              "workspace_hashes_before": {
+                "app_settings.py": "c9567ebe5ccff45577f3f3e4418523002700dd7422f45f2aece588c9bfb36d3d"
+              },
+              "workspace_hashes_after": {
+                "app_settings.py": "c9567ebe5ccff45577f3f3e4418523002700dd7422f45f2aece588c9bfb36d3d"
+              },
+              "receipt_sha256": "24562de49a4e70763ba354c440e07592572fe47fb95ef8507f4a2d4c7901e5a0"
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.08259070897474885,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        }
+      ],
+      "evaluator_pass": false
+    },
+    {
+      "case_id": "restart_heldout_02",
+      "role": "heldout",
+      "success": false,
+      "decisions": 2,
+      "tool_calls": 2,
+      "prompt_tokens": 986,
+      "generated_tokens": 30,
+      "false_success_claims": 0,
+      "actions": [
+        "read",
+        "invoke_tool"
+      ],
+      "tools": [
+        null,
+        "run_test"
+      ],
+      "candidate_scores": [
+        {
+          "step": 1,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            }
+          ],
+          "scores": [
+            0.00040729742613621056,
+            0.979753315448761,
+            3.913837432861328
+          ],
+          "chosen": 0
+        },
+        {
+          "step": 2,
+          "candidates": [
+            {
+              "kind": "read",
+              "path": "workspace/app_settings.py"
+            },
+            {
+              "kind": "invoke_tool",
+              "tool": "run_test",
+              "arguments": {}
+            },
+            {
+              "kind": "stop"
+            }
+          ],
+          "scores": [
+            2.1391243934631348,
+            0.002667125081643462,
+            5.0920867919921875
+          ],
+          "chosen": 1
+        }
+      ],
+      "trace": [
+        {
+          "sequence": 1,
+          "prompt_text": "TASK restart_heldout_02 (revision 0)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_LIMIT=9, MAX_CONN=5\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "425d9eb44facc669602dd008801c01737cfa14d2a3b2a80dc3da120c208f5cc7",
+          "prompt_tokens": 462,
+          "task_features": [
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.25,
+            1.0
+          ],
+          "state_digest": "c26739c7bfa53bd6810b7c7df42290e15c8f440956a50c302af88ac7da2ddc5c",
+          "revision": 5,
+          "raw_text": "{\"kind\":\"read\",\"path\":\"workspace/app_settings.py\"}",
+          "generated_token_ids": [
+            4945,
+            13412,
+            4441,
+            1584,
+            2131,
+            7346,
+            4441,
+            93521,
+            36011,
+            26883,
+            53543,
+            8095,
+            11395,
+            1
+          ],
+          "generated_tokens": 14,
+          "frame_digest": "d2ef92dd0ea19c7c18bb30a8f0c0c06c3b0a7c2e5f11dfd0e9b8fc72f03d0f96",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "8e64969cc435ce2942e38aec5ed40b0fc4962e0d1f3fbdf99151ce4865531b33",
+            "idempotency_key": "0870e064ef3b26635c7812de98d0714754e8c077917ca044f8e657b5c436ea44",
+            "kind": "read",
+            "args": {
+              "path": "workspace/app_settings.py"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-8e64969cc435ce29",
+            "action_id": "8e64969cc435ce2942e38aec5ed40b0fc4962e0d1f3fbdf99151ce4865531b33",
+            "status": "completed",
+            "result": {
+              "status": "ok",
+              "kind": "read_file",
+              "path": "workspace/app_settings.py",
+              "sha256": "7afed23d3ab88f4dfb85278a9e456321840052134cc615648d10d988dd3cbe4f",
+              "size": 106,
+              "content": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_LIMIT = 9\nMAX_CONN = 5\n",
+              "excerpt": "\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_LIMIT = 9\nMAX_CONN = 5\n"
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "221e6b12e8c18facd8267ca35ec296534be0b2ad4f422f06e45d0fb667dd6174"
+            ]
+          },
+          "receipts": [],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.0025847500655800104,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        },
+        {
+          "sequence": 2,
+          "prompt_text": "TASK restart_heldout_02 (revision 5)\nAUTHORITATIVE GOAL (immutable): The policy test for workspace/app_settings.py fails. Inspect the configuration, run the evaluator to learn the required bound, change exactly that one numeric constant with set_constant, and rerun the test to confirm it passes.\nSUCCESS CONDITIONS (independent host check only):\n- [evaluator_test_passes] python -m unittest evaluator/test_policy.py exits with status zero\nCONSTRAINTS:\n- Only workspace/app_settings.py may be modified.\n- Change exactly one numeric constant with set_constant; leave every other setting untouched.\n- Do not modify anything under the evaluator directory.\n- Use only the allowed tools to inspect, edit, and test.\nEXACT WORKSPACE CONSTANTS (host-read current values; no expected bound supplied):\n- AUX_LIMIT=9, MAX_CONN=5\nACTION/OBSERVATION HISTORY (most recent last):\n- read -> completed \nLAST OUTCOME: completed\nLAST OBSERVATION (excerpt, status completed):\n\"\"\"Service client settings. Adjust values to satisfy the deployment policy.\"\"\"\nAUX_LIMIT = 9\nMAX_CONN = 5\n\nALLOWED TOOLS: read_file, set_constant, run_test\nRespond with exactly one JSON object and nothing else.\nKinds and arguments:\n{\"kind\": \"retrieve\", \"query\": \"...\"}\n{\"kind\": \"read\", \"path\": \"workspace/...\"}\n{\"kind\": \"invoke_tool\", \"tool\": \"read_file\", \"arguments\": {\"path\": \"workspace/...\"}}\n{\"kind\": \"invoke_tool\", \"tool\": \"set_constant\", \"arguments\": {\"name\": \"CONSTANT_NAME\", \"value\": 0}}\n{\"kind\": \"invoke_tool\", \"tool\": \"run_test\", \"arguments\": {}}\n{\"kind\": \"verify\"}\n{\"kind\": \"revise\", \"note\": \"...\"}\n{\"kind\": \"answer\", \"text\": \"...\"}\n{\"kind\": \"stop\"}\n{\"kind\": \"ask\", \"question\": \"...\"}\nPredictions are hypothetical; success is decided only by the host check after verify/stop/answer.",
+          "prompt_sha256": "9b90352d45b3005cc130fe311b74243e9fd5649f42de81cbb9e0c811127db50a",
+          "prompt_tokens": 524,
+          "task_features": [
+            0.15625,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.125,
+            0.0,
+            0.0,
+            0.125,
+            0.14285714285714285,
+            0.25,
+            0.059027777777777776,
+            0.0,
+            0.0,
+            1.0,
+            0.25,
+            0.8571428571428572
+          ],
+          "state_digest": "5c352a17b6e41135c311f9500be495efaf71d0b68c1317fd50737e714a6a372c",
+          "revision": 10,
+          "raw_text": "{\"arguments\":{},\"kind\":\"invoke_tool\",\"tool\":\"run_test\"}",
+          "generated_token_ids": [
+            4945,
+            15382,
+            93216,
+            13412,
+            4441,
+            36473,
+            4173,
+            13696,
+            346,
+            2131,
+            64076,
+            4441,
+            20648,
+            9913,
+            11395,
+            1
+          ],
+          "generated_tokens": 16,
+          "frame_digest": "a5439317a4bb6963d8a190326c1cf6573142b039cf2ee51fc965a6773d0be61f",
+          "workspace_stamp": null,
+          "mode": "full",
+          "action": {
+            "action_id": "4d51df4ea82489216688aa032e3860a0ba791ab71892499ec5bf476c9d47879e",
+            "idempotency_key": "1c08843a7e193e245ccc83b605a6b419fd39ed7fe5b50d4fe31f1681c5901a8b",
+            "kind": "invoke_tool",
+            "args": {
+              "arguments": {},
+              "tool": "run_test"
+            },
+            "goal_ref": "",
+            "budget_estimate": {},
+            "subgoal_id": null,
+            "evidence_refs": [],
+            "predicted_outcome": "",
+            "hypothetical": true,
+            "proposed_by": "model"
+          },
+          "outcome": {
+            "outcome_id": "out-4d51df4ea8248921",
+            "action_id": "4d51df4ea82489216688aa032e3860a0ba791ab71892499ec5bf476c9d47879e",
+            "status": "failed",
+            "result": {
+              "status": "error",
+              "kind": "run_test",
+              "receipt": {
+                "kind": "run_test",
+                "command": [
+                  "/Users/flare/replica_r3_starter/.venv/bin/python",
+                  "evaluator/test_policy.py"
+                ],
+                "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_02/case",
+                "exit_code": 1,
+                "timed_out": false,
+                "duration_ms": 69,
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "6f37c5a4148274421e1377c63201ab22b3dcfd957a207d272bf77fb0177c6dca",
+                "stdout_excerpt": "",
+                "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_02/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 5 not greater than or equal to 21 : MAX_CONN=5 needs MAX_CONN >= 21\n\n------------------------------------------------------",
+                "workspace_hashes_before": {
+                  "app_settings.py": "7afed23d3ab88f4dfb85278a9e456321840052134cc615648d10d988dd3cbe4f"
+                },
+                "workspace_hashes_after": {
+                  "app_settings.py": "7afed23d3ab88f4dfb85278a9e456321840052134cc615648d10d988dd3cbe4f"
+                },
+                "receipt_sha256": "6c396b36a03a9596aa823b7c13060a85877c17f5ac2a31865ccb17ea2908cb73"
+              }
+            },
+            "error": null,
+            "spent": {
+              "tool_calls": 1
+            },
+            "verifier": "host_tools",
+            "observation_ids": [
+              "d480d55f68dffdae9abfcff144d0c1d143369850e76ba7f22fb5b3245a31a213"
+            ]
+          },
+          "receipts": [
+            {
+              "kind": "run_test",
+              "command": [
+                "/Users/flare/replica_r3_starter/.venv/bin/python",
+                "evaluator/test_policy.py"
+              ],
+              "cwd": "/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_02/case",
+              "exit_code": 1,
+              "timed_out": false,
+              "duration_ms": 69,
+              "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "stderr_sha256": "6f37c5a4148274421e1377c63201ab22b3dcfd957a207d272bf77fb0177c6dca",
+              "stdout_excerpt": "",
+              "stderr_excerpt": "F\n======================================================================\nFAIL: test_policy_bound (__main__.PolicyTest.test_policy_bound)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/runs/e3_candidate_restart_process1/episodes/restart_heldout_02/case/evaluator/test_policy.py\", line 40, in test_policy_bound\n    self.assertGreaterEqual(values[TARGET], MINIMUM,\nAssertionError: 5 not greater than or equal to 21 : MAX_CONN=5 needs MAX_CONN >= 21\n\n------------------------------------------------------",
+              "workspace_hashes_before": {
+                "app_settings.py": "7afed23d3ab88f4dfb85278a9e456321840052134cc615648d10d988dd3cbe4f"
+              },
+              "workspace_hashes_after": {
+                "app_settings.py": "7afed23d3ab88f4dfb85278a9e456321840052134cc615648d10d988dd3cbe4f"
+              },
+              "receipt_sha256": "6c396b36a03a9596aa823b7c13060a85877c17f5ac2a31865ccb17ea2908cb73"
+            }
+          ],
+          "success_condition_met": false,
+          "success_claimed": false,
+          "decision_wall_seconds": 0.07396241603419185,
+          "workspace_pool": null,
+          "notes": [
+            "model_scored_candidate",
+            "workspace_discarded: missing_or_incompatible"
+          ]
+        }
+      ],
+      "evaluator_pass": false
+    }
+  ],
+  "completions": "0/2",
+  "heldout_completions": "0/2",
+  "claims": "Model-scored candidate action interface; no training, no default promotion.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T16:09:36.895886+00:00",
+    "ended_at": "2026-10-23T16:09:45.495831+00:00",
+    "elapsed_seconds": 8.600037874886766,
+    "sample_interval_seconds": 0.1,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 81,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15557804032,
+      "rss_peak_sampled_bytes": 3319463936,
+      "mps_allocated_peak_sampled_bytes": 10437912320,
+      "mps_driver_peak_sampled_bytes": 13013680128
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T16:09:36.896645+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 85%",
+      "memory_free_percent": 85.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T16:09:45.425026+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1434.69M  free = 1637.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1504381501,
+        "free_bytes": 1716843970
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 64%",
+      "memory_free_percent": 64.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T16:09:40.970421+00:00",
+        "elapsed_seconds": 4.074510374804959,
+        "seconds_since_previous_mark": 4.074510374804959,
+        "synchronize_seconds": 8.542090654373169e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:09:40.970367+00:00",
+          "elapsed_seconds": 4.074519666843116,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15557804032,
+          "rss_current_bytes": 345391104,
+          "rss_measurement_age_seconds": 1.9702200000174344,
+          "mps_allocated_bytes": 10113019904,
+          "mps_driver_bytes": 10754605056
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 94,
+              "parameters": 9392456,
+              "trainable": 9392456,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "core.slot_queries",
+                "core.type_embeddings",
+                "core.gate_self_logit",
+                "core.gate_cross_logit",
+                "core.gate_ffn_logit",
+                "core.self_norm.weight",
+                "core.self_norm.bias",
+                "core.cross_norm.weight",
+                "core.cross_norm.bias",
+                "core.ffn_norm.weight",
+                "core.ffn_norm.bias",
+                "core.source_norm.weight",
+                "core.source_norm.bias",
+                "core.self_q.weight",
+                "core.self_k.weight",
+                "core.self_v.weight",
+                "core.self_o.weight",
+                "core.cross_q.weight",
+                "core.cross_k.weight",
+                "core.cross_v.weight",
+                "core.cross_o.weight",
+                "core.ff_up.weight",
+                "core.ff_down.weight",
+                "core.task_encoder.projection.weight",
+                "core.task_encoder.norm.weight",
+                "core.task_encoder.norm.bias",
+                "ff_core.ff_up.weight",
+                "ff_core.ff_gate.weight",
+                "ff_core.ff_down.weight",
+                "workspace_ports.13.gate_logit",
+                "workspace_ports.13.query_norm.weight",
+                "workspace_ports.13.query_norm.bias",
+                "workspace_ports.13.memory_norm.weight",
+                "workspace_ports.13.memory_norm.bias",
+                "workspace_ports.13.query_projection.weight",
+                "workspace_ports.13.key_projection.weight",
+                "workspace_ports.13.value_projection.weight",
+                "workspace_ports.13.output_projection.weight",
+                "workspace_ports.27.gate_logit",
+                "workspace_ports.27.query_norm.weight",
+                "workspace_ports.27.query_norm.bias",
+                "workspace_ports.27.memory_norm.weight",
+                "workspace_ports.27.memory_norm.bias",
+                "workspace_ports.27.query_projection.weight",
+                "workspace_ports.27.key_projection.weight",
+                "workspace_ports.27.value_projection.weight",
+                "workspace_ports.27.output_projection.weight",
+                "task_head.mlp.0.weight",
+                "task_head.mlp.0.bias",
+                "task_head.mlp.2.weight",
+                "task_head.mlp.2.bias"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:09:42.160584+00:00",
+        "elapsed_seconds": 5.2646976669784635,
+        "seconds_since_previous_mark": 1.1901872921735048,
+        "synchronize_seconds": 3.7499703466892242e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:09:42.160541+00:00",
+          "elapsed_seconds": 5.264704166911542,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15557804032,
+          "rss_current_bytes": 3251503104,
+          "rss_measurement_age_seconds": 1.1328446669504046,
+          "mps_allocated_bytes": 10113310464,
+          "mps_driver_bytes": 11920916480
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 1,
+          "chosen": 0,
+          "score": 0.00040677053038962185
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:09:43.157015+00:00",
+        "elapsed_seconds": 6.256590166827664,
+        "seconds_since_previous_mark": 0.9918924998492002,
+        "synchronize_seconds": 3.5333214327692986e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:09:43.156923+00:00",
+          "elapsed_seconds": 6.2611216669902205,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15557804032,
+          "rss_current_bytes": 3302195200,
+          "rss_measurement_age_seconds": 0.04891320806927979,
+          "mps_allocated_bytes": 10113310976,
+          "mps_driver_bytes": 11939840000
+        },
+        "fields": {
+          "case": "restart_heldout_01",
+          "step": 2,
+          "chosen": 1,
+          "score": 0.0025939501356333494
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:09:44.217332+00:00",
+        "elapsed_seconds": 7.32146737491712,
+        "seconds_since_previous_mark": 1.064877208089456,
+        "synchronize_seconds": 1.908303238451481e-05,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:09:44.217292+00:00",
+          "elapsed_seconds": 7.321474666940048,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15557804032,
+          "rss_current_bytes": 3302195200,
+          "rss_measurement_age_seconds": 1.109263207996264,
+          "mps_allocated_bytes": 10113597184,
+          "mps_driver_bytes": 11939889152
+        },
+        "fields": {
+          "case": "restart_heldout_02",
+          "step": 1,
+          "chosen": 0,
+          "score": 0.00040729742613621056
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "candidate_choice",
+        "timestamp": "2026-10-23T16:09:45.234085+00:00",
+        "elapsed_seconds": 8.29306433396414,
+        "seconds_since_previous_mark": 0.9715969590470195,
+        "synchronize_seconds": 3.1660310924053192e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T16:09:45.188880+00:00",
+          "elapsed_seconds": 8.293070791987702,
+          "phase": "candidate_choice",
+          "rss_peak_process_lifetime_bytes": 15557804032,
+          "rss_current_bytes": 3319463936,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10113597696,
+          "mps_driver_bytes": 13013663744
+        },
+        "fields": {
+          "case": "restart_heldout_02",
+          "step": 2,
+          "chosen": 1,
+          "score": 0.002667125081643462
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 8.600037874886766,
+    "sampled_peak_driver_bytes": 13013680128,
+    "sampled_peak_rss_bytes": 3319463936
+  },
+  "ended_at_utc": "2026-10-23T16:09:45.496424+00:00"
+}

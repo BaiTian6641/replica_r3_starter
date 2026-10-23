@@ -304,6 +304,14 @@ held-out)** with zero false success claims at 15.12 GiB, 66.5 s. This is a
 refactor/verification, not a new capability arm. See
 [candidate rerank results](docs/experiments/20261023_E3_Candidate_Rerank_Replication_Results.md).
 
+**E3 candidate-ranking restart (23 October).** Process 1 persisted two
+decisions per fresh case after a failed test; process 2 reloaded the exact
+journal/workspace and completed **1/2** cases. The successful case passed the
+independent evaluator; the other selected the unchanged-value candidate,
+produced one false stop claim and exhausted its continuation budget. This
+verifies restart mechanics for the interface but not robust ranking. See
+[candidate restart results](docs/experiments/20261023_E3_Candidate_Restart_Results.md).
+
 **E3 candidate reranking replication (23 October).** A fresh 1-dev/5-heldout
 family repeated the result: model **6/6 (5/5 held-out)** vs same-menu random
 **0/6**, zero false success claims. Across two fresh families: **11/11 episodes,
