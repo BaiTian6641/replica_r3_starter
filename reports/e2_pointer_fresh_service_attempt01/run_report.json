@@ -1,0 +1,820 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T13:39:22.096286+00:00",
+  "protocol_sha256": "2d62cf7c32224d505ad25cc9910970926e0a47b0d76d72099599334115cc682f",
+  "protocol": {
+    "format": "replica.e2.pointer_service.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Fresh-value consumer check of the published pointer candidate; no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "extension": "runs/e2_pointer_head_attempt02/selected_extension",
+    "dataset": {
+      "root": "data/e2_pointer_fresh",
+      "records_sha256": "ba37a70ce4bf807c3ab84e8f231935a373033320a40fe1690301751b611ad91b",
+      "queries_sha256": "b1de316e3bd3fa50fad485d6f3f3826d977ca275980a1a1cc20a5206567caa5e",
+      "manifest_sha256": "70f7d1a27415e2169d5f6d22ac426f5d0ae0c36addb13e9b5a21fed4c63fc0a8"
+    },
+    "max_span": 4,
+    "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+    "evaluation": {
+      "dev": 0,
+      "heldout": 12,
+      "metric": "exact pointer text and provenance; no training"
+    },
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "eval_cases": 12,
+      "checkpoint_saves": 0
+    },
+    "claims": "Fresh-value consumer check only; no default change."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+  "extension": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "copy": {
+        "max_tokens": 512,
+        "mode": "pointer",
+        "max_span": 4
+      }
+    },
+    "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+    "regime": "modules_only",
+    "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 49,
+        "parameters": 13275650,
+        "trainable": 13275650,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "copy_head.query_norm.weight",
+          "copy_head.query_norm.bias",
+          "copy_head.key_norm.weight",
+          "copy_head.key_norm.bias",
+          "copy_head.query_projection.weight",
+          "copy_head.key_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "copy_head": [
+        "copy_head.query_norm.weight",
+        "copy_head.query_norm.bias",
+        "copy_head.key_norm.weight",
+        "copy_head.key_norm.bias",
+        "copy_head.query_projection.weight",
+        "copy_head.key_projection.weight"
+      ]
+    }
+  },
+  "pointer": [
+    {
+      "case_id": "fresh_pointer_01",
+      "split": "heldout",
+      "text": "saff",
+      "expected": "saffron",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_01_relevant"
+      ],
+      "span_hashes": [
+        "3279c87e190ec0426614d4c9934347b51f55c0a37e77b9559fd3471957b9a239"
+      ],
+      "source_ids": [
+        "fresh_pointer_01_relevant"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_02",
+      "split": "heldout",
+      "text": "magenta",
+      "expected": "cobalt",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_02_same_attr"
+      ],
+      "span_hashes": [
+        "9e3b890bd77935bc5da637ee223196e814dcafb81a7a66192b3870b73705cc70"
+      ],
+      "source_ids": [
+        "fresh_pointer_02_same_attr"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_03",
+      "split": "heldout",
+      "text": "cer",
+      "expected": "ochre",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_03_same_entity"
+      ],
+      "span_hashes": [
+        "ce35c81273fe5982e68e9f75042ab43a2c52497d9243dda25d3156c86ad67cb9"
+      ],
+      "source_ids": [
+        "fresh_pointer_03_same_entity"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_04",
+      "split": "heldout",
+      "text": "ilion",
+      "expected": "vermilion",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_04_relevant"
+      ],
+      "span_hashes": [
+        "8e41e2fad384349fd0b1e19760b2bd1a4e435e7b7c5a80db977e2f866ae7e556"
+      ],
+      "source_ids": [
+        "fresh_pointer_04_relevant"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_05",
+      "split": "heldout",
+      "text": "turquoise",
+      "expected": "cerulean",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_05_same_attr"
+      ],
+      "span_hashes": [
+        "caef0b53c62bb484ba78c2dacd8529c5ea4e679246908479c5170c370a5193f3"
+      ],
+      "source_ids": [
+        "fresh_pointer_05_same_attr"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_06",
+      "split": "heldout",
+      "text": "Jade",
+      "expected": "chartreuse",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_06_same_attr"
+      ],
+      "span_hashes": [
+        "fc79ca31a7add8607eeb206c11d136e5d97c042291cd5f4fb3c8e5e4b840deb1"
+      ],
+      "source_ids": [
+        "fresh_pointer_06_same_attr"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_07",
+      "split": "heldout",
+      "text": "magenta",
+      "expected": "magenta",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_07_relevant"
+      ],
+      "span_hashes": [
+        "fc4ef3b24a01a86424d2270c9e44d53021eaa9d9a84e2e4e5f4a7c96e4bb629d"
+      ],
+      "source_ids": [
+        "fresh_pointer_07_relevant"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_08",
+      "split": "heldout",
+      "text": "turquoise",
+      "expected": "tangerine",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_08_same_entity"
+      ],
+      "span_hashes": [
+        "372b1d42d0ff535c6d60ccda108f43e0ae93cb381479d45fd6f3c882f9a815c9"
+      ],
+      "source_ids": [
+        "fresh_pointer_08_same_entity"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_09",
+      "split": "heldout",
+      "text": "Jade",
+      "expected": "periwinkle",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_09_relevant"
+      ],
+      "span_hashes": [
+        "331bc44ca52dd71e79048b86c0fc111856698dfacce0b1de00a84f49a8731953"
+      ],
+      "source_ids": [
+        "fresh_pointer_09_relevant"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_10",
+      "split": "heldout",
+      "text": "turquoise",
+      "expected": "turquoise",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_10_relevant"
+      ],
+      "span_hashes": [
+        "98649f1ed88611389f47a5b70e0fc3a38b56573052b075b5604372760f41fe16"
+      ],
+      "source_ids": [
+        "fresh_pointer_10_relevant"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_11",
+      "split": "heldout",
+      "text": "saff",
+      "expected": "burgundy",
+      "correct": false,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_11_same_entity"
+      ],
+      "span_hashes": [
+        "7e73ef3140b1b905b1631f872267ecb947e6c6edf6a64f67c18f164ceacc18bf"
+      ],
+      "source_ids": [
+        "fresh_pointer_11_same_entity"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    },
+    {
+      "case_id": "fresh_pointer_12",
+      "split": "heldout",
+      "text": "lavender",
+      "expected": "lavender",
+      "correct": true,
+      "method": "pointer_copy",
+      "record_ids": [
+        "fresh_pointer_12_relevant"
+      ],
+      "span_hashes": [
+        "5ec5a0c7411ce62ead88aff81cd8d7cc7dfc53101dd9a0dd15b7ea743d995408"
+      ],
+      "source_ids": [
+        "fresh_pointer_12_relevant"
+      ],
+      "producer": "265d1c71db5499bf05d475548103c206f8ea379c2356eeb0da1df5763c012e11"
+    }
+  ],
+  "exact_source": [
+    {
+      "case_id": "fresh_pointer_01",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_01_relevant",
+        "fresh_pointer_01_same_attr",
+        "fresh_pointer_01_same_entity",
+        "fresh_pointer_01_owner"
+      ],
+      "span_hashes": [
+        "3279c87e190ec0426614d4c9934347b51f55c0a37e77b9559fd3471957b9a239",
+        "11ff990ba45ba3f9e4d29159cc2f0482df6977da6069a87fdcf0f96739f325f0",
+        "1417511960d35c4368d68fa0750859e9eefde10a891d476777f9c2e2997ef8ea",
+        "1acbd98533204fc1f4527fb3d7a5c2e1680040c23408e418bc692037d0205328"
+      ],
+      "text_sha256": "54a6b45bc651250a71eedadb41bcd5326d0b219f02797c8241265bdeed3c0702"
+    },
+    {
+      "case_id": "fresh_pointer_02",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_02_relevant",
+        "fresh_pointer_02_same_attr",
+        "fresh_pointer_02_same_entity",
+        "fresh_pointer_02_owner"
+      ],
+      "span_hashes": [
+        "97f0692030d50263951634a8739c08b37212ae2c742632bd5fa142931dd3fa66",
+        "9e3b890bd77935bc5da637ee223196e814dcafb81a7a66192b3870b73705cc70",
+        "7747b7d894bd52d737518ff3363cd2f8bbe904858cebe31d2df1f12bccb21049",
+        "66a2bf15ad21669026f01c994706e5bccdd647a3bfd0f5cc9ad161acf809aa43"
+      ],
+      "text_sha256": "cc1d05915b0762b73cf4c9078e6f16c7876e0f0855665ca9a5eb8f16a16356d2"
+    },
+    {
+      "case_id": "fresh_pointer_03",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_03_relevant",
+        "fresh_pointer_03_same_attr",
+        "fresh_pointer_03_same_entity",
+        "fresh_pointer_03_owner"
+      ],
+      "span_hashes": [
+        "c4ad51c2212987cd4d62f140fdeea2cd99c0fc7e0127b7a7297b5f2eabf12c3c",
+        "dfab9abe498f9378b722e72776b0a3239658a3ce81329fa68936ba17402f7160",
+        "ce35c81273fe5982e68e9f75042ab43a2c52497d9243dda25d3156c86ad67cb9",
+        "7e262db44d455c613453c1743a1204e341ac68c16b06197e94494f65dff0d03b"
+      ],
+      "text_sha256": "7d903d8da86566337ff2be353ceb15623fa30e8c3cc188cc0656b63b8c2cc189"
+    },
+    {
+      "case_id": "fresh_pointer_04",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_04_relevant",
+        "fresh_pointer_04_owner",
+        "fresh_pointer_04_same_attr",
+        "fresh_pointer_04_same_entity"
+      ],
+      "span_hashes": [
+        "8e41e2fad384349fd0b1e19760b2bd1a4e435e7b7c5a80db977e2f866ae7e556",
+        "3db6855297c0b057ef6182885b89440dade287455d33362eed8daf2d755c08f0",
+        "72efcaaf98500f5108621c5d55c2fb4a01c77befb68b55ca8649285484a7c1a4",
+        "9a138e727c514ef37fd9b3a66a8fefe97240ead5e8d1012ec7bbfe91be71d7dc"
+      ],
+      "text_sha256": "518014668b812dc2c19f53ec5325207ebf733065020ab5863f9d049df9fdc734"
+    },
+    {
+      "case_id": "fresh_pointer_05",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_05_relevant",
+        "fresh_pointer_05_same_attr",
+        "fresh_pointer_05_same_entity",
+        "fresh_pointer_05_owner"
+      ],
+      "span_hashes": [
+        "261643a77630f9426ca6a3e89fcb5cbf6284209501ca7b8afba81d686cb965a0",
+        "caef0b53c62bb484ba78c2dacd8529c5ea4e679246908479c5170c370a5193f3",
+        "a26b1df87319555e967689638a7cb5aa0d793fdc79ae4300d328d3882a6a88ce",
+        "39c5658576938caf9c7af38b09269a937de43d1d9078d228d0e1ef01398c9999"
+      ],
+      "text_sha256": "ab8512fec5842a0637cd8d11441280a75e4c06acadbe6644d0fd3c1ecc9d01e3"
+    },
+    {
+      "case_id": "fresh_pointer_06",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_06_relevant",
+        "fresh_pointer_06_same_attr",
+        "fresh_pointer_06_same_entity",
+        "fresh_pointer_06_owner"
+      ],
+      "span_hashes": [
+        "57a36d0e5775d32f12df8234b1ce5b72dcb2b179b12933665d840d4a05d22ec3",
+        "fc79ca31a7add8607eeb206c11d136e5d97c042291cd5f4fb3c8e5e4b840deb1",
+        "d043e10d7e89b878eaac7f444118cb798f173d415557dc4f9696ee03efaeeeba",
+        "3d3a4134fbd77f3ca9551671960badfc8aaf4ce5f8894f24b593526360fb491a"
+      ],
+      "text_sha256": "b23a9a34e6283490fc16d1d26f127febb4e647f25d75d8a52e7a852122add3b0"
+    },
+    {
+      "case_id": "fresh_pointer_07",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_07_relevant",
+        "fresh_pointer_07_same_attr",
+        "fresh_pointer_07_same_entity",
+        "fresh_pointer_07_owner"
+      ],
+      "span_hashes": [
+        "fc4ef3b24a01a86424d2270c9e44d53021eaa9d9a84e2e4e5f4a7c96e4bb629d",
+        "78ef96e5810234f2fa3233b5f8810f4cc2061ddb34dd7c7f8e5b5a5a952134cb",
+        "c21dc5d9c532d924dc2b57730b8e3c6c0f2ac20577d8ffac179bb03652bd27f4",
+        "c2259afcb930eb2a056e34f30aac95251ea256862322906b5bce2b741a04f499"
+      ],
+      "text_sha256": "85b56736229af7654ed115d8698dd73992bbf96f45e0823368d5480626a187ff"
+    },
+    {
+      "case_id": "fresh_pointer_08",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_08_relevant",
+        "fresh_pointer_08_same_attr",
+        "fresh_pointer_08_same_entity",
+        "fresh_pointer_08_owner"
+      ],
+      "span_hashes": [
+        "c843d6c29bf02720965a98caeeebf187c7257264ccbff738a247084a96de7979",
+        "6eca436fe02303059f4f26158c09919cbb8f5bfa1b96049c8d5fc9d95798969b",
+        "372b1d42d0ff535c6d60ccda108f43e0ae93cb381479d45fd6f3c882f9a815c9",
+        "fdf79e9bbcfc05e68cdd4a38f3c1629e214809cb937f4b21746b901428697487"
+      ],
+      "text_sha256": "c3660bf9cebe6b80ca97bb253b0c219450b9ecc370beab007300852bba7152bf"
+    },
+    {
+      "case_id": "fresh_pointer_09",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_09_relevant",
+        "fresh_pointer_09_same_attr",
+        "fresh_pointer_09_same_entity",
+        "fresh_pointer_09_owner"
+      ],
+      "span_hashes": [
+        "331bc44ca52dd71e79048b86c0fc111856698dfacce0b1de00a84f49a8731953",
+        "22c3432da4129bbbf341427474e1637442acf0459121458ec9f878699bfe9b7e",
+        "5e01efc46e1fe15af0189147805789d2df9d55b697d1350143099689b06ac7fe",
+        "16043e20b848cc24e1510002a9e32b915426666340c8d927ae095ff82586de99"
+      ],
+      "text_sha256": "3cd989b89894aca9b3d76cf42c8e619d5de85d680b92d56ae078c9d863dc702c"
+    },
+    {
+      "case_id": "fresh_pointer_10",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_10_relevant",
+        "fresh_pointer_10_same_attr",
+        "fresh_pointer_10_same_entity",
+        "fresh_pointer_10_owner"
+      ],
+      "span_hashes": [
+        "98649f1ed88611389f47a5b70e0fc3a38b56573052b075b5604372760f41fe16",
+        "1417511960d35c4368d68fa0750859e9eefde10a891d476777f9c2e2997ef8ea",
+        "719dee5f4cc574c1a06ab9ea515f6c79173ed71713802df3ae61319a3e49b094",
+        "21cf5f88887d659df9b678c54bb8f8923af0dd5b737e60bc8b6a00e0ecf9f6eb"
+      ],
+      "text_sha256": "c23a5c3a86c19813fbc93b856915e37429c999d908582b65a147559693417c8e"
+    },
+    {
+      "case_id": "fresh_pointer_11",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_11_relevant",
+        "fresh_pointer_11_same_attr",
+        "fresh_pointer_11_same_entity",
+        "fresh_pointer_11_owner"
+      ],
+      "span_hashes": [
+        "8ccb8597efca69c0007dffaede20ecdaf74ff37c7b9d54d1bf4655db418c2f07",
+        "7747b7d894bd52d737518ff3363cd2f8bbe904858cebe31d2df1f12bccb21049",
+        "7e73ef3140b1b905b1631f872267ecb947e6c6edf6a64f67c18f164ceacc18bf",
+        "af72b98965d5dac1c695832c8efe33e70f0743748ddb4e0220d4d826f16dcb3b"
+      ],
+      "text_sha256": "9af2f57852c0ecd159629108b1ee25d38fc3e68d1ebce408dc970775b8608b22"
+    },
+    {
+      "case_id": "fresh_pointer_12",
+      "split": "heldout",
+      "method": "exact_source",
+      "record_ids": [
+        "fresh_pointer_12_relevant",
+        "fresh_pointer_12_owner",
+        "fresh_pointer_12_same_attr",
+        "fresh_pointer_12_same_entity"
+      ],
+      "span_hashes": [
+        "5ec5a0c7411ce62ead88aff81cd8d7cc7dfc53101dd9a0dd15b7ea743d995408",
+        "d9d6476358fcad43847c1b3d769cfe15eddf8e35091a59e0ccbd0ab3bb7fb02d",
+        "ce35c81273fe5982e68e9f75042ab43a2c52497d9243dda25d3156c86ad67cb9",
+        "e9333234c4a0e9a70aaf521f6afcd46cb0cccff0c27fae48e31a44b33868d150"
+      ],
+      "text_sha256": "aff74f9ceb60e3a53f9e1e2efc547a3f4343390d799edcbe8d87cc0264913d80"
+    }
+  ],
+  "metrics": {
+    "dev": {
+      "count": 0,
+      "correct": 0,
+      "accuracy": 0.0
+    },
+    "heldout": {
+      "count": 12,
+      "correct": 3,
+      "accuracy": 0.25
+    }
+  },
+  "checks": {
+    "all_pointer_method": true,
+    "all_pointer_provenance": true,
+    "all_exact_fallback": true
+  },
+  "claims": "Bounded consumer check of published pointer and exact-source fallback; no training or default change.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T13:39:22.096632+00:00",
+    "ended_at": "2026-10-23T13:39:29.176460+00:00",
+    "elapsed_seconds": 7.079699416877702,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 29,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15556182016,
+      "rss_peak_sampled_bytes": 3419226112,
+      "mps_allocated_peak_sampled_bytes": 10403409920,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T13:39:22.097344+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T13:39:29.101293+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 73%",
+      "memory_free_percent": 73.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T13:39:26.309716+00:00",
+        "elapsed_seconds": 4.10300208395347,
+        "seconds_since_previous_mark": 4.10300208395347,
+        "synchronize_seconds": 5.292007699608803e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T13:39:26.199728+00:00",
+          "elapsed_seconds": 4.103014041902497,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15556182016,
+          "rss_current_bytes": 3262791680,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10128518144,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 49,
+              "parameters": 13275650,
+              "trainable": 13275650,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "copy_head.query_norm.weight",
+                "copy_head.query_norm.bias",
+                "copy_head.key_norm.weight",
+                "copy_head.key_norm.bias",
+                "copy_head.query_projection.weight",
+                "copy_head.key_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 7.079699416877702,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T13:39:29.176858+00:00"
+}

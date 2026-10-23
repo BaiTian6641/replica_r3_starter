@@ -40,6 +40,13 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 pointer fresh consumer (23 October).** The published pointer was evaluated
+on 12 untouched-value cases without training: **3/12** exact, complete
+provenance, exact-source fallback pass. Misses include partial subword copies
+(`saff`, `ilion`, `cer`) and distractor selections. It remains opt-in; exact text
+is the default. See
+[fresh pointer results](docs/experiments/20261023_E2_Pointer_Fresh_Service_Results.md).
+
 **E2 pointer consumer (23 October).** `MemoryAnswerService` was exercised on
 the published pointer extension: pointer dev **3/6**, held-out **2/10**, and all
 16 requests had complete record/span/source-hash provenance; the exact-source
