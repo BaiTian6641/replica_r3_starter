@@ -1,0 +1,707 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T14:07:39.658312+00:00",
+  "protocol_sha256": "319bc3345a74637326711080a5e8c9ddc6a5be639f5862f21cc70e3be804259d",
+  "protocol": {
+    "format": "replica.e2.pointer_context_service.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Cross-template generalization check of the published context head; no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+    "context_head": "runs/e2_pointer_context_attempt04/context_head.safetensors",
+    "context_head_manifest": "runs/e2_pointer_context_attempt04/context_head_manifest.json",
+    "eval_dataset": {
+      "root": "data/e2_pointer_cross_template",
+      "records_sha256": "1b805e205cb414d824c47b48347e45498684aed8f32dd4f418e326da14c8641a",
+      "queries_sha256": "c3189557f9256dc858b701ffbeac71f9e81d5e9ae688405a241a27ff622fa4dc",
+      "manifest_sha256": "fda73b77441a59354e740cb058f53a847a8ea31eb1070e0ea0d55c19a343b5cd"
+    },
+    "max_span": 4,
+    "candidate_unit": "word",
+    "record_scope": "top",
+    "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+    "evaluation": {
+      "heldout": 12,
+      "arms": [
+        "parent_pointer",
+        "context_candidate"
+      ],
+      "metric": "exact copied span"
+    },
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "eval_cases": 24
+    },
+    "claims": "Template-boundary check only; no default change."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+  "pointer": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "copy": {
+        "max_tokens": 512,
+        "mode": "pointer",
+        "max_span": 4
+      }
+    },
+    "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+    "regime": "modules_only",
+    "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 49,
+        "parameters": 13275650,
+        "trainable": 13275650,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "copy_head.query_norm.weight",
+          "copy_head.query_norm.bias",
+          "copy_head.key_norm.weight",
+          "copy_head.key_norm.bias",
+          "copy_head.query_projection.weight",
+          "copy_head.key_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "copy_head": [
+        "copy_head.query_norm.weight",
+        "copy_head.query_norm.bias",
+        "copy_head.key_norm.weight",
+        "copy_head.key_norm.bias",
+        "copy_head.query_projection.weight",
+        "copy_head.key_projection.weight"
+      ]
+    }
+  },
+  "context_head": {
+    "format": "replica.e2.candidate_context_head.v1",
+    "created_at_utc": "2026-10-23",
+    "parent_pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+    "parent_pointer_weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "training_dataset": "data/e2_copy",
+    "features": [
+      "relative_start",
+      "relative_end",
+      "after_is",
+      "length",
+      "distance_from_is"
+    ],
+    "weights_sha256": "d9dc540a25cd2fa7ce150a0ff2cea092cd4093126d51b2aa16c0c1091674ca13",
+    "parameters": {
+      "weight": [
+        1,
+        5
+      ],
+      "bias": [
+        1
+      ]
+    },
+    "training_eval": {
+      "parent": "9/12",
+      "candidate": "12/12"
+    },
+    "status": "accepted_opt_in",
+    "default": false,
+    "claims": "Template-specific candidate context bias; not default."
+  },
+  "parent": [
+    {
+      "case_id": "cross_01",
+      "text": "cobalt",
+      "expected": "cobalt",
+      "correct": true,
+      "record_ids": [
+        "cross_01_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_02",
+      "text": "Glade",
+      "expected": "saffron",
+      "correct": false,
+      "record_ids": [
+        "cross_02_same_attr"
+      ]
+    },
+    {
+      "case_id": "cross_03",
+      "text": "Cedar",
+      "expected": "ochre",
+      "correct": false,
+      "record_ids": [
+        "cross_03_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_04",
+      "text": "owner",
+      "expected": "vermilion",
+      "correct": false,
+      "record_ids": [
+        "cross_04_owner"
+      ]
+    },
+    {
+      "case_id": "cross_05",
+      "text": "Configuration",
+      "expected": "cerulean",
+      "correct": false,
+      "record_ids": [
+        "cross_05_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_06",
+      "text": "turquoise",
+      "expected": "chartreuse",
+      "correct": false,
+      "record_ids": [
+        "cross_06_same_attr"
+      ]
+    },
+    {
+      "case_id": "cross_07",
+      "text": "magenta",
+      "expected": "magenta",
+      "correct": true,
+      "record_ids": [
+        "cross_07_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_08",
+      "text": "Harbor",
+      "expected": "tangerine",
+      "correct": false,
+      "record_ids": [
+        "cross_08_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_09",
+      "text": "Iris",
+      "expected": "periwinkle",
+      "correct": false,
+      "record_ids": [
+        "cross_09_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_10",
+      "text": "Cedar",
+      "expected": "turquoise",
+      "correct": false,
+      "record_ids": [
+        "cross_10_same_attr"
+      ]
+    },
+    {
+      "case_id": "cross_11",
+      "text": "burgundy",
+      "expected": "burgundy",
+      "correct": true,
+      "record_ids": [
+        "cross_11_relevant"
+      ]
+    },
+    {
+      "case_id": "cross_12",
+      "text": "Lumen",
+      "expected": "lavender",
+      "correct": false,
+      "record_ids": [
+        "cross_12_owner"
+      ]
+    }
+  ],
+  "candidate": [
+    {
+      "case_id": "cross_01",
+      "text": "cobalt",
+      "expected": "cobalt",
+      "correct": true,
+      "record_ids": [
+        "cross_01_relevant"
+      ],
+      "source_hashes": [
+        "fa2587357cf510deb4c4d269ea90c24d4a784d67b62574611d5ddbdaacd68635"
+      ],
+      "span_hashes": [
+        "91583387741f0e61f29cc8de68fdae1cd557d210ade1264b64236fb22b45f593"
+      ]
+    },
+    {
+      "case_id": "cross_02",
+      "text": "chartreuse",
+      "expected": "saffron",
+      "correct": false,
+      "record_ids": [
+        "cross_02_same_attr"
+      ],
+      "source_hashes": [
+        "517255c6f37e00d718f3ddb9ded3724c90ad08efd0ebd41642166400d478bc94"
+      ],
+      "span_hashes": [
+        "b1019bd80f9fa4b74381ee8f70d75ce7113d58a54a666aa7c85612e0330213d2"
+      ]
+    },
+    {
+      "case_id": "cross_03",
+      "text": "ochre",
+      "expected": "ochre",
+      "correct": true,
+      "record_ids": [
+        "cross_03_relevant"
+      ],
+      "source_hashes": [
+        "5f047eda44b329f7e8a4740bf0590d05bc3a5cbb167f9e0769b002a5ac0e51d3"
+      ],
+      "span_hashes": [
+        "3bd3dd5b52d6bbe4412a351a045534669f1f0b2a64a30de42c2e90c0872968da"
+      ]
+    },
+    {
+      "case_id": "cross_04",
+      "text": "person03",
+      "expected": "vermilion",
+      "correct": false,
+      "record_ids": [
+        "cross_04_owner"
+      ],
+      "source_hashes": [
+        "dfe0dad543c2033d420e5447051daf7161e67e0f43dfcd60c5f54155aeaf0eda"
+      ],
+      "span_hashes": [
+        "d2f0b2e3e772de4e619779f97620b976a14d1cc877083a951546dda2772e0c6a"
+      ]
+    },
+    {
+      "case_id": "cross_05",
+      "text": "cerulean",
+      "expected": "cerulean",
+      "correct": true,
+      "record_ids": [
+        "cross_05_relevant"
+      ],
+      "source_hashes": [
+        "596a104983ab1420ca688179d6e38dbcaca3e827fe4361a38afb3f7eacf9c5ea"
+      ],
+      "span_hashes": [
+        "f9495771e51d87bcdae576fe477bf41ffdb5bd28cb5bdebe389847259197fbe1"
+      ]
+    },
+    {
+      "case_id": "cross_06",
+      "text": "turquoise",
+      "expected": "chartreuse",
+      "correct": false,
+      "record_ids": [
+        "cross_06_same_attr"
+      ],
+      "source_hashes": [
+        "25eb179e35f947921e6e8dda48104b7105f89a631b9e01b82af73b1891355b4f"
+      ],
+      "span_hashes": [
+        "8ae14dc3801f6d4b7c6a38516caadc7752adfb814552e5e575959e890c064eb3"
+      ]
+    },
+    {
+      "case_id": "cross_07",
+      "text": "magenta",
+      "expected": "magenta",
+      "correct": true,
+      "record_ids": [
+        "cross_07_relevant"
+      ],
+      "source_hashes": [
+        "0ea39157e5ebbcda14a61a45506d01faff19e8e9eb06cff96f2d86d5ddf7a6ff"
+      ],
+      "span_hashes": [
+        "d10a09b7fce922da927b3c77af45b644d2d220b5ed402f469d9bc196b7af8a2e"
+      ]
+    },
+    {
+      "case_id": "cross_08",
+      "text": "For",
+      "expected": "tangerine",
+      "correct": false,
+      "record_ids": [
+        "cross_08_relevant"
+      ],
+      "source_hashes": [
+        "bdf9036003f63b7cb546e4e19fc048415085447f583861ada426b8e930268205"
+      ],
+      "span_hashes": [
+        "f88e1e186f4ce70a27af0558cc8d440c208becf4f7ee5ae76b8b4aa6c7e7c4e0"
+      ]
+    },
+    {
+      "case_id": "cross_09",
+      "text": "periwinkle",
+      "expected": "periwinkle",
+      "correct": true,
+      "record_ids": [
+        "cross_09_relevant"
+      ],
+      "source_hashes": [
+        "94fd8a951d00fb4aa8525508507dca05a69706b1632fb8197eae9d0a2aa39590"
+      ],
+      "span_hashes": [
+        "4556e21abaa08603143aee0123b274251c76f1a1cbdbd55a47652890f60eecd8"
+      ]
+    },
+    {
+      "case_id": "cross_10",
+      "text": "saffron",
+      "expected": "turquoise",
+      "correct": false,
+      "record_ids": [
+        "cross_10_same_attr"
+      ],
+      "source_hashes": [
+        "e39c0b15d72d0371952a2fbea9d37ca054b44f832e7809fc97781498781ab5d9"
+      ],
+      "span_hashes": [
+        "f6ea8e5d3fb470c06f81547d042220e95870d5c4a7bd3876b0e29a3f79a06046"
+      ]
+    },
+    {
+      "case_id": "cross_11",
+      "text": "burgundy",
+      "expected": "burgundy",
+      "correct": true,
+      "record_ids": [
+        "cross_11_relevant"
+      ],
+      "source_hashes": [
+        "9b71aea4fa817622ae05cb31ffdf3c6df9dc5c0b53e98b70ae2d52f0700e6f87"
+      ],
+      "span_hashes": [
+        "7cb9c121701689110b9a9684af28e7c894336c65f06767a8abb2c9c7805136e5"
+      ]
+    },
+    {
+      "case_id": "cross_12",
+      "text": "person11",
+      "expected": "lavender",
+      "correct": false,
+      "record_ids": [
+        "cross_12_owner"
+      ],
+      "source_hashes": [
+        "eba3ddafe0344b7c2e326b13190cd3215c4765fcd235bbe67bcb8d5ef2980501"
+      ],
+      "span_hashes": [
+        "9f9a4b8f5682841f59808b7d95c4865a878571d7ae5aa88b83f172c633e9d822"
+      ]
+    }
+  ],
+  "metrics": {
+    "parent": 0.25,
+    "candidate": 0.5
+  },
+  "checks": {
+    "parent_pointer_manifest": true,
+    "context_head_manifest": true,
+    "candidate_method": true
+  },
+  "decision": "accept_opt_in",
+  "deployment": "not_published",
+  "claims": "Integrated context-head consumer check; no training, publication or default change.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T14:07:39.658665+00:00",
+    "ended_at": "2026-10-23T14:07:47.734890+00:00",
+    "elapsed_seconds": 8.076127416919917,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 33,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15585378304,
+      "rss_peak_sampled_bytes": 3455533056,
+      "mps_allocated_peak_sampled_bytes": 10413995776,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T14:07:39.659377+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T14:07:47.658579+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 73%",
+      "memory_free_percent": 73.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T14:07:43.897088+00:00",
+        "elapsed_seconds": 4.125378833850846,
+        "seconds_since_previous_mark": 4.125378833850846,
+        "synchronize_seconds": 5.207955837249756e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:07:43.784116+00:00",
+          "elapsed_seconds": 4.125390667002648,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15585378304,
+          "rss_current_bytes": 3297968128,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10128518144,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 49,
+              "parameters": 13275650,
+              "trainable": 13275650,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "copy_head.query_norm.weight",
+                "copy_head.query_norm.bias",
+                "copy_head.key_norm.weight",
+                "copy_head.key_norm.bias",
+                "copy_head.query_projection.weight",
+                "copy_head.key_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 8.076127416919917,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T14:07:47.735349+00:00"
+}

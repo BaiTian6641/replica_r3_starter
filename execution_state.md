@@ -40,6 +40,12 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 cross-template boundary (23 October).** A fresh varied-phrasing family
+had lexical top-1 **7/12** (recall@4 12/12), so the top-record context test is
+confounded. Parent pointer scored 3/12 and context candidate 6/12 among the
+accessible top records; no broad template or default claim is made. See
+[cross-template results](docs/experiments/20261023_E2_Pointer_Cross_Template_Results.md).
+
 **E2 context head holdout 2 (23 October).** The published opt-in context head
 repeated **12/12** versus parent **9/12** on a second untouched 12-case family;
 parent misses were entity-name spans. Provenance/manifest checks pass. The
