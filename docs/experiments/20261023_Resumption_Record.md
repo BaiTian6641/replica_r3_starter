@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: `272e187 experiment: qualify selected 64-unit capacity`; documentation follow-ups may be later.
+- Last code/test HEAD: `eb2a102 fix: accept v2 E3 qualification protocol` plus the large-family experiment commit; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -39,11 +39,11 @@
 
 ## Current failures / unfinished work
 
-1. **E3 model action selection remains negative.** Fresh `set_constant` guard
-   and control both completed **0/4**; the model repeated `read` even when the
-   guard denied it. A constrained token-mask arm was aborted at smoke because it
-   produced `.read`/malformed JSON (0/1). These are action-selection and decoding
-   failures, not evidence for another prompt-only mask.
+1. **E3 model action selection remains negative.** The original family was
+   0/7; guard and control were 0/4; constrained decoding was 0/1; and a fresh
+   12-train large family reached teacher loss 0.0276 but completed **0/9**
+   (0/6 held-out) while emitting `read`. Larger supervision did not fix action
+   selection. A new representation or full-backbone arm is required.
 2. **Learned C13 director** has no trained ranking policy or checked-proposal
    dataset. The deterministic baseline is not a capability result.
 3. **C17 native cache reuse** is not implemented; admission and an exact-key
