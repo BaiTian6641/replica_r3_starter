@@ -1,6 +1,6 @@
 """Connected E1/E2 source-to-port path with host checks outside neural forwards."""
 from __future__ import annotations
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 import hashlib
 import json
 from pathlib import Path
@@ -14,6 +14,20 @@ from .ledger import EligibilityScope, RecordLedger
 from .index import RetrievalIndex, DenseRecordVector
 from ..architecture.contracts import (CopyRead, EvidencePin, MemoryRead, PendingWrite,
                                      RequestContext, SourceSpan, TaskGraph, fingerprint)
+
+
+@dataclass(frozen=True)
+class PointerAnswer:
+    """One model-selected exact source span with host provenance."""
+    token_ids: tuple[int, ...]
+    text: str
+    record_id: str
+    record_hash: str
+    span_hash: str
+    source_ids: tuple[str, ...]
+    candidate_index: int
+    candidate_count: int
+    producer: str
 
 
 def pin_selection(selection):
@@ -269,7 +283,7 @@ class MemorySession:
         self.verify(request)
         return request
 
-    def copy_candidates(self, request, frame=None):
+    def copy_candidates(self, request, frame=None, *, include_provenance=False):
         """Enumerate contiguous exact source-token spans for pointer copying.
 
         The host does not choose a span; every bounded span is returned, and the
@@ -285,7 +299,16 @@ class MemorySession:
         if not ids:
             raise ValueError('Copy frame has no source tokens')
         candidates, masks = [], []
+        provenance = []
         seen = set()
+        token_source = []
+        for span in frame.memory.spans:
+            if len(span.token_ids) != span.token_end - span.token_start:
+                raise ValueError('Source span token inventory differs')
+            token_source.extend((span.record_id, span.record_hash, span.span_hash)
+                                for _ in span.token_ids)
+        if len(token_source) != len(ids):
+            raise ValueError('Copy tokens and source spans differ')
         for start in range(len(ids)):
             for length in range(1, min(spec.max_span, len(ids) - start) + 1):
                 seq = tuple(ids[start:start + length])
@@ -294,21 +317,36 @@ class MemorySession:
                 seen.add(seq)
                 candidates.append(seq + (0,) * (spec.max_span - length))
                 masks.append((True,) * length + (False,) * (spec.max_span - length))
+                provenance.append((start, length, tuple(token_source[start:start + length])))
                 if len(candidates) > 2048:
                     raise ValueError('Pointer candidate budget exceeded')
         token_ids = torch.tensor([candidates], dtype=torch.long, device=self.device)
         token_mask = torch.tensor([masks], dtype=torch.bool, device=self.device)
         candidate_mask = torch.ones(1, len(candidates), dtype=torch.bool,
                                     device=self.device)
+        if include_provenance:
+            return token_ids, token_mask, candidate_mask, tuple(provenance)
         return token_ids, token_mask, candidate_mask
 
-    def pointer_answer(self, request):
-        """Return the model-selected exact source span (no LM generation)."""
-        token_ids, token_mask, candidate_mask = self.copy_candidates(request)
+    def pointer_answer(self, request) -> PointerAnswer:
+        """Return the model-selected exact source span and host provenance."""
+        token_ids, token_mask, candidate_mask, provenance = self.copy_candidates(
+            request, include_provenance=True)
         scores = self.adapter.pointer_scores(request.frame, token_ids, token_mask,
                                              candidate_mask)
         index = int(scores.argmax(dim=-1)[0])
-        return tuple(int(x) for x in token_ids[0, index][token_mask[0, index]].tolist())
+        seq = tuple(int(x) for x in token_ids[0, index][token_mask[0, index]].tolist())
+        start, length, source = provenance[index]
+        if len(source) != length:
+            raise ValueError('Pointer provenance length mismatch')
+        record_id, record_hash, span_hash = source[0]
+        source_ids = tuple(dict.fromkeys(item[0] for item in source))
+        return PointerAnswer(
+            token_ids=seq, text=self.tokenizer.decode(list(seq),
+                                                       skip_special_tokens=True).strip(),
+            record_id=record_id, record_hash=record_hash, span_hash=span_hash,
+            source_ids=source_ids, candidate_index=index,
+            candidate_count=len(provenance), producer=request.frame.copy.producer)
 
     def forward(self, request, input_ids, *, labels=None, attention_mask=None):
         self.verify(request)

@@ -18,6 +18,10 @@ registry and rolled back to the exact-text baseline.
   - rollback restored the baseline (`97319970…` active).
 - The pointer manifest declares `default=False`; exact text remains the runtime
   default. No model/action runtime was promoted.
+- `MemorySession.pointer_answer` now returns a typed `PointerAnswer` containing
+  the selected token IDs/text, record ID, record hash, span hash, all contributing
+  source IDs, candidate index/count and producer. It is a host provenance record;
+  it does not alter the pointer's 3/6 dev, 2/10 held-out result.
 
 ## 2. Limits
 
