@@ -1,0 +1,33 @@
+{
+  "format": "replica.e2.pointer_context_service.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Second untouched-family consumer check of the published context-head candidate; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "context_head": "runs/e2_pointer_context_attempt04/context_head.safetensors",
+  "context_head_manifest": "runs/e2_pointer_context_attempt04/context_head_manifest.json",
+  "eval_dataset": {
+    "root": "data/e2_pointer_context_holdout2",
+    "records_sha256": "d615b3aaee2a66749ac09fc2b68e6516f1d459db223656473c7275e132849f7a",
+    "queries_sha256": "e22e6249b128e43969447ecac523173a2fbf916a5f8697b9d17ea9a7f078a4a8",
+    "manifest_sha256": "ae10463f44d6792fdcc43a383fae355adb43cc76c225389d7773b216b6413cbf"
+  },
+  "max_span": 4,
+  "candidate_unit": "word",
+  "record_scope": "top",
+  "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+  "evaluation": {
+    "heldout": 12,
+    "arms": [
+      "parent_pointer",
+      "context_candidate"
+    ],
+    "metric": "exact copied span"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "eval_cases": 24
+  },
+  "claims": "Retention check only; no training or default activation."
+}
