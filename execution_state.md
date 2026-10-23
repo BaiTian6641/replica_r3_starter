@@ -304,6 +304,15 @@ held-out)** with zero false success claims at 15.12 GiB, 66.5 s. This is a
 refactor/verification, not a new capability arm. See
 [candidate rerank results](docs/experiments/20261023_E3_Candidate_Rerank_Replication_Results.md).
 
+**E3 filtered candidate restart (23 October).** A fresh three-case family was
+interrupted after two decisions per case (0/3), then resumed in a fresh process
+with exact journal/workspace reuse; the filtered menu excluded values already
+contradicted by the observed failure and completed **3/3** with no false success
+claims. Process 1 **10.7 s**, process 2 **25.7 s**, peak **15.11 GiB**. This
+strengthens restart integration for the opt-in ranking interface, not free-form
+action selection. See
+[filtered restart results](docs/experiments/20261023_E3_Candidate_Restart2_Results.md).
+
 **E3 candidate-ranking restart (23 October).** Process 1 persisted two
 decisions per fresh case after a failed test; process 2 reloaded the exact
 journal/workspace and completed **1/2** cases. The successful case passed the
