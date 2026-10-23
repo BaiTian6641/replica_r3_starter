@@ -1,0 +1,43 @@
+{
+  "format": "replica.e3.mixed_controls.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "bounded_repair",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "fixtures": {
+    "root": "fixtures/e3_mixed/cases",
+    "manifest": "fixtures/e3_mixed/cases/manifest.json",
+    "manifest_sha256": "217408f05ad6d1cdfa693ba7ad2f31c61c02e38ff88e76d8989865149084e9a5",
+    "heldout": [
+      "mixed_heldout_repair_07",
+      "mixed_heldout_repair_08",
+      "mixed_heldout_pass_09",
+      "mixed_heldout_pass_10"
+    ]
+  },
+  "subject": "e3_fixture",
+  "episodes": {
+    "decisions": 7,
+    "tool_calls": 4,
+    "prompt_tokens": 640,
+    "generated_tokens": 128,
+    "success": "independent evaluator exit status only",
+    "workspace_history": "disabled"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "episodes": 4,
+    "checkpoint_saves": 0
+  },
+  "claims": "No-head control evidence only; no training or publication."
+}
