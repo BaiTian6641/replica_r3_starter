@@ -32,7 +32,7 @@ def main():
  elif a.resume:
   p.error('--resume requires --resume-from')
  protocol=json.loads(a.protocol.read_text())
- report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'seed':a.seed,'resumed':bool(a.resume),'resume_from':str(a.resume_from) if a.resume_from else None,'downloads':0,'training_updates':0}
+ report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'shuffle_candidates':bool(a.shuffle_candidates),'seed':a.seed,'resumed':bool(a.resume),'resume_from':str(a.resume_from) if a.resume_from else None,'downloads':0,'training_updates':0}
  from replica_lab.profiling import RunProfiler
  from replica_lab.architecture.loading import exclusive_mps_worker
  prof=RunProfiler('mps',a.output,sample_interval=0.1)
