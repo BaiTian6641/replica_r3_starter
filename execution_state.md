@@ -38,6 +38,15 @@ split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
 task completion, independent pass, landed repair and reference-file equality
 fail.
 
+**E5 neural candidate (23 October).** The existing E2 reranker extension was
+evaluated against its parent on source-separated retrieval cases with no new
+training: held-out top-1 **0.25 → 0.50** (parent → candidate), but lexical is
+**0.75**. The preregistered rule accepts the candidate relative to its parent;
+deployment is **opt-in only**, lexical remains default. Dev top-1 is 0/2 for
+both. This is a real parameter-level improvement on unseen sources but not a
+useful default or task-capability result. See
+[neural candidate results](docs/experiments/20261023_E5_Neural_Candidate_Results.md).
+
 **E5 procedure candidate (23 October).** A host `RepairProcedure` compiled from
 four verified train trajectories succeeded on **3/3 held-out + 1/1 dev** cases
 with independent evaluator receipts, preserved non-target constants, and was

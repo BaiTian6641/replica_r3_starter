@@ -177,9 +177,13 @@ def main():
                 ('e2_retrieval_train',), evaluation=('passed' if decision == 'accept'
                                                      else 'failed' if decision == 'reject'
                                                      else 'inconclusive'),
-                status='rejected' if decision == 'reject' else 'proposed')
+                status=('accepted' if decision == 'accept' else
+                        'rejected' if decision == 'reject' else 'proposed'))
+            deployment = ('opt_in_only; lexical remains the default'
+                          if decision == 'accept' else
+                          'not_published' if decision == 'reject' else 'deferred')
             report.update(parent=parent, candidate=candidate, metrics=metrics,
-                          decision=decision,
+                          decision=decision, deployment=deployment,
                           candidate_artifact={'artifact_id': candidate_artifact.artifact_id,
                                               'digest': candidate_artifact.digest,
                                               'status': candidate_artifact.status,

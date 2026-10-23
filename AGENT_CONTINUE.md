@@ -23,6 +23,11 @@ teacher loss 0.015. This is a second negative action-policy family, not a tool
 defect. Do not rerun a near-identical action arm; target action selection or
 advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
 
+**E5 neural candidate (23 October):** existing E2 reranker evaluated against
+its parent on held-out sources: top1 0.25 → 0.50, but lexical 0.75. Accepted
+opt-in only; lexical default unchanged. See
+[neural candidate results](docs/experiments/20261023_E5_Neural_Candidate_Results.md).
+
 **E5 procedure candidate (23 October):** a compiled repair procedure passed
 3/3 held-out + dev with independent receipts, published with harmful-candidate
 rejection and rollback. No neural candidate or learned action policy; model

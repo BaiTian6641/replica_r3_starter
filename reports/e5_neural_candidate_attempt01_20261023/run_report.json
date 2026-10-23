@@ -1,0 +1,752 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T11:48:36.115098+00:00",
+  "protocol_sha256": "e6cf94b93969d2021e8022c80427a200fc7f130d18186f62bb7cf12c7fb21ec7",
+  "protocol": {
+    "format": "replica.e5.neural_candidate_eval.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Independent held-out evaluation of the existing E2 reranker candidate against its parent. The candidate was trained under the E2 protocol; this arm performs no new optimization.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "candidate_extension": "runs/e2_retrieval_attempt03_20261023/selected_extension",
+    "dataset": {
+      "root": "data/e2_retrieval",
+      "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201",
+      "queries_sha256": "262273eefd0d7b963924d3298f7c0ed621e7136c560faf167f4f2f50ab1c420a"
+    },
+    "evaluation_cases": {
+      "dev": [
+        "dev_a",
+        "dev_b"
+      ],
+      "heldout": [
+        "heldout_a",
+        "heldout_b",
+        "heldout_d",
+        "heldout_f"
+      ]
+    },
+    "metric": "record recall@1/@4 from the learned reranker over the eligible lexical candidate pool; max span score per record; 16-unit bank",
+    "decision_rule": {
+      "reject": "candidate held-out top1 below parent or dev loss",
+      "accept": "candidate held-out top1 above parent and dev not below parent",
+      "defer": "all other outcomes"
+    },
+    "budget": {
+      "model_loads": 2,
+      "native_generations": 0,
+      "optimizer_updates": 0,
+      "checkpoint_saves": 0,
+      "heldout_reuse": "one final assessment"
+    },
+    "controls": [
+      "parent reranker",
+      "candidate reranker",
+      "lexical ordering reference (computed from the same pool)"
+    ],
+    "retention": "Keep parent and candidate extensions, raw rankings and rejection artifact. No base copy or download.",
+    "claims": "Neural candidate acceptance/rejection on a small exposed retrieval set; no broad retrieval-quality or task-benefit claim."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "parent": {
+    "extension": "/Users/flare/replica_r3_starter/runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "receipt": {
+      "format": "replica.minicpm5.extensions.v1",
+      "manifest": {
+        "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+        "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+        "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+        "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+        "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+        "ports": {
+          "injection_layers": [
+            13,
+            27
+          ],
+          "observer_layer": 41,
+          "source_layer": 13,
+          "memory_width": 256,
+          "slots_per_unit": 4,
+          "max_units": 16,
+          "source_tokens": 128,
+          "heads": 4
+        },
+        "format_version": 1,
+        "training_scope": "text_only",
+        "cached_generation_supported": false
+      },
+      "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+      "regime": "modules_only",
+      "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf",
+      "parameters": {
+        "regime": "modules_only",
+        "original": {
+          "tensors": 381,
+          "parameters": 2516756480,
+          "trainable": 0,
+          "names": []
+        },
+        "new": {
+          "tensors": 43,
+          "parameters": 4878850,
+          "trainable": 4878850,
+          "names": [
+            "record_writer.encoder.slot_queries",
+            "record_writer.encoder.input_norm.weight",
+            "record_writer.encoder.input_norm.bias",
+            "record_writer.encoder.input_projection.weight",
+            "record_writer.encoder.attention.in_proj_weight",
+            "record_writer.encoder.attention.in_proj_bias",
+            "record_writer.encoder.attention.out_proj.weight",
+            "record_writer.encoder.attention.out_proj.bias",
+            "record_writer.encoder.output_norm.weight",
+            "record_writer.encoder.output_norm.bias",
+            "memory_ports.13.gate_logit",
+            "memory_ports.13.query_norm.weight",
+            "memory_ports.13.query_norm.bias",
+            "memory_ports.13.memory_norm.weight",
+            "memory_ports.13.memory_norm.bias",
+            "memory_ports.13.query_projection.weight",
+            "memory_ports.13.key_projection.weight",
+            "memory_ports.13.value_projection.weight",
+            "memory_ports.13.output_projection.weight",
+            "memory_ports.27.gate_logit",
+            "memory_ports.27.query_norm.weight",
+            "memory_ports.27.query_norm.bias",
+            "memory_ports.27.memory_norm.weight",
+            "memory_ports.27.memory_norm.bias",
+            "memory_ports.27.query_projection.weight",
+            "memory_ports.27.key_projection.weight",
+            "memory_ports.27.value_projection.weight",
+            "memory_ports.27.output_projection.weight",
+            "sense_ports.13.input_norm.weight",
+            "sense_ports.13.input_norm.bias",
+            "sense_ports.13.projection.weight",
+            "sense_ports.27.input_norm.weight",
+            "sense_ports.27.input_norm.bias",
+            "sense_ports.27.projection.weight",
+            "sense_ports.41.input_norm.weight",
+            "sense_ports.41.input_norm.bias",
+            "sense_ports.41.projection.weight",
+            "reranker.query_norm.weight",
+            "reranker.query_norm.bias",
+            "reranker.record_norm.weight",
+            "reranker.record_norm.bias",
+            "reranker.query_projection.weight",
+            "reranker.record_projection.weight"
+          ]
+        }
+      },
+      "base_saved": false,
+      "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source."
+    },
+    "results": [
+      {
+        "case_id": "dev_a",
+        "expected": "dev_a_launch",
+        "ranked": [
+          "dev_a_other",
+          "dev_a_review",
+          "dev_a_launch",
+          "dev_a_owner"
+        ],
+        "lexical_ranked": [
+          "dev_a_launch",
+          "dev_a_other",
+          "dev_a_review",
+          "dev_a_owner"
+        ],
+        "rank": 3,
+        "lexical_rank": 1,
+        "scores": {
+          "dev_a_launch": 0.06596442312002182,
+          "dev_a_other": 0.07607641816139221,
+          "dev_a_review": 0.06855757534503937,
+          "dev_a_owner": 0.024571314454078674
+        }
+      },
+      {
+        "case_id": "dev_b",
+        "expected": "dev_b_release",
+        "ranked": [
+          "dev_b_other",
+          "dev_b_review",
+          "dev_b_release"
+        ],
+        "lexical_ranked": [
+          "dev_b_release",
+          "dev_b_other",
+          "dev_b_review"
+        ],
+        "rank": 3,
+        "lexical_rank": 1,
+        "scores": {
+          "dev_b_release": 0.0777830183506012,
+          "dev_b_other": 0.081557497382164,
+          "dev_b_review": 0.08065823465585709
+        }
+      },
+      {
+        "case_id": "heldout_a",
+        "expected": "heldout_a_launch",
+        "ranked": [
+          "heldout_a_other",
+          "heldout_a_launch",
+          "heldout_a_review",
+          "heldout_a_backup"
+        ],
+        "lexical_ranked": [
+          "heldout_a_launch",
+          "heldout_a_backup",
+          "heldout_a_other",
+          "heldout_a_review"
+        ],
+        "rank": 2,
+        "lexical_rank": 1,
+        "scores": {
+          "heldout_a_launch": 0.08755794167518616,
+          "heldout_a_backup": 0.05852027237415314,
+          "heldout_a_other": 0.09321987628936768,
+          "heldout_a_review": 0.06630342453718185
+        }
+      },
+      {
+        "case_id": "heldout_b",
+        "expected": "heldout_b_release_new",
+        "ranked": [
+          "heldout_b_review",
+          "heldout_b_release_new",
+          "heldout_b_other"
+        ],
+        "lexical_ranked": [
+          "heldout_b_release_new",
+          "heldout_b_other",
+          "heldout_b_review"
+        ],
+        "rank": 2,
+        "lexical_rank": 1,
+        "scores": {
+          "heldout_b_release_new": 0.07660084217786789,
+          "heldout_b_other": 0.05825382471084595,
+          "heldout_b_review": 0.09763403236865997
+        }
+      },
+      {
+        "case_id": "heldout_d",
+        "expected": "heldout_d_long",
+        "ranked": [
+          "heldout_d_long",
+          "heldout_d_other",
+          "heldout_d_review"
+        ],
+        "lexical_ranked": [
+          "heldout_d_other",
+          "heldout_d_review",
+          "heldout_d_long"
+        ],
+        "rank": 1,
+        "lexical_rank": 3,
+        "scores": {
+          "heldout_d_other": 0.052574142813682556,
+          "heldout_d_review": 0.024013791233301163,
+          "heldout_d_long": 0.06236810237169266
+        }
+      },
+      {
+        "case_id": "heldout_f",
+        "expected": "heldout_f_launch",
+        "ranked": [
+          "heldout_f_review",
+          "heldout_f_launch",
+          "heldout_f_other",
+          "heldout_f_owner"
+        ],
+        "lexical_ranked": [
+          "heldout_f_launch",
+          "heldout_f_other",
+          "heldout_f_review",
+          "heldout_f_owner"
+        ],
+        "rank": 2,
+        "lexical_rank": 1,
+        "scores": {
+          "heldout_f_launch": 0.06309492886066437,
+          "heldout_f_other": 0.04891427606344223,
+          "heldout_f_review": 0.06314721703529358,
+          "heldout_f_owner": 0.008151990361511707
+        }
+      }
+    ]
+  },
+  "candidate": {
+    "extension": "/Users/flare/replica_r3_starter/runs/e2_retrieval_attempt03_20261023/selected_extension",
+    "receipt": {
+      "format": "replica.minicpm5.extensions.v1",
+      "manifest": {
+        "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+        "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+        "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+        "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+        "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+        "ports": {
+          "injection_layers": [
+            13,
+            27
+          ],
+          "observer_layer": 41,
+          "source_layer": 13,
+          "memory_width": 256,
+          "slots_per_unit": 4,
+          "max_units": 16,
+          "source_tokens": 128,
+          "heads": 4
+        },
+        "format_version": 1,
+        "training_scope": "text_only",
+        "cached_generation_supported": false
+      },
+      "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+      "regime": "modules_only",
+      "weights_sha256": "eba27daf2559864eb4c7486996374d8eedf9e5cc0f29e22333506eb347deada7",
+      "parameters": {
+        "regime": "modules_only",
+        "original": {
+          "tensors": 381,
+          "parameters": 2516756480,
+          "trainable": 0,
+          "names": []
+        },
+        "new": {
+          "tensors": 43,
+          "parameters": 4878850,
+          "trainable": 4878850,
+          "names": [
+            "record_writer.encoder.slot_queries",
+            "record_writer.encoder.input_norm.weight",
+            "record_writer.encoder.input_norm.bias",
+            "record_writer.encoder.input_projection.weight",
+            "record_writer.encoder.attention.in_proj_weight",
+            "record_writer.encoder.attention.in_proj_bias",
+            "record_writer.encoder.attention.out_proj.weight",
+            "record_writer.encoder.attention.out_proj.bias",
+            "record_writer.encoder.output_norm.weight",
+            "record_writer.encoder.output_norm.bias",
+            "memory_ports.13.gate_logit",
+            "memory_ports.13.query_norm.weight",
+            "memory_ports.13.query_norm.bias",
+            "memory_ports.13.memory_norm.weight",
+            "memory_ports.13.memory_norm.bias",
+            "memory_ports.13.query_projection.weight",
+            "memory_ports.13.key_projection.weight",
+            "memory_ports.13.value_projection.weight",
+            "memory_ports.13.output_projection.weight",
+            "memory_ports.27.gate_logit",
+            "memory_ports.27.query_norm.weight",
+            "memory_ports.27.query_norm.bias",
+            "memory_ports.27.memory_norm.weight",
+            "memory_ports.27.memory_norm.bias",
+            "memory_ports.27.query_projection.weight",
+            "memory_ports.27.key_projection.weight",
+            "memory_ports.27.value_projection.weight",
+            "memory_ports.27.output_projection.weight",
+            "sense_ports.13.input_norm.weight",
+            "sense_ports.13.input_norm.bias",
+            "sense_ports.13.projection.weight",
+            "sense_ports.27.input_norm.weight",
+            "sense_ports.27.input_norm.bias",
+            "sense_ports.27.projection.weight",
+            "sense_ports.41.input_norm.weight",
+            "sense_ports.41.input_norm.bias",
+            "sense_ports.41.projection.weight",
+            "reranker.query_norm.weight",
+            "reranker.query_norm.bias",
+            "reranker.record_norm.weight",
+            "reranker.record_norm.bias",
+            "reranker.query_projection.weight",
+            "reranker.record_projection.weight"
+          ]
+        }
+      },
+      "base_saved": false,
+      "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source."
+    },
+    "results": [
+      {
+        "case_id": "dev_a",
+        "expected": "dev_a_launch",
+        "ranked": [
+          "dev_a_other",
+          "dev_a_launch",
+          "dev_a_review",
+          "dev_a_owner"
+        ],
+        "lexical_ranked": [
+          "dev_a_launch",
+          "dev_a_other",
+          "dev_a_review",
+          "dev_a_owner"
+        ],
+        "rank": 2,
+        "lexical_rank": 1,
+        "scores": {
+          "dev_a_launch": 0.03906308859586716,
+          "dev_a_other": 0.08857819437980652,
+          "dev_a_review": -0.018163707107305527,
+          "dev_a_owner": -0.09106828272342682
+        }
+      },
+      {
+        "case_id": "dev_b",
+        "expected": "dev_b_release",
+        "ranked": [
+          "dev_b_other",
+          "dev_b_review",
+          "dev_b_release"
+        ],
+        "lexical_ranked": [
+          "dev_b_release",
+          "dev_b_other",
+          "dev_b_review"
+        ],
+        "rank": 3,
+        "lexical_rank": 1,
+        "scores": {
+          "dev_b_release": 0.032968513667583466,
+          "dev_b_other": 0.10002434998750687,
+          "dev_b_review": 0.09503303468227386
+        }
+      },
+      {
+        "case_id": "heldout_a",
+        "expected": "heldout_a_launch",
+        "ranked": [
+          "heldout_a_other",
+          "heldout_a_launch",
+          "heldout_a_review",
+          "heldout_a_backup"
+        ],
+        "lexical_ranked": [
+          "heldout_a_launch",
+          "heldout_a_backup",
+          "heldout_a_other",
+          "heldout_a_review"
+        ],
+        "rank": 2,
+        "lexical_rank": 1,
+        "scores": {
+          "heldout_a_launch": 0.08572109043598175,
+          "heldout_a_backup": 0.04111547768115997,
+          "heldout_a_other": 0.1166469007730484,
+          "heldout_a_review": 0.07281939685344696
+        }
+      },
+      {
+        "case_id": "heldout_b",
+        "expected": "heldout_b_release_new",
+        "ranked": [
+          "heldout_b_review",
+          "heldout_b_release_new",
+          "heldout_b_other"
+        ],
+        "lexical_ranked": [
+          "heldout_b_release_new",
+          "heldout_b_other",
+          "heldout_b_review"
+        ],
+        "rank": 2,
+        "lexical_rank": 1,
+        "scores": {
+          "heldout_b_release_new": 0.02741876058280468,
+          "heldout_b_other": -0.0043228864669799805,
+          "heldout_b_review": 0.06467334181070328
+        }
+      },
+      {
+        "case_id": "heldout_d",
+        "expected": "heldout_d_long",
+        "ranked": [
+          "heldout_d_long",
+          "heldout_d_other",
+          "heldout_d_review"
+        ],
+        "lexical_ranked": [
+          "heldout_d_other",
+          "heldout_d_review",
+          "heldout_d_long"
+        ],
+        "rank": 1,
+        "lexical_rank": 3,
+        "scores": {
+          "heldout_d_other": 0.00920790620148182,
+          "heldout_d_review": -0.11965598165988922,
+          "heldout_d_long": 0.013833556324243546
+        }
+      },
+      {
+        "case_id": "heldout_f",
+        "expected": "heldout_f_launch",
+        "ranked": [
+          "heldout_f_launch",
+          "heldout_f_review",
+          "heldout_f_other",
+          "heldout_f_owner"
+        ],
+        "lexical_ranked": [
+          "heldout_f_launch",
+          "heldout_f_other",
+          "heldout_f_review",
+          "heldout_f_owner"
+        ],
+        "rank": 1,
+        "lexical_rank": 1,
+        "scores": {
+          "heldout_f_launch": 0.052285730838775635,
+          "heldout_f_other": -0.011541384272277355,
+          "heldout_f_review": 0.046165917068719864,
+          "heldout_f_owner": -0.13954436779022217
+        }
+      }
+    ]
+  },
+  "metrics": {
+    "parent": {
+      "heldout_top1": 0.25,
+      "heldout_top4": 1.0,
+      "dev_top1": 0.0
+    },
+    "candidate": {
+      "heldout_top1": 0.5,
+      "heldout_top4": 1.0,
+      "dev_top1": 0.0
+    },
+    "lexical_reference": {
+      "heldout_top1": 0.75
+    }
+  },
+  "decision": "accept",
+  "candidate_artifact": {
+    "artifact_id": "e2-reranker-candidate",
+    "digest": "44800cca3fb011d6fde6fa103364fbdafdc8003d8f81fa7acba0280991cbccb8",
+    "status": "proposed",
+    "evaluation": "passed",
+    "weights_sha256": "eba27daf2559864eb4c7486996374d8eedf9e5cc0f29e22333506eb347deada7"
+  },
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T11:48:36.115555+00:00",
+    "ended_at": "2026-10-23T11:48:46.339214+00:00",
+    "elapsed_seconds": 10.224098540842533,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 41,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15800549376,
+      "rss_peak_sampled_bytes": 15005466624,
+      "mps_allocated_peak_sampled_bytes": 10096718848,
+      "mps_driver_peak_sampled_bytes": 10763255808
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T11:48:36.116275+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 89%",
+      "memory_free_percent": 89.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T11:48:46.248318+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 72%",
+      "memory_free_percent": 72.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T11:48:40.470523+00:00",
+        "elapsed_seconds": 4.24002525000833,
+        "seconds_since_previous_mark": 4.24002525000833,
+        "synchronize_seconds": 4.875008016824722e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:48:40.355417+00:00",
+          "elapsed_seconds": 4.240036082919687,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15584198656,
+          "rss_current_bytes": 3405791232,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T11:48:45.351506+00:00",
+        "elapsed_seconds": 9.23621308291331,
+        "seconds_since_previous_mark": 4.99618783290498,
+        "synchronize_seconds": 6.500165909528732e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T11:48:45.351406+00:00",
+          "elapsed_seconds": 9.236228958005086,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15800549376,
+          "rss_current_bytes": 15005466624,
+          "rss_measurement_age_seconds": 0.6267029168084264,
+          "mps_allocated_bytes": 10094930944,
+          "mps_driver_bytes": 10763239424
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 43,
+              "parameters": 4878850,
+              "trainable": 4878850,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 10.224098540842533,
+    "sampled_peak_driver_bytes": 10763255808
+  },
+  "ended_at_utc": "2026-10-23T11:48:46.339665+00:00"
+}
