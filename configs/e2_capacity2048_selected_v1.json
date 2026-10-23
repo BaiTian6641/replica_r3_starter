@@ -1,0 +1,147 @@
+{
+  "format": "replica.e2_capacity.qualification.v9",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Qualify the selected E2 extension at 64 units with the validated max_units-only migration; inference and modules-only backward only.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/e2_capacity2048",
+    "manifest": "data/e2_capacity2048/manifest.json",
+    "manifest_sha256": "e4887085b5d5566066612c8188e01103b334131d0c5d0b465f95de67e86d66b7",
+    "records_sha256": "cfc77c70875a20e311da5d90e46fbc19bd6db91f6335546bc934a0f7cb257d1b"
+  },
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "scope": {
+    "source_tokens_per_unit": 128,
+    "max_units": 2048,
+    "slots_per_unit": 4,
+    "memory_width": 256,
+    "ports": [
+      13,
+      27
+    ],
+    "observer": 41,
+    "training": "modules_only backward; no optimizer step; base frozen"
+  },
+  "schedule": {
+    "inference": [
+      {
+        "id": "inf_u1_p64",
+        "units": 1,
+        "prompt_tokens": 64,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u512_p128",
+        "units": 512,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u1024_p128",
+        "units": 1024,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u1536_p128",
+        "units": 1536,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u2048_p128",
+        "units": 2048,
+        "prompt_tokens": 128,
+        "generate_tokens": 8
+      },
+      {
+        "id": "inf_u2048_p256",
+        "units": 2048,
+        "prompt_tokens": 256,
+        "generate_tokens": 8
+      }
+    ],
+    "training": [
+      {
+        "id": "train_u1_p64",
+        "units": 1,
+        "prompt_tokens": 64,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u512_p128",
+        "units": 512,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u1024_p128",
+        "units": 1024,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u1536_p128",
+        "units": 1536,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u2048_p128",
+        "units": 2048,
+        "prompt_tokens": 128,
+        "label_tokens": 16
+      },
+      {
+        "id": "train_u2048_p256",
+        "units": 2048,
+        "prompt_tokens": 256,
+        "label_tokens": 16
+      }
+    ]
+  },
+  "measurements": [
+    "actual source-token counts per unit",
+    "selected unit count",
+    "source encode seconds",
+    "writer seconds",
+    "sense pass seconds",
+    "action forward seconds",
+    "generation seconds and generated tokens",
+    "training prepare/forward/backward seconds",
+    "sampled MPS allocated/driver bytes",
+    "process RSS bytes",
+    "guard thresholds"
+  ],
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "one_native_job": true
+  },
+  "stop_conditions": [
+    "declared guard threshold breach",
+    "nonfinite logits/loss/gradients",
+    "schedule point raises an unexpected error",
+    "stale telemetry"
+  ],
+  "exclusions": [
+    "No D2 original-weight capacity arm is declared or run here.",
+    "No configured maximum is reported as an exercised workload; only actual units/tokens measured."
+  ],
+  "retention": "Keep the full ascending schedule, per-point progress, guard/profile traces and failure reports. No base copy, optimizer checkpoint or download.",
+  "claims": "Capacity only; no generation-quality or architecture-benefit claim.",
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "points": 12,
+    "source_units": 2048,
+    "expected_storage_mib": 8,
+    "no_base_save": true
+  },
+  "migration": "port_capacity_only"
+}
