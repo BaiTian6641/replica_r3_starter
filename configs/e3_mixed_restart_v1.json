@@ -1,0 +1,41 @@
+{
+  "format": "replica.e3.mixed_restart.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fresh-process continuation after an observed failing test on a copied mixed repair case; no host correction or repair selection.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "source_case": "fixtures/e3_mixed/cases/mixed_heldout_repair_08",
+  "source_case_manifest_sha256": "217408f05ad6d1cdfa693ba7ad2f31c61c02e38ff88e76d8989865149084e9a5",
+  "shared": {
+    "case": "runs/e3_mixed_restart_attempt01/case",
+    "journal": "runs/e3_mixed_restart_attempt01/task.sqlite",
+    "ledger": "runs/e3_mixed_restart_attempt01/memory_ledger.sqlite",
+    "workspace_dir": "runs/e3_mixed_restart_attempt01/task_workspace",
+    "subject": "e3_mixed_restart",
+    "branch": "e3-task",
+    "purpose": "bounded_repair",
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "max_prompt_tokens": 640,
+    "max_new_tokens": 128,
+    "core": {"width": 256, "slots": 8, "steps": 2, "heads": 4,
+             "task_features": 24, "ffn_hidden": 1024, "control_hidden": 340}
+  },
+  "processes": [
+    {"name": "process1", "mode": "full", "max_steps": 2,
+     "expected": "read + failing run_test, no repair, success false"},
+    {"name": "process2", "mode": "workspace_zero", "max_steps": 5,
+     "expected": "resume journal, repair once, passing evaluator, success true"}
+  ],
+  "checks": [
+    "process1 observed a nonzero evaluator exit and did not complete",
+    "process1 used exactly two decisions and did not write a repair",
+    "process2 used the same journal/ledger/workspace and completed",
+    "process2 did not re-execute process1's completed actions",
+    "exactly one set_constant repair landed and the evaluator passed",
+    "no malformed action or false success claim was accepted"
+  ],
+  "budget": {"native_model_loads": 2, "optimizer_updates": 0, "checkpoint_saves": 0,
+             "downloads": 0},
+  "claims": "One copied synthetic case; fresh-process engineering and task completion, not generalization."
+}
