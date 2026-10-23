@@ -28,6 +28,11 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 policy probe (23 October):** prompt-only core states classified action
+kinds at 100%, but all teacher trajectories share the same 5-step order; result
+is step-confounded and inconclusive. No policy head promoted. See
+[probe results](docs/experiments/20261023_E3_Policy_Probe_Results.md).
+
 **E4 delayed-use candidate (23 October):** learned write projection + native
 fast readers; 0/8 held-out, 7/24 train, correct/shuffled differ but no
 association gain; compositional 1/8 vs 1/8 shuffled, 0/8 controls. Rejected,

@@ -49,6 +49,15 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E3 policy probe (23 October).** Prompt-only core states from eight actual
+teacher trajectories classified next action kinds at **100%** for joint,
+workspace-only and task-only features. All trajectories share the same
+five-step action order, so step position predicts the label; the result is
+**inconclusive/evaluation ambiguous**, not a representation or policy success.
+No policy head was deployed and no default changed. Attempts 1/2 were preserved
+as implementation defects. See
+[E3 policy probe results](docs/experiments/20261023_E3_Policy_Probe_Results.md).
+
 **E4 delayed-use candidate (23 October).** A learned token-feature fast writer
 plus native readers at blocks 13/27 was trained for 32 modules-only updates on
 24 source pages. Held-out exact accuracy is **0/8**; train is 7/24; correct and
