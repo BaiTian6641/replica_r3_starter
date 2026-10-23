@@ -284,7 +284,31 @@ class MemorySession:
         self.verify(request)
         return request
 
-    def copy_candidates(self, request, frame=None, *, include_provenance=False):
+    def _word_groups(self, ids):
+        """Return token-index groups for whole source words, excluding punctuation."""
+        tokens = self.tokenizer.convert_ids_to_tokens(ids)
+        groups, current = [], []
+        for index, token in enumerate(tokens):
+            bare = token.replace('Ġ', '').replace('▁', '').strip()
+            punctuation = bool(bare) and all(not c.isalnum() for c in bare)
+            starts_word = index == 0 or token.startswith(('Ġ', '▁', ' '))
+            if punctuation:
+                if current:
+                    groups.append(tuple(current))
+                    current = []
+                continue
+            if starts_word:
+                if current:
+                    groups.append(tuple(current))
+                current = [index]
+            else:
+                current.append(index)
+        if current:
+            groups.append(tuple(current))
+        return tuple(groups)
+
+    def copy_candidates(self, request, frame=None, *, include_provenance=False,
+                        unit='token'):
         """Enumerate contiguous exact source-token spans for pointer copying.
 
         The host does not choose a span; every bounded span is returned, and the
@@ -299,6 +323,8 @@ class MemorySession:
         ids = frame.copy.token_ids[0].tolist()
         if not ids:
             raise ValueError('Copy frame has no source tokens')
+        if unit not in ('token', 'word'):
+            raise ValueError('candidate unit must be token or word')
         candidates, masks = [], []
         provenance = []
         seen = set()
@@ -310,17 +336,33 @@ class MemorySession:
                                 for _ in span.token_ids)
         if len(token_source) != len(ids):
             raise ValueError('Copy tokens and source spans differ')
-        for start in range(len(ids)):
-            for length in range(1, min(spec.max_span, len(ids) - start) + 1):
-                seq = tuple(ids[start:start + length])
-                if seq in seen:
-                    continue
-                seen.add(seq)
-                candidates.append(seq + (0,) * (spec.max_span - length))
-                masks.append((True,) * length + (False,) * (spec.max_span - length))
-                provenance.append((start, length, tuple(token_source[start:start + length])))
-                if len(candidates) > 2048:
-                    raise ValueError('Pointer candidate budget exceeded')
+        if unit == 'token':
+            spans_to_score = [(start, start + length) for start in range(len(ids))
+                              for length in range(1, min(spec.max_span,
+                                                         len(ids) - start) + 1)]
+        else:
+            words = self._word_groups(ids)
+            spans_to_score = []
+            for left in range(len(words)):
+                token_indices = []
+                for right in range(left, len(words)):
+                    token_indices.extend(words[right])
+                    if len(token_indices) > spec.max_span:
+                        break
+                    start, stop = token_indices[0], token_indices[-1] + 1
+                    spans_to_score.append((start, stop))
+            spans_to_score = sorted(set(spans_to_score))
+        for start, stop in spans_to_score:
+            seq = tuple(ids[start:stop])
+            if seq in seen:
+                continue
+            seen.add(seq)
+            length = stop - start
+            candidates.append(seq + (0,) * (spec.max_span - length))
+            masks.append((True,) * length + (False,) * (spec.max_span - length))
+            provenance.append((start, length, tuple(token_source[start:stop])))
+            if len(candidates) > 2048:
+                raise ValueError('Pointer candidate budget exceeded')
         token_ids = torch.tensor([candidates], dtype=torch.long, device=self.device)
         token_mask = torch.tensor([masks], dtype=torch.bool, device=self.device)
         candidate_mask = torch.ones(1, len(candidates), dtype=torch.bool,
@@ -329,10 +371,10 @@ class MemorySession:
             return token_ids, token_mask, candidate_mask, tuple(provenance)
         return token_ids, token_mask, candidate_mask
 
-    def pointer_answer(self, request) -> PointerAnswer:
+    def pointer_answer(self, request, *, unit: str = 'token') -> PointerAnswer:
         """Return the model-selected exact source span and host provenance."""
         token_ids, token_mask, candidate_mask, provenance = self.copy_candidates(
-            request, include_provenance=True)
+            request, include_provenance=True, unit=unit)
         scores = self.adapter.pointer_scores(request.frame, token_ids, token_mask,
                                              candidate_mask)
         index = int(scores.argmax(dim=-1)[0])

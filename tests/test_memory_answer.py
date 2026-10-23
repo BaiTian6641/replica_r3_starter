@@ -15,7 +15,7 @@ class Req:
 class FakeSession:
     def __init__(self, pointer): self.pointer=pointer; self.verified=False
     def verify(self, req): self.verified=True
-    def pointer_answer(self, req):
+    def pointer_answer(self, req, **kwargs):
         from replica_lab.memory_system.session import PointerAnswer
         return PointerAnswer((1,2),'amber','r1','h1','s1',('r1',),0,1,'p',('src-hash',))
     def exact_text(self, req, span):

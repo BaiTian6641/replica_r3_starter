@@ -34,26 +34,36 @@ def execute(args,profiler,report):
         return session.prepare(prompt_ids=ids,prompt_mask=mask,query=q['query'],scope=scope,
             task=TaskGraph(q['case_id'],q['query']),selection=sel,core_impl='none',
             enabled_branches=('memory','copy'))
-    pointer_results=[]; exact_results=[]
-    for q in queries:
-        req=prep(q)
-        try:
-            pointer=MemoryAnswerService(session,pointer_enabled=True).answer(req)
-            exact=MemoryAnswerService(session,pointer_enabled=False).answer(req)
-            pointer_results.append({'case_id':q['case_id'],'split':q['split'],'text':pointer.text,
-                'expected':q['expected_answer'],'correct':pointer.text.casefold()==q['expected_answer'].casefold(),
-                'method':pointer.method,'record_ids':pointer.record_ids,'span_hashes':pointer.span_hashes,
-                'source_ids':pointer.source_ids,'producer':pointer.producer})
-            exact_results.append({'case_id':q['case_id'],'split':q['split'],'method':exact.method,
-                'record_ids':exact.record_ids,'span_hashes':exact.span_hashes,'text_sha256':hashlib.sha256(exact.text.encode()).hexdigest()})
-        finally: req.release()
-    report['pointer']=pointer_results; report['exact_source']=exact_results
-    report['metrics']={split:{'count':sum(r['split']==split for r in pointer_results),
-        'correct':sum(r['correct'] for r in pointer_results if r['split']==split),
-        'accuracy':sum(r['correct'] for r in pointer_results if r['split']==split)/max(1,sum(r['split']==split for r in pointer_results))}
-        for split in ('dev','heldout')}
-    report['checks']={'all_pointer_method':all(r['method']=='pointer_copy' for r in pointer_results),
-        'all_pointer_provenance':all(r['record_ids'] and r['span_hashes'] and r['source_ids'] for r in pointer_results),
+    units = protocol.get('candidate_units', ['token'])
+    results_by_unit = {}
+    exact_results = []
+    for unit in units:
+        pointer_results = []
+        for q in queries:
+            req = prep(q)
+            try:
+                pointer = MemoryAnswerService(session, pointer_enabled=True,
+                                              candidate_unit=unit).answer(req)
+                exact = MemoryAnswerService(session, pointer_enabled=False).answer(req)
+                pointer_results.append({'case_id':q['case_id'],'split':q['split'],'text':pointer.text,
+                    'expected':q['expected_answer'],'correct':pointer.text.casefold()==q['expected_answer'].casefold(),
+                    'method':pointer.method,'record_ids':pointer.record_ids,'span_hashes':pointer.span_hashes,
+                    'source_ids':pointer.source_ids,'source_hashes':pointer.source_hashes,'producer':pointer.producer,
+                    'unit':unit})
+                if unit == units[0]:
+                    exact_results.append({'case_id':q['case_id'],'split':q['split'],'method':exact.method,
+                        'record_ids':exact.record_ids,'span_hashes':exact.span_hashes,
+                        'source_hashes':exact.source_hashes,
+                        'text_sha256':hashlib.sha256(exact.text.encode()).hexdigest()})
+            finally: req.release()
+        results_by_unit[unit] = pointer_results
+    report['units'] = results_by_unit; report['exact_source'] = exact_results
+    report['metrics'] = {unit: {split: {'count': sum(r['split']==split for r in values),
+        'correct': sum(r['correct'] for r in values if r['split']==split),
+        'accuracy': sum(r['correct'] for r in values if r['split']==split)/max(1,sum(r['split']==split for r in values))}
+        for split in ('dev','heldout')} for unit, values in results_by_unit.items()}
+    report['checks']={'all_pointer_method':all(r['method']=='pointer_copy' for values in results_by_unit.values() for r in values),
+        'all_pointer_provenance':all(r['record_ids'] and r['span_hashes'] and r['source_hashes'] for values in results_by_unit.values() for r in values),
         'all_exact_fallback':all(r['method']=='exact_source' for r in exact_results)}
     report['status']='completed'; report['claims']='Bounded consumer check of published pointer and exact-source fallback; no training or default change.'
     ledger.close()

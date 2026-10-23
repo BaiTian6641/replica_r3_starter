@@ -1,0 +1,31 @@
+{
+  "format": "replica.e2.pointer_service.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Compare token-span and whole-word pointer candidates on a second untouched family; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "dataset": {
+    "root": "data/e2_pointer_fresh2",
+    "records_sha256": "fd33bbf1e2dd22cc4f2f42027025070d69302e0e8f7ef5fb07939c72fe097aeb",
+    "queries_sha256": "263a00da755f749e609b723cc8e4e96ac9b4033e243c8d82277f3ab666f4f253",
+    "manifest_sha256": "1c4b305c25f309c083149477d95cc94d1161d7ab94c48dfae7dc59c1edfacdb3"
+  },
+  "max_span": 4,
+  "candidate_units": [
+    "token",
+    "word"
+  ],
+  "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+  "evaluation": {
+    "dev": 0,
+    "heldout": 12,
+    "metric": "exact pointer text and provenance; token vs word candidates"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "eval_cases": 24,
+    "checkpoint_saves": 0
+  },
+  "claims": "Candidate-boundary diagnostic only; no training or default change."
+}

@@ -28,12 +28,16 @@ class MemoryAnswerService:
     """One trusted host's explicit memory-answer surface."""
 
     def __init__(self, session, *, pointer_enabled: bool = False,
-                 exact_source_fallback: bool = True):
+                 exact_source_fallback: bool = True,
+                 candidate_unit: str = 'token'):
         if not isinstance(pointer_enabled, bool) or not isinstance(exact_source_fallback, bool):
             raise ValueError('answer switches must be boolean')
+        if candidate_unit not in ('token', 'word'):
+            raise ValueError('candidate_unit must be token or word')
         self.session = session
         self.pointer_enabled = pointer_enabled
         self.exact_source_fallback = exact_source_fallback
+        self.candidate_unit = candidate_unit
 
     def answer(self, request) -> MemoryAnswer:
         self.session.verify(request)
@@ -41,7 +45,8 @@ class MemoryAnswerService:
         if frame is None:
             raise ValueError('answer requires an owned request frame')
         if self.pointer_enabled and frame.copy is not None and frame.branch_enabled('copy'):
-            pointer: PointerAnswer = self.session.pointer_answer(request)
+            pointer: PointerAnswer = self.session.pointer_answer(
+                request, unit=self.candidate_unit)
             return MemoryAnswer(
                 text=pointer.text, method='pointer_copy',
                 record_ids=(pointer.record_id,),
