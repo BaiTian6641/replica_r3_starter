@@ -1,0 +1,142 @@
+{
+  "schema": "replica.architecture_research_review.v1",
+  "status": "design_review_complete",
+  "reviewed_at_utc": "2026-10-23T02:50:57.674304+00:00",
+  "scope": "Research, architecture specification, implementation ordering and rendered diagrams only; no model implementation or learned capability result",
+  "starting_commit": "f7073256eaaffa3c1d213c1e34b9fa07dbb4baac",
+  "branch": "codex/d2-capacity-runtime-pilot",
+  "research": {
+    "upstream_tais_revision": "85c134e857299431d1504636115d273a3de48bf2",
+    "source_only_inspection": true,
+    "primary_papers": [
+      "MemT-1.0",
+      "Mem-T",
+      "Titans",
+      "TTT",
+      "uTTT",
+      "Engram",
+      "Nested Learning/HOPE",
+      "SEAL",
+      "Voyager",
+      "CTM",
+      "Coconut",
+      "capability calibration",
+      "intrinsic self-correction",
+      "source-grounded personal agents"
+    ],
+    "backbones": [
+      "openbmb/MiniCPM5-2B",
+      "openbmb/MiniCPM-V-4.7-1B"
+    ],
+    "manifests": {
+      "reports/architecture_research_20261023/backbone_sources.json": "0c08ba5db0160ce42ba89314ce8fb70ce43ee5dc30538744bb4eb74b12ad4f3e",
+      "reports/architecture_research_20261023/memory_sources.json": "65af4c788eb679392a98a8c9496894cb800078e0fe3234917fb63b426a3d2fc5",
+      "reports/architecture_research_20261023/tais_learning_sources.json": "9dec12cb37c010addfa30ff19b3f0e9a6f1c4d1e5e5cf7f09d1220e1c4e1b8c7"
+    },
+    "no_upstream_code_imported_or_executed": true
+  },
+  "deliverable": {
+    "design_chapters": 6,
+    "component_count": 18,
+    "build_packages": 6,
+    "design_index": "docs/architecture/README.md",
+    "config": "configs/architecture_design_v1.json",
+    "diagram_catalog": "diagrams/architecture_v1/README.md",
+    "next_implementation": [
+      "E1 explicit native/request/manifest interfaces",
+      "E2 contextual record writer and two native ports",
+      "E3 shared core, exact task and actual model/action/outcome loop"
+    ]
+  },
+  "independent_reviews": {
+    "backbone_reviewer": "research_backbones",
+    "learning_replica_reviewer": "research_tais_learning",
+    "mode": "read-only integrated-document review",
+    "resolved": [
+      "D1 frozen native-feature caching distinguished from post-writer slot caching",
+      "initial host retrieval distinguished from additional core retrieval requiring a new decision",
+      "VLM topology verified while depth choices remain proposed",
+      "authentic Replica intake does not block VLM implementation",
+      "RequestContext/DecisionFrame and tied attention-FFN core terminology unified",
+      "four 64x64 fast matrices used consistently"
+    ]
+  },
+  "checks": {
+    "all_28_mermaid_blocks_rendered": true,
+    "all_svg_xml_parsed": true,
+    "all_generated_sources_match_document_blocks": true,
+    "all_component_design_sections_and_diagrams_exist": true,
+    "stage_ids_and_dependencies_preserved": 33,
+    "previously_tracked_evidence_data_code_byte_matched": 1715,
+    "preservation_inventory": "reports/architecture_research_20261023/preserved_prior_files.json",
+    "tested_python_hashes_matched": 102,
+    "historical_software_suite": {
+      "command": ".venv/bin/python -m pytest -q --junitxml=reports/tests_response_policy_v2_final_20261022.xml > reports/test_output_response_policy_v2_final_20261022.txt 2>&1",
+      "passed": 819,
+      "skipped": 1,
+      "failed": 0,
+      "errors": 0,
+      "seconds": 108.552,
+      "xunit": "reports/tests_response_policy_v2_final_20261022.xml",
+      "output": "reports/test_output_response_policy_v2_final_20261022.txt",
+      "skip": "Restricted-context tiny MPS continuation unavailable; actual one-shot original-model dev16 native job separately ran on MPS FP32 without CPU fallback."
+    },
+    "historical_suite_source": "reports/validation_response_policy_v2_final_20261022.json",
+    "software_tests_rerun_this_review": false,
+    "reason": "Documentation/configuration/diagram changes only; all previously tested Python bytes unchanged",
+    "protected_untracked_runtime_draft_sha256": "2433cb7296fda0cb306529a19429ff41fe0d43192720086dee572ec4a42970f9",
+    "original_model_file_stat_identities_matched": 36,
+    "original_model_scope": "stat identity/size/mtime/ctime and acquisition-receipt hash matched to prior sealed-source check; large weight content hashes were not re-read in this documentation-only pass",
+    "acquisition_receipt_sha256": "d2a58260d3e7d476b26a5fffa2ca55d397dbe1ee8391456945cb4c5e4e5e4f11",
+    "bundle_validation": {
+      "status": "passed",
+      "path": "reports/architecture_research_20261023/bundle_validation.json",
+      "local_links_checked": 793,
+      "json_files_parsed": 395,
+      "archived_sources_hashed": 7,
+      "new_component_diagrams": "28 separately parsed/rendered and byte-checked; the bundle validator separately checks the original eight-diagram atlas"
+    },
+    "visual_preview_review": {
+      "reviewed_pngs": [
+        "01_01",
+        "01_02",
+        "02_01",
+        "02_05",
+        "03_01",
+        "03_09",
+        "04_03",
+        "04_08"
+      ],
+      "result": "Readable labels, arrows and component boundaries in the eight selected previews; remaining diagrams passed Mermaid rendering and SVG XML checks",
+      "scope": "Visual inspection is sampled, not a cognitive architecture evaluation"
+    },
+    "artifact_hashes": {
+      "docs/architecture/01_System_Blueprint.md": "7de39ec61b3d6d80d2b16befcc7c3550128ed6ccac6395066fa5394ccf6c07ee",
+      "docs/architecture/02_Backbone_Integration.md": "ffc16c69f73a0e720525a582a242cc2f1fee06852fca2171bf29a5dfb375f998",
+      "docs/architecture/03_Memory_and_Runtime_Compilation.md": "75d1a063f1deeebfcd69b27d805c8d1f73392a059578a2663808646aa9017e77",
+      "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md": "a65b448acefccef9290a9070c0466ef77f696df840b78be62738c1ba7727fea4",
+      "docs/architecture/05_Implementation_Sequence.md": "3e8b6d16ce2829a7d99c09e03694b6b8097f52ae4aa6cab38b15bab4818cf4e1",
+      "docs/architecture/06_Research_Decisions.md": "73b307e46f6699c463a6260c6b7f20892666d0e1987879b8524568e7bb4044ef",
+      "docs/architecture/README.md": "ed1126b44b6635d905091780fa481bf8ac06e7d75386700b89e49973cabd075b",
+      "configs/architecture_design_v1.json": "175f09dd9cf3fd6d806012c6647d84c463dc804344c1a94e5d54836071496579",
+      "diagrams/architecture_v1/manifest.json": "9e6bbb47ff2a1ec0b6986ad2f43281b65933f4d3ac21abf1e5ce2b654afe60c3",
+      "diagrams/architecture_v1/render.mjs": "d3ce0a2f23db0e1b23dd764de3b8be3cc35e9848fb2c4c4776474e6b979a31b0"
+    }
+  },
+  "native_activity": {
+    "model_weight_downloads": 0,
+    "native_model_runs": 0,
+    "training_updates": 0,
+    "new_checkpoints": 0,
+    "existing_source": "checkpoints/minicpm5_source",
+    "selected_checkpoints": "preserved; no deletions or weight writes",
+    "cpu_model_fallback": false
+  },
+  "limitations": [
+    "Design choices are proposed, not trained/evaluated",
+    "Upstream source inspection is not reproduction of upstream claims",
+    "VLM metadata/code review does not establish MPS compatibility",
+    "Renderer/browser host work is not model or Neural Engine execution",
+    "A docs-only review does not resolve the preserved model response failures"
+  ]
+}

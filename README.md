@@ -1,12 +1,22 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
+**Current work: [integrated architecture research and design](docs/architecture/README.md).**
+The new six-chapter design covers 18 components: native MiniCPM memory ports,
+parallel cognition, temporal/neural memory, runtime compilation, evaluated
+learning and authentic Replica integration. Start with the
+[system blueprint](docs/architecture/01_System_Blueprint.md),
+[rendered component diagrams](diagrams/architecture_v1/README.md), and
+[E1–E6 build sequence](docs/architecture/05_Implementation_Sequence.md).
+The implementation priority is now the connected architecture. This review adds
+no model runs, training results or checkpoints; earlier experiments remain below.
+
 **23 October 2026 | Experience-driven learning, small-model architecture experiments and a personal parallel Replica**
 
 The target is a semi-cognitive system that uses experience to improve its future behavior while keeping the deployed base ordinarily frozen. Develop and evaluate the interfaces through 1B/2B-class full fine-tuning first; then freeze a tested foundation, run continuing-learning experiments, and port useful mechanisms to larger models.
 
 This package contains an executable research starter, detailed construction documents, an eight-page diagram atlas, a dataset catalog, eight complete dataset-generation/review prompts, schemas and coding-agent instructions. It is a new R3 bundle; the seven supplied R2 documents are preserved unchanged under reference/r2.
 
-## Current progress — 22 October 2026 (America/Chicago)
+## Latest native evidence — 22 October 2026 (America/Chicago)
 
 Released **2,000 source-bound synthetic targets across four task families**.
 The simpler query-policy contract was committed at `b2010c2` before its M2 Ultra
@@ -23,8 +33,8 @@ receipts, budgets, revocation and restart in 12 integration checks plus 38 focus
 tests. Actual model proposals and learning remain unqualified. Read the
 [v2 results and diagnosis](docs/experiments/20261022_Response_Policy_V2_Results.md),
 [host contract](docs/experiments/20261022_Host_Action_Contract.md) and
-[current execution state](execution_state.md). Source grounding and a separately
-predeclared MPS model-to-host pilot are next; S1.5 admission still blocks S2.4
+[current execution state](execution_state.md). Source grounding and real model-to-host actions are acceptance checks in the
+connected E1–E3 build; S1.5 admission still blocks S2.4
 training. The single original model and selected D0/D1/D2 checkpoints remain.
 
 ## Local setup — 22 October 2026 (America/Chicago)
@@ -62,7 +72,7 @@ A fresh full-parameter run from the sealed MiniCPM5 parent fixed constant-zero b
 
 The eight-update run took 192.29 seconds including checkpoint/export/reload; sampled MPS live/driver peaks were 24.88/29.18 GiB. Full model, mixed optimizer, RNG, schedule and data-cursor checkpoints now support contract-bound continuation at completed-update boundaries. Tiny real-model interrupted continuation matches uninterrupted CPU training exactly; full-size native continuation and separate export generation are recorded in the final [experiment record](reports/minicpm5_balanced_overfit_experiment_20261022.json). Independent saved-export generation confirms **train 8/8 and dev 14/16** at update 8; the native continuation probe reaches update 12 with train 8/8 and dev 13/16. The dev cap matches the earlier 256-token evaluation. Training exactness is a memorization result; these 16 reused synthetic dev cases do not establish broad transfer or general retention. That milestone passed 169 tests; the current suite below has 290 passing tests.
 
-Read the [collapse diagnosis](docs/experiments/20261022_Constant_Zero_Diagnosis.md), [33-substage roadmap](docs/stages/00_Master_Roadmap.md), [dated primary-source review](docs/stages/07_Research_Evidence_20261022.md) and [machine-readable plan](configs/stage_plan.json). Each substage specifies dependencies, artifacts, acceptance checks, resources and failure handling. The project defined in this workspace remains the design authority; the public search did not identify a matching authoritative TAIS Obsidian / Replica project.
+Read the [collapse diagnosis](docs/experiments/20261022_Constant_Zero_Diagnosis.md), [33-substage roadmap](docs/stages/00_Master_Roadmap.md), [dated primary-source review](docs/stages/07_Research_Evidence_20261022.md) and [machine-readable plan](configs/stage_plan.json). Each substage specifies dependencies, artifacts, acceptance checks, resources and failure handling. The project documents remain the design authority. That earlier name search did not identify the upstream; the current [source review](docs/architecture/06_Research_Decisions.md) now inspects the user-supplied TAIS-Obisian repository at a pinned revision.
 
 ## Actual-length capacity and native adapter readiness — 22 October 2026
 

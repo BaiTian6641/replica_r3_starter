@@ -1,0 +1,8 @@
+flowchart TD
+  X[Source statement or actual tool receipt] --> V[Validate origin, scope and schema]
+  V --> L[Append event and correction links]
+  L --> T[Temporal and identity-mode view]
+  T --> A[Current access and purpose filter]
+  A --> G[Eligible record IDs]
+  G --> R[Query ranking and retrieval]
+  R --> P[EvidencePin with exact source versions]

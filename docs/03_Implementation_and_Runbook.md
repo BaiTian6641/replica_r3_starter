@@ -1,5 +1,13 @@
 # 03 - Construction plan and executable runbook
 
+**Current implementation priority:** follow the [integrated architecture build](architecture/05_Implementation_Sequence.md).
+E1/E2 replace the temporary global context and set-pooled writer with explicit
+request ownership, contextual record payloads and two native memory ports. E3
+connects the shared core to real task state/actions; E4/E5 add adaptive memory,
+compilation and candidate learning. The [design index](architecture/README.md)
+is the current specification. Historical commands and reports below remain
+reproducibility references; no native job is part of this design review.
+
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
 **Local setup and native preflight, 22 October 2026 (America/Chicago):** Mac Studio M2 Ultra, 24 CPU cores, 60 GPU cores, 64 GiB unified memory, macOS arm64. PyTorch MPS is available. Muon 8-bit is the selected experiment on this machine and later RTX PRO 4000 Blackwell SFF; FP32-state AdamW remains an explicit comparison. See [hardware inventory](../reports/hardware_macos_m2_ultra.json), [setup validation](../reports/validation_macos_setup.json), [native preflight results](../reports/minicpm5_mps_experiment_20261022.json), [profiles](../configs/hardware_profiles.json) and [execution state](../execution_state.md). The historical two-update D0 preflight collapsed to `0`; the fresh balanced eight-update full D0 diagnostic generates all eight training answers correctly and scores 14/16 on the small development fixtures from its saved export. Checkpoint/export/reload and native fresh-process continuation through update 12 passed. Actual 256-token and 512-token D0 short capacity screens also passed, each with two updates split across native restart. Native D1/D2 fixed-context uncached generation now passes at 256. The bounded D1 memorization gate passes at 1e-2 after a preserved 1e-3 failure: saved train 8/8 and dev 2/16, all originals unchanged. D2 actual 256/512-token capacity and fresh-process restart now pass; its balanced tiny-overfit run stops at update 8 with 8/8 at updates 4 and 8; independent saved-export scoring confirms train 8/8 and dev 14/16, all EOS. See the [D2 qualification record](experiments/20261022_D2_Results.md). Augmented caching and broader evaluation remain separate gates. See the [D1 result](experiments/20261022_D1_Diagnostic.md). Follow the [detailed substage roadmap](stages/00_Master_Roadmap.md), [collapse diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md), [learning result record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) and [capacity qualification](experiments/20261022_Capacity_Qualification.md).
@@ -22,9 +30,8 @@ All successes are UNKNOWN, matching the selected constant control at 4/16;
 all eight complete-evidence answers fail and four asks request observed facts.
 [Results and diagnosis](experiments/20261022_Response_Policy_V2_Results.md)
 therefore record abstention collapse, without a useful reasoning or architecture
-gain. No downloads, optimizer updates or checkpoints were made. Next separately
-qualify source grounding/input projection and upstream sampling/thinking before
-training, without changing all settings together. [Public metadata review](experiments/20261022_Public_Source_Admission_Review.md)
+gain. No downloads, optimizer updates or checkpoints were made. Qualify source grounding and task-appropriate inference settings inside the
+connected E1–E3 interfaces, preserving declared controls before training comparisons. [Public metadata review](experiments/20261022_Public_Source_Admission_Review.md)
 keeps both candidates quarantined; retention/calibration/evidence controls and
 S1.5 admission still block the [S2.4 screen](experiments/20261022_S2_4_Screen_Proposal.md).
 
@@ -33,8 +40,8 @@ passes 12 integration checks and 38 focused tests for actual pure XOR tool
 receipts, scope/budgets, epoch invalidation and journal restart. Those proposals
 are deterministic fixtures. An actual neural proposer, learned policy, evolving
 task workspace and learning loop remain unqualified. Full S3.1 retains its
-S2.5/S1.1 dependencies; next predeclare a fixed-original MPS proposer and tool
-receipt qualification under its own protocol.
+S2.5/S1.1 dependencies. E3 develops the real proposer, evolving workspace and
+receipt loop alongside E1/E2; its qualification protocol is bound to that implementation.
 
 | Component | Delivered behavior | Important boundary |
 |---|---|---|

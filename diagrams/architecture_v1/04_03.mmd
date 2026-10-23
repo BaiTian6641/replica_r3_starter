@@ -1,0 +1,9 @@
+flowchart LR
+  T[Exact goal and task graph] --> E[Typed state encoder]
+  S[Sense features and memory slots] --> U[Cross-attention recurrent update]
+  E --> U
+  W[Previous task-owned W] --> U
+  U --> P[Task patch and action heads]
+  U --> J[Null-capable injection projections]
+  P --> H[Host validates task transition]
+  H --> T

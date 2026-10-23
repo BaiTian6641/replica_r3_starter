@@ -1,5 +1,14 @@
 # Construction roadmap — TAIS Obsidian / Replica R3
 
+**Current work ordering:** the [integrated architecture design](../architecture/README.md)
+and [E1–E6 build packages](../architecture/05_Implementation_Sequence.md) now guide
+construction. Implement explicit native/request interfaces and contextual record
+ports first, then the parallel core and real task loop. Memory compilation and
+actual candidate learning follow within the same system. The 33 stage IDs and
+dependencies are preserved; evidence gates determine claims and training
+admission, while implementation can proceed before all research gates pass.
+No model job or broad campaign was launched by this design review.
+
 Reviewed **22 October 2026, America/Chicago**. This is the executable work sequence for the architecture in [01_System_Design](../01_System_Design.md), with machine-readable dependencies in [stage_plan.json](../../configs/stage_plan.json). Substage artifacts below are planned unless a linked report establishes execution. The [execution state](../../execution_state.md) owns the latest run outcome; this plan does not replace its evidence.
 
 ## Current boundary and immediate work
@@ -80,4 +89,14 @@ The integration owner controls shared schemas, source/model locks, acceptance an
 
 Every substage specifies an artifact, interface, dependency, test gate, resource cap, failure action and next smallest task in its detailed file and JSON entry. Run one bounded screen before multiplying seeds. On collapse, inspect sampling/masks/template/answer distribution and adjust a declared variable. On OOM or sustained pressure/swap growth, stop the bounded run, preserve the profile and reduce length/accumulation or implement residency changes without changing its claimed parameter scope. On no meaningful gain, preserve the negative and remove/redesign the mechanism. Optional research never blocks the simplest complete learned loop.
 
-The bounded **S2.3 package is complete**; S1.2's 2k infrastructure release has operational source/solver review and token accounting. V2 removes some invalid forms but its four UNKNOWN successes merely match the constant control; preserve all three development negatives. Separately qualify source-grounding/input projection and upstream sampling/thinking before training. The next training study remains **S2.4**, blocked until S1.5 admission: finish public-source review/adapters and independent S1.4 controls, then freeze useful-gain, retention, equal-information, rate-search and parameter/compute rules. Early S3.1 host software preparation passes its bounded checks; an actual MPS proposer and real tool-receipt qualification remain next under their own protocol. Full S3.1 still depends on S2.5 and S1.1. R0/R1 can proceed independently. S0.5 capacity is complete; useful gain and architecture selection remain pending. Current research caveats are in the [dated evidence register](07_Research_Evidence_20261022.md).
+The bounded **S2.3 package is complete** for the previous small adapter. Preserve
+all three short-answer negatives. The immediate build is **E1/E2**, followed by
+E3's real cognitive/action loop; qualify source sensitivity and inference
+settings within those components. S1.3/S1.4/S1.5 admission work proceeds alongside
+construction. A smaller purpose-built admitted release can support the connected
+system without waiting for every proposed public source; quarantined material
+remains excluded. S2.4 still requires an admitted release and declared fair
+comparison, retention, compute and exposure rules. Full S3.1 still depends on
+S2.5/S1.1; early implementation does not claim that gate. R0/R1 proceed separately
+with authentic source material. See the [current research decisions](../architecture/06_Research_Decisions.md)
+for the recovered TAIS upstream and memory-native retrofit evidence.

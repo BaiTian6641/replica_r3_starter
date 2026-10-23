@@ -1,0 +1,10 @@
+flowchart LR
+    R[One eligible source record] --> P[Versioned native feature producer]
+    P --> W[Learned projection and four-query pooling]
+    W --> S[Four memory slots plus record pointer]
+    R --> X[Exact source bytes and provenance]
+    S --> B[Selected bank: at most 64 slots]
+    B --> M[Port-specific neural reader]
+    M --> D[Residual delta and evidence-use proposal]
+    D --> H[Host resolves permitted exact reference]
+    X --> H

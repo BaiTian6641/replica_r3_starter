@@ -1,5 +1,11 @@
 # 07 - Architecture diagrams
 
+**Current component diagrams:** [architecture v1 catalog](../diagrams/architecture_v1/README.md)
+contains rendered SVGs and editable Mermaid for the full
+[research design](architecture/README.md). It covers the two backbones, memory
+ports, persistent stores, shared core, action/learning loops and Replica.
+The original eight-page atlas below remains preserved as the earlier framework.
+
 **All diagrams describe proposed research architecture. Shipped CPU contract tests do not establish model-quality improvement.**
 
 [Download the eight-page vector atlas](../diagrams/Replica_R3_Architecture_Atlas.pdf). Every diagram is also available as SVG, PNG and editable Mermaid source. The PDF/SVG layouts show implementation-status colors; Mermaid prioritizes relationships.

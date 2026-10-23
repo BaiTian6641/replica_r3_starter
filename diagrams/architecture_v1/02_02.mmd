@@ -1,0 +1,18 @@
+flowchart TD
+    I[Known goal, query and observations] --> S[Sense pass through native decoder]
+    S --> S13[Capture known-input features at 13]
+    S --> S27[Capture known-input features at 27]
+    S --> S41[Capture final known-input observer]
+    S13 --> C[Shared width-256 cognitive core]
+    S27 --> C
+    S41 --> C
+    E[Host-authorized memory slots] --> C
+    J[Exact task journal and identity mode] --> C
+    C --> K[Freeze one decision control frame]
+    K --> P[Answer or action prefill and decode]
+    P --> A13[Inject after native block 13]
+    A13 --> A27[Inject after native block 27]
+    A27 --> O[Native final head and typed action proposal]
+    O --> T[Host executes permitted action]
+    T --> R[Actual outcome and next decision]
+    R --> I

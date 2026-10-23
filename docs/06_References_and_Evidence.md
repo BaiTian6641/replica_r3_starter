@@ -1,5 +1,13 @@
 # 06 - Primary sources and evidence limits
 
+**Current architecture review:** see the [primary-source research decisions](architecture/06_Research_Decisions.md)
+and the [backbone](architecture/02_Backbone_Integration.md), [memory](architecture/03_Memory_and_Runtime_Compilation.md),
+and [learning/Replica](architecture/04_Semi_Cognition_Learning_and_Replica.md) chapters.
+This review inspects the actual [TAIS-Obisian upstream](https://github.com/BaiTian6641/TAIS-Obisian/tree/85c134e857299431d1504636115d273a3de48bf2)
+and distinguishes memory-native MemT-1.0 from database-policy Mem-T. Source pins,
+inspection limits and file identities are recorded; upstream results are not
+local reproductions. The older dated search remains historical evidence.
+
 **Current native preflight review: 22 October 2026 (America/Chicago). Original bundle review label: 23 October 2026 (Asia/Shanghai).** This register distinguishes primary research, official implementation sources, project proposals and measurements made on the delivered starter. URLs with main are discovery links; execution must pin immutable revisions.
 
 The subsequent [balanced-overfit record](../reports/minicpm5_balanced_overfit_experiment_20261022.json) supersedes the collapse as the current diagnostic result while preserving its failure evidence: full native Muon 8-bit reached eight distinct correct training answers at updates 4 and 8, independently verified from the export; development generation scored 14/16. Fresh-process continuation through update 12 retained train 8/8 and scored dev 13/16. All 381 original tensors changed in both exports. Completed-update optimizer/RNG/data/schedule continuation is qualified; full-size uninterrupted-versus-resumed equivalence remains unmeasured. That milestone passed 169 tests; the subsequent readiness suite has 246 passing tests. These are tiny synthetic results, not general quality or Replica fidelity evidence.
@@ -29,6 +37,8 @@ The [dated research review](stages/07_Research_Evidence_20261022.md) records pri
 | R15 | [Memory of Amortized Contexts](https://arxiv.org/abs/2403.04317); [author code](https://github.com/jihoontack/MAC) | Learned context interfaces | Requires learned alignment, not arbitrary tensor interchange |
 | R16 | [LongMem](https://arxiv.org/abs/2306.07174); [author code](https://github.com/Victorwz/LongMem) | Memory readers with frozen representations | Base/writer changes invalidate old representation assumptions |
 | R17 | [Effective Quantization of Muon Optimizer States, v3](https://arxiv.org/abs/2509.23106v3) | Motivation for blockwise linear 8-bit Muon momentum | This project implements a portable experiment, not a reproduction of the paper's training results |
+| R18 | [MemT-1.0 v2](https://arxiv.org/html/2610.26825v2); [authors' code](https://github.com/MemTensor/MemT-1.0/tree/e75c13d090a6a9d34b29146d901bd84323185f24) | Native memory retrofit of pretrained backbones | Distinct from R05; substantial training, Linux/CUDA release, continual improvement remains future work |
+| R19 | [TTT v1](https://arxiv.org/html/2407.04620v1); [authors' code](https://github.com/test-time-training/ttt-lm-pytorch/tree/cd831db10c8c9a0f6340f02da5613316a8a92b67) | Inner memory updates and outer representation learning | Tutorial reference does not qualify native MPS integration |
 
 The full combined architecture is a project synthesis. A component's published success does not prove that combining all components will work. Unofficial Titans/HOPE implementations are not presented as author-maintained trainers in this starter.
 
@@ -90,9 +100,11 @@ Matched greedy generation used the same 16 examples, identical 53-token prompts 
 
 At 0.25-second sampling, baseline peak MPS allocated/driver memory was **9.41 / 10.07 GiB**, versus **24.74 / 29.15 GiB** for D0. D0's process-lifetime peak RSS was **14.52 GiB** and overlaps MPS unified-memory counters; these values must not be added. Sampling may miss transient peaks. Host swap was **1,562.69 MiB** at both run endpoints; this does not establish that no swap activity occurred between them. The detailed phase profile, dtype/state bytes, hashes, environment and measurement limits are retained in the reports and [hardware guide](02_Stages_Experiments_and_Hardware.md).
 
-The following remain **unrun**:
+Later [D1](experiments/20261022_D1_Diagnostic.md) and [D2](experiments/20261022_D2_Results.md) records qualify bounded native augmented memorization/capacity/restart. They do not establish useful memory benefit. The latest [v2 probe](experiments/20261022_Response_Policy_V2_Results.md) remains a negative.
 
-- Native pretrained MiniCPM5 D1/D2 augmented training and broader task-quality evaluation.
+The following remain **unrun or unqualified**, beyond those narrow records:
+
+- The proposed multi-port/core architecture, useful memory benefit and broader task-quality evaluation.
 - CUDA full fine-tuning, sharding or optimizer offload.
 - Representative natural-data or sustained native MPS training beyond the measured two-update synthetic 256/512 runs, full-size uninterrupted/resumed numerical equivalence and MLX parity measurements.
 - Actual V4.7 multimodal integration and full-VLM gradient tests.

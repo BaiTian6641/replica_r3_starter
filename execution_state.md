@@ -1,4 +1,40 @@
-# Execution state — query-policy v2 GPU baseline and host action preparation
+# Execution state — integrated architecture research and design
+
+**Current priority — architecture research and rebuild design, 22 October 2026.**
+Read the [integrated design](docs/architecture/README.md), [backbone ports](docs/architecture/02_Backbone_Integration.md),
+[memory and compiler](docs/architecture/03_Memory_and_Runtime_Compilation.md),
+[cognition and Replica](docs/architecture/04_Semi_Cognition_Learning_and_Replica.md), and
+[six-package build sequence](docs/architecture/05_Implementation_Sequence.md).
+The actual TAIS-Obisian source and primary memory research are now reviewed at
+pinned revisions. This is a design deliverable; the 18 proposed components have
+not been implemented or trained by this review. No native job was launched.
+
+Next implement **E1/E2**: explicit request/manifest ownership, contextual
+source-only record encoding and complete-block ports at 13/27. Follow with E3's
+shared cognitive core, exact task graph and real action/outcome loop. Qualify
+source grounding and generation inside these connected interfaces. Preserve
+the three failed short-answer probes; repeating their wording is no longer the
+main workstream. Data admission and fair D0/D1/D2 evaluation proceed alongside
+construction; no broad training campaign is admitted by this design.
+
+The latest native evidence remains the preserved query-policy v2 negative at
+`f707325`: strict and independent semantic judgments both 4/16, equal to the
+constant-UNKNOWN control. Last software suite: 819 passed, one restricted-context
+MPS skip. Reuse that evidence while code remains unchanged. Preserve the sealed
+local model, selected checkpoints and untracked runtime draft. See
+[execution state](execution_state.md) and the [design review record](reports/architecture_research_20261023/review.json).
+
+**Design validation:** all 28 Mermaid diagrams render and their SVGs parse;
+every one of the 18 components maps to a design section and diagram. The bundle
+check passes 793 local links and seven unchanged R2 sources. All 102 Python
+files from the prior 819-test report still match; that suite was not repeated
+for documentation-only changes. All 1,715 previously tracked code, data,
+experiment and evidence files are byte-identical to `f707325`. The original
+model's 36 file identities and acquisition receipt remain unchanged; large
+weight bytes were not rehashed in this pass. The untracked runtime draft is
+preserved and excluded. The 33-stage dependency graph is unchanged.
+
+## Preserved latest native result — query-policy v2
 
 22 October 2026, America/Chicago. Branch `codex/d2-capacity-runtime-pilot`.
 The source-bound infrastructure release remains **2,000 independently verified
@@ -69,8 +105,10 @@ The [final suite](reports/validation_response_policy_v2_final_20261022.json) pas
 abstention collapse; S1.3/S1.5 pending, S2.4 blocked, no model promoted and no
 native job active.
 
-Next predeclare a separate smallest MPS model-proposal → host verification →
-receipt-bound answer pilot, alongside source-grounding/missing-field controls.
+The previous next-step proposal was a separate MPS model-to-host pilot. The
+current architecture review supersedes that work ordering with E1/E2/E3; source
+grounding, useful missing-information behavior and real receipts are integrated
+acceptance checks in that build.
 Do not modify this v2 arm after results. Existing B0/B1 evidence, retention,
 calibration, public admission and budget/exposure gates still precede the fair
 training study. No 20k campaign is admitted.

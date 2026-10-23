@@ -4,7 +4,7 @@
   "reviewed_on": "2026-10-22",
   "timezone": "America/Chicago",
   "status_authority": "execution_state.md and immutable raw experiment reports; each completed gate retains its exact measured scope",
-  "project_identity": "Local TAIS Obsidian / Replica R3 synthesis; exact-name public search found no matching authoritative project on review date",
+  "project_identity": "Local TAIS Obsidian / Replica R3 synthesis; actual BaiTian6641/TAIS-Obisian source reviewed at 85c134e857299431d1504636115d273a3de48bf2 in the current architecture package",
   "model": {
     "repo_id": "openbmb/MiniCPM5-2B",
     "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
@@ -96,7 +96,7 @@
       "depends_on": [
         "S0.2"
       ],
-      "task": "Accepted the native full-text tiny-overfit run from the sealed original: 8/8 strict training answers and eight classes 0\u20137 at updates 4 and 8. Every accumulated update covers each answer once. The declared bundle uses accumulation 8, matched Muon/auxiliary AdamW base rates 1e-4, warmup 2 and zero decay; the 64-update cap stopped at 8. Native checkpoint/export/reload and measured 55-token memory fit pass; broader transfer remains unqualified.",
+      "task": "Accepted the native full-text tiny-overfit run from the sealed original: 8/8 strict training answers and eight classes 0–7 at updates 4 and 8. Every accumulated update covers each answer once. The declared bundle uses accumulation 8, matched Muon/auxiliary AdamW base rates 1e-4, warmup 2 and zero decay; the 64-update cap stopped at 8. Native checkpoint/export/reload and measured 55-token memory fit pass; broader transfer remains unqualified.",
       "artifacts": [
         "data/diagnostics/tiny_overfit_mask1/train.jsonl",
         "data/diagnostics/tiny_overfit_mask1/selection_manifest.json",
@@ -107,7 +107,7 @@
         "reports/minicpm5_balanced_overfit_experiment_20261022.json"
       ],
       "interface": "Existing eight-field trainer export -> full regime -> native saved export -> unchanged strict generation parser. Record per-update target coverage, effective batch and all optimizer group rates.",
-      "acceptance_gate": "Passed the scoped tiny-overfit gate: all eight training answer classes 0\u20137 correct at both updates 4 and 8, full-text scope, finite gradients, accepted checkpoint/export/reload with zero compared-logit difference, and sampled MPS memory fit. Native continuation is separately qualified under S0.4. Independent export-generation checks and broader development transfer/control conclusions belong to the final result record, not this memorization gate.",
+      "acceptance_gate": "Passed the scoped tiny-overfit gate: all eight training answer classes 0–7 correct at both updates 4 and 8, full-text scope, finite gradients, accepted checkpoint/export/reload with zero compared-logit difference, and sampled MPS memory fit. Native continuation is separately qualified under S0.4. Independent export-generation checks and broader development transfer/control conclusions belong to the final result record, not this memorization gate.",
       "resources": "Measured MPS full-text run: microbatch 1, accumulation 8, actual length 55, checkpointing and eight completed updates under declared 64 cap. Sampled peak MPS allocation 24.88 GiB and driver 29.18 GiB at 0.25-second cadence; counters overlap RSS and are not additive. This is not 256-token capacity.",
       "on_failure": "Retain the historical collapse and all control/development failures. A later artifact or transfer failure narrows the conclusion without erasing the 8/8 training observation. Do not credit any single variable in the bundled intervention without ablation.",
       "next_smallest_task": "Reuse accepted D0/D1/D2 diagnostics for S2.4 preregistration; keep memorization, reused-development scores and useful architectural gain distinct.",
@@ -133,7 +133,7 @@
         "reports/capacity_readiness_experiment_20261022.json"
       ],
       "interface": "Completed-update trainer boundary -> atomic model/runtime checkpoint with byte receipt -> contract-bound optimizer/model/RNG/data/schedule restore. Native inference export is separate; an interrupted partial accumulation restarts from the last completed checkpoint.",
-      "acceptance_gate": "Native short continuation 8\u219212 is qualified with contract/receipt validation, full-scope finite updates, correct next cursor/schedule and retained eight-class training answers; export/reload compared logits match exactly. Tiny CPU uninterrupted-versus-resumed exact equivalence and MPS optimizer/RNG tests pass. No full-size uninterrupted-versus-split numerical equivalence experiment was run, so no such claim is made.",
+      "acceptance_gate": "Native short continuation 8→12 is qualified with contract/receipt validation, full-scope finite updates, correct next cursor/schedule and retained eight-class training answers; export/reload compared logits match exactly. Tiny CPU uninterrupted-versus-resumed exact equivalence and MPS optimizer/RNG tests pass. No full-size uninterrupted-versus-split numerical equivalence experiment was run, so no such claim is made.",
       "resources": "Measured one fresh-process native MPS continuation of four completed updates after checkpoint 8. Save/restore/runtime memory is recorded separately in the continuation report; use one full-size process at a time.",
       "on_failure": "A weights-only reload is not resume. Resume only at completed-update checkpoints; no mid-accumulation gradient buffer recovery is claimed. Quantify any MPS numerical tolerance while keeping cursor/schedule compatibility exact.",
       "next_smallest_task": "Reuse the completed-update checkpoint path for D1 and later D2. Full-size uninterrupted-versus-split numerical equivalence remains a separate unmeasured experiment.",
@@ -286,7 +286,7 @@
       "acceptance_gate": "Original and contract-v1 negatives remain preserved. Public-query-policy v2, precommitted as b2010c2, produces 16/16 single-line responses and EOS, zero caps. The unchanged strict parser gives 4/16 task-correct and 12/16 legal grammar forms; supplemental historical archive resolution and exact guard replay pass. A fresh-context agent independently judges 4/16 semantically correct and 4/16 instruction-compliant; agent instruction compliance and program grammar are different metrics. All four correct cases are UNKNOWN, equal to the selected dev16 constant-UNKNOWN control. All eight complete-evidence answers fail; four other responses request already observed fields. The format gate fails and no useful gain or architecture advantage is established. The predeclared suite passes798 tests/one restricted-context MPS skip; final integration including the21 archive-reader tests passes819/one skip. Software success remains separate from native task acceptance. Model shuffled/missing-evidence controls, retention, calibration and matched architecture compute remain pending.",
       "resources": "One v2 frozen-original B1 M2 Ultra GPU job after predeclaration commit b2010c2; same16 ordered dev worlds, source evidence, local original model/template, greedy cap32, ceiling512, seed17, MPS FP32/no CPU fallback. Separate predeclared fresh-context semantic review uses no gold/fixed scores in its packet. Zero downloads, optimizer updates or new checkpoints. Original/v1 failures remain byte-bound; final result owns native profiles and the passed byte-bound archived-guard replay.",
       "on_failure": "Preserve raw failures and the unchanged parser. Predeclare a separate development prompt/budget protocol before another run; no after-result tuning under the original protocol, sealed-evidence relabelling or model promotion.",
-      "next_smallest_task": "Preserve all three runs and distinguish v2 abstention collapse from successful reasoning. Separately predeclare a source-grounding/input-projection diagnosis and upstream sampling/thinking qualification; do not change all inference settings as one uncontrolled bundle. Qualify B0/B1, shuffled/missing-evidence and independent retention/calibration controls before training comparisons. Independent early S3.1 host preparation may qualify a fixed-original MPS proposer and real tool receipts under its own protocol. S1.4 partial, S1.3/S1.5 pending, S2.4 blocked.",
+      "next_smallest_task": "Preserve all three native negatives. Design source-grounding, missing-evidence, actual-tool, retention and calibration controls for the connected E1-E3 architecture; qualify task-appropriate inference inside that implementation before fair training comparisons. Do not repeat the same16-case prompt search as the main workstream.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -305,10 +305,10 @@
         "planned: predeclared comparison/power/exposure plan"
       ],
       "interface": "Approved source manifests + verified generators -> grouped immutable release consumed identically by D0/D1/D2; all interface warmup and teacher lineage retained.",
-      "acceptance_gate": "Freeze roles, family counts, processed/support/supervised token accounting, cap and statistical units before campaign. Proposed 8\u201332M processed-token budget must fit measured hardware/lengths and include failed/search runs in costs.",
+      "acceptance_gate": "Freeze roles, family counts, processed/support/supervised token accounting, cap and statistical units before campaign. Proposed 8–32M processed-token budget must fit measured hardware/lengths and include failed/search runs in costs.",
       "resources": "Start one-seed short screen; scale only shortlisted conditions. 20k is a proposed cap, not a mandate to fabricate missing eligible data.",
       "on_failure": "Reduce the admitted pilot transparently if sources are unavailable; do not silently fill gaps with correlated paraphrases or benchmark targets.",
-      "next_smallest_task": "Use completed 2k infrastructure quality/length accounting to draft an actual eligible mixture and compute budget; finish S1.3/S1.4 admission and grouped exposure/power analysis before releasing more pilot data or starting S2.4.",
+      "next_smallest_task": "Declare a source-separated purpose-built connected-task release with explicit roles and compute budget; a smaller admitted release is permitted. Complete required source/evaluation admission before S2.4. Public candidates remain quarantined until admitted; the proposed20k cap is not mandatory.",
       "document": "docs/stages/02_Data_and_Evaluation.md"
     },
     {
@@ -329,7 +329,7 @@
       "acceptance_gate": "Native forward/backward/export and original-prompt-fixed uncached generation pass at the bounded tested configuration. KV caching, concurrency, useful memory benefit and optimizer learning are separate gates.",
       "resources": "This original compatibility probe measured one native MPS batch with64-wide memory/workspace,4slots,2workspace steps and895,490 added parameters/48tensors. Subsequent optimizer/capacity evidence belongs to S2.2/S2.3.",
       "on_failure": "Keep base path intact and repair parity/context lifetime before training new modules. Do not optimize KV caching until correctness holds.",
-      "next_smallest_task": "Retain qualified uncached fixed-context generation as the saved-export D2 reference; KV caching is a separate unqualified optimization.",
+      "next_smallest_task": "Implement E1/E2 explicit RequestContext/DecisionFrame and native complete-block ports13/27, contextual source-only per-span writer, observer41 and owned cache ABI. Retain legacy last-only qualified generation as a control; new architecture requires new bounded qualification.",
       "document": "docs/stages/03_Native_Architecture_Study.md"
     },
     {
@@ -457,7 +457,7 @@
       "acceptance_gate": "Bounded host software preparation passes12 integration checks and38 focused tests: actual pure XOR tool success/failure, receipt-bound answers, scoped observations, epoch invalidation, idempotency and journal restart. Proposals are deterministic fixtures, not model generations. Goal and action trace persist; learned task workspace, neural policy, experience-to-learning and full task restart remain pending. Full selected-system S3.1 acceptance still depends on S2.5 and S1.1: actual observations drive model revisions, wrong-scope/expired records are hidden, deletion invalidates derived eligibility and base hash stays fixed. Generated text cannot grant authority.",
       "resources": "CPU host files, journal replay and pure solver only; no model loaded, trained or downloaded, and no checkpoints saved. A future fixed-original neural proposer must run on the M2 Ultra MPS GPU with its own predeclared protocol and guard.",
       "on_failure": "Reject invalid proposals without side effects and preserve trace. Repair host contracts before allowing autonomous candidate training.",
-      "next_smallest_task": "Predeclare and qualify one fixed-original MPS proposer against the bounded host action grammar and actual tool/receipt outcomes; retain failed proposals, separate neural correctness from host enforcement, and do not claim the full S3.1 gate or a learned policy. Keep S2.5/S1.1 dependencies unchanged.",
+      "next_smallest_task": "Implement E3 shared core, exact TaskGraph and real neural action -> actual outcome -> task revision/restart on the E1/E2 interfaces. Reuse receipt/epoch contracts, preserve failures and bind a small qualification protocol to the real build. Full selected-system S2.5/S1.1 dependencies remain unchanged.",
       "document": "docs/stages/04_Learned_Operating_Loop.md"
     },
     {
@@ -535,7 +535,7 @@
       ],
       "interface": "Common experience stream -> arm-specific allowed persistent state -> matched later evaluation. T2 replay-matched shadow control isolates T3 data-selection effects.",
       "acceptance_gate": "Report all ten cycles, old/new family scores, forward transfer, forgetting, calibration, inquiry cost and rejection. T3 beyond T1 supports learning; T3 beyond T2 at stated budgets supports useful selection. Final audit remains unseen until reporting.",
-      "resources": "Ten initial bounded cycles; extend to 30\u201350 only after useful error bars/instrumentation. Match evaluation compute and disclose extra learning compute.",
+      "resources": "Ten initial bounded cycles; extend to 30–50 only after useful error bars/instrumentation. Match evaluation compute and disclose extra learning compute.",
       "on_failure": "Do not hide failed cycles or reset history after regression. Reject damaged candidates and preserve a valid negative/inconclusive longitudinal result.",
       "next_smallest_task": "Freeze the chronological stream, retention matrix and per-cycle resource/exposure budget before cycle 1.",
       "document": "docs/stages/04_Learned_Operating_Loop.md"
@@ -552,7 +552,7 @@
       ],
       "interface": "Human source statement/document -> confirmed source record -> topic/decision family -> permitted retrieval/training/evaluation use. Assistant inference remains a proposed inference.",
       "acceptance_gate": "Each record traces to authentic source testimony with allowed use; source facts, later interpretation, hypothetical, synthetic persona and agent experience are distinct. Complete decision families are split before variants.",
-      "resources": "Human-source collection in short sessions; start 5\u201310 independent cases, grow toward proposed 30\u2013100. Private source files stay local and out of default Git/public logs.",
+      "resources": "Human-source collection in short sessions; start 5–10 independent cases, grow toward proposed 30–100. Private source files stay local and out of default Git/public logs.",
       "on_failure": "Leave unknown fields blank/unknown. Continue generic architecture work independently; no synthetic biography substitutes for source input.",
       "next_smallest_task": "Prepare a local intake record for the first real decision and request/consume source material only when the human supplies it.",
       "document": "docs/stages/05_Replica_and_Longitudinal.md"
@@ -826,7 +826,7 @@
     "declared_bundled_intervention": {
       "regime": "full",
       "grad_accum": 8,
-      "per_update_answer_coverage": "each class 0\u20137 exactly once",
+      "per_update_answer_coverage": "each class 0–7 exactly once",
       "lr_muon_base": 0.0001,
       "lr_adamw_base": 0.0001,
       "warmup_updates": 2,
@@ -1403,5 +1403,117 @@
       "report": "reports/tests_response_policy_v2_final_20261022.xml",
       "scope": "Final software integration; distinct from unchanged native format/task failure and prior798-test preregistration suite."
     }
+  },
+  "architecture_rebuild_design": {
+    "status": "research_and_design_complete_implementation_pending",
+    "document": "docs/architecture/README.md",
+    "config": "configs/architecture_design_v1.json",
+    "current_priority": [
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "ordering": "Build connected components while source admission and fair evaluation proceed independently; preserve all 33 stage IDs/dependencies and existing measured status",
+    "native_jobs_this_review": 0,
+    "packages": [
+      {
+        "id": "E1",
+        "title": "Explicit backbone, request and manifest interfaces",
+        "maps_to": [
+          "S1.1",
+          "S2.1",
+          "S3.1"
+        ],
+        "depends_on": [],
+        "result": "One explicit native adapter with request ownership, causal operations, bypass and manifest",
+        "status": "proposed_not_implemented_by_design_review"
+      },
+      {
+        "id": "E2",
+        "title": "Contextual record memory and two native access ports",
+        "maps_to": [
+          "S1.1",
+          "S1.2",
+          "S2.1",
+          "S2.2",
+          "S2.3"
+        ],
+        "depends_on": [
+          "E1"
+        ],
+        "result": "Eligible source spans become versioned per-record slots used by actual native ports",
+        "status": "proposed_not_implemented_by_design_review"
+      },
+      {
+        "id": "E3",
+        "title": "Shared cognitive core and real task loop",
+        "maps_to": [
+          "S2.1",
+          "S2.2",
+          "S2.3",
+          "S3.1",
+          "S3.2"
+        ],
+        "depends_on": [
+          "E1",
+          "E2"
+        ],
+        "result": "Neural proposals receive real tool outcomes and resume a revised task after restart",
+        "status": "proposed_not_implemented_by_design_review"
+      },
+      {
+        "id": "E4",
+        "title": "Adaptive memory and runtime compilation",
+        "maps_to": [
+          "S2.4",
+          "S3.1",
+          "S3.3"
+        ],
+        "depends_on": [
+          "E2",
+          "E3"
+        ],
+        "result": "Observed history affects later native reads; replayable images and typed compiled artifacts",
+        "status": "proposed_not_implemented_by_design_review"
+      },
+      {
+        "id": "E5",
+        "title": "Candidate learning, evaluation and publication",
+        "maps_to": [
+          "S1.4",
+          "S1.5",
+          "S2.4",
+          "S2.5",
+          "S3.3",
+          "S3.4",
+          "S3.5"
+        ],
+        "depends_on": [
+          "E3",
+          "E4"
+        ],
+        "result": "Actual parameter/procedure update evaluated on unseen work; accept/reject/defer/rollback",
+        "status": "proposed_not_implemented_by_design_review"
+      },
+      {
+        "id": "E6",
+        "title": "Separate hybrid VLM port and later model transfer",
+        "maps_to": [
+          "S4.1",
+          "S4.2",
+          "S4.3",
+          "S5.1",
+          "S5.2",
+          "S5.3",
+          "S5.4"
+        ],
+        "depends_on": [
+          "E3",
+          "E5"
+        ],
+        "result": "Native multimodal path and model-specific interfaces qualified independently; stage mapping checked against existing plan",
+        "status": "proposed_not_implemented_by_design_review"
+      }
+    ]
   }
 }

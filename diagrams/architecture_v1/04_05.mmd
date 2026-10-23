@@ -1,0 +1,8 @@
+flowchart LR
+  F[Detached known-task or proposed-answer features] --> K[Success and action-value heads]
+  L[Versioned capability ledger] --> K
+  K --> P[Action policy]
+  P --> O[Actual task outcome]
+  O --> D[Disjoint calibration records]
+  D --> K
+  O --> L

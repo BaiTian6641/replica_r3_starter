@@ -1,0 +1,16 @@
+flowchart LR
+  O[Actual source and tool observations] --> E[Chronological evidence ledger]
+  E --> R[Eligible retrieval and exact spans]
+  E --> C[Per-record neural compiler]
+  C --> L[Versioned latent record store]
+  E --> F[Scoped adaptive-state replay]
+  F --> A[Branch memory image]
+  R --> P[Memory access ports]
+  L --> P
+  A --> P
+  S[Verified procedures] --> P
+  I[Identity mode and task journal] --> P
+  P --> B[MiniCPM decoder and cognitive core]
+  B --> Q[Proposed action or memory operation]
+  Q --> H[Host transaction and actual outcome]
+  H --> O

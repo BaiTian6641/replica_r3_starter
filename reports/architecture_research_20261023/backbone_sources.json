@@ -1,0 +1,165 @@
+{
+  "schema": "replica.backbone_research_sources.v1",
+  "status": "research_only_no_model_execution",
+  "sources": [
+    {
+      "id": "minicpm5_config",
+      "url": "https://huggingface.co/openbmb/MiniCPM5-2B/resolve/f97400052a43d642bbc6e9975e2397e3ae6a6b52/config.json",
+      "bytes": 704,
+      "sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "observed_at_utc": "2026-10-23T02:22:49.460517+00:00",
+      "weights_downloaded": false
+    },
+    {
+      "id": "minicpmv47_config",
+      "url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-1B/resolve/379f120c2ff3588e6e06559ec6b9ec15cc05114e/config.json",
+      "bytes": 2575,
+      "sha256": "20ed1fe71b174719b88ed1ce37c840ec45e3657f1120391d45f33505be7638a4",
+      "observed_at_utc": "2026-10-23T02:22:49.567048+00:00",
+      "weights_downloaded": false
+    },
+    {
+      "id": "minicpmv47_model",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/6b6792ff3b1a434913dc59659d4461acc9c3a51a/src/transformers/models/minicpmv4_7/modeling_minicpmv4_7.py",
+      "bytes": 63939,
+      "sha256": "d0f91843cce7216d3d0ff389d875e04aa99cb4a66b01c2b529e01dc366115b8c",
+      "observed_at_utc": "2026-10-23T02:22:51.547024+00:00",
+      "weights_downloaded": false
+    },
+    {
+      "id": "minicpmv47_config_code",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/6b6792ff3b1a434913dc59659d4461acc9c3a51a/src/transformers/models/minicpmv4_7/configuration_minicpmv4_7.py",
+      "bytes": 6175,
+      "sha256": "2b70b80dfdee2568f7a37016165d19ce82bc584aab11d52cc38eb4f546dbd0b0",
+      "observed_at_utc": "2026-10-23T02:22:51.671859+00:00",
+      "weights_downloaded": false
+    },
+    {
+      "id": "minicpmv47_processor",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/6b6792ff3b1a434913dc59659d4461acc9c3a51a/src/transformers/models/minicpmv4_7/processing_minicpmv4_7.py",
+      "bytes": 14228,
+      "sha256": "9e7525f3b4f3f557dfd3a5343297d7f0cd675d9f165316a3e8991bb200aa4a33",
+      "observed_at_utc": "2026-10-23T02:22:51.813484+00:00",
+      "weights_downloaded": false
+    },
+    {
+      "id": "qwen35_model",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/6b6792ff3b1a434913dc59659d4461acc9c3a51a/src/transformers/models/qwen3_5/modeling_qwen3_5.py",
+      "bytes": 87748,
+      "sha256": "af05d0acfe79fff8aea1c75f93516a6a72bc80f6f901329a73e66a3866fe1e7c",
+      "observed_at_utc": "2026-10-23T02:22:52.127864+00:00",
+      "weights_downloaded": false
+    },
+    {
+      "id": "llama_model",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/6b6792ff3b1a434913dc59659d4461acc9c3a51a/src/transformers/models/llama/modeling_llama.py",
+      "bytes": 20118,
+      "sha256": "46d35513266b2a232549531b9cefce1b87dc1632479e2497c36bf4c5ecef12f0",
+      "observed_at_utc": "2026-10-23T02:22:52.307729+00:00",
+      "weights_downloaded": false
+    }
+  ],
+  "local_transformers_version": "5.20.2",
+  "model_revisions": {
+    "minicpm5_2b": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "minicpm_v_4_7_1b": "379f120c2ff3588e6e06559ec6b9ec15cc05114e"
+  },
+  "transformers_source_commit": "6b6792ff3b1a434913dc59659d4461acc9c3a51a",
+  "local_source_files": [
+    {
+      "path": "src/replica_lab/model_adapter.py",
+      "sha256": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9"
+    },
+    {
+      "path": "src/replica_lab/neural.py",
+      "sha256": "0df2c50a9c9d13e17990f481a6046a5c62b9ff472e84b6d0a4fe96e6841553d9"
+    },
+    {
+      "path": "configs/minicpm5_sealed_lock.local.json",
+      "sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792"
+    }
+  ],
+  "local_runtime_files": [
+    {
+      "distribution_relative_path": "transformers/models/minicpmv4_7/modeling_minicpmv4_7.py",
+      "sha256": "eb9ef9702168d64940a4c906feaaece4a17a31247a611c9cb83c0d4c2c77e6e8"
+    },
+    {
+      "distribution_relative_path": "transformers/models/minicpmv4_7/processing_minicpmv4_7.py",
+      "sha256": "9e7525f3b4f3f557dfd3a5343297d7f0cd675d9f165316a3e8991bb200aa4a33"
+    },
+    {
+      "distribution_relative_path": "transformers/models/qwen3_5/modeling_qwen3_5.py",
+      "sha256": "b4b17fe08d8d54da34a0fce78639666279ae7fd0a9e4ec06fce6602774707ca3"
+    },
+    {
+      "distribution_relative_path": "transformers/models/llama/modeling_llama.py",
+      "sha256": "affc6a4ab36b562a6b4c90b84c4e7939c5417a69ad7bd37e858be5583f189830"
+    }
+  ],
+  "local_checkpoint_header_audit": {
+    "path": "checkpoints/minicpm5_source/model-00000-of-00001.safetensors",
+    "inspection": "read_only_header_no_tensor_load",
+    "header_bytes": 44128,
+    "header_sha256": "689cfb1f213bfbaf9098b559c51b66db79c3e04540eaa3f7b80943efa6831b8d",
+    "tensor_count": 381,
+    "parameter_count": 2516756480,
+    "file_bytes": 5033557096
+  },
+  "vlm_topology_summary": {
+    "text_model_type": "qwen3_5_text",
+    "text_hidden_size": 1024,
+    "text_layer_count": 24,
+    "full_attention_indices": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23
+    ],
+    "linear_attention_indices": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6,
+      8,
+      9,
+      10,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      20,
+      21,
+      22
+    ],
+    "vision_layer_count": 27,
+    "vision_hidden_size": 1152,
+    "native_window_merger_after_vision_layer": 6,
+    "observed_config_not_runtime_qualification": true
+  },
+  "proposed_bridge_arithmetic": {
+    "native_width": 2048,
+    "interface_width": 256,
+    "ports": 2,
+    "workspace_slots": 8,
+    "record_slots": 64,
+    "tied_core_iterations": 2,
+    "skeleton_parameters_excluding_norms_biases_gates_observer_heads": 7605248,
+    "optional_two_fast_read_projection_pairs_parameters": 2097152,
+    "record_writer_prefix_last_layer": 13,
+    "native_runtime_measurement": false,
+    "training_peak_memory_estimated_from_this": false
+  },
+  "limits": [
+    "No VLM weights acquired or executed.",
+    "Installed Transformers 5.20.2 files and inspected official development commit are separately identified; they are not assumed byte-identical.",
+    "No training, generation, native operator or hardware qualification occurred during this architecture research.",
+    "Exact VLM parameter inventory remains unverified."
+  ]
+}

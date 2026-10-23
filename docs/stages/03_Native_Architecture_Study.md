@@ -1,5 +1,7 @@
 # S2 — native D0/D1/D2 and matched controls
 
+**Current construction specification:** [integrated design](../architecture/README.md) and [E1–E6 implementation sequence](../architecture/05_Implementation_Sequence.md). The existing stage gates and historical evidence below retain their measured scope; the new package defines the connected components to build next.
+
 Reviewed **22 October 2026, America/Chicago**. See the [master roadmap](00_Master_Roadmap.md), [current execution state](../../execution_state.md) and [dated primary-source review](07_Research_Evidence_20261022.md). Gates and budgets are proposed unless a linked existing report establishes execution. Planned artifacts below do not claim files already exist.
 
 Native **actual 256-token forward/backward/export and fixed-context uncached generation qualification** now pass for the reader/workspace wrapper. D1 has no trainable originals or original gradients; D2 backward reaches all 381 originals. The sidecars add **895,490 parameters in 48 tensors**. Both null branches match native generated tokens and all eight steps of next-token logits exactly; nonzero sidecars affect logits and reload exactly. [Forward/backward report](../../reports/minicpm5_native_adapter_qualification256_report.json), [generation result](../experiments/20261022_Augmented_Generation.md).

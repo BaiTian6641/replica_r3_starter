@@ -1,0 +1,9 @@
+flowchart LR
+    R[Request identity, task and epoch] --> F[Immutable DecisionFrame]
+    F --> N[Native KV or hybrid recurrent cache]
+    F --> W[Workspace and record read cache]
+    F --> A[Private fast state]
+    J[Exact task and observation journal] --> F
+    V[Source or model invalidation] --> Q[Quiesce affected output and commits]
+    Q --> D[Discard dependent caches and latents]
+    D --> J

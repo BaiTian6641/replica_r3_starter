@@ -1,0 +1,8 @@
+flowchart LR
+  L[Ordered eligible event lineage] --> R[Deterministic declared replay]
+  R --> A[Candidate branch memory image]
+  A --> V[Validate producer, scope, bounds and behavior]
+  V --> P[Atomic publication at a decision boundary]
+  P --> S[Compatible later session]
+  D[Source correction or revocation] --> I[Invalidate image and dependent live state]
+  I --> R

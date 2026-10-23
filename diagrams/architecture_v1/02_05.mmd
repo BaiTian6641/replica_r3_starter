@@ -1,0 +1,19 @@
+flowchart TD
+    X[Images and video frames] --> PP[Native processor: crops, markers, modality IDs]
+    PP --> V0[Vision blocks 0 through 6]
+    V0 --> VM[Native window merger in 16x mode]
+    VM --> V1[Vision blocks 7 through 26]
+    V1 --> MP[Native spatial MLP merger to width 1024]
+    TX[Native text embeddings] --> F[Fuse at native visual placeholders]
+    MP --> F
+    PP --> POS[Canvas temporal-height-width positions]
+    F --> Q[Native text blocks 0 through 7]
+    POS --> Q
+    Q --> P7[Memory/core port after block 7]
+    P7 --> Q1[Native text blocks 8 through 15]
+    Q1 --> P15[Memory/core port after block 15]
+    P15 --> Q2[Native text blocks 16 through 23]
+    Q2 --> P23[Final observer after block 23]
+    P23 --> H[Native output head]
+    MC[Shared memory/core protocol, new model-specific weights] --> P7
+    MC --> P15

@@ -1,0 +1,10 @@
+flowchart LR
+  E[One eligible record and source span] --> T[Matching tokenizer or processor]
+  T --> V[Versioned semantic feature producer]
+  V --> C[Learned record encoder]
+  C --> S[Four 256-wide slots per record]
+  S --> M[Payload with source and producer manifest]
+  M --> R[Select up to 16 records]
+  R --> K[Masked 64-slot memory frame]
+  K --> P13[Reader at native block 13]
+  K --> P27[Reader at native block 27]

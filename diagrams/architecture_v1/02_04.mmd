@@ -1,0 +1,12 @@
+stateDiagram-v2
+    [*] --> Bound: Pin sources, model and policy
+    Bound --> Sensed: Run known-input sense pass
+    Sensed --> Ready: Core builds fixed control frame
+    Ready --> Decoding: Start answer/action pass
+    Decoding --> ReadyNext: Segment ends and actual outcome arrives
+    ReadyNext --> Bound: New evidence and decision revision
+    Decoding --> Invalid: Source revoked or context incompatible
+    Ready --> Invalid: Source revoked or context incompatible
+    Invalid --> Bound: Discard dependent state and rebuild
+    Decoding --> Released: Answer completes
+    Released --> [*]

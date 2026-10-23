@@ -1,0 +1,18 @@
+flowchart LR
+    H[Native hidden tensor] --> B[Complete native block]
+    B --> U[Native residual result]
+    U --> Q[Normalize and form port queries]
+    M[Eligible record slots] --> MR[Memory reader]
+    W[Fixed decision workspace] --> WR[Workspace reader]
+    F[Optional chunk-start fast state] --> FR[Fast reader]
+    Q --> MR
+    Q --> WR
+    Q --> FR
+    MR --> MG[Independent gate and output projection]
+    WR --> WG[Independent gate and output projection]
+    FR --> FG[Independent gate and output projection]
+    U --> A[Add branch deltas]
+    MG --> A
+    WG --> A
+    FG --> A
+    A --> N[Next native block]

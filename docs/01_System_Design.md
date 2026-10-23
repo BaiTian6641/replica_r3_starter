@@ -1,5 +1,11 @@
 # 01 - A model that develops through experience
 
+**Current detailed architecture:** the [research and design package](architecture/README.md)
+expands this framework into 18 components with model-specific ports, diagrams,
+request/state ownership and a connected implementation sequence. Its explicit
+256-wide, two-port design supersedes the initial small-adapter allocation below.
+Earlier numerical and GPU evidence still applies only to its recorded scope.
+
 **TAIS Obsidian / Replica R3 | Contract review: 22 October 2026, America/Chicago | Proposed architecture, with a tested starter implementation**
 
 ## 1. The intended result
@@ -51,7 +57,7 @@ Here theta is the base, phi the trained extensions, E the evidence ledger, W the
 | Developmental base | Co-adapted original parameters | Named full/selective development runs | New checkpoint revision |
 | Reader/writer/workspace and proposed action/calibration/director parameters | Encoding, evidence use, control and practice selection | Named candidate training jobs | Separately versioned components of phi; current small-sidecar inventory does not implement them all |
 | Task workspace | Goal, evidence pointers, hypotheses, next-action state | Decision boundary / bounded recurrent steps | Task-local latent state; proposed exact goal/action journal enables restart reconstruction |
-| Fast neural state | Approximate recent associations | Completed observation chunk | Proposed default: request/session-owned, reset at request end and scope/identity/revocation boundaries |
+| Fast neural state | Approximate recent associations | Completed observation chunk | Initial qualification: request/session-owned; the current design adds scoped persistent BranchMemoryImage replay with explicit expiry, lineage and invalidation |
 | Evidence records | Source facts, reports, events and corrections | Authorized record transaction | Subject/branch scope |
 | Skill library | Reusable procedure or neural adapter | Verified candidate publication | Versioned catalog |
 | Source identity | Human's approved history and priorities | Source-person revision | Human source authority |
@@ -62,9 +68,9 @@ Records and neural state serve different purposes. Exact identifiers, dates, cod
 
 The proposed [authority matrix](experiments/20261022_Cognitive_Contracts.md#6-authority-matrix) separates event logging/record admission, private task/fast state, evaluated skill/parameter publication, developmental base changes, human source edits and protected branch-goal changes. Evidence admission is not a neural candidate promotion. Foundational branch-goal changes require explicit authorized human review; ordinary bounded skill learning can proceed under existing delegation.
 
-## 4. Recommended initial neural architecture
+## 4. Historical starter neural architecture
 
-Begin with native MiniCPM5-2B, one complete decoder-block wrapper, a learned memory reader, and a separate recurrent workspace. The [official model configuration](https://huggingface.co/openbmb/MiniCPM5-2B/blob/main/config.json) identifies a native Llama decoder; this makes the initial port relatively direct.
+The implemented starter began with native MiniCPM5-2B, one complete decoder-block wrapper, a learned memory reader, and a separate recurrent workspace. The [official model configuration](https://huggingface.co/openbmb/MiniCPM5-2B/blob/main/config.json) identifies a native Llama decoder; this makes the initial port relatively direct.
 
 At native block `l`, first preserve its complete result, including its own residual paths:
 

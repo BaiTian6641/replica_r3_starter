@@ -1,0 +1,16 @@
+flowchart TD
+  G[Authorized goal and exact TaskGraph] --> S[Known-input sense pass]
+  O[Known prompt and actual past observations] --> S
+  S --> C[Shared neural core: eight slots, two steps]
+  R[Initial host-selected eligible memory] --> C
+  C --> Q[Additional access proposal]
+  Q --> N[Host retrieves and starts a new decision]
+  N --> G
+  G --> C
+  I[Approved identity mode and priorities] --> C
+  C --> F[Immutable DecisionFrame]
+  F --> A[Action pass: inject at blocks 13 and 27]
+  A --> H[Host validates and executes one proposed action]
+  H --> V[Actual OutcomeFrame and independent assessment]
+  V --> G
+  V --> L[Experience ledger and learning director]

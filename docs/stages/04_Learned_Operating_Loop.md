@@ -1,5 +1,7 @@
 # S3 — connected model behavior and learned adaptation
 
+**Current construction specification:** [integrated design](../architecture/README.md) and [E1–E6 implementation sequence](../architecture/05_Implementation_Sequence.md). The existing stage gates and historical evidence below retain their measured scope; the new package defines the connected components to build next.
+
 Reviewed **22 October 2026, America/Chicago**. See the [master roadmap](00_Master_Roadmap.md), [current execution state](../../execution_state.md) and [dated primary-source review](07_Research_Evidence_20261022.md). Gates and budgets are proposed unless a linked existing report establishes execution. Planned artifacts below do not claim files already exist.
 
 The current deterministic contract demo has a fixed symbolic compiler and task order. It demonstrates software transactions; it has not demonstrated learned neural self-improvement. S3 must connect actual model decisions, actual tool observations, actual bounded training and later independent outcomes.

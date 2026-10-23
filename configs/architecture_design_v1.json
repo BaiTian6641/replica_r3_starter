@@ -1,0 +1,505 @@
+{
+  "schema_version": "replica.architecture_design.v1",
+  "kind": "research_design_not_trainer_configuration",
+  "status": "design_only",
+  "reviewed_on": "2026-10-22",
+  "timezone": "America/Chicago",
+  "research_utc_date": "2026-10-23",
+  "design_authority": "docs/architecture/README.md",
+  "implementation_sequence": "docs/architecture/05_Implementation_Sequence.md",
+  "prior_native_result_commit": "f707325",
+  "native_jobs_authorized_by_this_document": false,
+  "source_pins": {
+    "tais": "85c134e857299431d1504636115d273a3de48bf2",
+    "minicpm5": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "minicpmv47_metadata": "379f120c2ff3588e6e06559ec6b9ec15cc05114e",
+    "transformers_reviewed_source": "6b6792ff3b1a434913dc59659d4461acc9c3a51a"
+  },
+  "models": [
+    {
+      "repo_id": "openbmb/MiniCPM5-2B",
+      "order": 1,
+      "source": "checkpoints/minicpm5_source",
+      "download_policy": "reuse sealed local source; no routine reacquisition",
+      "native_type": "llama",
+      "layers": 42,
+      "hidden": 2048,
+      "ffn": 6144,
+      "query_heads": 16,
+      "kv_heads": 2,
+      "head_dim": 128,
+      "vocab": 130560,
+      "tied_embeddings": false,
+      "injection_after_zero_based_blocks": [
+        13,
+        27
+      ],
+      "observer_after_block": 41,
+      "original_parameters": 2516756480,
+      "implementation_status": "legacy last-block adapter qualified; new architecture unrun"
+    },
+    {
+      "repo_id": "openbmb/MiniCPM-V-4.7-1B",
+      "order": 2,
+      "native_type": "minicpmv4_7 with qwen3_5_text",
+      "layers": 24,
+      "hidden": 1024,
+      "ffn": 3584,
+      "full_attention_blocks": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23
+      ],
+      "linear_blocks": 18,
+      "full_query_heads": 8,
+      "full_kv_heads": 2,
+      "full_head_dim": 256,
+      "linear_heads": 16,
+      "linear_key_value_dim": 128,
+      "linear_conv_width": 4,
+      "vision": {
+        "layers": 27,
+        "hidden": 1152,
+        "ffn": 4304,
+        "heads": 16,
+        "patch": 14,
+        "window_merger_after_block": 6,
+        "default_downsample_mode": "16x",
+        "final_merger": "spatial MLP to text width"
+      },
+      "injection_after_zero_based_blocks": [
+        7,
+        15
+      ],
+      "observer_after_block": 23,
+      "positions": "native canvas M-RoPE, modality IDs, grids and per-request rope deltas",
+      "implementation_status": "metadata and source inspected only; no weights acquired or native execution"
+    }
+  ],
+  "reference_allocation": {
+    "status": "proposed_arithmetic_not_measured_fit",
+    "core_width": 256,
+    "workspace_slots": 8,
+    "core_iterations": 2,
+    "core_block": "tied self-attention + cross-attention + 4d FFN, normalized gated residuals",
+    "record_slots_per_unit": 4,
+    "selected_memory_units_max": 16,
+    "unit": "one bounded source span; each additional chunk consumes a selection unit",
+    "source_writer_chunk_tokens": 128,
+    "source_feature_producer": "native source-only prefix through block13; augmentation disabled",
+    "fast_state": {
+      "heads": 4,
+      "key_dim": 64,
+      "value_dim": 64,
+      "dtype": "float32",
+      "bytes_per_batch_row": 65536,
+      "ownership": "one session/branch owner, shared across depth ports",
+      "momentum": "optional, adds 65536 bytes"
+    },
+    "bank_bytes_per_batch_row_fp32": 65536,
+    "workspace_bytes_per_batch_row_fp32": 8192,
+    "bridge_skeleton_parameters": 7605248,
+    "optional_fast_read_parameters": 2097152,
+    "parameter_exclusions": [
+      "biases",
+      "norms",
+      "gates",
+      "observer",
+      "action/calibration/director heads",
+      "identity encoders",
+      "Engram table"
+    ]
+  },
+  "interfaces": {
+    "RequestContext": "mutable per-request ownership; no cross-request model-global sidecar context",
+    "DecisionFrame": "immutable known-evidence/core/identity inputs for one answer/action segment",
+    "InjectFrame": "per-port read-only view of DecisionFrame; readers compute token-dependent deltas",
+    "EvidencePin": "source versions, observation cutoff, current eligibility epoch and producer identity",
+    "TaskGraph": "exact commitments, observations, subgoals and unresolved obligations"
+  },
+  "reference_schedule": [
+    "pin eligible observations, sources, identity and system versions",
+    "encode source-only record spans under the declared producer",
+    "known-input native sense pass with new injections disabled",
+    "update core twice from sense, memory, prior task/workspace and identity",
+    "freeze DecisionFrame; new access requests return to the host and a new decision",
+    "fresh native action prefill/cache, token-dependent reads at ports, bounded generation",
+    "host executes authorized action; records actual outcome",
+    "aggregate observation-only writes against one chunk-start snapshot and commit once at boundary"
+  ],
+  "causal_requirements": [
+    "no target suffix or future outcomes in sense, record writer or fast writes",
+    "no sense-cache reuse as augmented action-cache without proven equivalence",
+    "no storage, counter or context side effects during forward/recomputation",
+    "all depths read the same chunk-start state; aggregate deferred writes",
+    "functional observation transitions retain declared training horizon; inference detaches at boundary"
+  ],
+  "persistent_image_bounds": {
+    "status": "proposed_not_measured",
+    "one_per": "branch and identity mode",
+    "max_event_chunks": 4096,
+    "max_tokens_per_event_chunk": 256,
+    "expiry_days": 30,
+    "tensor_plus_metadata_quota_bytes": 1048576,
+    "lineage_index": "separately inventoried; not hidden in tensor quota",
+    "invalidations": [
+      "source correction/revocation",
+      "producer/update-rule change",
+      "identity mode or purpose incompatibility"
+    ]
+  },
+  "training": {
+    "development": [
+      "D0 full native",
+      "D1 modules only with downstream autograd",
+      "D2 all original text parameters plus new components"
+    ],
+    "deployment": "selected backbone frozen per epoch; bounded compatible candidates",
+    "optimizer": "experimental Muon8bit with declared auxiliary FP32 AdamW groups",
+    "gpu": "MPS, CPU fallback disabled for model work",
+    "cpu": "host storage, source processing and small software contracts",
+    "neural_engine": "separate unqualified backend",
+    "later_cuda": "RTX PRO 4000 Blackwell SFF 24 GB; independent residency/operator qualification",
+    "source_admission": "S1.5 release and numeric budgets required before architecture training campaign; purpose-built small release allowed"
+  },
+  "optional_variants": [
+    "Titans-style nonlinear memory",
+    "GDN-2 update and Mixture-of-Storage",
+    "Engram-inspired static lookup",
+    "GRU or temporal-history core",
+    "causal same-pass/cache optimization"
+  ],
+  "components": [
+    {
+      "id": "C01",
+      "name": "native_backbone_adapter",
+      "design_document": "docs/architecture/02_Backbone_Integration.md",
+      "section": "2. The backbone port is a complete-block boundary",
+      "diagrams": [
+        "diagrams/architecture_v1/02_01.svg",
+        "diagrams/architecture_v1/02_05.svg"
+      ],
+      "implementation_status": "existing last-block text wrapper; multi-port and hybrid adapter proposed",
+      "interface": "Native tokens, masks, positions and owned cache -> native complete-block results"
+    },
+    {
+      "id": "C02",
+      "name": "sense_and_residual_ports",
+      "design_document": "docs/architecture/02_Backbone_Integration.md",
+      "section": "3. MiniCPM5 port map and executable scheduling",
+      "diagrams": [
+        "diagrams/architecture_v1/02_01.svg",
+        "diagrams/architecture_v1/02_02.svg"
+      ],
+      "implementation_status": "single-port foundation; multiple sense/read ports proposed",
+      "interface": "Known native features -> core; token queries and fixed banks -> native-width residual deltas"
+    },
+    {
+      "id": "C03",
+      "name": "evidence_and_episode_store",
+      "design_document": "docs/architecture/03_Memory_and_Runtime_Compilation.md",
+      "section": "3. Chronological evidence and eligibility",
+      "diagrams": [
+        "diagrams/architecture_v1/03_02.svg"
+      ],
+      "implementation_status": "SQLite record foundation; full temporal transaction service proposed",
+      "interface": "Observed event -> exact attributed record and eligible temporal view"
+    },
+    {
+      "id": "C04",
+      "name": "record_encoder_and_latent_store",
+      "design_document": "docs/architecture/03_Memory_and_Runtime_Compilation.md",
+      "section": "4. Persistent record latents and memory access ports",
+      "diagrams": [
+        "diagrams/architecture_v1/02_03.svg",
+        "diagrams/architecture_v1/03_03.svg"
+      ],
+      "implementation_status": "set-pooled embedding writer exists; contextual per-span store proposed",
+      "interface": "One source-only span -> four slots, mask and exact producer/source lineage"
+    },
+    {
+      "id": "C05",
+      "name": "retrieval_router_and_pager",
+      "design_document": "docs/architecture/03_Memory_and_Runtime_Compilation.md",
+      "section": "3. Chronological evidence and eligibility",
+      "diagrams": [
+        "diagrams/architecture_v1/03_02.svg",
+        "diagrams/architecture_v1/03_03.svg"
+      ],
+      "implementation_status": "learned router, reranker and exact-span pager proposed",
+      "interface": "Query and permitted source set -> ranked memory units and exact references"
+    },
+    {
+      "id": "C06",
+      "name": "fast_neural_memory",
+      "design_document": "docs/architecture/03_Memory_and_Runtime_Compilation.md",
+      "section": "5. Private adaptive state and shared-depth commits",
+      "diagrams": [
+        "diagrams/architecture_v1/03_04.svg",
+        "diagrams/architecture_v1/03_05.svg"
+      ],
+      "implementation_status": "functional linear reference exists, not attached to native model",
+      "interface": "Observed chunk and chunk-start state -> deferred update; query -> associative read"
+    },
+    {
+      "id": "C07",
+      "name": "conditional_lookup_memory",
+      "design_document": "docs/architecture/03_Memory_and_Runtime_Compilation.md",
+      "section": "Static lookup branch",
+      "diagrams": [
+        "diagrams/architecture_v1/03_06.svg"
+      ],
+      "implementation_status": "optional measured extension, not implemented",
+      "interface": "Causal n-grams -> sparse learned table -> independently gated residual"
+    },
+    {
+      "id": "C08",
+      "name": "task_graph_and_workspace",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "4. Components C08/C09 — exact task state and latent cognitive workspace",
+      "diagrams": [
+        "diagrams/architecture_v1/04_03.svg",
+        "diagrams/architecture_v1/03_08.svg"
+      ],
+      "implementation_status": "fixed prompt workspace/static host goal exist; evolving task state proposed",
+      "interface": "Exact task/known evidence/previous W -> bounded W and proposed task patch"
+    },
+    {
+      "id": "C09",
+      "name": "shared_cognitive_core",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "4. Components C08/C09 — exact task state and latent cognitive workspace",
+      "diagrams": [
+        "diagrams/architecture_v1/04_02.svg",
+        "diagrams/architecture_v1/04_03.svg",
+        "diagrams/architecture_v1/04_04.svg"
+      ],
+      "implementation_status": "connected shared core proposed",
+      "interface": "Sense, memory, task and identity -> DecisionFrame, action candidates and outcome estimates"
+    },
+    {
+      "id": "C10",
+      "name": "action_executor_and_outcome_verifier",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "5. Components C09/C10 — planning, simulation and action control",
+      "diagrams": [
+        "diagrams/architecture_v1/04_04.svg"
+      ],
+      "implementation_status": "three-action fixture boundary exists; real neural integration proposed",
+      "interface": "ActionProposal -> authorized tool invocation -> actual OutcomeFrame and receipt"
+    },
+    {
+      "id": "C11",
+      "name": "capability_and_value_model",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "6. Component C11 — capability model and self-evaluation",
+      "diagrams": [
+        "diagrams/architecture_v1/04_05.svg"
+      ],
+      "implementation_status": "trained calibrated heads proposed",
+      "interface": "Versioned task/action features -> success, correctness and action-value estimates"
+    },
+    {
+      "id": "C12",
+      "name": "runtime_compiler_and_skill_catalog",
+      "design_document": "docs/architecture/03_Memory_and_Runtime_Compilation.md",
+      "section": "8. Runtime compilation and re-compilation",
+      "diagrams": [
+        "diagrams/architecture_v1/03_07.svg",
+        "diagrams/architecture_v1/03_09.svg"
+      ],
+      "implementation_status": "fixed symbolic demo exists; source-bound artifact compiler proposed",
+      "interface": "Eligible experience -> context, record latent, memory image, procedure or neural candidate"
+    },
+    {
+      "id": "C13",
+      "name": "learning_director",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "7. Component C13 — experience diagnosis and learned learning director",
+      "diagrams": [
+        "diagrams/architecture_v1/04_06.svg"
+      ],
+      "implementation_status": "static curriculum exists; learned bounded selector proposed",
+      "interface": "Experience and capability deficits -> LearningProposal or no-update"
+    },
+    {
+      "id": "C14",
+      "name": "candidate_trainer_and_evaluator",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "8. Components C12/C14/C15 — runtime compilation and candidate learning",
+      "diagrams": [
+        "diagrams/architecture_v1/04_07.svg"
+      ],
+      "implementation_status": "native Muon trainer/restart exists; connected learning service proposed",
+      "interface": "Parent and eligible practice/replay -> candidate -> independent comparison"
+    },
+    {
+      "id": "C15",
+      "name": "manifest_checkpoint_and_publication",
+      "design_document": "docs/architecture/01_System_Blueprint.md",
+      "section": "6. Compatibility, publication and storage",
+      "diagrams": [
+        "diagrams/architecture_v1/01_04.svg",
+        "diagrams/architecture_v1/04_07.svg"
+      ],
+      "implementation_status": "single-writer registry/storage foundations; durable complete publisher proposed",
+      "interface": "Accepted compatible artifact set -> atomic active revision and rollback parent"
+    },
+    {
+      "id": "C16",
+      "name": "replica_identity_service",
+      "design_document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+      "section": "9. Component C16 — Replica source, identity and branch development",
+      "diagrams": [
+        "diagrams/architecture_v1/04_08.svg",
+        "diagrams/architecture_v1/03_08.svg"
+      ],
+      "implementation_status": "source/branch protocols exist; authentic archive integration proposed",
+      "interface": "Approved source snapshot and mode -> conditional identity context plus branch lineage"
+    },
+    {
+      "id": "C17",
+      "name": "request_scheduler_and_cache_manager",
+      "design_document": "docs/architecture/01_System_Blueprint.md",
+      "section": "5. Request and cache ownership",
+      "diagrams": [
+        "diagrams/architecture_v1/01_03.svg",
+        "diagrams/architecture_v1/02_04.svg"
+      ],
+      "implementation_status": "current global mutable context; explicit service proposed",
+      "interface": "Request/epoch/frame -> owned native, workspace, fast and position state"
+    },
+    {
+      "id": "C18",
+      "name": "multimodal_ingress_and_writer",
+      "design_document": "docs/architecture/02_Backbone_Integration.md",
+      "section": "6. MiniCPM-V 4.7 needs its own adapter",
+      "diagrams": [
+        "diagrams/architecture_v1/02_05.svg"
+      ],
+      "implementation_status": "metadata/code reviewed; native VLM unimplemented and unrun",
+      "interface": "Native image/frame/crop features and positions -> grounded tokens and source-bound visual memory"
+    }
+  ],
+  "build_packages": [
+    {
+      "id": "E1",
+      "title": "Explicit backbone, request and manifest interfaces",
+      "maps_to": [
+        "S1.1",
+        "S2.1",
+        "S3.1"
+      ],
+      "depends_on": [],
+      "result": "One explicit native adapter with request ownership, causal operations, bypass and manifest",
+      "status": "proposed_not_implemented_by_design_review"
+    },
+    {
+      "id": "E2",
+      "title": "Contextual record memory and two native access ports",
+      "maps_to": [
+        "S1.1",
+        "S1.2",
+        "S2.1",
+        "S2.2",
+        "S2.3"
+      ],
+      "depends_on": [
+        "E1"
+      ],
+      "result": "Eligible source spans become versioned per-record slots used by actual native ports",
+      "status": "proposed_not_implemented_by_design_review"
+    },
+    {
+      "id": "E3",
+      "title": "Shared cognitive core and real task loop",
+      "maps_to": [
+        "S2.1",
+        "S2.2",
+        "S2.3",
+        "S3.1",
+        "S3.2"
+      ],
+      "depends_on": [
+        "E1",
+        "E2"
+      ],
+      "result": "Neural proposals receive real tool outcomes and resume a revised task after restart",
+      "status": "proposed_not_implemented_by_design_review"
+    },
+    {
+      "id": "E4",
+      "title": "Adaptive memory and runtime compilation",
+      "maps_to": [
+        "S2.4",
+        "S3.1",
+        "S3.3"
+      ],
+      "depends_on": [
+        "E2",
+        "E3"
+      ],
+      "result": "Observed history affects later native reads; replayable images and typed compiled artifacts",
+      "status": "proposed_not_implemented_by_design_review"
+    },
+    {
+      "id": "E5",
+      "title": "Candidate learning, evaluation and publication",
+      "maps_to": [
+        "S1.4",
+        "S1.5",
+        "S2.4",
+        "S2.5",
+        "S3.3",
+        "S3.4",
+        "S3.5"
+      ],
+      "depends_on": [
+        "E3",
+        "E4"
+      ],
+      "result": "Actual parameter/procedure update evaluated on unseen work; accept/reject/defer/rollback",
+      "status": "proposed_not_implemented_by_design_review"
+    },
+    {
+      "id": "E6",
+      "title": "Separate hybrid VLM port and later model transfer",
+      "maps_to": [
+        "S4.1",
+        "S4.2",
+        "S4.3",
+        "S5.1",
+        "S5.2",
+        "S5.3",
+        "S5.4"
+      ],
+      "depends_on": [
+        "E3",
+        "E5"
+      ],
+      "result": "Native multimodal path and model-specific interfaces qualified independently; stage mapping checked against existing plan",
+      "status": "proposed_not_implemented_by_design_review"
+    }
+  ],
+  "acceptance_dimensions": [
+    "real evidence-sensitive task completion",
+    "source/time/mode attribution",
+    "conditional inquiry and actual tool outcomes",
+    "goal continuation/restart",
+    "adaptive memory contribution and interference",
+    "calibrated capability and action value",
+    "unseen procedural/neural transfer",
+    "retention",
+    "Replica conditional fidelity",
+    "total cold/warm compute and storage cost"
+  ],
+  "evidence_limits": [
+    "not a measured capacity or performance result",
+    "prior tiny adapter results do not qualify these new components",
+    "no personal source records fabricated",
+    "no model run, weight download or upstream implementation import in this review"
+  ]
+}

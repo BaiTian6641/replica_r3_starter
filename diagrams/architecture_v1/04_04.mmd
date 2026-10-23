@@ -1,0 +1,9 @@
+flowchart TD
+  W[Workspace and subgoal] --> A[Propose answer, ask, retrieve, tool, verify, revise or stop]
+  A --> B[Copy-on-write hypothetical branches]
+  B --> P[Predict outcome, cost and uncertainty]
+  P --> R[Rank feasible actions]
+  R --> H[Host executes selected authorized action]
+  H --> O[Observed result with receipt]
+  O --> D[Prediction error and task revision]
+  D --> W

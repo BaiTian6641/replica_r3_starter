@@ -1,0 +1,7 @@
+flowchart LR
+  D[Delete, revoke, supersede or producer update] --> G[Dependency graph and new policy epoch]
+  G --> Q[Quiesce affected output and actions]
+  Q --> X[Discard dependent slots, workspace, KV and fast state]
+  X --> R[Rebuild from currently eligible sources]
+  G --> B[Block affected candidate publication]
+  R --> V[Revalidate and resume under new pin]

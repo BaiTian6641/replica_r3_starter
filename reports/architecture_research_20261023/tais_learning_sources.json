@@ -1,0 +1,1266 @@
+{
+  "schema": "replica.architecture_research.tais_learning_sources.v1",
+  "reviewed_at_utc": "2026-10-23T02:31:11.402518+00:00",
+  "status": "research_and_design_only_no_model_execution",
+  "document": "docs/architecture/04_Semi_Cognition_Learning_and_Replica.md",
+  "upstream": {
+    "repository": "https://github.com/BaiTian6641/TAIS-Obisian",
+    "user_reference": "git@github.com:BaiTian6641/TAIS-Obisian.git",
+    "revision": "85c134e857299431d1504636115d273a3de48bf2",
+    "commit_date": "2026-07-31T12:00:06-05:00",
+    "commit_subject": "学术文档更新：扩展验证+解法分析+英文版数据图×9",
+    "access": "git ls-remote then shallow filtered no-checkout clone; selected git show text blobs read without execution",
+    "selected_text_file_count": 115,
+    "selected_text_bytes": 2603009,
+    "directly_reviewed_file_count": 21,
+    "tracked_tree_sha256": "3add2e6578cc381b20f93b9a74c5c23476d2ad0ed27f8d9930bbfc4afad7b3bd",
+    "tracked_tree_path_count": 343,
+    "license_paths_in_tree": [],
+    "upstream_code_executed": false,
+    "upstream_tests_run": false,
+    "upstream_weights_downloaded": false,
+    "raw_experiment_artifacts_reproduced": false,
+    "files": [
+      {
+        "path": "article_ref/01_attention_compression.md",
+        "sha256": "fe58d4b8491725a803fe083da336a50a2603de767c909f0cd00441ddd15876d8",
+        "bytes": 11271,
+        "lines": 80,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "762a0aaf4d96e4c483808b0086ffe53c33e44769"
+      },
+      {
+        "path": "article_ref/02_dynamic_tokenizer.md",
+        "sha256": "713cc402a37181b618ba7a9664c43214b9962c0dae1106f6efd247e269c32b6d",
+        "bytes": 6937,
+        "lines": 64,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "459ace88fea6100cce948f7d5b9fa493841f002a"
+      },
+      {
+        "path": "article_ref/03_memory_self_compilation.md",
+        "sha256": "2c975ac926b5c68c3bb19b237235b3c8c90c4c0cc7e9c59d71624c26aad977df",
+        "bytes": 7796,
+        "lines": 62,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "162c338dee999415e0bc178beb1c26bed70b25d7"
+      },
+      {
+        "path": "article_ref/04_metacognition_safety.md",
+        "sha256": "6effc0e051c6703dad7814c56ec886aa6acf66098abd6ecbf8db3b5647061570",
+        "bytes": 14212,
+        "lines": 75,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "0982b79a6b5c8bc892c83d6ff7e8a2f06ef509c3"
+      },
+      {
+        "path": "article_ref/05_neuroscience.md",
+        "sha256": "a6d38e71c5abc19e47141a8e4ee28695d29dcf9bc22e1a514dbe7c131c88d6dd",
+        "bytes": 10896,
+        "lines": 78,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "530df54745e233fe81935fb28e493ece16f0bb27"
+      },
+      {
+        "path": "article_ref/05b_metacognition_neuroscience.md",
+        "sha256": "9d502e89393f86ce570df4e42dbc391f2e20da61d16348e23854dee63145df6f",
+        "bytes": 17489,
+        "lines": 131,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "45e3a8e88ec0192cac31d3b54bf42147181fc63b"
+      },
+      {
+        "path": "article_ref/06_HRL_checkpoint_decision.md",
+        "sha256": "fed5f6cc81a11f9c09ab85c4dd70b3ba3eef5b32767bb63b1fa08e7d3fb45251",
+        "bytes": 3775,
+        "lines": 44,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "f4b80e3359fa512d79f0bb7da1158bcfbae65b66"
+      },
+      {
+        "path": "article_ref/07_kal_math_engineering_spec.md",
+        "sha256": "6b423b812f3269b2819b71bbf56bedabb3079d922eaa9c5f65de4d1d8c8b1c5d",
+        "bytes": 7894,
+        "lines": 64,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "16149f6d5693c6ab051ea8254b71853be1cebb5a"
+      },
+      {
+        "path": "article_ref/README.md",
+        "sha256": "bfd9d5aef0500b6dc40573f1f266ec716a666ac40e09a5b953140a3cc67bb1b1",
+        "bytes": 1912,
+        "lines": 21,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "423f836ee1e5dbc8d5bc2d4379a839f795e951fa"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_0p1B_学术报告.md",
+        "sha256": "51aba042e43dd2c87d217937088e143ca890cdc20f1ebed7610c5fb2d8bce52e",
+        "bytes": 24876,
+        "lines": 260,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "5b4ca6715271e53a411599ab63b76ef043f3f840"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_主动求知闭环_架构设计文档.md",
+        "sha256": "4b391cbb38f3c4db1a2f1d5a121358baf3ac741ada131286e9be7ce610b6ecdc",
+        "bytes": 17639,
+        "lines": 216,
+        "review_scope": "Full architecture text: inquiry, evidence, correction, consolidation and proposed reward.",
+        "directly_reviewed": true,
+        "git_blob_id": "b961b864cab92919411ca7630ec5b112cbf70e0f"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_子系统架构规格.md",
+        "sha256": "75e4640827f9fcf5e9353e7a944360d4dc1adb2f48a82cdcc9a8907a921326bd",
+        "bytes": 35233,
+        "lines": 505,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "611f0993b955aa108d6f9cf8a64bd9986e142835"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_思维能力强化_架构设计文档.md",
+        "sha256": "940af60123a995e31e333544595bc5022e9672da2d1075a4d8f370e0c1a4ea8b",
+        "bytes": 28488,
+        "lines": 170,
+        "review_scope": "Full architecture text: thinking intent, workspace, manifold, core, inquiry and scope.",
+        "directly_reviewed": true,
+        "git_blob_id": "d3a5304d2fdcde4aa3f04e7316236861bf0b78fb"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_接口与实现计划.md",
+        "sha256": "afa3e6bdcf256adff444278dfd0f33034f9cdd557d316f8d67052413ae2f5a43",
+        "bytes": 22781,
+        "lines": 328,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "405813ae4b1d9420337cf5871ddeb1a716ed2db4"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_数据集选型.md",
+        "sha256": "824742b329d57318718ac4d99dd9afbed9a00030ba734cf492d0de774b7da1e9",
+        "bytes": 6180,
+        "lines": 97,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "97835edc891fd85176814fc4d2add20400f84a6d"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_架构接入状态评估.md",
+        "sha256": "36fbde494ed1b794c765893b67aca60b65dadce00528209c40e8390a8b6011b3",
+        "bytes": 8057,
+        "lines": 83,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "07747fec4b3089deb95283d401c2b4a7c5b8f8d1"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_知识内化训练_分析与设计.md",
+        "sha256": "3ac798e8cde57679890ab880a58e9872db3f3adcfc6e01d7fe0c61e0888ef9ea",
+        "bytes": 8877,
+        "lines": 120,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "d5bd3d3a2985d44ef55c9252aa4325b25408e684"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_细致框架设计文档.md",
+        "sha256": "3dfd183e9bf1a79cc737cb2f16858b8db1d096efe866e40a5b6649a9ae43b3c7",
+        "bytes": 97904,
+        "lines": 943,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "8519c84ffbd4f226eefc310adf1978c03b742966"
+      },
+      {
+        "path": "docs/TAIS_Obsidian_部件实现详细计划.md",
+        "sha256": "17def3dce2dca4d8db56d944b15f954d9ace6ce74dff6d688e754bac18423752",
+        "bytes": 34354,
+        "lines": 519,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "dec9b7f10e30cc82ab06ca6fcfc56fa568e25a8c"
+      },
+      {
+        "path": "docs/memories/0p5b-training-dual-gpu-dp.md",
+        "sha256": "8407bf2eea97f7c861c324fc65fe2b93fb5bec531a105953bde811637895c806",
+        "bytes": 9071,
+        "lines": 67,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "741fa1471900fc3c4374d7418be27c039f2bc9f3"
+      },
+      {
+        "path": "docs/memories/README.md",
+        "sha256": "e47183e7ddf1ec20da9667b9b679b6ac4d7cfa763b2083e1eb6eac043e3e3cbc",
+        "bytes": 6101,
+        "lines": 111,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "3b60c3e21762bf66c21f4fcb2782f6e8ea22d27a"
+      },
+      {
+        "path": "docs/memories/academic-report-0p1b.md",
+        "sha256": "652435194b74b9ef2bd8f069a18a6d6370997d8e90841e295440f84755121659",
+        "bytes": 1885,
+        "lines": 19,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "18f4842ebebc9a1e8d17b601bd8989556d54a060"
+      },
+      {
+        "path": "docs/memories/active-inquiry-design.md",
+        "sha256": "be90f946114541a45654f046325f2ec0cf61b708f750876c0b3fc46f9fe91264",
+        "bytes": 2952,
+        "lines": 33,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "0974162647071d1a54e4f49918363f833d22fe88"
+      },
+      {
+        "path": "docs/memories/active-inquiry-full-chain.md",
+        "sha256": "b95ad693a935ab764a821b59da50d4e52d5fa9b5df00d4cd90fff4525057a764",
+        "bytes": 4009,
+        "lines": 30,
+        "review_scope": "Author-reported demo scope and mock/real boundaries.",
+        "directly_reviewed": true,
+        "git_blob_id": "56de865efcd39a0b2a898dd3af9f9fe0961307c8"
+      },
+      {
+        "path": "docs/memories/architecture-integration-status.md",
+        "sha256": "d4f5a6c2bbc1157e589333bd3535600fc81022baae002bf8ede653dd39e6ea76",
+        "bytes": 2819,
+        "lines": 23,
+        "review_scope": "Dated status; predates later optional backbone integration.",
+        "directly_reviewed": true,
+        "git_blob_id": "49132e950db4a678ec08f0dfd41eeec864f4faec"
+      },
+      {
+        "path": "docs/memories/chat_history1.md",
+        "sha256": "2cefd8ad56df8965c16f048f1b8327793aff374c4dfbfeada0e7f85df1981718",
+        "bytes": 1440201,
+        "lines": 21093,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "35348c63531145a9dced360664b21e558a78e5b9"
+      },
+      {
+        "path": "docs/memories/colab-1b-training-plan.md",
+        "sha256": "d3cfcd7991730cf8631c034a52cfcccc5082ee353e2e0bca2cbd557dca6b71b8",
+        "bytes": 3506,
+        "lines": 31,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "e7d1bdd19d236bfa40392f24cc3c27886d4cb010"
+      },
+      {
+        "path": "docs/memories/context-aware-gating-research.md",
+        "sha256": "4a2d80b70043d97748a38d8abf8a2ba34aa25f9d1f0762fe7c83cc34999c85d5",
+        "bytes": 11661,
+        "lines": 102,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "cbef5f8ed08e620b1b989299cec409183857e882"
+      },
+      {
+        "path": "docs/memories/cot-projection.md",
+        "sha256": "0d57dd64b2dd578a9ca70ea49ee5deb5e89c830f84b745d18eb13485d26f9fb5",
+        "bytes": 2240,
+        "lines": 31,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "45bd1210b929b80aa2e035bedcb75740e32d40a5"
+      },
+      {
+        "path": "docs/memories/dataset-research.md",
+        "sha256": "f97f975e6976b1430a639d2c6c3fe5536a74fcb959c5115aa36702f2aaca90bb",
+        "bytes": 7154,
+        "lines": 72,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "491b77aaaef121df6faf2017e4bb2565703f2c6f"
+      },
+      {
+        "path": "docs/memories/decoupled-gate.md",
+        "sha256": "770a486c1db5f81e7fc4e604208de6566d2e7740ab82fbbc202a14320bc7342e",
+        "bytes": 5399,
+        "lines": 58,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "d18563dcf986ece3a0a9da22227a619f1b446f54"
+      },
+      {
+        "path": "docs/memories/extended-validation-ca1-manifold.md",
+        "sha256": "f2ca34db26500882aee830a615ba8f933ca522de5b7f5b00c7575b2b02ee1578",
+        "bytes": 4751,
+        "lines": 32,
+        "review_scope": "Author-reported distribution limits, OOV negative result, CA1 and manifold experiments.",
+        "directly_reviewed": true,
+        "git_blob_id": "2fe449b3dd9271d34914871668d94360e9807d51"
+      },
+      {
+        "path": "docs/memories/fb1-feedback-verification.md",
+        "sha256": "c87f0b9eda65b3a0d45b4094ce9c0941b02c451142bb67dc8e34e50d19ec8af7",
+        "bytes": 4582,
+        "lines": 40,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "c57a57cd941b74676728b632aa6a1fa9687ea702"
+      },
+      {
+        "path": "docs/memories/fully-decoupled-gate.md",
+        "sha256": "317dfd4739980ab0827e04a0bb4cae07f0500266214d7be23e46955f77065bd6",
+        "bytes": 5627,
+        "lines": 55,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "56352710573916c31c14f0edd5056c4b4972fa51"
+      },
+      {
+        "path": "docs/memories/gated-fusion-mlp.md",
+        "sha256": "7f57c5ad093c51942cf8abe045520146d84ede9cd5434212244bc62066d16704",
+        "bytes": 3070,
+        "lines": 34,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "be035cbe3bd5c9d497d030e9e2b8892607b89573"
+      },
+      {
+        "path": "docs/memories/gdn-decay-bounded.md",
+        "sha256": "20e3036361d30ceb1727b58486658a85eea291a8f277cd348a347bb803c3862d",
+        "bytes": 6276,
+        "lines": 56,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "a47c5cfffcc123839d4c6b7b79e1c07f749688ed"
+      },
+      {
+        "path": "docs/memories/hardware-dual-gpu.md",
+        "sha256": "72b9a4065f8be923b51e1e32beacb68dd4638378140d76fde38e6115ff0f37de",
+        "bytes": 1272,
+        "lines": 15,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "229b3d5a32db33c6127608ba6a7d07da77492ac9"
+      },
+      {
+        "path": "docs/memories/inquiry-branch.md",
+        "sha256": "658c5f4a6a2e58dc52106176381f4922879049615329b531ed63c009e6bfc446",
+        "bytes": 2909,
+        "lines": 32,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "a3d88a2db79051d8a3140fcd005d0d33d946182c"
+      },
+      {
+        "path": "docs/memories/inquiry-executor.md",
+        "sha256": "346f8639cfd5a26fe01cddad0d5df301c60c6bf32cfdde12fc625f02a8f7d4e4",
+        "bytes": 2974,
+        "lines": 26,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "8a49ef26ee8f909802b42a39e49c8abef6ee7329"
+      },
+      {
+        "path": "docs/memories/inquiry-sleep-consolidation.md",
+        "sha256": "9c1c7a4a1af57bfa9d3b61564ce4f70e0c6f7b0b866e04e426718a53e4201cd7",
+        "bytes": 3061,
+        "lines": 28,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "87f87692643c423138b2e63a13d2b4e2ef0ed867"
+      },
+      {
+        "path": "docs/memories/interactive-validation.md",
+        "sha256": "fa7e6a86d2852d4f7cdb15831744098cd11d3e26681b0fcc04f94d1f2d472929",
+        "bytes": 3944,
+        "lines": 31,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "9e12bb68c42335d184505181b002796c51c7bf29"
+      },
+      {
+        "path": "docs/memories/internalization-e2e.md",
+        "sha256": "c37ba4843937b36274e467ecae40fdac45791744209a84d70154e253f40650ff",
+        "bytes": 5170,
+        "lines": 46,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "f9984c1990052816fa77c78150a75e34e0c83359"
+      },
+      {
+        "path": "docs/memories/kal-gdn2-truth-finetune.md",
+        "sha256": "cf7ded9887cc412508a2289241fe5f23774ca23feb7daaa39c287b8c0cb3acda",
+        "bytes": 2554,
+        "lines": 23,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "b55d9d944468caaa24c20eca067c37fa38739692"
+      },
+      {
+        "path": "docs/memories/kal-math-spec.md",
+        "sha256": "95a420f6d9649c2d7df1f767bcdf70bb9e112dc106fb423806e7157b49011c4a",
+        "bytes": 21478,
+        "lines": 60,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "30771b2f02fa0bd91fa1a8a805acbe0ce1a139cc"
+      },
+      {
+        "path": "docs/memories/kaplan-extract.md",
+        "sha256": "a6cacff653dba9a52d5466820f89e824a13925e42d6aed11d9338d3a2a90d348",
+        "bytes": 1933,
+        "lines": 12,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "7ef2008d3079d007329fc6b60af42c6cd18f7069"
+      },
+      {
+        "path": "docs/memories/knowledge-internalization.md",
+        "sha256": "a3a911b188244f508f7d2fafc7ade3d03264463944c0030cc08320350f13a82c",
+        "bytes": 2736,
+        "lines": 27,
+        "review_scope": "Author description of runtime records versus proposed slow consolidation.",
+        "directly_reviewed": true,
+        "git_blob_id": "96a0a2e37594a4ead91e7bb38c5868f31c57885c"
+      },
+      {
+        "path": "docs/memories/memlayer-internalization.md",
+        "sha256": "8c8dc30fa1940992892d2749d0d10d21c3bbd0705d1b0938739b45a3f9e91baf",
+        "bytes": 3401,
+        "lines": 36,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "979e45c99a8ec6ab99f6e55d3b65ed5ed164599c"
+      },
+      {
+        "path": "docs/memories/muon-pmstream-optimization.md",
+        "sha256": "62cf1f7160eea1697100dab427e42c1ff886a9f21894b8bec167e398782b53d2",
+        "bytes": 3349,
+        "lines": 32,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "3c840ce210f3c3d6d0d4d60819026f8d0cb41180"
+      },
+      {
+        "path": "docs/memories/next-steps-roadmap.md",
+        "sha256": "a95299b15b82195c2b4bdfc677a40ea53b8e4430082a6bf8799339459e1456a2",
+        "bytes": 6220,
+        "lines": 50,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "5e410bbff368db02b4d8aea1089972e012e4afcf"
+      },
+      {
+        "path": "docs/memories/niah-length-scan-gate-adaptive.md",
+        "sha256": "5b24a0b1fb89b75ef9c0795fc36e2de8b4759a0ce927495e4693f47acd728aca",
+        "bytes": 3494,
+        "lines": 42,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "16e71b369a34ba79d7e85ef32cf775b43d5a09f0"
+      },
+      {
+        "path": "docs/memories/path-integration.md",
+        "sha256": "b92d8231c443418f8f2a36f8a4a6f1f77540202af369a840dba1980203d9ea64",
+        "bytes": 2595,
+        "lines": 32,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "d02e7c70c87dc6cc1aa85dfe89a20d059dba0352"
+      },
+      {
+        "path": "docs/memories/pmstream-kimi-k3.md",
+        "sha256": "2bddf875cf54eb78a261e334fefc09d707c3afd9e3fac673785f97fd2127886e",
+        "bytes": 9229,
+        "lines": 36,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "dfe8ea1a215d373c0c903534b8e1371bf1ed8691"
+      },
+      {
+        "path": "docs/memories/retrieval-recall-training.md",
+        "sha256": "8d7a1785a0b293c89fe455ab20f2857e184f11e202cf6af53af70bfeee504d00",
+        "bytes": 2950,
+        "lines": 31,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "177970a6f17a3f091881c4301c57114dc8849e67"
+      },
+      {
+        "path": "docs/memories/teaching-sft.md",
+        "sha256": "22794a83070ceb0be406df7ca88085884a466c52709eceda4a87ea015eb63bc5",
+        "bytes": 2584,
+        "lines": 36,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "c9e6c02f1130898221f6b5dc9b193dcd4b339517"
+      },
+      {
+        "path": "docs/memories/thinking-e2e-integration.md",
+        "sha256": "d9c445653a341800a1a1ce93f23d7ed7bd059adc2e2749e8ac26fce296f2d4ac",
+        "bytes": 2705,
+        "lines": 33,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "786a8f8a18cece8869cf947c38f1727afbdde93a"
+      },
+      {
+        "path": "docs/memories/thinking-manifold-layer.md",
+        "sha256": "871a778d86c59a92ca0940d3d2717e5fa4e0f0c33e94630bc355d8f65ebefd5c",
+        "bytes": 3857,
+        "lines": 33,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "6b1a8bc0f0738fb04b4e5d1ac7e715408a6de156"
+      },
+      {
+        "path": "docs/memories/thinking-real-adapter.md",
+        "sha256": "77107751a5923e5259cea748b3ceb80084cf97f58900f9eba23b19c65c5751dc",
+        "bytes": 2663,
+        "lines": 25,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "5138a1efb6888e47f8e42f315b7cd8bfc7adb635"
+      },
+      {
+        "path": "docs/memories/thought-core-backbone-integration.md",
+        "sha256": "b8c0e8169f1265afe645e52c1d79d9dd73a2c77163bef2ea1d87484b20ea1bcb",
+        "bytes": 3200,
+        "lines": 38,
+        "review_scope": "Author-reported trained-core improvement and qualification limits.",
+        "directly_reviewed": true,
+        "git_blob_id": "fa9a066366a1c311c9852d042f4f3ba302a0dee1"
+      },
+      {
+        "path": "docs/memories/thought-core-integration.md",
+        "sha256": "ff5ba106377d075b19c757a6a0ae4a3c7324a878b31b8bcc69edb8810eb313f6",
+        "bytes": 3392,
+        "lines": 33,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "eb949c63efb3d307c3a87787075f4fc98df43a83"
+      },
+      {
+        "path": "docs/memories/thought-core.md",
+        "sha256": "443aec8fa1153ca523a459dc741a76c669a57267222ddcd49a3b3608c0374152",
+        "bytes": 4390,
+        "lines": 32,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "6afe684e2e5f17488caf898076aff2557c7770d5"
+      },
+      {
+        "path": "docs/memories/thought-visualizer.md",
+        "sha256": "9e59ca3a82b5401c90dc446d3b760141942bd4244bf560c6e052aa88b3563ad6",
+        "bytes": 2083,
+        "lines": 26,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "b94504a31756b7d5966888b2ceae4ce818f1e948"
+      },
+      {
+        "path": "docs/memories/training-efficiency.md",
+        "sha256": "4c975df33b53c5c373b13b0b7434ac1023673a392b5248f1105a9efabec13bf2",
+        "bytes": 2398,
+        "lines": 27,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "d5c74a2a06ded0fc88ee8941f42515b95ec18e49"
+      },
+      {
+        "path": "docs/memories/unified-checkpoint.md",
+        "sha256": "5146475aa04efb49547f1b16c0263775f0a1c8842d06fa1a1cdb2af414297c9f",
+        "bytes": 4104,
+        "lines": 41,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "de5e786d8740a11369e52259577388cb03932b8d"
+      },
+      {
+        "path": "docs/memories/verified-literature-active-inquiry-loop.md",
+        "sha256": "3303ef7f1d4a7a209c5218d80ac0263f326641ff6d09e28360db8c6b5fa897c7",
+        "bytes": 23007,
+        "lines": 111,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "5bcdf1950638085dcb7cbd0d71420a0decc63197"
+      },
+      {
+        "path": "docs/memories/verified-literature-dynamic-tokenizer.md",
+        "sha256": "4901868c398f07d97432123f30d2cf133d240f48e83e484f53755720665faaae",
+        "bytes": 4053,
+        "lines": 26,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "606189902e1a238f00d1917639c10d9e425deb5e"
+      },
+      {
+        "path": "docs/memories/verified-literature-kal-probe.md",
+        "sha256": "ca71a6f974e7bd76dd8b844ce3721aadb68d5a0b63814c4d6ed54373ae1fc65b",
+        "bytes": 6574,
+        "lines": 50,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "a76b235c73f96ee008f3174a152755e9ab19cc4c"
+      },
+      {
+        "path": "docs/memories/verified-literature-memory-compilation.md",
+        "sha256": "026b4830f263919d54a5268e8d683d3b34629ad9b8131a1379f1fedbacd17d51",
+        "bytes": 4417,
+        "lines": 36,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "cf49940f4b99a61364db38f67dac6b82c553997d"
+      },
+      {
+        "path": "docs/memories/verified-literature-metacognition-neuroscience.md",
+        "sha256": "eb2e7f8d10a83f0b3b8202d265a767f4d25f8d6fec90df96d54fc558bf59e379",
+        "bytes": 3403,
+        "lines": 30,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "b8db6b54bb8526418b0c53b63b5b522345dfdabd"
+      },
+      {
+        "path": "docs/memories/verified-literature-metacognition.md",
+        "sha256": "f53224b62389858d3498694114f35b3c0ab65d19c30adf66ff3718fc51719aea",
+        "bytes": 5361,
+        "lines": 42,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "05e0c04ae621279d78f3a68cd14e7afccfb8e80a"
+      },
+      {
+        "path": "docs/memories/verified-literature-self-evolution.md",
+        "sha256": "012733c9f03a67e15112b39df914ec761254f23b7642b895f1c1f2ca7f416d8f",
+        "bytes": 48914,
+        "lines": 180,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "2156dc1f9d991c76776925c59c9bef84dade251f"
+      },
+      {
+        "path": "docs/memories/verified-literature-thinking-manifold.md",
+        "sha256": "2fdac2295c245af708d1330c260d66c512706ab6bd45f92b5d033ffa1557b95a",
+        "bytes": 2025,
+        "lines": 18,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "f3a8588cfc6e03bb290f46abf8af44202049db51"
+      },
+      {
+        "path": "docs/动态知识块记忆系统_设计文档.md",
+        "sha256": "5275895ed21b8a85f0b70f39873255de206164a5c5986b0ecc5811f36fa5a5de",
+        "bytes": 32305,
+        "lines": 480,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "082e46b1963467b0bdc1a65c36600beba554ccc2"
+      },
+      {
+        "path": "src/tais_obsidian/model/__init__.py",
+        "sha256": "504c565c55ffd1825e7738139f7af93b0213ea09371d414cc944ed95c3282448",
+        "bytes": 2710,
+        "lines": 109,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "ed661f7c9911d90659b0a0ca76d3750dbbe67a85"
+      },
+      {
+        "path": "src/tais_obsidian/model/blockpath.py",
+        "sha256": "31d4e9bbfc98d1da59d7938294eba686820b8f15450e178c019ba347ee36880e",
+        "bytes": 8580,
+        "lines": 169,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "288ff5e6370f2de26e463657c2f2f6089fa07c95"
+      },
+      {
+        "path": "src/tais_obsidian/model/common.py",
+        "sha256": "06bb33a2b147c6a856ce906672526ef979a23d6bb332d3f3afc70d847c756c8b",
+        "bytes": 1062,
+        "lines": 30,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "42594590ca77cc1244f3ef9887fe3b09dfe99d37"
+      },
+      {
+        "path": "src/tais_obsidian/model/cot_projection.py",
+        "sha256": "56c4b8aced2a64c310ccb23e541e5217913329fe569323b77285e7d22aa1f8a3",
+        "bytes": 22693,
+        "lines": 432,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "ab50f58689125332db07135048d06f72c416a88e"
+      },
+      {
+        "path": "src/tais_obsidian/model/dyn_vocab.py",
+        "sha256": "a01c373e28097cb5131366bd04d23bed67478697578a104ea34dfebb032497d2",
+        "bytes": 5766,
+        "lines": 104,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "8b9120fecadc3d7c6538b0bce8a4ad3d1de30386"
+      },
+      {
+        "path": "src/tais_obsidian/model/gdn.py",
+        "sha256": "50309ad1d7b8f1edd8b976c5e1a09e10205e07299048ab51e68452a14a87a1c0",
+        "bytes": 12359,
+        "lines": 261,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "3c9a13cf0719677ac861edf2e2b8c23c8f6f4ffb"
+      },
+      {
+        "path": "src/tais_obsidian/model/gdn2.py",
+        "sha256": "e2e2d08ff0fb04424be55a24f98687df33487150d5bc903ef454211e7a4d421c",
+        "bytes": 13584,
+        "lines": 265,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "58afda1c665b3decb80b98df2fc79e9286d8cbd5"
+      },
+      {
+        "path": "src/tais_obsidian/model/hrl_indexer.py",
+        "sha256": "5c5c31a3c02028c919f22aa52b299b8a66a325a994efb590bd36c9a097ebf5ae",
+        "bytes": 5435,
+        "lines": 93,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "8630b240901ff0c22aad2526385231a6e06cb478"
+      },
+      {
+        "path": "src/tais_obsidian/model/injection.py",
+        "sha256": "ff4ccf78b7c4a679d993c85f860de4c9b13973f9f624c50cb5d8b86257e6603c",
+        "bytes": 5340,
+        "lines": 101,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "7d0ccbbee660a709f4c943ad220416ccb0160c30"
+      },
+      {
+        "path": "src/tais_obsidian/model/inquiry_branch.py",
+        "sha256": "6ac467c61a968c8423d9568db380744ecc05fca77237ea1b0d0c487da62f98ec",
+        "bytes": 20224,
+        "lines": 384,
+        "review_scope": "Inquiry branching and bounded action policy source.",
+        "directly_reviewed": true,
+        "git_blob_id": "8b8ad8f14510fc2663c81789db632121dfffd874"
+      },
+      {
+        "path": "src/tais_obsidian/model/inquiry_executor.py",
+        "sha256": "a3c7c2464306434166b5c50f42b4b6282c3452fd80c0d853c75142fe37de143a",
+        "bytes": 20823,
+        "lines": 383,
+        "review_scope": "Evidence/write contracts, injected I/O, similarity verification and hash fallback.",
+        "directly_reviewed": true,
+        "git_blob_id": "211f984f739ccebb4ee81e134ae735f937d8e61b"
+      },
+      {
+        "path": "src/tais_obsidian/model/iti_head.py",
+        "sha256": "d40a3b143677d99cf4ddd10846165a24c444083836083f0c037d36234aca1bb3",
+        "bytes": 10222,
+        "lines": 192,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "265e5d129fe61283bad0141a7a5d02e90eba527e"
+      },
+      {
+        "path": "src/tais_obsidian/model/kal.py",
+        "sha256": "a99f7f63354ffb008d4b218bfa4876be1591588acc2eaf7a982489ad1266dbd7",
+        "bytes": 4178,
+        "lines": 82,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "a80cec1cf470a324995a408ac1400fb1e44b0119"
+      },
+      {
+        "path": "src/tais_obsidian/model/kal_calibrate.py",
+        "sha256": "2e958dabf706f27a14b0a7f92e6c1683132e9d0d8edeb928300c3fbd0d7fff29",
+        "bytes": 7757,
+        "lines": 163,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "0390482e921c430ab38687730dc623af54e33e67"
+      },
+      {
+        "path": "src/tais_obsidian/model/kaplan_extract.py",
+        "sha256": "31404bcc7f6cd9327a45ac7159603294cf6a49679c3aba232c5c4e9911ca597c",
+        "bytes": 5110,
+        "lines": 90,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "a098a56b29454f8675baf23eb72926a6d303b1fc"
+      },
+      {
+        "path": "src/tais_obsidian/model/manifold.py",
+        "sha256": "c2bc28bea9d2f9b21decd7aa725f2203954fd1e84da4035a7517394571b79d79",
+        "bytes": 11486,
+        "lines": 220,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "c778a005e0788a3be2c81b4d13aeb5801df93678"
+      },
+      {
+        "path": "src/tais_obsidian/model/manifold_bridge.py",
+        "sha256": "5dc261441815803b4ede7e38582e9b661b5106eb4132c03696540014fdf6069c",
+        "bytes": 13596,
+        "lines": 251,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "85f706c76a1f983095128bfc755d1d5bf58b39d1"
+      },
+      {
+        "path": "src/tais_obsidian/model/memlayer.py",
+        "sha256": "5a75c3e7c4ce834f5aacb27aa4b297642402f01e94d373c35a21d0d2ddc8c76a",
+        "bytes": 6766,
+        "lines": 123,
+        "review_scope": "Complete learned top-k memory and mutable delta-state implementation.",
+        "directly_reviewed": true,
+        "git_blob_id": "c095385b7e3abb453986086baaa541b5b927d3f6"
+      },
+      {
+        "path": "src/tais_obsidian/model/model.py",
+        "sha256": "1f9164473c61c84c335715ba3ec9450bc63aa8bbd32d900759e103ded8fe0259",
+        "bytes": 19249,
+        "lines": 359,
+        "review_scope": "Kernel/core attachment and forward integration call sites; not a full independent model audit.",
+        "directly_reviewed": true,
+        "git_blob_id": "ed24388f2de9f0f1fd5f862148f630a58341b4dd"
+      },
+      {
+        "path": "src/tais_obsidian/model/path_integration.py",
+        "sha256": "63ed84cdd38878673d2e8acbe9e94be8181c66b25aa8872f60d16abb15ef33f9",
+        "bytes": 16172,
+        "lines": 325,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "bd9b1dbc6aaac3eda563cae399182908f3129670"
+      },
+      {
+        "path": "src/tais_obsidian/model/pmstream.py",
+        "sha256": "f0ff3c3651f66816e27f850dea1ce079776ae968ad686e9ca23740678851ab85",
+        "bytes": 9761,
+        "lines": 173,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "5c87e2802b2f05fad620a6f309b60143d0efe7fa"
+      },
+      {
+        "path": "src/tais_obsidian/model/reasoning_loop.py",
+        "sha256": "2a77a590030f090688e680e35aa94efef78846748614ec424d17aef0a646318f",
+        "bytes": 17174,
+        "lines": 311,
+        "review_scope": "Initialization, glimpse, routing and certainty code; documented placeholders.",
+        "directly_reviewed": true,
+        "git_blob_id": "b08d66a2e1a7234b920b9fdf6f11c8aae8a20d76"
+      },
+      {
+        "path": "src/tais_obsidian/model/tais_kernel.py",
+        "sha256": "6297dcd379d560ab6504ef33711d1fd61d6a68301082f4d2427f52ab1bb9e8ed",
+        "bytes": 18631,
+        "lines": 359,
+        "review_scope": "Complete kernel source, payload distinction, KAL/HRL/DG and sense/route/inject.",
+        "directly_reviewed": true,
+        "git_blob_id": "4a4963fb0eeb5952210d8e2ad9d89b6dd69b4a2d"
+      },
+      {
+        "path": "src/tais_obsidian/model/thought_core.py",
+        "sha256": "69af1c242b0fa688dcdd2168c509bf1309728ba422c234710c2bb847ff207990",
+        "bytes": 17410,
+        "lines": 320,
+        "review_scope": "Group-history MLP, tick rotary construction and update implementation.",
+        "directly_reviewed": true,
+        "git_blob_id": "d4b0af688699b62dee9fbbaf324be69c05949d98"
+      },
+      {
+        "path": "src/tais_obsidian/model/thought_core_integration.py",
+        "sha256": "b04f6ea4c60ef36f82ceeea99ec3f913fb9ef19a46fd5b3d6e0ad9ccdc2af05d",
+        "bytes": 8485,
+        "lines": 151,
+        "review_scope": "Complete optional final-hidden-state refinement and gate source.",
+        "directly_reviewed": true,
+        "git_blob_id": "9abef783d9d0529933976f7d2a04c5539b0f3b1a"
+      },
+      {
+        "path": "src/tais_obsidian/model/thought_visualizer.py",
+        "sha256": "308bb65810eed2605fdbc2cf6f71c3efac7873d82a238a07a2742e2b629e5090",
+        "bytes": 19047,
+        "lines": 403,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "edaf0cd7b11f585323a49b72c833a6ee73e58a27"
+      },
+      {
+        "path": "src/tais_obsidian/model/tri_attention.py",
+        "sha256": "44077970bbbe5257175413030b64555b8451feb89ad85a16f46945489cc4653d",
+        "bytes": 25731,
+        "lines": 426,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "b617d674e809c80546021385a730b3846f247054"
+      },
+      {
+        "path": "src/tais_obsidian/model/tri_attention_decoupled.py",
+        "sha256": "891f2f70a6959df74c1618c5b9d0c7aec1c0a380200643b2234bb9dcb5525a3d",
+        "bytes": 18733,
+        "lines": 331,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "7322cce2cb93c244140e6d1911d11612bb50c91e"
+      },
+      {
+        "path": "src/tais_obsidian/model/tri_attention_fully_decoupled.py",
+        "sha256": "c7151a17cf7cbe4a6bd14726aeb3ff7e0ef128a5de21ee540eedda00809e097b",
+        "bytes": 20721,
+        "lines": 351,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "1cc709725366e39866d15e3c06a9de6bf944f75c"
+      },
+      {
+        "path": "src/tais_obsidian/model/tri_attention_gated.py",
+        "sha256": "4b87635c29c252144ebafbc3d7acad7e6388e7c7ae27fe40c482208542f7b877",
+        "bytes": 12507,
+        "lines": 232,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "43df3714122f996b961fa4b3bd60b03a83d89258"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/__init__.py",
+        "sha256": "bd0446f1024991a735dba6f8f9db78dfd2e33e7b7414138913af6c240cd3fda0",
+        "bytes": 2068,
+        "lines": 59,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "a664466a139d3804f681db1a72ed80c89cb2137f"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/blockstore.py",
+        "sha256": "807c2ec8755561b79628dd53f4fe2d51927e1f37c9abf7d539b8d1e995555f0d",
+        "bytes": 3801,
+        "lines": 88,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "e5aee0f0a8a647b0961d0474e19ad1d270e332e4"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/bus.py",
+        "sha256": "5facbb44569a05344cb7c236dd398191c06a91d12b1f3f6e9a5ba1f092da1145",
+        "bytes": 1713,
+        "lines": 38,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "cd67aa569f2d2b251812fef3f41dac66f12a37d4"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/ca1_gate.py",
+        "sha256": "78557956e171e522e8e13de178b28de84b389c39b1ff016eaaa1096aa9788bc3",
+        "bytes": 12693,
+        "lines": 232,
+        "review_scope": "Complete promotion rules, re-verification and evidence/credibility heuristics.",
+        "directly_reviewed": true,
+        "git_blob_id": "29365bb8e738285c8b578143e40edb47da67774b"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/ca3_ppr.py",
+        "sha256": "6bf0db5d3cb9a95ab4c81d9d4eb803d7c9fcb8836ade0853c4124bc0e2a86e67",
+        "bytes": 2256,
+        "lines": 59,
+        "review_scope": "Complete graph PageRank implementation.",
+        "directly_reviewed": true,
+        "git_blob_id": "52d378b95b3bffeacfb04debc3766995a622865f"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/kernel_orchestrator.py",
+        "sha256": "f47708a4027bc28490c6af92712c549fff0836eef227d959637dbdbb1e2650e1",
+        "bytes": 17234,
+        "lines": 323,
+        "review_scope": "Kernel/host routing, graph registration, semantic-neighbor fallback and calibration path.",
+        "directly_reviewed": true,
+        "git_blob_id": "422dcb522d25e4e8c825cc8117a3f46c97a28dfb"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/pager.py",
+        "sha256": "77dddff7adfe8166312a34637047b36328b9ffc0c2feb696aa8e797991766e9a",
+        "bytes": 2720,
+        "lines": 65,
+        "review_scope": "Complete namespace checking and self-certifying fallback path.",
+        "directly_reviewed": true,
+        "git_blob_id": "5b9e3b2370ec28cd59f226df3f47af502334c61e"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/pagetable.py",
+        "sha256": "e235db688769873d795f7028b051dd7047b5d42d6123a7160e8ae52d6458877c",
+        "bytes": 6666,
+        "lines": 170,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "db5d7f50281518758f98803c31ff01a93d8ab49c"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/safety.py",
+        "sha256": "137608a1f570da104f4f218a6b52ac06f994786aa1dcccf20456fe0d73331df4",
+        "bytes": 3865,
+        "lines": 84,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "47d1ddd06ca6fd2d60434a3a1c856ac360bb7f65"
+      },
+      {
+        "path": "src/tais_obsidian/runtime/state_ckpt.py",
+        "sha256": "6452895196f14a99ef64c47439e89743b2b32184242333467d70569b6c87ae11",
+        "bytes": 1878,
+        "lines": 49,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "b4b52299b4d270585b1e8412580e2b132563d0ba"
+      },
+      {
+        "path": "src/tais_obsidian/sleep/__init__.py",
+        "sha256": "d29dc7fe5b492adb61a6c80ea1a64bf2cd98860b45522fe8b60f5296c8dcce59",
+        "bytes": 888,
+        "lines": 37,
+        "review_scope": "Fetched and hash-inventoried only; no claim of detailed review.",
+        "directly_reviewed": false,
+        "git_blob_id": "312516d2354ff6b9b92219061257fa4bc470773e"
+      },
+      {
+        "path": "src/tais_obsidian/sleep/consolidator.py",
+        "sha256": "0cc0fd96157c89aa46583144c73d871718e5a85219c5bc89c62e351cb7f09b6d",
+        "bytes": 14423,
+        "lines": 281,
+        "review_scope": "Consolidate transaction and scheduling code, no optimizer step in module.",
+        "directly_reviewed": true,
+        "git_blob_id": "9cb432977c864d818b466a0abe0d347cef33bf41"
+      },
+      {
+        "path": "src/tais_obsidian/sleep/inquiry_consolidation.py",
+        "sha256": "9cbaa5c0227e95199470db9849ea416bb5345cec9563f6e0a9019cdbc65833f8",
+        "bytes": 22913,
+        "lines": 394,
+        "review_scope": "Inquiry-to-consolidator state mapping, reward helper and evidence heuristics.",
+        "directly_reviewed": true,
+        "git_blob_id": "c9ef2efb37bc84e1b5094a775322af023966650b"
+      }
+    ]
+  },
+  "source_assessment": [
+    {
+      "id": "kernel_present",
+      "evidence": [
+        "src/tais_obsidian/model/tais_kernel.py",
+        "src/tais_obsidian/model/model.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "Trainable kernel modules and optional native integration exist; not merely documentation."
+    },
+    {
+      "id": "core_connected",
+      "evidence": [
+        "src/tais_obsidian/model/thought_core_integration.py",
+        "src/tais_obsidian/model/model.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "Optional ThoughtCore integration before final normalization is present and default disabled; earlier unconnected-core notes are stale for this HEAD."
+    },
+    {
+      "id": "core_method_boundary",
+      "evidence": [
+        "src/tais_obsidian/model/thought_core.py",
+        "src/tais_obsidian/model/reasoning_loop.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "Group-history processing and tick RoPE; not full CTM synchrony. Reasoning loop retains mean-pool glimpse and optional norm/mock certainty."
+    },
+    {
+      "id": "pager_boundary",
+      "evidence": [
+        "src/tais_obsidian/runtime/pager.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "When page-table namespace is unavailable, expected namespace falls back to caller value; new design requires authoritative producer/ledger validation."
+    },
+    {
+      "id": "verification_boundary",
+      "evidence": [
+        "src/tais_obsidian/model/inquiry_executor.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "Injected I/O may be mock; CrossVerifier similarity/default prior and optional hash embedding are not independent truth verification."
+    },
+    {
+      "id": "lookup_boundary",
+      "evidence": [
+        "src/tais_obsidian/model/memlayer.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "Dense all-slot scoring plus top-k and mutable delta-state buffer; no large factorized product-key implementation in this module."
+    },
+    {
+      "id": "sleep_boundary",
+      "evidence": [
+        "src/tais_obsidian/sleep/consolidator.py"
+      ],
+      "kind": "static_code_observation",
+      "finding": "Scheduling, retrieval practice, rule adjudication and state normalization; this module does not run a neural optimizer update."
+    },
+    {
+      "id": "upstream_gain",
+      "evidence": [
+        "docs/memories/thought-core-backbone-integration.md"
+      ],
+      "kind": "upstream_author_report_not_reproduced",
+      "finding": "Reports trained two-hop chain accuracy 0.828 to 0.906; not an independently audited MiniCPM result."
+    },
+    {
+      "id": "upstream_negative",
+      "evidence": [
+        "docs/memories/extended-validation-ca1-manifold.md"
+      ],
+      "kind": "upstream_author_report_not_reproduced",
+      "finding": "Reports novel-word recall failure and teaching-distribution dependence; useful source of design tests, not a locally rerun result."
+    }
+  ],
+  "primary_web_sources": [
+    {
+      "id": "mem_t_v2",
+      "url": "https://arxiv.org/html/2601.23014v2",
+      "source_type": "Primary paper",
+      "use": "Memory operation policy and tree/hindsight credit; train-time evidence labels are not runtime input.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "mem_t_release",
+      "url": "https://github.com/yanweiyue/Mem-T",
+      "source_type": "Official repository, current page",
+      "use": "README states training script forthcoming; no code imported or executed.",
+      "execution_or_download": false,
+      "revision_pin": "web page observed at review time; no Git execution pin claimed"
+    },
+    {
+      "id": "seal_v2",
+      "url": "https://arxiv.org/html/2506.10943v2",
+      "source_type": "Primary paper",
+      "use": "Self-edit data/directives, real inner updates and later outcome reward; compute and retention constraints.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "seal_release",
+      "url": "https://github.com/Continual-Intelligence/SEAL",
+      "source_type": "Official repository, current page",
+      "use": "Source availability inspected at page level; no code imported.",
+      "execution_or_download": false,
+      "revision_pin": "web page observed at review time; no Git execution pin claimed"
+    },
+    {
+      "id": "voyager",
+      "url": "https://voyager.minedojo.org/",
+      "source_type": "Author project page",
+      "use": "Executable skills, curriculum and environment feedback without gradient adaptation.",
+      "execution_or_download": false,
+      "revision_pin": "web page observed at review time; no Git execution pin claimed"
+    },
+    {
+      "id": "hope_v1",
+      "url": "https://arxiv.org/html/2512.24695v1",
+      "source_type": "Primary paper",
+      "use": "Multiple update timescales; pretrained Llama experiment uses 15B continuation tokens.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "know_what_they_know_v4",
+      "url": "https://arxiv.org/abs/2207.05221v4",
+      "source_type": "Primary paper abstract",
+      "use": "Separate P(True)/P(IK), calibration under task shift remains a limitation.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "self_correction_v2",
+      "url": "https://arxiv.org/abs/2310.01798v2",
+      "source_type": "Primary paper abstract",
+      "use": "Intrinsic reasoning correction without external feedback is not reliable in studied settings.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "ctm_v4",
+      "url": "https://arxiv.org/abs/2505.05522v4",
+      "source_type": "Primary paper abstract",
+      "use": "Neuron-specific temporal processing and synchronization differ from tick rotary features.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "coconut_v4",
+      "url": "https://arxiv.org/abs/2412.06769v4",
+      "source_type": "Primary paper abstract",
+      "use": "Continuous hidden-state feedback differs from our recurrent slot proposal.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    },
+    {
+      "id": "individual_simulation_v3",
+      "url": "https://arxiv.org/abs/2411.10109v3",
+      "source_type": "Primary paper abstract",
+      "use": "Authentic self-reports, held-out behavior and human test-retest comparison; no percentage-of-person claim.",
+      "execution_or_download": false,
+      "revision_pin": "immutable arXiv version"
+    }
+  ],
+  "local_inputs_sha256": {
+    "reference/r2/01_Full_Chain_Framework_and_Reevaluation.md": "66c9dd56d019b094b780bceeb3ac23251a5dadc97917fbff371b2c9a61c20809",
+    "reference/r2/02_Architecture_and_Implementation_Contracts.md": "3bee98400ebac226a1dd58cbc081648c1821382fa3b052a21d0c096d1960b78f",
+    "reference/r2/04_Personal_Replica_and_Identity_Protocol.md": "0e2f2b2475f4651334e44d016ed07788f7d1a670a7146b5e8e7dd43ee4cc9c13",
+    "docs/01_System_Design.md": "42c5176e2f8ab25aff386de35d29db1e50f7a67623fb2774cf72c478c15e9fe6",
+    "docs/05_Replica_Protocol.md": "f148814f4be1fd8fa604f77fae6e90b3f153e054fcfb690763f270169826de40",
+    "docs/experiments/20261022_Cognitive_Contracts.md": "b403d4dadf581ffdf1446bb96b6b63ca327627d381b851f8bb83e1faf1114675",
+    "docs/stages/04_Learned_Operating_Loop.md": "0b83e825002259f54986353687d9ca5279b9cfca6c676de705823c70a9b083a1",
+    "docs/stages/05_Replica_and_Longitudinal.md": "e9797bd53cfccac51667efd68458d0eaab539d73c06ecba5841c044faf589163",
+    "src/replica_lab/learning.py": "b6412e1afe46ca8096a640c85ea93105c8d3c0439b90a0101d34e83a453f4942"
+  },
+  "proposed_design": {
+    "reference_core_width": 256,
+    "reference_slots": 8,
+    "reference_recurrent_steps": 2,
+    "text_sense_injection_ports": [
+      13,
+      27
+    ],
+    "additional_observer_port": 41,
+    "schedule": "initial host-selected eligible bank -> injection-disabled known-input sense -> tied recurrent core -> immutable DecisionFrame -> fresh action pass; additional core-requested retrieval starts a new decision; no reused sense KV",
+    "ownership": "exact task graph in host journal; task-private latent state; distinct module candidates; source-human identity authority",
+    "training_modes": [
+      "modules-only development",
+      "full/selective developmental co-adaptation",
+      "post-freeze extension and skill candidates"
+    ],
+    "claim": "engineering proposal; no new execution evidence",
+    "core_block": "shared self-attention, cross-attention and width-4d FFN with normalized gated residuals; two iterations"
+  },
+  "limits": [
+    "Selected source text and sections were inspected, not every dependency or test.",
+    "No upstream raw run was reproduced and no checkpoint was acquired.",
+    "No license file found in pinned tree; design study does not import implementation.",
+    "Paper mechanisms do not establish the integrated architecture or MiniCPM transfer.",
+    "No model inference, training, optimizer update, dataset intake or authentic-person inference was performed."
+  ],
+  "integration_review_note": "Proposed schedule/core terminology reconciled during integration. Local input hashes record the research inputs before current handoff-document edits."
+}

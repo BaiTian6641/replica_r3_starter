@@ -1,0 +1,11 @@
+flowchart TD
+  A[Chunk-start state Ac and epoch] --> P13[Block 13 reads Ac]
+  A --> P27[Block 27 reads Ac]
+  O[Completed eligible observation chunk] --> W13[Port 13 write proposal]
+  O --> W27[Port 27 write proposal]
+  W13 --> G[Evaluate all writes against Ac]
+  W27 --> G
+  G --> C[One host-authorized boundary commit]
+  C --> N[New state for next chunk]
+  P13 --> Z[Current action segment]
+  P27 --> Z

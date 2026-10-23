@@ -1,0 +1,9 @@
+flowchart TD
+  S[Approved source archive and snapshot] --> M[Explicit identity mode]
+  B[Replica branch events and decisions] --> M
+  J[Exact task and goal journal] --> W[Rebuild bounded workspace]
+  M --> W
+  W --> C[Core compares plans and actions]
+  C --> O[Actual outcome]
+  O --> J
+  O --> B

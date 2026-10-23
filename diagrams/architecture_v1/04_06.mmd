@@ -1,0 +1,8 @@
+flowchart LR
+  E[Eligible observed experiences] --> D[Diagnose repeated successes and failures]
+  C[Capability deficits and compute budget] --> P[Learned proposal ranking]
+  D --> P
+  P --> V[Host checks bounded LearningProposal]
+  V --> T[Compile practice, replay and candidate]
+  T --> R[Development gain and all costs]
+  R --> Q[Separate director candidate update]

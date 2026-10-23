@@ -1,0 +1,10 @@
+flowchart TD
+  E[Source-bound experience and proposal] --> C[Compiler validates data and allowed target]
+  C --> R[Record representation]
+  C --> S[Procedure candidate]
+  C --> N[Isolated neural candidate trainer]
+  S --> V[Independent paired evaluation]
+  N --> V
+  V --> A[Accept, reject or defer]
+  A --> M[Atomic system manifest and rollback parent]
+  M --> Z[Restart and later unseen reuse]

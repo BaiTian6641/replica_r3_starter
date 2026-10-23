@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant H as Host / task owner
+    participant M as Evidence compiler
+    participant B as Native model and sense ports
+    participant C as Parallel core
+    participant P as Native model with injection ports
+    participant T as Tool / environment
+    H->>M: Pin eligible observations and model/identity versions
+    M-->>H: Record slots, exact references, memory snapshot
+    H->>B: Known-input sense pass, no target answer
+    B-->>C: Causal native features and sense summaries
+    C->>C: Two bounded workspace iterations
+    C-->>H: Route and immutable decision frame
+    H->>P: Action pass with fixed record/workspace/fast reads
+    P-->>H: Structured action or answer proposal
+    H->>T: Execute validated action
+    T-->>H: Actual observation or failure
+    H->>H: Journal outcome and commit authorized writes once
+    H->>B: Next decision with revised task and evidence state

@@ -1,0 +1,8 @@
+flowchart TD
+    P[Parent manifest and eligible source revision] --> C[Isolated candidate]
+    C --> E[Independent comparison and compatibility checks]
+    E --> A{Accept / reject / defer}
+    A -->|accept| M[Atomic active-manifest pointer]
+    M --> I[Invalidate or rebuild dependent memory images]
+    I --> R[New request or clean task restart]
+    M --> B[Retained rollback parent]

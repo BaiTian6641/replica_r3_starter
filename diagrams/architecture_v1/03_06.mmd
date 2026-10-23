@@ -1,0 +1,6 @@
+flowchart LR
+  T[Token prefix through current position] --> H[Versioned causal n-gram hashing]
+  H --> E[Learned sparse embedding table]
+  E --> G[Context gate and output projection]
+  N[Native hidden state] --> G
+  G --> D[Independent residual delta]

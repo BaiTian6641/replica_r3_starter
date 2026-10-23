@@ -1,0 +1,15 @@
+flowchart TD
+  E[Eligible events and actual outcomes] --> P[Typed compilation proposal]
+  P --> C[Exact context pack]
+  P --> L[Per-record latent payload]
+  P --> F[Replayable adaptive memory image]
+  P --> S[Executable procedure candidate]
+  P --> N[Neural candidate training job]
+  C --> V[Artifact-specific validation and dependency manifest]
+  L --> V
+  F --> V
+  S --> V
+  N --> V
+  V --> R[Atomic compatible publication]
+  D[Source, permission or producer change] --> I[Transitive invalidation]
+  I --> P
