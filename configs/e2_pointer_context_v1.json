@@ -1,0 +1,49 @@
+{
+  "format": "replica.e2.pointer_context.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Context-scored top-record word candidates with frozen pointer weights; fresh family evaluation.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "train_dataset": {
+    "root": "data/e2_copy",
+    "records_sha256": "2bea5441655dde84a6dda0f54a2e5f6bb3e90536ee1dab3ee4ebe447ab4dcac8",
+    "queries_sha256": "a2519fbba1b2656d480aee533911db61a1522c43885e63f39ae94d0cf744d13c",
+    "manifest_sha256": "adcd37e00c5896a0859426602488258860290064f19f2f07af208a96c1f0dd86"
+  },
+  "eval_dataset": {
+    "root": "data/e2_pointer_context",
+    "manifest_sha256": "b9d4298bde1c096782f4bbd291df0f22d53143c6fe55dce21a1b450341f294c2"
+  },
+  "scope": "top_lexical_record",
+  "unit": "word",
+  "max_span": 4,
+  "features": [
+    "relative_start",
+    "relative_end",
+    "after_is",
+    "length",
+    "distance_from_is"
+  ],
+  "training": {
+    "updates": 300,
+    "lr": 0.01,
+    "seed": 20261023,
+    "trainable": [
+      "context_head"
+    ]
+  },
+  "evaluation": {
+    "heldout": 12,
+    "arms": [
+      "frozen_pointer",
+      "pointer_plus_context"
+    ]
+  },
+  "budget": {
+    "model_loads": 1,
+    "pointer_optimizer_updates": 0,
+    "context_updates": 300,
+    "eval_cases": 24
+  },
+  "claims": "Candidate-context diagnostic; no default change or broad generalization claim."
+}
