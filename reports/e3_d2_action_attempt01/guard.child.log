@@ -1,0 +1,22 @@
+W1023 10:18:03.414000 53357 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 841.28it/s]Loading weights:  49%|████▉     | 186/381 [00:00<00:00, 853.93it/s]Loading weights:  72%|███████▏  | 274/381 [00:00<00:00, 856.31it/s]Loading weights:  94%|█████████▍| 360/381 [00:00<00:00, 826.76it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 851.69it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_d2_action.py", line 132, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_d2_action.py", line 30, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,protocol,report,profiler)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_d2_action.py", line 100, in execute
+    loss=output.loss/int(alignment['examples_per_update']); total+=float(loss.detach()); session.backward(request,loss)
+                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 472, in backward
+    loss.backward()
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/_tensor.py", line 623, in backward
+    torch.autograd.backward(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/autograd/__init__.py", line 395, in backward
+    _engine_run_backward(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/autograd/graph.py", line 1072, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
