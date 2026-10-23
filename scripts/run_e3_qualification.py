@@ -507,7 +507,8 @@ def execute(args, profiler, report):
     from replica_lab.runtime.workspace_store import WorkspaceStore
 
     protocol = json.loads(args.protocol.read_text())
-    if protocol['format'] != 'replica.e3.qualification.v1':
+    if protocol['format'] not in ('replica.e3.qualification.v1',
+                                  'replica.e3.qualification.v2'):
         raise ValueError('Unknown E3 qualification protocol')
     expected = {'device': 'mps', 'dtype': 'float32', 'native_cache': False,
                 'native_cpu_fallback': False, 'sampling': 'greedy', 'thinking': False}
