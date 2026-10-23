@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 permitted replay (23 October):** bounded host replay after correction
+rebuilds fast state, clears workspace, rejects generated text; no learned benefit.
+See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+
 **E4 source invalidation (23 October):** host correction clears workspace and
 matching fast lineage; unmatching fast state preserved; old images are historical.
 See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).

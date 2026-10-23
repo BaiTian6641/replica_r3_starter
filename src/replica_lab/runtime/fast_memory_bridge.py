@@ -92,6 +92,34 @@ class FastMemoryBridge:
                 self.session.save(path)
         return receipt
 
+    def replay(self, observations, *, reason='permitted_source_replay',
+               invalidate=True):
+        """Reset and replay a bounded sequence of permitted observations once.
+
+        Each item is ``(observation_id, text, source_hash)``. The host supplies
+        only still-permitted observed source/tool text, never generated output
+        or expected answers. Replay commits one observation at a time; old
+        images remain historical and are not treated as current.
+        """
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError('replay reason required')
+        if not hasattr(observations, '__iter__'):
+            raise ValueError('replay observations must be iterable')
+        items = list(observations)
+        if len(items) > 512:
+            raise ValueError('replay observation bound exceeded')
+        if invalidate:
+            self.invalidate(reason)
+        receipts = []
+        for item in items:
+            if not isinstance(item, (tuple, list)) or len(item) != 3:
+                raise ValueError('each replay item must be (id, text, source_hash)')
+            observation_id, text, source_hash = item
+            receipt = self.observe(observation_id, text, source_hash=source_hash)
+            if receipt is not None:
+                receipts.append(receipt)
+        return tuple(receipts)
+
     def snapshot(self):
         return self.session.state.detached()
 

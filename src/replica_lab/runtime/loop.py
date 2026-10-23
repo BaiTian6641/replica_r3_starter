@@ -553,6 +553,29 @@ class TaskRuntime:
         self.journal.correct(note=(f'source invalidation {source_hash[:16]} {reason}')[:480])
         return result
 
+    def replay_fast_observations(self, observations, *,
+                                 reason: str = 'permitted_source_replay'):
+        """Rebuild live fast state from permitted observations after correction.
+
+        The exact journal and goal are untouched; dependent workspace is cleared.
+        The caller supplies only actual permitted source/tool observations.
+        """
+        if self.fast_memory is None:
+            raise ValueError('runtime has no fast-memory bridge')
+        self._load()
+        if self.state is None:
+            raise RuntimeError('runtime journal is not initialized')
+        receipts = self.fast_memory.replay(observations, reason=reason)
+        self.fast_state = self.fast_memory.snapshot()
+        self.fast_error = None
+        if self.workspace_store is not None:
+            self.workspace_store.clear()
+        self.previous_workspace = None
+        self.last_workspace_discard = 'source_replay'
+        self.journal.correct(note=(f'fast replay {len(receipts)} observations '
+                                   f'{reason}')[:480])
+        return receipts
+
     def _observe_fast_memory(self, frame: OutcomeFrame) -> None:
         """Feed one actual host observation into the optional fast state."""
         if self.fast_memory is None or frame.verifier != 'host_tools':

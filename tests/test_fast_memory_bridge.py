@@ -132,3 +132,41 @@ def test_runtime_source_correction_invalidates_matching_fast_state_and_workspace
     assert runtime.previous_workspace is None
     assert runtime.workspace_store.load() is None
     assert runtime.journal.events()[-1].kind == 'correction'
+
+
+def test_bridge_replay_rebuilds_only_permitted_observations(tmp_path):
+    value = FastMemoryBridge(bridge().session, bridge().encoder,
+                             image_root=tmp_path / 'images')
+    value.observe('obs-a', 'The evaluator failed with code 1.', source_hash='a' * 64)
+    value.observe('obs-b', 'The evaluator passed.', source_hash='b' * 64)
+    receipts = value.replay([('obs-a', 'The evaluator failed with code 1.', 'a' * 64)],
+                            reason='source b revoked', invalidate=True)
+    assert len(receipts) == 1
+    assert value.session.state.generation == 1
+    assert value.session.state.chunk_index == 1
+    assert [item[1] for item in value.session.state.lineage] == ['a' * 64]
+
+
+def test_runtime_replay_after_source_correction(tmp_path):
+    from tests.e3_runtime_helpers import make_case, make_runtime
+    from replica_lab.runtime.workspace_store import WorkspaceStore
+    tools = make_case(tmp_path)
+    first = bridge()
+    first = FastMemoryBridge(first.session, first.encoder,
+                             image_root=tmp_path / 'images')
+    first.observe('obs-a', 'The evaluator failed with code 1.', source_hash='a' * 64)
+    first.observe('obs-b', 'The evaluator passed.', source_hash='b' * 64)
+    store = WorkspaceStore(tmp_path / 'ws')
+    runtime = make_runtime(tools, tmp_path, fast_memory=first,
+                           workspace_store=store, max_prompt_tokens=512,
+                           generated_token_budget=32)
+    runtime.invalidate_source('a' * 64, reason='source a corrected')
+    receipts = runtime.replay_fast_observations(
+        [('obs-b', 'The evaluator passed.', 'b' * 64)],
+        reason='rebuild from permitted source')
+    assert len(receipts) == 1
+    assert runtime.fast_state.chunk_index == 1
+    assert [item[1] for item in runtime.fast_state.lineage] == ['b' * 64]
+    assert runtime.previous_workspace is None
+    assert runtime.workspace_store.load() is None
+    assert runtime.journal.events()[-1].kind == 'correction'

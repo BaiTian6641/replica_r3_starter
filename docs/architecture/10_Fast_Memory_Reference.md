@@ -72,8 +72,11 @@ records a host-authority correction note, clears dependent workspace, and resets
 live fast state when the source hash is in the committed lineage; unmatching
 sources leave fast state intact. Persisted images remain historical evidence:
 after a correction, rebuild/replay permitted observations instead of treating an
-old image as current. The deterministic encoder remains an evidence/scaffolding
-path, not a learned capability.
+old image as current. `FastMemoryBridge.replay` and
+`TaskRuntime.replay_fast_observations` are the explicit bounded replay path:
+they reset state, accept only still-permitted `(id, text, source_hash)` items,
+clear dependent workspace, and journal a host correction note. The deterministic
+encoder remains an evidence/scaffolding path, not a learned capability.
 
 ## 4. Tests
 

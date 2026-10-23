@@ -33,6 +33,14 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 permitted replay (23 October).** After correction/revocation, the host can
+reset fast memory and replay a bounded sequence of still-permitted
+`(observation_id, text, source_hash)` observations. Runtime replay clears
+dependent workspace, updates live fast state, and records a host correction note;
+no generated answers enter the replay. This is reconstruction plumbing, not
+learned delayed-use benefit. See
+[fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+
 **E4 source invalidation (23 October).** `TaskRuntime.invalidate_source` now
 records a host-authority correction note, clears dependent workspace, and resets
 live fast state when the source hash appears in the committed fast-memory
