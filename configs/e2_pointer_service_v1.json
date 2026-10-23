@@ -1,0 +1,27 @@
+{
+  "format": "replica.e2.pointer_service.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Exercise the published pointer candidate through MemoryAnswerService with exact-source fallback; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "extension": "runs/e2_pointer_head_attempt02/selected_extension",
+  "dataset": {
+    "root": "data/e2_copy",
+    "records_sha256": "2bea5441655dde84a6dda0f54a2e5f6bb3e90536ee1dab3ee4ebe447ab4dcac8",
+    "queries_sha256": "a2519fbba1b2656d480aee533911db61a1522c43885e63f39ae94d0cf744d13c",
+    "manifest_sha256": "adcd37e00c5896a0859426602488258860290064f19f2f07af208a96c1f0dd86"
+  },
+  "max_span": 4,
+  "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+  "evaluation": {
+    "dev": 6,
+    "heldout": 10,
+    "metric": "exact pointer text; provenance and exact fallback require nonempty IDs/hashes"
+  },
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "eval_cases": 16,
+    "checkpoint_saves": 0
+  },
+  "claims": "Consumer check only; no new candidate, training or default activation."
+}
