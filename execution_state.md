@@ -297,6 +297,14 @@ idempotency, shuffled/reset controls, bounds and cross-branch/producer/tamper
 rejection. Opt-in native read ports are attached at 13/27 and pass null-parity/independent influence (0.269 logit change, 11.0 GiB peak). An optional bridge now stages/commits actual read/test observations and passes the committed state to the next decision; the encoder is deterministic and **untrained**. No learned write/query training, delayed-use task study, automatic image reload or interference evaluation exists. See
 [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
 
+**E3 DAgger aggregation (23 October).** Initial accepted E3 extension completed
+**2/5** fresh held-out/dev episodes. After 8 modules-only aggregation updates on
+26 host-teacher-labelled model states, it completed **0/5**; training loss fell
+to **0.023** but post-training actions became malformed. Peak 16.21 GiB, 430 s,
+extension 37.6 MB, no base save, no publication. This is a negative DAgger result;
+the initial 2/5 is not a generalization claim. See
+[DAgger results](docs/experiments/20261023_E3_Dagger_Results.md).
+
 **E3 bf16 full-backbone D2 action (23 October).** A declared bf16-compute
 residency variant completed 8 full-scope updates at **39.10 GiB** peak, then
 completed **0/4 held-out and 0/2 dev** episodes; every episode repeated `read`.
