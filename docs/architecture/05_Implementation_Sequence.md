@@ -13,8 +13,13 @@ E2's connected slot-reading diagnostic passes; learned reranking quality,
 full-bank capacity and novel-source tests remain open. See
 [implementation](07_E1_E2_Implementation.md), [results](../experiments/20261023_E1_E2_Native_Results.md)
 and the [machine-readable status](../../configs/architecture_implementation_status_v1.json).
-E3 is the next construction package. The original proposal below is preserved
-as the design baseline; its “proposed” labels describe the research handoff.
+**E3 is implemented and native-qualified on the same date.** The shared core,
+workspace readers, exact journal, typed actions, fixture tools and restart loop
+pass engineering acceptance; model-driven task completion is negative on the
+exposed fixtures (0/8) and the success head was not trained. See
+[E3 results](../experiments/20261023_E3_Native_Results.md). The original proposal
+below is preserved as the design baseline; its “proposed” labels describe the
+research handoff.
 
 ## 1. What changes in the work plan
 

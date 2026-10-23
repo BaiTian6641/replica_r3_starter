@@ -1,41 +1,64 @@
-# Execution state — connected E1/E2 native memory
+# Execution state — E3 core, exact journal and model-driven loop
 
-**Current work — E1/E2 implemented and GPU-qualified on 22 October 2026
-America/Chicago (23 October UTC).** The explicit MiniCPM5 adapter, two native
-memory ports, contextual writer, temporal ledger, eligible retrieval, source
-cache and persistent runtime CLI are connected. Read the
-[E1/E2 implementation](docs/architecture/07_E1_E2_Implementation.md) and
-[native results](docs/experiments/20261023_E1_E2_Native_Results.md).
+**Current work — E3 implemented and native-qualified on 23 October 2026 UTC.**
+The shared width-256/eight-slot/two-iteration core, independent memory and
+workspace readers at blocks 13/27, exact task journal, typed actions, real
+fixture tools, independent success check, controls and fresh-process restart are
+connected. **Engineering acceptance passes; learned task completion is
+negative.** All eight model-driven episodes failed host verification. The
+full-core arm repeated `read`; the workspace-zero control reached a failing test
+and wrote an invalid repair; the feed-forward/core-disabled/extra-inference arms
+failed differently. **56 decisions, 32 tool calls, 3 malformed actions, 13
+false success claims, 0 completions.** No model-written success statement was
+accepted.
 
-The bounded diagnostic generates **4/4** correct answers from record slots;
-ports disabled gives **0/4**. Exact fallback, source-swap controls, correction,
-serialization and a fresh-process runtime restart pass. D2 backward reaches all
-381 original tensors; no D2 optimizer update was performed in this package.
-Peak sampled driver memory is **21.11 GiB**, with zero observed swap growth.
-One **18.62 MiB extension** is selected at
-`runs/e1_e2_native_attempt02_20261023/selected_extension`; original model bytes
-remain only in the reused sealed source. No downloads or duplicate base saves.
+The E2 parent was used as validated initialization and regression reference: 43
+parent tensors copied exactly, 51 E3 tensors kept at fresh initialization; all
+43 parent tensors matched the artifact after migration. The success head was
+not trained because the eight actual outcomes were all negative. Peak sampled
+driver memory is **14.72 GiB**, zero observed swap growth, 65% minimum free;
+the final v2 extension is **37,588,831 bytes**. One extension only; no base copy,
+optimizer checkpoint, download or Neural Engine claim. The sealed source remains
+unchanged.
 
-**Open:** reranker top-1 remains 1/2 after its four-update probe; novel-source
-quality, full-bank native capacity and E3 cognition remain unqualified. These
-are exposed synthetic integration cases, not a generalization result. Keep
-reranking opt-in. Next build E3's shared core and exact task/action journal using
-these interfaces, while planning separate retrieval and capacity qualification.
-No broad corpus campaign or learning promotion is admitted here.
+Fresh-process interruption used the guarded CLI: process 1 observed the failing
+test at revision 10; a CPU host correction bumped to revision 11 and invalidated
+the stored workspace; process 2 rejected `stale_revision`, did not re-execute
+completed actions, spent the remaining five decisions and failed to repair. The
+split acceptance is **10/14**: restart reconstruction/idempotency checks pass;
+task completion, independent pass, landed repair and reference-file equality
+fail.
 
-Validation: one full software run **922 passed / one restricted-context MPS skip /
-21 subtests**, then **60 affected tests** after an MPS backward-thread fix,
-followed by successful native qualification and runtime restart. Attempt 1's
-failure and all old results remain preserved. Source seal, selected historical
-checkpoints and the protected untracked runtime draft remain unchanged. See the
-[final validation receipt](reports/validation_e1_e2_final_20261023.json).
+**Open:** held-out configuration repair, correct action selection/arguments,
+full-core plan continuation, success-head training/calibration, E2 reranker
+quality (1/2), full-bank native capacity and novel-source quality. These are
+exposed synthetic fixtures, not a generalization result. Do not retune this
+held-out set. A future narrower repair-tool arm or new held-out cases must be a
+new preregistered study.
 
-**Progress commits:** `9601399` implementation/protocol, `553dbf0` storage-free
-autograd repair and failed-run preservation, `cd2a4cf` completed native evidence.
-A final documentation/acceptance commit records the fresh-process check.
-Native jobs are idle. Total work across attempts: 64 D1 updates + 4 ranking
-updates; the selected extension contains attempt 2's 32+4. The first failed
-process had no saved extension, which required repeating the same fixed budget.
+Validation: the pre-E3 full suite passed **1081 tests / 21 subtests** after the
+runtime/neural integration; the E3-focused suites pass **157 tests**. Native
+attempts and all failures are preserved. Attempt 1 failed on post-migration
+null-parity ordering; attempt 2 completed training but rejected every valid JSON
+followed by `</s>` as `multiple_json_objects` (56/56 denied, 0 tools); attempt 3
+fixed that parser and produced the accepted evidence. The interrupted pre-check
+also preserves a nested-binding CLI failure. See
+[E3 results](docs/experiments/20261023_E3_Native_Results.md).
+
+**Progress commits:** `e16a3f3` core/readers, `59ef1bb` journal/actions/runtime,
+`8e95e2b` preregistered protocol before execution, then focused parser/binding
+fixes (`46f1b59`, `bfaa0e7`, `867fe30`, `e9eb7d6`). Native jobs are idle. Total
+alignment work: 32 updates in attempt 2 + 32 in attempt 3; attempt 1 performed
+no optimizer update. The protected untracked `runtime_pilot.py` remains
+unchanged and excluded.
+
+## Preserved E1/E2 native memory
+
+E1/E2 remain implemented and GPU-qualified: slot-only **4/4**, ports disabled
+**0/4**, exact fallback 4/4, source-swap controls and fresh-process
+correction/reload pass, **21.11 GiB** peak driver memory and one **18.62 MiB**
+extension at `runs/e1_e2_native_attempt02_20261023/selected_extension`. Reranker
+top-1 remains 1/2. See [E1/E2 results](docs/experiments/20261023_E1_E2_Native_Results.md).
 
 ## Preserved latest native result — query-policy v2
 

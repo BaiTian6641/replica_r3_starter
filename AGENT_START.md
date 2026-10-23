@@ -1,38 +1,49 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current work — E1/E2 implemented and GPU-qualified on 22 October 2026
-America/Chicago (23 October UTC).** The explicit MiniCPM5 adapter, two native
-memory ports, contextual writer, temporal ledger, eligible retrieval, source
-cache and persistent runtime CLI are connected. Read the
-[E1/E2 implementation](docs/architecture/07_E1_E2_Implementation.md) and
-[native results](docs/experiments/20261023_E1_E2_Native_Results.md).
+**Current work — E3 implemented and native-qualified on 23 October 2026 UTC.**
+The shared width-256/eight-slot/two-iteration core, independent memory and
+workspace readers at blocks 13/27, exact task journal, typed actions, real
+fixture tools, independent success check and fresh-process restart are
+connected. Read the [E3 implementation](docs/architecture/08_E3_Implementation.md)
+and [native results](docs/experiments/20261023_E3_Native_Results.md).
 
-The bounded diagnostic generates **4/4** correct answers from record slots;
-ports disabled gives **0/4**. Exact fallback, source-swap controls, correction,
-serialization and a fresh-process runtime restart pass. D2 backward reaches all
-381 original tensors; no D2 optimizer update was performed in this package.
-Peak sampled driver memory is **21.11 GiB**, with zero observed swap growth.
-One **18.62 MiB extension** is selected at
-`runs/e1_e2_native_attempt02_20261023/selected_extension`; original model bytes
-remain only in the reused sealed source. No downloads or duplicate base saves.
+**Engineering acceptance passes; learned task completion is negative.** All
+eight model-driven episodes failed independent verification: the full-core arm
+repeated `read`, the workspace-zero control reached a failing test and wrote an
+invalid repair, and the other controls failed differently. Totals: 56 decisions,
+32 tool calls, 3 malformed actions, 13 false success claims and 0 completions.
+The success head was not trained because all eight actual outcomes were
+negative. No model-written success statement was accepted.
 
-**Open:** reranker top-1 remains 1/2 after its four-update probe; novel-source
-quality, full-bank native capacity and E3 cognition remain unqualified. These
-are exposed synthetic integration cases, not a generalization result. Keep
-reranking opt-in. Next build E3's shared core and exact task/action journal using
-these interfaces, while planning separate retrieval and capacity qualification.
-No broad corpus campaign or learning promotion is admitted here.
+The E2 parent extension was used as validated initialization and regression
+reference: 43 tensors copied exactly, 51 E3 tensors freshly initialized, 43/43
+parent tensors equal to the artifact. Peak sampled driver memory is **14.72 GiB**
+with zero observed swap growth; the final v2 extension is **35.85 MiB**; no base
+copy, optimizer checkpoint, download or Neural Engine claim.
 
-Validation: one full software run **922 passed / one restricted-context MPS skip /
-21 subtests**, then **60 affected tests** after an MPS backward-thread fix,
-followed by successful native qualification and runtime restart. Attempt 1's
-failure and all old results remain preserved. Source seal, selected historical
-checkpoints and the protected untracked runtime draft remain unchanged. See the
-[final validation receipt](reports/validation_e1_e2_final_20261023.json).
+Fresh-process interruption: process 1 observed the failing test, a CPU host
+correction bumped revision 10→11, and process 2 rejected the stale workspace,
+did not re-execute completed actions, spent the remaining decisions and still
+failed to repair. The split acceptance is **10/14**; restart/idempotency
+engineering passes, learned completion does not.
+
+**Open:** held-out configuration repair, correct action/argument selection,
+full-core plan continuation, success-head training/calibration, E2 reranker
+top-1 (1/2), full-bank native capacity and novel-source quality. These are
+exposed synthetic fixtures, not a generalization result. Do not retune this
+held-out set; a narrower repair tool or fresh cases requires a new preregistered
+arm. Next: either that bounded tool-interface study or E2 retrieval/capacity
+qualification, not a broad corpus campaign or model promotion.
+
+Validation: the integrated full suite passed **1081 tests / 21 subtests**; the
+E3-focused suites pass **157 tests**. Attempts 1 (post-migration parity order),
+2 (EOS-as-second-JSON parser) and the interrupted pre-check (nested binding) are
+preserved; attempt 3 is the accepted evidence. The source seal, historical
+checkpoints and the protected untracked runtime draft remain unchanged.
 
 **Storage rule:** reuse `checkpoints/minicpm5_source` revision
 `f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Preserve the selected earlier D0/D1/D2
-checkpoints, attempt 1's negative evidence, and the current E1/E2 extension.
+checkpoints, all E3 attempt evidence, and the E1/E2 and E3 extensions.
 No routine downloads, duplicate native saves, or unrelated cleanup. New native
 jobs use MPS with fallback disabled and the existing exclusive worker/guard.
 `runtime_pilot.py` remains protected, untracked and outside the implementation.

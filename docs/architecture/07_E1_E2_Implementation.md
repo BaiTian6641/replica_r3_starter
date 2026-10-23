@@ -160,11 +160,15 @@ citations, component/implementation identities, memory telemetry and failures.
 
 ## Next package
 
-E3 connects these interfaces to the shared recurrent core, eight workspace slots,
-exact task journal and real action/outcome loop. E4 adds temporal neural state
-and compiled artifacts; E5 adds independent candidate evaluation and promotion.
-None is claimed by this E1/E2 implementation. The legacy last-layer adapter and
-its recorded negatives remain reproducible, and `runtime_pilot.py` is untouched.
+E3 now connects these interfaces to the shared recurrent core, eight workspace
+slots, exact task journal and real action/outcome loop. Its engineering checks
+pass; learned task completion is negative on the exposed fixtures. See
+[E3 implementation](08_E3_Implementation.md) and
+[native results](../experiments/20261023_E3_Native_Results.md). E4 adds temporal
+neural state and compiled artifacts; E5 adds independent candidate evaluation and
+promotion. None is claimed by this E1/E2 implementation. The legacy last-layer
+adapter and its recorded negatives remain reproducible, and `runtime_pilot.py`
+is untouched.
 
 ## Native attempt 1 and boundary fix
 

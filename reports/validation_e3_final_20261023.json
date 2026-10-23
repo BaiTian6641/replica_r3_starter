@@ -1,0 +1,85 @@
+{
+  "schema_version": "replica.validation.e3_final.v1",
+  "date_utc": "2026-10-23",
+  "status": "software_and_engineering_pass_learned_task_completion_negative",
+  "head_at_validation": "bfaa0e7",
+  "commands": [
+    {
+      "command": ".venv/bin/python -m pytest -q",
+      "scope": "complete software suite",
+      "result": "1088 passed, 21 subtests passed",
+      "elapsed_seconds": 102.93,
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python -m pytest tests/test_e3_core.py tests/test_e3_migration.py tests/test_e3_session_core.py tests/test_e3_task_state.py tests/test_e3_journal.py tests/test_e3_actions.py tests/test_e3_loop.py tests/test_e3_fixtures.py tests/test_e3_task_cli.py -q",
+      "scope": "E3 focused",
+      "result": "164 passed",
+      "elapsed_seconds": 9.48,
+      "exit_code": 0
+    },
+    {
+      "command": ".venv/bin/python scripts/verify_e3_fixtures.py",
+      "scope": "fixture schema, leakage and pre/post-repair validation",
+      "result": "6/6 cases passed; committed fixtures unchanged",
+      "exit_code": 0
+    }
+  ],
+  "native_attempt3": {
+    "report": "reports/e3_native_attempt03_20261023/run_report.json",
+    "guard": "reports/e3_native_attempt03_20261023/guard.json",
+    "engineering_checks_passed": 12,
+    "engineering_checks_total": 12,
+    "model_driven_episodes": 8,
+    "completed_episodes": 0,
+    "decisions": 56,
+    "tool_calls": 32,
+    "malformed_actions": 3,
+    "false_success_claims": 13,
+    "false_claims_accepted": 0,
+    "success_head": "untrained_single_outcome_class",
+    "optimizer_updates": 32,
+    "profiled_wall_seconds": 424.18,
+    "guard_wall_seconds": 426.78,
+    "peak_sampled_driver_gib": 14.72,
+    "peak_sampled_rss_gib": 3.36,
+    "swap_growth_mib": 0,
+    "minimum_free_percent": 65,
+    "extension_bytes": 37588831,
+    "base_saved": false,
+    "downloads": 0
+  },
+  "interrupted_restart": {
+    "acceptance": "reports/e3_interrupted_20261023/acceptance.json",
+    "checks_passed": 10,
+    "checks_total": 14,
+    "engineering_checks": [
+      "process 1 observed failing test",
+      "process 1 incomplete under step limit",
+      "correction bumped revision",
+      "correction preserved goal",
+      "stored workspace stale after correction",
+      "process 2 rebuilt incompatible workspace",
+      "evaluator unmodified"
+    ],
+    "failed_learned_checks": [
+      "process 2 completed task",
+      "process 2 observed independent pass",
+      "repair landed exactly once",
+      "workspace matched reference repair"
+    ],
+    "model_loaded_in_correction": false,
+    "tools_executed_in_correction": 0
+  },
+  "preserved_negative_attempts": [
+    "reports/e3_native_attempt01_20261023/failure_report.json (null parity measured after trained-parent load)",
+    "reports/e3_native_attempt02_20261023/run_report.json (EOS token treated as a second JSON object; 56/56 denied, 0 tools)",
+    "reports/e3_interrupted_failed_20261023/run1_session_report.json (nested exact-state binding)"
+  ],
+  "claims": {
+    "implemented": "shared core, workspace readers, exact journal, typed actions, fixtures/tools, restart, validated extension migration",
+    "trained": "32 modules-only alignment updates in the accepted run (64 across attempts 2 and 3); success head untrained",
+    "measured": "engineering checks, eight model-driven episodes, five controls, fresh-process restart, costs",
+    "not_established": "generalization, calibrated confidence, useful core benefit, retrieval quality, full-bank capacity, Replica fidelity, self-improvement, ANE/VLM"
+  }
+}

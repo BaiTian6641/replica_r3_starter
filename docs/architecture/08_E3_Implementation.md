@@ -203,3 +203,23 @@ existing lock and capacity guard (40 GiB driver, 512 MiB sustained swap growth,
 Storage work stays outside forward/backward hooks, and MPS backward hooks remain
 free of SQLite access. Raw prompts, completion IDs/text, tool receipts, frames,
 journal events and failure traces are retained.
+
+## 8. Measured status (23 October 2026 UTC)
+
+The bounded native qualification is complete. **Engineering acceptance passes**
+for null parity, validated E1/E2 migration, independent reader influence,
+gradients through sensors/core/workspace readers, exact-journal reconstruction,
+stale-workspace rejection, typed-action validation, actual tool receipts,
+independent success authority, extension-only export and preserved original
+parameters. **Learned task completion is negative** on the exposed fixture
+family: 0/8 model-driven episodes completed, the full-core arm repeated `read`,
+and the workspace-zero arm wrote an invalid repair. The success head was not
+trained because all eight actual outcomes were negative. See the
+[native results](../experiments/20261023_E3_Native_Results.md) for raw traces,
+attempt history, controls, restart evidence and costs.
+
+The implementation therefore establishes the E3 wiring and persistence
+contracts, not a useful cognitive controller or a task-capable action policy.
+A future narrower repair tool or additional held-out cases would be a separate
+preregistered arm; this result must not be retuned against the same held-out
+fixtures.

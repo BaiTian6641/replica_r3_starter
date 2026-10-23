@@ -1,14 +1,19 @@
 # 03 - Construction plan and executable runbook
 
-**Current implementation:** E1/E2 are connected and have passed their bounded
-native memory diagnostic on MPS. Use the [new runtime/runbook](architecture/07_E1_E2_Implementation.md)
-and [measured results](experiments/20261023_E1_E2_Native_Results.md): slot-only 4/4,
-disabled 0/4, exact fallback 4/4, fresh-process correction/cache reload pass,
-21.11 GiB peak driver memory, one 18.62 MiB extension and no base copy.
-Reranking remains 1/2; full-bank capacity and held-out quality remain open.
-E3 now connects the shared core to real task state/actions; E4/E5 add adaptive
-memory, compilation and candidate learning. Historical commands below remain
-reproducibility references. The protected runtime draft is not imported.
+**Current implementation:** E1/E2 are connected and passed their bounded native
+memory diagnostic on MPS (slot-only 4/4, disabled 0/4, exact fallback 4/4,
+fresh-process correction/cache reload). E3 is implemented and native-qualified:
+the shared width-256/eight-slot/two-iteration core, independent memory and
+workspace readers, exact task journal, typed actions, real tools and restart
+loop pass **engineering** acceptance. **Learned task completion is negative**:
+0/8 model-driven episodes completed; the full-core arm repeated `read`, the
+workspace-zero arm wrote an invalid repair, and the success head was untrained
+because all eight actual outcomes were negative. See the
+[E3 implementation spec](architecture/08_E3_Implementation.md) and
+[native results](experiments/20261023_E3_Native_Results.md). E2 reranking remains
+1/2; E4/E5 remain adaptive-memory and candidate-learning work. Historical
+commands below remain reproducibility references. The protected runtime draft
+is not imported.
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
@@ -47,9 +52,10 @@ receipt loop alongside E1/E2; its qualification protocol is bound to that implem
 
 | Component | Delivered behavior | Important boundary |
 |---|---|---|
-| architecture/ | Explicit native adapter, typed immutable frames, source-only prefix writer access, independent block13/27 ports and sense41 | Batch-one uncached text reference; native short D1/D2 gradients qualified, E3 core pending |
+| architecture/ | Explicit native adapter, typed immutable frames, source-only prefix writer access, independent block13/27 memory and workspace ports, sense41, tied core and matched feed-forward control | Batch-one uncached text reference; E3 core/readers native-qualified; learned action completion negative |
 | memory_system/ | Temporal ledger, scoped lexical/native-dense candidates, supervised reranker API, versioned latents, exact fetch and host commit | Slot-reading diagnostic passes; reranker quality and multi-record interference remain open |
-| run_replica_session.py / qualify_architecture.py | Shared offline MPS loader, persistent session CLI, fixed diagnostic, extension-only exports | Fresh-process reload passes; extension is not a resumable optimizer checkpoint |
+| run_replica_session.py / qualify_architecture.py / run_e3_task.py | Shared offline MPS loader, persistent session CLIs, E3 task restart, extension-only exports with validated v1 migration | Fresh-process reload passes; extensions are not resumable optimizer checkpoints |
+| runtime/ + run_e3_qualification.py | Exact task journal, typed actions/tools, independent success check, preregistered core/control study | Engineering checks pass; learned task completion and success-head training do not |
 | contracts.py | Typed source/branch records; exact SFT schema; lineage/exact-duplicate split audit | Cannot prove factual correctness or user consent |
 | memory.py | SQLite records, scope checks, observation-time reads, corrections, tombstones, derived-artifact invalidation | Not a semantic retriever, encrypted vault or OS security boundary |
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |
@@ -82,6 +88,86 @@ receipt loop alongside E1/E2; its qualification protocol is bound to that implem
 | inventory.py | Read-only environment/hardware report | Does not set drivers, select a GPU or establish fit |
 
 The model runner and record/promotion utilities are separate foundations. Integrating the learned model's action/learning policy into a persistent operating loop is an explicit work package below. A tested folder of components is not yet a model-integrated autonomous system.
+
+## 1a. E3 qualification and restart commands
+
+Software checks (CPU only):
+
+```bash
+.venv/bin/python -m pytest -q
+.venv/bin/python scripts/verify_e3_fixtures.py
+.venv/bin/python scripts/run_e3_qualification.py --validate-only --output /tmp/e3_validate
+```
+
+Native work uses the existing exclusive lock and guard. Use fresh report/output
+paths; the protocol is read from `configs/e3_qualification_v1.json`. A short
+wiring preflight is bounded and does not update or save:
+
+```bash
+.venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_e3_qualification.py --report reports/e3_preflight.guard.json \
+  -- --device mps --output runs/e3_preflight --preflight
+```
+
+The full accepted arm (training, dev/held-out episodes, controls, success-head
+attempt, one extension export) is:
+
+```bash
+.venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_e3_qualification.py --report reports/e3_run.guard.json \
+  -- --device mps --output runs/e3_run
+```
+
+Fresh-process interruption uses the selected extension, a copy of the fixture
+(never mutate committed fixtures), and separate per-process step limits. The
+cumulative decision cap is `--max-decisions`; `--max-steps` bounds one process.
+The observed E3 run used `--mode workspace_zero` because the full-core arm did
+not reach a failing test:
+
+```bash
+cp -R fixtures/e3/cases/interrupted_retry_06 runs/e3_interrupted/case
+.venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_e3_task.py --report reports/e3_interrupted_run1.guard.json \
+  -- --device mps --case runs/e3_interrupted/case \
+  --journal runs/e3_interrupted/task.sqlite \
+  --ledger runs/e3_interrupted/memory.sqlite \
+  --workspace-dir runs/e3_interrupted/workspace \
+  --output runs/e3_interrupted/run1 \
+  --extension runs/e3_native_attempt03_20261023/selected_extension \
+  --mode workspace_zero --max-decisions 7 --max-steps 2 --max-tool-calls 5 \
+  --max-prompt-tokens 640 --max-total-prompt-tokens 4480 \
+  --max-new-tokens 128 --max-total-generated-tokens 896 \
+  --branch main --purpose bounded_repair
+```
+
+The host correction (CPU) bumps the exact revision; a process at the old
+revision must reject its persisted workspace:
+
+```bash
+.venv/bin/python scripts/e3_apply_correction.py \
+  --journal runs/e3_interrupted/task.sqlite --case runs/e3_interrupted/case \
+  --workspace-dir runs/e3_interrupted/workspace \
+  --note "A later host correction is authoritative." \
+  --constraint-id con-correction --constraint-text "The evaluator remains authoritative." \
+  --output runs/e3_interrupted/correction
+```
+
+Then repeat the guarded CLI with a fresh report/output and `--max-steps 5`.
+Collect the split engineering/learned checks with:
+
+```bash
+.venv/bin/python scripts/e3_interrupted_acceptance.py \
+  --run1-report runs/e3_interrupted/run1/session_report.json \
+  --run2-report runs/e3_interrupted/run2/session_report.json \
+  --correction runs/e3_interrupted/correction/correction.json \
+  --journal runs/e3_interrupted/task.sqlite --case runs/e3_interrupted/case \
+  --original-case fixtures/e3/cases/interrupted_retry_06 \
+  --output runs/e3_interrupted/acceptance
+```
+
+The current model does **not** complete these fixtures. These commands reproduce
+the observed engineering pass and negative learned result; they are not a recipe
+for tuning against the held-out set.
 
 ## 2. Run the offline core first
 

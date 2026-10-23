@@ -51,10 +51,21 @@ def main():
     from replica_lab.runtime.journal import TaskJournal
     from replica_lab.runtime.tools import FixtureWorkspace
     tools = FixtureWorkspace(args.case)
-    binding = {'task_id': tools.case_id, 'subject': tools.case_id, 'branch': 'main',
-               'purpose': 'bounded_repair', 'source_epoch': 0,
-               'goal_digest': fingerprint(tools.goal),
-               'component_versions': dict(COMPONENT_VERSIONS)}
+    import sqlite3
+    connection = sqlite3.connect(str(args.journal))
+    try:
+        row = connection.execute(
+            "SELECT payload FROM events WHERE kind='binding' ORDER BY seq LIMIT 1").fetchone()
+    finally:
+        connection.close()
+    if row is None:
+        raise ValueError('Journal has no binding event')
+    binding = json.loads(row[0])['binding']
+    expected = {'task_id': tools.case_id, 'subject': tools.case_id, 'branch': 'main',
+                'purpose': 'bounded_repair', 'source_epoch': 0,
+                'goal_digest': fingerprint(tools.goal)}
+    if any(binding.get(key) != value for key, value in expected.items()):
+        raise ValueError('Journal identity does not match this case/branch/purpose')
     journal = TaskJournal.open(args.journal, binding)
     try:
         snapshot = journal.load()
@@ -64,10 +75,15 @@ def main():
 
     trace1 = run1.get('summary', {}).get('trace', [])
     trace2 = run2.get('summary', {}).get('trace', [])
+    def tool_name(item):
+        action = item.get('action') or {}
+        arguments = action.get('args') or {}
+        return arguments.get('tool')
+
     failed_test1 = any(receipt_exit(item) not in (None, 0) for item in trace1
-                       if (item.get('action') or {}).get('tool') == 'run_test')
+                       if tool_name(item) == 'run_test')
     passed_test2 = any(receipt_exit(item) == 0 for item in trace2
-                       if (item.get('action') or {}).get('tool') == 'run_test')
+                       if tool_name(item) == 'run_test')
     write_actions = [action for action in state.actions
                      if action.tool == 'write_file' and action.state == 'completed']
     workspace = args.case / 'workspace' / 'app_settings.py'

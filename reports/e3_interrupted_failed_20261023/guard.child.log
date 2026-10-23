@@ -1,0 +1,33 @@
+W1023 01:01:21.387000 3312 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 862.50it/s]Loading weights:  48%|████▊     | 181/381 [00:00<00:00, 902.58it/s]Loading weights:  71%|███████▏  | 272/381 [00:00<00:00, 877.21it/s]Loading weights:  94%|█████████▍| 360/381 [00:00<00:00, 858.14it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 888.17it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_task.py", line 435, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_task.py", line 413, in main
+    execute(args, tools, case, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_e3_task.py", line 346, in execute
+    summary = runtime.run(proposer, max_decisions=decision_limit)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 818, in run
+    item = self.decide(proposer)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/loop.py", line 414, in decide
+    self.state = state = state.spend(decisions=1, prompt_tokens=output.prompt_tokens,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/task_graph.py", line 570, in spend
+    return replace(self, budget=self.budget.spend(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/dataclasses.py", line 1588, in replace
+    return obj.__class__(**changes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 22, in __init__
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/task_graph.py", line 430, in __post_init__
+    object.__setattr__(self, 'binding', _validated_binding(self.binding))
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/task_graph.py", line 357, in _validated_binding
+    frozen[key] = _plain_scalar(item)
+                  ^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/task_graph.py", line 364, in _plain_scalar
+    raise ValueError('Binding values must be JSON scalars')
+ValueError: Binding values must be JSON scalars

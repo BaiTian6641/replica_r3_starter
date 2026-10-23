@@ -1,0 +1,83 @@
+{
+  "status": "failed",
+  "checked_at_utc": "2026-10-23T06:04:47.093039+00:00",
+  "checks": {
+    "run1_observed_failing_test": true,
+    "run1_incomplete": true,
+    "run1_stopped_by_process_step_limit": true,
+    "correction_bumped_revision": true,
+    "correction_preserved_goal": true,
+    "stored_workspace_stale_after_correction": true,
+    "run2_completed": false,
+    "run2_saw_independent_pass": false,
+    "run2_rebuilt_incompatible_workspace": true,
+    "repair_landed_exactly_once": false,
+    "workspace_matches_reference_repair": false,
+    "evaluator_unmodified": true,
+    "success_condition_satisfied": false,
+    "run2_final_state_complete": false
+  },
+  "run1": {
+    "success": false,
+    "decisions": 2,
+    "prompt_tokens": 812,
+    "generated_tokens": 30,
+    "tool_calls": 2
+  },
+  "correction": {
+    "status": "corrected",
+    "corrected_at_utc": "2026-10-23T06:02:43.961843+00:00",
+    "journal": "/Users/flare/replica_r3_starter/runs/e3_interrupted_b_20261023/task.sqlite",
+    "head_before": "f882796a49e8b225d7c3521507a0d9cff0a2012e56ed5a6e30f5eaa2cbf6d247",
+    "head_after": "7f978b165539ee6ba34b390adbccd862e1c70868b2dba1f34931eeea63c7cc49",
+    "revision_before": 10,
+    "revision_after": 11,
+    "goal_unchanged": true,
+    "success_conditions_unchanged": [
+      {
+        "condition_id": "evaluator_test_passes",
+        "description": "python -m unittest evaluator/test_policy.py exits with status zero"
+      }
+    ],
+    "stored_workspace_revision": 10,
+    "stored_workspace_digest_matches": false,
+    "note": "A later host correction is authoritative; continue from the persisted failure.",
+    "constraint": {
+      "constraint_id": "con-correction",
+      "text": "The evaluator result remains authoritative after restart."
+    },
+    "model_loaded": false,
+    "tool_calls": 0
+  },
+  "run2": {
+    "success": false,
+    "decisions": 5,
+    "prompt_tokens": 3535,
+    "generated_tokens": 314,
+    "tool_calls": 3,
+    "workspace_notes": [
+      "mode=workspace_zero",
+      "workspace_discarded: stale_revision",
+      "mode=workspace_zero",
+      "mode=workspace_zero",
+      "mode=workspace_zero",
+      "mode=workspace_zero"
+    ]
+  },
+  "final_state": {
+    "revision": 30,
+    "digest": "b2e9ec7a8f0c67c1c726849e3334df47d95285d09853120cae4ca6177ad90c88",
+    "satisfied_conditions": [],
+    "completed_write_actions": []
+  },
+  "journal": {
+    "path": "/Users/flare/replica_r3_starter/runs/e3_interrupted_b_20261023/task.sqlite",
+    "head": "b6841596d0779e8b1afd250b615baeba401b6d6df9f004f5b8358076c3bdf207",
+    "events": 29
+  },
+  "hashes": {
+    "workspace": "8e88226ca599e19db3526d107e3e8daab206b27e9c102f393a7d78b52edc6a49",
+    "evaluator": "f72d8be55395b014b6d63d3a5e11bd561a82f3e96b8c2d722714df13c1c638bf"
+  },
+  "claims": "Engineering restart evidence on one exposed fixture; no generalization claim."
+}
