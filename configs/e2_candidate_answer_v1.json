@@ -1,0 +1,39 @@
+{
+  "format": "replica.e2.candidate_answer_eval.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fresh source-grounded answer selection with model-scored candidate answers and same-menu random control; no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "dataset": {
+    "root": "data/e2_candidate_answers",
+    "records_sha256": "9fb2adcb68cdbee153d1a7cdd302a7feab7fb56ef8f9df6fc2ac545640bd0cb2",
+    "queries_sha256": "f5ff968abdcd38ad4f13f90f396204b42be45bbb0ca6b4ad9fb7be1e83722081",
+    "manifest_sha256": "cf27e78fe3a7aeefcb4eeec11942327bf9a3701229847049c587536039ec0488"
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "evaluation": {
+    "cases": 4,
+    "prompt_tokens": 1024,
+    "selection": "model argmin vs random same menu",
+    "seed": 20261023
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads": 1
+  },
+  "claims": "Answer-selection interface only; no free-form generation or default promotion."
+}
