@@ -64,11 +64,16 @@ receipts are excluded. This path is tested with a deterministic, **untrained**
 token encoder; it proves scheduling and state ownership, not semantic usefulness.
 
 Still not connected: a learned semantic encoder and a successful delayed-use
-task result. Cross-session host/runtime image reload is now connected: a bridge
-loads an exact owner/scope/producer image into a fresh session, reconstructs its
+task result. Cross-session host/runtime image reload is now connected: a bridge loads an
+exact owner/scope/producer image into a fresh session, reconstructs its
 observation count, rejects cross-branch/tampered images, and can seed the next
-runtime decision from the restored snapshot. The deterministic encoder remains
-an evidence/scaffolding path, not a learned capability.
+runtime decision from the restored snapshot. `TaskRuntime.invalidate_source`
+records a host-authority correction note, clears dependent workspace, and resets
+live fast state when the source hash is in the committed lineage; unmatching
+sources leave fast state intact. Persisted images remain historical evidence:
+after a correction, rebuild/replay permitted observations instead of treating an
+old image as current. The deterministic encoder remains an evidence/scaffolding
+path, not a learned capability.
 
 ## 4. Tests
 

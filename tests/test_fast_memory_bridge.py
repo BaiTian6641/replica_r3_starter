@@ -101,3 +101,34 @@ def test_runtime_accepts_reloaded_fast_image(tmp_path):
     runtime.run(proposer, max_decisions=1)
     assert proposer.requests[0].fast_state is not None
     assert proposer.requests[0].fast_state.digest == expected_digest
+
+
+def test_runtime_source_correction_invalidates_matching_fast_state_and_workspace(tmp_path):
+    from tests.e3_runtime_helpers import make_case, make_runtime, workspace_for, ScriptedProposer, read_action
+    tools = make_case(tmp_path)
+    first = bridge()
+    first = FastMemoryBridge(first.session, first.encoder,
+                             image_root=tmp_path / 'images')
+    receipt = first.observe('obs-1', 'The evaluator failed with code 1.',
+                            source_hash='a' * 64)
+    from replica_lab.runtime.workspace_store import WorkspaceStore
+    store = WorkspaceStore(tmp_path / 'workspace_store')
+    runtime = make_runtime(tools, tmp_path, fast_memory=first,
+                           workspace_store=store,
+                           max_prompt_tokens=512, generated_token_budget=32)
+    request_probe = __import__('types').SimpleNamespace(task_digest=runtime.state.digest, revision=runtime.state.revision)
+    runtime.previous_workspace = workspace_for(request_probe)
+    # A nonmatching correction leaves the fast state intact but clears dependent workspace.
+    nonmatch = runtime.invalidate_source('b' * 64, reason='unrelated correction')
+    assert nonmatch['fast_invalidated'] is False
+    assert runtime.fast_state.chunk_index == 1
+    # A matching correction resets fast state and leaves no live workspace.
+    request_probe = __import__('types').SimpleNamespace(task_digest=runtime.state.digest, revision=runtime.state.revision)
+    runtime.previous_workspace = workspace_for(request_probe)
+    result = runtime.invalidate_source('a' * 64, reason='source corrected')
+    assert result['fast_invalidated'] is True
+    assert runtime.fast_state.chunk_index == 0
+    assert runtime.fast_state.generation == 1
+    assert runtime.previous_workspace is None
+    assert runtime.workspace_store.load() is None
+    assert runtime.journal.events()[-1].kind == 'correction'

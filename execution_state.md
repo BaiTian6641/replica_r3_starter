@@ -33,6 +33,13 @@ reader/writer representation or supervision; the 10 held-out cases must not be
 retuned. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E4 source invalidation (23 October).** `TaskRuntime.invalidate_source` now
+records a host-authority correction note, clears dependent workspace, and resets
+live fast state when the source hash appears in the committed fast-memory
+lineage; unmatching sources leave fast state intact. Persisted images remain
+historical evidence and must be rebuilt after correction, not treated as current.
+See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+
 **E4 image reload (23 October).** A committed fast-memory image now loads into a
 fresh `FastMemoryBridge` with exact owner/scope/producer validation, reconstructs
 its observation count, rejects cross-branch/tampered images, and can seed the

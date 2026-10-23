@@ -516,6 +516,43 @@ class TaskRuntime:
             action_id, idempotency_key, f'budget_exhausted: {reason}',
             notes=('budget_exhausted',))
 
+    def invalidate_source(self, source_hash: str, *, reason: str = 'source_correction'):
+        """Host correction/revocation boundary for dependent fast state/workspace.
+
+        The exact journal is never rewritten. A matching source hash in the
+        committed fast-memory lineage resets fast state; dependent workspace is
+        always cleared because the host cannot attribute its internal features
+        more narrowly. Unmatching sources leave fast state intact.
+        """
+        if not isinstance(source_hash, str) or len(source_hash) != 64 \
+                or any(c not in '0123456789abcdef' for c in source_hash):
+            raise ValueError('source_hash must be a lowercase SHA256')
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError('invalidation reason required')
+        self._load()
+        if self.state is None:
+            raise RuntimeError('runtime journal is not initialized')
+        matched = False
+        if self.fast_memory is not None:
+            lineage = tuple(getattr(self.fast_memory.session.state, 'lineage', ()))
+            matched = any(item[1] == source_hash for item in lineage)
+            if matched:
+                self.fast_memory.invalidate(reason)
+                self.fast_state = self.fast_memory.snapshot()
+                self.fast_error = None
+        if self.workspace_store is not None:
+            self.workspace_store.clear()
+        self.previous_workspace = None
+        self.last_workspace_discard = 'source_correction'
+        result = {'source_hash': source_hash, 'reason': reason,
+                  'fast_invalidated': matched,
+                  'workspace_cleared': self.workspace_store is not None,
+                  'revision': self.state.revision}
+        # Corrections use the journal's host-authority API. The full bound is
+        # preserved in the event note; no model text can enter this path.
+        self.journal.correct(note=(f'source invalidation {source_hash[:16]} {reason}')[:480])
+        return result
+
     def _observe_fast_memory(self, frame: OutcomeFrame) -> None:
         """Feed one actual host observation into the optional fast state."""
         if self.fast_memory is None or frame.verifier != 'host_tools':
