@@ -18,10 +18,16 @@ def main():
  p.add_argument('--parent-extension',type=Path,default=ROOT/'runs/e3_set_attempt03_20261023/selected_extension')
  p.add_argument('--selection',choices=['model','random'],default='model')
  p.add_argument('--seed',type=int,default=20261023)
+ p.add_argument('--max-steps',type=int,default=None)
+ p.add_argument('--resume',action='store_true')
  a=p.parse_args()
- if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
- a.output.mkdir(parents=True,exist_ok=True);protocol=json.loads(a.protocol.read_text())
- report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'seed':a.seed,'downloads':0,'training_updates':0}
+ if a.resume:
+  if not a.output.is_dir():p.error('--resume requires an existing output directory')
+ else:
+  if a.output.exists() and any(a.output.iterdir()):p.error('Use a fresh output directory')
+  a.output.mkdir(parents=True,exist_ok=True)
+ protocol=json.loads(a.protocol.read_text())
+ report={'status':'started','started_at_utc':datetime.now(timezone.utc).isoformat(),'protocol_sha256':sha(a.protocol),'protocol':protocol,'selection_mode':a.selection,'seed':a.seed,'resumed':bool(a.resume),'downloads':0,'training_updates':0}
  from replica_lab.profiling import RunProfiler
  from replica_lab.architecture.loading import exclusive_mps_worker
  prof=RunProfiler('mps',a.output,sample_interval=0.1)
@@ -31,7 +37,7 @@ def main():
   report.update(status='failed',error_type=type(e).__name__,error=str(e),traceback=traceback.format_exc());raise
  finally:
   profile=prof.stop();mem=(profile or {}).get('memory') or {};report.update(profile=profile,costs={'profiled_wall_seconds':(profile or {}).get('elapsed_seconds'),'sampled_peak_driver_bytes':mem.get('mps_driver_peak_sampled_bytes'),'sampled_peak_rss_bytes':mem.get('rss_peak_sampled_bytes')})
-  report['ended_at_utc']=datetime.now(timezone.utc).isoformat();(a.output/('run_report.json' if report['status']=='completed' else 'failure_report.json')).write_text(json.dumps(report,indent=2)+'\n')
+  report['ended_at_utc']=datetime.now(timezone.utc).isoformat();(a.output/('run_report.json' if report['status']=='completed' else ('partial_report.json' if report['status']=='partial' else 'failure_report.json'))).write_text(json.dumps(report,indent=2)+'\n')
  print(json.dumps({'status':report['status'],'completions':report.get('completions'),'costs':report.get('costs')}))
 class OneAction:
  def __init__(self,raw,prompt_tokens,target_ids):self.raw=raw;self.prompt_tokens=prompt_tokens;self.target_ids=target_ids
@@ -52,17 +58,25 @@ def execute(args,protocol,report,prof):
  core=CoreSpec(**protocol['core']);model,tok,lock=load_local_mps(args.model_path,args.model_lock,profiler=prof,core=core)
  receipt=model.load_extension(args.parent_extension);report.update(manifest=model.manifest.to_dict(),manifest_digest=model.manifest.digest,source_lock=lock,parent_receipt=receipt)
  ledger=RecordLedger(args.output/'ledger.sqlite');subject='candidate-rerank';purpose='candidate-rerank';root=ROOT/protocol['fixtures']['root'];cases=protocol['evaluation']['cases']
- for cid in protocol['fixtures']['dev']+protocol['fixtures']['heldout']:admit_policy(ledger,FixtureWorkspace(root/cid),subject=subject,branch=cid,purpose=purpose)
+ if not args.resume:
+  for cid in protocol['fixtures']['dev']+protocol['fixtures']['heldout']:admit_policy(ledger,FixtureWorkspace(root/cid),subject=subject,branch=cid,purpose=purpose)
  session=MemorySession(model,tok,ledger,max_candidate_units=16);episodes=[]
  for cid in cases:
   tools=FixtureWorkspace(root/cid);scope=EligibilityScope(subject,cid,purpose,0,'assistant_for_source',None)
   budget=Budget(int(protocol['evaluation']['max_decisions']),int(protocol['evaluation']['max_tool_calls']),int(protocol['evaluation']['max_decisions'])*int(protocol['evaluation']['prompt_tokens']),int(protocol['evaluation']['max_decisions'])*int(protocol['evaluation']['generated_tokens']))
-  work=args.output/'episodes'/cid;work.mkdir(parents=True);import shutil;shutil.copytree(root/cid,work/'case')
+  work=args.output/'episodes'/cid
+  if not args.resume:
+   work.mkdir(parents=True);import shutil;shutil.copytree(root/cid,work/'case')
+  elif not (work/'case').is_dir():raise ValueError('resume case directory missing')
   tools=FixtureWorkspace(work/'case');journal=TaskJournal.open(work/'task.sqlite',component_binding(tools,subject=subject,branch=cid,purpose=purpose));store=WorkspaceStore(work/'workspace')
   runtime=TaskRuntime(tools,journal,workspace_store=store,mode='full',max_prompt_tokens=int(protocol['evaluation']['prompt_tokens']),generated_token_budget=int(protocol['evaluation']['generated_tokens']),budget=budget)
-  runtime.initialize(initial_state(tools,subject=subject,branch=cid,purpose=purpose,budget=budget))
+  if args.resume:
+   runtime.recover();runtime._load()
+  else:
+   runtime.initialize(initial_state(tools,subject=subject,branch=cid,purpose=purpose,budget=budget))
   traces=[];score_rows=[];rng=__import__('random').Random(args.seed)
-  for step in range(int(protocol['evaluation']['max_decisions'])):
+  limit=int(args.max_steps if args.max_steps is not None else protocol['evaluation']['max_decisions'])
+  for step in range(limit):
    if runtime.state.is_complete(runtime.verifier):break
    cands=list(build_action_menu(tools,runtime.state))
    prompt=runtime._build_prompt(runtime.state)+'\nCANDIDATE ACTIONS (host enumerates; model scores or random control selects):\n'+'\n'.join('- '+canonical(c) for c in cands)
@@ -83,5 +97,5 @@ def execute(args,protocol,report,prof):
    trace=runtime.decide(OneAction(raw,int(ids.shape[1]),target));traces.append(trace)
    if runtime.state.is_complete(runtime.verifier):break
   success=bool(runtime.state.is_complete(runtime.verifier));episodes.append({'case_id':cid,'role':tools.role,'success':success,'decisions':len(traces),'tool_calls':runtime.state.budget.used_tool_calls,'prompt_tokens':runtime.state.budget.used_prompt_tokens,'generated_tokens':runtime.state.budget.used_generated_tokens,'false_success_claims':sum(1 for t in traces if t.success_claimed and not t.success_condition_met),'actions':[(t.action or {}).get('kind') for t in traces],'tools':[((t.action or {}).get('args') or {}).get('tool') for t in traces],'candidate_scores':score_rows,'trace':[asdict(t) for t in traces],'evaluator_pass':tools.verify_success().get('passed')});journal.close()
- report['episodes']=episodes;report['completions']=f"{sum(x['success'] for x in episodes)}/{len(episodes)}";report['heldout_completions']=f"{sum(x['success'] for x in episodes if x['role']=='heldout')}/{sum(1 for x in episodes if x['role']=='heldout')}";report['status']='completed';report['claims']='Model-scored candidate action interface; no training, no default promotion.';ledger.close()
+ report['episodes']=episodes;report['completions']=f"{sum(x['success'] for x in episodes)}/{len(episodes)}";report['heldout_completions']=f"{sum(x['success'] for x in episodes if x['role']=='heldout')}/{sum(1 for x in episodes if x['role']=='heldout')}";report['status']='completed' if all(x['success'] for x in episodes) else ('partial' if args.max_steps is not None else 'completed');report['claims']='Model-scored candidate action interface; no training, no default promotion.';ledger.close()
 if __name__=='__main__':main()
