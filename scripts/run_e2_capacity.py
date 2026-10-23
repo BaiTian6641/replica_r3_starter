@@ -225,9 +225,10 @@ def execute(args, profiler, report):
            for point in schedule[phase]]
     if len(ids) != len(set(ids)):
         raise ValueError('Schedule ids must be unique')
+    declared_units = int(protocol['scope']['max_units'])
     for phase in ('inference', 'training'):
         units = [int(point['units']) for point in schedule[phase]]
-        if units != sorted(units) or units[-1] > 16 or units[0] < 1:
+        if units != sorted(units) or units[-1] > declared_units or units[0] < 1:
             raise ValueError('Each schedule phase must ascend within the declared unit cap')
     model, tokenizer, source_lock = load_local_mps(
         args.model_path, args.model_lock, profiler=profiler)
@@ -250,8 +251,8 @@ def execute(args, profiler, report):
     session = MemorySession(model, tokenizer, ledger, max_candidate_units=64)
     task = TaskGraph('capacity', 'measure bounded memory path')
     all_spans = session.spans(records)
-    if len(all_spans) != 16:
-        raise ValueError(f'Capacity bank has {len(all_spans)} units, expected 16')
+    if len(all_spans) != declared_units:
+        raise ValueError(f'Capacity bank has {len(all_spans)} units, expected {declared_units}')
     report['bank'] = {'units': len(all_spans),
                       'source_span_tokens': [span.token_end - span.token_start
                                              for span in all_spans],
