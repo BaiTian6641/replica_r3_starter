@@ -1,0 +1,10 @@
+{
+  "schema_version": "replica.validation.e4_bridge.v1",
+  "date_utc": "2026-10-23",
+  "full_suite": {"command": ".venv/bin/python -m pytest -q", "result": "1109 passed, 21 subtests passed", "exit_code": 0},
+  "native_fast_read": {"report": "reports/e4_fast_read_20261023/run_report.json", "checks": {"zero_state_parity": 0.0, "branch_off_parity": 0.0, "nonzero_influence": 0.2692592144012451}, "peak_driver_gib": 11.0},
+  "bridge_tests": "tests/test_fast_memory_bridge.py 2 passed; tests/test_fast_memory.py 4 passed",
+  "identity_tests": "tests/test_replica_identity.py 6 passed",
+  "established": "observation-only staged writes, one commit, runtime propagation, native read ports, identity null path",
+  "not_established": "learned fast encoder, delayed-use/interference/task benefit, identity training/fidelity, E5 candidate learning"
+}
