@@ -1,0 +1,35 @@
+{
+  "format": "replica.e2_retrieval.diagnostic.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Post-hoc answer-path diagnostic after the preregistered retrieval arm; no training and no default change.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/e2_retrieval",
+    "records_sha256": "e95816a01ff443785f4c4dd02256f6ae4d3ac242637f7a90445340ea772af201"
+  },
+  "extension": "runs/e2_retrieval_20261023/selected_extension",
+  "cases": [
+    "heldout_a",
+    "heldout_b",
+    "heldout_d"
+  ],
+  "swaps": {
+    "heldout_a": "heldout_a_review",
+    "heldout_b": "heldout_b_review",
+    "heldout_d": "heldout_d_review"
+  },
+  "conditions": [
+    "correct_slots",
+    "swapped_slots",
+    "no_slots",
+    "exact_text"
+  ],
+  "generation": {
+    "max_new_tokens": 8,
+    "prompt": "Answer the query from stored records when a record answers it. Reply with only the value. If no stored record answers it, reply UNKNOWN.\n\nQuery: {query}",
+    "exact_text_prefix": "Observed source record (exact, read-only):\n{text}\n\n"
+  },
+  "budget": "12 greedy generations; one native model load; no optimizer update; no checkpoint save",
+  "retention": "Preserve raw prompts, token IDs and answers; this is diagnostic, not a held-out retrieval arm.",
+  "claims": "Distinguishes correct-slot, swapped-slot, no-slot and exact-text behavior; cannot establish broad generation quality."
+}

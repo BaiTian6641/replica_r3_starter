@@ -64,7 +64,7 @@ def main():
     parser.add_argument("--entry-point", choices=("train_text.py", "qualify_architecture.py",
                                                  "run_replica_session.py", "e3_speed_probe.py",
                                                  "run_e3_qualification.py", "run_e3_task.py", "run_e2_retrieval.py",
-                                                 "run_e2_capacity.py"),
+                                                 "run_e2_capacity.py", "run_e2_diagnostic.py"),
                         default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)
     parser.add_argument("--driver-limit-gib", type=float, default=40)
