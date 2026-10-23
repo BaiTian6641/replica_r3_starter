@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the 4096-unit capacity qualification; documentation follows.
+- Last code/test HEAD: the 8192-unit guard boundary; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -21,7 +21,8 @@
   no-benefit).
 - Latest selected-capacity evidence:
   `reports/e2_capacity4096_selected_attempt01/run_report.json` (4096 units,
-  30.59 GiB, 559.4 s).
+  30.59 GiB, 559.4 s). The 8192-unit probe is a guard boundary
+  (`reports/e2_capacity8192_selected_attempt01/failure_report.json`), not a pass.
 - Latest negative action evidence:
   `reports/e3_guard_attempt01/` and
   `[E3 action guard](20261023_E3_Action_Guard_Results.md)`.
