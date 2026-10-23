@@ -1,0 +1,707 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T14:04:37.069514+00:00",
+  "protocol_sha256": "e45a7dd17ecd1cd36d71f57cf744c883d87237d6b7b6e9e68f5cf366c25b94cf",
+  "protocol": {
+    "format": "replica.e2.pointer_context_service.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Second untouched-family consumer check of the published context-head candidate; no training.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+    "context_head": "runs/e2_pointer_context_attempt04/context_head.safetensors",
+    "context_head_manifest": "runs/e2_pointer_context_attempt04/context_head_manifest.json",
+    "eval_dataset": {
+      "root": "data/e2_pointer_context_holdout2",
+      "records_sha256": "d615b3aaee2a66749ac09fc2b68e6516f1d459db223656473c7275e132849f7a",
+      "queries_sha256": "e22e6249b128e43969447ecac523173a2fbf916a5f8697b9d17ea9a7f078a4a8",
+      "manifest_sha256": "ae10463f44d6792fdcc43a383fae355adb43cc76c225389d7773b216b6413cbf"
+    },
+    "max_span": 4,
+    "candidate_unit": "word",
+    "record_scope": "top",
+    "prompt": "Answer the query from stored records. Reply with only the value.\n\nQuery: {query}",
+    "evaluation": {
+      "heldout": 12,
+      "arms": [
+        "parent_pointer",
+        "context_candidate"
+      ],
+      "metric": "exact copied span"
+    },
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 0,
+      "eval_cases": 24
+    },
+    "claims": "Retention check only; no training or default activation."
+  },
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+  "pointer": {
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false,
+      "copy": {
+        "max_tokens": 512,
+        "mode": "pointer",
+        "max_span": 4
+      }
+    },
+    "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+    "regime": "modules_only",
+    "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 49,
+        "parameters": 13275650,
+        "trainable": 13275650,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "copy_head.query_norm.weight",
+          "copy_head.query_norm.bias",
+          "copy_head.key_norm.weight",
+          "copy_head.key_norm.bias",
+          "copy_head.query_projection.weight",
+          "copy_head.key_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+    "components": {
+      "record_writer": [
+        "record_writer.encoder.slot_queries",
+        "record_writer.encoder.input_norm.weight",
+        "record_writer.encoder.input_norm.bias",
+        "record_writer.encoder.input_projection.weight",
+        "record_writer.encoder.attention.in_proj_weight",
+        "record_writer.encoder.attention.in_proj_bias",
+        "record_writer.encoder.attention.out_proj.weight",
+        "record_writer.encoder.attention.out_proj.bias",
+        "record_writer.encoder.output_norm.weight",
+        "record_writer.encoder.output_norm.bias"
+      ],
+      "memory_ports": [
+        "memory_ports.13.gate_logit",
+        "memory_ports.13.query_norm.weight",
+        "memory_ports.13.query_norm.bias",
+        "memory_ports.13.memory_norm.weight",
+        "memory_ports.13.memory_norm.bias",
+        "memory_ports.13.query_projection.weight",
+        "memory_ports.13.key_projection.weight",
+        "memory_ports.13.value_projection.weight",
+        "memory_ports.13.output_projection.weight",
+        "memory_ports.27.gate_logit",
+        "memory_ports.27.query_norm.weight",
+        "memory_ports.27.query_norm.bias",
+        "memory_ports.27.memory_norm.weight",
+        "memory_ports.27.memory_norm.bias",
+        "memory_ports.27.query_projection.weight",
+        "memory_ports.27.key_projection.weight",
+        "memory_ports.27.value_projection.weight",
+        "memory_ports.27.output_projection.weight"
+      ],
+      "sense_ports": [
+        "sense_ports.13.input_norm.weight",
+        "sense_ports.13.input_norm.bias",
+        "sense_ports.13.projection.weight",
+        "sense_ports.27.input_norm.weight",
+        "sense_ports.27.input_norm.bias",
+        "sense_ports.27.projection.weight",
+        "sense_ports.41.input_norm.weight",
+        "sense_ports.41.input_norm.bias",
+        "sense_ports.41.projection.weight"
+      ],
+      "reranker": [
+        "reranker.query_norm.weight",
+        "reranker.query_norm.bias",
+        "reranker.record_norm.weight",
+        "reranker.record_norm.bias",
+        "reranker.query_projection.weight",
+        "reranker.record_projection.weight"
+      ],
+      "copy_head": [
+        "copy_head.query_norm.weight",
+        "copy_head.query_norm.bias",
+        "copy_head.key_norm.weight",
+        "copy_head.key_norm.bias",
+        "copy_head.query_projection.weight",
+        "copy_head.key_projection.weight"
+      ]
+    }
+  },
+  "context_head": {
+    "format": "replica.e2.candidate_context_head.v1",
+    "created_at_utc": "2026-10-23",
+    "parent_pointer_extension": "runs/e2_pointer_head_attempt02/selected_extension",
+    "parent_pointer_weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "training_dataset": "data/e2_copy",
+    "features": [
+      "relative_start",
+      "relative_end",
+      "after_is",
+      "length",
+      "distance_from_is"
+    ],
+    "weights_sha256": "d9dc540a25cd2fa7ce150a0ff2cea092cd4093126d51b2aa16c0c1091674ca13",
+    "parameters": {
+      "weight": [
+        1,
+        5
+      ],
+      "bias": [
+        1
+      ]
+    },
+    "training_eval": {
+      "parent": "9/12",
+      "candidate": "12/12"
+    },
+    "status": "accepted_opt_in",
+    "default": false,
+    "claims": "Template-specific candidate context bias; not default."
+  },
+  "parent": [
+    {
+      "case_id": "unit_01",
+      "text": "olive",
+      "expected": "olive",
+      "correct": true,
+      "record_ids": [
+        "unit_01_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_02",
+      "text": "peach",
+      "expected": "peach",
+      "correct": true,
+      "record_ids": [
+        "unit_02_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_03",
+      "text": "plum",
+      "expected": "plum",
+      "correct": true,
+      "record_ids": [
+        "unit_03_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_04",
+      "text": "rose",
+      "expected": "rose",
+      "correct": true,
+      "record_ids": [
+        "unit_04_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_05",
+      "text": "rust",
+      "expected": "rust",
+      "correct": true,
+      "record_ids": [
+        "unit_05_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_06",
+      "text": "Frost",
+      "expected": "sage",
+      "correct": false,
+      "record_ids": [
+        "unit_06_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_07",
+      "text": "Gale",
+      "expected": "teal",
+      "correct": false,
+      "record_ids": [
+        "unit_07_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_08",
+      "text": "violet",
+      "expected": "violet",
+      "correct": true,
+      "record_ids": [
+        "unit_08_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_09",
+      "text": "amber",
+      "expected": "amber",
+      "correct": true,
+      "record_ids": [
+        "unit_09_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_10",
+      "text": "carmine",
+      "expected": "carmine",
+      "correct": true,
+      "record_ids": [
+        "unit_10_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_11",
+      "text": "Knot",
+      "expected": "sienna",
+      "correct": false,
+      "record_ids": [
+        "unit_11_relevant"
+      ]
+    },
+    {
+      "case_id": "unit_12",
+      "text": "azure",
+      "expected": "azure",
+      "correct": true,
+      "record_ids": [
+        "unit_12_relevant"
+      ]
+    }
+  ],
+  "candidate": [
+    {
+      "case_id": "unit_01",
+      "text": "olive",
+      "expected": "olive",
+      "correct": true,
+      "record_ids": [
+        "unit_01_relevant"
+      ],
+      "source_hashes": [
+        "70b11466e926c9b0dfda0b819208dde2adbe0e73176eff71c7e8cb3338c2c992"
+      ],
+      "span_hashes": [
+        "fe4110d4db45ae09cc88e99eb0ac22841c7e0c203fe7199a89a4fd77fbde1d49"
+      ]
+    },
+    {
+      "case_id": "unit_02",
+      "text": "peach",
+      "expected": "peach",
+      "correct": true,
+      "record_ids": [
+        "unit_02_relevant"
+      ],
+      "source_hashes": [
+        "886907d11908a5953cbae431110863a72458384326ec9d86410a23308fcffb74"
+      ],
+      "span_hashes": [
+        "881480e87cdd3e8bb94e5a6729a22647465eac1a2fc25c639848a10536106b14"
+      ]
+    },
+    {
+      "case_id": "unit_03",
+      "text": "plum",
+      "expected": "plum",
+      "correct": true,
+      "record_ids": [
+        "unit_03_relevant"
+      ],
+      "source_hashes": [
+        "b5e04aa69fc2e00f17314c2301e3144f589a8434981465702cf081fab3887bd8"
+      ],
+      "span_hashes": [
+        "e9badf587d854f93ed731be5b7e875e4d13fe6c7e04f068ecbcc03e090fe9504"
+      ]
+    },
+    {
+      "case_id": "unit_04",
+      "text": "rose",
+      "expected": "rose",
+      "correct": true,
+      "record_ids": [
+        "unit_04_relevant"
+      ],
+      "source_hashes": [
+        "b7a5910f7f6cf3471c09bc1843bc36c97fa0508449100376cd2cb02cb41ff9ac"
+      ],
+      "span_hashes": [
+        "c141d80a7e6f95b7967667edd5b5feb15ccade6ecf197fd49cfb4db9c138563b"
+      ]
+    },
+    {
+      "case_id": "unit_05",
+      "text": "rust",
+      "expected": "rust",
+      "correct": true,
+      "record_ids": [
+        "unit_05_relevant"
+      ],
+      "source_hashes": [
+        "32a837ebf02ec62a15aee83a0da879c893f2cc6cfcd0d33d31829b05fc2f4eb2"
+      ],
+      "span_hashes": [
+        "5277a6ca32badc7eac11dd0242e904654b01b0db0885c5b510d90c8956605565"
+      ]
+    },
+    {
+      "case_id": "unit_06",
+      "text": "sage",
+      "expected": "sage",
+      "correct": true,
+      "record_ids": [
+        "unit_06_relevant"
+      ],
+      "source_hashes": [
+        "82f82bdc11fba226263f11fcf54f55987fce54992479399b147a04e37c8909c2"
+      ],
+      "span_hashes": [
+        "e231e4c4a2eab7d9cd9cbff15a9ff322cfe9b8fb162b12675deb9ecf5562ddc9"
+      ]
+    },
+    {
+      "case_id": "unit_07",
+      "text": "teal",
+      "expected": "teal",
+      "correct": true,
+      "record_ids": [
+        "unit_07_relevant"
+      ],
+      "source_hashes": [
+        "2bedda34bde931c5cfcf5b293f3eaf965fb6b1e887d1b8201abccd64524b65bf"
+      ],
+      "span_hashes": [
+        "f56da7d08759476225a15c66e1fa7b2e9f29ef95d1a9b016d0203735bd0a1b72"
+      ]
+    },
+    {
+      "case_id": "unit_08",
+      "text": "violet",
+      "expected": "violet",
+      "correct": true,
+      "record_ids": [
+        "unit_08_relevant"
+      ],
+      "source_hashes": [
+        "cb151a4f9ead4dea9a46593c31155e753f53b71ca45b3175d5949398b7930d10"
+      ],
+      "span_hashes": [
+        "54a9a97075523e4c1e6fa860a3bc97f26dcd4df0f4c72bb76e1ef3e589f0e1fe"
+      ]
+    },
+    {
+      "case_id": "unit_09",
+      "text": "amber",
+      "expected": "amber",
+      "correct": true,
+      "record_ids": [
+        "unit_09_relevant"
+      ],
+      "source_hashes": [
+        "27275afc6447c7302705175f6a3d3ed3211fc0677d2de5dc5be7ba1a1f17fbf1"
+      ],
+      "span_hashes": [
+        "bcdd7e3cc635628e4524d77b92b9e9360d76cc8c11d6a5371f254ff89c008adb"
+      ]
+    },
+    {
+      "case_id": "unit_10",
+      "text": "carmine",
+      "expected": "carmine",
+      "correct": true,
+      "record_ids": [
+        "unit_10_relevant"
+      ],
+      "source_hashes": [
+        "426d3d6c1a5fc0805b0d4ccbfdd236e114f0561b3766e70ba29155feb299c8a8"
+      ],
+      "span_hashes": [
+        "394c2e6cf202a543f13778b8d184c10b8772df9de7cfc7c54a1462db691f50b4"
+      ]
+    },
+    {
+      "case_id": "unit_11",
+      "text": "sienna",
+      "expected": "sienna",
+      "correct": true,
+      "record_ids": [
+        "unit_11_relevant"
+      ],
+      "source_hashes": [
+        "21174470bc56a36b599a14bb3be8ac9497d0326fb75283fb91c9d21878375bca"
+      ],
+      "span_hashes": [
+        "97bbe1323d18b270a88e1163deb045fe101ca225dcd48a65111891cf3a91d5a0"
+      ]
+    },
+    {
+      "case_id": "unit_12",
+      "text": "azure",
+      "expected": "azure",
+      "correct": true,
+      "record_ids": [
+        "unit_12_relevant"
+      ],
+      "source_hashes": [
+        "6804ec2833fe1e2e4798d4d72f692358e8ffffc7c700a93cde7176e7ca4f2a5e"
+      ],
+      "span_hashes": [
+        "eb19ec4ef4d1f8b22bc5627a38919433a946c5e43bea27ccddff3c461eba774d"
+      ]
+    }
+  ],
+  "metrics": {
+    "parent": 0.75,
+    "candidate": 1.0
+  },
+  "checks": {
+    "parent_pointer_manifest": true,
+    "context_head_manifest": true,
+    "candidate_method": true
+  },
+  "decision": "accept_opt_in",
+  "deployment": "not_published",
+  "claims": "Integrated context-head consumer check; no training, publication or default change.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T14:04:37.069861+00:00",
+    "ended_at": "2026-10-23T14:04:44.606101+00:00",
+    "elapsed_seconds": 7.536137957824394,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 30,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15555821568,
+      "rss_peak_sampled_bytes": 4162863104,
+      "mps_allocated_peak_sampled_bytes": 10253419776,
+      "mps_driver_peak_sampled_bytes": 11082006528
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T14:04:37.070543+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T14:04:44.520134+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 73%",
+      "memory_free_percent": 73.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T14:04:41.017651+00:00",
+        "elapsed_seconds": 3.947644457919523,
+        "seconds_since_previous_mark": 3.947644457919523,
+        "synchronize_seconds": 5.4158736020326614e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T14:04:41.017575+00:00",
+          "elapsed_seconds": 3.947656290838495,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15555821568,
+          "rss_current_bytes": 344227840,
+          "rss_measurement_age_seconds": 1.8609117921441793,
+          "mps_allocated_bytes": 10128518144,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 49,
+              "parameters": 13275650,
+              "trainable": 13275650,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "copy_head.query_norm.weight",
+                "copy_head.query_norm.bias",
+                "copy_head.key_norm.weight",
+                "copy_head.key_norm.bias",
+                "copy_head.query_projection.weight",
+                "copy_head.key_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 7.536137957824394,
+    "sampled_peak_driver_bytes": 11082006528
+  },
+  "ended_at_utc": "2026-10-23T14:04:44.606572+00:00"
+}

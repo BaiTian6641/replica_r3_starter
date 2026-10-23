@@ -40,6 +40,12 @@ unavailable pointer paths return exact source spans, never a host-chosen value.
 Behavioral pointer metrics are unchanged. See
 [memory answer path](docs/architecture/12_Memory_Answer_Path.md).
 
+**E2 context head holdout 2 (23 October).** The published opt-in context head
+repeated **12/12** versus parent **9/12** on a second untouched 12-case family;
+parent misses were entity-name spans. Provenance/manifest checks pass. The
+feature set remains template-specific and exact text remains the default. See
+[holdout2 results](docs/experiments/20261023_E2_Pointer_Context_Holdout2_Results.md).
+
 **E2 integrated context head (23 October).** The saved 6-parameter context
 head was integrated into `MemoryAnswerService` and evaluated on a new family:
 **12/12** exact versus parent **9/12**. It fixed entity-name span errors. The
