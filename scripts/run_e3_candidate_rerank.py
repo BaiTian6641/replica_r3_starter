@@ -111,7 +111,7 @@ def execute(args,protocol,report,prof):
     best=rng.randrange(len(cands))
    chosen=cands[best];raw=canonical(chosen);score_rows.append({'step':len(traces)+1,'candidates':cands,'scores':scores,'chosen':best});prof.mark('candidate_choice',case=cid,step=len(traces)+1,chosen=best,score=scores[best] if scores else None)
    target=tok(raw,add_special_tokens=False)['input_ids']+[tok.eos_token_id]
-   trace=runtime.decide(OneAction(raw,int(ids.shape[1]),target));traces.append(trace);profile
+   trace=runtime.decide(OneAction(raw,int(ids.shape[1]),target));traces.append(trace)
    if runtime.state.is_complete(runtime.verifier):break
   success=bool(runtime.state.is_complete(runtime.verifier));episodes.append({'case_id':cid,'role':tools.role,'success':success,'decisions':len(traces),'tool_calls':runtime.state.budget.used_tool_calls,'prompt_tokens':runtime.state.budget.used_prompt_tokens,'generated_tokens':runtime.state.budget.used_generated_tokens,'false_success_claims':sum(1 for t in traces if t.success_claimed and not t.success_condition_met),'actions':[(t.action or {}).get('kind') for t in traces],'tools':[((t.action or {}).get('args') or {}).get('tool') for t in traces],'candidate_scores':score_rows,'trace':[asdict(t) for t in traces],'evaluator_pass':tools.verify_success().get('passed')});journal.close()
  report['episodes']=episodes;report['completions']=f"{sum(x['success'] for x in episodes)}/{len(episodes)}";report['heldout_completions']=f"{sum(x['success'] for x in episodes if x['role']=='heldout')}/{sum(1 for x in episodes if x['role']=='heldout')}";report['status']='completed';report['claims']='Model-scored candidate action interface; no training, no default promotion.';ledger.close()
