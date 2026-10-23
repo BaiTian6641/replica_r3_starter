@@ -1,0 +1,13 @@
+{
+  "schema_version": "replica.validation.identity_native.v1",
+  "date_utc": "2026-10-23",
+  "scope": "tiny offline tensors only; no native model load",
+  "tests": "tests/test_identity_native.py (4 passed)",
+  "properties": ["null and disabled parity", "all-masked slots parity",
+    "nonzero influence after opening final projection", "CoreState identity digest",
+    "workspace-store identity binding", "session plumbing", "v3 extension roundtrip"],
+  "selected_core_extension": "v2 unchanged",
+  "status": "reader attached and tested; untrained",
+  "limitations": ["no authentic identity slots or encoder", "no native capability run",
+    "no personal conditioning or fidelity evaluation"]
+}

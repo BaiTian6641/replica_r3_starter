@@ -201,10 +201,13 @@ class MemorySession:
                 enabled_ports=None, train_sense=False, task_features=None,
                 previous_core=None, core_impl='recurrent',
                 enabled_inputs=('sense','memory','task'), enabled_branches=None,
-                train_core=False, task_digest=None, revision=None, fast_state=None):
+                train_core=False, task_digest=None, revision=None, fast_state=None,
+                identity=None, identity_enabled=True):
         if core_impl not in {'recurrent', 'feedforward', 'none'}:
             raise ValueError("core_impl must be 'recurrent', 'feedforward' or 'none'")
         if core_impl == 'none':
+            if identity is not None:
+                raise ValueError("core_impl='none' does not accept identity conditioning")
             if task_features is not None:
                 raise ValueError("core_impl='none' does not accept task_features")
             if previous_core is not None:
@@ -276,7 +279,8 @@ class MemorySession:
                     core = self.adapter.build_core_state(
                         sense, memory, task_features, task_digest=task_digest,
                         revision=revision, previous=previous,
-                        enabled_inputs=tuple(enabled_inputs), implementation=core_impl)
+                        enabled_inputs=tuple(enabled_inputs), implementation=core_impl,
+                        identity=identity, identity_enabled=identity_enabled)
             frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
                                             core=core,enabled_branches=enabled_branches,
                                             fast=fast_state, copy=copy_state)

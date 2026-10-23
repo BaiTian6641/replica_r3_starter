@@ -56,14 +56,22 @@ snapshot raises. The archive does not claim neural erasure after training.
 
 ## 3. Conditioning boundary
 
-The optional `IdentityReader` accepts host-approved identity slots and a native
-hidden state. It has independent parameters and a zero final projection, so an
-untrained/null path is exactly null. It is **not connected to a native block**
-in this increment, and no identity slots are produced from authentic text. The
-only connected path is the bounded prompt section. Identity may influence
-priorities or information requests only after a separate trained candidate and
-evaluation; it cannot rewrite source facts, satisfy a failed verifier, override
-permissions or replace the authorized task goal.
+The optional `IdentityReader` now has a declared `IdentitySpec` in the component
+manifest and is attached **after** the shared core workspace, before the native
+workspace ports read it. It has independent parameters, a zero final projection
+and an explicit `identity_enabled` gate. A `CoreState` binds the identity context
+digest; workspace persistence and session/loop copies preserve that binding.
+Identity-bearing extensions use `replica.minicpm5.extensions.v3`; the selected
+core-only E3 extension remains v2 and unchanged.
+
+Null parity, disable parity, all-masked slots, nonzero influence, workspace-store
+binding and v3 export/reload are tested with tiny offline tensors. No authentic
+identity slots or learned slot encoder exist yet; the reader is **untrained** and
+no personal conditioning or native capability is claimed. The connected prompt
+section remains the only host-facing use. Identity may influence priorities or
+information requests only after a separate trained candidate and evaluation; it
+cannot rewrite source facts, satisfy a failed verifier, override permissions or
+replace the authorized task goal.
 
 ## 4. Evaluation protocol (not executed)
 

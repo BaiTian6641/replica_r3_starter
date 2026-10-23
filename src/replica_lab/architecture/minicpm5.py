@@ -18,14 +18,15 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.models.llama import modeling_llama
 
 from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
-                        FastMemoryRead, InjectFrame, MemoryRead, PortSpec,
-                        RequestContext, SenseFrame, fingerprint)
+                        FastMemoryRead, IdentityRead, InjectFrame, MemoryRead,
+                        PortSpec, RequestContext, SenseFrame, fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
                     RecordCopyHead, RecordPointerHead, SensePort,
                     WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
+from ..replica.reader import IdentityReader
 
 
 def native_abi_digest():
@@ -56,6 +57,7 @@ class MiniCPM5Adapter(nn.Module):
                                          sorted(set((*self.ports.injection_layers, self.ports.observer_layer)))})
         self.reranker = TrainableRecordReranker(d)
         self.core = self.ff_core = self.workspace_ports = self.task_head = None
+        self.identity_reader = None
         self.fast_ports = self.fast_write_encoder = None
         self.copy_head = None
         if manifest.copy is not None:
@@ -77,6 +79,10 @@ class MiniCPM5Adapter(nn.Module):
             self.workspace_ports = nn.ModuleDict({str(i): WorkspaceAccessPort(h, d, self.ports.heads)
                                                   for i in self.ports.injection_layers})
             self.task_head = TaskSuccessHead(manifest.core)
+        if manifest.identity is not None:
+            manifest.identity.validate(self.ports, manifest.core)
+            self.identity_reader = IdentityReader(manifest.identity.width,
+                                                  manifest.identity.heads)
         self.set_regime(regime)
         self._original_identity = None  # recorded after final device placement
 
@@ -120,7 +126,10 @@ class MiniCPM5Adapter(nn.Module):
 
     def _core_component_stamp(self):
         stamp = {'features':self.producer_key()}
-        for prefix in ('core','ff_core','workspace_ports','task_head','sense_ports','record_writer'):
+        prefixes = ['core','ff_core','workspace_ports','task_head','sense_ports','record_writer']
+        if self.identity_reader is not None:
+            prefixes.append('identity_reader')
+        for prefix in prefixes:
             stamp[prefix] = [(n,id(p),p._version,str(p.dtype),str(p.device),p.data_ptr())
                              for n,p in getattr(self,prefix).named_parameters()]
         return stamp
@@ -175,7 +184,9 @@ class MiniCPM5Adapter(nn.Module):
 
     def build_core_state(self, sense: SenseFrame, memory: MemoryRead, task_features,
                          *, task_digest: str, revision: int, previous: CoreState | None = None,
-                         enabled_inputs=SOURCES, implementation='recurrent') -> CoreState:
+                         enabled_inputs=SOURCES, implementation='recurrent',
+                         identity: IdentityRead | None = None,
+                         identity_enabled: bool = True) -> CoreState:
         """Run the declared core over known-input features; no labels are accepted.
 
         ``task_digest`` and ``revision`` bind the state to one exact journal
@@ -222,6 +233,15 @@ class MiniCPM5Adapter(nn.Module):
         sense_valid = torch.ones(1, sense_tokens.shape[1], dtype=torch.bool, device=sense_tokens.device)
         memory_slots = memory.slots.flatten(1, 2)
         memory_valid = memory.valid.flatten(1, 2)
+        if identity is not None:
+            if not isinstance(identity, IdentityRead):
+                raise ValueError('identity must be an IdentityRead or None')
+            if self.identity_reader is None:
+                raise ValueError('Adapter manifest declares no identity reader')
+            if (identity.slots.shape[2] != spec.width
+                    or identity.slots.device != features.device
+                    or not identity.slots.is_floating_point()):
+                raise ValueError('Identity slots must match workspace width and device')
         if implementation == 'recurrent':
             workspace, valid = self.core(sense_tokens, sense_valid, memory_slots, memory_valid,
                                          features, previous=None if previous is None else previous.workspace,
@@ -236,8 +256,13 @@ class MiniCPM5Adapter(nn.Module):
                 memory_valid.sum(dim=1, keepdim=True).clamp_min(1)
             workspace, valid = self.ff_core(pooled_sense, pooled_memory, features)
             steps = 0
+        identity_digest = None
+        if identity is not None:
+            workspace = workspace + self.identity_reader(
+                workspace, identity.slots, identity.valid, enabled=bool(identity_enabled))
+            identity_digest = identity.context_digest
         return CoreState(workspace, valid, features, self.core_producer_key(), task_digest,
-                         revision, steps, implementation)
+                         revision, steps, implementation, identity_digest)
 
     def predict_success(self, core_state: CoreState):
         """Monitor logit for a core state; detached, never a task fact or authority.
@@ -261,6 +286,8 @@ class MiniCPM5Adapter(nn.Module):
         prefixes = ['record_writer', 'memory_ports', 'sense_ports', 'reranker']
         if self.core is not None:
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
+        if self.identity_reader is not None:
+            prefixes += ['identity_reader']
         if self.fast_ports is not None:
             prefixes += ['fast_write_encoder', 'fast_ports']
         if self.copy_head is not None:
@@ -277,6 +304,8 @@ class MiniCPM5Adapter(nn.Module):
         prefixes = ['record_writer', 'memory_ports', 'sense_ports', 'reranker']
         if self.core is not None:
             prefixes += ['core', 'ff_core', 'workspace_ports', 'task_head']
+        if self.identity_reader is not None:
+            prefixes += ['identity_reader']
         if self.fast_ports is not None:
             prefixes += ['fast_write_encoder', 'fast_ports']
         if self.copy_head is not None:
@@ -544,15 +573,18 @@ class MiniCPM5Adapter(nn.Module):
         path.mkdir(parents=True, exist_ok=False)
         weights = {n: p.detach().cpu().contiguous() for n, p in self.new_named_parameters()}
         save_file(weights, str(path / 'extensions.safetensors'))
-        fmt = ('replica.minicpm5.extensions.v2'
-               if self.core is not None or self.fast_ports is not None or self.copy_head is not None
-               else 'replica.minicpm5.extensions.v1')
+        if self.identity_reader is not None:
+            fmt = 'replica.minicpm5.extensions.v3'
+        elif self.core is not None or self.fast_ports is not None or self.copy_head is not None:
+            fmt = 'replica.minicpm5.extensions.v2'
+        else:
+            fmt = 'replica.minicpm5.extensions.v1'
         receipt = {'format':fmt,'manifest':self.manifest.to_dict(),
                    'manifest_digest':self.manifest.digest,'regime':self.regime,
                    'weights_sha256':hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest(),
                    'parameters':self.parameter_audit(),'base_saved':False,
                    'notes':'Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.'}
-        if self.core is not None or self.fast_ports is not None or self.copy_head is not None:
+        if fmt != 'replica.minicpm5.extensions.v1':
             receipt['components'] = self._component_inventory()
         (path/'manifest.json').write_text(json.dumps(receipt,indent=2)+'\n')
         return receipt
@@ -565,7 +597,7 @@ class MiniCPM5Adapter(nn.Module):
         path = Path(directory)
         receipt = json.loads((path/'manifest.json').read_text())
         fmt = receipt.get('format')
-        if fmt == 'replica.minicpm5.extensions.v2':
+        if fmt in ('replica.minicpm5.extensions.v2', 'replica.minicpm5.extensions.v3'):
             if set(receipt) != {'format','manifest','manifest_digest','regime','weights_sha256',
                                 'parameters','base_saved','notes','components'}:
                 raise ValueError('Incompatible or changed extension manifest/bytes')
@@ -585,7 +617,8 @@ class MiniCPM5Adapter(nn.Module):
                     != receipt.get('weights_sha256')):
                 raise ValueError('Incompatible or changed extension manifest/bytes')
             expected = dict(self._parent_named_parameters())
-            if self.manifest.core is not None or self.fast_ports is not None or self.copy_head is not None:
+            if (self.manifest.core is not None or self.fast_ports is not None
+                    or self.copy_head is not None or self.identity_reader is not None):
                 if not accept_parent_v1:
                     raise ValueError('Loading the E1/E2 parent v1 extension requires accept_parent_v1=True')
         else:
@@ -597,7 +630,8 @@ class MiniCPM5Adapter(nn.Module):
         with torch.no_grad():
             for n,p in expected.items(): p.copy_(weights[n].to(p.device))
         if fmt == 'replica.minicpm5.extensions.v1' and (self.manifest.core is not None
-                                                        or self.fast_ports is not None):
+                                                        or self.fast_ports is not None
+                                                        or self.identity_reader is not None):
             parent = set(expected)
             return {**receipt, 'migration':{
                 'accepted_parent_v1': True, 'copied': sorted(parent),

@@ -82,6 +82,7 @@ class CoreState:
     revision: int
     steps: int
     implementation: str = 'recurrent'
+    identity_digest: str | None = None
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
     def __post_init__(self):
@@ -108,6 +109,9 @@ class CoreState:
             raise ValueError('Core steps must be nonnegative')
         if self.implementation not in {'recurrent', 'feedforward'}:
             raise ValueError('Unknown core implementation')
+        if self.identity_digest is not None and (
+                not isinstance(self.identity_digest, str) or len(self.identity_digest) != 64):
+            raise ValueError('identity_digest must be a SHA256 or None')
         object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(t) for t in self.tensors()))
 
     def tensors(self):
@@ -120,13 +124,15 @@ class CoreState:
     def detached(self):
         return CoreState(self.workspace.detach(), self.valid.detach(),
                          self.task_features.detach(), self.producer, self.task_digest,
-                         self.revision, self.steps, self.implementation)
+                         self.revision, self.steps, self.implementation,
+                         self.identity_digest)
 
     def stamp(self):
         """Stable lineage stamp for journals; never a confidence or truth score."""
         return fingerprint({'producer': self.producer, 'task_digest': self.task_digest,
                             'revision': self.revision, 'steps': self.steps,
                             'implementation': self.implementation,
+                            'identity_digest': self.identity_digest,
                             'workspace': [float(v) for v in self.workspace.detach().cpu().flatten().tolist()],
                             'valid': [bool(v) for v in self.valid.detach().cpu().flatten().tolist()]})
 
@@ -159,6 +165,71 @@ class CopySpec:
             raise ValueError('CopySpec.mode must be logit_bias or pointer')
         if type(self.max_span) is not int or not 1 <= self.max_span <= 32:
             raise ValueError('CopySpec.max_span must be in 1..32')
+
+
+@dataclass(frozen=True)
+class IdentitySpec:
+    """Optional workspace identity reader; width must match the core workspace."""
+    width: int = 256
+    heads: int = 4
+
+    def __post_init__(self):
+        if type(self.width) is not int or self.width < 1:
+            raise ValueError('IdentitySpec.width must be positive')
+        if type(self.heads) is not int or self.heads < 1 or self.width % self.heads:
+            raise ValueError('IdentitySpec.heads must divide width')
+
+    def validate(self, ports, core) -> None:
+        if core is None:
+            raise ValueError('Identity conditioning requires a declared core')
+        if self.width != ports.memory_width or self.width != core.width:
+            raise ValueError('Identity width must match memory and core width')
+
+
+@dataclass(frozen=True)
+class IdentityRead:
+    """Host-approved identity slots and their exact context binding.
+
+    Slots are supplied by the host from an already resolved IdentityContext or a
+    future separately trained encoder. They are not read from the archive here.
+    """
+    slots: torch.Tensor  # [1, identity_slots, width]
+    valid: torch.Tensor  # [1, identity_slots] bool
+    producer: str
+    context_digest: str
+    subject_id: str
+    branch_id: str
+    mode: str
+    evidence_ids: tuple[str, ...] = ()
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if (self.slots.ndim != 3 or self.slots.shape[0] != 1
+                or self.slots.shape[1] < 0 or self.slots.shape[2] < 1
+                or not self.slots.is_floating_point()
+                or not bool(torch.isfinite(self.slots).all())):
+            raise ValueError('identity slots must be finite [1, slots, width]')
+        if (self.valid.dtype != torch.bool
+                or tuple(self.valid.shape) != tuple(self.slots.shape[:2])
+                or self.valid.device != self.slots.device):
+            raise ValueError('identity validity must be a matching boolean mask')
+        for name in ('producer', 'context_digest', 'subject_id', 'branch_id', 'mode'):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value:
+                raise ValueError(f'{name} required')
+        if len(self.context_digest) != 64:
+            raise ValueError('identity context digest must be SHA256')
+        if not isinstance(self.evidence_ids, tuple) or len(set(self.evidence_ids)) != len(self.evidence_ids):
+            raise ValueError('identity evidence IDs must be distinct')
+        object.__setattr__(self, '_tensor_stamps',
+                           (tensor_stamp(self.slots), tensor_stamp(self.valid)))
+
+    def tensors(self):
+        return (self.slots, self.valid)
+
+    def assert_immutable(self):
+        if self._tensor_stamps != (tensor_stamp(self.slots), tensor_stamp(self.valid)):
+            raise RuntimeError('IdentityRead tensors mutated; rebuild at a decision boundary')
 
 
 @dataclass(frozen=True)
@@ -313,17 +384,18 @@ class ComponentManifest:
     core: CoreSpec | None = None
     fast_memory: FastMemorySpec | None = None
     copy: CopySpec | None = None
+    identity: IdentitySpec | None = None
 
     def shared_dict(self):
         """Manifest fields that identify the parent, excluding additive state."""
         return {key: value for key, value in self.to_dict().items()
-                if key not in ('core', 'fast_memory', 'copy')}
+                if key not in ('core', 'fast_memory', 'copy', 'identity')}
 
     def to_dict(self):
         # A core-less manifest must keep the exact E1/E2 shape and digest so the
         # selected parent extension remains byte-compatible with its receipt.
         value = asdict(self)
-        for name in ('core', 'fast_memory', 'copy'):
+        for name in ('core', 'fast_memory', 'copy', 'identity'):
             if value.get(name) is None:
                 value.pop(name, None)
         return value

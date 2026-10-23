@@ -27,7 +27,8 @@ def detach_to_cpu(core: CoreState) -> CoreState:
         return core
     return CoreState(core.workspace.detach().to('cpu'), core.valid.detach().to('cpu'),
                      core.task_features.detach().to('cpu'), core.producer, core.task_digest,
-                     core.revision, core.steps, core.implementation)
+                     core.revision, core.steps, core.implementation,
+                     core.identity_digest)
 
 
 class WorkspaceStore:
@@ -60,6 +61,7 @@ class WorkspaceStore:
             'revision': core.revision,
             'steps': core.steps,
             'implementation': core.implementation,
+            'identity_digest': core.identity_digest,
             'slots': slots,
             'width': width,
             'features': features,
@@ -70,7 +72,8 @@ class WorkspaceStore:
 
     def load(self, *, expected_task_digest: str | None = None,
              expected_revision: int | None = None,
-             expected_producer: str | None = None) -> CoreState | None:
+             expected_producer: str | None = None,
+             expected_identity_digest: str | None = None) -> CoreState | None:
         """Return the stored CoreState or None when missing/stale/incompatible.
 
         Optional bindings reject a payload produced by a different exact task,
@@ -90,6 +93,13 @@ class WorkspaceStore:
             if expected_revision is not None and payload.get('revision') != expected_revision:
                 return None
             if expected_producer is not None and payload.get('producer') != expected_producer:
+                return None
+            identity_digest = payload.get('identity_digest')
+            if identity_digest is not None and (
+                    not isinstance(identity_digest, str) or len(identity_digest) != 64):
+                return None
+            if expected_identity_digest is not None \
+                    and identity_digest != expected_identity_digest:
                 return None
             if not isinstance(payload.get('producer'), str) or not payload['producer']:
                 return None
@@ -116,7 +126,8 @@ class WorkspaceStore:
             return CoreState(workspace, tensors['valid'].to(torch.bool),
                              tensors['task_features'], payload['producer'],
                              payload['task_digest'], int(payload['revision']),
-                             int(payload['steps']), payload['implementation'])
+                             int(payload['steps']), payload['implementation'],
+                             identity_digest)
         except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError):
             return None
 

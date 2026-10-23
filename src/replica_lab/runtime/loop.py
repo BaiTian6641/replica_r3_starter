@@ -811,7 +811,7 @@ class TaskRuntime:
             return core
         return CoreState(core.workspace, core.valid, core.task_features, core.producer,
                          self.state.digest, self.state.revision, core.steps,
-                         core.implementation)
+                         core.implementation, core.identity_digest)
 
     def _persist_workspace(self, output: ProposalOutput) -> None:
         if output.workspace is None:
@@ -1041,7 +1041,7 @@ class SessionProposer:
                  device: str = 'mps', core_impl: str = 'recurrent',
                  enabled_branches=None, enabled_inputs=('sense', 'memory', 'task'),
                  zero_previous_workspace: bool = False, extra_inference_pass: bool = False,
-                 core_disabled: bool = False):
+                 core_disabled: bool = False, identity_read=None, identity_enabled: bool = True):
         self.session = session
         self.tokenizer = tokenizer
         self.task_id = task_id
@@ -1054,6 +1054,8 @@ class SessionProposer:
         self.zero_previous_workspace = bool(zero_previous_workspace)
         self.extra_inference_pass = bool(extra_inference_pass)
         self.core_disabled = bool(core_disabled)
+        self.identity_read = identity_read
+        self.identity_enabled = bool(identity_enabled)
 
     def _on_device(self, core: CoreState) -> CoreState:
         if (core.workspace.device.type == self.device
@@ -1062,7 +1064,7 @@ class SessionProposer:
         return CoreState(core.workspace.to(self.device), core.valid.to(self.device),
                          core.task_features.to(self.device), core.producer,
                          core.task_digest, core.revision, core.steps,
-                         core.implementation)
+                         core.implementation, core.identity_digest)
 
     def __call__(self, request: ProposalRequest) -> ProposalOutput:
         import torch
@@ -1131,7 +1133,8 @@ class SessionProposer:
                         previous_core.valid.clone(),
                         previous_core.task_features.clone(), previous_core.producer,
                         previous_core.task_digest, previous_core.revision,
-                        previous_core.steps, previous_core.implementation)
+                        previous_core.steps, previous_core.implementation,
+                        previous_core.identity_digest)
         task = TaskGraph(task_id=self.task_id, goal=self.goal,
                          revision=request.revision, state_digest=request.task_digest)
         kwargs = dict(prompt_ids=prompt_ids, prompt_mask=prompt_mask, query=self.goal,
@@ -1140,7 +1143,8 @@ class SessionProposer:
                       core_impl=core_impl, enabled_inputs=self.enabled_inputs,
                       enabled_branches=branches,
                       task_digest=request.task_digest, revision=request.revision,
-                      fast_state=fast_read)
+                      fast_state=fast_read, identity=self.identity_read,
+                      identity_enabled=self.identity_enabled)
         leased = self.session.prepare(**kwargs)
         try:
             result = self.session.generate(leased,

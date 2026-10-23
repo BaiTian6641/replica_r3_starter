@@ -288,15 +288,18 @@ verifier authority. Authentic source, native reader attachment and personal
 fidelity remain pending. See
 [identity interface](docs/architecture/09_Replica_Identity_Interface.md).
 
-**C16 identity interface (23 October).** Versioned source episodes, approved
-conditional principle hypotheses, dated snapshots, mode-bound identity contexts,
-parallel-branch state, correction/revocation handling, a null path and an
-optional zero-initialized identity reader are implemented with fictional
-contract tests. The runtime can include a bounded approved identity section in
-its prompt when explicitly supplied; the default is byte-identical and identity
-has no verifier or task-success authority. No authentic personal source,
-identity training, native identity-port attachment or fidelity evaluation
-exists. See [identity interface](docs/architecture/09_Replica_Identity_Interface.md).
+**C16 identity interface and native reader (23 October).** Versioned source
+episodes, approved conditional principle hypotheses, dated snapshots, mode-bound
+identity contexts, parallel-branch state, correction/revocation handling, a
+digest-bound persistent store and a null path are implemented. The optional
+zero-initialized `IdentityReader` is now attached after the shared core workspace
+with an explicit enable gate and an `identity_digest` bound into `CoreState` and
+workspace persistence; identity-bearing exports use manifest v3. Tiny offline
+tests pass null/disable parity, all-masked slots, nonzero influence, session
+plumbing, persistence and v3 reload. The selected core-only E3 extension remains
+v2. No authentic identity slots, trained conditioning, runtime slot encoder or
+personal fidelity evaluation exists. See
+[identity interface](docs/architecture/09_Replica_Identity_Interface.md).
 
 **E3 narrower repair arm (23 October).** A fresh `set_constant` task family
 (four train/one dev/three held-out, disjoint groups) passed all engineering
