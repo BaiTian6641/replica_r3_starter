@@ -6,9 +6,11 @@ The current fictional fixtures are useful contracts, not a representative traini
 
 Roles are train, dev, calibration, promotion and audit. Learning-policy reward also needs its own exposure boundary. Split original sources/worlds/personas/decision families before all teacher derivatives. An observed source can naturally contain the needed fact; an oracle answer/evidence-location annotation copied into memory is leakage. Event time and observation time are separate.
 
-The bounded S1.1 contract is implemented with **47 targeted CPU tests**: immutable causal episodes, explicit-purpose export, audit-only evaluation access, source/event lineage checks, late corrections, tombstones and current permission revocation. Preserve canonical provenance, receipts and declared export purpose beside flattened SFT. A new S1.2 CLI now creates and validates a **20-episode, ten-world source-bound synthetic slice**, with exact raw-source/span hashes and independent chronology/XOR/ask/unknown checks. Only four train and four dev cases are exported. This is infrastructure preparation, not public ingestion or the 2,000-target release. The exposed audit-role fixtures are not a sealed final audit. [Contract design](../experiments/episode_contract_design.md), [slice result](../experiments/20261022_Episode_Slice.md).
+The bounded S1.1 contract preserves immutable causal episodes, explicit-purpose exports, source/event lineage, corrections, tombstones and current permission revocation. S1.2 now provides a **2,000-target, 1,000-world solver-backed synthetic infrastructure release**, extending the preserved [20-episode preparation](../experiments/20261022_Episode_Slice.md). Four shared mechanisms contribute 500 targets each; roles contain 1,200 train and 200 each dev/calibration/promotion/audit. All roles are exposed contract material. World separation supports unseen-world checks, not unseen-mechanism transfer or a sealed final audit. [Contract design](../experiments/episode_contract_design.md), [v2 release and preflight](../experiments/20261022_Infrastructure_Slice_V2.md).
 
-The 2k/20k counts and 8–32M processed-token budget are proposed caps. Admission depends on exact source terms, complete response lengths and actual Mac profiles. An external benchmark is not a curriculum pool. Development generations diagnose formatting, cap failures and constant answers; promotion is an independently controlled selection process; final audit is sealed until final reporting.
+Offline native tokenization admits all 2,000 targets under 512 with **zero truncation**, maximum 334 full-sequence tokens and 501,800 native tokens across all roles. The train export contains 300,369 native tokens and 4,374 supervised answer/EOS tokens; an augmented source writer adds a separate 233,295-token view. These are single-pass dataset counts, not a campaign budget or total model compute. [Token accounting](../../reports/infrastructure_preflight_v2_20261022/token_accounting.json).
+
+S1.4's frozen-original B1 preflight has a **format/cap failure: 0/16 strict task-correct and format-valid, all 16 capped at 32 tokens, no EOS**. The outputs contain 15 distinct completions and prose before the required compact responses. This descriptive output-contract failure does not isolate its cause or establish general semantic inability. The parser remains unchanged. Retention, calibration and model evidence-sensitivity controls remain incomplete. S1.3 has a [pinned metadata review](../experiments/20261022_Public_Source_Admission_Review.md), with both public candidates quarantined. S1.5's 20k release and 8–32M processed-token budget remain proposed caps. Independent public admission and locked evaluation still block the [S2.4 screen proposal](../experiments/20261022_S2_4_Screen_Proposal.md).
 
 ## S1.1 — Freeze provenance, roles and causal episode contracts
 
@@ -21,46 +23,48 @@ Implemented a strict immutable canonical episode and deterministic eight-field S
 - **Test gate:** Implemented and tested structural/temporal/ownership/purpose boundaries, explicit oracle exclusion, source-hash family binding, immutable event history and verifier receipt binding. Source hashes/authority/consent are trusted declarations, not raw-byte authentication. Ordinary observations may legitimately contain answer facts; semantic gold laundering requires trusted adapter/verifier review. No public corpus or 2k release is admitted by these checks.
 - **Resources:** CPU-only 47 targeted tests and one documented fictional late-correction fixture; no authentic biography, downloaded data or model execution. Three top-level schemas remain unchanged; the episode schema is nested.
 - **Failure policy:** Quarantine unsupported or ambiguous records; never repair missing biography/license/split information by invention.
-- **Next smallest task:** Build S1.2 source-bound synthetic packet/register worlds and a separately reviewed oracle, audit a small complete slice, then scale toward the proposed 2,000 targets.
+- **Next smallest task:** Preserve these contracts while extending source-specific public intake and independent evaluation; use the new S1.2 release without promoting exposed fixture roles to sealed evidence.
 
 ## S1.2 — Release a 2,000-target solver-backed infrastructure slice
 
-**Status:** `partial_source_bound_20_episode_fixture`. **Dependencies:** S1.1.
+**Status:** `bounded_2000_target_infrastructure_release`. **Dependencies:** S1.1.
 
-Generate independent microengineering worlds plus temporal correction, unknown/ask and tool-recovery cases. Compute answers/actions with solvers before teacher verbalization. Balance target/action categories and split complete worlds/rule families before derivatives.
+Released 2,000 targets from 1,000 complete synthetic worlds: register XOR, affine modulo 97, finite-state transitions and bounded tool-recovery decisions, 500 targets per mechanism. Roles split worlds before derivation; all four mechanisms and the grammar remain shared. Every role contains 50% answer, 25% ask and 25% unknown cases across late correction, late-observation and tombstone scenarios. Tool-recovery labels are solver-defined proposed decisions, not measured execution of a live tool loop.
 
-- **Artifact:** data/diagnostics/episode_slice_v1/manifest.json; scripts/make_episode_slice.py; tests/test_episode_slice.py; docs/experiments/20261022_Episode_Slice.md; planned: 2,000-target exports and stratified review report.
+The host compiler's `input_view` selects only active eligible observations after chronology, correction and tombstone processing. Native evaluation therefore measures reasoning/actions over that compiled snapshot. It does not measure model-owned temporal retrieval, correction detection or state reconstruction from the full raw history.
+
+- **Artifact:** data/diagnostics/infrastructure_slice_v2/manifest.json; scripts/make_infrastructure_slice.py; src/replica_lab/infrastructure_solver.py; tests/test_infrastructure_slice.py; tests/test_infrastructure_solver.py; reports/infrastructure_preflight_v2_20261022/stratified_review.json; reports/infrastructure_preflight_v2_20261022/token_accounting.json; [release record](../experiments/20261022_Infrastructure_Slice_V2.md). The v1 slice and its historical evidence remain preserved.
 - **Interface:** World generator -> executable oracle -> optional teacher candidates (verified false) -> independent validator -> admitted exports.
-- **Test gate:** All admitted labels pass their independent verifier; no duplicate world across roles; target/length/action histograms and rejected cases reported. Review at least 20 cases in each critical category as an operational sample, not proof of zero error.
-- **Resources:** CPU solvers first; external teacher only with eligible data and logged model/prompt/cost. No audit material or real personal data sent by default.
+- **Test gate:** All 2,000 raw-source solver/chronology and export checks pass. Semantic-duplicate rejection retries 59 candidates and admits zero duplicate world signatures. Automated stratified review covers 320 episodes/160 worlds; this is an operational software review, not a human annotation study or proof of zero semantic error. Tokenization admits all cases under 512 without truncation. Public exposed audit/promotion packets are not sealed benchmarks; no held-out-mechanism or broad-retention claim follows.
+- **Resources:** Host solvers and the existing offline native tokenizer; no teacher, public corpus, authentic biography or training. Single-pass native totals are 501,800 all-role / 300,369 train tokens; added source-writer work is reported separately.
 - **Failure policy:** Fix the generator/solver or drop a failing category. Preserve rejection samples and recompute derived hashes; avoid scaling defective examples.
-- **Next smallest task:** Review the implemented 20-episode register slice, then add independent task families and tool-recovery cases with role/length/action accounting before scaling toward 2,000. Exposed audit fixtures cannot become the sealed scientific audit.
+- **Next smallest task:** Use the frozen release for bounded S1.4 development evaluation; resolve public admission, independent retention/calibration cases and the S1.5 budget/exposure plan before a training campaign.
 
 ## S1.3 — Qualify one public training adapter and independent benchmark
 
-**Status:** `pending`. **Dependencies:** S1.1.
+**Status:** `metadata_review_quarantined_pending_adapter`. **Dependencies:** S1.1.
 
 Resolve immutable PersonaMem-v2 card/data revision and training identities, license scope and causal fields; build one training adapter. Separately pin cleaned LongMemEval S with evaluator-only gold/evidence fields. Do not bulk-ingest the research catalog.
 
-- **Artifact:** planned: pinned public-source manifest and approved subset list; planned: PersonaMem adapter and LongMemEval evaluation adapter audits.
+- **Artifact:** [metadata admission review](../experiments/20261022_Public_Source_Admission_Review.md); reports/public_source_metadata_review_20261022.json. Approved subsets and source-specific adapters remain planned.
 - **Interface:** Pinned upstream source -> source-specific adapter -> canonical episodes; official benchmark labels never enter training, retrieval or teacher inputs.
 - **Test gate:** Card/license/file hashes and identity-group split checks recorded; train/benchmark identities and cross-modal overlap audited. Oracle retrieval is a labelled evaluator condition, not ordinary input access.
-- **Resources:** CPU inspection and minimal selected files; no model needed. Long histories use declared retrieval/chunk budgets rather than silent truncation.
+- **Resources:** Official metadata/cards/code only; no corpus or model files downloaded. PersonaMem and cleaned LongMemEval revisions are pinned; payload hashes remain advertised metadata until actual byte verification. Long histories require declared retrieval/chunk budgets.
 - **Failure policy:** Leave source quarantined if terms, identity overlap or causal cutoff is unresolved. A Hugging Face auto-detected train split is not permission to train on benchmark targets.
-- **Next smallest task:** Resolve one PersonaMem-v2 immutable revision and inspect complete history/query pairs before designing the adapter.
+- **Next smallest task:** Resolve PersonaHub inherited terms and component attribution, then specify minimal pinned payload inspection. Audit complete linked pairs, six-split persona overlap, duplicate history versions and missing filename ID 558 before source-specific adapter admission.
 
 ## S1.4 — Lock generation, retention, calibration and evidence controls
 
-**Status:** `pending`. **Dependencies:** S1.1, S0.3.
+**Status:** `partial_strictparser_controls_16dev_format_cap_failure`. **Dependencies:** S1.1, S0.3.
 
 Extend strict generation evaluation beyond XOR: answer/ask/tool actions, temporal correction and held-out procedural tasks. Lock parsers, budgets, seeds, prompt/template/thinking settings and B0/B1 evidence visibility. Add constant-label, shuffled/missing evidence and matched inference controls.
 
-- **Artifact:** planned: versioned evaluation specification and case manifest; planned: baseline/retention/control score reports with raw generations.
+- **Artifact:** src/replica_lab/infrastructure_scoring.py; scripts/prepare_infrastructure_preflight.py; tests/test_infrastructure_scoring.py; reports/infrastructure_preflight_v2_20261022/evaluation_spec.json; adjacent dev_cases.jsonl, constant_controls.json, token_accounting.json and native_B1_scoring.json; [preflight outcome record](../experiments/20261022_Infrastructure_Slice_V2.md). Full retention/calibration/control score matrices remain planned.
 - **Interface:** Role-separated case manifest -> model generation -> fixed parser/solver -> per-family scores and paired/clustered uncertainty. Calibration thresholds use their own split.
-- **Test gate:** Raw completions, caps/EOS, format failures and answer correctness preserved. Evaluator cannot access training internals and candidate cannot alter oracle. Distinguish overfit cases from unseen inputs and unseen task families.
-- **Resources:** CPU evaluator contracts, then bounded MPS baseline generation. Freeze inference cap before comparison and report token/time costs.
+- **Test gate:** Strict whole-response parser and independent solver classify answer/ask/unknown/tool-recovery targets. CPU constant-answer controls reject perfect-fit collapse; best constant is UNKNOWN at 50/200 dev. The native B1 probe scores 0/16 task-correct and 0/16 format-valid, 16/16 capped at 32, 0 EOS and 15 distinct completions with prose preceding compact answers. This fails the declared output contract; it is not a comparable architecture-quality result or proof of a specific cause. Parser rules were not relaxed after scoring. Semantic missing-fact checks remain evaluator controls, not model sensitivity. Model evidence comparisons, calibration, retention and matched architecture compute remain pending.
+- **Resources:** One frozen-original B1 descriptive preflight on 16 dev worlds/four shared mechanisms, greedy cap 32, ceiling 512, MPS FP32/fallback disabled. Sampled live/driver peaks are 9.416/10.081 GiB; profiled lifetime is 17.7864 seconds. Exact guard replay passes with zero observed swap growth. Reused local original; no optimizer update, acquisition or checkpoint save. The dated outcome record owns raw generation/guard results.
 - **Failure policy:** Fix parser or case validity on development only; version the changed evaluator. Exposed audit cases are retired from sealed claims.
-- **Next smallest task:** Add a constant-answer rejection check and classify format/abstention errors independently from solver correctness.
+- **Next smallest task:** Predeclare a versioned one-line output-contract development experiment, keep the existing strict parser fixed, and record any prompt/cap change before a bounded rerun. Resolve formatting/cap behavior before training comparisons; then qualify B0/B1, shuffled/missing-evidence and independent retention/calibration controls. Preserve this negative result and keep S1.4 partial.
 
 ## S1.5 — Predeclare and release the 20,000-target pilot
 
@@ -73,4 +77,4 @@ After the infrastructure slice passes, admit the proposed source-allowlisted mix
 - **Test gate:** Freeze roles, family counts, processed/support/supervised token accounting, cap and statistical units before campaign. Proposed 8–32M processed-token budget must fit measured hardware/lengths and include failed/search runs in costs.
 - **Resources:** Start one-seed short screen; scale only shortlisted conditions. 20k is a proposed cap, not a mandate to fabricate missing eligible data.
 - **Failure policy:** Reduce the admitted pilot transparently if sources are unavailable; do not silently fill gaps with correlated paraphrases or benchmark targets.
-- **Next smallest task:** Produce a 2k-slice quality/length report and budget spreadsheet before admitting the remaining pilot data.
+- **Next smallest task:** Use the completed 2k infrastructure quality/length accounting to draft the actual mixture and compute budget; finish S1.3/S1.4 admission and grouped exposure/power analysis before releasing additional pilot data or starting S2.4.

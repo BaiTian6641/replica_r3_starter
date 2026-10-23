@@ -1,4 +1,58 @@
-# Execution state — native D2 bounded qualification
+# Execution state — S1 infrastructure release and native evaluation
+
+22 October 2026, America/Chicago. Branch `codex/d2-capacity-runtime-pilot`.
+The current package releases **2,000 independently solver-verified targets from
+1,000 synthetic worlds**, plus a locked original-model development probe.
+The release contains register XOR, affine arithmetic, finite-state and static
+tool-recovery tasks. Train has 1,200 targets; dev/calibration/promotion/audit
+have 200 each. All roles contain 50% answer, 25% ask and 25% unknown. Fifty-nine
+duplicate-world candidates were resampled; no admitted semantic signatures
+overlap. All cases fit 512 tokens without truncation; maximum native length is
+334. Automated operational review covers 320 episodes / 160 worlds.
+
+**Native execution passes; the first output contract fails.** The same sealed
+original B1 model runs on MPS FP32 with CPU fallback disabled, greedy cap 32,
+seed 17, on 16 predeclared distinct dev worlds. Independent whole-response
+scoring finds **0/16 task-correct, 0/16 format-valid, 16 cap hits, no EOS**.
+Fifteen distinct completions spend the budget on explanatory prose. Preserve
+this negative; it is different from the historical constant-zero collapse.
+An instruction/budget mismatch is a hypothesis, not a measured causal result
+or a general semantic-ability conclusion. No parser/cap change followed scoring.
+
+The sampled peak MPS live / driver is **9.416 / 10.081 GiB**, generation takes
+13.151 s and profiled lifetime is 17.786 s. The exact guard replay passes with
+zero observed swap growth and minimum host-free 71%. MPS/RSS overlap and
+samples can miss transients. The model does not use a qualified ANE backend.
+All original 36 file identities and the acquisition receipt remain unchanged;
+the nine-file seal rechecks before and after. **Zero model downloads, optimizer
+updates or checkpoint saves.** Seven small raw evidence files total 169,902
+bytes; selected D0/D1/D2 and final negative checkpoints remain preserved.
+
+The suite passes **613 tests, one restricted-context MPS skip**; the native run
+above separately executes on MPS. All 33 stage IDs/dependencies remain intact.
+Public source review pins candidate revisions but admits no corpus: inherited
+terms, exact history versions, identity overlap and adapters remain unresolved.
+S1.2 is a bounded infrastructure release; S1.4 remains partial with a format/cap
+failure; S1.3 and S1.5 remain pending. S2.4 is a blocked comparison proposal.
+All mechanisms/grammar are shared across roles; audit/promotion packets are
+exposed synthetic fixtures. Host code selects active evidence before the model
+sees it. No sealed audit, autonomous temporal retrieval or useful-gain claim.
+
+Next predeclare a **versioned explicit one-line output contract** and fixed-budget
+B1 development probe, retaining this negative. Then finish B0/B1 evidence,
+retention/calibration and shuffled/missing-evidence controls, public source
+admission and the S1.5 mixture/budget/exposure plan before comparison training.
+No native job remains active; no model is promoted. Preserve the untracked
+`src/replica_lab/runtime_pilot.py` draft without including it in this package.
+
+[Release and results](docs/experiments/20261022_Infrastructure_Slice_V2.md),
+[consolidated evidence](reports/infrastructure_slice_v2_experiment_20261022.json),
+[independent native scoring](reports/infrastructure_preflight_v2_20261022/native_B1_scoring.json),
+[code validation](reports/validation_infrastructure_v2_20261022.json),
+[source admission review](docs/experiments/20261022_Public_Source_Admission_Review.md),
+[comparison proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md).
+
+## Preserved D2 qualification and storage package
 
 22 October 2026, America/Chicago. Branch `codex/d2-capacity-runtime-pilot`. The user resumed this bounded D2 GPU package after the completed storage-maintenance pause. The package is complete; no native job remains active. No remote or push is configured.
 
@@ -46,6 +100,6 @@ The D2 package's full suite passed **479 tests**, with one restricted-context MP
 
 ## Next concrete gate
 
-Predeclare **S2.4**: the same eligible information, parents, target data, fair rate opportunities, and parameter/compute controls for D0/D1/D2, with equal-token and equal-total-compute views. Expand S1.2 beyond the current 20-episode/ten-world fixture family before claiming useful transfer. Existing D0/D1/D2 diagnostic passes do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
+S1.2 now supplies the bounded 2,000-target release above. Resolve its native output-format/cap failure with a versioned development contract, then complete independent evaluation and public admission. The [S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) specifies equal information, parents, fair search and parameter/compute controls; numeric budgets and S1.5 admission remain unresolved. Existing diagnostics do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
 
 Cognitive contracts, identity/lineage, source permissions and the proposed semi-cognitive loop remain as specified in [the design contracts](docs/experiments/20261022_Cognitive_Contracts.md). Useful memory benefit, ten-cycle learning, authentic Replica fidelity, VLM, augmented KV caching, ANE acceleration and Blackwell residency remain separate open gates.

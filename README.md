@@ -6,6 +6,22 @@ The target is a semi-cognitive system that uses experience to improve its future
 
 This package contains an executable research starter, detailed construction documents, an eight-page diagram atlas, a dataset catalog, eight complete dataset-generation/review prompts, schemas and coding-agent instructions. It is a new R3 bundle; the seven supplied R2 documents are preserved unchanged under reference/r2.
 
+## Current progress — 22 October 2026 (America/Chicago)
+
+Released **2,000 source-bound synthetic targets across four task mechanisms**,
+independently checked from 1,000 worlds. All fit 512 tokens without truncation
+(maximum 334). The frozen original's 16-case MPS GPU preflight stays within its
+memory guard, peaking at **10.081 GiB driver**, but scores **0/16 strict answers**:
+all responses spend the 32-token cap on prose. This output-format/cap failure
+is preserved for the next versioned development probe. No training, checkpoint
+saves or model downloads occurred. The full suite passes **613 tests, one skip**.
+
+Read the [release/results record](docs/experiments/20261022_Infrastructure_Slice_V2.md)
+and [current execution state](execution_state.md). Public sources remain
+quarantined pending admission; independent evaluation and S1.5 still precede
+the [S2.4 comparison proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md).
+Selected D0/D1/D2 checkpoints and the single original model remain preserved.
+
 ## Local setup — 22 October 2026 (America/Chicago)
 
 The current development machine is a **Mac Studio, Apple M2 Ultra, 24 CPU cores, 60 GPU cores and 64 GiB unified memory**. The selected optimizer experiment is **Muon 8-bit**, first on PyTorch MPS and later on the **RTX PRO 4000 Blackwell SFF Edition (24 GB)**. See [hardware profiles](configs/hardware_profiles.json) and [experiment settings](configs/experiment_design.json).

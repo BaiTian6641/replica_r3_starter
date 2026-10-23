@@ -1,0 +1,256 @@
+{
+  "schema_version": "replica.infrastructure_slice_design.v2",
+  "declared_at_utc": "2026-10-23T00:15:44.643511+00:00",
+  "status": "declared_before_release_generation",
+  "release_name": "infrastructure_slice_v2",
+  "seed": 41,
+  "world_count": 1000,
+  "queries_per_world": 2,
+  "canonical_target_count": 2000,
+  "role_world_counts": {
+    "train": 600,
+    "dev": 100,
+    "calibration": 100,
+    "promotion": 100,
+    "audit": 100
+  },
+  "roles_order": [
+    "train",
+    "dev",
+    "calibration",
+    "promotion",
+    "audit"
+  ],
+  "family_order": [
+    "register_xor8",
+    "affine_mod97",
+    "finite_state",
+    "tool_recovery"
+  ],
+  "role_family_world_counts": {
+    "train": 150,
+    "dev": 25,
+    "calibration": 25,
+    "promotion": 25,
+    "audit": 25
+  },
+  "role_target_counts": {
+    "train": 1200,
+    "dev": 200,
+    "calibration": 200,
+    "promotion": 200,
+    "audit": 200
+  },
+  "role_action_proportions": {
+    "answer": 0.5,
+    "ask": 0.25,
+    "unknown": 0.25
+  },
+  "scenarios": [
+    "late_correction",
+    "late_observation_ask",
+    "late_observation_unknown",
+    "tombstone"
+  ],
+  "scenario_assignment": "For each role/family, (local_world_index + family_index) % 4; all worlds assigned roles/families/scenarios before sampled events or labels.",
+  "source_header_schema": "replica.infrastructure-world.v2",
+  "source_header_required": [
+    "schema_version",
+    "synthetic",
+    "world_id",
+    "group_id",
+    "split",
+    "family",
+    "scenario",
+    "source_id",
+    "subject_id",
+    "branch_id",
+    "actor_id",
+    "privacy",
+    "permissions",
+    "seed"
+  ],
+  "source_header_extra_fields_allowed": false,
+  "source_schema_notes": "One synthetic source/world. branch_id=source. source_id/world/group/subject namespaces include version and seed. Header carries no hidden rule/state parameters.",
+  "event_text": {
+    "rule_prefix": "RULE ",
+    "fact_prefix": "FACT ",
+    "json_serialization": "canonical_json; fact object exactly name,value; one RULE event and one FACT event per required field",
+    "tombstone_text": ""
+  },
+  "query_template": "At observation cutoff {cutoff}, {query_body}. If a required field is unavailable, {missing_instruction}.",
+  "missing_instructions": {
+    "ask": "ask for it",
+    "unknown": "respond UNKNOWN"
+  },
+  "ask_response_template": "Please provide {fields}.",
+  "ask_field_separator": ", ",
+  "ask_field_order": "RULE first, followed by family fact_fields order, only missing fields",
+  "source_timing": {
+    "rule_at": 0,
+    "ordinary_facts_at": 1,
+    "decisive_fact_event_time": 2,
+    "initial_decisive_observed_at": 2,
+    "late_decisive_observed_at": 8,
+    "correction_event_time": 3,
+    "correction_observed_at": 8,
+    "tombstone_event_time": 9,
+    "tombstone_observed_at": 10,
+    "query_cutoffs": [
+      5,
+      9
+    ],
+    "tombstone_query_cutoffs": [
+      5,
+      11
+    ]
+  },
+  "support_order": "All active observed events in original chronological (observed_at,event_id) order; no target/oracle or future events. Correction/tombstone removes predecessor.",
+  "families": {
+    "register_xor8": {
+      "query_body": "compute INPUT XOR MASK using the observed rule",
+      "fact_fields": [
+        "INPUT",
+        "MASK"
+      ],
+      "decisive_field": "MASK",
+      "fact_domains": {
+        "INPUT": "integer0..255",
+        "MASK": "integer0..255"
+      },
+      "rule": {
+        "operation": "xor",
+        "width": 8
+      },
+      "corrected_value": "MASK xor one nonzero bit",
+      "response_kind": "integer"
+    },
+    "affine_mod97": {
+      "query_body": "compute the affine result using the observed rule",
+      "fact_fields": [
+        "A",
+        "X",
+        "B"
+      ],
+      "decisive_field": "B",
+      "fact_domains": {
+        "A": "integer1..96",
+        "X": "integer0..96",
+        "B": "integer0..96"
+      },
+      "rule": {
+        "operation": "affine",
+        "modulus": 97,
+        "expression": "(A * X + B) % modulus"
+      },
+      "corrected_value": "(B+1)%97",
+      "response_kind": "integer"
+    },
+    "finite_state": {
+      "query_body": "report the final state after consuming SYMBOLS from START using the observed transition rule",
+      "fact_fields": [
+        "START",
+        "SYMBOLS"
+      ],
+      "decisive_field": "START",
+      "fact_domains": {
+        "START": "S0,S1,S2,S3",
+        "SYMBOLS": "nonempty a/b string length2..4"
+      },
+      "rule": {
+        "operation": "finite_state",
+        "consume": "SYMBOLS left to right starting at START",
+        "transitions": "per-world object of S0..S3 to objects a,b mapping to S0..S3; each symbol is a permutation"
+      },
+      "states": [
+        "S0",
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "alphabet": [
+        "a",
+        "b"
+      ],
+      "corrected_value": "next START in cyclic state list",
+      "response_kind": "state"
+    },
+    "tool_recovery": {
+      "query_body": "recommend the next operation for fictional tool lookup using the observed retry rule",
+      "fact_fields": [
+        "STATUS",
+        "ATTEMPT",
+        "LIMIT"
+      ],
+      "decisive_field": "STATUS",
+      "fact_domains": {
+        "STATUS": "ok,transient,permanent",
+        "ATTEMPT": "integer0..9",
+        "LIMIT": "integer1..10"
+      },
+      "rule": {
+        "operation": "recovery",
+        "tool": "lookup",
+        "policy": {
+          "ok": "VERIFY receipt",
+          "transient_below_limit": "RETRY lookup",
+          "otherwise": "STOP"
+        },
+        "condition": "transient_below_limit means STATUS=transient and ATTEMPT<LIMIT"
+      },
+      "corrected_value": "change STATUS so the recommendation changes; independent generator calculates it",
+      "response_kind": "recovery",
+      "allowed_responses": [
+        "RETRY lookup",
+        "VERIFY receipt",
+        "STOP"
+      ],
+      "scope": "Static next-operation recommendation only; target.action=answer, no executed tool call."
+    }
+  },
+  "semantic_duplicate_signature": "Normalize rule/fact event texts, event/observation times, operations and predecessor positions; exclude source/world/persona/role/event IDs. Reject duplicates across the entire release.",
+  "permissions": {
+    "train": [
+      "local_retrieval",
+      "local_training",
+      "local_evaluation"
+    ],
+    "dev": [
+      "local_retrieval",
+      "local_evaluation"
+    ],
+    "calibration": [
+      "local_evaluation"
+    ],
+    "promotion": [
+      "local_evaluation"
+    ],
+    "audit": [
+      "local_evaluation"
+    ]
+  },
+  "exports": [
+    "train",
+    "dev"
+  ],
+  "exposure": "All role packets are public inspected synthetic contract material. Promotion/audit are exposed fixtures, not sealed scientific benchmarks.",
+  "generalization_scope": "World/source groups disjoint; four mechanisms and grammar shared across roles. No unseen-mechanism/family generalization claim.",
+  "teacher_used": false,
+  "public_sources_ingested": false,
+  "tokenizer": "Reuse checkpoints/minicpm5_source offline; measure native full/prompt/support/answer/EOS views; max512 admission, reject without truncation.",
+  "review": "At least20 cases per family\u00d7scenario critical stratum, independent raw-source solve; log chosen IDs/rejections and within-world clustering.",
+  "native_generation_preflight": {
+    "role": "dev",
+    "examples": 16,
+    "selection": "4 independent worlds per family with one representative query per scenario; fixed before any native generation, action-balanced overall",
+    "source": "same sealed original B1 evidence-matched frozen reference",
+    "max_new_tokens": 32,
+    "device": "mps",
+    "dtype": "float32",
+    "cpu_fallback": false,
+    "do_sample": false,
+    "seed": 17,
+    "max_length": 512
+  },
+  "no_architecture_training_before_S1_5": true
+}

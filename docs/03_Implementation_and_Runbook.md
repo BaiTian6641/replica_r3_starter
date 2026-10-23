@@ -6,6 +6,20 @@
 
 ## 1. What the delivered code actually does
 
+The [S1.2 v2 release](experiments/20261022_Infrastructure_Slice_V2.md) now
+contains 2,000 solver-backed targets from 1,000 worlds/four shared mechanisms.
+Offline native tokenization admits every case under 512 without truncation
+(maximum 334 tokens). The frozen-original B1 probe is a bounded S1.4
+format/cap negative: 0/16 task-correct and format-valid, all capped at 32 tokens,
+no EOS and 15 distinct completions. Prose precedes the required compact answers;
+the cause is not isolated, and this is not a comparable quality result. Keep
+the strict parser fixed and predeclare a versioned one-line output-contract
+development probe before training comparisons. Full retention, calibration and
+model evidence controls remain pending. [Public metadata review](experiments/20261022_Public_Source_Admission_Review.md)
+leaves both public candidates quarantined. S1.5 admission still blocks the
+[S2.4 screen proposal](experiments/20261022_S2_4_Screen_Proposal.md); this
+package performs no training or checkpoint save.
+
 | Component | Delivered behavior | Important boundary |
 |---|---|---|
 | contracts.py | Typed source/branch records; exact SFT schema; lineage/exact-duplicate split audit | Cannot prove factual correctness or user consent |
@@ -24,6 +38,8 @@
 | setup_macos.sh / smoke_training.py | Locked environment; tiny MPS D0/D1/D2 forward/backward/update and export/reload | Does not establish full-size model fit, quality or training-run resume |
 | run_contract_demo.py | Observe/store/compile/evaluate/publish/restart/reject/rollback on deterministic XOR fixtures | Fixed symbolic compiler and curriculum; no LLM learning claim |
 | make_fixtures.py | 32 train + 16 dev solver-verified synthetic examples | Plumbing data only |
+| make_infrastructure_slice.py / infrastructure_solver.py | 2,000 source-bound targets / 1,000 worlds; independent raw-source chronology/solver checks; action/length/role accounting and duplicate rejection | Four mechanisms and grammar shared across roles; exposed audit/promotion fixtures, no unseen-mechanism or authentic-personal claim |
+| infrastructure_scoring.py / prepare_infrastructure_preflight.py | Strict whole-response action/task parsing; CPU constant/missing-fact controls; offline native token accounting and pinned 16-dev-world B1 case/spec packet | Semantic evaluator controls do not measure model evidence sensitivity; broad retention, calibration and useful-gain comparison remain pending |
 | make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
 | capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
 | run_generation_preflight.py | Standalone offline MPS evaluator watchdog; driver/host thresholds and final trace drain | Sampled operational guard; original training watchdog stays unchanged |
@@ -344,7 +360,7 @@ The memory store does not authenticate callers itself. Its strings are supplied 
 
 Build workspace from the entire already known prompt and support from already observed evidence. Never pool the teacher-forced answer into either. Prompt-position logits are not supervised in this formulation.
 
-The adapter owns a batch's context until backward completes. Only then release it. Reentrant or nonreentrant recomputation cannot perform storage writes, mutate counters or switch the context. The wrapper returns residual deltas and leaves native cache indices intact. Native cached generation is implemented for baseline/plain D0; augmented reader/workspace generation remains unimplemented.
+The adapter owns a batch's context until backward completes. Only then release it. Reentrant or nonreentrant recomputation cannot perform storage writes, mutate counters or switch the context. The wrapper returns residual deltas and leaves native cache indices intact. Native cached generation is implemented for baseline/plain D0; augmented fixed-context uncached generation is qualified, while augmented KV-cache support remains unimplemented.
 
 Frozen base parameters do not imply a no-grad wrapper around downstream decoder layers. New branches may need gradients through them. Fast state is explicit data, outside the long-lived optimizer; differentiate through it only in an arm whose objective requests that.
 
@@ -382,11 +398,58 @@ Exit: D0 and D2 perform real full-scope updates on the intended hardware without
 
 Implement source registry ingestion, rich episode provenance, split-before-expansion, causal cutoffs, independent validators and exact export. Add frozen external benchmark adapters only after protocol/license checks. Keep public benchmark labels away from teachers.
 
+The bounded [S1.2 infrastructure release](experiments/20261022_Infrastructure_Slice_V2.md)
+contains 1,200 train targets and 200 each dev/calibration/promotion/audit,
+balanced 50% answer / 25% ask / 25% unknown in every role. Source/solver/export
+checks pass for all 2,000 targets; automated stratified review covers 320
+episodes/160 worlds, not human annotation. Fifty-nine semantic-duplicate
+candidates were rejected, zero admitted. All four mechanisms appear in every
+role; use worlds as statistical units and keep the exposed role packets out of
+sealed claims.
+
+The host `input_view` already selects active eligible observations using
+chronology, corrections and tombstones. Native answers measure reasoning and
+action choice over the compiled snapshot, not model-owned temporal retrieval
+or correction detection from the full raw history.
+
+[Actual tokenizer accounting](../reports/infrastructure_preflight_v2_20261022/token_accounting.json)
+records 501,800 native tokens across all roles; train contains 300,369 native
+and 4,374 supervised answer/EOS tokens, with a separate 233,295-token
+source-writer view. Maximum full length is 334, with zero truncation under
+512. These are single-pass data counts, not total architecture compute or a
+training budget. The generator manifest's pending token-admission field is
+superseded by this external, release-hash-bound accounting report.
+
+S1.4 currently supplies strict parser/control contracts and a frozen-original
+B1 development preflight on 16 worlds: greedy cap 32, MPS FP32, ceiling 512,
+CPU fallback disabled, existing local source only. The dated release/preflight
+record owns raw generation and guard outcomes. No optimizer update or model
+checkpoint is part of this package. Strict rescoring gives 0/16 task-correct
+and format-valid, all 16 capped, no EOS, 15 distinct completions, with prose
+before the compact responses. Preserve that negative and its unchanged parser;
+it does not prove a specific cause or general semantic failure. Sampled live
+and driver MPS peaks are 9.416/10.081 GiB, profiled lifetime 17.7864 seconds;
+exact guard replay passes with zero observed swap growth. The code suite
+passes 613 tests with one restricted-context MPS skip, separately from native
+task acceptance. Next predeclare a versioned one-line output-contract
+development experiment with any prompt/cap changes frozen before rerunning,
+then qualify missing/shuffled-evidence model controls and independent
+retention/calibration cases. [S1.3 metadata](experiments/20261022_Public_Source_Admission_Review.md)
+pins public candidates but leaves component terms, linked pairs/split overlap
+and adapters unresolved; no public corpus is admitted.
+
 Exit: training manifest, stratified quality audit, leakage tests, generation-based task scores and equal-information/equal-budget controls. Source availability times and family groups survive export.
 
 ### P4 - D0/D1/D2 mechanism study
 
 Run tiny overfit, one-seed screen and shortlisted multi-seed comparisons. Add the parameter/compute-matched feed-forward control. Analyze failures instead of stacking more papers.
+
+D0/D1/D2 tiny infrastructure gates are complete. The [S2.4 proposal](experiments/20261022_S2_4_Screen_Proposal.md)
+is blocked until S1.5's source/data/evaluation admission passes; numeric rate
+configurations, token/compute budgets, sample sizes and power/exposure rules
+are not final. Reuse the one sealed original as the common trained-arm parent.
+Do not treat the new 2k fixture release or descriptive B1 preflight as campaign
+admission or useful architecture evidence.
 
 Exit: selected interface or justified negative result, task/retention/calibration results, measured overhead and actual trainable tensors. Do not stop at declining NLL.
 
