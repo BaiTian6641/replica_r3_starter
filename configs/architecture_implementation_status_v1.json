@@ -13,7 +13,7 @@
     "C01": "native MiniCPM5 text adapter; VLM separate",
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
     "C03": "exact temporal record ledger; task/action integration through the E3 runtime",
-    "C04": "contextual writer and D1 answer-loss reader candidate; record-token copy frame/head implemented with exact null/gradient/serialization; copy candidate rejected (0/16)",
+    "C04": "contextual writer/readers; additive copy rejected; exact-span pointer copy accepted opt-in (dev 3/6, heldout 2/10, shuffled 0/16)",
     "C05": "eligible lexical/native-dense candidates, explicit ranking objective (negative held-out top1), exact fetch; no automatic model-driven paging",
     "C08": "authorized goal, conditions, constraints, claims, obligations, exact journal; restart reconstruction passes 12/12 on a copied mixed repair",
     "C09": "core/workspace and action head; bounded mixed family 4/4 with and without head; full path 2/2 vs 1/2 for core-disabled/FF/extra controls; no recurrent-specific benefit",
@@ -23,8 +23,8 @@
     "C17": "request-owned frames and uncached decoding; scheduler/batching/cached generation pending",
     "C16": "identity archive/snapshot/context/modes/branch isolation, null prompt path and optional zero-init reader; no authentic source or trained conditioning",
     "C06": "functional fast memory + learned token-feature writer + native readers; 32-update delayed-use candidate rejected (0/8 heldout; 1/8 compositional, no control gain)",
-    "C12": "typed artifacts and fast writer extension; E4 candidate exported/validated but rejected; no publication",
-    "C14": "procedure candidate accepted; reranker candidate accepted opt-in; D1 reader candidate deferred (0/16); E4 delayed-use candidate rejected; E2 copy-head candidate rejected"
+    "C12": "typed artifacts; E2 pointer extension validated opt-in; E4 rejected; no default neural publication",
+    "C14": "procedure candidate accepted; reranker candidate accepted opt-in; D1 reader candidate deferred (0/16); E4 delayed-use candidate rejected; E2 copy-head candidate rejected; E2 pointer copy accepted opt-in"
   },
   "native_result": "reports/e3_native_attempt03_20261023/run_report.json",
   "interrupted_result": "reports/e3_interrupted_20261023/acceptance.json",
@@ -69,7 +69,9 @@
     "E3 success-head input contract corrected from full slots to 24 + pooled 256 runtime summary",
     "E2 record-token copy head: implemented/null/serialization pass, but trained copy bias changed no answers; 0/16 enabled and disabled; rejected",
     "E2 copy training loss did not descend (14.4/40-41 cycle) despite gate=0.0997; do not repeat this additive-bias arm",
-    "E2 copy CPU probe learns modestly but native additive-bias candidate does not; native rejection remains"
+    "E2 copy CPU probe learns modestly but native additive-bias candidate does not; native rejection remains",
+    "E2 pointer copy: dev 3/6, heldout 2/10, shuffled 0/16; opt-in only, flat training loss",
+    "E2 pointer copy emits exact source spans only; not connected to full action runtime"
   ],
   "retrieval_result": "reports/e2_retrieval_attempt03_20261023/run_report.json",
   "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",

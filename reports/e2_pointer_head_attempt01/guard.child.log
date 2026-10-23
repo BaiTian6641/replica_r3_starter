@@ -1,0 +1,15 @@
+W1023 07:55:46.962000 28528 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 916.31it/s]Loading weights:  49%|████▉     | 186/381 [00:00<00:00, 898.82it/s]Loading weights:  72%|███████▏  | 276/381 [00:00<00:00, 889.34it/s]Loading weights:  96%|█████████▌| 365/381 [00:00<00:00, 876.18it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 895.38it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_head.py", line 159, in <module>
+    if __name__=='__main__': main()
+                             ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_head.py", line 150, in main
+    with exclusive_mps_worker(ROOT): profiler.start(); execute(a,profiler,report)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_head.py", line 86, in execute
+    target=target_index(session,req,ids)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_e2_pointer_head.py", line 43, in target_index
+    raise ValueError(f'target span absent: {target_ids}')
+ValueError: target span absent: [11368]

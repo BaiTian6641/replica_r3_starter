@@ -1,0 +1,1116 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-23T12:56:12.081371+00:00",
+  "protocol_sha256": "594301539d3e77d93f55059caa098b576874267a7e8185e0809417750cec22b7",
+  "protocol": {
+    "format": "replica.e2.pointer_head.v1",
+    "declared_at_utc": "2026-10-23",
+    "purpose": "Train an exact source-span pointer head on fresh novel values; output copied spans directly. Base and E2 writer frozen.",
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+    "dataset": {
+      "root": "data/e2_copy",
+      "records_sha256": "2bea5441655dde84a6dda0f54a2e5f6bb3e90536ee1dab3ee4ebe447ab4dcac8",
+      "queries_sha256": "a2519fbba1b2656d480aee533911db61a1522c43885e63f39ae94d0cf744d13c",
+      "manifest_sha256": "adcd37e00c5896a0859426602488258860290064f19f2f07af208a96c1f0dd86"
+    },
+    "max_span": 4,
+    "updates": 16,
+    "examples_per_update": 4,
+    "lr": 0.01,
+    "lr_muon": 0.01,
+    "seed": 20261023,
+    "copy_scope": [
+      "copy_head"
+    ],
+    "selection": "lexical eligible records, 16-unit bank cap",
+    "evaluation": {
+      "dev": 6,
+      "heldout": 10,
+      "arms": [
+        "pointer_enabled",
+        "pointer_shuffled"
+      ],
+      "metric": "exact decoded copied span"
+    },
+    "decision_rule": {
+      "accept_opt_in": "enabled held-out > shuffled and dev not below shuffled and heldout > 0",
+      "reject": "otherwise"
+    },
+    "budget": {
+      "model_loads": 1,
+      "optimizer_updates": 16,
+      "eval_cases": 32,
+      "extension_saves": 1
+    },
+    "retention": "Keep parent, pointer extension, raw spans and failures; no base copy.",
+    "claims": "Pointer-copy candidate on synthetic novel values; no LM generation; opt-in only."
+  },
+  "downloads": 0,
+  "optimizer_updates": 16,
+  "checkpoints_saved": 0,
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+  "parent": {
+    "format": "replica.minicpm5.extensions.v1",
+    "manifest": {
+      "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+      "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+      "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+      "ports": {
+        "injection_layers": [
+          13,
+          27
+        ],
+        "observer_layer": 41,
+        "source_layer": 13,
+        "memory_width": 256,
+        "slots_per_unit": 4,
+        "max_units": 16,
+        "source_tokens": 128,
+        "heads": 4
+      },
+      "format_version": 1,
+      "training_scope": "text_only",
+      "cached_generation_supported": false
+    },
+    "manifest_digest": "088498bd3f4c3bcbf173309354ee290747f7b8b22dc8bff1a82720bddc479404",
+    "regime": "modules_only",
+    "weights_sha256": "94fc9504a98fab824659af19d90a9fd76ceea17f95dfdd72ccece0179e4799bf",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 43,
+        "parameters": 4878850,
+        "trainable": 4878850,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source."
+  },
+  "training": {
+    "optimizer": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "new_muon8bit",
+          "scope": "new",
+          "algorithm": "muon8bit",
+          "lr": 0.01,
+          "weight_decay": 0.0,
+          "param_names": [
+            "copy_head.query_projection.weight",
+            "copy_head.key_projection.weight"
+          ],
+          "tensors": 2,
+          "parameters": 8388608
+        },
+        {
+          "group_name": "new_adamw",
+          "scope": "new",
+          "algorithm": "adamw",
+          "lr": 0.01,
+          "weight_decay": 0.0,
+          "param_names": [
+            "copy_head.query_norm.weight",
+            "copy_head.query_norm.bias",
+            "copy_head.key_norm.weight",
+            "copy_head.key_norm.bias"
+          ],
+          "tensors": 4,
+          "parameters": 8192
+        }
+      ],
+      "state_tensor_bytes": 0,
+      "state_bytes_by_dtype": {}
+    },
+    "updates": [
+      {
+        "update": 1,
+        "mean_loss": 18.478761672973633
+      },
+      {
+        "update": 2,
+        "mean_loss": 18.756210327148438
+      },
+      {
+        "update": 3,
+        "mean_loss": 18.63998794555664
+      },
+      {
+        "update": 4,
+        "mean_loss": 18.7723445892334
+      },
+      {
+        "update": 5,
+        "mean_loss": 18.513516426086426
+      },
+      {
+        "update": 6,
+        "mean_loss": 18.750563144683838
+      },
+      {
+        "update": 7,
+        "mean_loss": 18.374318599700928
+      },
+      {
+        "update": 8,
+        "mean_loss": 18.668288707733154
+      },
+      {
+        "update": 9,
+        "mean_loss": 18.54830265045166
+      },
+      {
+        "update": 10,
+        "mean_loss": 18.694550037384033
+      },
+      {
+        "update": 11,
+        "mean_loss": 18.440121173858643
+      },
+      {
+        "update": 12,
+        "mean_loss": 18.69211721420288
+      },
+      {
+        "update": 13,
+        "mean_loss": 18.37282371520996
+      },
+      {
+        "update": 14,
+        "mean_loss": 18.668044567108154
+      },
+      {
+        "update": 15,
+        "mean_loss": 18.54777431488037
+      },
+      {
+        "update": 16,
+        "mean_loss": 18.69300365447998
+      }
+    ]
+  },
+  "extension": {
+    "path": "runs/e2_pointer_head_attempt02/selected_extension",
+    "format": "replica.minicpm5.extensions.v2",
+    "weights_sha256": "359af59a3146b0daf3c3fb985cdeeea2fab2aeeddeb5bbd806b4710b5a7fea24",
+    "manifest_digest": "9712a6d7b2fb136faf2a3a3c89a6c099e67d824e42ee9b47afffc981879a9e73",
+    "parameters": {
+      "regime": "modules_only",
+      "original": {
+        "tensors": 381,
+        "parameters": 2516756480,
+        "trainable": 0,
+        "names": []
+      },
+      "new": {
+        "tensors": 49,
+        "parameters": 13275650,
+        "trainable": 13275650,
+        "names": [
+          "record_writer.encoder.slot_queries",
+          "record_writer.encoder.input_norm.weight",
+          "record_writer.encoder.input_norm.bias",
+          "record_writer.encoder.input_projection.weight",
+          "record_writer.encoder.attention.in_proj_weight",
+          "record_writer.encoder.attention.in_proj_bias",
+          "record_writer.encoder.attention.out_proj.weight",
+          "record_writer.encoder.attention.out_proj.bias",
+          "record_writer.encoder.output_norm.weight",
+          "record_writer.encoder.output_norm.bias",
+          "memory_ports.13.gate_logit",
+          "memory_ports.13.query_norm.weight",
+          "memory_ports.13.query_norm.bias",
+          "memory_ports.13.memory_norm.weight",
+          "memory_ports.13.memory_norm.bias",
+          "memory_ports.13.query_projection.weight",
+          "memory_ports.13.key_projection.weight",
+          "memory_ports.13.value_projection.weight",
+          "memory_ports.13.output_projection.weight",
+          "memory_ports.27.gate_logit",
+          "memory_ports.27.query_norm.weight",
+          "memory_ports.27.query_norm.bias",
+          "memory_ports.27.memory_norm.weight",
+          "memory_ports.27.memory_norm.bias",
+          "memory_ports.27.query_projection.weight",
+          "memory_ports.27.key_projection.weight",
+          "memory_ports.27.value_projection.weight",
+          "memory_ports.27.output_projection.weight",
+          "sense_ports.13.input_norm.weight",
+          "sense_ports.13.input_norm.bias",
+          "sense_ports.13.projection.weight",
+          "sense_ports.27.input_norm.weight",
+          "sense_ports.27.input_norm.bias",
+          "sense_ports.27.projection.weight",
+          "sense_ports.41.input_norm.weight",
+          "sense_ports.41.input_norm.bias",
+          "sense_ports.41.projection.weight",
+          "reranker.query_norm.weight",
+          "reranker.query_norm.bias",
+          "reranker.record_norm.weight",
+          "reranker.record_norm.bias",
+          "reranker.query_projection.weight",
+          "reranker.record_projection.weight",
+          "copy_head.query_norm.weight",
+          "copy_head.query_norm.bias",
+          "copy_head.key_norm.weight",
+          "copy_head.key_norm.bias",
+          "copy_head.query_projection.weight",
+          "copy_head.key_projection.weight"
+        ]
+      }
+    },
+    "base_saved": false,
+    "bytes": 53113804
+  },
+  "enabled": [
+    {
+      "case_id": "copy_dev_01",
+      "split": "dev",
+      "answer": "flint",
+      "expected": "mauve",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_02",
+      "split": "dev",
+      "answer": "hazel",
+      "expected": "umber",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_03",
+      "split": "dev",
+      "answer": "maroon",
+      "expected": "lilac",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_04",
+      "split": "dev",
+      "answer": "flint",
+      "expected": "flint",
+      "correct": true
+    },
+    {
+      "case_id": "copy_dev_05",
+      "split": "dev",
+      "answer": "hazel",
+      "expected": "hazel",
+      "correct": true
+    },
+    {
+      "case_id": "copy_dev_06",
+      "split": "dev",
+      "answer": "maroon",
+      "expected": "maroon",
+      "correct": true
+    },
+    {
+      "case_id": "copy_heldout_01",
+      "split": "heldout",
+      "answer": "Flint",
+      "expected": "mint",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_02",
+      "split": "heldout",
+      "answer": "navy",
+      "expected": "navy",
+      "correct": true
+    },
+    {
+      "case_id": "copy_heldout_03",
+      "split": "heldout",
+      "answer": "magenta",
+      "expected": "peach",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_04",
+      "split": "heldout",
+      "answer": "amber",
+      "expected": "plum",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_05",
+      "split": "heldout",
+      "answer": "blue",
+      "expected": "rust",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_06",
+      "split": "heldout",
+      "answer": "silver",
+      "expected": "sage",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_07",
+      "split": "heldout",
+      "answer": "crimson",
+      "expected": "vermilion",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_08",
+      "split": "heldout",
+      "answer": "amber",
+      "expected": "cerulean",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_09",
+      "split": "heldout",
+      "answer": "blue",
+      "expected": "chartreuse",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_10",
+      "split": "heldout",
+      "answer": "magenta",
+      "expected": "magenta",
+      "correct": true
+    }
+  ],
+  "shuffled": [
+    {
+      "case_id": "copy_dev_01",
+      "split": "dev",
+      "answer": "hazel",
+      "expected": "mauve",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_02",
+      "split": "dev",
+      "answer": "maroon",
+      "expected": "umber",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_03",
+      "split": "dev",
+      "answer": "flint",
+      "expected": "lilac",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_04",
+      "split": "dev",
+      "answer": "hazel",
+      "expected": "flint",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_05",
+      "split": "dev",
+      "answer": "maroon",
+      "expected": "hazel",
+      "correct": false
+    },
+    {
+      "case_id": "copy_dev_06",
+      "split": "dev",
+      "answer": "Flint",
+      "expected": "maroon",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_01",
+      "split": "heldout",
+      "answer": "navy",
+      "expected": "mint",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_02",
+      "split": "heldout",
+      "answer": "magenta",
+      "expected": "navy",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_03",
+      "split": "heldout",
+      "answer": "amber",
+      "expected": "peach",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_04",
+      "split": "heldout",
+      "answer": "cer",
+      "expected": "plum",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_05",
+      "split": "heldout",
+      "answer": "silver",
+      "expected": "rust",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_06",
+      "split": "heldout",
+      "answer": "crimson",
+      "expected": "sage",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_07",
+      "split": "heldout",
+      "answer": "amber",
+      "expected": "vermilion",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_08",
+      "split": "heldout",
+      "answer": "violet",
+      "expected": "cerulean",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_09",
+      "split": "heldout",
+      "answer": "silver",
+      "expected": "chartreuse",
+      "correct": false
+    },
+    {
+      "case_id": "copy_heldout_10",
+      "split": "heldout",
+      "answer": "flint",
+      "expected": "magenta",
+      "correct": false
+    }
+  ],
+  "metrics": {
+    "enabled": {
+      "dev": 0.5,
+      "heldout": 0.2
+    },
+    "shuffled": {
+      "dev": 0.0,
+      "heldout": 0.0
+    },
+    "answers": {
+      "flint": 2,
+      "hazel": 2,
+      "maroon": 2,
+      "Flint": 1,
+      "navy": 1,
+      "magenta": 2,
+      "amber": 2,
+      "blue": 2,
+      "silver": 1,
+      "crimson": 1
+    }
+  },
+  "decision": "accept_opt_in",
+  "deployment": "opt_in_only",
+  "claims": "Pointer copy on fresh synthetic novel values; no LM generation; opt-in evaluation only.",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-23T12:56:12.081759+00:00",
+    "ended_at": "2026-10-23T12:56:49.452376+00:00",
+    "elapsed_seconds": 37.369843292050064,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 160,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15557328896,
+      "rss_peak_sampled_bytes": 3379806208,
+      "mps_allocated_peak_sampled_bytes": 10757999616,
+      "mps_driver_peak_sampled_bytes": 11815763968
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-23T12:56:12.082518+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 90%",
+      "memory_free_percent": 90.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-23T12:56:49.429141+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 3072.00M  used = 1466.69M  free = 1605.31M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 3221225472,
+        "used_bytes": 1537935933,
+        "free_bytes": 1683289538
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 73%",
+      "memory_free_percent": 73.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-23T12:56:16.299344+00:00",
+        "elapsed_seconds": 4.10526033397764,
+        "seconds_since_previous_mark": 4.10526033397764,
+        "synchronize_seconds": 5.666865035891533e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:16.187138+00:00",
+          "elapsed_seconds": 4.105272583896294,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3157245952,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10128518144,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 49,
+              "parameters": 13275650,
+              "trainable": 13275650,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "copy_head.query_norm.weight",
+                "copy_head.query_norm.bias",
+                "copy_head.key_norm.weight",
+                "copy_head.key_norm.bias",
+                "copy_head.query_projection.weight",
+                "copy_head.key_projection.weight"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:19.019533+00:00",
+        "elapsed_seconds": 6.937490292126313,
+        "seconds_since_previous_mark": 2.832229958148673,
+        "synchronize_seconds": 0.00165200000628829,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:19.019440+00:00",
+          "elapsed_seconds": 6.93751124991104,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3319939072,
+          "rss_measurement_age_seconds": 0.6033687079325318,
+          "mps_allocated_bytes": 10145496576,
+          "mps_driver_bytes": 10796056576
+        },
+        "fields": {
+          "update": 1,
+          "loss": 18.478761672973633
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:20.746997+00:00",
+        "elapsed_seconds": 8.664888124912977,
+        "seconds_since_previous_mark": 1.7273978327866644,
+        "synchronize_seconds": 0.0010868331883102655,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:20.746883+00:00",
+          "elapsed_seconds": 8.664910916937515,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3347382272,
+          "rss_measurement_age_seconds": 0.21820562495850027,
+          "mps_allocated_bytes": 10146954752,
+          "mps_driver_bytes": 10796220416
+        },
+        "fields": {
+          "update": 2,
+          "loss": 18.756210327148438
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:22.382525+00:00",
+        "elapsed_seconds": 10.300406875088811,
+        "seconds_since_previous_mark": 1.6355187501758337,
+        "synchronize_seconds": 0.0012484579347074032,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:22.382435+00:00",
+          "elapsed_seconds": 10.300420708954334,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3347382272,
+          "rss_measurement_age_seconds": 1.8537103328853846,
+          "mps_allocated_bytes": 10148077056,
+          "mps_driver_bytes": 10796384256
+        },
+        "fields": {
+          "update": 3,
+          "loss": 18.63998794555664
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:24.059982+00:00",
+        "elapsed_seconds": 11.977834291988984,
+        "seconds_since_previous_mark": 1.6774274169001728,
+        "synchronize_seconds": 0.0009986248333007097,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:24.059899+00:00",
+          "elapsed_seconds": 11.977846750058234,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3359981568,
+          "rss_measurement_age_seconds": 1.397066165925935,
+          "mps_allocated_bytes": 10150330112,
+          "mps_driver_bytes": 10804871168
+        },
+        "fields": {
+          "update": 4,
+          "loss": 18.7723445892334
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:25.698646+00:00",
+        "elapsed_seconds": 13.616459459066391,
+        "seconds_since_previous_mark": 1.6386251670774072,
+        "synchronize_seconds": 0.0009505420457571745,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:25.698560+00:00",
+          "elapsed_seconds": 13.616471041925251,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3373744128,
+          "rss_measurement_age_seconds": 0.9097890420816839,
+          "mps_allocated_bytes": 10149838592,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 5,
+          "loss": 18.513516426086426
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:27.298309+00:00",
+        "elapsed_seconds": 15.216086166910827,
+        "seconds_since_previous_mark": 1.5996267078444362,
+        "synchronize_seconds": 0.0009697920177131891,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:27.298221+00:00",
+          "elapsed_seconds": 15.21610466693528,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3379560448,
+          "rss_measurement_age_seconds": 0.3975309592206031,
+          "mps_allocated_bytes": 10149863168,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 6,
+          "loss": 18.750563144683838
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:28.816703+00:00",
+        "elapsed_seconds": 16.734466833993793,
+        "seconds_since_previous_mark": 1.5183806670829654,
+        "synchronize_seconds": 0.0009698329959064722,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:28.816633+00:00",
+          "elapsed_seconds": 16.734477374935523,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3379560448,
+          "rss_measurement_age_seconds": 1.9159022502135485,
+          "mps_allocated_bytes": 10149428736,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 7,
+          "loss": 18.374318599700928
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:30.475925+00:00",
+        "elapsed_seconds": 18.39363779197447,
+        "seconds_since_previous_mark": 1.6591709579806775,
+        "synchronize_seconds": 0.0009794579818844795,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:30.475839+00:00",
+          "elapsed_seconds": 18.39365050010383,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3379773440,
+          "rss_measurement_age_seconds": 1.4557666250038892,
+          "mps_allocated_bytes": 10149502464,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 8,
+          "loss": 18.668288707733154
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:32.021515+00:00",
+        "elapsed_seconds": 19.939204083988443,
+        "seconds_since_previous_mark": 1.545566292013973,
+        "synchronize_seconds": 0.0009665000252425671,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:32.021436+00:00",
+          "elapsed_seconds": 19.939216708997265,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3379789824,
+          "rss_measurement_age_seconds": 0.8741960830520838,
+          "mps_allocated_bytes": 10149379584,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 9,
+          "loss": 18.54830265045166
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:33.620257+00:00",
+        "elapsed_seconds": 21.537916334113106,
+        "seconds_since_previous_mark": 1.5987122501246631,
+        "synchronize_seconds": 0.000950666842982173,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:33.620179+00:00",
+          "elapsed_seconds": 21.537928374949843,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3379806208,
+          "rss_measurement_age_seconds": 0.3638393748551607,
+          "mps_allocated_bytes": 10150330112,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 10,
+          "loss": 18.694550037384033
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:35.168359+00:00",
+        "elapsed_seconds": 23.086015917127952,
+        "seconds_since_previous_mark": 1.5480995830148458,
+        "synchronize_seconds": 0.000991750042885542,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:35.168309+00:00",
+          "elapsed_seconds": 23.08602362498641,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 3379806208,
+          "rss_measurement_age_seconds": 1.9119328330270946,
+          "mps_allocated_bytes": 10149838592,
+          "mps_driver_bytes": 10813341696
+        },
+        "fields": {
+          "update": 11,
+          "loss": 18.440121173858643
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:36.760942+00:00",
+        "elapsed_seconds": 24.67852787510492,
+        "seconds_since_previous_mark": 1.592511957976967,
+        "synchronize_seconds": 0.0009483329486101866,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:36.760853+00:00",
+          "elapsed_seconds": 24.678539459127933,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 2374172672,
+          "rss_measurement_age_seconds": 1.373270665993914,
+          "mps_allocated_bytes": 10149863168,
+          "mps_driver_bytes": 10821730304
+        },
+        "fields": {
+          "update": 12,
+          "loss": 18.69211721420288
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:38.318015+00:00",
+        "elapsed_seconds": 26.235608875053003,
+        "seconds_since_previous_mark": 1.5570809999480844,
+        "synchronize_seconds": 0.0009629579726606607,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:38.317962+00:00",
+          "elapsed_seconds": 26.235616750083864,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 2374205440,
+          "rss_measurement_age_seconds": 0.8301712088286877,
+          "mps_allocated_bytes": 10149428736,
+          "mps_driver_bytes": 10821730304
+        },
+        "fields": {
+          "update": 13,
+          "loss": 18.37282371520996
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:39.952472+00:00",
+        "elapsed_seconds": 27.86999174999073,
+        "seconds_since_previous_mark": 1.634382874937728,
+        "synchronize_seconds": 0.000977667048573494,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:39.952377+00:00",
+          "elapsed_seconds": 27.87000379199162,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 2374254592,
+          "rss_measurement_age_seconds": 0.3630226249806583,
+          "mps_allocated_bytes": 10149502464,
+          "mps_driver_bytes": 10821730304
+        },
+        "fields": {
+          "update": 14,
+          "loss": 18.668044567108154
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:41.491619+00:00",
+        "elapsed_seconds": 29.40913433395326,
+        "seconds_since_previous_mark": 1.53914258396253,
+        "synchronize_seconds": 0.0009398749098181725,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:41.491549+00:00",
+          "elapsed_seconds": 29.409145459067076,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 2374254592,
+          "rss_measurement_age_seconds": 1.9021638338454068,
+          "mps_allocated_bytes": 10149379584,
+          "mps_driver_bytes": 10821730304
+        },
+        "fields": {
+          "update": 15,
+          "loss": 18.54777431488037
+        }
+      },
+      {
+        "type": "phase",
+        "phase": "pointer_update",
+        "timestamp": "2026-10-23T12:56:43.085934+00:00",
+        "elapsed_seconds": 31.003390124998987,
+        "seconds_since_previous_mark": 1.5942557910457253,
+        "synchronize_seconds": 0.0010161250829696655,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-23T12:56:43.085835+00:00",
+          "elapsed_seconds": 31.003405916970223,
+          "phase": "pointer_update",
+          "rss_peak_process_lifetime_bytes": 15557328896,
+          "rss_current_bytes": 2374254592,
+          "rss_measurement_age_seconds": 1.3799125829245895,
+          "mps_allocated_bytes": 10150330112,
+          "mps_driver_bytes": 10821730304
+        },
+        "fields": {
+          "update": 16,
+          "loss": 18.69300365447998
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 37.369843292050064,
+    "sampled_peak_driver_bytes": 11815763968
+  },
+  "ended_at_utc": "2026-10-23T12:56:49.453132+00:00"
+}

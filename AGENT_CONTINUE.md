@@ -32,6 +32,10 @@ left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
 Deferred, no default change. See
 [reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
 
+**E2 exact-span pointer (23 October):** opt-in novel-value copy, dev 3/6,
+heldout 2/10, shuffled 0/16; flat training loss, no default. See
+[pointer results](docs/experiments/20261023_E2_Pointer_Copy_Results.md).
+
 **E2 record-token copy head (23 October):** interface/null/serialization pass;
 copy-enabled and disabled both 0/16; rejected. See
 [copy-head results](docs/experiments/20261023_E2_Copy_Head_Results.md).
