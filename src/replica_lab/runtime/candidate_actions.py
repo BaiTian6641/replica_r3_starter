@@ -36,23 +36,29 @@ def build_action_menu(tools, state) -> tuple[dict, ...]:
             result.get('stderr_excerpt') or '', result.get('stdout_excerpt') or ''))).strip()
         if failure_text:
             break
+    invalid_name, invalid_threshold = None, None
     if failure_text:
         try:
             from .procedures import parse_failure_bound
             bound = parse_failure_bound(failure_text)
-            name, expected, actual = (bound['name'], float(bound['expected']),
-                                      float(bound['actual']))
-            for value in (expected, actual, expected + max(1.0, abs(expected) * 0.1)):
+            name, expected = bound['name'], float(bound['expected'])
+            # The observed failure already contradicts values below the bound.
+            # Keep two viable choices; the model still selects among them.
+            for value in (expected, expected + max(1.0, abs(expected) * 0.1)):
                 candidates.append({'kind': 'invoke_tool', 'tool': 'set_constant',
                                    'arguments': {'name': name, 'value': value}})
+            invalid_name, invalid_threshold = name, expected
         except ValueError:
             pass
     try:
         for item in tools.constant_candidates():
-            if item.get('name') and isinstance(item.get('value'), (int, float)):
-                candidates.append({'kind': 'invoke_tool', 'tool': 'set_constant',
-                                   'arguments': {'name': item['name'],
-                                                 'value': float(item['value'])}})
+            if not item.get('name') or not isinstance(item.get('value'), (int, float)):
+                continue
+            if item['name'] == invalid_name and float(item['value']) < invalid_threshold:
+                continue
+            candidates.append({'kind': 'invoke_tool', 'tool': 'set_constant',
+                               'arguments': {'name': item['name'],
+                                             'value': float(item['value'])}})
     except Exception:
         pass
     result, seen = [], set()

@@ -1,0 +1,51 @@
+{
+  "format": "replica.e3.candidate_restart.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Fresh-process restart after filtering only candidates contradicted by the observed failure; fresh family, no training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_candidate_restart2/cases",
+    "manifest_sha256": "cb657aa5344e7ebcb2a884b22f5ff06ac856ce68955746102dbedfc72c2609af",
+    "heldout": [
+      "restart2_heldout_01",
+      "restart2_heldout_02",
+      "restart2_heldout_03"
+    ]
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "processes": {
+    "one": {
+      "max_steps": 2
+    },
+    "two": {
+      "max_steps": 5
+    }
+  },
+  "evaluation": {
+    "cases": [
+      "restart2_heldout_01",
+      "restart2_heldout_02",
+      "restart2_heldout_03"
+    ],
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 1024,
+    "generated_tokens": 128
+  },
+  "limits": {
+    "driver_gib": 40,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "claims": "Restart and invalid-candidate filtering only; no training/default promotion."
+}
