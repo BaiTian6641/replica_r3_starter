@@ -215,7 +215,8 @@ def execute(args, profiler, report):
     if protocol['format'] not in ('replica.e2_capacity.qualification.v1',
                                   'replica.e2_capacity.qualification.v2',
                                   'replica.e2_capacity.qualification.v3',
-                                  'replica.e2_capacity.qualification.v4'):
+                                  'replica.e2_capacity.qualification.v4',
+                                  'replica.e2_capacity.qualification.v5'):
         raise ValueError('Unknown capacity protocol')
     data_root = ROOT / protocol['dataset']['root']
     manifest = json.loads((data_root / 'manifest.json').read_text())
@@ -257,7 +258,7 @@ def execute(args, profiler, report):
                      authorized_branch=record.branch_id, source_authorized=False)
     scope = EligibilityScope(records[0].subject_id, records[0].branch_id,
                              records[0].purpose, 10, 'assistant_for_source', None)
-    session = MemorySession(model, tokenizer, ledger, max_candidate_units=64)
+    session = MemorySession(model, tokenizer, ledger, max_candidate_units=max(64, declared_units * 2))
     task = TaskGraph('capacity', 'measure bounded memory path')
     all_spans = session.spans(records)
     if len(all_spans) != declared_units:
