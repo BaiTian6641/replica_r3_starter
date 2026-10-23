@@ -43,12 +43,24 @@ def main():
     from replica_lab.runtime.workspace_store import WorkspaceStore
 
     tools = FixtureWorkspace(args.case)
-    binding = {
-        'task_id': tools.case_id, 'subject': tools.case_id,
-        'branch': 'main', 'purpose': 'bounded_repair', 'source_epoch': 0,
-        'goal_digest': fingerprint(tools.goal),
-        'component_versions': component_versions(),
-    }
+    # Reuse the recorded binding verbatim: the native CLI adds its resolved
+    # budget digest to component_versions, and the journal is the authority for
+    # the exact task identity. Validate the identity fields we depend on.
+    import sqlite3
+    connection = sqlite3.connect(str(args.journal))
+    try:
+        row = connection.execute(
+            "SELECT payload FROM events WHERE kind='binding' ORDER BY seq LIMIT 1").fetchone()
+    finally:
+        connection.close()
+    if row is None:
+        raise ValueError('Journal has no binding event')
+    binding = json.loads(row[0])['binding']
+    expected = {'task_id': tools.case_id, 'subject': tools.case_id,
+                'branch': 'main', 'purpose': 'bounded_repair', 'source_epoch': 0,
+                'goal_digest': fingerprint(tools.goal)}
+    if any(binding.get(key) != value for key, value in expected.items()):
+        raise ValueError('Journal identity does not match this case/branch/purpose')
     journal = TaskJournal.open(args.journal, binding)
     try:
         before = journal.load()
