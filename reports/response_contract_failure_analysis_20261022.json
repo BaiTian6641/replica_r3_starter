@@ -1,0 +1,47 @@
+{
+  "schema_version": "replica.response_contract_failure_review.v1",
+  "reviewed_at_utc": "2026-10-23T00:46:56.656694+00:00",
+  "review_scope": "Independent local artifact/template inspection before the new run; causal test not yet performed",
+  "old_raw_report_sha256": "ef8bee9f49276a22fcca7109a34d57c502be49ea34543410f8394ace51c99541",
+  "verified_observations": {
+    "cases": 16,
+    "caps": 16,
+    "EOS": 0,
+    "distinct_completions": 15,
+    "generated_tokens": 512,
+    "device": "mps",
+    "parameter_dtypes": [
+      "torch.float32"
+    ],
+    "parameter_devices": [
+      "mps"
+    ],
+    "effective_chat_template_sha256": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+    "rendered_generation_suffix": "im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "thinking_block_closed_before_generated_answer": true
+  },
+  "semantic_warning_cases": [
+    {
+      "id": "i2s41-de-fsm-001.q0",
+      "observed_issue": "Old completion assumes START corresponds to S0 despite absent START; semantic/evidence use warning, not merely missing response format."
+    },
+    {
+      "id": "i2s41-de-reg-003.q0",
+      "observed_issue": "Old completion refuses computation rather than asking for missing MASK."
+    }
+  ],
+  "supported_failure_description": "All old responses spend their cap on prose; original prompt omits canonical one-line grammar. Closed thinking prefix does not forbid answer-channel explanations. At least one unsupported default is visible.",
+  "hypothesis": "Uniform explicit output grammar and no invented missing values may improve compliance at fixed cap32. Semantic task correctness must be measured separately.",
+  "not_established": [
+    "formatting as sole cause",
+    "intrinsic model semantic inability",
+    "Muon optimizer defect from a frozen baseline",
+    "hardware or local-source corruption cause",
+    "benefit of any individual instruction sentence"
+  ],
+  "planned_intervention": "configs/response_contract_v1.json",
+  "preliminary_native_full_max": 429,
+  "preliminary_prompt_max": 426,
+  "no_model_loaded": true,
+  "downloads": 0
+}
