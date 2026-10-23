@@ -3,7 +3,7 @@
 ## Repository
 
 - Branch: `codex/d2-capacity-runtime-pilot`
-- Last code/test HEAD: the filtered candidate-restart integration; documentation follows.
+- Last code/test HEAD: the C13 runtime-summary-to-director integration; documentation follows.
 - Full suite at the code HEAD: **1171 passed, 21 subtests**.
 - Worktree: protected `src/replica_lab/runtime_pilot.py` remains untracked and
   unmodified; generated guard logs were removed. No native job is active.
@@ -51,7 +51,8 @@
    is **14/14 (12/12 held-out)** vs random 0/11. It is opt-in, narrow, and not a
    free-form policy generalization.
 2. **Learned C13 director** has no trained ranking policy or checked-proposal
-   dataset. The deterministic baseline is not a capability result.
+   dataset. A runtime-summary adapter now connects actual outcomes to the
+   deterministic director, but this is not a capability result.
 3. **C17 native cache reuse** is not implemented; admission and an exact-key
    bounded host-payload cache exist, but fresh re-prefill remains the reference.
 4. **E4 learned delayed-use/practice** candidates were rejected; fast memory and
