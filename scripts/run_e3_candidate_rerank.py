@@ -9,6 +9,7 @@ for k in ('HF_HUB_OFFLINE','TRANSFORMERS_OFFLINE','HF_DATASETS_OFFLINE'):os.envi
 os.environ['PYTORCH_ENABLE_MPS_FALLBACK']='0'
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'));sys.path.insert(0,str(ROOT/'scripts'))
 from run_e3_qualification import admit_policy, canonical, component_binding, initial_state
+from replica_lab.runtime.candidate_actions import build_action_menu
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--device',choices=['mps'],default='mps')
@@ -32,34 +33,6 @@ def main():
   profile=prof.stop();mem=(profile or {}).get('memory') or {};report.update(profile=profile,costs={'profiled_wall_seconds':(profile or {}).get('elapsed_seconds'),'sampled_peak_driver_bytes':mem.get('mps_driver_peak_sampled_bytes'),'sampled_peak_rss_bytes':mem.get('rss_peak_sampled_bytes')})
   report['ended_at_utc']=datetime.now(timezone.utc).isoformat();(a.output/('run_report.json' if report['status']=='completed' else 'failure_report.json')).write_text(json.dumps(report,indent=2)+'\n')
  print(json.dumps({'status':report['status'],'completions':report.get('completions'),'costs':report.get('costs')}))
-def menu(tools,state):
- cands=[{'kind':'read','path':tools.workspace_entry},{'kind':'invoke_tool','tool':'run_test','arguments':{}},{'kind':'stop'}]
- # Only observed failure text and current constants construct candidates.
- text=''
- for outcome in state.outcomes:
-  if outcome.status not in ('failed','completed'):continue
-  result=dict(outcome.result);receipt=dict(outcome.receipt or {})
-  if result.get('kind')=='verify_success' or 'receipt' not in result and not receipt:continue
-  text=(receipt.get('stderr_excerpt') or '')+'\n'+(receipt.get('stdout_excerpt') or '')+'\n'+(result.get('stderr_excerpt') or '')+'\n'+(result.get('stdout_excerpt') or '')
-  if text.strip():break
- if text.strip():
-  try:
-   from replica_lab.runtime.procedures import parse_failure_bound
-   b=parse_failure_bound(text);name=b['name'];expected=float(b['expected']);actual=float(b['actual'])
-   for value in (expected,actual,expected+max(1.0,abs(expected)*0.1)):
-    cands.append({'kind':'invoke_tool','tool':'set_constant','arguments':{'name':name,'value':value}})
-  except ValueError:pass
- # A second legal constant value prevents a single-option repair menu.
- try:
-  for item in tools.constant_candidates():
-   if item.get('name') and isinstance(item.get('value'),(int,float)):
-    cands.append({'kind':'invoke_tool','tool':'set_constant','arguments':{'name':item['name'],'value':float(item['value'])}})
- except Exception:pass
- out=[];seen=set()
- for c in cands:
-  raw=canonical(c)
-  if raw not in seen:seen.add(raw);out.append(c)
- return out
 class OneAction:
  def __init__(self,raw,prompt_tokens,target_ids):self.raw=raw;self.prompt_tokens=prompt_tokens;self.target_ids=target_ids
  def __call__(self,request):
@@ -91,7 +64,7 @@ def execute(args,protocol,report,prof):
   traces=[];score_rows=[];rng=__import__('random').Random(args.seed)
   for step in range(int(protocol['evaluation']['max_decisions'])):
    if runtime.state.is_complete(runtime.verifier):break
-   cands=menu(tools,runtime.state)
+   cands=list(build_action_menu(tools,runtime.state))
    prompt=runtime._build_prompt(runtime.state)+'\nCANDIDATE ACTIONS (host enumerates; model scores or random control selects):\n'+'\n'.join('- '+canonical(c) for c in cands)
    ids=encode_prompt(tok,prompt,'mps')
    if ids.shape[1]>int(protocol['evaluation']['prompt_tokens']):raise ValueError('candidate prompt exceeds budget')
