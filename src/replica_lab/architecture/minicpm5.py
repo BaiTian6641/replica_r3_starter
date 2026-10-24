@@ -397,13 +397,15 @@ class MiniCPM5Adapter(nn.Module):
         return result
 
     def gradient_audit(self):
+        def dense_gradient(parameter):
+            return parameter.grad.to_dense() if parameter.grad is not None and parameter.grad.is_sparse else parameter.grad
         result = {}
         for group, pairs in (('original', self.base.named_parameters()), ('new', self.new_named_parameters())):
             pairs = list(pairs)
             result[group] = {'eligible': sum(p.requires_grad for _, p in pairs),
                 'present': [n for n, p in pairs if p.grad is not None],
-                'nonzero': [n for n, p in pairs if p.grad is not None and bool(p.grad.ne(0).any())],
-                'nonfinite': [n for n, p in pairs if p.grad is not None and not bool(torch.isfinite(p.grad).all())]}
+                'nonzero': [n for n, p in pairs if p.grad is not None and bool(dense_gradient(p).ne(0).any())],
+                'nonfinite': [n for n, p in pairs if p.grad is not None and not bool(torch.isfinite(dense_gradient(p)).all())]}
         return result
 
     def _inputs(self, input_ids, valid):

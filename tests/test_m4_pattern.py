@@ -197,3 +197,20 @@ def test_m4_hash_collection_counts_lookups_and_unique_indices():
     assert lookups >= len(hashes)
     assert lookups - len(hashes) >= 0
     assert all(isinstance(key, tuple) and len(key) == 3 for key in counts)
+
+
+def test_gradient_audit_densifies_sparse_gradients():
+    adapter = tiny_adapter(pattern=SPEC).train()
+    for name, parameter in adapter.new_named_parameters():
+        parameter.requires_grad_(name.startswith('pattern_port.'))
+    ids = torch.tensor([[1, 2, 3, 4]])
+    valid = torch.ones_like(ids, dtype=torch.bool)
+    hidden = torch.randn(1, 4, 16)
+    loss = adapter.pattern_port(hidden, ids, valid).sum()
+    loss.backward()
+    audit = adapter.gradient_audit()
+    assert not audit['new']['nonfinite']
+    assert 'pattern_port.output_projection.weight' in audit['new']['nonzero']
+    assert set(audit['new']['present']) >= {
+        'pattern_port.tables.2_0.weight', 'pattern_port.tables.2_1.weight',
+        'pattern_port.tables.3_0.weight', 'pattern_port.tables.3_1.weight'}
