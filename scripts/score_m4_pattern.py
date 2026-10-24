@@ -114,6 +114,11 @@ def main():
         'restart_state_equal': source['restart']['state_digest_equal'],
         'restart_lineage_equal': source['restart']['lineage_equal'],
         'restart_answer_equal': source['restart']['answer_equal'],
+        'restart_token_ids_equal': source['restart']['token_ids_equal'],
+        'restart_extension_equal': (source['restart']['extension_manifest_equal']
+                                    and source['restart']['extension_weights_equal']),
+        'restart_pattern_answer_equal': (source['restart']['pattern_answer_equal']
+                                         and source['restart']['pattern_token_ids_equal']),
         'correction_independent_success': all(
             item['state_changed'] and item['stale_rejected'] and item['corrected_answer']['correct']
             for item in source['correction']),
@@ -143,7 +148,8 @@ def main():
                 + [row for values in source['general_dev'].values() for row in values]
                 + source['train_results']
                 + [row for item in source['correction'] for row in (item['original_answer'], item['corrected_answer'])]
-                + [source['restart']['reloaded_answer'], source['restart']['correct_answer']])
+                + [source['restart']['reloaded_answer'], source['restart']['correct_answer'],
+                   source['restart']['pattern_reloaded_answer']])
     generation_counts = {
         'parent': (len(source['parent']['main']['fast']) + len(source['parent']['main']['disabled'])
                    + len(source['parent']['retention']['fast']) + len(source['parent']['retention']['disabled'])
@@ -151,7 +157,7 @@ def main():
         'candidate': sum(len(values) for values in source['candidate'].values()),
         'general': sum(len(values) for values in source['general'].values()),
         'general_dev': sum(len(values) for values in source['general_dev'].values()),
-        'train': len(source['train_results']), 'correction': 2 * len(source['correction']), 'restart': 2}
+        'train': len(source['train_results']), 'correction': 2 * len(source['correction']), 'restart': 3}
     generation_counts['total'] = sum(generation_counts.values())
     if generation_counts['total'] != len(all_rows):
         raise ValueError('M4 verdict generation accounting mismatch')

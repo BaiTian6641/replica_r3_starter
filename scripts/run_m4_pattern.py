@@ -23,14 +23,50 @@ from run_m2_dynamic import DELAYED_USE_TEMPLATE, generate, make_read, rows, sha,
 
 
 
-def collect_query_hashes(model, ids, mask, hash_counts):
+def collect_query_hashes(model, ids, mask, hash_counts, hash_ngrams=None):
     result = set()
     for order, head, index, available in model.pattern_port.hash_indices(ids, mask):
-        if bool(available.any()):
-            for value in index[available].tolist():
-                result.add((order, head, int(value)))
-                hash_counts[(order, head, int(value))] = hash_counts.get((order, head, int(value)), 0) + 1
+        for batch, position in available.nonzero().tolist():
+            value = int(index[batch, position])
+            key = (order, head, value)
+            result.add(key)
+            hash_counts[key] = hash_counts.get(key, 0) + 1
+            if hash_ngrams is not None:
+                ngram = tuple(int(token) for token in ids[batch, position - order + 1:position + 1].tolist())
+                hash_ngrams.setdefault(key, set()).add(ngram)
     return result
+
+
+def summarize_collisions(spec, counts, ngrams):
+    result = {}
+    for order in spec.orders:
+        for head in range(spec.heads):
+            keys = [key for key in counts if key[0] == order and key[1] == head]
+            lookups = sum(counts[key] for key in keys)
+            distinct = sum(len(ngrams.get(key, ())) for key in keys)
+            colliding = [key for key in keys if len(ngrams.get(key, ())) > 1]
+            collision_ngrams = sum(len(ngrams[key]) - 1 for key in colliding)
+            repeated = lookups - distinct
+            examples = [{'order': key[0], 'head': key[1], 'index': key[2],
+                         'ngrams': [list(value) for value in sorted(ngrams[key])]}
+                        for key in sorted(colliding)[:4]]
+            result[f'{order}_{head}'] = {
+                'lookups': lookups,
+                'unique_indices': len(keys),
+                'distinct_ngrams': distinct,
+                'repeated_lookups': repeated,
+                'repeat_rate': repeated / lookups if lookups else 0.0,
+                'colliding_indices': len(colliding),
+                'collision_ngrams': collision_ngrams,
+                'collision_rate': collision_ngrams / distinct if distinct else 0.0,
+                'table_rows': spec.table_rows,
+                'hash_coverage': len(keys) / spec.table_rows,
+                'touched_bytes': len(keys) * spec.width * 4,
+                'collision_examples': examples,
+            }
+    return result
+
+
 def accuracy(rows):
     return sum(row['correct'] for row in rows) / len(rows)
 
@@ -115,7 +151,7 @@ def execute(args, profiler, report):
         value_size=protocol['fast_memory']['value_size'], update_rule='sgdn2',
         depth_mode='shared', depth_writers=True)
     pattern_spec = PatternSpec(**protocol['pattern']['spec'])
-    hash_counts = {}
+    hash_counts, hash_ngrams = {}, {}
     model, tokenizer, lock = load_local_mps(args.model_path, args.model_lock,
                                             profiler=profiler, fast_memory=fast_spec,
                                             pattern=pattern_spec)
@@ -133,12 +169,14 @@ def execute(args, profiler, report):
     def pattern_read():
         return PatternRead(model.pattern_producer_key(), protocol['pattern']['version'])
     def query_hashes(ids, mask):
-        return collect_query_hashes(model, ids, mask, hash_counts)
+        return collect_query_hashes(model, ids, mask, hash_counts, hash_ngrams)
     trained_hashes = set()
     for query in train:
         text = DELAYED_USE_TEMPLATE.replace('{query}', query['query']).replace('{observation}', '')
         ids = encode_prompt(tokenizer, text, 'mps')
         trained_hashes.update(query_hashes(ids, torch.ones_like(ids, dtype=torch.bool)))
+    training_hash_counts = dict(hash_counts)
+    training_hash_ngrams = {key: set(values) for key, values in hash_ngrams.items()}
     report['trained_hash_count'] = len(trained_hashes)
     report['trained_hash_ids'] = sorted(trained_hashes)
     def generate_mode(query, mode, *, other=None, enabled_ports=None):
@@ -206,10 +244,22 @@ def execute(args, profiler, report):
         for mode in modes:
             results[mode] = []
             for index, query in enumerate(queries):
+                route = None
                 if mode == 'pattern':
                     fast, pattern = None, pattern_read()
                 elif mode == 'router':
-                    fast, pattern = None, pattern_read()
+                    text = DELAYED_USE_TEMPLATE.replace('{query}', query['query']).replace('{observation}', '')
+                    ids = encode_prompt(tokenizer, text, 'mps')
+                    choice = choose_route(case_role=query.get('case_role', 'delayed_training'),
+                                          query_hashes=frozenset(query_hashes(ids, torch.ones_like(ids, dtype=torch.bool))),
+                                          trained_hashes=frozenset(trained_hashes))
+                    if choice.kind == 'pattern':
+                        fast, pattern = None, pattern_read()
+                    elif choice.kind == 'fast':
+                        fast, pattern = depth_read(query['observations']), None
+                    else:
+                        raise ValueError(f'Unexpected M4 general route: {choice.kind}')
+                    route = choice
                 elif mode == 'fast':
                     fast, pattern = depth_read(query['observations']), None
                 elif mode == 'zero':
@@ -230,6 +280,9 @@ def execute(args, profiler, report):
                                  include_observation=mode == 'full_context')
                 value.update(case_id=query['case_id'], split=query['split'],
                              case_role=query.get('case_role'), arm=mode)
+                if route is not None:
+                    value.update(route=route.kind, route_reason=route.reason,
+                                 route_known_hashes=route.known_hashes, route_total_hashes=route.total_hashes)
                 results[mode].append(value)
                 check_time()
         return results
@@ -422,30 +475,37 @@ def execute(args, profiler, report):
         image, config=config, scope=scope, producer=model.fast_version_key(),
         frame_producer=model.fast_producer_key(), device='mps')
     correct_answer = generate_mode(query, 'router')
-    reloaded_answer = generate(session, query, DELAYED_USE_TEMPLATE, loaded_read)
-    report['restart'] = {'mode': 'depth_image_reload', 'image': metadata,
-                         'state_digest_equal': loaded_read.state_digest == correct_state.state_digest,
-                         'lineage_equal': loaded_metadata['lineage'] == metadata['lineage'],
-                         'reloaded_answer': reloaded_answer, 'correct_answer': correct_answer,
-                         'answer_equal': reloaded_answer['answer'] == correct_answer['answer'],
-                         'source_observations_reencoded': False}
-    collisions = {}
-    for order in pattern_spec.orders:
-        for head in range(pattern_spec.heads):
-            counts = [count for (item_order, item_head, _), count in hash_counts.items()
-                      if item_order == order and item_head == head]
-            lookups = sum(counts)
-            unique = len(counts)
-            collisions[f'{order}_{head}'] = {
-                'lookups': lookups,
-                'unique_indices': unique,
-                'collisions': lookups - unique,
-                'collision_rate': (lookups - unique) / lookups if lookups else 0.0,
-                'table_rows': pattern_spec.table_rows,
-                'hash_coverage': unique / pattern_spec.table_rows,
-                'touched_bytes': unique * pattern_spec.width * 4,
-            }
-    report['collisions'] = collisions
+    pattern_correct_answer = next(row for row in report['candidate']['pattern']
+                                  if row['case_id'] == query['case_id'])
+    reloaded_extension = model.load_extension(extension)
+    if correct_answer.get('route') == 'pattern':
+        reloaded_answer = generate(session, query, DELAYED_USE_TEMPLATE, None, pattern=pattern_read())
+    else:
+        reloaded_answer = generate(session, query, DELAYED_USE_TEMPLATE, loaded_read)
+    pattern_reloaded_answer = generate(session, query, DELAYED_USE_TEMPLATE, None, pattern=pattern_read())
+    report['restart'] = {
+        'mode': 'depth_image_and_extension_reload', 'image': metadata,
+        'state_digest_equal': loaded_read.state_digest == correct_state.state_digest,
+        'lineage_equal': loaded_metadata['lineage'] == metadata['lineage'],
+        'extension_manifest_equal': reloaded_extension['manifest_digest'] == receipt['manifest_digest'],
+        'extension_weights_equal': reloaded_extension['weights_sha256'] == receipt['weights_sha256'],
+        'extension': {'path': str(extension), 'weights_sha256': reloaded_extension['weights_sha256'],
+                      'manifest_digest': reloaded_extension['manifest_digest']},
+        'reloaded_answer': reloaded_answer, 'correct_answer': correct_answer,
+        'answer_equal': reloaded_answer['answer'] == correct_answer['answer'],
+        'token_ids_equal': reloaded_answer['token_ids'] == correct_answer['token_ids'],
+        'pattern_correct_answer': pattern_correct_answer,
+        'pattern_reloaded_answer': pattern_reloaded_answer,
+        'pattern_answer_equal': pattern_reloaded_answer['answer'] == pattern_correct_answer['answer'],
+        'pattern_token_ids_equal': pattern_reloaded_answer['token_ids'] == pattern_correct_answer['token_ids'],
+        'source_observations_reencoded': False}
+    report['collisions'] = summarize_collisions(pattern_spec, hash_counts, hash_ngrams)
+    report['training_collisions'] = summarize_collisions(
+        pattern_spec, training_hash_counts, training_hash_ngrams)
+    report['collision_scope'] = {
+        'collisions': 'All training-inventory and router query-hash calls, including general and restart routes.',
+        'training_collisions': 'The 24 delayed-training prompts only.',
+        'definition': 'Distinct causal n-grams sharing a table index; repeated occurrences of one n-gram are separate.'}
     report['resource_accounting'] = {
         'table_parameter_bytes': sum(parameter.numel() * parameter.element_size()
                                      for parameter in model.pattern_port.tables.parameters()),
@@ -515,6 +575,11 @@ def execute(args, profiler, report):
         'restart_state_equal': report['restart']['state_digest_equal'],
         'restart_lineage_equal': report['restart']['lineage_equal'],
         'restart_answer_equal': report['restart']['answer_equal'],
+        'restart_token_ids_equal': report['restart']['token_ids_equal'],
+        'restart_extension_equal': (report['restart']['extension_manifest_equal']
+                                    and report['restart']['extension_weights_equal']),
+        'restart_pattern_answer_equal': (report['restart']['pattern_answer_equal']
+                                         and report['restart']['pattern_token_ids_equal']),
         'sparse_optimizer_step': report['training']['optimizer_final']['state_tensor_bytes'] > 0,
     }
     if source_lm_updates:
@@ -543,7 +608,7 @@ def execute(args, profiler, report):
                 + [row for values in report['general_dev'].values() for row in values]
                 + report['train_results']
                 + [row for item in corrections for row in (item['original_answer'], item['corrected_answer'])]
-                + [reloaded_answer, correct_answer])
+                + [reloaded_answer, correct_answer, pattern_reloaded_answer])
     report['generation_counts'] = {
         'parent': (len(report['parent']['main']['fast']) + len(report['parent']['main']['disabled'])
                    + len(report['parent']['retention']['fast']) + len(report['parent']['retention']['disabled'])
@@ -551,7 +616,7 @@ def execute(args, profiler, report):
         'candidate': sum(len(values) for values in report['candidate'].values()),
         'general': sum(len(values) for values in report['general'].values()),
         'general_dev': sum(len(values) for values in report['general_dev'].values()),
-        'train': len(report['train_results']), 'correction': 2 * len(corrections), 'restart': 2}
+        'train': len(report['train_results']), 'correction': 2 * len(corrections), 'restart': 3}
     report['generation_counts']['total'] = sum(report['generation_counts'].values())
     if report['generation_counts']['total'] != len(all_rows):
         raise ValueError('M4 generation accounting mismatch')
