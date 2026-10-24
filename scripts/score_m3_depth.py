@@ -63,6 +63,12 @@ def main():
         if Path(name).is_absolute() or '..' in Path(name).parts or sha(ROOT / name) != expected:
             raise ValueError(f'M3 implementation bytes changed: {name}')
     protocol_sha = sha(args.protocol)
+    data = ROOT / protocol['dataset']['root']
+    for filename, key in (('manifest.json', 'manifest_sha256'),
+                          ('records.jsonl', 'records_sha256'),
+                          ('queries.jsonl', 'queries_sha256')):
+        if sha(data / filename) != protocol['dataset'][key]:
+            raise ValueError(f'M3 dataset differs: {filename}')
     paths = {'shared': args.shared, 'private': args.private, 'gradient_cut': args.gradient_cut}
     reports = {name: load(path) for name, path in paths.items()}
     restarts = {'shared': load(args.shared_restart), 'private': load(args.private_restart)}

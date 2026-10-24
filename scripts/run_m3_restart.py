@@ -43,6 +43,8 @@ def execute(args, profiler, report):
             or candidate.get('protocol_sha256') != sha(args.protocol)):
         raise ValueError('M3 restart requires an accepted matching candidate run')
     data = ROOT / protocol['dataset']['root']
+    if sha(data / 'manifest.json') != protocol['dataset']['manifest_sha256']:
+        raise ValueError('M3 restart dataset manifest differs')
     if (sha(data / 'records.jsonl') != protocol['dataset']['records_sha256']
             or sha(data / 'queries.jsonl') != protocol['dataset']['queries_sha256']):
         raise ValueError('M3 restart dataset differs')

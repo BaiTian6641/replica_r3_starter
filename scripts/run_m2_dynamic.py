@@ -227,6 +227,8 @@ def execute(args, profiler, report):
         if max_wall_seconds is not None and time.monotonic() - started > max_wall_seconds:
             raise TimeoutError('M3 wall-time budget exceeded')
     data = ROOT / protocol['dataset']['root']
+    if sha(data / 'manifest.json') != protocol['dataset']['manifest_sha256']:
+        raise ValueError('M2 dataset manifest changed')
     if sha(data / 'records.jsonl') != protocol['dataset']['records_sha256']:
         raise ValueError('M2 records changed')
     if sha(data / 'queries.jsonl') != protocol['dataset']['queries_sha256']:
