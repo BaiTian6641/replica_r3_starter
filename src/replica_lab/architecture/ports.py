@@ -250,7 +250,8 @@ class FastMemoryAccessPort(nn.Module):
         self.query_projection = nn.Linear(hidden_size, heads * key_size, bias=False)
         self.output_projection = nn.Linear(heads * value_size, hidden_size, bias=False)
         nn.init.zeros_(self.output_projection.weight)
-        self.gate_logit = nn.Parameter(torch.zeros(()))
+        self.gate_logit = nn.Parameter(torch.ones(()) if update_rule == 'sgdn2'
+                                       else torch.zeros(()))
 
     def forward(self, hidden: Tensor, weights: Tensor, enabled: bool = True) -> Tensor:
         _hidden(hidden, self.hidden_size, 'hidden')

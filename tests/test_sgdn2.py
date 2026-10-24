@@ -129,3 +129,17 @@ def test_sgdn2_host_accepts_more_tokens_than_heads(tmp_path):
                                     producer='producer-1')
     assert loaded.state.chunk_index == 1
     assert loaded.read(torch.ones(1, 1, 2)).shape == (1, 1, 4)
+
+
+def test_sgdn2_port_preserves_null_output_but_allows_output_gradient():
+    from replica_lab.architecture.ports import FastMemoryAccessPort
+    port = FastMemoryAccessPort(8, heads=1, key_size=2, value_size=2,
+                                update_rule='sgdn2')
+    hidden = torch.randn(1, 1, 8, requires_grad=True)
+    weights = torch.randn(1, 1, 2, 2)
+    delta = port(hidden, weights)
+    assert delta.abs().sum() == 0
+    delta.sum().backward()
+    gradient = port.output_projection.weight.grad
+    assert gradient is not None
+    assert gradient.abs().sum() > 0
