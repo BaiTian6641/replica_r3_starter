@@ -278,6 +278,68 @@ class FastMemoryAccessPort(nn.Module):
         delta = gate * self.output_projection(read)
         return delta.to(hidden.dtype)
 
+
+class PatternAccessPort(nn.Module):
+    """Static multi-head causal n-gram lookup with contextual gated residual."""
+
+    def __init__(self, hidden_size: int, *, orders=(2, 3), heads: int = 4,
+                 table_rows: int = 65536, width: int = 64, sparse: bool = True) -> None:
+        super().__init__()
+        if min(hidden_size, heads, table_rows, width) < 1:
+            raise ValueError('positive pattern dimensions required')
+        if not orders or any(order not in {2, 3} for order in orders):
+            raise ValueError('pattern orders must be causal 2/3-grams')
+        self.hidden_size, self.orders, self.heads = hidden_size, tuple(orders), heads
+        self.table_rows, self.width = table_rows, width
+        self.tables = nn.ModuleDict({
+            f'{order}_{head}': nn.Embedding(table_rows, width, sparse=sparse)
+            for order in self.orders for head in range(self.heads)})
+        self.gate_norm = nn.LayerNorm(hidden_size)
+        self.gate_projection = nn.Linear(hidden_size, self.heads)
+        self.output_projection = nn.Linear(len(self.orders) * self.heads * width,
+                                           hidden_size, bias=False)
+        nn.init.zeros_(self.output_projection.weight)
+
+    def hash_indices(self, input_ids: Tensor, valid: Tensor):
+        """Deterministic [batch, positions] hashes and validity per order/head."""
+        if (input_ids.ndim != 2 or input_ids.dtype != torch.long
+                or valid.shape != input_ids.shape):
+            raise ValueError('pattern IDs must be [batch, positions] int64 with matching mask')
+        valid = valid.to(device=input_ids.device, dtype=torch.bool)
+        positions = torch.arange(input_ids.shape[1], device=input_ids.device)
+        result = []
+        for order in self.orders:
+            for head in range(self.heads):
+                hashed = torch.full_like(input_ids, 17 + head * 1009)
+                for offset in range(order):
+                    if offset:
+                        tokens = torch.cat((torch.zeros_like(input_ids[:, :offset]),
+                                            input_ids[:, :-offset]), dim=1)
+                    else:
+                        tokens = input_ids
+                    hashed = (hashed * 1000003 + tokens) % 2147483647
+                hashed = (hashed * 1000003 + (head + 1) * 7919) % 2147483647
+                available = valid & (positions >= order - 1)
+                result.append((order, head, hashed % self.table_rows, available))
+        return tuple(result)
+
+    def forward(self, hidden: Tensor, input_ids: Tensor, valid: Tensor,
+                enabled: bool = True) -> Tensor:
+        _hidden(hidden, self.hidden_size, 'hidden')
+        if input_ids.shape != hidden.shape[:2] or valid.shape != input_ids.shape:
+            raise ValueError('pattern hidden, IDs and mask shapes differ')
+        if not enabled:
+            return hidden * 0
+        gates = self.gate_projection(self.gate_norm(hidden)).sigmoid()
+        reads = []
+        for order, head, indices, available in self.hash_indices(input_ids, valid):
+            values = self.tables[f'{order}_{head}'](indices)
+            values = values * gates[..., head].unsqueeze(-1)
+            values = values * available.unsqueeze(-1).to(values.dtype)
+            reads.append(values)
+        read = torch.cat(reads, dim=-1)
+        read = F.rms_norm(read, (len(self.orders) * self.heads * self.width,))
+        return self.output_projection(read).to(hidden.dtype)
 class RecordCopyHead(nn.Module):
     """Add a learned logit bias for exact tokens present in selected records.
 

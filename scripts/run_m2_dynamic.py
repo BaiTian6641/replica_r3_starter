@@ -166,7 +166,7 @@ def probe_gradient(probe):
 
 
 def generate(session, query_row, template, fast_state, *, include_observation=False,
-             enabled_ports=None, max_prompt_tokens=256):
+             enabled_ports=None, max_prompt_tokens=256, pattern=None):
     import torch
     from replica_lab.architecture.contracts import TaskGraph
     from replica_lab.architecture.loading import encode_prompt
@@ -183,11 +183,15 @@ def generate(session, query_row, template, fast_state, *, include_observation=Fa
         raise ValueError('generation prompt token budget exceeded')
     mask = torch.ones_like(ids, dtype=torch.bool)
     task = TaskGraph(query_row['case_id'], query_row['query'])
-    branches = ('memory',) if fast_state is None else ('memory', 'fast')
+    branches = ['memory']
+    if fast_state is not None:
+        branches.append('fast')
+    if pattern is not None:
+        branches.append('pattern')
     request = session.prepare(prompt_ids=ids, prompt_mask=mask, query=query_row['query'],
                               scope=scope, task=task, core_impl='none',
                               fast_state=fast_state, enabled_branches=branches,
-                              enabled_ports=enabled_ports)
+                              enabled_ports=enabled_ports, pattern=pattern)
     try:
         generated = session.generate(request, max_new_tokens=6)
         length = int(request.frame.sense.prompt_ids.shape[1])

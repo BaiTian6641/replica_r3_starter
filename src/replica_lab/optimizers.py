@@ -118,19 +118,23 @@ class ReplicaOptimizer(Optimizer):
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
-        # Reject bad gradients before any group mutates its weights or state.
+        dense_gradients = {}
         for group in self.param_groups:
             _check_hyperparameters(group)
             for parameter in group["params"]:
                 if parameter.dtype != torch.float32:
                     raise ValueError("Experimental optimizer requires FP32 resident parameters")
                 gradient = parameter.grad
-                if gradient is not None and (gradient.is_sparse
-                                            or not bool(torch.isfinite(gradient).all())):
+                if gradient is not None and gradient.is_sparse:
+                    if group["algorithm"] == "muon8bit":
+                        raise ValueError("Muon requires finite dense gradients")
+                    gradient = gradient.to_dense()
+                    dense_gradients[id(parameter)] = gradient
+                if gradient is not None and not bool(torch.isfinite(gradient).all()):
                     raise ValueError("Optimizer requires finite dense gradients")
         for group in self.param_groups:
             for parameter in group["params"]:
-                gradient = parameter.grad
+                gradient = dense_gradients.get(id(parameter), parameter.grad)
                 if gradient is None:
                     continue
                 state = self.state[parameter]

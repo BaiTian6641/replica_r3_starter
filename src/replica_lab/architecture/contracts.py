@@ -412,6 +412,45 @@ class TaskGraph:
 
 
 @dataclass(frozen=True)
+class PatternSpec:
+    """Static causal n-gram table geometry; versioned separately from episodes."""
+    injection_layer: int = 2
+    orders: tuple[int, ...] = (2, 3)
+    heads: int = 4
+    table_rows: int = 65536
+    width: int = 64
+    sparse: bool = True
+
+    def __post_init__(self):
+        if type(self.injection_layer) is not int or self.injection_layer < 0:
+            raise ValueError('Pattern injection layer must be a nonnegative integer')
+        if (not self.orders or len(set(self.orders)) != len(self.orders)
+                or any(type(order) is not int or order not in {2, 3} for order in self.orders)):
+            raise ValueError('Pattern orders must be distinct causal 2/3-grams')
+        if type(self.heads) is not int or not 1 <= self.heads <= 16:
+            raise ValueError('Pattern heads must be in 1..16')
+        if type(self.table_rows) is not int or not 1 <= self.table_rows <= 2**20:
+            raise ValueError('Pattern table rows must be in 1..2^20')
+        if type(self.width) is not int or not 1 <= self.width <= 256:
+            raise ValueError('Pattern width must be in 1..256')
+        if type(self.sparse) is not bool:
+            raise ValueError('Pattern sparse flag must be boolean')
+
+
+@dataclass(frozen=True)
+class PatternRead:
+    """One immutable pattern-table version; hashes are recomputed causally per pass."""
+    producer: str
+    version: str
+
+    def __post_init__(self):
+        if not isinstance(self.producer, str) or not self.producer:
+            raise ValueError('pattern producer identity required')
+        if not isinstance(self.version, str) or not self.version:
+            raise ValueError('pattern table version required')
+
+
+@dataclass(frozen=True)
 class PendingWrite:
     event_id: str
     record: Any
@@ -433,17 +472,18 @@ class ComponentManifest:
     fast_memory: FastMemorySpec | None = None
     copy: CopySpec | None = None
     identity: IdentitySpec | None = None
+    pattern: PatternSpec | None = None
 
     def shared_dict(self):
         """Manifest fields that identify the parent, excluding additive state."""
         return {key: value for key, value in self.to_dict().items()
-                if key not in ('core', 'fast_memory', 'copy', 'identity')}
+                if key not in ('core', 'fast_memory', 'copy', 'identity', 'pattern')}
 
     def to_dict(self):
         # A core-less manifest must keep the exact E1/E2 shape and digest so the
         # selected parent extension remains byte-compatible with its receipt.
         value = asdict(self)
-        for name in ('core', 'fast_memory', 'copy', 'identity'):
+        for name in ('core', 'fast_memory', 'copy', 'identity', 'pattern'):
             if value.get(name) is None:
                 value.pop(name, None)
         if self.fast_memory is not None:
@@ -475,6 +515,7 @@ class DecisionFrame:
     core: CoreState | None = None
     fast: FastMemoryRead | None = None
     copy: CopyRead | None = None
+    pattern: PatternRead | None = None
     enabled_branches: tuple[str, ...] = ('memory',)
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
@@ -492,14 +533,16 @@ class DecisionFrame:
     def __post_init__(self):
         if (not self.enabled_branches
                 or len(set(self.enabled_branches)) != len(self.enabled_branches)
-                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast', 'copy'}):
-            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast/copy')
+                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast', 'copy', 'pattern'}):
+            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast/copy/pattern')
         if 'workspace' in self.enabled_branches and self.core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
         if 'fast' in self.enabled_branches and self.fast is None:
             raise ValueError('Fast branch requires an owned FastMemoryRead')
         if 'copy' in self.enabled_branches and self.copy is None:
             raise ValueError('Copy branch requires an owned CopyRead')
+        if 'pattern' in self.enabled_branches and self.pattern is None:
+            raise ValueError('Pattern branch requires an owned PatternRead')
         if self.core is not None:
             self.core.assert_immutable()
         if self.fast is not None:

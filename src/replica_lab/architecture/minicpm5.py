@@ -19,12 +19,12 @@ from transformers.models.llama import modeling_llama
 
 from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
                         FastMemoryRead, IdentityRead, InjectFrame, MemoryRead,
-                        PortSpec, RequestContext, SenseFrame, fingerprint)
+                        PatternRead, PortSpec, RequestContext, SenseFrame, fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
-                    RecordCopyHead, RecordPointerHead, SGDN2WriteEncoder, SensePort,
-                    WorkspaceAccessPort)
+                    PatternAccessPort, RecordCopyHead, RecordPointerHead,
+                    SGDN2WriteEncoder, SensePort, WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 from ..replica.reader import IdentityReader
 
@@ -60,6 +60,14 @@ class MiniCPM5Adapter(nn.Module):
         self.identity_reader = None
         self.fast_ports = self.fast_write_encoder = self.fast_depth_write_encoders = None
         self.copy_head = None
+        self.pattern_port = None
+        if manifest.pattern is not None:
+            spec = manifest.pattern
+            if spec.injection_layer >= len(base.model.layers):
+                raise ValueError('Pattern injection layer outside native backbone')
+            self.pattern_port = PatternAccessPort(
+                h, orders=spec.orders, heads=spec.heads, table_rows=spec.table_rows,
+                width=spec.width, sparse=spec.sparse)
         if manifest.copy is not None:
             self.copy_head = (RecordPointerHead(h) if manifest.copy.mode == 'pointer'
                               else RecordCopyHead(h))
@@ -178,6 +186,24 @@ class MiniCPM5Adapter(nn.Module):
                 payload = parameter.detach().cpu().contiguous().numpy().tobytes()
                 tensors.append((f'{prefix}.{name}', str(parameter.dtype),
                                 tuple(parameter.shape), hashlib.sha256(payload).hexdigest()))
+        return fingerprint({'manifest': self.manifest.digest, 'tensors': tensors})
+
+    def pattern_producer_key(self):
+        if self.pattern_port is None:
+            raise ValueError('Manifest declares no pattern memory')
+        return fingerprint({'features': self.producer_key(),
+                            'pattern_port': [(n, id(p), p._version, str(p.dtype), str(p.device), p.data_ptr())
+                                             for n, p in self.pattern_port.named_parameters()]})
+
+    def pattern_version_key(self):
+        """Stable pattern-table identity for artifact/restart validation."""
+        if self.pattern_port is None:
+            raise ValueError('Manifest declares no pattern memory')
+        tensors = []
+        for name, parameter in self.pattern_port.named_parameters():
+            payload = parameter.detach().cpu().contiguous().numpy().tobytes()
+            tensors.append((name, str(parameter.dtype), tuple(parameter.shape),
+                            hashlib.sha256(payload).hexdigest()))
         return fingerprint({'manifest': self.manifest.digest, 'tensors': tensors})
 
     def encode_fast_observation(self, text, tokenizer, *, max_tokens: int = 256, layer=None):
@@ -321,6 +347,8 @@ class MiniCPM5Adapter(nn.Module):
         if self.fast_ports is not None:
             prefixes += ['fast_depth_write_encoders' if self.fast_depth_write_encoders is not None
                          else 'fast_write_encoder', 'fast_ports']
+        if self.pattern_port is not None:
+            prefixes += ['pattern_port']
         if self.copy_head is not None:
             prefixes += ['copy_head']
         for prefix in prefixes:
@@ -342,6 +370,8 @@ class MiniCPM5Adapter(nn.Module):
                          else 'fast_write_encoder', 'fast_ports']
         if self.copy_head is not None:
             prefixes += ['copy_head']
+        if self.pattern_port is not None:
+            prefixes += ['pattern_port']
         return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
                 for prefix in prefixes}
 
@@ -424,6 +454,10 @@ class MiniCPM5Adapter(nn.Module):
                 view = InjectFrame(frame, i)
                 hidden = hidden + self.fast_ports[str(i)](
                     hidden, frame.fast.for_layer(i), enabled=view.enabled)
+            if (frame is not None and frame.pattern is not None
+                    and frame.branch_enabled('pattern')
+                    and i == self.manifest.pattern.injection_layer):
+                hidden = hidden + self.pattern_port(hidden, ids, valid, enabled=True)
             if i == stop_layer:
                 return hidden, summaries
         return self.base.model.norm(hidden), summaries
@@ -442,7 +476,7 @@ class MiniCPM5Adapter(nn.Module):
     def make_frame(self, decision_id, evidence, memory: MemoryRead, sense: SenseFrame,
                    enabled_ports=None, core: CoreState | None = None,
                    enabled_branches=None, fast: FastMemoryRead | None = None,
-                   copy: CopyRead | None = None):
+                   copy: CopyRead | None = None, pattern: PatternRead | None = None):
         if memory.slots.ndim != 4 or memory.slots.shape[0] != 1:
             raise ValueError('One owned request per bank; batch requests explicitly later')
         if memory.slots.shape[1:] != (len(memory.spans), self.ports.slots_per_unit, self.ports.memory_width):
@@ -494,6 +528,11 @@ class MiniCPM5Adapter(nn.Module):
                 raise ValueError('Copy candidates exceed the declared bound')
             if copy.producer != self.copy_producer_key():
                 raise ValueError('Copy producer differs from current native features/head')
+        if pattern is not None:
+            if self.pattern_port is None or self.manifest.pattern is None:
+                raise ValueError('Pattern frame requires a pattern-memory manifest')
+            if pattern.producer != self.pattern_producer_key():
+                raise ValueError('Pattern producer differs from current native/table parameters')
         default_branches = ['memory']
         if core is not None:
             default_branches.append('workspace')
@@ -501,6 +540,8 @@ class MiniCPM5Adapter(nn.Module):
             default_branches.append('fast')
         if copy is not None:
             default_branches.append('copy')
+        if pattern is not None:
+            default_branches.append('pattern')
         branches = tuple(default_branches) if enabled_branches is None \
             else tuple(enabled_branches)
         if 'workspace' in branches and core is None:
@@ -509,8 +550,10 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Fast branch requires an owned FastMemoryRead')
         if 'copy' in branches and copy is None:
             raise ValueError('Copy branch requires an owned CopyRead')
+        if 'pattern' in branches and pattern is None:
+            raise ValueError('Pattern branch requires an owned PatternRead')
         return DecisionFrame(decision_id, evidence, memory, sense, self.manifest.digest,
-                             self.parameter_stamp(), enabled, core, fast, copy, branches)
+                             self.parameter_stamp(), enabled, core, fast, copy, pattern, branches)
 
     def pointer_scores(self, frame, candidate_ids, token_mask, candidate_mask):
         """Score exact source-token spans from the prompt's final hidden state."""
@@ -629,7 +672,8 @@ class MiniCPM5Adapter(nn.Module):
         save_file(weights, str(path / 'extensions.safetensors'))
         if self.identity_reader is not None:
             fmt = 'replica.minicpm5.extensions.v3'
-        elif self.core is not None or self.fast_ports is not None or self.copy_head is not None:
+        elif (self.core is not None or self.fast_ports is not None or self.copy_head is not None
+              or self.pattern_port is not None):
             fmt = 'replica.minicpm5.extensions.v2'
         else:
             fmt = 'replica.minicpm5.extensions.v1'
@@ -644,7 +688,7 @@ class MiniCPM5Adapter(nn.Module):
         return receipt
 
     def load_extension(self, directory, accept_parent_v1=False,
-                       port_capacity_migration=False):
+                       port_capacity_migration=False, accept_parent_pattern=False):
         from safetensors.torch import load_file
         if (self.regime != 'modules_only' or self._original_identity is None
                 or self._original_identity != self.parameter_stamp(original_only=True)):
@@ -656,14 +700,36 @@ class MiniCPM5Adapter(nn.Module):
             if set(receipt) != {'format','manifest','manifest_digest','regime','weights_sha256',
                                 'parameters','base_saved','notes','components'}:
                 raise ValueError('Incompatible or changed extension manifest/bytes')
-            if (receipt.get('manifest_digest') != self.manifest.digest
-                    or receipt.get('manifest') != json.loads(json.dumps(self.manifest.to_dict()))
-                    or hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest()
+            if (hashlib.sha256((path/'extensions.safetensors').read_bytes()).hexdigest()
                     != receipt.get('weights_sha256')):
                 raise ValueError('Incompatible or changed extension manifest/bytes')
-            if receipt.get('components') != json.loads(json.dumps(self._component_inventory())):
-                raise ValueError('Extension component inventory differs')
-            expected = dict(self.new_named_parameters())
+            pattern_migration = None
+            if (receipt.get('manifest_digest') != self.manifest.digest
+                    or receipt.get('manifest') != json.loads(json.dumps(self.manifest.to_dict()))):
+                if not accept_parent_pattern or fmt != 'replica.minicpm5.extensions.v2' \
+                        or self.manifest.pattern is None:
+                    raise ValueError('Incompatible or changed extension manifest/bytes')
+                parent_manifest = receipt.get('manifest')
+                target_manifest = json.loads(json.dumps(self.manifest.to_dict()))
+                target_manifest.pop('pattern', None)
+                if (parent_manifest != target_manifest
+                        or receipt.get('manifest_digest') != fingerprint(parent_manifest)):
+                    raise ValueError('Pattern migration changes more than the additive pattern branch')
+                parent_components = self._component_inventory()
+                parent_components.pop('pattern_port', None)
+                if receipt.get('components') != json.loads(json.dumps(parent_components)):
+                    raise ValueError('Pattern migration changes another component')
+                expected = {name: parameter for name, parameter in self.new_named_parameters()
+                            if not name.startswith('pattern_port.')}
+                pattern_migration = {
+                    'accepted_parent_v2_pattern': True,
+                    'copied': sorted(expected),
+                    'fresh_init': sorted(name for name, _ in self.new_named_parameters()
+                                         if name.startswith('pattern_port.'))}
+            else:
+                if receipt.get('components') != json.loads(json.dumps(self._component_inventory())):
+                    raise ValueError('Extension component inventory differs')
+                expected = dict(self.new_named_parameters())
         elif fmt == 'replica.minicpm5.extensions.v1':
             shared = json.loads(json.dumps(self.manifest.shared_dict()))
             receipt_manifest = receipt.get('manifest')
@@ -694,7 +760,8 @@ class MiniCPM5Adapter(nn.Module):
                 raise ValueError('Incompatible or changed extension manifest/bytes')
             expected = dict(self._parent_named_parameters())
             if (self.manifest.core is not None or self.fast_ports is not None
-                    or self.copy_head is not None or self.identity_reader is not None):
+                    or self.copy_head is not None or self.identity_reader is not None
+                    or self.pattern_port is not None):
                 if not accept_parent_v1:
                     raise ValueError('Loading the E1/E2 parent v1 extension requires accept_parent_v1=True')
         else:
@@ -705,6 +772,8 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Extension tensor inventory differs')
         with torch.no_grad():
             for n,p in expected.items(): p.copy_(weights[n].to(p.device))
+        if 'pattern_migration' in locals() and pattern_migration is not None:
+            return {**receipt, 'migration': pattern_migration}
         if fmt == 'replica.minicpm5.extensions.v1' and (
                 self.manifest.core is not None or self.fast_ports is not None
                 or self.identity_reader is not None or port_capacity_migration):
