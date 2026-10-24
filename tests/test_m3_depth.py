@@ -1,6 +1,8 @@
 """M3 private/shared SGDN-2 ownership, reducer and native-port contracts."""
 
 from dataclasses import replace
+import importlib.util
+from pathlib import Path
 import hashlib
 import json
 
@@ -230,3 +232,33 @@ def test_depth_image_reload_binds_tensors_lineage_and_stable_producer(tmp_path, 
     manifest_path.write_text(json.dumps(tampered))
     with pytest.raises(ValueError, match='metadata or lineage'):
         load_fast_depth_image(tmp_path / 'image', config=config, scope=scope, producer=producer)
+
+
+def test_runner_private_linear_and_zero_states_make_valid_native_frames():
+    module_spec = importlib.util.spec_from_file_location(
+        'run_m2_dynamic_test', Path(__file__).resolve().parents[1] / 'scripts/run_m2_dynamic.py')
+    runner = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(runner)
+    make_read, zero_read = runner.make_read, runner.zero_read
+
+    class Tokenizer:
+        def __call__(self, text, *, add_special_tokens):
+            assert text.startswith('observed') and add_special_tokens is False
+            return {'input_ids': [1, 2, 3]}
+
+    adapter = tiny_adapter(fast_memory=replace(SPEC, depth_writers=True)).eval()
+    _open_outputs(adapter)
+    for linear in (False, True):
+        read = make_read(adapter, Tokenizer(), ['observed one', 'observed two'],
+                         private_depth=True, linear=linear)
+        assert set(read.private_weights) == {0, 2}
+        frame = _frame(adapter, read)
+        with torch.no_grad():
+            logits = adapter.forward_with_frame(frame=frame, **action_batch(frame)).logits
+        assert torch.isfinite(logits).all()
+    zero = zero_read(adapter, private_depth=True)
+    _frame(adapter, zero)
+
+    shared = tiny_adapter(fast_memory=replace(SPEC, depth_mode='shared', depth_writers=True)).eval()
+    linear = make_read(shared, Tokenizer(), ['observed one'], linear=True, shared_reducer=True)
+    _frame(shared, linear)

@@ -42,6 +42,7 @@ def make_read(model, tokenizer, observations, *, training=False, tag='state', li
     key_size = model.manifest.fast_memory.key_size
     value_size = model.manifest.fast_memory.value_size
     layers = tuple(model.ports.injection_layers)
+    device = model.base.get_input_embeddings().weight.device
     if write_layers is not None:
         write_layers = frozenset(write_layers)
         if not write_layers <= set(layers):
@@ -52,31 +53,35 @@ def make_read(model, tokenizer, observations, *, training=False, tag='state', li
     private = None
     with context:
         if linear:
-            if private_depth or shared_reducer or gradient_cut:
-                raise ValueError('linear control is independent of SGDN-2 depth arms')
-            weights = []
-            for head in range(heads):
-                primitive = LinearFastMemory(key_size, value_size, learning_rate=0.1,
-                                             decay=0.0, max_update_norm=1.0)
-                state = primitive.initial_state(1, device='mps')
-                for text in observations:
-                    write = model.encode_fast_observation(
-                        text, tokenizer, max_tokens=256,
-                        layer=(model.ports.injection_layers[0]
-                               if model.fast_depth_write_encoders is not None else None))
-                    part = write.head(head)
-                    state = primitive.update_shared_chunk(
-                        state, [FastWrite(part.keys.squeeze(2), part.values.squeeze(2),
-                                           state.chunk_index)])
-                weights.append(state.weights)
-            weights = torch.stack(weights, dim=1)
+            if write_layers is not None:
+                raise ValueError('linear control does not support per-port write ablation')
+            private = {} if private_depth else None
+            for layer in (layers if private_depth else layers[:1]):
+                weights = []
+                for head in range(heads):
+                    primitive = LinearFastMemory(key_size, value_size, learning_rate=0.1,
+                                                 decay=0.0, max_update_norm=1.0)
+                    state = primitive.initial_state(1, device=device)
+                    for text in observations:
+                        write = model.encode_fast_observation(
+                            text, tokenizer, max_tokens=256,
+                            layer=(layer if model.fast_depth_write_encoders is not None else None))
+                        part = write.head(head)
+                        state = primitive.update_shared_chunk(
+                            state, [FastWrite(part.keys.squeeze(2), part.values.squeeze(2),
+                                               state.chunk_index)])
+                    weights.append(state.weights)
+                if private is not None:
+                    private[layer] = torch.stack(weights, dim=1)
+                else:
+                    weights = torch.stack(weights, dim=1)
         else:
             primitive = SGDN2Memory(heads, key_size, value_size)
             if private_depth:
-                private = {layer: primitive.initial_state(1, device='mps') for layer in layers}
+                private = {layer: primitive.initial_state(1, device=device) for layer in layers}
                 state = None
             else:
-                state = primitive.initial_state(1, device='mps')
+                state = primitive.initial_state(1, device=device)
             for index, text in enumerate(observations):
                 chunk_index = (private[layers[0]].chunk_index if private is not None
                                else state.chunk_index)
@@ -115,6 +120,8 @@ def make_read(model, tokenizer, observations, *, training=False, tag='state', li
             if private is not None:
                 private = {layer: value.weights for layer, value in private.items()}
             weights = (private[layers[0]] if private is not None else state.weights)
+        if private is not None:
+            weights = private[layers[0]]
         if not training:
             weights = weights.detach()
             if private is not None:
@@ -134,7 +141,8 @@ def zero_read(model, *, private_depth=False):
     from replica_lab.architecture.contracts import FastMemoryRead
     weights = torch.zeros(1, model.manifest.fast_memory.heads,
                           model.manifest.fast_memory.key_size,
-                          model.manifest.fast_memory.value_size, device='mps')
+                          model.manifest.fast_memory.value_size,
+                          device=model.base.get_input_embeddings().weight.device)
     private = None
     if private_depth:
         private = {layer: weights.clone() for layer in model.ports.injection_layers}
