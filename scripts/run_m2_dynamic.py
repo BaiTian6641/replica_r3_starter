@@ -409,7 +409,7 @@ def execute(args, profiler, report):
             elif mode == 'correct':
                 state = depth_read(query['observations'], tag='correct')
             elif mode == 'linear':
-                state = make_read(model, tokenizer, query['observations'], tag='linear', linear=True)
+                state = depth_read(query['observations'], tag='linear', linear=True)
             elif mode == 'full_context':
                 state = None
             elif mode == 'shuffled':

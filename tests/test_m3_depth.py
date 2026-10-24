@@ -261,4 +261,7 @@ def test_runner_private_linear_and_zero_states_make_valid_native_frames():
 
     shared = tiny_adapter(fast_memory=replace(SPEC, depth_mode='shared', depth_writers=True)).eval()
     linear = make_read(shared, Tokenizer(), ['observed one'], linear=True, shared_reducer=True)
+    direct = make_read(shared, Tokenizer(), ['observed one'], linear=True, shared_reducer=False)
+    torch.testing.assert_close(linear.weights, direct.weights, atol=0, rtol=0)
+    assert linear.state_digest == direct.state_digest
     _frame(shared, linear)
