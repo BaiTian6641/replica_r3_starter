@@ -106,6 +106,8 @@ def execute(args, profiler, report):
                   parent_extension=str(args.parent_extension), parent_migration=parent.get('migration'),
                   fast_spec=fast_spec.to_dict(), pattern_spec=protocol['pattern'],
                   parameters=model.parameter_audit(), checks={})
+    ledger = RecordLedger(args.output / 'pattern_ledger.sqlite')
+    session = MemorySession(model, tokenizer, ledger, max_candidate_units=64)
     def depth_read(observations, **kwargs):
         return make_read(model, tokenizer, observations, shared_reducer=True, **kwargs)
     def pattern_read():
