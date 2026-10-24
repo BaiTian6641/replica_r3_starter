@@ -1,0 +1,127 @@
+{
+  "schema_version": "replica.validation.m4_static.v1",
+  "date_utc": "2026-10-24",
+  "decision": "reject",
+  "deployment": "diagnostic_only",
+  "independent_result_review": {
+    "recommendation": "reject",
+    "confidence": 0.97,
+    "scope": "Raw rows, declared gates, accounting, restart, collision audit and resource evidence reviewed read-only; no answers regenerated."
+  },
+  "lineage": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "parent_extension": "runs/m3_depth_shared_attempt02/selected_extension",
+    "native_implementation_commit": "ad09a77",
+    "protocol": "configs/m4_pattern_static_v7.json",
+    "protocol_commit": "d1364fc",
+    "metadata_code_commit": "9f1d30f",
+    "run_report": "runs/m4_static_attempt07/run_report.json",
+    "run_report_sha256": "621e715362147df69afd04d60c36a31993aee36e369ca887b19cdbad546efc33",
+    "initial_verdict": "reports/m4_static_attempt07/verdict.json",
+    "initial_verdict_sha256": "1335c170203637877fbea81c736006ce4a27235d700202794b18f45517beb87f",
+    "final_verdict": "reports/m4_static_attempt07/verdict_final.json",
+    "final_verdict_sha256": "7c21510ce3963d92783bb854ab97675b21127bcb2362e5c84a26dd332d61e53e",
+    "original_rejection": "reports/m4_pattern_attempt04/verdict.json",
+    "original_rejection_sha256": "ddbff364aa1b7bb9dce4db8b9273477a58dafff8f9d45e3740a275f49c26a7c5",
+    "original_failure_preserved": true,
+    "metadata_correction": "Finalizer verified the original artifact; initial v7 false Boolean was an input-error marker. Raw report and initial verdict are unchanged."
+  },
+  "failed_checks": [
+    "general_noninterference",
+    "direct_pattern_covered_regression",
+    "direct_pattern_covered_dev",
+    "pattern_adversarial_noninterference"
+  ],
+  "passed_check_count": 16,
+  "total_check_count": 20,
+  "metrics": {
+    "direct_pattern": {"dev": 0.0, "heldout": 0.0, "regression": 0.0},
+    "router": {"dev": 1.0, "heldout": 0.75, "regression": 1.0},
+    "fast": {"dev": 1.0, "heldout": 0.75, "regression": 1.0},
+    "linear": {"dev": 0.25, "heldout": 0.125, "regression": 0.25},
+    "general_adversarial": {"candidate_fast_plus_pattern": 0.0, "parent_fast_only": 0.0, "disabled": 0.5},
+    "general_dev_adversarial": {"candidate_fast_plus_pattern": 0.0, "parent_fast_only": 0.0, "disabled": 1.0},
+    "delayed_router": {"rows": 20, "fast_routes": 20, "pattern_routes": 0, "fully_covered_rows": 0},
+    "general_router": {"retention_pattern_routes": 4, "retention_dev_pattern_routes": 2}
+  },
+  "training": {
+    "source_lm_updates": 4,
+    "delayed_updates": 16,
+    "total_updates": 20,
+    "source_observation_chunks": 48,
+    "source_observation_tokens_excluding_bos": 1412,
+    "source_positions_including_48_bos": 1460,
+    "delayed_action_tokens": 4251,
+    "delayed_target_tokens": 182,
+    "actual_optimizer_group_parameters": 34615300,
+    "extension_reported_trainable_parameters": 46850568,
+    "parameter_note": "Pre-run trainability flags were restored before extension export; only optimizer groups were trained in v7.",
+    "checkpoints_saved": 2,
+    "base_saved": false,
+    "fresh_process_restart": "not run; conditional on acceptance and candidate rejected"
+  },
+  "generation": {
+    "answers": 427,
+    "new_tokens": 1579,
+    "prompt_tokens": 28305,
+    "max_prompt_tokens": 128,
+    "max_new_tokens_per_answer": 6,
+    "external_parent_adversarial_rows_excluded": 6,
+    "scorer_exit": 1
+  },
+  "restart": {
+    "mode": "depth_image_and_extension_reload",
+    "state_digest_equal": true,
+    "lineage_equal": true,
+    "extension_manifest_equal": true,
+    "extension_weights_equal": true,
+    "routed_answer_and_token_ids_equal": true,
+    "direct_pattern_answer_and_token_ids_equal": true,
+    "source_observations_reencoded": false
+  },
+  "collision_audit": {
+    "path": "reports/m4_static_attempt07/collision_audit.json",
+    "sha256": "b06fe943b04f002afe9e146f8339ed3ee47f70f729aad3438ca827c4eec06bbe",
+    "device": "cpu_tokenization_and_hash_only",
+    "model_weights_loaded": false,
+    "production_hash_implementation_reused": true,
+    "numeric_fields_validated_per_group": 8,
+    "router_query_count_including_training": 51,
+    "trained_hash_count": 1244,
+    "all_scope": {"distinct_ngrams": 1996, "collision_ngrams": 0},
+    "training_scope": {"distinct_ngrams": 1244, "collision_ngrams": 0},
+    "repeat_lookup_note": "High repeat rates are repeated occurrences of the same n-gram, not collisions."
+  },
+  "resources": {
+    "profiled_wall_seconds": 184.08234716695733,
+    "guard_elapsed_seconds": 186.46554495906457,
+    "sampled_peak_driver_bytes": 11981307904,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 74.0,
+    "table_parameter_bytes": 134217728,
+    "dense_gradient_upper_bound_bytes": 134217728,
+    "optimizer_state_bytes": 269527088,
+    "run_directory_storage": "359 MB",
+    "extension_files": 2,
+    "extension_file_size_each": "178.7 MB",
+    "downloads": 0,
+    "pattern_port_forward_microbenchmark_seconds": {"first_call": 0.0019779580179601908, "warm_min": 0.0018458329141139984},
+    "latency_scope": "Single development prompt, three pattern_port forwards; excludes embeddings, native hidden states, routing and generation. Not process-cold or end-to-end latency."
+  },
+  "gate_semantics": {
+    "direct_pattern": "All direct-arm rows, not fully-covered-only; actually routed covered-case utility is unmeasured.",
+    "general_development_noninterference": "Candidate adversarial >= parent adversarial only; not a disabled comparison.",
+    "pattern_adversarial_noninterference": "Retention compares disabled; retention-dev compares parent adversarial."
+  },
+  "preserved_attempts": {
+    "attempt01": "capacity-preflight entrypoint required; no training",
+    "attempt02": "sense-prefix supervision guard rejected source-LM labels",
+    "attempt03": "post-evaluation missing collision variable; no completed verdict",
+    "attempt04": "completed but invalid pattern-only adversarial control",
+    "attempt05": "valid adversarial reject; incomplete collision/restart evidence",
+    "attempt06": "stale fast-image producer after extension reload",
+    "attempt07": "complete v7 diagnostic and independent reject"
+  },
+  "next_gate": "Do not promote M4 or admit M5 from fast-memory scores. Retention repair and genuinely covered non-training static utility remain open; any new arm requires a fresh predeclared hypothesis and controls."
+}

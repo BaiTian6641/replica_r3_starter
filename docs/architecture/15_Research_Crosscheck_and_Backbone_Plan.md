@@ -352,6 +352,21 @@ after checked trajectories exist. Corrections invalidate overlays/descendants;
 trained tables require a permitted rebuild or qualified removal method when
 revoked data affected them. Require additive benefit over record/fast memory.
 
+**Measured M4 static arm (v7, 24 October):** the predeclared source-LM warmup
+plus delayed pattern training is **rejected**, not promoted. Direct pattern is
+0/4 development and 0/8 held-out/regression; router scores remain fast-memory
+scores because every delayed router row had uncovered hashes. Fast+pattern
+adversarial accuracy is 0/4 versus disabled 2/4. No delayed row was fully
+covered, so actually routed covered-case utility remains unmeasured. The
+authenticated same-process fast-image and pattern-extension restart passes;
+fresh-process restart was conditional on acceptance and was not run. An
+independent CPU audit validated eight numeric collision fields per group across
+51 hash-call prompts and found zero distinct-n-gram collisions in the measured
+training and all-router scopes; repeated lookups are reported separately. See
+[M4 results](../experiments/20261024_M4_Pattern_Results.md) and the
+[final v7 verdict](../../reports/m4_static_attempt07/verdict_final.json).
+Retention repair and M5 admission remain gated; the original M4 rejection is preserved.
+
 ### M5 — Candidate learning, RSI and continuing operation
 
 Connect `actual outcome → diagnosis → eligible practice → isolated candidate →

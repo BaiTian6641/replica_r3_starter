@@ -1,0 +1,169 @@
+{
+  "status": "completed",
+  "audit_type": "distinct_ngram_collision_audit",
+  "created_at_utc": "2026-10-24T07:07:48.423286+00:00",
+  "protocol": "configs/m4_pattern_static_v5.json",
+  "protocol_sha256": "261f3d9e2b4cd1ad6edda39523d33dc41f67c411cdb03e27c9846481cc9e46b4",
+  "run_report": "runs/m4_static_attempt05/run_report.json",
+  "run_report_sha256": "e9c8f8462cdaf78234011affaf426a6368acb974ade43529eb4a4de40cab10f2",
+  "audit_script_sha256": "8f49d18db12b3cbd3c9aab7f4ba38e9a1dd33f59872e61b206558f2c7134472a",
+  "device": "cpu_tokenization_and_hash_only",
+  "model_weights_loaded": false,
+  "native_training_or_generation": false,
+  "trained_hash_count": 1244,
+  "collision_definition": "For each order/head/table index, collect distinct causal token n-grams. collision_ngrams counts distinct n-grams beyond the first at a shared index; collision_rate divides that count by all distinct n-grams. Repeated occurrences of one n-gram are reported separately.",
+  "collisions": {
+    "2_0": {
+      "lookups": 1502,
+      "unique_indices": 141,
+      "distinct_ngrams": 141,
+      "repeated_lookups": 1361,
+      "repeat_rate": 0.9061251664447404,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.0021514892578125,
+      "touched_bytes": 36096,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2622,
+        "collision_rate": 0.9304471256210078,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "2_1": {
+      "lookups": 1502,
+      "unique_indices": 141,
+      "distinct_ngrams": 141,
+      "repeated_lookups": 1361,
+      "repeat_rate": 0.9061251664447404,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.0021514892578125,
+      "touched_bytes": 36096,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2622,
+        "collision_rate": 0.9304471256210078,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "2_2": {
+      "lookups": 1502,
+      "unique_indices": 141,
+      "distinct_ngrams": 141,
+      "repeated_lookups": 1361,
+      "repeat_rate": 0.9061251664447404,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.0021514892578125,
+      "touched_bytes": 36096,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2622,
+        "collision_rate": 0.9304471256210078,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "2_3": {
+      "lookups": 1502,
+      "unique_indices": 141,
+      "distinct_ngrams": 141,
+      "repeated_lookups": 1361,
+      "repeat_rate": 0.9061251664447404,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.0021514892578125,
+      "touched_bytes": 36096,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2622,
+        "collision_rate": 0.9304471256210078,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "3_0": {
+      "lookups": 1478,
+      "unique_indices": 170,
+      "distinct_ngrams": 170,
+      "repeated_lookups": 1308,
+      "repeat_rate": 0.8849797023004059,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.002593994140625,
+      "touched_bytes": 43520,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2525,
+        "collision_rate": 0.9105661738189686,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "3_1": {
+      "lookups": 1478,
+      "unique_indices": 170,
+      "distinct_ngrams": 170,
+      "repeated_lookups": 1308,
+      "repeat_rate": 0.8849797023004059,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.002593994140625,
+      "touched_bytes": 43520,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2525,
+        "collision_rate": 0.9105661738189686,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "3_2": {
+      "lookups": 1478,
+      "unique_indices": 170,
+      "distinct_ngrams": 170,
+      "repeated_lookups": 1308,
+      "repeat_rate": 0.8849797023004059,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.002593994140625,
+      "touched_bytes": 43520,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2525,
+        "collision_rate": 0.9105661738189686,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    },
+    "3_3": {
+      "lookups": 1478,
+      "unique_indices": 170,
+      "distinct_ngrams": 170,
+      "repeated_lookups": 1308,
+      "repeat_rate": 0.8849797023004059,
+      "colliding_indices": 0,
+      "collision_ngrams": 0,
+      "collision_rate": 0.0,
+      "table_rows": 65536,
+      "hash_coverage": 0.002593994140625,
+      "touched_bytes": 43520,
+      "collision_examples": [],
+      "legacy_runner_fields": {
+        "collisions": 2525,
+        "collision_rate": 0.9105661738189686,
+        "interpretation": "Legacy runner subtracted unique indices from lookups; this includes repeated same-n-gram lookups and is not a distinct-n-gram collision count."
+      }
+    }
+  }
+}

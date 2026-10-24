@@ -17,17 +17,28 @@ Peak driver was 11.0043 GiB and selected training took 215.896 s. See
 [M3 results](docs/experiments/20261024_M3_Depth_Ownership_Results.md) and
 [the verdict](reports/m3_depth_comparison_attempt02/comparison.json).
 
-**Repair rejected; next mechanism M4.** The shared replay candidate preserves
-fresh delayed 6/8 and original regression 8/8, improves final general correct
-from 0/4 to 1/4 (`Cl`), but leaves development 0/2 and adversarial memory 0/4
-versus disabled 2/4. Novel-value delayed cases remain 0/2; seen-value is 4/4
-and changed-template 2/2. The candidate is rejected and not a new parent. The
-original Paris/H2O check and fresh-process restart were not run. M2's inherited
-retention failure remains open; no same-recipe retuning. M4 proceeds only as a
-different mechanism comparison because the M3 ownership gate passed. Full
-integration passed **1249 tests / 21 subtests in 133.03 s**; later focused M3
-regressions also pass. M0b Spark and authentic identity fidelity remain
-unavailable optional tracks.
+**M3 repair and M4 static arm rejected (24 October 2026 UTC).** The M3 shared
+replay candidate preserves fresh delayed 6/8 and original regression 8/8,
+improves final general correct from 0/4 to 1/4 (`Cl`), but leaves development
+0/2 and adversarial memory 0/4 versus disabled 2/4. Novel-value delayed cases
+remain 0/2; seen-value is 4/4 and changed-template 2/2. It is not a parent.
+M4 v7 used four source-LM plus 16 delayed updates and two extension saves.
+Direct pattern is 0/4 dev, 0/8 held-out and 0/8 regression; every delayed router
+row selected fast with incomplete hash coverage. Fast+pattern adversarial is
+0/4 versus disabled 2/4. The independent v7 verdict rejects four quality gates;
+16/20 total checks pass, including all listed engineering, correction and
+same-process extension/image restart checks. Fresh-process restart was not run
+because the candidate rejected. A CPU audit validated eight numeric collision
+fields per group across 51 hash-call prompts and found zero distinct-n-gram
+collisions in training and all-router scopes; repeated lookups are separate. See
+[M4 results](docs/experiments/20261024_M4_Pattern_Results.md),
+[final v7 verdict](reports/m4_static_attempt07/verdict_final.json) and
+[collision audit](reports/m4_static_attempt07/collision_audit.json). Retention
+and actually routed covered-case utility remain unproven.
+Actual optimizer groups contain 34,615,300 pattern parameters; the finalized
+verdict authenticates the original rejection by SHA-256. Latency is only a
+single-prompt pattern-port microbenchmark, and covered-case utility is
+unmeasured because no delayed route was fully covered.
 
 **M0a/M1 verified packages (24 October 2026 UTC).** Corrected inference is
 detached: the small point passed 2/2 and selected 4096 passed 12/12 with 28
@@ -91,15 +102,17 @@ unrun. Retrieval/answer quality was measured separately at 16 units.
 Spark-X2.6-4B BF16 with a separate native adapter, measured Muon/FP32 residency,
 reasoning/action quality and retention. MiniCPM-V-4.7-1B supplies the pretrained
 vision path; 35B-A3B is a later qualified teacher/inference or transfer option.
-No new weights, adapter, memory mechanism or RSI capability were implemented.
+M4 adds only a diagnostic static pattern branch and deterministic routing; no
+production memory, learned router or RSI capability is established.
 
-**Next work:** M4 static Engram-style lookup and deterministic routing as a
-separate mechanism comparison; retention repair remains open and the rejected
-repair weights are not a parent → M5 developmental comparison and bounded RSI.
-M6 learned multi-rate levels → M7 native VLM. M0b is optional and does not block MiniCPM5. Identity
-work proceeds only with permitted sources; calibration precedes control use.
-D0/D1/D2 fairness and release admission remain required before
-selected-system/broad-campaign claims.
+**Next work:** Do not promote M4 or use fast-memory scores to admit M5.
+Retention repair and genuinely covered non-training static utility remain open;
+any M5 developmental arm needs its own predeclared parent, data, controls and
+gates rather than relabeling this rejection. M6 learned multi-rate levels → M7
+native VLM. M0b is optional and does not block MiniCPM5. Identity work proceeds
+only with permitted sources; calibration precedes control use. D0/D1/D2
+fairness and release admission remain required before selected-system or
+broad-campaign claims.
 
 ## Historical execution entries
 

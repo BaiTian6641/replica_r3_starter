@@ -1,0 +1,85 @@
+{
+  "status": "failed",
+  "started_at_utc": "2026-10-24T06:40:37.835609+00:00",
+  "protocol_sha256": "234fcdab4e522abb860269a6a2203bba9b4fe31dc923e30399923139eb250b1b",
+  "downloads": 0,
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "implementation_sha256": {
+    "scripts/run_m4_pattern.py": "c7f912269cb09b5a58a6c15536e5388888d59bada99d179d6b61d6fc2faf938d",
+    "scripts/run_m4_restart.py": "d2ef595b63ae5e1aefb638cc0a8f5fc4ef82ad7c4d5954cda2334c2ad9f27ba5",
+    "scripts/score_m4_pattern.py": "7d9981a55f70d2669328012e9a144242173253cc8912256e7923d63b9798a30c",
+    "scripts/run_m2_dynamic.py": "2d7b2b71cf35cf7763065f34d0176135710399300910730c1d5e830bcbea20d1",
+    "scripts/run_capacity_preflight.py": "5140d7f0a9037aef6259d5889cfd5d6f7a49a13750f925307ae24ecc4421cc59",
+    "scripts/make_m3_repair_data.py": "bf42597122deeea850f2846c3da3319f70bb3c225327c4ccbe9ad58c573146b7",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/runtime/routing.py": "f5803445856945c7ec0daba058e37b849883488cb845f189f907747c70485956",
+    "src/replica_lab/memory_system/session.py": "3359f318077b0ec1a08f87d3ff93c4fb24c53be7c8d193c5f3b5ea94376e415b"
+  },
+  "error_type": "RuntimeError",
+  "error": "Launch through scripts/run_capacity_preflight.py --entry-point",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py\", line 541, in main\n    execute(args, profiler, report)\n  File \"/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py\", line 99, in execute\n    model, tokenizer, lock = load_local_mps(args.model_path, args.model_lock,\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/architecture/loading.py\", line 31, in load_local_mps\n    raise RuntimeError('Launch through scripts/run_capacity_preflight.py --entry-point')\nRuntimeError: Launch through scripts/run_capacity_preflight.py --entry-point\n",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-24T06:40:37.835961+00:00",
+    "ended_at": "2026-10-24T06:40:37.897141+00:00",
+    "elapsed_seconds": 0.061196125112473965,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 2,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 333004800,
+      "rss_peak_sampled_bytes": 332972032,
+      "mps_allocated_peak_sampled_bytes": 0,
+      "mps_driver_peak_sampled_bytes": 393216
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-24T06:40:37.836685+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 2048.00M  used = 1264.56M  free = 783.44M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 2147483648,
+        "used_bytes": 1325987266,
+        "free_bytes": 821496381
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 94%",
+      "memory_free_percent": 94.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-24T06:40:37.886701+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 2048.00M  used = 1264.56M  free = 783.44M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 2147483648,
+        "used_bytes": 1325987266,
+        "free_bytes": 821496381
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 94%",
+      "memory_free_percent": 94.0
+    },
+    "phases": [],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "costs": {
+    "profiled_wall_seconds": 0.061196125112473965,
+    "sampled_peak_driver_bytes": 393216
+  },
+  "ended_at_utc": "2026-10-24T06:40:37.897396+00:00"
+}

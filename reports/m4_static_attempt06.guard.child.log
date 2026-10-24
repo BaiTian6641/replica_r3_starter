@@ -1,0 +1,19 @@
+W1024 02:28:02.870000 20299 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 86/381 [00:00<00:00, 834.50it/s]Loading weights:  46%|████▋     | 177/381 [00:00<00:00, 854.63it/s]Loading weights:  70%|███████   | 267/381 [00:00<00:00, 851.59it/s]Loading weights:  94%|█████████▍| 360/381 [00:00<00:00, 871.08it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 878.77it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 679, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 660, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 484, in execute
+    reloaded_answer = generate(session, query, DELAYED_USE_TEMPLATE, loaded_read)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 191, in generate
+    request = session.prepare(prompt_ids=ids, prompt_mask=mask, query=query_row['query'],
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 284, in prepare
+    frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 525, in make_frame
+    raise ValueError('Fast producer differs from current native/port features')
+ValueError: Fast producer differs from current native/port features

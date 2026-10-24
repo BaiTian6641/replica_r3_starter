@@ -1,20 +1,21 @@
 # 03 - Construction plan and executable runbook
 
-**Current implementation — reviewed code/protocol HEAD `c4355ff`, 24 October 2026.**
-M0a/M1/M2/M3 have measured boundaries. M3 retention repair is **rejected**:
-delayed behavior is preserved, but general development remains 0/2, adversarial
-memory remains 0/4 versus disabled 2/4, and novel-value delayed cases remain
-0/2. The candidate is not a new parent; original Paris/H2O and fresh-restart
-checks were not run. M4 proceeds next only as a different mechanism comparison
-with retention explicitly open. Spark, authentic identity fidelity, M5–M7 and
-production private dispatch remain open.
+**Current implementation — M4 v7 protocol commit `d1364fc`, 24 October 2026.**
+M0a/M1/M2/M3 have measured boundaries. M3 retention repair and M4 static
+optimization are **rejected**: M4 direct pattern is 0/4 dev and 0/8
+held-out/regression, and fast+pattern adversarial is 0/4 versus disabled 2/4.
+Every delayed router row selected fast with incomplete coverage. The v7 verdict
+passes 16/20 checks including same-process extension/image restart, but does
+not promote M4 or repair retention. Spark, authentic identity fidelity, M5–M7
+and production private dispatch remain open.
 
 The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
 See [M0a](experiments/20261024_M0a_Refreshed_Baselines.md),
 [M1](experiments/20261024_M1_Procedure_Compilation_Results.md),
-[M2](experiments/20261024_M2_Dynamic_Memory_Results.md) and
-[M3](experiments/20261024_M3_Depth_Ownership_Results.md) for protocols, exact
-commands, controls, costs and preserved failures.
+[M2](experiments/20261024_M2_Dynamic_Memory_Results.md),
+[M3](experiments/20261024_M3_Depth_Ownership_Results.md) and
+[M4](experiments/20261024_M4_Pattern_Results.md) for protocols, exact commands,
+controls, costs and preserved failures.
 
 Use [the current research plan](architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
 and [loop-agent instructions](architecture/16_Loop_Agent_Instructions.md)
@@ -228,6 +229,56 @@ treated as the correctly configured inference limit. Results and retained
 failures are recorded in
 [the E2 report](experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
 Reranking remains opt-in and lexical remains the default.
+
+## 1c. M4 static-pattern diagnostic (v7)
+
+The final arm is a bounded modules-only diagnostic, not a production router or
+retention repair. It uses the accepted shared M3 parent and sealed MiniCPM5
+source. The following are the commands used; **use fresh report/output paths on
+any rerun** and do not overwrite preserved attempts:
+
+```bash
+PYTHONUNBUFFERED=1 .venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_m4_pattern.py \
+  --report reports/m4_static_attempt07.guard.json \
+  --driver-limit-gib 50 --swap-growth-limit-mib 512 \
+  --minimum-free-percent 15 --sustained-host-samples 3 \
+  -- --device mps --output runs/m4_static_attempt07 \
+  --protocol configs/m4_pattern_static_v7.json \
+  --parent-extension runs/m3_depth_shared_attempt02/selected_extension
+
+.venv/bin/python scripts/score_m4_pattern.py \
+  --protocol configs/m4_pattern_static_v7.json \
+  --input runs/m4_static_attempt07/run_report.json \
+  --parent-controls runs/m3_repair_attempt01/run_report.json \
+  --output reports/m4_static_attempt07/verdict.json
+# Independent rejection returns exit status 1 after writing the verdict.
+
+.venv/bin/python scripts/audit_m4_collisions.py \
+  --protocol configs/m4_pattern_static_v7.json \
+  --run-report runs/m4_static_attempt07/run_report.json \
+  --output reports/m4_static_attempt07/collision_audit.json
+
+.venv/bin/python scripts/finalize_m4_verdict.py \
+  --protocol configs/m4_pattern_static_v7.json \
+  --run-report runs/m4_static_attempt07/run_report.json \
+  --verdict reports/m4_static_attempt07/verdict.json \
+  --original reports/m4_pattern_attempt04/verdict.json \
+  --original-sha256 ddbff364aa1b7bb9dce4db8b9273477a58dafff8f9d45e3740a275f49c26a7c5 \
+  --collision-audit reports/m4_static_attempt07/collision_audit.json \
+  --output reports/m4_static_attempt07/verdict_final.json
+```
+
+The run performs 4 source-LM +16 delayed updates, two extension saves and 427
+answer generations. The independent verdict is **reject** on four quality
+gates; all 16 other checks pass, including authenticated same-process
+fast-image and pattern-extension restart. The CPU-only collision audit loads no
+weights and validates eight numeric collision fields per group across all 51
+training/router hash-call prompts, reusing the production hash implementation;
+it does not regenerate answers. It found zero distinct-n-gram collisions in the
+measured scopes. Fresh-process restart is conditional on acceptance and was not
+run. See the [final v7 verdict](../reports/m4_static_attempt07/verdict_final.json)
+and [M4 results](experiments/20261024_M4_Pattern_Results.md).
 
 ## 2. Run the offline core first
 

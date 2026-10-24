@@ -1,9 +1,9 @@
 # Coding-agent continuation instruction
 
-Current documentation review: 24 October 2026, against code/protocol HEAD `c4355ff`
-on `codex/d2-capacity-runtime-pilot`. This update records M2/M3 evidence, the
-retention-repair rejection and the next mechanism. It does not launch an agent,
-native experiment or automation.
+Current documentation review: 24 October 2026, against M4 v7 implementation
+`ad09a77` and protocol commit `d1364fc` on `codex/d2-capacity-runtime-pilot`.
+This update records the completed M4 static-arm rejection and its evidence
+boundaries. It does not launch an agent, native experiment or automation.
 
 ## Resume from evidence
 
@@ -54,7 +54,15 @@ document 15; none of these planned paths is qualified by the documentation.
   cross-chunk gradients, gradient-cut and fresh-process image restart. Private
   uses twice the logical state; no capacity-matched or uTTT claim is made.
   Both candidates nevertheless fail retention replay **0/2** versus parent 2/2.
-  Diagnose that regression before any repair arm or M4 expansion.
+  M4 proceeded only as a separate mechanism comparison; retention remains open.
+- M4 v7 completed 4 source-LM +16 delayed updates and two extension saves.
+  Direct pattern is 0/4 dev and 0/8 held-out/regression; all delayed router
+  rows selected fast with incomplete coverage. Fast+pattern adversarial is 0/4
+  versus disabled 2/4, so the independent verdict rejects four quality gates.
+  Sixteen/20 checks pass, including authenticated same-process extension/image
+  restart. Fresh-process restart was not run after rejection. The CPU collision
+  audit reconciled 51 hash-call prompts and found zero distinct-n-gram
+  collisions; actually routed covered-case utility remains unmeasured.
 - Procedure compilation, execution, candidate rejection, single-writer atomic
   publication and ancestor rollback exist; the compiled procedure passed
   3/3 held-out cases plus dev. Do not rebuild these as missing primitives.
@@ -70,13 +78,13 @@ document 15; none of these planned paths is qualified by the documentation.
 
 ## Next work package and progression
 
-**M3 retention repair is rejected:** delayed behavior is preserved, but general
-development remains 0/2 and adversarial memory remains 0/4 versus disabled 2/4.
-Final general correct improves only to 1/4 (`Cl`). Novel-value delayed cases
-remain 0/2. The candidate is not a new parent; original Paris/H2O and fresh
-restart checks were not run. Do not retune the same replay recipe. M4 proceeds
-only as a different mechanism comparison with retention explicitly open.
-Continue M4 static lookup/dynamic routing, then M5 bounded RSI, M6 learned
+**M3 retention repair and M4 static optimization are rejected:** M3 delayed
+behavior is preserved, but general development remains 0/2 and adversarial
+memory remains 0/4 versus disabled 2/4. M4 direct pattern is 0/4 dev and 0/8
+held-out/regression; its router score is fast-memory behavior, not static
+benefit. Do not promote M4 or use fast scores to admit M5. Retention repair and
+genuinely covered non-training static utility remain open. Any M5 bounded-RSI
+arm requires a new predeclared parent/data/control protocol; then M6 learned
 timescales and M7 native vision. Authentic identity fidelity still requires
 permitted source material and human review.
 

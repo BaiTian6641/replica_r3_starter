@@ -1,18 +1,20 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
-**Current status — 24 October 2026, code/protocol HEAD `c4355ff`.**
-M0a/M1/M2/M3 are complete within their recorded scopes. M3 retention repair is
-**rejected**: delayed behavior is preserved, but general development remains
-0/2, adversarial memory remains 0/4 versus disabled 2/4, and novel-value
-delayed cases remain 0/2. The candidate is not a new parent. M4 proceeds next
-only as a different mechanism comparison with retention explicitly open. Fresh
-action-menu generalization, authentic identity fidelity, Spark, M5–M7 and
-production private dispatch remain open.
+**Current status — 24 October 2026, M4 v7 protocol commit `d1364fc`.**
+M0a/M1/M2/M3 are complete within their recorded scopes. M3 retention repair and
+the M4 static-optimization arm are **rejected**. M4 direct pattern is 0/4 dev
+and 0/8 held-out/regression; every delayed router row selected fast with
+incomplete hash coverage, and fast+pattern adversarial is 0/4 versus disabled
+2/4. The v7 verdict passes 16/20 checks, including same-process extension/image
+restart, but does not promote M4 or repair retention. Fresh action-menu
+generalization, genuinely covered static utility, authentic identity fidelity,
+Spark, M5–M7 and production private dispatch remain open.
 
 Read the [research plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),
 [loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md),
-[execution state](execution_state.md) and
-[M3 evidence](docs/experiments/20261024_M3_Depth_Ownership_Results.md).
+[execution state](execution_state.md),
+[M3 evidence](docs/experiments/20261024_M3_Depth_Ownership_Results.md) and
+[M4 evidence](docs/experiments/20261024_M4_Pattern_Results.md).
 The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
 MiniCPM5 remains the baseline. Native work uses one MPS worker, no CPU fallback,
 the **50 GiB** sampled driver stop and existing swap/host-pressure checks.
