@@ -30,8 +30,8 @@ def execute(args, profiler, report):
     from replica_lab.runtime.routing import choose_route
     started = time.monotonic()
     protocol = json.loads(args.protocol.read_text())
-    if protocol.get('format') != 'replica.m4.pattern.v1':
-        raise ValueError('M4 restart requires an M4 protocol')
+    if not str(protocol.get('format', '')).startswith('replica.m4.pattern.'):
+        raise ValueError('M4 restart requires an M4 pattern protocol')
     implementation_pins = protocol['implementation_sha256']
     for name, expected in implementation_pins.items():
         if Path(name).is_absolute() or '..' in Path(name).parts or sha(ROOT / name) != expected:

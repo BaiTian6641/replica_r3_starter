@@ -430,8 +430,32 @@ def execute(args, profiler, report):
                          'reloaded_answer': reloaded_answer, 'correct_answer': correct_answer,
                          'answer_equal': reloaded_answer['answer'] == correct_answer['answer'],
                          'source_observations_reencoded': False}
-    parent_fast = report['parent_metrics']['fast']
+    collisions = {}
+    for order in pattern_spec.orders:
+        for head in range(pattern_spec.heads):
+            counts = [count for (item_order, item_head, _), count in hash_counts.items()
+                      if item_order == order and item_head == head]
+            lookups = sum(counts)
+            unique = len(counts)
+            collisions[f'{order}_{head}'] = {
+                'lookups': lookups,
+                'unique_indices': unique,
+                'collisions': lookups - unique,
+                'collision_rate': (lookups - unique) / lookups if lookups else 0.0,
+                'table_rows': pattern_spec.table_rows,
+                'hash_coverage': unique / pattern_spec.table_rows,
+                'touched_bytes': unique * pattern_spec.width * 4,
+            }
     report['collisions'] = collisions
+    report['resource_accounting'] = {
+        'table_parameter_bytes': sum(parameter.numel() * parameter.element_size()
+                                     for parameter in model.pattern_port.tables.parameters()),
+        'dense_gradient_materialization_upper_bound_bytes': sum(
+            parameter.numel() * parameter.element_size() for parameter in model.pattern_port.tables.parameters()),
+        'optimizer_state_bytes': report['training']['optimizer_final']['state_tensor_bytes'],
+        'attention_cache': 'disabled; native action pass recomputes without KV reuse',
+    }
+    parent_fast = report['parent_metrics']['fast']
     ids = encode_prompt(tokenizer, DELAYED_USE_TEMPLATE.replace('{query}', dev[0]['query'])
                         .replace('{observation}', ''), 'mps')
     mask = torch.ones_like(ids, dtype=torch.bool)
