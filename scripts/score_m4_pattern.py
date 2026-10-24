@@ -20,12 +20,16 @@ def accuracy(rows):
 
 def split_metrics(rows, splits):
     return {split: accuracy([row for row in rows if row['split'] == split]) for split in splits}
+    parser.add_argument('--parent-controls', type=Path,
+                        help='Existing parent adversarial controls with identical renderer and observation')
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--protocol', type=Path, required=True)
     parser.add_argument('--input', type=Path, required=True)
+    parser.add_argument('--parent-controls', type=Path,
+                        help='Existing parent adversarial controls with identical renderer and observation')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
@@ -44,6 +48,22 @@ def main():
                           ('records.jsonl', 'records_sha256'), ('queries.jsonl', 'queries_sha256')):
         if sha(data / filename) != protocol['dataset'][key]:
             raise ValueError(f'M4 dataset changed: {filename}')
+    parent_controls = None
+    if args.parent_controls is not None:
+        parent_controls = json.loads(args.parent_controls.read_text())
+        if (parent_controls['parent_run_report'] != protocol['parent_run_report']
+                or sha(ROOT / parent_controls['parent_run_report']) != protocol['parent_run_report_sha256']
+                or Path(parent_controls['parent_extension']).resolve()
+                != (ROOT / protocol['parent_extension']).resolve()):
+            raise ValueError('M4 parent-control lineage differs')
+        for split in ('retention', 'retention_dev'):
+            if 'adversarial' not in parent_controls['parent'][split]:
+                raise ValueError(f'M4 parent controls lack adversarial rows for {split}')
+            source['parent'][split]['adversarial'] = parent_controls['parent'][split]['adversarial']
+        source['parent_general_metrics']['adversarial'] = accuracy(
+            parent_controls['parent']['retention']['adversarial'])
+        source['parent_general_dev_metrics']['adversarial'] = accuracy(
+            parent_controls['parent']['retention_dev']['adversarial'])
     parent_fast = source['parent_metrics']['fast']
     candidate = source['metrics']['router']
     general_parent = source['parent_general_metrics']
