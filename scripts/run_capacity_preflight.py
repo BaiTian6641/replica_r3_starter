@@ -65,6 +65,8 @@ def main():
                                                  "run_replica_session.py", "e3_speed_probe.py",
                                                  "run_e3_qualification.py", "run_e3_task.py", "run_e3_d2_action.py", "run_e3_dagger.py", "run_e3_candidate_rerank.py", "run_e2_candidate_answers.py", "run_e2_retrieval.py",
                                                  "run_e2_capacity.py", "run_e2_diagnostic.py", "run_e4_fast_read.py",
+                                                 "run_m2_dynamic.py",
+                                                 "run_m3_restart.py",
                                                  "run_e5_neural_candidate.py", "run_e2_reader_candidate.py", "run_e4_delayed_use.py", "run_e4_compositional_eval.py", "run_e3_policy_probe.py", "run_e3_policy_head.py", "run_e3_mixed_controls.py", "run_e3_mixed_core_controls.py", "run_e2_copy_head.py", "run_e2_pointer_head.py", "run_e4_contextual.py", "run_e2_pointer_service.py", "run_e2_pointer_scope_train.py", "run_e2_pointer_context.py", "run_e2_pointer_context_service.py", "run_e2_cross_template_retrieval.py", "run_e2_cross_rerank.py"),
                         default="train_text.py")
     parser.add_argument("--report", type=Path, required=True)

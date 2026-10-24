@@ -1,0 +1,64 @@
+{
+  "schema_version": "replica.response_contract.v1",
+  "declared_at_utc": "2026-10-23T00:44:55.448829+00:00",
+  "status": "predeclared_before_native_generation",
+  "append_separator": "\n\n",
+  "joiner": "\n",
+  "common_prefix": "Response contract v1: Output exactly one line, then end the response. No reasoning, explanation, Markdown, quotes, or prefix. Do not invent missing values.",
+  "answer_template": "If all required items are observed, output {answer_format}",
+  "missing_template": "If a required item is unavailable, follow the task: output exactly UNKNOWN, or Please provide <fields>. Replace <fields> with missing names only, ordered {field_order}, separated by comma-space.",
+  "family_formats": {
+    "register_xor8": {
+      "answer_format": "only the base-10 integer result.",
+      "field_order": ["RULE", "INPUT", "MASK"]
+    },
+    "affine_mod97": {
+      "answer_format": "only the base-10 integer result.",
+      "field_order": ["RULE", "A", "X", "B"]
+    },
+    "finite_state": {
+      "answer_format": "only S0, S1, S2, or S3.",
+      "field_order": ["RULE", "START", "SYMBOLS"]
+    },
+    "tool_recovery": {
+      "answer_format": "exactly RETRY lookup, VERIFY receipt, or STOP.",
+      "field_order": ["RULE", "STATUS", "ATTEMPT", "LIMIT"]
+    }
+  },
+  "projection": "canonical_prompt_plus_separator_plus_family_instruction_v1",
+  "projection_inputs": ["family", "static_contract_only"],
+  "forbidden_projection_inputs": [
+    "expected_action",
+    "expected_response",
+    "target",
+    "evaluator.oracle",
+    "observed_value_or_missingness"
+  ],
+  "comparison": {
+    "primary": "same_original_same_dev16_same_cap32_instruction_appendix_only",
+    "parent_spec_path": "reports/infrastructure_preflight_v3_20261024/evaluation_spec_m3.json",
+    "parent_spec_sha256": "a223bd5c33e47c5df446d23594a75291d21be1f4b6a80e27dcd0f089b3904dc4",
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "max_new_tokens": 32,
+    "max_length": 512,
+    "seed": 17,
+    "do_sample": false,
+    "num_beams": 1,
+    "enable_thinking": false,
+    "device": "mps",
+    "dtype": "float32",
+    "cpu_fallback": false,
+    "native_jobs": 1,
+    "additional_adaptive_runs": "none_in_this_preregistration"
+  },
+  "scoring": {
+    "module": "src/replica_lab/infrastructure_scoring.py",
+    "sha256": "0ad38111bbc3c4a247015f889f2b829047dcc2dda2f238116e8d372befe3ec1a",
+    "unchanged": true,
+    "single_line_compliance": "Strip surrounding whitespace, require nonempty and no internal CR or LF; report separately from unchanged parser/task score.",
+    "success_gate": "16/16 valid grammar and single-line compliance, all EOS/no caps; task correctness and per-family/action errors reported independently, with no model promotion from this dev probe."
+  },
+  "stopping_rule": "One fresh frozen-original run of all sixteen preselected cases, cap32 each; no checkpoint save, no optimizer update, no after-result prompt/parser/cap tuning. Preserve failures and predeclare a separate future diagnosis if needed.",
+  "interpretation": "Paired exposed-development instruction intervention; cannot establish broad generalization, architecture gain or isolate which sentence helps. Old capped prose includes an unsupported START=S0 assumption; not all failures can be attributed to formatting alone."
+}

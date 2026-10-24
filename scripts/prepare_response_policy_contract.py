@@ -58,8 +58,13 @@ def _previous_v1(previous_spec_path, parent_spec_path, parent, original_rows, or
     previous = read(previous_spec_path)
     require(previous["schema_version"] == "replica.response_contract_preflight.v1",
             "Unsupported previous v1 specification")
-    require(resolved(previous["parent_spec_path"]) == parent_spec_path
-            and previous["parent_spec_sha256"] == digest(parent_spec_path)
+    named_parent = resolved(previous["parent_spec_path"])
+    admitted_parents = {parent_spec_path}
+    migration = parent.get("m3_pin_migration")
+    if migration is not None:
+        admitted_parents.add(resolved(migration["parent_spec_path"]))
+    require(named_parent in admitted_parents
+            and previous["parent_spec_sha256"] == digest(named_parent)
             and previous["parent_data_sha256"] == parent["data_sha256"]
             and resolved(previous["parent_data_path"]) == resolved(parent["data_path"]),
             "Previous v1 specification names a different original parent")
@@ -67,9 +72,15 @@ def _previous_v1(previous_spec_path, parent_spec_path, parent, original_rows, or
                 "max_new_tokens", "max_length", "seed", "decoding", "role", "model_path", "model_lock",
                 "model_lock_sha256", "device", "dtype", "cpu_fallback"):
         require(previous[key] == parent[key], f"Previous v1 changes fixed parent setting: {key}")
-    check_pins(previous["implementation_sha256"])
+    checked_pins = dict(previous["implementation_sha256"])
+    expected_pins = dict(parent["implementation_sha256"])
+    changes = {} if migration is None else migration["changed_implementation"]
+    for name, change in changes.items():
+        checked_pins[name] = parent["implementation_sha256"][name]
+        expected_pins[name] = change["parent_sha256"]
+    check_pins(checked_pins)
     require(all(previous["implementation_sha256"].get(name) == value
-                for name, value in parent["implementation_sha256"].items()),
+                for name, value in expected_pins.items()),
             "Previous v1 changes preserved original implementation")
     previous_data = resolved(previous["data_path"])
     require(digest(previous_data) == previous["data_sha256"], "Previous v1 data bytes changed")

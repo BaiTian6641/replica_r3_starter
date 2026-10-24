@@ -23,9 +23,11 @@ import torch
 from safetensors.torch import load_file, save_file
 
 from ..neural import FastState, FastWrite, LinearFastMemory, SGDN2Memory, SGDN2Write
+from ..architecture.contracts import FastMemoryRead
 
 FORMAT = 'replica.fast_memory.image.v1'
 SCHEMA = 'replica.fast_memory.state.v1'
+DEPTH_FORMAT = 'replica.fast_memory.depth_image.v1'
 MAX_DIM = 1024
 
 
@@ -385,3 +387,120 @@ class FastMemorySession:
         if state.digest != metadata.get('state_digest'):
             raise ValueError('fast-memory state digest differs')
         return cls(config, scope, producer=producer, state=state)
+
+
+def _depth_tensor_digest(read: FastMemoryRead) -> str:
+    weights = (read.weights if read.private_weights is None else torch.cat(
+        [read.private_weights[layer] for layer in sorted(read.private_weights)], dim=1))
+    return hashlib.sha256(weights.detach().float().cpu().numpy().tobytes()).hexdigest()
+
+
+def _depth_lineage_digest(metadata: Mapping[str, Any]) -> str:
+    names = ('format', 'depth_mode', 'scope', 'producer', 'config', 'chunk_index',
+             'update_count', 'cursor', 'generation', 'lineage', 'layers')
+    return digest({name: metadata[name] for name in names})
+
+
+def save_fast_depth_image(directory, read: FastMemoryRead, *, config: FastMemoryConfig,
+                          scope: FastMemoryScope, producer: str, chunk_index: int,
+                          update_count: int, cursor: int,
+                          lineage: tuple[tuple[str, str], ...], generation: int = 0):
+    """Persist one shared/private decision snapshot outside neural computation."""
+    if not isinstance(read, FastMemoryRead) or not isinstance(config, FastMemoryConfig):
+        raise TypeError('FastMemoryRead and FastMemoryConfig are required')
+    if not isinstance(scope, FastMemoryScope):
+        raise TypeError('FastMemoryScope is required')
+    _identifier(producer, 'producer')
+    for name, value in (('chunk_index', chunk_index), ('update_count', update_count),
+                        ('cursor', cursor), ('generation', generation)):
+        if type(value) is not int or value < 0:
+            raise ValueError(f'{name} must be nonnegative')
+    if not isinstance(lineage, tuple):
+        raise ValueError('depth-image lineage must be a tuple')
+    for event_id, source_hash in lineage:
+        _identifier(event_id, 'observation_id')
+        _sha(source_hash, 'source_hash')
+    depth_mode = 'private' if read.private_weights is not None else 'shared'
+    layers = sorted(read.private_weights or {})
+    tensors = ({'weights': read.weights} if read.private_weights is None else
+               {f'private_{layer}': read.private_weights[layer] for layer in layers})
+    path = Path(directory)
+    path.mkdir(parents=True, exist_ok=False)
+    weights_path = path / 'fast_depth_state.safetensors'
+    save_file({name: value.detach().cpu().contiguous() for name, value in tensors.items()},
+              str(weights_path))
+    if weights_path.stat().st_size > config.max_image_bytes:
+        weights_path.unlink()
+        raise ValueError('fast-depth image exceeds the declared quota')
+    metadata = {
+        'format': DEPTH_FORMAT, 'depth_mode': depth_mode,
+        'scope': scope.to_dict(), 'producer': producer, 'config': config.to_dict(),
+        'weights_sha256': hashlib.sha256(weights_path.read_bytes()).hexdigest(),
+        'state_digest': _depth_tensor_digest(read),
+        'chunk_index': chunk_index, 'update_count': update_count, 'cursor': cursor,
+        'generation': generation, 'lineage': [list(item) for item in lineage],
+        'layers': layers,
+    }
+    metadata['lineage_digest'] = _depth_lineage_digest(metadata)
+    (path / 'manifest.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    return metadata
+
+
+def load_fast_depth_image(directory, *, config: FastMemoryConfig, scope: FastMemoryScope,
+                          producer: str, frame_producer: str | None = None, device=None):
+    """Reload and authenticate every depth tensor and exact lineage field."""
+    path = Path(directory)
+    metadata = json.loads((path / 'manifest.json').read_text())
+    expected_fields = {'format', 'depth_mode', 'scope', 'producer', 'config',
+                       'weights_sha256', 'state_digest', 'lineage_digest', 'chunk_index',
+                       'update_count', 'cursor', 'generation', 'lineage', 'layers'}
+    if (set(metadata) != expected_fields or metadata.get('format') != DEPTH_FORMAT
+            or metadata.get('depth_mode') not in {'shared', 'private'}
+            or metadata.get('producer') != producer or metadata.get('scope') != scope.to_dict()
+            or metadata.get('config') != config.to_dict()
+            or _depth_lineage_digest(metadata) != metadata.get('lineage_digest')):
+        raise ValueError('fast-depth image metadata or lineage is incompatible')
+    layers = metadata['layers']
+    if (not isinstance(layers, list)
+            or any(type(layer) is not int or layer < 0 for layer in layers)):
+        raise ValueError('fast-depth layer inventory differs')
+    if (layers != sorted(set(layers))
+            or (metadata['depth_mode'] == 'shared') != (not layers)):
+        raise ValueError('fast-depth layer inventory differs')
+    lineage = []
+    for item in metadata['lineage']:
+        if not isinstance(item, list) or len(item) != 2:
+            raise ValueError('fast-depth lineage entry is malformed')
+        _identifier(item[0], 'observation_id')
+        _sha(item[1], 'source_hash')
+        lineage.append(item)
+    if lineage != metadata['lineage'] or _depth_lineage_digest(metadata) != metadata['lineage_digest']:
+        raise ValueError('fast-depth lineage differs')
+    for name in ('chunk_index', 'update_count', 'cursor', 'generation'):
+        if type(metadata[name]) is not int or metadata[name] < 0:
+            raise ValueError('fast-depth counters must be nonnegative')
+    weights_path = path / 'fast_depth_state.safetensors'
+    if (not weights_path.is_file() or weights_path.stat().st_size > config.max_image_bytes
+            or hashlib.sha256(weights_path.read_bytes()).hexdigest() != metadata['weights_sha256']):
+        raise ValueError('fast-depth image bytes changed or exceed quota')
+    tensors = load_file(str(weights_path))
+    expected_tensors = ({'weights'} if metadata['depth_mode'] == 'shared'
+                        else {f'private_{layer}' for layer in layers})
+    if set(tensors) != expected_tensors:
+        raise ValueError('fast-depth tensor inventory differs')
+    expected_shape = (1, config.heads, config.key_size, config.value_size)
+    if any(tuple(value.shape) != expected_shape for value in tensors.values()):
+        raise ValueError('fast-depth tensor dimensions differ')
+    if device is not None:
+        tensors = {name: value.to(device) for name, value in tensors.items()}
+    private = None
+    if metadata['depth_mode'] == 'private':
+        private = {layer: tensors[f'private_{layer}'] for layer in layers}
+        weights = private[layers[0]]
+    else:
+        weights = tensors['weights']
+    read = FastMemoryRead(weights, frame_producer or producer, metadata['state_digest'],
+                          private_weights=private)
+    if _depth_tensor_digest(read) != metadata['state_digest']:
+        raise ValueError('fast-depth state digest differs')
+    return read, metadata

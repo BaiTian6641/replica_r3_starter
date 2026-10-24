@@ -14,7 +14,7 @@ the suggested baseline even when decoder activations use a lower precision.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Mapping, Sequence
 
 import torch
 from torch import Tensor, nn
@@ -401,4 +401,26 @@ class SGDN2Memory:
                     gate_value * value - read).unsqueeze(-2)
                 state = torch.where(mask[:, index, None, None, None], candidate, state)
         return FastState(state, start_state.chunk_index + 1)
+
+    def reduce_shared_chunk(self, start_state: FastState,
+                            port_writes: Mapping[int, Sequence[SGDN2Write]]) -> FastState:
+        """Convex-mean SGDN-2 proposals from one immutable chunk-start state.
+
+        Every port proposal is evaluated independently against ``start_state``;
+        no proposal can read another port's current-chunk result. This project
+        reducer is not uTTT's aggregated-gradient update.
+        """
+        self._check_state(start_state)
+        if not isinstance(port_writes, Mapping) or not port_writes:
+            raise ValueError('shared reduction requires named port proposals')
+        if any(type(layer) is not int or layer < 0 for layer in port_writes):
+            raise ValueError('shared proposal ports must be nonnegative integers')
+        proposals = [self.update_shared_chunk(start_state, port_writes[layer])
+                     for layer in sorted(port_writes)]
+        device = proposals[0].weights.device
+        dtype = proposals[0].weights.dtype
+        if any(p.weights.device != device or p.weights.dtype != dtype for p in proposals):
+            raise ValueError('shared proposals must use one device and dtype')
+        weights = torch.stack([p.weights for p in proposals], dim=0).mean(dim=0)
+        return FastState(weights, start_state.chunk_index + 1)
 

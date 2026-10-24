@@ -105,6 +105,46 @@ def write(path, value):
         stream.write("\n")
 
 
+def _migration_parent(spec, parent_spec):
+    """Validate a multi-file pin migration and return the scored original spec."""
+    score_spec = parent_spec
+    migration = spec.get("m3_pin_migration")
+    if migration is None:
+        return score_spec
+    require(isinstance(migration, dict) and set(migration) == {
+        "migrated_at_utc", "parent_spec_path", "parent_spec_sha256",
+        "changed_implementation", "reason"}, "Malformed M3 parent-pin migration")
+    score_spec = resolved(migration["parent_spec_path"])
+    require(not score_spec.is_symlink() and score_spec.is_relative_to(ROOT)
+            and digest(score_spec) == migration["parent_spec_sha256"],
+            "M3 migration original parent pin differs")
+    original = read(score_spec)
+    require(original.get("schema_version") == "replica.infrastructure_preflight.v2"
+            and "m3_pin_migration" not in original,
+            "M3 migration requires an original v2 parent")
+    changes = migration["changed_implementation"]
+    require(isinstance(changes, dict) and changes, "M3 migration has no changed implementation")
+    current_pins = dict(spec["implementation_sha256"])
+    original_pins = dict(original["implementation_sha256"])
+    for name, change in changes.items():
+        require(isinstance(change, dict) and set(change) == {"parent_sha256", "migrated_sha256"}
+                and current_pins.get(name) == change["migrated_sha256"],
+                "Malformed M3 changed-pin declaration")
+        if name in original_pins:
+            require(original_pins[name] == change["parent_sha256"],
+                    "M3 migration original implementation pin differs")
+            original_pins.pop(name)
+        current_pins.pop(name)
+    require(current_pins == original_pins, "M3 migration changes an undeclared implementation pin")
+    current_fields = {key: value for key, value in spec.items()
+                      if key not in {"m3_pin_migration", "scope", "implementation_sha256"}}
+    original_fields = {key: value for key, value in original.items()
+                       if key not in {"scope", "implementation_sha256"}}
+    require(current_fields == original_fields,
+            "M3 migration changes cases, evidence, settings or source lineage")
+    return score_spec
+
+
 def _parent(release, parent_spec, model_path, model_lock):
     spec = read(parent_spec)
     require(spec["schema_version"] == "replica.infrastructure_preflight.v2", "Unsupported parent specification")
@@ -167,10 +207,11 @@ def _parent(release, parent_spec, model_path, model_lock):
         archived_paths.add(path)
     require({parent_spec.parent / name for name in FAILED_FILES[2:]}.issubset(archived_paths),
             "Original archive receipt omits required failed evidence")
+    score_spec = _migration_parent(spec, parent_spec)
     scored = read(parent_spec.parent / "native_B1_scoring.json")
     require(scored["schema_version"] == "replica.infrastructure_generation_score.v2"
             and scored["status"] == "completed_independent_infrastructure_scoring"
-            and scored["inputs_sha256"]["specification"] == digest(parent_spec)
+            and scored["inputs_sha256"]["specification"] == digest(score_spec)
             and scored["inputs_sha256"]["data"] == digest(data_path)
             and scored["inputs_sha256"]["generation_report"] == digest(parent_spec.parent / "native_B1_raw/generation_report.json")
             and scored["inputs_sha256"]["generations"] == digest(parent_spec.parent / "native_B1_raw/generations.jsonl"),

@@ -17,8 +17,8 @@ SPEC = importlib.util.spec_from_file_location("prepare_response_contract_test", 
 PREPARE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PREPARE)
 RELEASE = ROOT / "data/diagnostics/infrastructure_slice_v2"
-PARENT = ROOT / "reports/infrastructure_preflight_v3_20261024/evaluation_spec.json"
-CONTRACT = ROOT / "configs/response_contract_v1.json"
+PARENT = ROOT / "reports/infrastructure_preflight_v3_20261024/evaluation_spec_m3.json"
+CONTRACT = ROOT / "configs/response_contract_v1_m3.json"
 MODEL = ROOT / "checkpoints/minicpm5_source"
 LOCK = ROOT / "configs/minicpm5_sealed_lock.local.json"
 
@@ -211,3 +211,10 @@ def test_parent_rejects_changed_frozen_backend_pin(tmp_path):
     spec.write_text(json.dumps(parent))
     with pytest.raises(ValueError, match="implementation bytes changed"):
         PREPARE._parent(RELEASE, spec, MODEL, LOCK)
+
+
+def test_parent_rejects_changed_migration_receipt():
+    parent = PREPARE.read(PARENT)
+    parent["m3_pin_migration"]["parent_spec_sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="original parent pin differs"):
+        PREPARE._migration_parent(parent, PARENT)

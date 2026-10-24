@@ -58,14 +58,18 @@ class MiniCPM5Adapter(nn.Module):
         self.reranker = TrainableRecordReranker(d)
         self.core = self.ff_core = self.workspace_ports = self.task_head = None
         self.identity_reader = None
-        self.fast_ports = self.fast_write_encoder = None
+        self.fast_ports = self.fast_write_encoder = self.fast_depth_write_encoders = None
         self.copy_head = None
         if manifest.copy is not None:
             self.copy_head = (RecordPointerHead(h) if manifest.copy.mode == 'pointer'
                               else RecordCopyHead(h))
         if manifest.fast_memory is not None:
             spec = manifest.fast_memory
-            if spec.update_rule == 'sgdn2':
+            if spec.depth_writers:
+                self.fast_depth_write_encoders = nn.ModuleDict({
+                    str(i): SGDN2WriteEncoder(h, spec.heads, spec.key_size, spec.value_size)
+                    for i in self.ports.injection_layers})
+            elif spec.update_rule == 'sgdn2':
                 self.fast_write_encoder = SGDN2WriteEncoder(h, spec.heads,
                                                             spec.key_size, spec.value_size)
             else:
@@ -152,17 +156,31 @@ class MiniCPM5Adapter(nn.Module):
                                          for n, p in self.copy_head.named_parameters()]})
 
     def fast_producer_key(self):
-        if self.fast_ports is None or self.fast_write_encoder is None:
+        writers = self.fast_depth_write_encoders or self.fast_write_encoder
+        if self.fast_ports is None or writers is None:
             raise ValueError('Manifest declares no fast memory')
         return fingerprint({'features': self.producer_key(),
                             'fast_write_encoder': [(n, id(p), p._version, str(p.dtype),
                                                     str(p.device), p.data_ptr())
-                                                   for n, p in self.fast_write_encoder.named_parameters()],
+                                                   for n, p in writers.named_parameters()],
                             'fast_ports': [(n, id(p), p._version, str(p.dtype),
                                             str(p.device), p.data_ptr())
                                            for n, p in self.fast_ports.named_parameters()]})
 
-    def encode_fast_observation(self, text, tokenizer, *, max_tokens: int = 256):
+    def fast_version_key(self):
+        """Stable persistent-image identity; computed only at host save/load boundaries."""
+        writers = self.fast_depth_write_encoders or self.fast_write_encoder
+        if self.fast_ports is None or writers is None:
+            raise ValueError('Manifest declares no fast memory')
+        tensors = []
+        for prefix, module in (('writer', writers), ('ports', self.fast_ports)):
+            for name, parameter in module.named_parameters():
+                payload = parameter.detach().cpu().contiguous().numpy().tobytes()
+                tensors.append((f'{prefix}.{name}', str(parameter.dtype),
+                                tuple(parameter.shape), hashlib.sha256(payload).hexdigest()))
+        return fingerprint({'manifest': self.manifest.digest, 'tensors': tensors})
+
+    def encode_fast_observation(self, text, tokenizer, *, max_tokens: int = 256, layer=None):
         """Encode one actual source page into fast-memory keys/values.
 
         The host must call this only for observed source/tool text, never for a
@@ -170,7 +188,15 @@ class MiniCPM5Adapter(nn.Module):
         frozen feature producer; only the declared write projection is learned.
         No model forward, answer suffix or future observation is accepted.
         """
-        if self.fast_write_encoder is None:
+        if self.fast_depth_write_encoders is not None:
+            if layer not in self.ports.injection_layers:
+                raise ValueError('Per-depth observation encoding requires a declared injection layer')
+            encoder = self.fast_depth_write_encoders[str(layer)]
+        else:
+            if layer is not None:
+                raise ValueError('Shared observation encoder does not accept a depth layer')
+            encoder = self.fast_write_encoder
+        if encoder is None:
             raise ValueError('Manifest declares no fast write encoder')
         if not isinstance(text, str) or not text.strip():
             raise ValueError('A nonempty observed source page is required')
@@ -184,7 +210,7 @@ class MiniCPM5Adapter(nn.Module):
         embeddings = self.base.get_input_embeddings()(token_ids)
         mask = torch.ones(1, token_ids.shape[1], dtype=torch.bool,
                           device=token_ids.device)
-        return self.fast_write_encoder(embeddings, mask)
+        return encoder(embeddings, mask)
 
     def build_core_state(self, sense: SenseFrame, memory: MemoryRead, task_features,
                          *, task_digest: str, revision: int, previous: CoreState | None = None,
@@ -293,7 +319,8 @@ class MiniCPM5Adapter(nn.Module):
         if self.identity_reader is not None:
             prefixes += ['identity_reader']
         if self.fast_ports is not None:
-            prefixes += ['fast_write_encoder', 'fast_ports']
+            prefixes += ['fast_depth_write_encoders' if self.fast_depth_write_encoders is not None
+                         else 'fast_write_encoder', 'fast_ports']
         if self.copy_head is not None:
             prefixes += ['copy_head']
         for prefix in prefixes:
@@ -311,7 +338,8 @@ class MiniCPM5Adapter(nn.Module):
         if self.identity_reader is not None:
             prefixes += ['identity_reader']
         if self.fast_ports is not None:
-            prefixes += ['fast_write_encoder', 'fast_ports']
+            prefixes += ['fast_depth_write_encoders' if self.fast_depth_write_encoders is not None
+                         else 'fast_write_encoder', 'fast_ports']
         if self.copy_head is not None:
             prefixes += ['copy_head']
         return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
@@ -395,7 +423,7 @@ class MiniCPM5Adapter(nn.Module):
                     and str(i) in self.fast_ports):
                 view = InjectFrame(frame, i)
                 hidden = hidden + self.fast_ports[str(i)](
-                    hidden, frame.fast.weights, enabled=view.enabled)
+                    hidden, frame.fast.for_layer(i), enabled=view.enabled)
             if i == stop_layer:
                 return hidden, summaries
         return self.base.model.norm(hidden), summaries
@@ -451,6 +479,12 @@ class MiniCPM5Adapter(nn.Module):
             spec = self.manifest.fast_memory
             if tuple(fast.weights.shape) != (1, spec.heads, spec.key_size, spec.value_size):
                 raise ValueError('Fast weights shape differs from the declared spec')
+            if spec.depth_mode == 'private':
+                if (fast.private_weights is None
+                        or set(fast.private_weights) != set(self.ports.injection_layers)):
+                    raise ValueError('Private fast frame requires exactly one state per injection port')
+            elif fast.private_weights is not None:
+                raise ValueError('Shared fast frame cannot carry private port states')
             if fast.producer != self.fast_producer_key():
                 raise ValueError('Fast producer differs from current native/port features')
         if copy is not None:

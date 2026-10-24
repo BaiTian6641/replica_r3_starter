@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field, asdict
 import hashlib
 import json
-from typing import Any
+from typing import Any, Mapping
+from types import MappingProxyType
 import torch
 
 
@@ -144,13 +145,30 @@ class FastMemorySpec:
     key_size: int = 64
     value_size: int = 64
     update_rule: str = 'linear'
+    depth_mode: str = 'shared'
+    depth_writers: bool = False
     def __post_init__(self):
         for name in ('heads', 'key_size', 'value_size'):
             value = getattr(self, name)
             if type(value) is not int or not 1 <= value <= 1024:
                 raise ValueError(f'FastMemorySpec.{name} must be in 1..1024')
+        if self.depth_mode not in {'shared', 'private'}:
+            raise ValueError('FastMemorySpec.depth_mode must be shared or private')
         if self.update_rule not in {'linear', 'sgdn2'}:
             raise ValueError('FastMemorySpec.update_rule must be linear or sgdn2')
+        if type(self.depth_writers) is not bool:
+            raise ValueError('FastMemorySpec.depth_writers must be boolean')
+        if self.depth_writers and self.update_rule != 'sgdn2':
+            raise ValueError('Per-depth writers require SGDN-2')
+
+    def to_dict(self):
+        value = asdict(self)
+        if self.depth_mode == 'shared' and not self.depth_writers:
+            value.pop('depth_mode')
+            value.pop('depth_writers')
+        elif not self.depth_writers:
+            value.pop('depth_writers')
+        return value
 
 
 @dataclass(frozen=True)
@@ -270,6 +288,7 @@ class FastMemoryRead:
     weights: torch.Tensor  # [1, heads, key, value]
     producer: str
     state_digest: str
+    private_weights: Mapping[int, torch.Tensor] | None = None
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
     def __post_init__(self):
@@ -281,13 +300,40 @@ class FastMemoryRead:
             raise ValueError('fast-memory producer identity required')
         if not isinstance(self.state_digest, str) or not self.state_digest:
             raise ValueError('fast-memory state digest required')
-        object.__setattr__(self, '_tensor_stamps', (tensor_stamp(self.weights),))
+        if self.private_weights is not None:
+            if not isinstance(self.private_weights, Mapping) or not self.private_weights:
+                raise ValueError('private fast weights must be a nonempty layer mapping')
+            private = dict(self.private_weights)
+            object.__setattr__(self, 'private_weights', MappingProxyType(private))
+            for layer, weights in private.items():
+                if type(layer) is not int or layer < 0:
+                    raise ValueError('private fast port must be a nonnegative integer')
+                if (weights.shape != self.weights.shape or weights.device != self.weights.device
+                        or weights.dtype != self.weights.dtype
+                        or not weights.is_floating_point()
+                        or not bool(torch.isfinite(weights).all())):
+                    raise ValueError('private fast weights must match finite [1, heads, key, value] state')
+            if not any(self.weights is weights for weights in private.values()):
+                raise ValueError('private fast weights must alias one owned layer state')
+        private = tuple(sorted((layer, tensor_stamp(weights))
+                               for layer, weights in (self.private_weights or {}).items()))
+        object.__setattr__(self, '_tensor_stamps', (tensor_stamp(self.weights), private))
 
+    def for_layer(self, layer: int) -> torch.Tensor:
+        if self.private_weights is not None:
+            if layer not in self.private_weights:
+                raise ValueError(f'private fast state missing port {layer}')
+            return self.private_weights[layer]
+        return self.weights
     def tensors(self):
-        return (self.weights,)
+        if self.private_weights is None:
+            return (self.weights,)
+        return tuple(weights for _, weights in sorted(self.private_weights.items()))
 
     def assert_immutable(self):
-        if self._tensor_stamps != (tensor_stamp(self.weights),):
+        private = tuple(sorted((layer, tensor_stamp(weights))
+                               for layer, weights in (self.private_weights or {}).items()))
+        if self._tensor_stamps != (tensor_stamp(self.weights), private):
             raise RuntimeError('FastMemoryRead tensor mutated; rebuild at a decision boundary')
 
 
@@ -400,6 +446,8 @@ class ComponentManifest:
         for name in ('core', 'fast_memory', 'copy', 'identity'):
             if value.get(name) is None:
                 value.pop(name, None)
+        if self.fast_memory is not None:
+            value['fast_memory'] = self.fast_memory.to_dict()
         return value
 
     @property
