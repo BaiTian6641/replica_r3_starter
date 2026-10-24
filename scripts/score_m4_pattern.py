@@ -177,6 +177,7 @@ def main():
     args.output.write_text(json.dumps(verdict, indent=2) + '\n')
     print(json.dumps({'decision': decision, 'checks_failed': [name for name, value in checks.items() if not value],
                       'generation_answers': generation_counts['total'], 'new_tokens': token_costs['generation_new_tokens']}))
+    return 0 if decision == 'accept' else 1
 
 
 if __name__ == '__main__':
