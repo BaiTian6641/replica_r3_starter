@@ -37,7 +37,7 @@ def execute(args, profiler, report):
         if Path(name).is_absolute() or '..' in Path(name).parts or sha(ROOT / name) != expected:
             raise ValueError(f'M4 restart implementation changed: {name}')
     report['implementation_sha256'] = implementation_pins
-    candidate_report_path = args.candidate_run / 'run_report.json'
+    candidate_report_path = args.candidate_report or args.candidate_run / 'run_report.json'
     candidate = json.loads(candidate_report_path.read_text())
     if (candidate.get('status') != 'completed' or candidate.get('decision') != 'accept'
             or candidate.get('protocol_sha256') != sha(args.protocol)
@@ -122,6 +122,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--protocol', type=Path, required=True)
     parser.add_argument('--candidate-run', type=Path, required=True)
+    parser.add_argument('--candidate-report', type=Path,
+                        help='Optional independently scored verdict; artifacts remain in candidate-run')
     parser.add_argument('--model-path', type=Path, default=ROOT / 'checkpoints/minicpm5_source')
     parser.add_argument('--model-lock', type=Path, default=ROOT / 'configs/minicpm5_sealed_lock.local.json')
     args = parser.parse_args()

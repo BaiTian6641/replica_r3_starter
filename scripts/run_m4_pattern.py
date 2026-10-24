@@ -379,6 +379,8 @@ def execute(args, profiler, report):
                 'hash_coverage': unique / pattern_spec.table_rows,
                 'touched_bytes': unique * pattern_spec.width * 4,
             }
+    parent_fast = report['parent_metrics']['fast']
+    candidate = report['metrics']['router']
     general_parent = report['parent_general_metrics']
     general_candidate = report['general_metrics']
     general_dev_parent = report['parent_general_dev_metrics']
