@@ -60,13 +60,13 @@ def main():
                 != (ROOT / protocol['parent_extension']).resolve()):
             raise ValueError('M4 parent-control lineage differs')
         for split in ('retention', 'retention_dev'):
-            if 'adversarial' not in parent_controls['parent'][split]:
+            if 'adversarial' not in parent_controls[f'parent_{split}']:
                 raise ValueError(f'M4 parent controls lack adversarial rows for {split}')
-            source['parent'][split]['adversarial'] = parent_controls['parent'][split]['adversarial']
+            source['parent'][split]['adversarial'] = parent_controls[f'parent_{split}']['adversarial']
         source['parent_general_metrics']['adversarial'] = accuracy(
-            parent_controls['parent']['retention']['adversarial'])
+            parent_controls['parent_retention']['adversarial'])
         source['parent_general_dev_metrics']['adversarial'] = accuracy(
-            parent_controls['parent']['retention_dev']['adversarial'])
+            parent_controls['parent_retention_dev']['adversarial'])
     parent_fast = source['parent_metrics']['fast']
     candidate = source['metrics']['router']
     general_parent = source['parent_general_metrics']
