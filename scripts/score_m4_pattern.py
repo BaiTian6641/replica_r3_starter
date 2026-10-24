@@ -43,6 +43,20 @@ def main():
     if (source.get('protocol_sha256') != sha(args.protocol)
             or source.get('implementation_sha256') != implementation_pins):
         raise ValueError('M4 verdict input protocol or implementation differs')
+    original_artifact = None
+    original_preserved = source.get('error_type') == 'NameError'
+    if protocol.get('no_warmup_control'):
+        original_path = ROOT / protocol['no_warmup_control']['report']
+        original = json.loads(original_path.read_text())
+        original_sha = sha(original_path)
+        if (protocol['no_warmup_control'].get('sha256') not in (None, original_sha)
+                or original.get('decision') != 'reject'
+                or original.get('original_failure_preserved') is not True):
+            raise ValueError('Original M4 rejection artifact is not preserved')
+        original_preserved = True
+        original_artifact = {'path': protocol['no_warmup_control']['report'],
+                             'sha256': original_sha, 'decision': original['decision'],
+                             'protocol_sha256': original.get('protocol_sha256')}
     if source.get('status') != 'completed':
         if (source.get('error_type') != 'NameError'
                 or source.get('error') != "name 'candidate' is not defined"
@@ -178,7 +192,8 @@ def main():
                    protocol_sha256=sha(args.protocol), implementation_sha256=implementation_pins,
                    checks=checks, generation_counts=generation_counts, token_costs=token_costs,
                    verdict_source=str(args.input), verdict_source_sha256=sha(args.input),
-                   original_failure_preserved=source.get('error_type') == 'NameError')
+                   original_failure_preserved=original_preserved,
+                   original_artifact=original_artifact)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(verdict, indent=2) + '\n')
     print(json.dumps({'decision': decision, 'checks_failed': [name for name, value in checks.items() if not value],
