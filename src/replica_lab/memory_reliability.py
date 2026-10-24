@@ -24,7 +24,8 @@ def render_fact_query(entity, attribute, form=0):
     return templates[form].format(entity=entity, attribute=attribute)
 
 
-def build_episodes(seed=20261024, family_plan=None, values_by_split=None, query_forms=False):
+def build_episodes(seed=20261024, family_plan=None, values_by_split=None, query_forms=False,
+                   distractor_values_by_split=None):
     rng = random.Random(seed)
     episodes = []
     if family_plan is None:
@@ -34,6 +35,7 @@ def build_episodes(seed=20261024, family_plan=None, values_by_split=None, query_
                            'heldout': ('indigo', 'crimson', 'teal', 'violet', 'amber', 'copper')}
     for split, families in family_plan:
         for family in families:
+            distractor_values = (distractor_values_by_split or {}).get(split, ('silver', 'bronze'))
             names = (f'Cedar{family}', f'Birch{family}')
             values = list(values_by_split[split])
             rng.shuffle(values)
@@ -42,8 +44,8 @@ def build_episodes(seed=20261024, family_plan=None, values_by_split=None, query_
                 eid = f'reliability_{split}_{family}_{variant}'
                 facts = [{'entity': name, 'attribute': attr, 'value': values[(i + variant * 2) % 4]}
                          for i, (name, attr) in enumerate(keys)]
-                distractors = [{'entity': f'Other{family}', 'attribute': 'review code', 'value': 'silver'},
-                               {'entity': f'Other{family}', 'attribute': 'backup window', 'value': 'bronze'}]
+                distractors = [{'entity': f'Other{family}', 'attribute': 'review code', 'value': distractor_values[0]},
+                               {'entity': f'Other{family}', 'attribute': 'backup window', 'value': distractor_values[1]}]
                 displayed = facts + distractors
                 rng.shuffle(displayed)
                 pages = ['\n'.join(f"The {f['attribute']} for project {f['entity']} is {f['value']}." for f in displayed[i:i+3])
@@ -159,8 +161,9 @@ def audit_dataset(episodes, require_novel_values=False):
         raise ValueError('Shortcut bound exceeded')
     if require_novel_values:
         heldout_values = {f['value'] for e in episodes if e['split'] == 'heldout'
-                          for f in e['facts'] + [e['correction']]}
-        prior_values = {f['value'] for e in episodes if e['split'] != 'heldout' for f in e['facts']}
+                          for f in e['facts'] + e['distractors'] + [e['correction']]}
+        prior_values = {f['value'] for e in episodes if e['split'] != 'heldout'
+                        for f in e['facts'] + e['distractors'] + [e['correction']]}
         if heldout_values & prior_values:
             raise ValueError('Heldout values overlap training or development values')
     return {'episodes': len(episodes), 'families': len(families), 'fact_queries': total,
@@ -173,8 +176,11 @@ def audit_dataset(episodes, require_novel_values=False):
             'query_forms': dict(Counter(q.get('query_form', 0) for e in episodes for q in e['questions'])),
             'heldout_values_absent_from_train_and_dev': sorted(
                 {f['value'] for e in episodes if e['split'] == 'heldout'
-                 for f in e['facts'] + [e['correction']]}
-                - {f['value'] for e in episodes if e['split'] != 'heldout' for f in e['facts']}),
+                 for f in e['facts'] + e['distractors'] + [e['correction']]}
+                - {f['value'] for e in episodes if e['split'] != 'heldout'
+                 for f in e['facts'] + e['distractors'] + [e['correction']]}),
             'heldout_values_absent_from_training': sorted(
-                {f['value'] for e in episodes if e['split'] == 'heldout' for f in e['facts']}
-                - {f['value'] for e in episodes if e['split'] == 'train' for f in e['facts']})}
+                {f['value'] for e in episodes if e['split'] == 'heldout'
+                 for f in e['facts'] + e['distractors'] + [e['correction']]}
+                - {f['value'] for e in episodes if e['split'] == 'train'
+                 for f in e['facts'] + e['distractors'] + [e['correction']]})}

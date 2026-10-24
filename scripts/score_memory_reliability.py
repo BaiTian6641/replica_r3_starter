@@ -111,11 +111,12 @@ def audit_images(run, report, episodes, producer, protocol=None):
                     if binding['ledger_id'] != reference.ledger.ledger_id:
                         raise ValueError('Source-binding ledger identity differs')
                     episode_index = evaluation.index(episode)
-                    if report.get('parent'):
+                    if report.get('evaluation_only', False):
                         expected_epoch = sum(len(episode_records(item)[0]) + 1 for item in evaluation)
                     else:
-                        expected_epoch = (episode_index * (len(initial_records) + 1)
-                                          + len(initial_records) + (1 if stage == 'corrected' else 0))
+                        expected_epoch = (sum(len(episode_records(item)[0]) + 1 for item in evaluation)
+                                          + sum(len(episode_records(item)[0]) + 1
+                                                for item in episodes if item['split'] == 'train'))
                     if binding['epoch'] != expected_epoch or reference.ledger.epoch != expected_epoch:
                         raise ValueError('Source-binding epoch differs from admission sequence')
                 if stage == 'initial':
@@ -239,6 +240,8 @@ def main():
     regressions = regression_inventory(report, episodes, decode, protocol.get('primary_fast_arm', 'fast'))
     families = family_metrics(report, episodes, decode)
     images = audit_images(args.run, report, episodes, producer, protocol)
+    if images['images_authenticated'] != protocol['budget']['depth_images']:
+        raise ValueError('Depth-image count differs from declared budget')
     guard = audit_guard(args.guard, protocol, args.run)
     rows = report['parent'] + report['candidate']
     if (len(rows) != report['generation_answers'] or len(rows) > protocol['budget']['max_generated_answers']
@@ -268,7 +271,7 @@ def main():
         restart_audit = {'report_sha256': sha(path), 'answers_decoded': len(verified),
                          'guard': audit_guard(args.restart_guard, protocol, args.restart_run)}
     reference_checks = {name: value for name, value in checks.items() if name.startswith('reference_')}
-    candidate_checks = {name: value for name, value in checks.items() if not name.startswith('reference_')}
+    candidate_checks = checks
     reference_decision = (('accept_reference' if all(reference_checks.values()) else 'reject_reference')
                           if reference_checks else None)
     decision = ('accept_diagnostic' if all(candidate_checks.values()) and restart_audit

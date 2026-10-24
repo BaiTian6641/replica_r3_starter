@@ -1,0 +1,129 @@
+{
+  "format": "replica.memory_reliability.dataset.v2",
+  "seed": 20261025,
+  "episodes_sha256": "156b04a0066bad2d634e790f2e579709900ce6cb3238c9108dcd99f5606c5200",
+  "audit": {
+    "episodes": 32,
+    "families": 16,
+    "fact_queries": 128,
+    "first_line_accuracy": 0.203125,
+    "last_line_accuracy": 0.1484375,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 64,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "split_episodes": {
+      "train": 16,
+      "dev": 8,
+      "heldout": 8
+    },
+    "split_families": {
+      "train": 8,
+      "dev": 4,
+      "heldout": 4
+    },
+    "query_forms": {
+      "0": 40,
+      "1": 40,
+      "2": 40,
+      "3": 40
+    },
+    "heldout_values_absent_from_train_and_dev": [
+      "crimson",
+      "gold",
+      "indigo",
+      "maroon",
+      "navy",
+      "obsidian",
+      "onyx",
+      "quartz"
+    ],
+    "heldout_values_absent_from_training": [
+      "crimson",
+      "gold",
+      "indigo",
+      "maroon",
+      "navy",
+      "obsidian",
+      "onyx",
+      "quartz"
+    ]
+  },
+  "family_plan": [
+    [
+      "train",
+      [
+        1000,
+        1001,
+        1002,
+        1003,
+        1004,
+        1005,
+        1006,
+        1007
+      ]
+    ],
+    [
+      "dev",
+      [
+        1100,
+        1101,
+        1102,
+        1103
+      ]
+    ],
+    [
+      "heldout",
+      [
+        1200,
+        1201,
+        1202,
+        1203
+      ]
+    ]
+  ],
+  "values_by_split": {
+    "train": [
+      "cobalt",
+      "saffron",
+      "teal",
+      "violet",
+      "amber",
+      "copper"
+    ],
+    "dev": [
+      "magenta",
+      "cerulean",
+      "orange",
+      "green",
+      "purple",
+      "yellow"
+    ],
+    "heldout": [
+      "maroon",
+      "navy",
+      "onyx",
+      "gold",
+      "crimson",
+      "indigo"
+    ]
+  },
+  "distractor_values_by_split": {
+    "train": [
+      "silver",
+      "bronze"
+    ],
+    "dev": [
+      "silver",
+      "bronze"
+    ],
+    "heldout": [
+      "obsidian",
+      "quartz"
+    ]
+  },
+  "query_forms": true,
+  "novel_values_enforced": true,
+  "scope": "Fresh bounded synthetic diagnostic; complete counterfactual families, no sealed broad-capability audit",
+  "split_rule": "Complete counterfactual family and both variants remain in one split; no evaluation training"
+}

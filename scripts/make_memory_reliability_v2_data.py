@@ -15,9 +15,14 @@ FAMILY_PLAN = [('train', range(1000, 1008)), ('dev', range(1100, 1104)),
 VALUES = {
     'train': ('cobalt', 'saffron', 'teal', 'violet', 'amber', 'copper'),
     'dev': ('magenta', 'cerulean', 'orange', 'green', 'purple', 'yellow'),
-    'heldout': ('maroon', 'navy', 'silver', 'gold', 'crimson', 'indigo'),
+    'heldout': ('maroon', 'navy', 'onyx', 'gold', 'crimson', 'indigo'),
 }
 
+DISTRACTOR_VALUES = {
+    'train': ('silver', 'bronze'),
+    'dev': ('silver', 'bronze'),
+    'heldout': ('obsidian', 'quartz'),
+}
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -27,7 +32,8 @@ def main():
     if args.output.exists():
         parser.error('Use a fresh dataset directory')
     episodes = build_episodes(seed=args.seed, family_plan=FAMILY_PLAN,
-                              values_by_split=VALUES, query_forms=True)
+                              values_by_split=VALUES, query_forms=True,
+                              distractor_values_by_split=DISTRACTOR_VALUES)
     audit = audit_dataset(episodes, require_novel_values=True)
     args.output.mkdir(parents=True)
     path = args.output / 'episodes.json'
@@ -38,6 +44,7 @@ def main():
         'audit': audit,
         'family_plan': [(split, list(families)) for split, families in FAMILY_PLAN],
         'values_by_split': VALUES,
+        'distractor_values_by_split': DISTRACTOR_VALUES,
         'query_forms': True,
         'novel_values_enforced': True,
         'scope': 'Fresh bounded synthetic diagnostic; complete counterfactual families, no sealed broad-capability audit',

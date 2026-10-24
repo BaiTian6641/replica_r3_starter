@@ -1,0 +1,240 @@
+{
+  "format": "replica.memory_reliability.protocol.v4",
+  "protocol_path": "configs/memory_reliability_v4.json",
+  "declared_at_utc": "2026-10-24T20:05:31.541339+00:00",
+  "git_base_commit": "280d4dde5606eee909bf29cd6171777f305f305c",
+  "git_protocol_commit": null,
+  "commit_limitation": "Corrected reader-only protocol is hash-pinned and committed before native launch; exact commit is recorded in handoff.",
+  "purpose": "Test one discriminating change after the exact-reference and noninterference prerequisites pass: reader-only D1 training for query-selective memory while writers, gate scalars, routing and the sealed backbone remain fixed.",
+  "hypothesis": "The rejected joint writer/reader failure is primarily a readout bottleneck. Training only fast-port query/output projections can improve delayed recall and correction without changing stored writer state or unrelated behavior. A negative result localizes the next hypothesis to writer binding or state capacity.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+  "parent_extension": "runs/m3_depth_shared_attempt02/selected_extension",
+  "parent_weights_sha256": "29267d2201562996fcf573f9349c06cd55392ecc2afc8976fa699729cdfa1b64",
+  "parent_run_report": "runs/m3_depth_shared_attempt02/run_report.json",
+  "parent_run_report_sha256": "b40aeb536dcdc589a8cc337a3efd5172010267e46f19c0e811d00442512eeebe",
+  "parent_role": "M3 shared ownership reference with failed retention, not an accepted general-memory baseline. M3 repair, M4 and rejected v1 candidates are not parents or defaults.",
+  "prerequisite_evidence": {
+    "exact_reference_verdict": "reports/memory_exact_reference_attempt06/verdict_final.json",
+    "reference_decision": "accept_reference",
+    "focused_contracts": 36,
+    "scope": "Selective context 48/48, full-context 48/48, independently recomputed gate routes, authenticated source views and fresh-process source binding parity passed before this training admission."
+  },
+  "dataset": {
+    "path": "data/memory_reliability_v3/episodes.json",
+    "sha256": "156b04a0066bad2d634e790f2e579709900ce6cb3238c9108dcd99f5606c5200",
+    "manifest_sha256": "dbb2d9252fbb464a582adb4a57b0190e635976b8dbe635a6ad5324e1e4fd5b7d",
+    "seed": 20261025,
+    "train_episodes": 16,
+    "dev_episodes": 8,
+    "heldout_episodes": 8,
+    "train_cases": 192,
+    "evaluation_cases": 192,
+    "families": {
+      "train": 8,
+      "dev": 4,
+      "heldout": 4
+    },
+    "require_novel_values": true,
+    "scope": "Fresh disjoint counterfactual families with both variants, randomized order, four query forms, independent distractors, absent facts and heldout-only values. Evaluation families never train or select checkpoints."
+  },
+  "exact_reference": {
+    "enabled": true,
+    "record_granularity": "One immutable fact line per record; correction supersedes only the changed fact.",
+    "state_ownership": "RecordLedger is authoritative; fast state is derived from observations and source-view-bound images.",
+    "recovery": "Atomic image publication, transaction-fault rollback, stale-view rejection and permitted-source rebuild; not a power-loss or neural-unlearning claim."
+  },
+  "evidence_gate": {
+    "enabled": true,
+    "rule": "Eligible structured fact must cover query content and an entity-like term. Conflict, absent evidence and unstructured lookalike text disable fast memory.",
+    "forbidden_inputs": [
+      "case_role",
+      "split",
+      "kind",
+      "expected_answer",
+      "gold",
+      "audit_labels"
+    ],
+    "disabled_behavior": "Exact frozen-base inference with enabled_ports=() and no record/fast injection."
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "primary_fast_arm": "fast",
+  "reference_arm": "selective_context",
+  "evaluation_arms": {
+    "parent": [
+      "fast",
+      "disabled"
+    ],
+    "candidate": [
+      "fast",
+      "ungated",
+      "disabled",
+      "shuffled",
+      "last_chunk",
+      "full_context",
+      "selective_context",
+      "adversarial"
+    ]
+  },
+  "evaluation": {
+    "adversarial_observation": "The launch code for project Alder is teal.",
+    "metadata_invariance": "Changing split, role, kind or expected-answer metadata must not change route or generated tokens.",
+    "chronology": "Each evaluation episode appends two source pages once, answers five initial queries on that state, saves/reloads without source reencoding, appends one correction to that state, then answers changed/unaffected/unknown/general questions.",
+    "correction_scope": "Latest-value append diagnostic; not deletion, revocation or neural unlearning.",
+    "controls": "Shuffled is the same-family counterfactual state; last-chunk uses only final page/correction; disabled is exact frozen-base inference; full-context supplies all observed facts; selective_context supplies authenticated exact records; adversarial uses declared irrelevant memory.",
+    "generation": {
+      "max_new_tokens": 6,
+      "greedy": true,
+      "max_prompt_tokens": 256
+    },
+    "restart": "One guarded fresh process reloads the exact candidate and first heldout corrected image, reproduces all seven corrected-stage answers and verifies independently audited source binding."
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable_prefixes": [
+      "fast_ports.13.query_norm.",
+      "fast_ports.13.query_projection.",
+      "fast_ports.13.output_projection.",
+      "fast_ports.27.query_norm.",
+      "fast_ports.27.query_projection.",
+      "fast_ports.27.output_projection."
+    ],
+    "expected_trainable_tensors": [
+      "fast_ports.13.query_norm.weight",
+      "fast_ports.13.query_norm.bias",
+      "fast_ports.13.query_projection.weight",
+      "fast_ports.13.output_projection.weight",
+      "fast_ports.27.query_norm.weight",
+      "fast_ports.27.query_norm.bias",
+      "fast_ports.27.query_projection.weight",
+      "fast_ports.27.output_projection.weight"
+    ],
+    "frozen": [
+      "original",
+      "record_writer",
+      "memory_ports",
+      "fast_depth_write_encoders",
+      "fast_ports.gate_logit",
+      "sense_ports",
+      "reranker",
+      "core",
+      "ff_core",
+      "workspace_ports",
+      "task_head",
+      "identity_reader",
+      "copy_head",
+      "pattern_port"
+    ],
+    "optimizer": "muon8bit",
+    "optimizer_semantics": "Int8 Muon momentum with FP32 parameters/gradients; auxiliary FP32 AdamW for nonmatrix parameters. No BF16-residency or FP8-training claim.",
+    "lr": 0.001,
+    "base_lr": 0.0,
+    "weight_decay": 0.0,
+    "updates": 48,
+    "examples_per_update": 4,
+    "seed": 20261025,
+    "preservation_kl_weight": 0.0,
+    "max_grad_norm": 1.0,
+    "schedule": "Seeded shuffle of round-robin query positions across all 16 training worlds, one visit to each of 192 cases. Evaluation labels never train or select settings.",
+    "objective": "Response-only teacher-forced CE on gate-on cases. No general preservation KL is used: general and unknown cases are gate-off by design and have no differentiable fast path. Fixed evidence gating, disabled-token parity and general retention checks preserve unrelated answers without a no-op student/teacher loss.",
+    "gradient_probe_updates": [
+      1,
+      2
+    ],
+    "no_quality_retuning": true
+  },
+  "acceptance": {
+    "fact_correct_changed_unaffected_min_each_split": 0.75,
+    "unknown_min_each_split": 0.75,
+    "delayed_strictly_above_disabled_shuffled_last_chunk": true,
+    "general_no_drop_vs_disabled_and_parent_fast": true,
+    "no_correct_to_wrong_kinds": [
+      "fact",
+      "changed",
+      "unaffected",
+      "unknown",
+      "general"
+    ],
+    "reference_all_cases_correct": true,
+    "reference_full_context_parity": true,
+    "reference_no_correct_to_wrong": true,
+    "gate_off_disabled_parity": true,
+    "persistent_authenticated_scope_lineage_counters": true,
+    "fresh_process_multiqueury_token_state_parity": true,
+    "failed_gate": "Reject candidate and preserve parent; do not promote or advance neural RSI."
+  },
+  "budget": {
+    "native_training_jobs": 1,
+    "native_restart_jobs": 1,
+    "model_loads_per_job": 1,
+    "extension_reloads_per_job": 1,
+    "max_wall_seconds": 900,
+    "restart_max_wall_seconds": 90,
+    "max_generated_answers": 1920,
+    "max_generated_tokens": 11520,
+    "restart_max_generated_answers": 7,
+    "restart_max_generated_tokens": 42,
+    "max_prompt_tokens": 256,
+    "max_target_tokens": 8,
+    "max_source_tokens": 256,
+    "max_action_tokens": 264,
+    "optimizer_updates": 48,
+    "gradient_examples": 192,
+    "checkpoints": 1,
+    "depth_images": 32,
+    "expected_extension_mib": 47
+  },
+  "limits": {
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1,
+    "cpu_fallback": false
+  },
+  "stop_conditions": [
+    "capacity or host-pressure guard",
+    "nonfinite loss/gradient/state",
+    "hash/provenance/scope/source-view mismatch",
+    "token/time/update/artifact bound",
+    "missing or stale MPS telemetry"
+  ],
+  "publication": "None. One isolated candidate and one guarded restart; selected defaults, source seals and rejected parents are unchanged. Passing only qualifies this small diagnostic, not deployment or RSI.",
+  "implementation_sha256": {
+    "scripts/run_memory_reliability.py": "8c8b68e36d6ca407a5a91762b9b71caf25cd298d4d849508f9d7367bb6163b02",
+    "scripts/score_memory_reliability.py": "84fa2538789d74a031aa777b4ce4bad7269173f2a8d8850385c7a0b2902e796b",
+    "scripts/make_memory_reliability_v2_data.py": "4d155470c76da808e62cd47e5a5a2756cb3f3fc612311a88dfd290b1b432c3c5",
+    "scripts/make_memory_reliability_data.py": "ea59e6fc2e9dda43c92e3de0d832c49598cf4184828b8e96a1c91228dbad028b",
+    "scripts/run_capacity_preflight.py": "846c2945b0e7d00f28d8a2ae2c9f3d22e5735b8924ede21c768f47ed387548a7",
+    "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+    "src/replica_lab/memory_reliability.py": "6ee999d177f7d2589cac58cefaf215f14b50c480a3a951e2039aa355aa3d3db3",
+    "src/replica_lab/reliability_scoring.py": "f81cde177654d3f8f57af05036e606e45fe1f87c487cd2c1bb135a7d871f5624",
+    "src/replica_lab/runtime/exact_memory.py": "2e3e88ef207176ebc2af46f84d9cb82ee0623c3c27e726b90430fb7d3bcdc0b8",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "bdbcacba90f1a315152df4f6d50c39bee75afb140400bfa1fb3fa2ff3f11eb5b",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/memory_system/session.py": "3359f318077b0ec1a08f87d3ff93c4fb24c53be7c8d193c5f3b5ea94376e415b",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "tests/test_exact_memory.py": "f7a1962b0350f81ab358b15c073aa2f28f1ed3659d6d4c153366fb4a34a36960",
+    "tests/test_memory_reliability.py": "17e36a082f2b56da0ecdb47c1d22f386566242ff466b4cb27179fee79c7da012",
+    "tests/test_memory_reliability_v2.py": "9a4e4a6050ce69125055764225e2eb689bd7deaf17d26e473ae7aa63e044b55e"
+  },
+  "implementation_overlay": "Corrects full observed-value novelty, training-inclusive source epochs, reference acceptance, gate-aware preservation objective and depth-image budget. Reader-only hypothesis, frozen groups, optimizer, schedule and quality floors are unchanged."
+}

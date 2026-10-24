@@ -10,7 +10,7 @@ from replica_lab.reliability_scoring import family_metrics, metrics_and_checks
 from test_memory_reliability import synthetic_report
 
 ROOT = Path(__file__).resolve().parents[1]
-EPISODES = json.loads((ROOT / 'data/memory_reliability_v2/episodes.json').read_text())
+EPISODES = json.loads((ROOT / 'data/memory_reliability_v3/episodes.json').read_text())
 
 
 def test_fresh_families_query_forms_and_shortcut_bounds():
@@ -22,7 +22,7 @@ def test_fresh_families_query_forms_and_shortcut_bounds():
     assert audit['last_line_accuracy'] <= .25 and audit['first_line_accuracy'] <= .25
     assert audit['query_only_best_accuracy'] == .5
     assert set(audit['heldout_values_absent_from_train_and_dev']) == {
-        'crimson', 'gold', 'indigo', 'maroon', 'navy', 'silver'}
+        'crimson', 'gold', 'indigo', 'maroon', 'navy', 'obsidian', 'onyx', 'quartz'}
 
 
 def test_fresh_cases_have_family_identity_and_identical_counterfactual_queries():
@@ -67,3 +67,9 @@ def test_independent_family_metrics_count_families_not_variants():
     metrics, checks = metrics_and_checks(report, EPISODES, decode)
     assert all(checks.values())
     assert metrics['candidate']['fast']['dev']['fact'] == 1.0
+
+
+def test_v2_distractor_collision_is_explicitly_rejected():
+    old = json.loads((ROOT / 'data/memory_reliability_v2/episodes.json').read_text())
+    with pytest.raises(ValueError, match='overlap'):
+        audit_dataset(old, require_novel_values=True)
