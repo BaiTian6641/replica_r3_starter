@@ -3,8 +3,10 @@
 
 **M2/M3 verified packages (24 October 2026 UTC).** M2's shared-value SGDN-2
 diagnostic passed 4/4 dev and 4/4 held-out after context removal, above linear
-(1/4 and 2/4) and all null controls, with correction, restart and 2/2 retention.
-The unique-value arm memorized training values and was rejected. M3 then passed
+(1/4 and 2/4) and all null controls, with correction and restart. Its candidate
+retention is **0/2** (`amber`) versus parent 2/2, an ungated recipe failure
+inherited by M3. The unique-value arm memorized training values and was rejected.
+M3 then passed
 `accept_m3_ownership_interfaces`: shared and private both scored 8/8 dev+held-out,
 with independent per-depth writers, a defined convex shared reducer, update-two
 historical gradients, gradient-cut, authenticated shared/private images and two

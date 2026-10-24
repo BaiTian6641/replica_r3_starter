@@ -23,8 +23,10 @@ or reasoning claim.
 | Full-context reference | 4/4 | 3/4 | Exact text remains available |
 
 The candidate also completed **24/24 train**, all **8/8** dev+held-out correction
-checks, and a fresh image reload with the correct answer. Retention is **2/2**
-before and after training. Peak sampled MPS driver was **11.004 GiB**, wall time
+checks, and a fresh image reload with the correct answer. Parent retention is
+**2/2**, but candidate retention is **0/2** (`amber`) after training. Retention
+was not gated by the M2 protocol, so the delayed-use acceptance remains valid
+while the training-recipe failure remains open. Peak sampled MPS driver was **11.004 GiB**, wall time
 **58.10 s**, zero swap growth and zero downloads. No base copy was saved.
 
 The prior unique-value arm (`runs/m2_dynamic_attempt06`) trained to **8/8 train**

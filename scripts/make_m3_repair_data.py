@@ -33,29 +33,40 @@ GENERAL_AUDIT = [
     ('author of Romeo and Juliet', 'William Shakespeare', 'Who is the author of Romeo and Juliet?'),
 ]
 FRESH_DELAYED = [
-    ('Nacre', 'deploy region', 'cobalt', 'saffron'),
-    ('Oriel', 'launch code', 'saffron', 'teal'),
-    ('Pollux', 'backup window', 'teal', 'violet'),
-    ('Rill', 'owner', 'violet', 'amber'),
-    ('Solen', 'review code', 'amber', 'copper'),
-    ('Tarn', 'timeout seconds', 'copper', 'cobalt'),
-    ('Ulex', 'retry limit', 'cobalt', 'saffron'),
-    ('Vela', 'release label', 'saffron', 'teal'),
+    ('Nacre', 'deploy region', 'cobalt', 'saffron', 'standard', 'development_seen_value'),
+    ('Oriel', 'launch code', 'saffron', 'teal', 'standard', 'development_seen_value'),
+    ('Pollux', 'backup window', 'teal', 'violet', 'standard', 'development_seen_value'),
+    ('Rill', 'owner', 'violet', 'amber', 'standard', 'development_seen_value'),
+    ('Solen', 'review code', 'amber', 'copper', 'standard', 'audit_seen_value'),
+    ('Tarn', 'timeout seconds', 'copper', 'cobalt', 'standard', 'audit_seen_value'),
+    ('Ulex', 'retry limit', 'cobalt', 'saffron', 'standard', 'audit_seen_value'),
+    ('Vela', 'release label', 'saffron', 'teal', 'standard', 'audit_seen_value'),
+    ('Quill', 'deploy region', 'indigo', 'teal', 'standard', 'audit_novel_value'),
+    ('Rhen', 'launch code', 'crimson', 'violet', 'standard', 'audit_novel_value'),
+    ('Tilden', 'backup window', 'amber', 'cobalt', 'alternate', 'audit_changed_template'),
+    ('Voss', 'owner', 'copper', 'saffron', 'alternate', 'audit_changed_template'),
 ]
 
 
 def general_row(index, split, role, attr, value, question):
     cid = f'm3r_{role}_{index:02d}'
     group = f'm3r_{role}_world_{index:02d}'
-    text = f'The {attr} is {value}.'
+    templates = {
+        'retention_replay': ('declarative_the', 'The {attr} is {value}.'),
+        'retention_development': ('fact_prefix', 'Fact: {attr} is {value}.'),
+        'retention_audit': ('record_equals', 'Record: {attr} = {value}.'),
+    }
+    template_id, template = templates[role]
+    text = template.format(attr=attr, value=value)
     query = {'as_of': 4, 'branch_id': cid, 'case_id': cid, 'case_role': role,
-             'expected_answer': value, 'expected_record_id': f'{cid}_relevant',
+             'template_id': template_id, 'expected_answer': value,
+             'expected_record_id': f'{cid}_relevant',
              'observations': [text], 'purpose': 'm2_dynamic', 'query': question,
              'source_group': group, 'split': split, 'subject_id': 'm2_dynamic',
              'world_id': group}
     return query, record(cid, 'relevant', 'm2_dynamic', cid, text, 1, group), {
         'case_id': cid, 'split': split, 'case_role': role, 'source_group': group,
-        'attribute': attr, 'value': value, 'corrected_value': None}
+        'template_id': template_id, 'attribute': attr, 'value': value, 'corrected_value': None}
 
 
 def main():
@@ -91,23 +102,32 @@ def main():
     for index, (attr, value, question) in enumerate(GENERAL_AUDIT, 1):
         query, record_row, case = general_row(index, 'retention', 'retention_audit', attr, value, question)
         queries.append(query); records.append(record_row); cases.append(case)
-    for offset, (name, attr, value, corrected) in enumerate(FRESH_DELAYED):
-        split = 'dev' if offset < 4 else 'heldout'
+    for offset, (name, attr, value, corrected, template, stratum) in enumerate(FRESH_DELAYED):
+        split = 'dev' if stratum == 'development_seen_value' else 'heldout'
         role = 'delayed_development' if split == 'dev' else 'delayed_audit'
         cid = f'm3r_{role}_{offset + 1:02d}'
         group = f'm3r_{role}_world_{offset + 1:02d}'
         index = offset + 40
-        target = observation(name, attr, value, index, corrected)
+        if template == 'alternate':
+            target = (f'Project {name} currently has {attr} {value}.\n'
+                      f'The owner of project {name} is person{index:02d}.\n'
+                      f'The launch code for project {name} is {corrected}.')
+            question = f'Which {attr} belongs to project {name}?'
+            correction = f'Correction: {attr} for project {name} is now {corrected}.'
+        else:
+            target = observation(name, attr, value, index, corrected)
+            question = f'What is the {attr} for project {name}?'
+            correction = f'Correction: the {attr} for project {name} is {corrected}.'
         distractor = (f'The review code for project {name} is {corrected}.\n'
                       f'The owner of project {name} is person{index + 20:02d}.\n'
                       f'The backup window for project {name} is {value}.')
-        correction = f'Correction: the {attr} for project {name} is {corrected}.'
         queries.append({
             'as_of': 4, 'branch_id': cid, 'case_id': cid, 'case_role': role,
-            'expected_answer': value, 'expected_record_id': f'{cid}_relevant',
+            'audit_stratum': stratum, 'expected_answer': value,
+            'expected_record_id': f'{cid}_relevant',
             'observations': [target, distractor], 'correction_observation': correction,
             'corrected_answer': corrected, 'purpose': 'm2_dynamic',
-            'query': f'What is the {attr} for project {name}?', 'source_group': group,
+            'query': question, 'source_group': group,
             'split': split, 'subject_id': 'm2_dynamic', 'world_id': group})
         records.extend([
             record(cid, 'relevant', 'm2_dynamic', cid, target, 1, group),
@@ -115,7 +135,8 @@ def main():
             record(cid, 'correction', 'm2_dynamic', cid, correction, 3, group,
                    supersedes=f'{cid}_relevant')])
         cases.append({'case_id': cid, 'split': split, 'case_role': role, 'source_group': group,
-                      'attribute': attr, 'value': value, 'corrected_value': corrected})
+                      'audit_stratum': stratum, 'attribute': attr, 'value': value,
+                      'corrected_value': corrected})
     manifest = {
         'format': 'replica.m3_repair.dataset.v1',
         'created_at_utc': '2026-10-24',
@@ -131,11 +152,14 @@ def main():
             'delayed_training': 24,
             'retention_replay': 8,
             'delayed_development': 4,
-            'delayed_audit': 4,
+            'delayed_audit': 8,
             'delayed_regression': 8,
             'retention_development': 2,
             'retention_audit': 4,
         },
+        'delayed_audit_strata': {'audit_seen_value': 4, 'audit_novel_value': 2,
+                                 'audit_changed_template': 2},
+        'holdout_scope': 'Exposed diagnostic holdouts, not sealed confirmatory audits.',
         'role_rules': 'Only delayed_training and retention_replay may train. Development, regression and final-audit rows never train or select thresholds. The two M3 diagnostic replay cases are excluded everywhere.',
         'cases': cases,
     }

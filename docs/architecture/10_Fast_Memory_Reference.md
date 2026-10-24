@@ -101,8 +101,9 @@ are in [M2/M3](15_Research_Crosscheck_and_Backbone_Plan.md#5-minicpm5-constructi
 ## 4. M2/M3 learned depth evidence
 
 M2 established useful shared-value delayed memory after source removal: 4/4 dev
-and 4/4 held-out, above linear and all null controls. The unique-value candidate
-memorized training values and was rejected. See
+and 4/4 held-out, above linear and all null controls. Candidate retention is
+0/2 (`amber`) versus parent 2/2, an ungated training-recipe failure. The
+unique-value candidate memorized training values and was rejected. See
 [M2 results](../experiments/20261024_M2_Dynamic_Memory_Results.md).
 
 M3 adds independent SGDN-2 write encoders at blocks 13/27. The shared arm uses

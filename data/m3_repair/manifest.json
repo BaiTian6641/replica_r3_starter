@@ -23,11 +23,17 @@
     "delayed_training": 24,
     "retention_replay": 8,
     "delayed_development": 4,
-    "delayed_audit": 4,
+    "delayed_audit": 8,
     "delayed_regression": 8,
     "retention_development": 2,
     "retention_audit": 4
   },
+  "delayed_audit_strata": {
+    "audit_seen_value": 4,
+    "audit_novel_value": 2,
+    "audit_changed_template": 2
+  },
+  "holdout_scope": "Exposed diagnostic holdouts, not sealed confirmatory audits.",
   "role_rules": "Only delayed_training and retention_replay may train. Development, regression and final-audit rows never train or select thresholds. The two M3 diagnostic replay cases are excluded everywhere.",
   "cases": [
     {
@@ -323,6 +329,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_01",
+      "template_id": "declarative_the",
       "attribute": "capital of Japan",
       "value": "Tokyo",
       "corrected_value": null
@@ -332,6 +339,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_02",
+      "template_id": "declarative_the",
       "attribute": "chemical symbol for oxygen",
       "value": "O",
       "corrected_value": null
@@ -341,6 +349,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_03",
+      "template_id": "declarative_the",
       "attribute": "largest planet in the Solar System",
       "value": "Jupiter",
       "corrected_value": null
@@ -350,6 +359,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_04",
+      "template_id": "declarative_the",
       "attribute": "author of Pride and Prejudice",
       "value": "Jane Austen",
       "corrected_value": null
@@ -359,6 +369,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_05",
+      "template_id": "declarative_the",
       "attribute": "square root of 144",
       "value": "12",
       "corrected_value": null
@@ -368,6 +379,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_06",
+      "template_id": "declarative_the",
       "attribute": "first prime number",
       "value": "2",
       "corrected_value": null
@@ -377,6 +389,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_07",
+      "template_id": "declarative_the",
       "attribute": "boiling point of water at sea level in Celsius",
       "value": "100",
       "corrected_value": null
@@ -386,6 +399,7 @@
       "split": "train",
       "case_role": "retention_replay",
       "source_group": "m3r_retention_replay_world_08",
+      "template_id": "declarative_the",
       "attribute": "continent containing Egypt",
       "value": "Africa",
       "corrected_value": null
@@ -395,6 +409,7 @@
       "split": "retention_dev",
       "case_role": "retention_development",
       "source_group": "m3r_retention_development_world_01",
+      "template_id": "fact_prefix",
       "attribute": "capital of Canada",
       "value": "Ottawa",
       "corrected_value": null
@@ -404,6 +419,7 @@
       "split": "retention_dev",
       "case_role": "retention_development",
       "source_group": "m3r_retention_development_world_02",
+      "template_id": "fact_prefix",
       "attribute": "chemical symbol for sodium",
       "value": "Na",
       "corrected_value": null
@@ -413,6 +429,7 @@
       "split": "retention",
       "case_role": "retention_audit",
       "source_group": "m3r_retention_audit_world_01",
+      "template_id": "record_equals",
       "attribute": "capital of Australia",
       "value": "Canberra",
       "corrected_value": null
@@ -422,6 +439,7 @@
       "split": "retention",
       "case_role": "retention_audit",
       "source_group": "m3r_retention_audit_world_02",
+      "template_id": "record_equals",
       "attribute": "chemical symbol for chlorine",
       "value": "Cl",
       "corrected_value": null
@@ -431,6 +449,7 @@
       "split": "retention",
       "case_role": "retention_audit",
       "source_group": "m3r_retention_audit_world_03",
+      "template_id": "record_equals",
       "attribute": "largest ocean",
       "value": "Pacific Ocean",
       "corrected_value": null
@@ -440,6 +459,7 @@
       "split": "retention",
       "case_role": "retention_audit",
       "source_group": "m3r_retention_audit_world_04",
+      "template_id": "record_equals",
       "attribute": "author of Romeo and Juliet",
       "value": "William Shakespeare",
       "corrected_value": null
@@ -449,6 +469,7 @@
       "split": "dev",
       "case_role": "delayed_development",
       "source_group": "m3r_delayed_development_world_01",
+      "audit_stratum": "development_seen_value",
       "attribute": "deploy region",
       "value": "cobalt",
       "corrected_value": "saffron"
@@ -458,6 +479,7 @@
       "split": "dev",
       "case_role": "delayed_development",
       "source_group": "m3r_delayed_development_world_02",
+      "audit_stratum": "development_seen_value",
       "attribute": "launch code",
       "value": "saffron",
       "corrected_value": "teal"
@@ -467,6 +489,7 @@
       "split": "dev",
       "case_role": "delayed_development",
       "source_group": "m3r_delayed_development_world_03",
+      "audit_stratum": "development_seen_value",
       "attribute": "backup window",
       "value": "teal",
       "corrected_value": "violet"
@@ -476,6 +499,7 @@
       "split": "dev",
       "case_role": "delayed_development",
       "source_group": "m3r_delayed_development_world_04",
+      "audit_stratum": "development_seen_value",
       "attribute": "owner",
       "value": "violet",
       "corrected_value": "amber"
@@ -485,6 +509,7 @@
       "split": "heldout",
       "case_role": "delayed_audit",
       "source_group": "m3r_delayed_audit_world_05",
+      "audit_stratum": "audit_seen_value",
       "attribute": "review code",
       "value": "amber",
       "corrected_value": "copper"
@@ -494,6 +519,7 @@
       "split": "heldout",
       "case_role": "delayed_audit",
       "source_group": "m3r_delayed_audit_world_06",
+      "audit_stratum": "audit_seen_value",
       "attribute": "timeout seconds",
       "value": "copper",
       "corrected_value": "cobalt"
@@ -503,6 +529,7 @@
       "split": "heldout",
       "case_role": "delayed_audit",
       "source_group": "m3r_delayed_audit_world_07",
+      "audit_stratum": "audit_seen_value",
       "attribute": "retry limit",
       "value": "cobalt",
       "corrected_value": "saffron"
@@ -512,9 +539,50 @@
       "split": "heldout",
       "case_role": "delayed_audit",
       "source_group": "m3r_delayed_audit_world_08",
+      "audit_stratum": "audit_seen_value",
       "attribute": "release label",
       "value": "saffron",
       "corrected_value": "teal"
+    },
+    {
+      "case_id": "m3r_delayed_audit_09",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_09",
+      "audit_stratum": "audit_novel_value",
+      "attribute": "deploy region",
+      "value": "indigo",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m3r_delayed_audit_10",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_10",
+      "audit_stratum": "audit_novel_value",
+      "attribute": "launch code",
+      "value": "crimson",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m3r_delayed_audit_11",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_11",
+      "audit_stratum": "audit_changed_template",
+      "attribute": "backup window",
+      "value": "amber",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m3r_delayed_audit_12",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_12",
+      "audit_stratum": "audit_changed_template",
+      "attribute": "owner",
+      "value": "copper",
+      "corrected_value": "saffron"
     }
   ]
 }

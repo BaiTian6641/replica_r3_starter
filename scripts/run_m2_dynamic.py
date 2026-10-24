@@ -176,6 +176,8 @@ def generate(session, query_row, template, fast_state, *, include_observation=Fa
     text = template.replace('{query}', query_row['query'])
     if include_observation:
         text = text.replace('{observation}', '\n'.join(query_row['observations']))
+    else:
+        text = text.replace('{observation}', '')
     ids = encode_prompt(session.tokenizer, text, 'mps')
     if max_prompt_tokens is not None and ids.shape[1] > max_prompt_tokens:
         raise ValueError('generation prompt token budget exceeded')
@@ -278,6 +280,46 @@ def execute(args, profiler, report):
         return make_read(model, tokenizer, observations,
                          private_depth=private_depth, shared_reducer=shared_reducer,
                          gradient_cut=gradient_cut, **kwargs)
+    def evaluate_general(queries, tag):
+        adversarial = protocol['evaluation'].get('adversarial_observation')
+        if not isinstance(adversarial, str) or not adversarial.strip():
+            raise ValueError('General noninterference requires an unrelated observation')
+        results = {}
+        for mode in ('correct', 'zero', 'disabled', 'shuffled', 'full_context', 'adversarial'):
+            results[mode] = []
+            for index, query in enumerate(queries):
+                if mode == 'correct':
+                    state = depth_read(query['observations'], tag=f'{tag}-correct')
+                elif mode == 'zero':
+                    state = zero_read(model, private_depth=private_depth)
+                elif mode == 'disabled':
+                    state = None
+                elif mode == 'shuffled':
+                    other = queries[(index + 1) % len(queries)]
+                    state = depth_read(other['observations'], tag=f'{tag}-shuffled')
+                elif mode == 'adversarial':
+                    state = depth_read([adversarial], tag=f'{tag}-adversarial')
+                else:
+                    state = None
+                value = generate(session, query, template, state,
+                                 include_observation=mode == 'full_context')
+                value.update(case_id=query['case_id'], split=query['split'],
+                             case_role=query.get('case_role'), arm=mode)
+                results[mode].append(value)
+                check_time()
+        return results
+
+    def general_rows(value):
+        return [row for values in value.values() for row in values]
+
+    def general_count(value):
+        return sum(len(values) for values in value.values())
+
+    def report_rows(value):
+        return general_rows(value) if isinstance(value, dict) else value
+
+    def report_count(value):
+        return general_count(value) if isinstance(value, dict) else len(value)
     torch.manual_seed(protocol['training']['seed'])
     spec = __import__('replica_lab.architecture.contracts', fromlist=['FastMemorySpec']).FastMemorySpec(
         heads=protocol['fast_memory']['heads'], key_size=protocol['fast_memory']['key_size'],
@@ -286,6 +328,29 @@ def execute(args, profiler, report):
     model, tokenizer, lock = load_local_mps(args.model_path, args.model_lock,
                                             profiler=profiler, fast_memory=spec)
     parent = model.load_extension(Path(args.parent_extension), accept_parent_v1=True)
+    if 'parent_run_report' in protocol:
+        parent_report_path = ROOT / protocol['parent_run_report']
+        parent_protocol_path = ROOT / protocol['parent_protocol']['path']
+        if (sha(parent_report_path) != protocol['parent_run_report_sha256']
+                or sha(parent_protocol_path) != protocol['parent_protocol']['sha256']
+                or Path(args.parent_extension).resolve()
+                != (ROOT / protocol['parent_extension']).resolve()):
+            raise ValueError('Declared parent evidence differs')
+        parent_report = json.loads(parent_report_path.read_text())
+        parent_protocol = json.loads(parent_protocol_path.read_text())
+        if (parent_report.get('decision') != 'accept'
+                or parent_report.get('protocol_sha256') != protocol['parent_protocol']['sha256']
+                or parent_report.get('implementation_sha256')
+                != parent_protocol['implementation_sha256']
+                or Path(parent_report['extension']['path']).resolve() != Path(args.parent_extension).resolve()
+                or parent_report['extension']['weights_sha256'] != parent['weights_sha256']
+                or parent_report['extension']['manifest_digest'] != parent['manifest_digest']
+                or parent_report['extension']['base_saved'] is not False):
+            raise ValueError('Actual parent does not match the accepted shared M3 candidate')
+        report['parent_evidence'] = {
+            'report': str(parent_report_path), 'protocol': str(parent_protocol_path),
+            'weights_sha256': parent['weights_sha256'],
+            'manifest_digest': parent['manifest_digest']}
     report.update(source_lock=lock, manifest_digest=model.manifest.digest,
                   parent_extension=str(args.parent_extension),
                   parent_migration=parent.get('migration'), fast_spec=model.manifest.fast_memory.to_dict(),
@@ -326,20 +391,19 @@ def execute(args, profiler, report):
     metric_splits = ('dev', 'heldout', *(('regression',) if regression else ()))
     report['parent_disabled'] = evaluate(session, eval_queries, template,
                                          {'disabled': lambda q: None}, check=check_time)['disabled']
-    report['parent_retention'] = evaluate(session, replay, template,
-                                          {'correct': lambda q: depth_read(
-                                              q['observations'], tag='parent-replay')},
-                                          check=check_time)['correct']
     if parent_baseline:
+        report['parent_retention'] = evaluate_general(replay, 'parent-retention')
         report['parent_correct'] = evaluate(
             session, eval_queries, template,
             {'correct': lambda q: depth_read(q['observations'], tag='parent-correct')},
             check=check_time)['correct']
         if retention_dev:
-            report['parent_retention_dev'] = evaluate(
-                session, retention_dev, template,
-                {'correct': lambda q: depth_read(q['observations'], tag='parent-retention-dev')},
-                check=check_time)['correct']
+            report['parent_retention_dev'] = evaluate_general(retention_dev, 'parent-retention-dev')
+    else:
+        report['parent_retention'] = evaluate(session, replay, template,
+                                              {'correct': lambda q: depth_read(
+                                                  q['observations'], tag='parent-replay')},
+                                              check=check_time)['correct']
     previous = {name: p.requires_grad for name, p in model.new_named_parameters()}
     for name, parameter in model.new_named_parameters():
         parameter.requires_grad_(name.startswith(('fast_write_encoder.', 'fast_depth_write_encoders.',
@@ -355,6 +419,7 @@ def execute(args, profiler, report):
                           'replay_examples_per_update': replay_per_update,
                           'delayed_training_cases': len(delayed_training),
                           'replay_training_cases': len(replay_training)}
+    exposure_counts = {}
     for update in range(1, int(protocol['training']['updates']) + 1):
         optimizer.zero_grad(set_to_none=True)
         total = 0.0
@@ -365,10 +430,12 @@ def execute(args, profiler, report):
         replay_start = examples_per_update - replay_per_update
         for offset in range(examples_per_update):
             if offset >= replay_start:
-                replay_index = 2 * (update - 1) + offset - replay_start
+                replay_index = replay_per_update * (update - 1) + offset - replay_start
                 query = replay_training[replay_index % len(replay_training)]
             else:
-                query = delayed_training[(4 * (update - 1) + offset) % len(delayed_training)]
+                delayed_index = replay_start * (update - 1) + offset
+                query = delayed_training[delayed_index % len(delayed_training)]
+            exposure_counts[query['case_id']] = exposure_counts.get(query['case_id'], 0) + 1
             probes = []
             read = depth_read(query['observations'], training=True,
                               tag=f'train-{update}-{offset}', gradient_probes=probes)
@@ -407,15 +474,25 @@ def execute(args, profiler, report):
         torch.nn.utils.clip_grad_norm_(
             [p for p in model.parameters() if p.requires_grad], 1.0, error_if_nonfinite=True)
         optimizer.step(); optimizer.zero_grad(set_to_none=True)
-        update_record = {'update': update, 'mean_loss': total,
+        update_record = {'update': update, 'loss_sum': total,
+                         'mean_loss': total / examples_per_update,
                          'action_tokens': action_tokens, 'target_tokens': target_tokens,
                          'write_gradients': write_gradients}
         if gradient_audit is not None:
             update_record['parameter_gradients'] = gradient_audit
         report['training']['updates'].append(update_record)
         report['optimizer_updates'] = update
-        profiler.mark('m2_update', update=update, loss=total)
+        profiler.mark('m2_update', update=update, loss=update_record['mean_loss'])
         check_time()
+    train_roles = {row['case_id']: row.get('case_role', 'delayed') for row in train}
+    report['training']['exposures'] = {
+        role: {
+            'unique_cases': sum(1 for case_id in exposure_counts if train_roles[case_id] == role),
+            'examples': sum(count for case_id, count in exposure_counts.items()
+                            if train_roles[case_id] == role),
+            'case_counts': {case_id: count for case_id, count in sorted(exposure_counts.items())
+                            if train_roles[case_id] == role}}
+        for role in sorted(set(train_roles.values()))}
     report['training']['optimizer_final'] = optimizer.audit()
     del optimizer
     for name, parameter in model.new_named_parameters():
@@ -487,10 +564,11 @@ def execute(args, profiler, report):
                'total': sum(1 for row in train_results if role_by_case[row['case_id']] == role)}
         for role in sorted(set(role_by_case.values()))}
     if retention_dev:
-        report['retention_dev'] = evaluate(
+        report['retention_dev'] = (evaluate_general(retention_dev, 'candidate-retention-dev')
+                                   if parent_baseline else evaluate(
             session, retention_dev, template,
             {'correct': lambda q: depth_read(q['observations'], tag='candidate-retention-dev')},
-            check=check_time)['correct']
+            check=check_time)['correct'])
     if parent_baseline:
         accuracy = lambda rows: sum(row['correct'] for row in rows) / len(rows)
         report['parent_metrics'] = {
@@ -498,13 +576,14 @@ def execute(args, profiler, report):
                                       if row['split'] == split)
                                 / sum(1 for row in report['parent_correct'] if row['split'] == split))
                         for split in metric_splits},
-            'retention': accuracy(report['parent_retention']),
-            'retention_dev': (accuracy(report['parent_retention_dev'])
+            'retention': accuracy(report['parent_retention']['correct']),
+            'retention_dev': (accuracy(report['parent_retention_dev']['correct'])
                               if 'parent_retention_dev' in report else None)}
-    report['retention'] = evaluate(session, replay, template,
+    report['retention'] = (evaluate_general(replay, 'candidate-retention')
+                           if parent_baseline else evaluate(session, replay, template,
                                    {'correct': lambda q: depth_read(
                                        q['observations'], tag='candidate-replay')},
-                                   check=check_time)['correct']
+                                   check=check_time)['correct'])
     corrections = []
     for query in eval_queries:
         original = depth_read(query['observations'], tag='original')
@@ -627,19 +706,35 @@ def execute(args, profiler, report):
     if parent_baseline:
         if not regression or not retention_dev:
             raise ValueError('Retention repair requires regression and retention-development splits')
-        retention_accuracy = sum(row['correct'] for row in report['retention']) / len(report['retention'])
-        retention_dev_accuracy = (sum(row['correct'] for row in report['retention_dev'])
-                                  / len(report['retention_dev']))
-        parent_retention_accuracy = (sum(row['correct'] for row in report['parent_retention'])
-                                     / len(report['parent_retention']))
+        retention_accuracy = (sum(row['correct'] for row in report['retention']['correct'])
+                              / len(report['retention']['correct']))
+        retention_dev_accuracy = (sum(row['correct'] for row in report['retention_dev']['correct'])
+                                  / len(report['retention_dev']['correct']))
+        parent_retention_accuracy = (sum(row['correct'] for row in report['parent_retention']['correct'])
+                                     / len(report['parent_retention']['correct']))
         parent_retention_dev_accuracy = (
-            sum(row['correct'] for row in report['parent_retention_dev'])
-            / len(report['parent_retention_dev']))
+            sum(row['correct'] for row in report['parent_retention_dev']['correct'])
+            / len(report['parent_retention_dev']['correct']))
+        general_accuracy = lambda rows, arm: (sum(row['correct'] for row in rows[arm]) / len(rows[arm]))
+        adversarial_candidate = general_accuracy(report['retention'], 'adversarial')
+        adversarial_parent = general_accuracy(report['parent_retention'], 'adversarial')
+        adversarial_dev_candidate = general_accuracy(report['retention_dev'], 'adversarial')
+        adversarial_dev_parent = general_accuracy(report['parent_retention_dev'], 'adversarial')
+        disabled_candidate = general_accuracy(report['retention'], 'disabled')
+        disabled_parent = general_accuracy(report['parent_retention'], 'disabled')
+        disabled_identical = ([row['token_ids'] for row in report['retention']['disabled']]
+                              == [row['token_ids'] for row in report['parent_retention']['disabled']])
+        disabled_dev_identical = ([row['token_ids'] for row in report['retention_dev']['disabled']]
+                                  == [row['token_ids'] for row in report['parent_retention_dev']['disabled']])
         repair_ok = (
             c >= report['parent_metrics']['correct']['heldout']
             and m['correct']['regression'] >= report['parent_metrics']['correct']['regression']
             and retention_accuracy > parent_retention_accuracy
-            and retention_dev_accuracy >= parent_retention_dev_accuracy)
+            and retention_dev_accuracy >= parent_retention_dev_accuracy
+            and adversarial_candidate >= adversarial_parent
+            and adversarial_dev_candidate >= adversarial_dev_parent
+            and adversarial_candidate >= disabled_candidate
+            and disabled_identical and disabled_dev_identical)
         report['repair_metrics'] = {
             'fresh_delayed_parent': report['parent_metrics']['correct']['heldout'],
             'fresh_delayed_candidate': c,
@@ -649,6 +744,13 @@ def execute(args, profiler, report):
             'general_retention_candidate': retention_accuracy,
             'general_development_parent': parent_retention_dev_accuracy,
             'general_development_candidate': retention_dev_accuracy,
+            'adversarial_parent': adversarial_parent,
+            'adversarial_candidate': adversarial_candidate,
+            'adversarial_development_parent': adversarial_dev_parent,
+            'adversarial_development_candidate': adversarial_dev_candidate,
+            'disabled_parent': disabled_parent,
+            'disabled_candidate': disabled_candidate,
+            'disabled_token_identical': disabled_identical and disabled_dev_identical,
             'requirements_passed': repair_ok}
         report['checks']['retention_repair_requirements'] = repair_ok
     if c > ctrl and m['correct']['dev'] >= m['disabled']['dev']:
@@ -666,17 +768,18 @@ def execute(args, profiler, report):
                             'diagnostic_only' if depth_arm is not None else
                             'opt_in_only' if decision == 'accept' else 'not_published')
     report['generation_counts'] = {
-        'parent': (len(report['parent_disabled']) + len(report['parent_retention'])
-                   + len(report.get('parent_correct', [])) + len(report.get('parent_retention_dev', []))),
+        'parent': (len(report['parent_disabled']) + report_count(report['parent_retention'])
+                   + len(report.get('parent_correct', [])) + report_count(report.get('parent_retention_dev', []))),
         'candidate': sum(len(values) for values in results.values()),
-        'train': len(train_results), 'retention': len(report['retention']),
-        'retention_dev': len(report.get('retention_dev', [])),
+        'train': len(train_results), 'retention': report_count(report['retention']),
+        'retention_dev': report_count(report.get('retention_dev', [])),
         'correction': 2 * len(corrections), 'restart': 2}
     report['generation_counts']['total'] = sum(report['generation_counts'].values())
-    generated_rows = (report['parent_disabled'] + report['parent_retention']
-                      + report.get('parent_correct', []) + report.get('parent_retention_dev', [])
+    generated_rows = (report['parent_disabled'] + report_rows(report['parent_retention'])
+                      + report.get('parent_correct', []) + report_rows(report.get('parent_retention_dev', []))
                       + [row for values in results.values() for row in values]
-                      + train_results + report['retention'] + report.get('retention_dev', [])
+                      + train_results + report_rows(report['retention'])
+                      + report_rows(report.get('retention_dev', []))
                       + [row for item in corrections for row in
                          (item['original_answer'], item['corrected_answer'])]
                       + [report['restart']['reloaded_answer'], report['restart']['correct_answer']])

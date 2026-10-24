@@ -46,8 +46,9 @@ document 15; none of these planned paths is qualified by the documentation.
   gradients per point. The 8192-unit point was not rerun. Fresh corrected menus
   fail on distractors; old-case regression and the deterministic procedure pass.
 - M2's shared-value SGDN-2 diagnostic passed 4/4 dev and 4/4 held-out after
-  context removal, above linear and null controls, with correction/restart and
-  2/2 retention. Its unique-value arm memorized training values and was rejected.
+  context removal, above linear and null controls. Its candidate retention is
+  **0/2** (`amber`) versus parent 2/2, an ungated training-recipe failure also
+  present in M3. Its unique-value arm memorized training values and was rejected.
 - M3 shared and private ownership both passed 8/8 dev+held-out, update-two
   cross-chunk gradients, gradient-cut and fresh-process image restart. Private
   uses twice the logical state; no capacity-matched or uTTT claim is made.
