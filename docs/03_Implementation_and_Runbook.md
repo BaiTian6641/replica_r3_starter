@@ -6,10 +6,12 @@ optimization are **rejected**: M4 direct pattern is 0/4 dev and 0/8
 held-out/regression, and fast+pattern adversarial is 0/4 versus disabled 2/4.
 Every delayed router row selected fast with incomplete coverage. The v7 verdict
 passes 16/20 checks including same-process extension/image restart, but does
-not promote M4 or repair retention. Spark, authentic identity fidelity, M5–M7
-and production private dispatch remain open.
+not promote M4 or repair retention. M0b is optional and unadmitted; M5/M6/M7
+remain blocked by their upstream gates, and authentic identity fidelity awaits
+permitted sources and human review. Production private dispatch remains open.
 
-The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
+The post-M4 full integration suite passed **1262 tests / 21 subtests in 133.73 s**
+(1283 JUnit entries, zero failures/errors/skips).
 See [M0a](experiments/20261024_M0a_Refreshed_Baselines.md),
 [M1](experiments/20261024_M1_Procedure_Compilation_Results.md),
 [M2](experiments/20261024_M2_Dynamic_Memory_Results.md),

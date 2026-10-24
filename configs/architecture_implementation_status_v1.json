@@ -261,10 +261,12 @@
     "success_uncertainty_calibration_before_control_authority"
   ],
   "last_recorded_validation": {
-    "passed": 1249,
+    "passed": 1262,
     "subtests": 21,
-    "seconds": 133.03,
-    "scope": "full integration after M3 implementation; subsequent focused private-linear and shared-equivalence regressions passed"
+    "total_junit_entries": 1283,
+    "seconds": 133.73,
+    "junit": "reports/integration_m4_v7_20261024.xml",
+    "scope": "full integration after M4 and verdict-metadata corrections; zero failures/errors/skips; M4 focused suite also passed 9 tests"
   },
   "current_guard_validation": {
     "date": "2026-10-23",
@@ -309,6 +311,13 @@
   "m4_validation": "reports/validation_m4_static_20261024.json",
   "m4_collision_audit": "reports/m4_static_attempt07/collision_audit.json",
   "m4_decision": "reject_diagnostic_only; original rejection preserved; fresh-process restart conditional and unrun",
+  "remaining_package_gates": {
+    "M0b": "dropped_optional_unadmitted; no local Spark BF16 source, compatible isolated environment or adapter; does not block MiniCPM5",
+    "M5": "blocked; M4/M3 quality and retention gates failed and C13 has 5 accepted / 8 rejected-or-deferred versus 10/10; new admitted protocol and real candidate comparisons required",
+    "M6": "blocked; no simpler-loop result has survived retention and noninterference",
+    "M7": "blocked; local MiniCPM-V-4.7-1B weights/revision, separate adapter and native multimodal/cache parity unavailable",
+    "personality": "fictional integration implemented; authentic training/fidelity blocked on permitted decision records, reserved families and human review"
+  },
   "historical_selected_capacity_result": "reports/e2_capacity4096_selected_attempt01/run_report.json",
   "historical_capacity_guard_boundary": "reports/e2_capacity8192_selected_attempt01/failure_report.json",
   "corrected_capacity_result": "runs/m0a_capacity4096_attempt01/run_report.json",

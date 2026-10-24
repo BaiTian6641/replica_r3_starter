@@ -8,6 +8,12 @@
     "confidence": 0.97,
     "scope": "Raw rows, declared gates, accounting, restart, collision audit and resource evidence reviewed read-only; no answers regenerated."
   },
+  "verification": {
+    "focused_tests": {"command": ".venv/bin/python -m pytest tests/test_m4_pattern.py -q", "passed": 9},
+    "full_integration": {"passed": 1262, "subtests_passed": 21, "junit_entries": 1283, "failures": 0, "errors": 0, "skipped": 0, "seconds": 133.73, "junit": "reports/integration_m4_v7_20261024.xml"},
+    "scorer_smoke": "temporary re-pinned copy only; reject exit 1 and original_failure_preserved=true",
+    "native": "one guarded MPS worker; no CPU fallback; completed within declared sampled limits"
+  },
   "lineage": {
     "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
     "parent_extension": "runs/m3_depth_shared_attempt02/selected_extension",

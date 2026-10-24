@@ -9,13 +9,17 @@ incomplete hash coverage, and fast+pattern adversarial is 0/4 versus disabled
 restart, but does not promote M4 or repair retention. Fresh action-menu
 generalization, genuinely covered static utility, authentic identity fidelity,
 Spark, M5–M7 and production private dispatch remain open.
+M0b is optional and unadmitted; M5/M6/M7 are blocked by the documented upstream
+gates. Personality contracts and fictional evaluation exist, but authentic
+training/fidelity awaits permitted sources and human review.
 
 Read the [research plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),
 [loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md),
 [execution state](execution_state.md),
 [M3 evidence](docs/experiments/20261024_M3_Depth_Ownership_Results.md) and
 [M4 evidence](docs/experiments/20261024_M4_Pattern_Results.md).
-The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
+The post-M4 full integration suite passed **1262 tests / 21 subtests in 133.73 s**
+([JUnit](reports/integration_m4_v7_20261024.xml); 1283 entries, zero failures).
 MiniCPM5 remains the baseline. Native work uses one MPS worker, no CPU fallback,
 the **50 GiB** sampled driver stop and existing swap/host-pressure checks.
 Historical explicit 40 GiB protocols and all failed reports remain preserved.

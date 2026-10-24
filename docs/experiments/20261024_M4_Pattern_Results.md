@@ -133,6 +133,10 @@ optimizer groups contain **34,615,300 pattern parameters**. The extension audit
 reports 46,850,568 trainable parameters because pre-run trainability flags are
 restored before saving; that larger number is not the v7 trained scope.
 
+Post-M4 verification passed 9 focused tests and **1262 tests plus 21 subtests in
+133.73 s** (1283 JUnit entries, zero failures/errors/skips). See
+`reports/integration_m4_v7_20261024.xml`.
+
 ### Collision, latency and resource scope
 
 The [independent audit](../../reports/m4_static_attempt07/collision_audit.json)

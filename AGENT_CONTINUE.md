@@ -72,9 +72,10 @@ document 15; none of these planned paths is qualified by the documentation.
   identity contracts and fictional tests. Its encoder/training, authentic
   source-based evaluation and fidelity are open. The success head has a
   diagnostic fit but is uncalibrated and has no success authority.
-- The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
-  Later focused private-linear and shared-equivalence regressions also pass.
-  The 50 GiB guard, source seals and all failed native reports are preserved.
+- The post-M4 full integration suite passed **1262 tests / 21 subtests in
+  133.73 s** (1283 JUnit entries, zero failures/errors/skips); the focused M4
+  suite passed 9 tests. The 50 GiB guard, source seals and all failed native
+  reports are preserved.
 
 ## Next work package and progression
 
@@ -87,6 +88,16 @@ genuinely covered non-training static utility remain open. Any M5 bounded-RSI
 arm requires a new predeclared parent/data/control protocol; then M6 learned
 timescales and M7 native vision. Authentic identity fidelity still requires
 permitted source material and human review.
+
+**Current dependency disposition:** M0b is dropped as optional and unadmitted;
+no local Spark BF16 source/compatible isolated environment/adapter exists. M5
+is blocked by M4/M3 quality and retention gates plus C13's 5 accepted / 8
+rejected-or-deferred groups versus 10/10. M6 is blocked until a simpler loop
+survives retention and noninterference. M7 is blocked on local 1B VLM
+weights/revision, a separate adapter and native multimodal/cache parity; larger
+GGUF artifacts are not the target. Personality fictional integration is
+implemented; authentic training/fidelity awaits permitted records and human
+review. These are explicit blockers, not completed packages.
 
 Then use this order, advancing only on the declared gate:
 

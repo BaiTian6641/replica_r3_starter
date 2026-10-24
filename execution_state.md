@@ -40,6 +40,10 @@ verdict authenticates the original rejection by SHA-256. Latency is only a
 single-prompt pattern-port microbenchmark, and covered-case utility is
 unmeasured because no delayed route was fully covered.
 
+Post-M4 verification passed **1262 tests plus 21 subtests in 133.73 s**
+(1283 JUnit entries, zero failures/errors/skips), with 9 focused M4 tests also
+passing. See `reports/integration_m4_v7_20261024.xml`.
+
 **M0a/M1 verified packages (24 October 2026 UTC).** Corrected inference is
 detached: the small point passed 2/2 and selected 4096 passed 12/12 with 28
 nonzero backward gradients per point, zero swap growth and **28.5944 GiB**
@@ -105,14 +109,19 @@ vision path; 35B-A3B is a later qualified teacher/inference or transfer option.
 M4 adds only a diagnostic static pattern branch and deterministic routing; no
 production memory, learned router or RSI capability is established.
 
-**Next work:** Do not promote M4 or use fast-memory scores to admit M5.
-Retention repair and genuinely covered non-training static utility remain open;
-any M5 developmental arm needs its own predeclared parent, data, controls and
-gates rather than relabeling this rejection. M6 learned multi-rate levels → M7
-native VLM. M0b is optional and does not block MiniCPM5. Identity work proceeds
-only with permitted sources; calibration precedes control use. D0/D1/D2
-fairness and release admission remain required before selected-system or
-broad-campaign claims.
+**Dependency disposition and next work:** M0b is dropped as an optional,
+unadmitted track: no local Spark BF16 source, compatible isolated environment or
+adapter exists, and it does not block MiniCPM5. M5 is blocked by the M4/M3
+quality and retention failures and by C13's 5 accepted / 8 rejected-or-deferred
+groups versus 10/10; a new admitted parent/data/control protocol and real
+candidate comparisons are required. M6 remains blocked until a simpler loop
+survives retention and noninterference. M7 remains blocked on local
+MiniCPM-V-4.7-1B weights/revision, a separate adapter and native multimodal/cache
+parity; larger GGUF artifacts do not satisfy that target. Personality contracts,
+branch isolation, prompt/native-reader wiring and fictional evaluation are
+implemented, but authentic training/fidelity awaits permitted decision records,
+reserved families and human review. Do not relabel these blockers as completed
+packages or promote M4 into M5.
 
 ## Historical execution entries
 
