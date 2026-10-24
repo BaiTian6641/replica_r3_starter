@@ -1,0 +1,79 @@
+{
+  "schema_version": "replica.validation.m0a_baselines.v1",
+  "date_utc": "2026-10-24",
+  "protocol_commit": "80e58fe",
+  "regression_protocol_commit": "d0f2105",
+  "fixture_isolation_fix_commit": "06c6334",
+  "capacity": {
+    "small": {
+      "report": "runs/m0a_capacity_small_attempt01/run_report.json",
+      "guard": "reports/m0a_capacity_small_attempt01/guard.json",
+      "points": 2,
+      "inference_producers_detached": true,
+      "backward_nonzero_gradient_tensors": 28,
+      "peak_driver_gib": 10.1247,
+      "profiled_wall_seconds": 8.85,
+      "swap_growth_bytes": 0
+    },
+    "selected_4096": {
+      "report": "runs/m0a_capacity4096_attempt01/run_report.json",
+      "guard": "reports/m0a_capacity4096_attempt01/guard.json",
+      "points": 12,
+      "inference_producers_detached": true,
+      "backward_nonzero_gradient_tensors": 28,
+      "peak_driver_gib": 28.5944,
+      "profiled_wall_seconds": 558.27,
+      "swap_growth_bytes": 0,
+      "artifact_bytes": 9135648
+    },
+    "policy": {
+      "driver_limit_gib": 50,
+      "swap_growth_limit_mib": 512,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "optimizer_updates": 0,
+    "new_base_copies": 0,
+    "8192_decision": "deferred; no corrected limit inferred"
+  },
+  "menus": {
+    "fresh_family": "fixtures/e3_m0a_menus/cases",
+    "canonical": {
+      "report": "runs/m0a_menu_model_canonical_attempt01/run_report.json",
+      "completions": "1/4",
+      "heldout_completions": "0/2",
+      "false_success_claims": 2,
+      "peak_driver_gib": 15.143
+    },
+    "shuffled": {
+      "report": "runs/m0a_menu_model_shuffled_attempt01/run_report.json",
+      "completions": "0/4",
+      "heldout_completions": "0/2",
+      "false_success_claims": 3,
+      "peak_driver_gib": 15.167
+    },
+    "random_same_menu": {
+      "report": "runs/m0a_menu_random_attempt01/run_report.json",
+      "completions": "4/4",
+      "heldout_completions": "2/2",
+      "false_success_claims": 8,
+      "success_baseline_valid": false,
+      "peak_driver_gib": 11.004
+    },
+    "deterministic_procedure": {
+      "report": "runs/m0a_procedure_reference_attempt02/report.json",
+      "accepted": true,
+      "dev_and_heldout": "3/3",
+      "native_model_loads": 0
+    },
+    "old_case_regression": {
+      "report": "runs/m0a_menu_old_regression_attempt01/run_report.json",
+      "completions": "3/3",
+      "heldout_completions": "3/3",
+      "false_success_claims": 0,
+      "peak_driver_gib": 14.147
+    },
+    "failure_classification": "fresh-family action-selection/generalization failure: unrelated constants selected; not a numeric parser defect"
+  },
+  "decision": "M0a measurement accepted; no menu promotion and no fresh-family capability claim. Proceed to M1 compiler and M2 dynamic memory."
+}

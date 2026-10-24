@@ -1,0 +1,37 @@
+{
+  "schema_version": "replica.validation.m1_procedure_compilation.v1",
+  "date_utc": "2026-10-24",
+  "code_commit": "8ca6a8b",
+  "protocol": "configs/m1_procedure_compilation_v1.json",
+  "report": "runs/m1_compilation_attempt01/report.json",
+  "artifact_catalog": "runs/m1_compilation_attempt01/artifact_catalog.json",
+  "ledger": "runs/m1_compilation_attempt01/ledger.sqlite",
+  "manifest_directory": "runs/m1_compilation_attempt01/manifests",
+  "acceptance": {
+    "evaluation_accepted": true,
+    "publication_succeeded": true,
+    "restart_unseen_passed": true,
+    "changed_source_rejected": true,
+    "invalidation_revoked": true,
+    "rollback_restored_parent": true
+  },
+  "evaluation": {
+    "dev": "m0a_dev_retry: succeeded",
+    "heldout": "m0a_heldout_poll: succeeded"
+  },
+  "restart_unseen": "m0a_heldout_heartbeat: succeeded after manifest reconstruction",
+  "source_invalidation": "accepted procedure and accepted descendant both revoked",
+  "rollback": "baseline parent restored",
+  "costs": {
+    "wall_seconds": 0.440055,
+    "native_model_loads": 0,
+    "optimizer_updates": 0,
+    "new_base_copies": 0,
+    "downloads": 0
+  },
+  "focused_tests": {
+    "command": ".venv/bin/python -m pytest -q tests/test_compilation.py tests/test_runtime_artifacts.py tests/test_e3_set_tools.py",
+    "result": "14 passed"
+  },
+  "claims": "Thin procedure compilation, execution, publication, restart and invalidation only; no neural candidate, learned memory or self-improvement claim."
+}
