@@ -1,7 +1,7 @@
 """M0a fixture and corrected-menu data checks (CPU only)."""
 import json
+import shutil
 from pathlib import Path
-
 from replica_lab.runtime.candidate_actions import build_action_menu
 from replica_lab.runtime.procedures import RepairProcedure
 from replica_lab.runtime.tools import FixtureWorkspace
@@ -35,10 +35,11 @@ def test_m0a_numeric_constants_reach_each_action_menu():
         assert repairs[case['constant']] == float(case['actual'])
         assert len(repairs) == 3
 
-
-def test_m0a_deterministic_procedure_repairs_every_fixture():
+def test_m0a_deterministic_procedure_repairs_every_fixture(tmp_path):
     for case in _manifest()['cases']:
-        tools = FixtureWorkspace(CASE_ROOT / case['case_id'])
+        case_copy = tmp_path / case['case_id']
+        shutil.copytree(CASE_ROOT / case['case_id'], case_copy)
+        tools = FixtureWorkspace(case_copy)
         initial = tools.run_test({})
         assert initial['receipt']['exit_code'] != 0
         run = RepairProcedure('m0a-reference', 'workspace/app_settings.py',
