@@ -375,6 +375,8 @@ class SGDN2Memory:
         self._check_state(start_state)
         state = start_state.weights
         for write in writes:
+            if state.device != write.keys.device:
+                state = state.to(write.keys.device)
             _sgdn2_check_write(write, self.heads, self.key_size, self.value_size,
                                start_state.chunk_index, state.shape[0])
             mask = (torch.ones(write.keys.shape[:2], dtype=torch.bool,
