@@ -1,0 +1,102 @@
+{
+  "format": "replica.m3.retention_diagnostic.v1",
+  "protocol_version": 2,
+  "declared_at_utc": "2026-10-24T04:28:00Z",
+  "implementation_commit": "9ac8407",
+  "implementation_overlay": "Pre-existing 50 GiB guard-default working-tree changes are retained; exact file hashes below bind execution.",
+  "previous_protocol": {
+    "path": "configs/m3_retention_diagnostic_v1.json",
+    "sha256": "4422720889114a4d47afdee863c8df46836457c93c0e8692296fc24421fe365e",
+    "commit": "7921b5a"
+  },
+  "retry_reason": "Attempt01 stopped before model execution because the diagnostic's different dataset role prose was compared as if it were data identity. The retry compares only root and content hashes; dataset bytes and all controls are unchanged.",
+  "purpose": "Localize the M3 retention replay regression with inference-only controls on the preserved shared and private candidates. Do not train, repair or promote from this diagnostic.",
+  "hypothesis": "The trained fast residual, especially block 27, overrides correct pretrained replay answers. Zero/disabled/full-context should recover them; block-27-only should reproduce the failure if that branch is responsible.",
+  "baseline_arms": {
+    "shared": {
+      "protocol_path": "configs/m3_depth_v2.json",
+      "protocol_sha256": "c7a70157482f09b73d1a5407040a4eef66971ac255146918a5f2050210621b55",
+      "report": "runs/m3_depth_shared_attempt02/run_report.json"
+    },
+    "private": {
+      "protocol_path": "configs/m3_depth_v3.json",
+      "protocol_sha256": "477756411c78b4b7689f2c58ae9eedae43ca13b8d96ac75a6c2f186f6c4ba246",
+      "report": "runs/m3_depth_private_attempt03/run_report.json"
+    }
+  },
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/m2_shared",
+    "manifest_sha256": "5f334e6bd4a5ae70d8150ed011c659fb5a01673a3c94fca9b79296055c3433c7",
+    "queries_sha256": "8e4c3b9f638c3460ae8fdc6a3865923049fd290d14b6a596ebe4a50527105792",
+    "records_sha256": "8d794777d5f529a49d322befb9c22c3da18388be4eb038331a5756c66ed50a5d",
+    "role": "Only the two fixed retention cases. They remain evaluation data and must not become repair-training data or a fresh audit."
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_writers": true,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "evaluation": {
+    "retention_cases": 2,
+    "arms": ["correct", "linear", "shuffled", "zero", "disabled", "full_context", "read_13_only", "read_27_only", "write_13_only", "write_27_only"],
+    "generation": {"max_new_tokens": 6, "greedy": true, "max_prompt_tokens": 256},
+    "metric": "Exact stripped answer and answer-exact agreement with the correct arm; preserve all token IDs and outputs.",
+    "parent_reference": "Both historical parents answered Paris and H2O correctly (2/2); both candidates emitted copper (0/2)."
+  },
+  "decision_rule": {
+    "memory_residual_implicated": "Only if zero or disabled outperforms correct; compare full-context separately to rule out a base/evaluation anomaly.",
+    "reader_implicated": "Only if read_27_only exactly matches correct answers and read_13_only improves exact accuracy.",
+    "writer_implicated": "Only if write_27_only exactly matches correct answers and write_13_only improves exact accuracy.",
+    "insufficient": "Accuracy-only similarity, lower loss or a preferred narrative is insufficient for a repair arm.",
+    "no_promotion": "All outputs are diagnostic_only. Any repair needs new training/replay/audit roles, a fresh protocol and fresh retention audit cases."
+  },
+  "budget": {
+    "model_loads_per_arm": 1,
+    "extension_reloads_per_arm": 1,
+    "optimizer_updates_per_arm": 0,
+    "checkpoint_saves_per_arm": 0,
+    "generation_answers_per_arm": 20,
+    "max_generated_tokens_per_arm": 120,
+    "max_wall_seconds_per_arm": 60,
+    "expected_storage_mib_per_arm": 2,
+    "native_jobs": 2,
+    "execution_order": ["shared", "private"]
+  },
+  "limits": {
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1,
+    "cpu_fallback": false
+  },
+  "stop_conditions": [
+    "capacity guard or host-pressure failure",
+    "nonfinite logits or state",
+    "wall-time, token or generation budget exceeded",
+    "candidate, dataset, protocol or implementation mismatch",
+    "unexpected arm or state ownership"
+  ],
+  "retention": "Preserve raw answers, metrics, diagnostic fields, profiles and guard traces. No base copy, download or checkpoint.",
+  "claims": "Inference-only failure localization on two exposed replay cases; no repair, broad retention, calibration or capability claim.",
+  "implementation_sha256": {
+    "scripts/eval_m3_retention.py": "a9d16a7a132bd872c7f29a16a6abc554fe9b36600cbe65b149338b784e75e225",
+    "scripts/run_m2_dynamic.py": "8f4e751284cecf83ada473145865984f16d3f5a4cd7c1fee320be9c955c189d5",
+    "scripts/run_capacity_preflight.py": "ca60ef9784353ded2c4baead8931fcd76bbcbe38244541217ee516c390f541a1",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/architecture/contracts.py": "5ba50dcae70843e77d37bc8f870f6f83b4091abfbb0ab40ed3822d129ee71157",
+    "src/replica_lab/architecture/minicpm5.py": "c73df56bf062970eba3c29052b9f04eb27a589a9394f4a238a5460d15867717c",
+    "src/replica_lab/architecture/loading.py": "ffdee8328ae6afc40b6b1eadc1abe57ca2950c2b125b6b7e6d32b3a4beeba57d",
+    "src/replica_lab/architecture/ports.py": "d5a969844b4e4afe644a2bb99908f4622a46ec32dfaf8ff1942404c1d9f2344f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/memory_system/session.py": "b238fa0e3d0e59bf140767e8213f9c2269c4a87848a129e5960c9157f6129b2f"
+  }
+}
