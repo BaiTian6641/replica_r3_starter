@@ -219,10 +219,9 @@ def execute(args, profiler, report):
                 elif mode == 'shuffled':
                     fast, pattern = depth_read(queries[(index + 1) % len(queries)]['observations']), None
                 elif mode == 'adversarial':
-                    if protocol['evaluation'].get('adversarial_uses_pattern', False):
-                        fast, pattern = None, pattern_read()
-                    else:
-                        fast, pattern = depth_read([adversarial]), None
+                    fast = depth_read([adversarial])
+                    pattern = (pattern_read() if protocol['evaluation'].get('adversarial_uses_pattern', False)
+                               else None)
                 elif mode == 'full_context':
                     fast, pattern = None, None
                 else:

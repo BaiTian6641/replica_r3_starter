@@ -40,6 +40,9 @@ def main():
     source = json.loads(args.input.read_text())
     source_lm_updates = int(protocol['training'].get('source_lm_updates', 0))
     expected_updates = int(protocol['training']['updates']) + source_lm_updates
+    if (source.get('protocol_sha256') != sha(args.protocol)
+            or source.get('implementation_sha256') != implementation_pins):
+        raise ValueError('M4 verdict input protocol or implementation differs')
     if source.get('status') != 'completed':
         if (source.get('error_type') != 'NameError'
                 or source.get('error') != "name 'candidate' is not defined"
@@ -47,7 +50,7 @@ def main():
             raise ValueError('M4 verdict input is not the declared completed-evaluation binding failure')
     if source.get('optimizer_updates') != expected_updates:
         raise ValueError('M4 optimizer update count differs from protocol')
-    if source.get('checkpoints_saved') != protocol['budget']['checkpoint_saves']:
+    if source.get('checkpoints_saved') != protocol['budget']['checkpoint_saves_per_arm']:
         raise ValueError('M4 checkpoint count differs from protocol')
     if source_lm_updates:
         source_training = source.get('training', {}).get('source_lm', {})
@@ -154,6 +157,7 @@ def main():
         raise ValueError('M4 verdict generation accounting mismatch')
     token_costs = {
         'training_action_tokens': sum(update['action_tokens'] for update in source['training']['updates']),
+        'training_target_tokens': sum(update['target_tokens'] for update in source['training']['updates']),
         'source_lm_action_tokens': sum(update.get('source_tokens', 0)
                                        for update in source['training'].get('source_lm', {}).get('updates', [])),
         'generation_prompt_tokens': sum(row['prompt_tokens'] for row in all_rows),
