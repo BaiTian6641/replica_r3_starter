@@ -1,0 +1,14 @@
+W1024 00:49:22.648000 13128 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  11%|█         | 42/381 [00:00<00:00, 403.15it/s]Loading weights:  36%|███▋      | 139/381 [00:00<00:00, 728.93it/s]Loading weights:  60%|██████    | 229/381 [00:00<00:00, 798.81it/s]Loading weights:  83%|████████▎ | 316/381 [00:00<00:00, 825.17it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 805.23it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 502, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 483, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 115, in execute
+    trained_hashes.update(query_hashes(ids, torch.ones_like(ids, dtype=torch.bool)))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 109, in query_hashes
+    hash_counts[(order, head, int(value))] = hash_counts.get((order, head, int(value)), 0) + 1
+                                                                               ^^^^^
+NameError: name 'value' is not defined. Did you mean: 'False'?

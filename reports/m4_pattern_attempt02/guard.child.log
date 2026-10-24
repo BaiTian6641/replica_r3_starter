@@ -1,0 +1,17 @@
+W1024 00:55:26.626000 13606 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 885.10it/s]Loading weights:  47%|████▋     | 180/381 [00:00<00:00, 872.65it/s]Loading weights:  71%|███████   | 270/381 [00:00<00:00, 868.93it/s]Loading weights:  94%|█████████▎| 357/381 [00:00<00:00, 851.23it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 886.46it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 506, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 487, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 213, in execute
+    'main': evaluate_main(eval_queries, ('fast', 'disabled')),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 175, in evaluate_main
+    value = generate_mode(query, mode, other=other)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m4_pattern.py", line 167, in generate_mode
+    return generate(session, query, DELAYED_USE_TEMPLATE, fast, pattern=pattern,
+                    ^^^^^^^
+NameError: name 'session' is not defined

@@ -1,0 +1,53 @@
+{
+  "schema_version": "replica.validation.m4_pattern.v1",
+  "date_utc": "2026-10-24",
+  "decision": "reject_quality_general_noninterference",
+  "verdict": "reports/m4_pattern_attempt04/verdict.json",
+  "metrics": {
+    "router": {"dev": 1.0, "heldout": 0.75, "regression": 1.0},
+    "pattern": {"dev": 0.0, "heldout": 0.0, "regression": 0.125, "train": 0.3333333333333333},
+    "linear": {"dev": 0.25, "heldout": 0.125, "regression": 0.25},
+    "shuffled": {"dev": 0.0, "heldout": 0.0, "regression": 0.0},
+    "zero": {"dev": 0.0, "heldout": 0.0, "regression": 0.0},
+    "disabled": {"dev": 0.0, "heldout": 0.0, "regression": 0.0},
+    "full_context": {"dev": 1.0, "heldout": 0.75, "regression": 0.875},
+    "general_pattern": 0.0,
+    "general_router": 0.0,
+    "general_fast": 0.0,
+    "general_adversarial": 0.0,
+    "general_disabled": 0.5,
+    "general_dev_adversarial": 0.0,
+    "general_dev_disabled": 1.0
+  },
+  "router_attribution": "All 20 delayed dev/heldout/regression router cases selected fast; router is not static-pattern utility evidence",
+  "adversarial_attribution": "Adversarial uses fast with pattern=None, so pattern warmup cannot repair this gate under current wiring",
+  "engineering": {
+    "post_open_gradients": "finite and nonzero on all pattern tensors",
+    "sparse_optimizer": "AdamW densification only; Muon rejects sparse gradients",
+    "disabled_token_identical": true,
+    "fast_modules_unchanged": true,
+    "same_process_restart": "pass",
+    "fresh_process_restart": "not_run_because_rejected"
+  },
+  "costs": {
+    "answers": 426,
+    "new_tokens": 1386,
+    "prompt_tokens": 28241,
+    "profiled_wall_seconds": 154.2907798748929,
+    "peak_driver_bytes": 11943297024,
+    "table_parameter_bytes": 134217728,
+    "optimizer_state_bytes": 269527088,
+    "optimizer_int8_bytes": 1056768,
+    "optimizer_fp32_bytes": 268470320,
+    "downloads": 0,
+    "base_copies": 0
+  },
+  "collision_evidence": "Incomplete in the preserved verdict; a separate collision/latency evaluation is required and is not inferred",
+  "preserved_failures": [
+    "runs/m4_pattern_attempt01/failure_report.json: generator scope",
+    "runs/m4_pattern_attempt02/failure_report.json: missing MemorySession",
+    "runs/m4_pattern_attempt03/failure_report.json: SparseMPS ne in gradient audit",
+    "runs/m4_pattern_attempt04/failure_report.json: missing verdict bindings after completed evaluation"
+  ],
+  "next": "A future static-optimization diagnostic must directly measure covered non-training pattern utility and enable pattern in adversarial evaluation. M5 is not admitted by fast-memory scores; retention remains open."
+}
