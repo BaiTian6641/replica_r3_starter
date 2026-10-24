@@ -43,7 +43,9 @@ def execute(args, profiler, report):
             or candidate.get('protocol_sha256') != baseline['protocol_sha256']
             or candidate.get('implementation_sha256') != candidate_protocol['implementation_sha256']):
         raise ValueError('Retention diagnostic candidate lineage differs')
-    if candidate_protocol['dataset'] != protocol['dataset']:
+    identity_fields = ('root', 'manifest_sha256', 'queries_sha256', 'records_sha256')
+    if any(candidate_protocol['dataset'][key] != protocol['dataset'][key]
+            for key in identity_fields):
         raise ValueError('Retention diagnostic dataset differs')
     report.update(depth_arm=args.depth_arm, candidate_protocol_sha256=baseline['protocol_sha256'],
                   candidate_run_report=str(candidate_report_path),
