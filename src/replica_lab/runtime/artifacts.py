@@ -361,9 +361,11 @@ class ArtifactRegistry:
         if artifact.parent_id is not None and artifact.parent_id not in self._items:
             raise ValueError('parent artifact is absent')
         self._items[artifact.artifact_id] = artifact
-        for source in getattr(artifact, 'source_ids', ()) or ():
+        sources = getattr(artifact, 'source_ids', None)
+        if sources is None:
+            sources = getattr(artifact, 'source_event_ids', ())
+        for source in sources or ():
             self._source_index.setdefault(source, set()).add(artifact.artifact_id)
-        if artifact.parent_id is not None:
             self._children.setdefault(artifact.parent_id, set()).add(artifact.artifact_id)
         return artifact
 

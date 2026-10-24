@@ -36,7 +36,14 @@ def sha256_bytes(value: bytes) -> str:
 
 
 def excerpt(value: bytes) -> str:
-    return value[:MAX_OUTPUT_BYTES].decode('utf-8', errors='replace')[:MAX_EXCERPT]
+    text = value[:MAX_OUTPUT_BYTES].decode('utf-8', errors='replace')
+    if len(text) <= MAX_EXCERPT:
+        return text
+    # Long fixture paths can push the decisive numeric bound to the tail.
+    # Keep both ends so diagnostics and failure parsers do not lose it.
+    head = MAX_EXCERPT // 2
+    tail = MAX_EXCERPT - head - 1
+    return text[:head] + '\n' + text[-tail:]
 
 
 def _case_workspace_parts(raw, name: str) -> tuple[str, ...]:

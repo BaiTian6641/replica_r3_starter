@@ -53,3 +53,16 @@ def test_fresh_fixture_family_validator():
     report = json.loads(result.stdout)
     assert report['ok'] is True
     assert report['roles'] == {'train': 4, 'dev': 1, 'heldout': 3, 'interrupted': 1}
+
+
+def test_long_path_failure_excerpt_retains_numeric_bound():
+    from replica_lab.runtime.procedures import parse_failure_bound
+    from replica_lab.runtime.tools import FixtureWorkspace
+    with tempfile.TemporaryDirectory() as directory:
+        case = Path(directory)
+        for _ in range(6):
+            case = case / ('long-path-segment-' + 'x' * 70)
+        shutil.copytree(ROOT / 'fixtures/e3_m0a_menus/cases/m0a_heldout_poll', case)
+        receipt = FixtureWorkspace(case).run_test({})['receipt']
+        bound = parse_failure_bound(receipt['stderr_excerpt'])
+        assert bound == {'name': 'POLL_INTERVAL_MS', 'actual': '50', 'expected': '350'}

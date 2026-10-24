@@ -1,0 +1,49 @@
+{
+  "format": "replica.m1.procedure_compilation.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Compile a verified chronological repair trajectory from the exact ledger into a typed procedure artifact, independently evaluate and publish it, reconstruct it after restart, and verify source/parent rejection, invalidation and rollback. CPU-only; no model training.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "fixtures": {
+    "root": "fixtures/e3_m0a_menus/cases",
+    "manifest_sha256": "c1633cbe4a9a832285dd796667c527570f808e7c5e2628c3ea514cf360e1bce0",
+    "train": "m0a_train_queue",
+    "dev": "m0a_dev_retry",
+    "heldout": ["m0a_heldout_poll"],
+    "restart_unseen": "m0a_heldout_heartbeat"
+  },
+  "source_events": ["train-failure", "train-repair"],
+  "roles": {
+    "train": "verified source trajectory only",
+    "dev": "independent procedure evaluation",
+    "heldout": "independent procedure evaluation",
+    "restart_unseen": "reconstructed artifact execution after restart"
+  },
+  "binding": {
+    "subject_id": "m1-subject",
+    "branch_id": "train",
+    "purpose": "m1",
+    "cutoff": 2,
+    "evidence_epoch": 0,
+    "base_revision": "minicpm5-m1",
+    "identity_version": "generic_procedure"
+  },
+  "training": {
+    "trainable_parameters": [],
+    "optimizer": "none",
+    "optimizer_updates": 0,
+    "native_model_loads": 0
+  },
+  "limits": {
+    "device": "cpu",
+    "wall_seconds": 120,
+    "native_jobs": 0,
+    "new_base_copies": 0,
+    "downloads": 0
+  },
+  "acceptance": {
+    "accept_if": "independent dev/heldout execution passes, publication succeeds, unseen restart execution succeeds, changed source is rejected, invalidation revokes the artifact, and rollback restores the parent",
+    "reject_or_defer_if": "any required check fails or evidence is missing"
+  },
+  "claims": "Thin procedure compilation and publication only; no neural candidate, learned memory, self-improvement, generalization or personal fidelity claim.",
+  "retention": "Keep ledger, source receipts, artifact catalog, active and ancestor manifests, restart receipts and the raw report. Use a fresh output directory."
+}
