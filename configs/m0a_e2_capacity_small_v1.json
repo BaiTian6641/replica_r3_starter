@@ -1,0 +1,68 @@
+{
+  "format": "replica.e2_capacity.qualification.v12",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "M0a corrected small native inference and backward smoke: prove writer/sense/action producers are detached in inference before measuring the selected 4096-unit workload. No quality claim and no optimizer update.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/e2_capacity",
+    "manifest": "data/e2_capacity/manifest.json",
+    "manifest_sha256": "0b94d18756bc5ce9ab23cf4c43c3f2e26c81f01899316b002100b042886d70e4",
+    "records_sha256": "efb4449a425f38f286aa0067c2b6ec19faa3f7b1bc6fec08c431d0c04c56111b"
+  },
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "device": "mps",
+  "dtype": "float32",
+  "native_cache": false,
+  "native_cpu_fallback": false,
+  "scope": {
+    "source_tokens_per_unit": 128,
+    "max_units": 16,
+    "slots_per_unit": 4,
+    "memory_width": 256,
+    "ports": [13, 27],
+    "observer": 41,
+    "training": "modules_only backward; no optimizer step; base frozen"
+  },
+  "schedule": {
+    "inference": [
+      {"id": "m0a_inf_u1_p64", "units": 1, "prompt_tokens": 64, "generate_tokens": 8}
+    ],
+    "training": [
+      {"id": "m0a_train_u1_p64", "units": 1, "prompt_tokens": 64, "label_tokens": 16}
+    ]
+  },
+  "measurements": [
+    "writer_requires_grad and sense_requires_grad are false at every inference point",
+    "actual units/tokens and source-span ranges",
+    "source encode, writer, sense, forward, generation, prepare and backward seconds",
+    "sampled MPS allocated/driver bytes and process RSS",
+    "guard policy and final-exit trace"
+  ],
+  "limits": {
+    "driver_gib": 50,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "one_native_job": true
+  },
+  "stop_conditions": [
+    "declared guard threshold breach",
+    "writer_requires_grad or sense_requires_grad is true in inference",
+    "nonfinite logits/loss/gradients",
+    "schedule point raises an unexpected error",
+    "stale telemetry"
+  ],
+  "acceptance": {
+    "accept_if": "both points complete, inference producers are detached, logits/loss/gradients finite, and guard completes",
+    "reject_or_defer_if": "any stop condition fires; do not proceed to 4096"
+  },
+  "retention": "Keep run/failure report, progress, profile and guard traces. No base copy, optimizer checkpoint or download.",
+  "claims": "Corrected autograd and bounded native capacity smoke only; no memory quality, generalization or architecture-benefit claim.",
+  "budget": {
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "points": 2,
+    "expected_storage_mib": 2,
+    "no_base_save": true
+  }
+}

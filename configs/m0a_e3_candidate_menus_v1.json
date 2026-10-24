@@ -1,0 +1,53 @@
+{
+  "format": "replica.e3_m0a_candidate_menus.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Measure corrected numeric-string action menus on a fresh four-case family with model, random/order and deterministic-procedure controls. No training and no default promotion.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_m0a_menus/cases",
+    "manifest_sha256": "c1633cbe4a9a832285dd796667c527570f808e7c5e2628c3ea514cf360e1bce0",
+    "train": ["m0a_train_queue"],
+    "dev": ["m0a_dev_retry"],
+    "heldout": ["m0a_heldout_poll", "m0a_heldout_heartbeat"]
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "evaluation": {
+    "cases": ["m0a_train_queue", "m0a_dev_retry", "m0a_heldout_poll", "m0a_heldout_heartbeat"],
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 1024,
+    "generated_tokens": 128
+  },
+  "arms": {
+    "model_canonical": {"selection": "model", "shuffle_candidates": false},
+    "model_shuffled": {"selection": "model", "shuffle_candidates": true, "seed": 20261023},
+    "random_same_menu": {"selection": "random", "shuffle_candidates": false, "seed": 20261023},
+    "deterministic_procedure": {"runner": "run_e5_procedure.py", "native_model_loads": 0}
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads_per_neural_arm": 1
+  },
+  "limits": {
+    "driver_gib": 50,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1
+  },
+  "acceptance": {
+    "package_accept_if": "all three neural arms and the deterministic procedure run to terminal state, menus include exact numeric constants, all model scores/indices and receipts are retained, and guard completes",
+    "quality_rule": "report model, random/order and procedure outcomes separately; no default promotion and no free-form capability claim",
+    "defer_if": "guard stop, missing candidate evidence, malformed protocol, or a required control does not run"
+  },
+  "claims": "Fresh corrected-interface measurement only; narrow host-enumerated action menus, not free-form policy, learned capability or model promotion."
+}

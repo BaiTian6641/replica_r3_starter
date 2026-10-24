@@ -1,0 +1,31 @@
+{
+  "format": "replica.e5.procedure.qualification.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Deterministic procedure reference for the M0a fresh action-menu family. Independently verify the procedure on dev and held-out cases; this is not a neural policy or model-selected action.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "fixtures_root": "fixtures/e3_m0a_menus/cases",
+  "train_cases": ["m0a_train_queue"],
+  "dev_cases": ["m0a_dev_retry"],
+  "heldout_cases": ["m0a_heldout_poll", "m0a_heldout_heartbeat"],
+  "source_event_ids": ["teacher:m0a_train_queue:step3"],
+  "procedure": {
+    "workspace_entry": "workspace/app_settings.py",
+    "steps": ["read_file", "run_test", "set_constant(from disclosed failure)", "run_test"],
+    "independent_test": "evaluator exits zero"
+  },
+  "budget": {
+    "train_cases": 1,
+    "dev_cases": 1,
+    "heldout_cases": 2,
+    "tool_calls_per_case": 4,
+    "native_model_loads": 0,
+    "optimizer_updates": 0
+  },
+  "acceptance": {
+    "accept_if": "dev and all held-out cases pass the independent evaluator; non-target constants preserved",
+    "reject_if": "any held-out failure or harmful candidate",
+    "publication": "ManifestRegistry atomic active pointer; no neural weights"
+  },
+  "retention": "Keep raw procedure receipts, case results, active manifest and rejection evidence. No model or base checkpoint is saved.",
+  "claims": "Deterministic procedure-library reference only; no neural candidate, model-selected action or personal fidelity claim."
+}

@@ -149,6 +149,9 @@ def inference_point(torch, model, tokenizer, session, scope, task, records, poin
             'writer_seconds': writer_seconds,
             'sense_seconds': sense_seconds,
             'action_forward_seconds': forward_seconds,
+            'writer_requires_grad': bool(slots.requires_grad),
+            'sense_requires_grad': any(feature.requires_grad
+                                       for _, feature in sense.summaries),
             'generation_seconds': generation_seconds,
             'logits_finite': bool(torch.isfinite(forward.logits).all()),
             'mps_allocated_after_bytes': int(torch.mps.current_allocated_memory()),
@@ -231,7 +234,8 @@ def execute(args, profiler, report):
                                   'replica.e2_capacity.qualification.v8',
                                   'replica.e2_capacity.qualification.v9',
                                   'replica.e2_capacity.qualification.v10',
-                                  'replica.e2_capacity.qualification.v11'):
+                                  'replica.e2_capacity.qualification.v11',
+                                  'replica.e2_capacity.qualification.v12'):
         raise ValueError('Unknown capacity protocol')
     data_root = ROOT / protocol['dataset']['root']
     manifest = json.loads((data_root / 'manifest.json').read_text())
@@ -324,6 +328,9 @@ def execute(args, profiler, report):
     }
     report['acceptance'] = {
         'completed_all_points': len(report['points']) == len(ids),
+        'inference_producers_detached': all(
+            not point['writer_requires_grad'] and not point['sense_requires_grad']
+            for point in report['points'] if point['phase'] == 'inference'),
         'schedule_ascending': True,
         'configured_max_not_claimed_as_exercised': True,
         'training_scope': 'modules_only backward; no optimizer step',
