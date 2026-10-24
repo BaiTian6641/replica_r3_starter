@@ -277,3 +277,126 @@ class LinearFastMemory:
         next_weights = torch.where(count > 0, weights - update, weights)
         return FastState(next_weights, start_state.chunk_index + 1)
 
+
+@dataclass(frozen=True)
+class SGDN2Write:
+    """One headed gated-delta write proposal; no host side effects."""
+
+    keys: Tensor  # [batch, tokens, heads, key]
+    values: Tensor  # [batch, tokens, heads, value]
+    erase: Tensor  # [batch, tokens, heads, key]
+    write_gate: Tensor  # [batch, tokens, heads, value]
+    decay: Tensor  # [batch, tokens, heads, key]
+    chunk_index: int = 0
+    mask: Tensor | None = None  # [batch, tokens]
+
+    def detached(self) -> 'SGDN2Write':
+        return SGDN2Write(self.keys.detach().clone(), self.values.detach().clone(),
+                          self.erase.detach().clone(), self.write_gate.detach().clone(),
+                          self.decay.detach().clone(), self.chunk_index,
+                          None if self.mask is None else self.mask.detach().clone())
+    def head(self, index: int) -> 'SGDN2Write':
+        if type(index) is not int or not 0 <= index < self.keys.shape[2]:
+            raise ValueError('head index outside write')
+        return SGDN2Write(
+            self.keys[:, :, index:index + 1], self.values[:, :, index:index + 1],
+            self.erase[:, :, index:index + 1], self.write_gate[:, :, index:index + 1],
+            self.decay[:, :, index:index + 1], self.chunk_index, self.mask)
+
+
+def _sgdn2_check_write(write: SGDN2Write, heads: int, key_size: int, value_size: int,
+                       chunk_index: int, batch_size: int) -> None:
+    if not isinstance(write, SGDN2Write) or write.chunk_index != chunk_index:
+        raise ValueError('SGDN-2 writes must belong to the current chunk-start snapshot')
+    expected = (heads, key_size, value_size)
+    if write.keys.ndim != 4 or write.values.ndim != 4:
+        raise ValueError('SGDN-2 keys/values must be [batch, tokens, heads, dim]')
+    if write.keys.shape[:3] != (batch_size, write.keys.shape[1], heads):
+        raise ValueError('SGDN-2 key batch/heads differ from the state')
+    if write.keys.shape[-1] != key_size or write.values.shape[-1] != value_size:
+        raise ValueError('SGDN-2 key/value dimensions differ from the state')
+    if write.values.shape[:3] != write.keys.shape[:3]:
+        raise ValueError('SGDN-2 key/value positions differ')
+    for value, name, last in ((write.erase, 'erase', key_size),
+                              (write.decay, 'decay', key_size),
+                              (write.write_gate, 'write_gate', value_size)):
+        if value.shape != write.keys.shape[:3] + (last,) or not value.is_floating_point():
+            raise ValueError(f'SGDN-2 {name} has incompatible dimensions')
+        if not bool(torch.isfinite(value).all()):
+            raise ValueError(f'SGDN-2 {name} must be finite')
+    for value, name in ((write.keys, 'keys'), (write.values, 'values')):
+        if not value.is_floating_point() or not bool(torch.isfinite(value).all()):
+            raise ValueError(f'SGDN-2 {name} must be finite')
+    if write.mask is not None:
+        if (write.mask.dtype != torch.bool
+                or tuple(write.mask.shape) != tuple(write.keys.shape[:2])):
+            raise ValueError('SGDN-2 mask must be boolean [batch, tokens]')
+
+
+class SGDN2Memory:
+    """Functional gated-delta fast state with head-specific writes.
+
+    Each token computes a stable gated delta update against the same state that
+    later chunks read. The final residual port supplies zero-initialized output
+    projections; this primitive never performs I/O or host commits.
+    """
+
+    def __init__(self, heads: int, key_size: int = 64, value_size: int = 64) -> None:
+        if min(heads, key_size, value_size) < 1:
+            raise ValueError('positive SGDN-2 dimensions required')
+        self.heads, self.key_size, self.value_size = heads, key_size, value_size
+
+    def initial_state(self, batch_size: int, *, device=None, dtype=torch.float32) -> FastState:
+        if batch_size < 1:
+            raise ValueError('batch size must be positive')
+        return FastState(torch.zeros(batch_size, self.heads, self.key_size,
+                                     self.value_size, device=device, dtype=dtype))
+
+    def _check_state(self, state: FastState) -> None:
+        if (state.weights.ndim != 4
+                or state.weights.shape[1:] != (self.heads, self.key_size, self.value_size)
+                or not state.weights.is_floating_point()
+                or not bool(torch.isfinite(state.weights).all())):
+            raise ValueError('incompatible SGDN-2 state')
+        if state.chunk_index < 0:
+            raise ValueError('chunk index must be nonnegative')
+
+    def read(self, queries: Tensor, start_state: FastState) -> Tensor:
+        self._check_state(start_state)
+        if queries.ndim != 3 or queries.shape[-1] != self.key_size:
+            raise ValueError('queries must be [batch, positions, key_size]')
+        if queries.shape[0] != start_state.weights.shape[0]:
+            raise ValueError('query and state batch sizes must match')
+        query = F.normalize(queries.to(start_state.weights), dim=-1, eps=1e-6)
+        return torch.einsum('btk,bhkv->bthv', query, start_state.weights)
+
+    def update_shared_chunk(self, start_state: FastState,
+                            writes: Sequence[SGDN2Write]) -> FastState:
+        self._check_state(start_state)
+        state = start_state.weights
+        for write in writes:
+            _sgdn2_check_write(write, self.heads, self.key_size, self.value_size,
+                               start_state.chunk_index, state.shape[0])
+            mask = (torch.ones(write.keys.shape[:2], dtype=torch.bool,
+                               device=write.keys.device)
+                    if write.mask is None else write.mask)
+            keys = F.normalize(write.keys.to(state), dim=-1, eps=1e-6)
+            values = write.values.to(state)
+            erase = write.erase.to(state).clamp(1e-4, 1.0)
+            gate = write.write_gate.to(state).clamp(0.0, 1.0)
+            decay = write.decay.to(state).clamp(1e-4, 1.0 - 1e-4)
+            # sqrt(beta) k has norm <= 1, so the erase/update is stable. The
+            # token loop avoids materializing [tokens, heads, key, key] tensors.
+            scaled_keys = erase.sqrt() * keys
+            for index in range(keys.shape[1]):
+                key = scaled_keys[:, index]
+                value = values[:, index]
+                gate_value = gate[:, index]
+                forget = decay[:, index]
+                decayed = forget.unsqueeze(-1) * state
+                read = (key.unsqueeze(-1) * decayed).sum(dim=2)
+                candidate = decayed + key.unsqueeze(-1) * (
+                    gate_value * value - read).unsqueeze(-2)
+                state = torch.where(mask[:, index, None, None, None], candidate, state)
+        return FastState(state, start_state.chunk_index + 1)
+

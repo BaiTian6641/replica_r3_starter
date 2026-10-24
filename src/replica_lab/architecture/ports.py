@@ -11,6 +11,11 @@ from __future__ import annotations
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
+from ..neural import SGDN2Write
+
+
+def _softcap_silu(value: Tensor) -> Tensor:
+    return 2.0 * torch.tanh(F.silu(value) / 2.0)
 
 
 def _hidden(value: Tensor, width: int, name: str) -> None:
@@ -177,6 +182,51 @@ class FastWriteEncoder(nn.Module):
         return keys.to(embeddings.dtype), values.to(embeddings.dtype)
 
 
+class SGDN2WriteEncoder(nn.Module):
+    """Produce independent headed gated-delta writes from observed features."""
+
+    def __init__(self, hidden_size: int, heads: int = 4,
+                 key_size: int = 64, value_size: int = 64) -> None:
+        super().__init__()
+        if min(hidden_size, heads, key_size, value_size) < 1:
+            raise ValueError('positive SGDN-2 dimensions required')
+        self.hidden_size, self.heads = hidden_size, heads
+        self.key_size, self.value_size = key_size, value_size
+        self.input_norm = nn.LayerNorm(hidden_size)
+        self.key_projection = nn.Linear(hidden_size, heads * key_size, bias=False)
+        self.value_projection = nn.Linear(hidden_size, heads * value_size, bias=False)
+        self.erase_projection = nn.Linear(hidden_size, heads * key_size, bias=False)
+        self.write_projection = nn.Linear(hidden_size, heads * value_size, bias=False)
+        self.forget_projection = nn.Linear(hidden_size, heads * key_size, bias=False)
+
+    def forward(self, embeddings: Tensor, mask: Tensor | None = None) -> SGDN2Write:
+        _hidden(embeddings, self.hidden_size, 'embeddings')
+        if not bool(torch.isfinite(embeddings).all()):
+            raise ValueError('embeddings must be finite')
+        if mask is not None and tuple(mask.shape) != tuple(embeddings.shape[:2]):
+            raise ValueError('SGDN-2 write mask must match [batch, positions]')
+        source = self.input_norm(embeddings)
+        if mask is not None:
+            source = source.masked_fill(~mask.to(embeddings.device).bool().unsqueeze(-1), 0)
+        batch, tokens = source.shape[:2]
+        keys = self.key_projection(source).reshape(
+            batch, tokens, self.heads, self.key_size)
+        values = self.value_projection(source).reshape(
+            batch, tokens, self.heads, self.value_size)
+        erase = self.erase_projection(source).reshape(
+            batch, tokens, self.heads, self.key_size)
+        gate = self.write_projection(source).reshape(
+            batch, tokens, self.heads, self.value_size)
+        decay = self.forget_projection(source).reshape(
+            batch, tokens, self.heads, self.key_size)
+        keys = F.normalize(keys.float(), dim=-1, eps=1e-6)
+        values = torch.tanh(values.float())
+        erase = erase.float().sigmoid().clamp(1e-4, 1.0)
+        gate = gate.float().sigmoid().clamp(0.0, 1.0)
+        decay = decay.float().sigmoid().clamp(1e-4, 1.0 - 1e-4)
+        return SGDN2Write(keys, values, erase, gate, decay, 0, mask)
+
+
 class FastMemoryAccessPort(nn.Module):
     """Independent gated read of one committed fast-associative snapshot.
 
@@ -187,12 +237,15 @@ class FastMemoryAccessPort(nn.Module):
     """
 
     def __init__(self, hidden_size: int, heads: int = 4, key_size: int = 64,
-                 value_size: int = 64) -> None:
+                 value_size: int = 64, update_rule: str = 'linear') -> None:
         super().__init__()
         if min(hidden_size, heads, key_size, value_size) < 1:
             raise ValueError('positive fast-port dimensions required')
+        if update_rule not in {'linear', 'sgdn2'}:
+            raise ValueError('unknown fast-memory update rule')
         self.hidden_size, self.heads = hidden_size, heads
         self.key_size, self.value_size = key_size, value_size
+        self.update_rule = update_rule
         self.query_norm = nn.LayerNorm(hidden_size)
         self.query_projection = nn.Linear(hidden_size, heads * key_size, bias=False)
         self.output_projection = nn.Linear(heads * value_size, hidden_size, bias=False)
@@ -216,7 +269,12 @@ class FastMemoryAccessPort(nn.Module):
         read = torch.einsum('bthk,hkv->bthv', query,
                             weights[0].to(query.dtype)).reshape(
             hidden.shape[0], hidden.shape[1], self.heads * self.value_size)
-        delta = self.gate_logit.sigmoid() * self.output_projection(read)
+        if self.update_rule == 'sgdn2':
+            read = F.rms_norm(read, (self.heads * self.value_size,))
+            gate = _softcap_silu(self.gate_logit)
+        else:
+            gate = self.gate_logit.sigmoid()
+        delta = gate * self.output_projection(read)
         return delta.to(hidden.dtype)
 
 class RecordCopyHead(nn.Module):

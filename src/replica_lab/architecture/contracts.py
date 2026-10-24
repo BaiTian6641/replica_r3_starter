@@ -139,16 +139,18 @@ class CoreState:
 
 @dataclass(frozen=True)
 class FastMemorySpec:
-    """Reference four-head fast-state geometry; no native reader is implied."""
+    """Fast-state geometry and update rule; no native reader is implied."""
     heads: int = 4
     key_size: int = 64
     value_size: int = 64
-
+    update_rule: str = 'linear'
     def __post_init__(self):
         for name in ('heads', 'key_size', 'value_size'):
             value = getattr(self, name)
             if type(value) is not int or not 1 <= value <= 1024:
                 raise ValueError(f'FastMemorySpec.{name} must be in 1..1024')
+        if self.update_rule not in {'linear', 'sgdn2'}:
+            raise ValueError('FastMemorySpec.update_rule must be linear or sgdn2')
 
 
 @dataclass(frozen=True)

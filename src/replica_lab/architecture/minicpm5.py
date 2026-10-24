@@ -23,7 +23,7 @@ from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
-                    RecordCopyHead, RecordPointerHead, SensePort,
+                    RecordCopyHead, RecordPointerHead, SGDN2WriteEncoder, SensePort,
                     WorkspaceAccessPort)
 from ..memory_system.writer import ContextualRecordWriter, TrainableRecordReranker
 from ..replica.reader import IdentityReader
@@ -65,10 +65,14 @@ class MiniCPM5Adapter(nn.Module):
                               else RecordCopyHead(h))
         if manifest.fast_memory is not None:
             spec = manifest.fast_memory
-            self.fast_write_encoder = FastWriteEncoder(h, spec.key_size, spec.value_size)
+            if spec.update_rule == 'sgdn2':
+                self.fast_write_encoder = SGDN2WriteEncoder(h, spec.heads,
+                                                            spec.key_size, spec.value_size)
+            else:
+                self.fast_write_encoder = FastWriteEncoder(h, spec.key_size, spec.value_size)
             self.fast_ports = nn.ModuleDict({
                 str(i): FastMemoryAccessPort(h, spec.heads, spec.key_size,
-                                             spec.value_size)
+                                             spec.value_size, spec.update_rule)
                 for i in self.ports.injection_layers})
         if manifest.core is not None:
             manifest.core.validate(self.ports)

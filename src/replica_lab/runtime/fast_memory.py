@@ -22,7 +22,7 @@ from typing import Any, Mapping
 import torch
 from safetensors.torch import load_file, save_file
 
-from ..neural import FastState, FastWrite, LinearFastMemory
+from ..neural import FastState, FastWrite, LinearFastMemory, SGDN2Memory, SGDN2Write
 
 FORMAT = 'replica.fast_memory.image.v1'
 SCHEMA = 'replica.fast_memory.state.v1'
@@ -50,6 +50,7 @@ class FastMemoryConfig:
     key_size: int = 64
     value_size: int = 64
     heads: int = 4
+    update_rule: str = 'linear'
     learning_rate: float = 0.1
     decay: float = 0.0
     max_update_norm: float | None = 1.0
@@ -64,6 +65,8 @@ class FastMemoryConfig:
                 raise ValueError(f'{name} must be a positive bounded integer')
         if type(self.heads) is not int or not 1 <= self.heads <= 64:
             raise ValueError('heads must be in 1..64')
+        if self.update_rule not in {'linear', 'sgdn2'}:
+            raise ValueError('update_rule must be linear or sgdn2')
         for name in ('max_chunks', 'max_tokens_per_chunk'):
             value = getattr(self, name)
             if type(value) is not int or not 1 <= value <= 4096:
@@ -193,8 +196,12 @@ class FastMemorySession:
             raise ValueError('queries must be finite')
         values = []
         for head in range(self.config.heads):
-            values.append(self._primitive(head).read(
-                queries, FastState(self._state.weights[:, head])))
+            start = (self._state.weights[:, head:head + 1]
+                     if self.config.update_rule == 'sgdn2'
+                     else self._state.weights[:, head])
+            values.append(self._primitive(head).read(queries, FastState(start))
+                          .flatten(1, 2) if self.config.update_rule == 'sgdn2'
+                          else self._primitive(head).read(queries, FastState(start)))
         return torch.cat(values, dim=-1)
 
     def stage_observation(self, observation_id: str, keys: torch.Tensor,
@@ -202,6 +209,8 @@ class FastMemorySession:
         """Stage one observed event against the current chunk-start state."""
         _identifier(observation_id, 'observation_id')
         _sha(source_hash, 'source_hash')
+        if self.config.update_rule == 'sgdn2':
+            raise ValueError('use stage_sgdn2_observation for sgdn2 sessions')
         if any(event_id == observation_id for event_id, _ in self._state.lineage):
             return False
         if self._state.chunk_index >= self.config.max_chunks:
@@ -215,20 +224,60 @@ class FastMemorySession:
                 or not bool(torch.isfinite(values).all())
                 or keys.shape[1] == 0):
             raise ValueError('keys/values must be finite matching [1, tokens, dim]')
-        total = sum(item[0].shape[1] for item in self._pending.values())
+        total = sum(item[0].keys.shape[1] for item in self._pending.values())
         if total + keys.shape[1] > self.config.max_tokens_per_chunk:
             raise ValueError('fast-memory chunk token budget exceeded')
         existing = self._pending.get(observation_id)
         if existing is not None:
-            same = (existing[0].shape == keys.shape and existing[1].shape == values.shape
-                    and torch.equal(existing[0], keys)
-                    and torch.equal(existing[1], values)
-                    and existing[2] == source_hash)
+            old_write, old_hash = existing
+            same = (old_hash == source_hash and torch.equal(old_write.keys, keys)
+                    and torch.equal(old_write.values, values))
             if same:
                 return False
             raise ValueError('observation ID already staged with different bytes')
-        self._pending[observation_id] = (keys.detach().clone(),
-                                         values.detach().clone(), source_hash)
+        write = FastWrite(keys.detach().clone(), values.detach().clone(),
+                          self._state.chunk_index)
+        self._pending[observation_id] = (write, source_hash)
+        return True
+
+    def stage_sgdn2_observation(self, observation_id: str, write: SGDN2Write,
+                                *, source_hash: str):
+        """Stage one headed gated-delta write against the current snapshot."""
+        _identifier(observation_id, 'observation_id')
+        _sha(source_hash, 'source_hash')
+        if self.config.update_rule != 'sgdn2':
+            raise ValueError('stage_sgdn2_observation requires update_rule=sgdn2')
+        if not isinstance(write, SGDN2Write):
+            raise TypeError('SGDN-2 observation requires an SGDN2Write')
+        if write.chunk_index != self._state.chunk_index:
+            raise ValueError('SGDN-2 write belongs to a different chunk')
+        if any(event_id == observation_id for event_id, _ in self._state.lineage):
+            return False
+        if self._state.chunk_index >= self.config.max_chunks:
+            raise ValueError('fast-memory chunk bound reached; rebuild or reset')
+        expected = (1, self.config.heads)
+        if (write.keys.ndim != 4 or write.values.ndim != 4
+                or write.keys.shape[:2] != expected
+                or write.values.shape[:2] != expected
+                or write.keys.shape[2:] != (self.config.heads, self.config.key_size)
+                or write.values.shape[2:] != (self.config.heads, self.config.value_size)
+                or not all(value.is_floating_point() and bool(torch.isfinite(value).all())
+                           for value in (write.keys, write.values, write.erase,
+                                         write.write_gate, write.decay))):
+            raise ValueError('invalid SGDN-2 write shape or values')
+        total = sum(item[0].keys.shape[1] for item in self._pending.values())
+        if total + write.keys.shape[1] > self.config.max_tokens_per_chunk:
+            raise ValueError('fast-memory chunk token budget exceeded')
+        existing = self._pending.get(observation_id)
+        if existing is not None:
+            old_write, old_hash = existing
+            same = (old_hash == source_hash and type(old_write) is type(write)
+                    and all(torch.equal(getattr(old_write, name), getattr(write, name))
+                            for name in ('keys', 'values', 'erase', 'write_gate', 'decay')))
+            if same:
+                return False
+            raise ValueError('observation ID already staged with different bytes')
+        self._pending[observation_id] = (write.detached(), source_hash)
         return True
 
     def commit(self) -> FastMemoryCommit:
@@ -241,14 +290,22 @@ class FastMemorySession:
         start = self._state
         weights = []
         for head in range(self.config.heads):
-            writes = [FastWrite(keys, values, start.chunk_index)
-                      for keys, values, _ in self._pending.values()]
+            if self.config.update_rule == 'sgdn2':
+                writes = [item[0].head(head) for item in self._pending.values()]
+            else:
+                writes = [FastWrite(item[0].keys, item[0].values, start.chunk_index)
+                          for item in self._pending.values()]
+            start_weights = (start.weights[:, head:head + 1]
+                             if self.config.update_rule == 'sgdn2'
+                             else start.weights[:, head])
             next_state = self._primitive(head).update_shared_chunk(
-                FastState(start.weights[:, head], start.chunk_index), writes)
-            weights.append(next_state.weights)
+                FastState(start_weights, start.chunk_index), writes)
+            weights.append(next_state.weights[:, 0]
+                           if self.config.update_rule == 'sgdn2'
+                           else next_state.weights)
         combined = torch.stack(weights, dim=1)
-        tokens = sum(item[0].shape[1] for item in self._pending.values())
-        lineage = start.lineage + tuple((event_id, item[2])
+        tokens = sum(item[0].keys.shape[1] for item in self._pending.values())
+        lineage = start.lineage + tuple((event_id, item[1])
                                         for event_id, item in self._pending.items())
         state = FastMemoryState(combined, start.chunk_index + 1,
                                 start.update_count + len(self._pending),
@@ -273,6 +330,8 @@ class FastMemorySession:
         return self._state
 
     def _primitive(self, head):
+        if self.config.update_rule == 'sgdn2':
+            return SGDN2Memory(1, self.config.key_size, self.config.value_size)
         return LinearFastMemory(self.config.key_size, self.config.value_size,
                                 self.config.learning_rate, self.config.decay,
                                 self.config.max_update_norm)
