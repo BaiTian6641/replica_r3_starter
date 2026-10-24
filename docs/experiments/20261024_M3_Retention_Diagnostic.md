@@ -28,6 +28,10 @@ entire fast residual does. The next admissible hypothesis is **fixed retention
 replay during training**, not a port ablation. Any repair requires fresh replay,
 development and final-audit roles; the two diagnostic cases stay evaluation-only.
 
+The resulting [bounded replay candidate](20261024_M3_Retention_Repair_Results.md)
+was rejected: it preserved delayed behavior but failed adversarial and
+novel-value noninterference. No further same-recipe replay arm is justified.
+
 ## Costs and evidence
 
 - Shared: 20 answers, 61 generated tokens, 10.583 s profiled wall,

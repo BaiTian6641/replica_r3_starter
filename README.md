@@ -1,13 +1,12 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
-**Current status — 24 October 2026, code/protocol HEAD `bde63a7`.**
-M0a/M1/M2/M3 are complete within their recorded scopes. MiniCPM5 corrected
-capacity passes 4096 units at 28.5944 GiB; the thin procedure compiler works.
-M2 learned delayed memory and M3 shared/private ownership pass bounded native
-gates, including post-open gradients and fresh-process depth-image restart.
-Both M3 candidates fail retention replay **0/2** versus parent 2/2. The next
-dependency is an inference-only retention diagnostic before repair or M4.
-Fresh action-menu generalization, authentic identity fidelity, Spark, M4–M7 and
+**Current status — 24 October 2026, code/protocol HEAD `c4355ff`.**
+M0a/M1/M2/M3 are complete within their recorded scopes. M3 retention repair is
+**rejected**: delayed behavior is preserved, but general development remains
+0/2, adversarial memory remains 0/4 versus disabled 2/4, and novel-value
+delayed cases remain 0/2. The candidate is not a new parent. M4 proceeds next
+only as a different mechanism comparison with retention explicitly open. Fresh
+action-menu generalization, authentic identity fidelity, Spark, M5–M7 and
 production private dispatch remain open.
 
 Read the [research plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),

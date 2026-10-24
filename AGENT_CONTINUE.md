@@ -1,8 +1,9 @@
 # Coding-agent continuation instruction
 
-Current documentation review: 24 October 2026, against code/protocol HEAD `bde63a7`
-on `codex/d2-capacity-runtime-pilot`. This update records M2/M3 evidence and the
-retention blocker. It does not launch an agent, native experiment or automation.
+Current documentation review: 24 October 2026, against code/protocol HEAD `c4355ff`
+on `codex/d2-capacity-runtime-pilot`. This update records M2/M3 evidence, the
+retention-repair rejection and the next mechanism. It does not launch an agent,
+native experiment or automation.
 
 ## Resume from evidence
 
@@ -69,15 +70,13 @@ document 15; none of these planned paths is qualified by the documentation.
 
 ## Next work package and progression
 
-**M3 retention diagnosis is complete:** zero, disabled and full-context recover
-2/2 in both arms, while no single-port ablation recovers or exactly reproduces
-the failure. This supports a fixed retention-replay hypothesis, not a port
-ablation. Any repair requires fresh replay/development/audit roles; the two
-diagnostic cases remain evaluation-only.
-
-M0a/M1/M2/M3 are complete within their recorded scopes. M0b remains an optional
-Spark BF16 comparison and does not block MiniCPM5. After retention is resolved,
-continue M4 static lookup/dynamic routing, then M5 bounded RSI, M6 learned
+**M3 retention repair is rejected:** delayed behavior is preserved, but general
+development remains 0/2 and adversarial memory remains 0/4 versus disabled 2/4.
+Final general correct improves only to 1/4 (`Cl`). Novel-value delayed cases
+remain 0/2. The candidate is not a new parent; original Paris/H2O and fresh
+restart checks were not run. Do not retune the same replay recipe. M4 proceeds
+only as a different mechanism comparison with retention explicitly open.
+Continue M4 static lookup/dynamic routing, then M5 bounded RSI, M6 learned
 timescales and M7 native vision. Authentic identity fidelity still requires
 permitted source material and human review.
 

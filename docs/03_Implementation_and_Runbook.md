@@ -1,13 +1,12 @@
 # 03 - Construction plan and executable runbook
 
-**Current implementation — reviewed code/protocol HEAD `bde63a7`, 24 October 2026.**
-M0a/M1/M2/M3 have measured boundaries. Corrected MiniCPM5 capacity passes
-4096 units at 28.5944 GiB; fresh corrected action menus fail on distractors.
-The thin procedure compiler executes, publishes and rolls back. M2 learned
-delayed memory and M3 shared/private ownership pass their bounded native gates,
-including post-open gradients and fresh-process depth-image restart. Both M3
-candidates fail retention replay **0/2** versus parent 2/2; run the inference-only
-diagnostic before repair or M4. Spark, authentic identity fidelity, M4–M7 and
+**Current implementation — reviewed code/protocol HEAD `c4355ff`, 24 October 2026.**
+M0a/M1/M2/M3 have measured boundaries. M3 retention repair is **rejected**:
+delayed behavior is preserved, but general development remains 0/2, adversarial
+memory remains 0/4 versus disabled 2/4, and novel-value delayed cases remain
+0/2. The candidate is not a new parent; original Paris/H2O and fresh-restart
+checks were not run. M4 proceeds next only as a different mechanism comparison
+with retention explicitly open. Spark, authentic identity fidelity, M5–M7 and
 production private dispatch remain open.
 
 The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.

@@ -95,8 +95,9 @@ The full integration suite passed **1249 tests and 21 subtests in 133.03 s**.
 Subsequent focused regressions covered private linear frames and shared linear
 byte equivalence.
 
-**Diagnostic:** [inference-only ablation](20261024_M3_Retention_Diagnostic.md)
-confirms fast-residual interference: zero, disabled and full-context recover
-2/2 in both arms, while no single-port control recovers or exactly reproduces
-the failure. **Next:** fresh retention-replay training/development/audit roles
-before any repair; M4 remains pending.
+**Repair:** the bounded replay candidate is
+[rejected](20261024_M3_Retention_Repair_Results.md). Delayed behavior is
+preserved, but general development remains 0/2, adversarial memory remains 0/4
+versus disabled 2/4, and novel-value delayed cases remain 0/2. The candidate is
+not a new parent. M4 proceeds only as a separate mechanism comparison with
+retention explicitly open.

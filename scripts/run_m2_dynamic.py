@@ -196,6 +196,8 @@ def generate(session, query_row, template, fast_state, *, include_observation=Fa
         return {'answer': answer, 'token_ids': new_ids,
                 'correct': answer.casefold() == query_row['expected_answer'].casefold(),
                 'expected': query_row['expected_answer'],
+                'case_role': query_row.get('case_role'),
+                'audit_stratum': query_row.get('audit_stratum'),
                 'prompt_tokens': length, 'generated_tokens': len(new_ids)}
     finally:
         request.release()

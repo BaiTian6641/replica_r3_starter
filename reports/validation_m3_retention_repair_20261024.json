@@ -1,0 +1,76 @@
+{
+  "schema_version": "replica.validation.m3_retention_repair.v1",
+  "date_utc": "2026-10-24",
+  "protocol": "configs/m3_retention_repair_v1.json",
+  "protocol_commit": "c4355ff",
+  "decision": "reject_quality",
+  "report": "runs/m3_repair_attempt01/run_report.json",
+  "guard": "reports/m3_repair_attempt01/guard.json",
+  "parent": {
+    "fresh_delayed": 0.75,
+    "original_regression": 1.0,
+    "general_retention": 0.0,
+    "general_development": 0.0,
+    "adversarial": 0.0,
+    "adversarial_development": 0.0,
+    "disabled": 0.5
+  },
+  "candidate": {
+    "fresh_delayed": 0.75,
+    "original_regression": 1.0,
+    "general_retention": 0.25,
+    "general_development": 0.0,
+    "adversarial": 0.0,
+    "adversarial_development": 0.0,
+    "disabled": 0.5,
+    "disabled_token_identical": true
+  },
+  "delayed_strata": {
+    "seen_value": {"parent": 1.0, "candidate": 1.0},
+    "novel_value": {"parent": 0.0, "candidate": 0.0},
+    "changed_template": {"parent": 1.0, "candidate": 1.0}
+  },
+  "controls": {
+    "delayed_correct_above_linear_shuffled_zero_disabled": true,
+    "general_full_context": 1.0,
+    "adversarial_below_disabled": true,
+    "delayed_correctness_flips": 0,
+    "general_correct_improvement": "Cl only; zero/disabled/shuffled also answer Cl"
+  },
+  "engineering": {
+    "update_two_gradients": "finite and nonzero at both depths/chunks",
+    "corrections": "20/20 state changed, stale answer rejected and independently correct",
+    "same_process_restart": "pass",
+    "original_diagnostic": "not_run_because_rejected",
+    "fresh_process_restart": "not_run_because_rejected",
+    "original_failure_status": "open_not_evaluated"
+  },
+  "exposures": {
+    "delayed_unique_cases": 24,
+    "delayed_examples": 32,
+    "replay_unique_cases": 8,
+    "replay_examples": 32,
+    "delayed_train_correct": "22/24",
+    "replay_train_correct": "8/8"
+  },
+  "costs": {
+    "answers": 386,
+    "new_tokens": 1220,
+    "prompt_tokens": 25714,
+    "training_action_tokens": 4201,
+    "training_target_tokens": 164,
+    "profiled_wall_seconds": 141.41178270801902,
+    "guard_wall_seconds": 143.9694425421767,
+    "peak_driver_bytes": 11815763968,
+    "optimizer_state_bytes": 7485456,
+    "optimizer_int8_bytes": 7340032,
+    "optimizer_fp32_bytes": 145424,
+    "swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76,
+    "downloads": 0,
+    "base_copies": 0
+  },
+  "independent_review": "Reject confirmed; no verdict-changing arithmetic error. Seen 4/4, novel 0/2, changed-template 2/2. Adversarial 0/4 below disabled 2/4 is mandatory rejection.",
+  "next": "No same-recipe replay retuning. M4 may proceed only as a different mechanism comparison because the original M3 ownership gate passed; retention remains open.",
+  "native_command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point run_m2_dynamic.py --report reports/m3_repair_attempt01/guard.json -- --device mps --output runs/m3_repair_attempt01 --protocol configs/m3_retention_repair_v1.json --depth-arm shared --parent-extension runs/m3_depth_shared_attempt02/selected_extension"
+}

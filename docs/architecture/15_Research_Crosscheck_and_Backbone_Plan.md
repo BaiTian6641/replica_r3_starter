@@ -320,6 +320,14 @@ candidates fail the fixed retention replay 0/2 versus parent 2/2. Diagnose that
 regression before M4; do not infer readiness for promotion from the ownership
 verdict. See [M3 results](../experiments/20261024_M3_Depth_Ownership_Results.md).
 
+**M3 repair update:** the bounded replay candidate is rejected. Fresh delayed is
+6/8 and original regression 8/8, but development general remains 0/2 and final
+adversarial memory 0/4 versus disabled 2/4. Seen-value is 4/4, changed-template
+2/2 and novel-value 0/2. The candidate is not a parent and no original-failure
+or fresh-restart check ran. M4 proceeds only as a separate mechanism comparison;
+retention is not repaired. See
+[repair results](../experiments/20261024_M3_Retention_Repair_Results.md).
+
 ### M4 — Engram and dynamic routing
 
 Implement deterministic multi-head causal 2/3-gram hashes, learned tables,

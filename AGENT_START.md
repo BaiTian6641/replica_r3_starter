@@ -1,21 +1,20 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current evidence: 24 October 2026, code/protocol HEAD `bde63a7`.**
-M0a/M1/M2/M3 are complete within their recorded scopes. Corrected MiniCPM5
-capacity passes the selected 4096-unit workload at 28.5944 GiB; fresh corrected
-menus still fail on distractors. The thin procedure compiler works. M2 learned
-delayed memory and M3 shared/private ownership pass their bounded native gates,
-including post-open gradients and fresh-process image restart. Both M3 candidates
-fail retention replay **0/2** versus parent 2/2; that is the next blocker, not an
-accepted capability. M4–M7, Spark, authentic identity fidelity and production
-private dispatch remain open.
+**Current evidence: 24 October 2026, code/protocol HEAD `c4355ff`.**
+M0a/M1/M2/M3 are complete within their recorded scopes. M3 retention repair is
+**rejected**: delayed behavior is preserved, but general development remains
+0/2, adversarial memory remains 0/4 versus disabled 2/4, and novel-value
+delayed cases remain 0/2. The rejected candidate is not a new parent; original
+Paris/H2O and fresh-restart checks were not run. M4 proceeds next only as a
+different mechanism comparison with retention explicitly open. Spark, authentic
+identity fidelity, M5–M7 and production private dispatch remain open.
 
 Begin with [continuation instructions](AGENT_CONTINUE.md),
 [execution state](execution_state.md), the
 [research and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
 and [loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md).
-Run the inference-only M3 retention diagnostic before any repair arm or M4.
-Older E/S-stage labels remain scientific and component references.
+Do not retune the same replay recipe. Older E/S-stage labels remain scientific
+and component references.
 
 MiniCPM5 remains the required baseline. Optional M0b compares Spark-X2.6-4B
 BF16 through a separate native adapter; no local Spark or VLM weights are
