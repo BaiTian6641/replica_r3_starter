@@ -17,7 +17,7 @@ SPEC = importlib.util.spec_from_file_location("prepare_response_contract_test", 
 PREPARE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PREPARE)
 RELEASE = ROOT / "data/diagnostics/infrastructure_slice_v2"
-PARENT = ROOT / "reports/infrastructure_preflight_v2_20261022/evaluation_spec.json"
+PARENT = ROOT / "reports/infrastructure_preflight_v3_20261024/evaluation_spec.json"
 CONTRACT = ROOT / "configs/response_contract_v1.json"
 MODEL = ROOT / "checkpoints/minicpm5_source"
 LOCK = ROOT / "configs/minicpm5_sealed_lock.local.json"
