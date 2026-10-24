@@ -1,7 +1,9 @@
 # E4 reference fast memory: staged observation writes
 
-23 October 2026 UTC. Status: **host reference service and opt-in native read ports implemented;
-no native write/commit path, training, delayed-use or task evaluation yet.**
+24 October 2026 UTC. Status: **M2 learned delayed-use and M3 shared/private
+depth ownership accepted on exposed synthetic episodes. Fresh-process image
+restart passes. M3 retention replay fails 0/2 and remains an active blocker;
+M4 routing and production private dispatch are not promoted.**
 This increment follows the functional linear reference in `neural.py`; it is not
 a reproduction of Titans, TTT, uTTT or MemT-1.0.
 
@@ -11,7 +13,7 @@ a reproduction of Titans, TTT, uTTT or MemT-1.0.
 sequenceDiagram
     participant O as Observed event
     participant H as Host fast-memory session
-    participant P as Future depth ports
+    participant P as Native read ports
     participant Q as Later query
     O->>H: stage_observation(event_id, source_hash, keys, values)
     Note over H: writes invisible; one chunk-start state
@@ -64,7 +66,9 @@ receipts are excluded. This path is tested with a deterministic, **untrained**
 token encoder; it proves scheduling and state ownership, not semantic usefulness.
 
 Still not connected: a learned semantic encoder and a successful delayed-use
-task result. Cross-session host/runtime image reload is now connected: a bridge loads an
+task result in the operating bridge. Separate differentiable learned-writer
+experiments have run and failed; this does not mean no writer was trained.
+Cross-session host/runtime image reload is now connected: a bridge loads an
 exact owner/scope/producer image into a fresh session, reconstructs its
 observation count, rejects cross-branch/tampered images, and can seed the next
 runtime decision from the restored snapshot. `TaskRuntime.invalidate_source`
@@ -78,7 +82,51 @@ they reset state, accept only still-permitted `(id, text, source_hash)` items,
 clear dependent workspace, and journal a host correction note. The deterministic
 encoder remains an evidence/scaffolding path, not a learned capability.
 
-## 4. Tests
+The [single-page experiment](../experiments/20261023_E4_Delayed_Use_Results.md)
+already differentiates later answer loss through `LinearFastMemory.update_chunk`
+and a learned write projection. Its script repeats one written matrix into four
+heads. The host reference likewise starts heads identically and applies the
+same keys/values/update rule to each. This geometry does not provide independent
+head-specific written capacity. The
+[contextual-writer follow-up](../experiments/20261023_E4_Contextual_Writer_Results.md)
+also failed, so contextual features alone are not the next hypothesis.
+
+`stage_observation` and runtime snapshots deliberately detach tensors. Preserve
+that deployment lifetime while adding a pure functional, bounded multi-chunk
+training unroll with head-specific projections. Do not remove runtime detaches
+globally or publish from inside checkpointed forwards. The exact proposed
+SGDN-2 update, chronology, controls and separately specified shared-depth reducer
+are in [M2/M3](15_Research_Crosscheck_and_Backbone_Plan.md#5-minicpm5-construction-details).
+
+## 4. M2/M3 learned depth evidence
+
+M2 established useful shared-value delayed memory after source removal: 4/4 dev
+and 4/4 held-out, above linear and all null controls. The unique-value candidate
+memorized training values and was rejected. See
+[M2 results](../experiments/20261024_M2_Dynamic_Memory_Results.md).
+
+M3 adds independent SGDN-2 write encoders at blocks 13/27. The shared arm uses
+`SGDN2Memory.reduce_shared_chunk`: each depth proposes from the same chunk-start
+state and one equal-weight convex mean publishes after the chunk. Private keeps
+one state per depth. Both received identical source pages and had matched
+writer/reader parameters; private stores 131072 bytes versus shared 65536, so
+the comparison is not capacity matched and is not uTTT.
+
+`FastMemorySpec` omits default shared-depth fields to preserve legacy manifests.
+`FastMemoryRead.private_weights` carries an immutable layer map and the native
+frame rejects private/shared payload mismatches. `save_fast_depth_image` and
+`load_fast_depth_image` bind every layer tensor, owner/scope/config, stable
+component hash, chunk/cursor/lineage and generation. The stable
+`fast_version_key` permits fresh-process validation while process-local
+`fast_producer_key` continues to bind decision frames.
+
+Both M3 candidates scored 8/8 dev+held-out, passed update-two historical gradient
+checks and reloaded correctly in fresh processes. Both also scored **0/2** on
+retention replay versus parent 2/2. The interface result is accepted; retention
+is not. See [M3 results](../experiments/20261024_M3_Depth_Ownership_Results.md).
+Private runtime dispatch remains diagnostic only.
+
+## 5. Tests
 
 `tests/test_fast_memory.py` covers staged-write invisibility, single-commit
 idempotency, reset/shuffled-state controls, chunk token bounds, invalidation,

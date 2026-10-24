@@ -1,24 +1,50 @@
 # 03 - Construction plan and executable runbook
 
-**Current implementation:** E1/E2 are connected and passed their bounded native
-memory diagnostic on MPS (slot-only 4/4, disabled 0/4, exact fallback 4/4,
-fresh-process correction/cache reload). E3 is implemented and native-qualified:
-the shared width-256/eight-slot/two-iteration core, independent memory and
-workspace readers, exact task journal, typed actions, real tools and restart
-loop pass **engineering** acceptance. **Learned task completion is negative**:
-0/8 model-driven episodes completed; the full-core arm repeated `read`, the
-workspace-zero arm wrote an invalid repair, and the success head was untrained
-because all eight actual outcomes were negative. See the
-[E3 implementation spec](architecture/08_E3_Implementation.md) and
-[native results](experiments/20261023_E3_Native_Results.md). The E2 follow-up
-measured held-out lexical/dense recall@1 **0.75**, learned rerank **0.50**, zero
-slot-arm answers, oracle **0/4**, and exact text **3/3**; the writer/reader
-novel-value path is the bottleneck. The largest qualified capacity path is 16
-units / 2,043 source tokens / 256 prompt tokens / 8 generated tokens, with
-12.51 GiB peak driver. Reranking remains opt-in. E4/E5 remain adaptive-memory
-and candidate-learning work. Historical
-commands below remain reproducibility references. The protected runtime draft
-is not imported.
+**Current implementation — reviewed code/protocol HEAD `bde63a7`, 24 October 2026.**
+M0a/M1/M2/M3 have measured boundaries. Corrected MiniCPM5 capacity passes
+4096 units at 28.5944 GiB; fresh corrected action menus fail on distractors.
+The thin procedure compiler executes, publishes and rolls back. M2 learned
+delayed memory and M3 shared/private ownership pass their bounded native gates,
+including post-open gradients and fresh-process depth-image restart. Both M3
+candidates fail retention replay **0/2** versus parent 2/2; run the inference-only
+diagnostic before repair or M4. Spark, authentic identity fidelity, M4–M7 and
+production private dispatch remain open.
+
+The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
+See [M0a](experiments/20261024_M0a_Refreshed_Baselines.md),
+[M1](experiments/20261024_M1_Procedure_Compilation_Results.md),
+[M2](experiments/20261024_M2_Dynamic_Memory_Results.md) and
+[M3](experiments/20261024_M3_Depth_Ownership_Results.md) for protocols, exact
+commands, controls, costs and preserved failures.
+
+Use [the current research plan](architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
+and [loop-agent instructions](architecture/16_Loop_Agent_Instructions.md)
+for **M0–M7** construction order. Existing commands and P/S-stage contracts
+below remain references; they are not instructions to repeat completed or
+rejected arms or launch an unadmitted broad campaign.
+
+Keep MiniCPM5 as the required baseline. The plan adds an optional Spark-X2.6-4B
+BF16 native comparison, staged new memory layers, bounded RSI and MiniCPM-V
+visual-memory/reasoning training. These require separate adapters and evaluation;
+they are not new supported runner modes. Current Muon int8 momentum does not
+change FP32 parameter/gradient residency, even with BF16 compute autocast.
+
+## Current native memory policy
+
+As requested on 23 October, `CapacityPolicy` and both training/generation
+preflight CLI defaults now use **50 GiB = 53,687,091,200 bytes**. The CLI unit is
+GiB, matching the previous 40 GiB convention. A sampled driver value at or above
+the threshold stops the job. Keep one exclusive MPS worker, CPU fallback disabled,
+512 MiB swap-growth and 15% minimum host-free checks over three consecutive host
+samples. Initial low host-free memory blocks launch; pressure may stop below
+50 GiB. This changes no allocator setting and proves no additional model fit.
+
+For a newly admitted experiment, explicitly set `--driver-limit-gib 50` **before
+the wrapper's `--` separator**, version its protocol and bind current code hashes
+and fresh evidence paths. Existing explicit CLI values still override defaults.
+Historical v1 protocols, result files and `run_d2_stage.py`'s pinned resume plan
+retain 40 GiB. Do not edit old evidence or reuse its hashes to claim a new budget.
+The historical command examples below are references, not fresh-run invitations.
 
 **Status:** research starter, not a trained persistent assistant. Read [README](../README.md), [system design](01_System_Design.md) and [experiment plan](02_Stages_Experiments_and_Hardware.md) first.
 
@@ -47,25 +73,25 @@ connected E1–E3 interfaces, preserving declared controls before training compa
 keeps both candidates quarantined; retention/calibration/evidence controls and
 S1.5 admission still block the [S2.4 screen](experiments/20261022_S2_4_Screen_Proposal.md).
 
-Parallel early S3.1 [host action preparation](experiments/20261022_Host_Action_Contract.md)
+Historical early S3.1 [host action preparation](experiments/20261022_Host_Action_Contract.md)
 passes 12 integration checks and 38 focused tests for actual pure XOR tool
 receipts, scope/budgets, epoch invalidation and journal restart. Those proposals
-are deterministic fixtures. An actual neural proposer, learned policy, evolving
-task workspace and learning loop remain unqualified. Full S3.1 retains its
-S2.5/S1.1 dependencies. E3 develops the real proposer, evolving workspace and
-receipt loop alongside E1/E2; its qualification protocol is bound to that implementation.
+are deterministic fixtures. Subsequent E3 work connects the real proposer,
+evolving workspace and receipt loop with narrow mixed-task completion and
+restart. Broad policy utility and integrated candidate learning remain open.
+Full selected-system S3.1 retains its S2.5/S1.1 dependencies.
 
 | Component | Delivered behavior | Important boundary |
 |---|---|---|
-| architecture/ | Explicit native adapter, typed immutable frames, source-only prefix writer access, independent block13/27 memory and workspace ports, sense41, tied core and matched feed-forward control | Batch-one uncached text reference; E3 core/readers native-qualified; learned action completion negative |
+| architecture/ | Explicit native adapter, typed immutable frames, source-only prefix writer access, independent block13/27 memory and workspace ports, sense41, tied core and matched feed-forward control | Batch-one uncached text reference; E3 core/readers native-qualified; narrow mixed completion, free-form negatives and unproven recurrent benefit |
 | memory_system/ | Temporal ledger, scoped lexical/native-dense candidates, supervised reranker API, versioned latents, exact fetch and host commit | Held-out recall@1 0.75 lexical/dense, 0.50 rerank; slot reader fails novel values; reranking opt-in |
 | run_replica_session.py / qualify_architecture.py / run_e3_task.py | Shared offline MPS loader, persistent session CLIs, E3 task restart, extension-only exports with validated v1 migration | Fresh-process reload passes; extensions are not resumable optimizer checkpoints |
-| runtime/ + run_e3_qualification.py | Exact task journal, typed actions/tools, independent success check, preregistered core/control study | Engineering checks pass; learned task completion and success-head training do not |
-| replica/identity.py + reader.py | Versioned source/snapshot/context, modes, branch isolation, correction/revocation, null prompt path and optional zero-init reader | Fictional contracts only; identity untrained/unattached; fidelity evaluation pending authentic source |
+| runtime/ + run_e3_qualification.py | Exact task journal, typed actions/tools, independent success check, preregistered core/control study | Engineering/restart checks and narrow mixed completion pass; success head diagnostically fitted but uncalibrated |
+| replica/identity.py + reader.py | Versioned source/snapshot/context, modes, branch isolation, correction/revocation, null prompt path and optional zero-init reader | Native reader attached after workspace; encoder/training and authentic fidelity evaluation remain open |
 | contracts.py | Typed source/branch records; exact SFT schema; lineage/exact-duplicate split audit | Cannot prove factual correctness or user consent |
 | memory.py | SQLite records, scope checks, observation-time reads, corrections, tombstones, derived-artifact invalidation | Not a semantic retriever, encrypted vault or OS security boundary |
 | learning.py | Paired candidate screening; accept/reject/inconclusive; bound manifest publication; rollback | One trusted writer/process; evaluator authentication remains external |
-| neural.py | Learned record pooling, residual reader, recurrent prompt workspace, functional linear fast state | Simplified project modules, not a reproduced research architecture |
+| neural.py + architecture/ports.py + runtime/fast_memory.py | SGDN-2 functional transitions, distinct per-depth writers, convex shared reducer, private/shared strict depth images and stable component lineage | M2/M3 accepted only on exposed synthetic episodes; M3 retention 0/2 blocks broader use; Engram, learned routing and CMS remain separate |
 | model_adapter.py / generation.py | Native Llama block wrapper; explicit trainable scope; safe base/sidecar export; original-prompt-fixed uncached generation | Batch-one text reference; no augmented KV cache, VLM or distributed support |
 | train_text.py | Pinned local MiniCPM5 runner; four regimes; balanced sampling; answer/EOS reports; warmup/schedules; periodic train generation; completed-update checkpoints; export/reload | Native D0/D2 actual256/512 capacity and restart measured; D1/D2 tiny memorization and saved answers measured; no offload or distributed training |
 | run_d2_stage.py / validate_d2_experiment.py | Pinned offline MPS launches, exclusive worker lock, strict completed-update resume/optimizer/guard/generation audits | Launch completion is not task acceptance; metadata-mode validation leaves large payload rehashing explicit |
@@ -85,7 +111,7 @@ receipt loop alongside E1/E2; its qualification protocol is bound to that implem
 | host_action_contract.py / check_host_action_contract.py | Bounded verify/answer/stop proposals, actual pure XOR receipts, scoped observations, epochs, idempotency and chained journal replay | 12 fixture integration checks and 38 focused tests; no neural policy, trained learner, full workspace restart or production authority boundary |
 | make_capacity_fixtures.py | Exact native 256/512-token register-event workloads; independent per-bit checks; pinned tokenizer/template manifests | Capacity fixtures, not quality-training data or benchmark evidence |
 | capacity_guard.py / run_capacity_preflight.py | Sampled driver/host stop thresholds around one native MPS trainer; preserved child/profile/host evidence | Sampled operational limits; no OOM guarantee; host counters are system-wide |
-| run_generation_preflight.py | Standalone offline MPS evaluator watchdog; driver/host thresholds and final trace drain | Sampled operational guard; original training watchdog stays unchanged |
+| run_generation_preflight.py | Standalone offline MPS evaluator watchdog; driver/host thresholds and final trace drain | Shares the 50 GiB default policy with training; explicit historical limits remain supported |
 | qualify_native_adapter.py | Native 256-token D1/D2 null-branch, causality, sensitivity and nonreentrant forward/backward checks | This probe performs no optimizer updates or generation; separate D2 capacity runs now qualify actual256/512 |
 | qualify_augmented_generation.py | Native uncached D1/D2 token/logit parity, fixed context, branch sensitivity and nonzero-sidecar reload | One fixture; no learning, quality or KV-cache claim |
 | pin_model.py / seal_snapshot.py | Resolve metadata revision; seal exact local snapshot bytes | Local hashing is not an independent publisher signature |

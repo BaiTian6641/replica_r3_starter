@@ -1,16 +1,24 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
-**Current work: E1/E2 connected native memory is implemented.** The new
-[architecture interfaces and runtime](docs/architecture/07_E1_E2_Implementation.md)
-passed a bounded M2 Ultra GPU diagnostic: **4/4 slot-only answers**, **0/4 with
-ports disabled**, exact fallback, correction and fresh-process cache/extension
-reload. Peak driver memory: **21.11 GiB**. The local original model was reused;
-only an **18.62 MiB extension** was saved. See [results and limits](docs/experiments/20261023_E1_E2_Native_Results.md).
+**Current status — 24 October 2026, code/protocol HEAD `bde63a7`.**
+M0a/M1/M2/M3 are complete within their recorded scopes. MiniCPM5 corrected
+capacity passes 4096 units at 28.5944 GiB; the thin procedure compiler works.
+M2 learned delayed memory and M3 shared/private ownership pass bounded native
+gates, including post-open gradients and fresh-process depth-image restart.
+Both M3 candidates fail retention replay **0/2** versus parent 2/2. The next
+dependency is an inference-only retention diagnostic before repair or M4.
+Fresh action-menu generalization, authentic identity fidelity, Spark, M4–M7 and
+production private dispatch remain open.
 
-The reranker remains 1/2 on its tiny test. Generalization, full-bank capacity and
-E3 cognition are still open. The [18-component design](docs/architecture/README.md)
-and [E1–E6 sequence](docs/architecture/05_Implementation_Sequence.md) remain the
-construction plan; the next package is the shared cognitive core and task loop.
+Read the [research plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),
+[loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md),
+[execution state](execution_state.md) and
+[M3 evidence](docs/experiments/20261024_M3_Depth_Ownership_Results.md).
+The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
+MiniCPM5 remains the baseline. Native work uses one MPS worker, no CPU fallback,
+the **50 GiB** sampled driver stop and existing swap/host-pressure checks.
+Historical explicit 40 GiB protocols and all failed reports remain preserved.
+Older results below are historical snapshots.
 
 **23 October 2026 | Experience-driven learning, small-model architecture experiments and a personal parallel Replica**
 
@@ -106,6 +114,8 @@ one sealed source offline; a new run never downloads another original model. The
 | [References and evidence](docs/06_References_and_Evidence.md) | Papers, official repos, current release limits and what remains unrun |
 | [Diagram index](docs/07_Architecture_Diagrams.md) | Editable Mermaid source and links to standalone diagrams |
 | [Architecture atlas PDF](diagrams/Replica_R3_Architecture_Atlas.pdf) | Eight exportable vector block diagrams |
+| [Research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md) | Current evidence, M0–M7 gates and MiniCPM5/V4.7 plan |
+| [Loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md) | Complete execution prompt, iteration rules, controls and completion evidence |
 | [Coding-agent start instructions](AGENT_START.md) | Concrete first session and worker boundaries |
 | [Continuation instructions](AGENT_CONTINUE.md) | Resume progress without restarting or reducing the objective |
 

@@ -1,0 +1,437 @@
+{
+  "schema_version": "replica.m3.depth.comparison.v1",
+  "protocol_sha256": "ca2763732ac41a0fd195ca8cd85954cad411f284a6473746487c4586585f0914",
+  "decision": "accept_m3_ownership_interfaces",
+  "arm_protocol_sha256": {
+    "shared": "c7a70157482f09b73d1a5407040a4eef66971ac255146918a5f2050210621b55",
+    "private": "477756411c78b4b7689f2c58ae9eedae43ca13b8d96ac75a6c2f186f6c4ba246",
+    "gradient_cut": "477756411c78b4b7689f2c58ae9eedae43ca13b8d96ac75a6c2f186f6c4ba246"
+  },
+  "baseline_arms": {
+    "shared": {
+      "protocol_path": "configs/m3_depth_v2.json",
+      "protocol_sha256": "c7a70157482f09b73d1a5407040a4eef66971ac255146918a5f2050210621b55",
+      "report": "runs/m3_depth_shared_attempt02/run_report.json",
+      "compatibility": "Accepted shared training and same-process image evidence. Only scorer lineage handling changed."
+    },
+    "private": {
+      "protocol_path": "configs/m3_depth_v3.json",
+      "protocol_sha256": "477756411c78b4b7689f2c58ae9eedae43ca13b8d96ac75a6c2f186f6c4ba246",
+      "report": "runs/m3_depth_private_attempt03/run_report.json",
+      "compatibility": "Accepted private training and same-process private-image evidence. Only scorer lineage handling changed."
+    },
+    "gradient_cut": {
+      "protocol_path": "configs/m3_depth_v3.json",
+      "protocol_sha256": "477756411c78b4b7689f2c58ae9eedae43ca13b8d96ac75a6c2f186f6c4ba246",
+      "report": "runs/m3_depth_gradient_cut_attempt01/run_report.json",
+      "compatibility": "Completed gradient-cut control evidence. Only scorer lineage handling changed."
+    }
+  },
+  "restart_execution_protocol_sha256": "4a70be3b5a6a4640eb392a3c74e720f95570781240858a4f4b8a76d0d9701318",
+  "restart_evidence": {
+    "protocol_path": "configs/m3_depth_v4.json",
+    "protocol_sha256": "4a70be3b5a6a4640eb392a3c74e720f95570781240858a4f4b8a76d0d9701318",
+    "shared_report": "runs/m3_depth_shared_restart_attempt01/run_report.json",
+    "private_report": "runs/m3_depth_private_restart_attempt01/run_report.json"
+  },
+  "checks": {
+    "shared_declared_baseline": true,
+    "private_declared_baseline": true,
+    "gradient_cut_declared_baseline": true,
+    "shared_completed": true,
+    "shared_protocol_match": true,
+    "shared_updates_and_checkpoint": true,
+    "shared_optimizer_state_measured": true,
+    "shared_implementation_match": true,
+    "shared_source_and_parent": true,
+    "shared_generation_budget": true,
+    "shared_time_budget": true,
+    "shared_optimizer_contract": true,
+    "private_completed": true,
+    "private_protocol_match": true,
+    "private_updates_and_checkpoint": true,
+    "private_optimizer_state_measured": true,
+    "private_implementation_match": true,
+    "private_source_and_parent": true,
+    "private_generation_budget": true,
+    "private_time_budget": true,
+    "private_optimizer_contract": true,
+    "gradient_cut_completed": true,
+    "gradient_cut_protocol_match": true,
+    "gradient_cut_updates_and_checkpoint": true,
+    "gradient_cut_optimizer_state_measured": true,
+    "gradient_cut_implementation_match": true,
+    "gradient_cut_source_and_parent": true,
+    "gradient_cut_generation_budget": true,
+    "gradient_cut_time_budget": true,
+    "gradient_cut_optimizer_contract": true,
+    "shared_private_accepted": true,
+    "gradient_cut_valid": true,
+    "declared_restart_evidence": true,
+    "shared_fresh_restart": true,
+    "private_fresh_restart": true,
+    "matched_writer_parameters": true,
+    "matched_reader_parameters": true,
+    "matched_trainable_parameter_bytes": true,
+    "matched_observation_encodings_per_chunk": true,
+    "matched_state_transition_evaluations_per_chunk": true,
+    "state_difference_explicit": true
+  },
+  "reports": {
+    "shared": "runs/m3_depth_shared_attempt02/run_report.json",
+    "private": "runs/m3_depth_private_attempt03/run_report.json",
+    "gradient_cut": "runs/m3_depth_gradient_cut_attempt01/run_report.json"
+  },
+  "restart_reports": {
+    "shared": "runs/m3_depth_shared_restart_attempt01/run_report.json",
+    "private": "runs/m3_depth_private_restart_attempt01/run_report.json"
+  },
+  "metrics": {
+    "shared": {
+      "correct": {
+        "dev": 1.0,
+        "heldout": 1.0
+      },
+      "linear": {
+        "dev": 0.25,
+        "heldout": 0.5
+      },
+      "shuffled": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "zero": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "disabled": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "full_context": {
+        "dev": 1.0,
+        "heldout": 0.75
+      },
+      "read_13_only": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "read_27_only": {
+        "dev": 1.0,
+        "heldout": 1.0
+      },
+      "write_13_only": {
+        "dev": 0.75,
+        "heldout": 0.75
+      },
+      "write_27_only": {
+        "dev": 0.75,
+        "heldout": 0.75
+      }
+    },
+    "private": {
+      "correct": {
+        "dev": 1.0,
+        "heldout": 1.0
+      },
+      "linear": {
+        "dev": 0.0,
+        "heldout": 0.5
+      },
+      "shuffled": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "zero": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "disabled": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "full_context": {
+        "dev": 1.0,
+        "heldout": 0.75
+      },
+      "read_13_only": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "read_27_only": {
+        "dev": 1.0,
+        "heldout": 1.0
+      },
+      "write_13_only": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "write_27_only": {
+        "dev": 1.0,
+        "heldout": 1.0
+      }
+    },
+    "gradient_cut": {
+      "correct": {
+        "dev": 1.0,
+        "heldout": 1.0
+      },
+      "linear": {
+        "dev": 0.25,
+        "heldout": 0.25
+      },
+      "shuffled": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "zero": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "disabled": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "full_context": {
+        "dev": 1.0,
+        "heldout": 0.75
+      },
+      "read_13_only": {
+        "dev": 0.0,
+        "heldout": 0.0
+      },
+      "read_27_only": {
+        "dev": 1.0,
+        "heldout": 1.0
+      },
+      "write_13_only": {
+        "dev": 0.75,
+        "heldout": 0.75
+      },
+      "write_27_only": {
+        "dev": 0.75,
+        "heldout": 0.5
+      }
+    }
+  },
+  "paired_correct_cases": [
+    {
+      "case_id": "m2s_dev_25",
+      "split": "dev",
+      "shared_answer": "cobalt",
+      "private_answer": "cobalt",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_dev_26",
+      "split": "dev",
+      "shared_answer": "saffron",
+      "private_answer": "saffron",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_dev_27",
+      "split": "dev",
+      "shared_answer": "teal",
+      "private_answer": "teal",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_dev_28",
+      "split": "dev",
+      "shared_answer": "violet",
+      "private_answer": "violet",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_heldout_29",
+      "split": "heldout",
+      "shared_answer": "amber",
+      "private_answer": "amber",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_heldout_30",
+      "split": "heldout",
+      "shared_answer": "copper",
+      "private_answer": "copper",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_heldout_31",
+      "split": "heldout",
+      "shared_answer": "cobalt",
+      "private_answer": "cobalt",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    },
+    {
+      "case_id": "m2s_heldout_32",
+      "split": "heldout",
+      "shared_answer": "saffron",
+      "private_answer": "saffron",
+      "shared_correct": true,
+      "private_correct": true,
+      "answers_equal": true
+    }
+  ],
+  "paired_answer_agreement": 1.0,
+  "depth_accounting": {
+    "shared": {
+      "state_matrices": 1,
+      "state_bytes": 65536,
+      "state_transition_evaluations_per_chunk": 2,
+      "observation_encodings_per_chunk": 2,
+      "reader_evaluations_per_action_pass": 2,
+      "writer_parameters": 5251072,
+      "reader_parameters": 2105346,
+      "trainable_parameter_bytes": 29425672,
+      "attention_cache": "disabled; native action pass recomputes without KV reuse",
+      "retention_replay_cases": 2,
+      "retention_replay_extra_model_bytes": 0,
+      "optimizer_state": "actual tensor bytes recorded after final update",
+      "information": "identical source text; independent per-depth writers in both M3 arms",
+      "state_match": "not matched: shared one matrix, private two; no capacity superiority claim",
+      "reducer_scope": "project SGDN-2 convex proposal mean; not uTTT"
+    },
+    "private": {
+      "state_matrices": 2,
+      "state_bytes": 131072,
+      "state_transition_evaluations_per_chunk": 2,
+      "observation_encodings_per_chunk": 2,
+      "reader_evaluations_per_action_pass": 2,
+      "writer_parameters": 5251072,
+      "reader_parameters": 2105346,
+      "trainable_parameter_bytes": 29425672,
+      "attention_cache": "disabled; native action pass recomputes without KV reuse",
+      "retention_replay_cases": 2,
+      "retention_replay_extra_model_bytes": 0,
+      "optimizer_state": "actual tensor bytes recorded after final update",
+      "information": "identical source text; independent per-depth writers in both M3 arms",
+      "state_match": "not matched: shared one matrix, private two; no capacity superiority claim",
+      "reducer_scope": "project SGDN-2 convex proposal mean; not uTTT"
+    },
+    "gradient_cut": {
+      "state_matrices": 1,
+      "state_bytes": 65536,
+      "state_transition_evaluations_per_chunk": 2,
+      "observation_encodings_per_chunk": 2,
+      "reader_evaluations_per_action_pass": 2,
+      "writer_parameters": 5251072,
+      "reader_parameters": 2105346,
+      "trainable_parameter_bytes": 29425672,
+      "attention_cache": "disabled; native action pass recomputes without KV reuse",
+      "retention_replay_cases": 2,
+      "retention_replay_extra_model_bytes": 0,
+      "optimizer_state": "actual tensor bytes recorded after final update",
+      "information": "identical source text; independent per-depth writers in both M3 arms",
+      "state_match": "not matched: shared one matrix, private two; no capacity superiority claim",
+      "reducer_scope": "project SGDN-2 convex proposal mean; not uTTT"
+    }
+  },
+  "costs": {
+    "shared": {
+      "wall_seconds": 72.96090804110281,
+      "peak_driver_bytes": 11815763968,
+      "optimizer_state_bytes": 7485456,
+      "optimizer_state_by_dtype": {
+        "torch.int8": 7340032,
+        "torch.float32": 145424
+      },
+      "state_bytes": 65536,
+      "generation_counts": {
+        "parent": 10,
+        "candidate": 80,
+        "train": 24,
+        "retention": 2,
+        "correction": 16,
+        "restart": 2,
+        "total": 134
+      },
+      "token_costs": {
+        "training_action_tokens": 4251,
+        "training_target_tokens": 182,
+        "generation_prompt_tokens": 9367,
+        "generation_new_tokens": 470,
+        "maximum_generation_prompt_tokens": 126,
+        "maximum_generated_tokens_per_answer": 6
+      },
+      "extension_bytes": 48956635,
+      "depth_image_bytes": 66801
+    },
+    "private": {
+      "wall_seconds": 70.39353949995711,
+      "peak_driver_bytes": 11815763968,
+      "optimizer_state_bytes": 7485456,
+      "optimizer_state_by_dtype": {
+        "torch.int8": 7340032,
+        "torch.float32": 145424
+      },
+      "state_bytes": 131072,
+      "generation_counts": {
+        "parent": 10,
+        "candidate": 80,
+        "train": 24,
+        "retention": 2,
+        "correction": 16,
+        "restart": 2,
+        "total": 134
+      },
+      "token_costs": {
+        "training_action_tokens": 4251,
+        "training_target_tokens": 182,
+        "generation_prompt_tokens": 9367,
+        "generation_new_tokens": 435,
+        "maximum_generation_prompt_tokens": 126,
+        "maximum_generated_tokens_per_answer": 6
+      },
+      "extension_bytes": 48956636,
+      "depth_image_bytes": 132444
+    },
+    "gradient_cut": {
+      "wall_seconds": 72.54154645791277,
+      "peak_driver_bytes": 10911662080,
+      "optimizer_state_bytes": 7485456,
+      "optimizer_state_by_dtype": {
+        "torch.int8": 7340032,
+        "torch.float32": 145424
+      },
+      "state_bytes": 65536,
+      "generation_counts": {
+        "parent": 10,
+        "candidate": 80,
+        "train": 24,
+        "retention": 2,
+        "correction": 16,
+        "restart": 2,
+        "total": 134
+      },
+      "token_costs": {
+        "training_action_tokens": 4251,
+        "training_target_tokens": 182,
+        "generation_prompt_tokens": 9367,
+        "generation_new_tokens": 477,
+        "maximum_generation_prompt_tokens": 126,
+        "maximum_generated_tokens_per_answer": 6
+      },
+      "extension_bytes": 48956635,
+      "depth_image_bytes": 66801
+    }
+  },
+  "total_sequential_wall_seconds": 215.8959939989727,
+  "maximum_single_worker_peak_driver_bytes": 11815763968,
+  "scope": "Engineering qualification of distinct per-depth writers, one-start convex shared reduction, private ownership, post-open historical gradients and fresh-process image restart. Private has two state matrices versus shared one. Outcomes on the exposed M2 family are descriptive; no state-matched, fresh-audit, uTTT, general capability, runtime-promotion or shared-superiority claim."
+}

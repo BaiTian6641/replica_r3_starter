@@ -1,324 +1,563 @@
 # Research cross-check and backbone modification plan
 
-**Status: design review plus defect corrections, 23 October 2026 UTC.** This
-document reconciles the current implementation with the primary memory,
-test-time-training and continual-learning papers cited by the project. It then
-specifies the smallest backbone changes needed for dynamic memory, runtime
-compilation, bounded self-evolution and an optional personality path on
-MiniCPM5-2B and MiniCPM-V-4.7-1B.
+**Reconciled 23 October 2026, America/Chicago; inspected HEAD `377718e`.**
+This is the current construction order for dynamic memory, runtime compilation,
+bounded recursive self-improvement (RSI), personality integration, a Spark BF16
+comparison and the MiniCPM-V vision path. **MiniCPM5 remains the baseline.** M0–M7 are
+implementation packages mapped onto E1–E6; they preserve the 33 scientific stage
+IDs and dependencies. Use the [loop-agent instructions](16_Loop_Agent_Instructions.md).
 
-This review did not train a new native model or reproduce any paper. The current
-full suite is **1211 passed / 21 subtests** in **147.24 s** after the three
-defect-regression tests were added. No native job was active. The protected `src/replica_lab/runtime_pilot.py` draft remains untracked
-and unmodified.
+Native integration and host lifecycle code are substantial. Useful learned
+memory and sustained self-improvement remain unproven. The next milestone is a
+complete chronological task with observation, delayed use, restart, correction
+and verified later reuse. Additional mechanisms require separate comparisons.
 
-**Bottom line:** the project has a strong host/runtime control plane and a
-measured read-side sidecar. It does not yet have a memory-native backbone.
-Titans, uTTT, MemT-1.0, HOPE, Engram, Mem-T and Gated DeltaNet-2 are not
-reproduced. The engineering infrastructure is ahead of the learned capabilities,
-and the next work should be a native memory block with a learned writer and
-shared-depth commits, not another free-form action-prompt experiment.
+This revision updates the plan/prompt and raises the active sampled MPS driver
+guard default to **50 GiB**. Focused guard checks are recorded in execution state;
+the last recorded full suite remains **1211 passed / 21 subtests**, **147.24 s**,
+after code commit `6e8ec34`. No model was trained or capacity remeasured for this
+update. Research findings are external evidence, not local execution results.
 
-## 1. Current implementation: what is actually real
+## 1. Current implementation and evidence
 
-| Layer | Evidence |
-|---|---|
-| Exact task state | `TaskGraph`, `TaskJournal`, claims/obligations/subgoals, typed actions, receipts, restart and stale-state rejection |
-| Native text coupling | MiniCPM5 adapter with complete-block ports at 13/27 and observer 41; independent memory/workspace/fast read branches |
-| Shared workspace | Width-256, eight-slot, two-iteration `CognitiveCore` with self-attention, cross-attention, gated FFN and previous-workspace input |
-| Record memory | Per-record spans and slots, contextual writer, opt-in native readers; novel-value answer transfer remains 0/16 |
-| Fast memory | Host-owned `LinearFastMemory`; staged observation writes, one chunk commit, image save/load, invalidation and bounded replay; native fast readers are read-only |
-| Action loop | Real tools, independent evaluator, fresh-process restart; candidate ranking 17/17 (15/15 held-out) on repair menus; free-form selection negative |
-| Compilation | Typed artifact metadata and lifecycle registry; no compiler, executor, neural-candidate trainer or integrated publisher |
-| Learning | Deterministic director, actual-outcome audit, procedure candidate, opt-in reranker; no learned selector and no accepted neural candidate improving unseen tasks |
-| Identity | Versioned source/snapshot/mode/branch contracts, persistent store, optional zero-init reader, fictional fidelity harness; no authentic data or trained conditioning |
-| VLM | Not implemented; MiniCPM-V-4.7-1B weights are not local |
+| Area | Implemented/measured | Remaining qualification |
+|---|---|---|
+| Text integration | MiniCPM5 complete-block ports 13/27, observer 41; independent memory/workspace/fast readers; null, gradient and extension reload checks | Useful architecture benefit under fair D0/D1/D2 controls |
+| Exact task and core | Task graph/journal, real tools, receipts, restart; width-256/eight-slot/two-iteration core | Core-specific generalization; 2/2 versus 1/2 controls do not establish recurrent superiority |
+| Record memory | Contextual writer, retrieval, exact fallback, opt-in pointer/context candidates | Reader candidate 0/16 dev+held-out; narrow pointer successes do not establish broad transfer |
+| Fast memory | M2 useful delayed-use accepted; M3 independent depth writers, convex shared reducer, private/shared images and fresh-process restart accepted | Both M3 candidates fail retention replay 0/2 versus parent 2/2; diagnose before M4 |
+| Actions | Mixed family 4/4 with and without head; corrected old-case menu regression 3/3; deterministic procedure 3/3 | Fresh corrected canonical 1/4 and shuffled 0/4 due distractors; free-form selection negative; no menu promotion |
+| Compilation/publication | Typed registry, executable repair procedure, isolated neural experiments, single-writer manifest publication and ancestor rollback | Coordinated durable compiler/trainer/publisher with complete payload validation, eligibility and recovery |
+| Learning | Procedure 3/3 held-out plus dev; reranker 0.25→0.50 against parent, below lexical 0.75; opt-in pointer/context publications | General neural task improvement, retention, learned selection and ten-cycle comparison |
+| Identity | Source/snapshot/mode/branch contracts, store, prompt path, optional native workspace reader, fictional scorer | Approved-source slot encoder, trained conditioning, authentic baselines and human review |
+| VLM | Separate design; native upstream implementation inspected | Local weights/processor qualification and multimodal execution |
 
-The native capacity result is **4096 units at 30.59 GiB** for the tested workload.
-The 8192-unit probe reached **48.08 GiB** and was stopped by the guard. The
-pre-correction inference harness retained avoidable autograd tensors in the
-writer/sense path; that 8192 number is a real boundary for the old harness but
-does not establish the limit of correctly configured inference. The harness now
-runs those producers under `torch.no_grad()`; a corrected remeasurement is
-pending, so 4096 remains the selected tested maximum.
+### Backbone roles and promotion rule
 
-## 2. Research cross-check
+| Role | Model/source | Current decision |
+|---|---|---|
+| Required text baseline | Sealed `openbmb/MiniCPM5-2B` | Continue M0–M6 here; retain it in every backbone comparison |
+| Optional text challenger | [Spark-X2.6-4B BF16](https://huggingface.co/XHToken/Spark-X2.6-4B) | Separate M0b adapter/resource/quality study; no migration or local training qualification yet |
+| First native vision path | [MiniCPM-V-4.7-1B](https://huggingface.co/openbmb/MiniCPM-V-4.7-1B) | Reuse its pretrained vision/text alignment and native processor; M7 trains model-specific memory interfaces |
+| Later larger vision/reasoning reference | [MiniCPM-V-4.7-35B-A3B](https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B) | Optional qualified teacher or inference arm; larger-model transfer needs a separate resource plan |
 
-| Work | Mechanism established by the paper | Current code | Gap |
-|---|---|---|---|
-| [Titans](https://arxiv.org/abs/2501.00663) | Deep neural long-term memory trained at test time; surprise is the input gradient; momentum and adaptive forgetting; persistent task memory; memory as context, gate or layer | `LinearFastMemory` is a linear L2 delta rule with fixed learning rate, decay and norm clipping. The native fast port is read-only. No deep memory, momentum, persistent memory tokens or three integration modes | Partial concept only; closer to a simplified TTT/DeltaNet baseline than Titans |
-| [uTTT](https://arxiv.org/abs/2610.05484) | All layers read/write one shared fast-weight state; chunk-start reads; aggregated writes at a chunk boundary; cross-depth routes; outer task loss backpropagates through earlier writes | Workspace is shared across ports 13/27. `update_shared_chunk` can aggregate writes against one start state. Native fast ports are read-only; no write ports or cross-depth gradient path | Host primitive exists; the uTTT path does not |
-| [MemT-1.0](https://arxiv.org/abs/2610.26825) | Per-layer native memory block; Gated DeltaNet-2 stable token update; erase/write gates and channel decay; multi-channel state; Mixture-of-Storage; 34B-token pipeline | `FastWriteEncoder` exists in the adapter surface, but the connected runtime bridge uses a deterministic encoder. Fast state is host-owned linear memory. No per-layer block, GDN-2 gates, MoS or comparable training | Not memory-native |
-| [Nested Learning / HOPE](https://arxiv.org/abs/2512.24695) | Model as nested optimizers with distinct context flows/frequencies; continuum memory system; self-modifying update rule; HOPE combines self-referential Titans and CMS. The paper's Llama adaptation uses 15B continual-pretraining tokens | Two tied core iterations; one global Muon/AdamW path; fixed fast-memory update; no multi-frequency levels | Missing. Two iterations of one block are not CMS |
-| [Engram](https://arxiv.org/abs/2601.07372) | Static conditional lookup: causal n-gram hashing to an O(1) learned table, contextual gate, sparse capacity; U-shaped allocation against MoE; 27B scale | C07 is unimplemented | Absent. Engram is static lookup, not online episodic memory |
-| [Mem-T](https://arxiv.org/abs/2601.23014) | Autonomous memory agent over hierarchical working/factual/experiential/raw stores; learned construction/retrieval; MoT-GRPO densifies delayed rewards | Exact ledger, journal, typed artifacts, deterministic director and procedure candidate. No learned memory-operation policy or operation-tree credit | Host structure partial; learned memory policy absent |
-| [Gated DeltaNet-2](https://arxiv.org/abs/2605.22791) | Separates channel-wise erase and write gates; adaptive forgetting/decay; stable delta-rule update; efficient chunkwise training | Fixed scalar learning rate and decay; no per-channel erase/write gates | Missing update rule |
-| [MiniCPM5-2B](https://huggingface.co/openbmb/MiniCPM5-2B) | 2.52B total / 1.98B non-embedding Llama decoder; 42 layers; width 2048; GQA 16/2 | Local sealed source and adapter | Correct base; memory is a sidecar |
-| [MiniCPM-V 4.7](https://huggingface.co/openbmb/MiniCPM-V-4.7-1B) | 1B variant: SigLIP vision encoder with window merger + Qwen3.5 text core; 24 layers, width 1024, 3 linear / 1 full attention; canvas M-RoPE | Adapter absent; weights absent | Must be a separate native adapter |
+The larger published V4.7 name is **35B-A3B**, not 36B-A3B. Active expert count
+does not describe total resident weights or full-tuning memory. Using nominal
+35B parameters, BF16 weights alone are about 65.2 GiB, above the new guard before
+activations or optimizer state. Quantized inference is a separate qualification;
+it does not establish local full tuning. Neither new model has been qualified
+by this repository. Missing optional weights do not block MiniCPM5 construction.
 
-The terminology correction matters: **HOPE is the architecture presented in the
-Nested Learning paper**, not a separate drop-in module. **Engram is a static
-lookup path**; a dynamic router over static Engram shards is not the same as an
-online-updated Engram table.
+Promote an alternative only after native parity, actual training/reload,
+resource measurements, independent task gain and retention gates pass. Record
+its exact revision, tokenizer/template and reasoning mode. A backbone change and
+a memory-mechanism change are separate experimental factors.
 
-## 3. Missing capabilities and priority
+The selected capacity workload passed **4096 units at 30.59 GiB**; an 8192-unit
+attempt stopped at **48.08 GiB**. Both predate writer/sense `torch.no_grad()`:
+they are historical workload measurements, not corrected-inference limits.
+Capacity used short synthetic sources; retrieval/answer quality was separately
+measured at **16 units**, not 4096.
 
-### P0 — required before claiming a memory-native system
+[E4's training script](../../scripts/run_e4_delayed_use.py) already preserves
+gradients through one page's write. It repeats one matrix into four heads. The
+host reference likewise applies identical writes to identical initial heads.
+Different queries do not make those copies independent written capacity. The
+bridge's deterministic encoder is a software-test path; separate learned-writer
+experiments exist, were trained, and failed capability.
 
-1. **Learned native memory writes.** The current runtime has read-only native
-   memory/fast ports. `FastWriteEncoder` is not the qualified writer. Add a
-   GDN-2-lite block with learned Q/K/V, channel-wise erase/write gates, decay,
-   stable delta update and an output gate.
-2. **Shared-depth fast state.** Both ports should read one chunk-start state and
-   contribute writes to one commit. Compare with private state at equal total
-   state and compute.
-3. **Actual runtime compilation.** Compile typed payloads, not only metadata:
-   `ContextPack`, `RecordLatent`, `BranchMemoryImage`, `ProcedureArtifact` and
-   `NeuralCandidate`. Add payload validation, atomic publication, rollback and
-   transitive invalidation.
-4. **Action policy with a reliable representation.** Keep the host-enumerated
-   candidate menu and extend it with typed argument heads. Free-form JSON action
-   selection remains negative; do not rerun the same arm.
-5. **Measured core/workspace contribution.** The mixed family completed 4/4 with
-   and without the action-kind head; the head was rejected. Core controls were
-   2/2 vs 1/2 each on n=2. Do not claim recurrent-core benefit from these.
+Runtime staged writes/snapshots are deliberately detached. Extend the functional
+training path for bounded historical gradients; keep detached, owned deployment
+state. Removing runtime detaches globally would create unbounded graphs without
+solving representation quality.
 
-### P1 — next architecture layer
+## 2. Primary-source cross-check
 
-6. **Static Engram path.** Causal n-gram hash, top-k table rows, contextual gate,
-   zero-init residual, table frozen between candidate publications. Start small;
-   measure collisions, bytes touched and latency.
-7. **Multi-rate CMS / HOPE-lite.** Fast per-chunk state, medium task/branch
-   procedures and workspace gates, slow candidate parameters. Learn only
-   step-size/forget gates first.
-8. **Dynamic capacity routing.** MemT-style memory experts or a learned router
-   over memory routes, only after the single-state path and Engram path are
-   separately measured.
-9. **Identity conditioning.** Attach `IdentityContext` to the decision frame
-   with a separate gate; no fact or verifier authority.
+| Work | Relevant mechanism | Construction consequence |
+|---|---|---|
+| [TTT v4](https://arxiv.org/abs/2407.04620v4), [Titans v1](https://arxiv.org/html/2501.00663v1) | Learned associative updates; Titans adds deep memory, momentum and adaptive forgetting. Its update differentiates associative loss with respect to memory parameters | Keep the linear baseline; study learned coefficients/deep memory separately |
+| [uTTT v1](https://arxiv.org/html/2610.05484v1) | Shared fast weights, chunk-start reads, combined gradient updates and historical cross-depth gradient paths | Sharing workspace is insufficient; define state ownership, reduction and differentiable history |
+| [MemT-1.0 v2](https://arxiv.org/html/2610.26825v2) | Native gated state, SGDN-2 and explicit memory training | Study update and supervision separately; closing the backbone-preparation/native-memory improvement loop remains future work in the paper |
+| [Gated DeltaNet-2 v1](https://arxiv.org/html/2605.22791v1) | Separate channel-wise erase/write controls and recurrent/chunkwise implementations | Distinguish GDN-2 from symmetrized SGDN-2; CUDA kernels do not establish MPS support |
+| [Nested Learning / HOPE v1](https://arxiv.org/html/2512.24695v1) | Optimization levels with distinct context flows/frequencies; self-referential memory plus CMS | Define parameter sets, losses, buffers and transfer. A scheduler or two core iterations is not CMS |
+| [Engram v2](https://arxiv.org/html/2601.07372v2) | Deterministic multi-head n-gram hashing into learned tables with contextual gating | Static pattern path plus a separate dynamic router/episodic overlay; not learned top-k row retrieval |
+| [Mem-T v2](https://arxiv.org/html/2601.23014v2) | Learned construction/retrieval over hierarchical stores and operation-tree credit | Applies to memory-operation policy/director; distinct from MemT-1.0 |
+| [MAC v2](https://arxiv.org/abs/2403.04317v2), [LongMem](https://arxiv.org/abs/2306.07174) | Learned document modulation or decoupled encoder/reader adaptation | Retain writer/reader and exact-context comparisons; local negatives do not rule out every sidecar |
+| [SEAL v2](https://arxiv.org/abs/2506.10943v2), [Voyager v2](https://arxiv.org/abs/2305.16291v2) | Actual candidate adaptation versus executable skill growth without backbone tuning | Measure neural and procedure-library improvement separately |
+| [STaR v2](https://arxiv.org/abs/2203.14465v2), [Absolute Zero v3](https://arxiv.org/abs/2505.03335v3) | Correctness-filtered reasoning bootstrapping; generated tasks with executable verification | Start from independently checked practice; answer correctness alone does not validate every rationale step |
+| [Darwin Gödel Machine v3](https://arxiv.org/abs/2505.22954v3) | Evaluated changes to an agent's software implementation | Keep code/architecture proposals separate from weight adaptation, with sandboxed candidates and fixed external gates |
+| [CTM v4](https://arxiv.org/abs/2505.05522v4), [Coconut v4](https://arxiv.org/abs/2412.06769v4) | Temporal neuron processing/synchronization versus continuous hidden-state feedback | Later controlled alternatives; neither is reproduced by current slots |
 
-### P2 — later dependencies
+HOPE is an architecture in Nested Learning. Mem-T and MemT-1.0 are different
+works. Their composition is this project's hypothesis. External training budgets
+and benchmark gains are not local budget estimates or acceptance thresholds.
+Pin code/model revisions before adoption; the links identify reviewed paper versions.
 
-10. Native KV/recurrent cache equivalence (C17 currently re-prefills).
-11. MiniCPM-V 4.7 adapter, native visual state and visual memory.
-12. Calibrated success/action-value heads. The diagnostic pooled head is not
-    calibrated or published.
+## 3. Revised construction order
 
-## 4. Target architecture
+| Order | Package | Exit evidence before dependent expansion |
+|---|---|---|
+| M0 | M0a corrected MiniCPM5 baselines; optional M0b Spark BF16 comparison | Versioned capacity/menu results; challenger parity, measured residency and matched native quality |
+| M1 | Fresh chronological episodes and thin compiler | Verified observation → typed payload → restart → source correction; existing procedure/publisher reused |
+| M2 | New MiniCPM5 memory layer: single insertion, then two private ports | Delayed-use gain over zero/shuffled/disabled on unseen associations |
+| M3 | Shared-depth study | Matched private/shared state and compute, historical gradients, defined reducer |
+| M4 | Static Engram and dynamic routing | Incremental utility, collisions/interference/latency and correction behavior |
+| M5 | Bounded RSI: verified practice, candidate updates, then learned selection | Independent reasoning/memory gain and retention, rejection/rollback, later-task reuse and T0–T3 cycles |
+| M6 | Learned multi-rate consolidation/CMS | Benefit over simpler schedules at disclosed total cost |
+| M7 | Separate MiniCPM-V 4.7 vision, reasoning and visual-memory training | Native multimodal/cache parity and image-dependent memory benefit |
+
+Identity contracts, source intake and evidence-only baselines proceed alongside
+M1–M3. Calibrate capability/action-value estimates before using them to control
+routing, inquiry or learning expenditure. Deterministic policies remain usable
+while learned replacements are unqualified.
+
+M1 connects one useful artifact path and defines M2's episodes; it does not
+require completing every generic compiler first. Independent VLM inspection can
+proceed earlier, but does not qualify native execution or skip text evidence.
+M0b is an optional comparison track after M0a, not a dependency that stalls
+M1–M6 on MiniCPM5. Retain separate arms when either backbone gains new memory.
+
+## 4. Target composition and ownership
 
 ```mermaid
 flowchart TD
-  O[Observed source or tool outcome] --> L[Exact ledger + task journal]
-  L --> R[Eligibility and retrieval]
-  L --> C[Runtime compiler]
-  R --> P[Native ports 13/27]
-  C --> P
-  C --> B[Branch memory image]
-  B --> P
-  C --> N[Procedure / neural candidate]
-  N --> E[Independent evaluation]
-  E --> M[Manifest publish / reject / rollback]
-  M --> R
-  M --> B
-  P --> A[Model action or answer]
-  A --> H[Host validation + tools]
+  O[Observed source or tool outcome] --> L[Exact ledger and task journal]
+  L --> C[Typed compiler and lineage]
+  L --> R[Eligible retrieval and dynamic router]
+  G[Versioned static pattern bank] --> R
+  F[Task or branch adaptive state] --> R
+  R --> W[Sense and shared cognitive workspace]
+  I[Approved identity context] --> W
+  W --> P[Native residual ports and action ranking]
+  P --> H[Host validation and actual tools]
   H --> O
-  H --> J[Outcome ledger]
-  J --> D[Learning director]
+  H --> D[Outcome diagnosis and practice proposal]
   D --> C
-  I[Identity context] --> P
-  G[Engram path] --> P
-  S[Shared GDN-2 fast state] --> P
+  C --> F
+  C --> N[Isolated procedure or neural candidate]
+  N --> E[Independent gain and retention evaluation]
+  E --> V[Publish reject or defer]
+  V --> R
 ```
 
-The native decoder remains the backbone. New memory is a parallel residual
-branch with its own gate, provenance and null path. It does not replace native
-attention or the native MLP.
+| State | Owner/update boundary | Persistence |
+|---|---|---|
+| Exact records/task journal | Host admission and actual observations | Dated source/branch lineage, corrections/tombstones |
+| Native attention/recurrent cache | One request and pinned decision | Disposable; recompute after incompatible changes |
+| Adaptive matrix/update buffers | Declared task/branch; completed observation chunks | Compatible image, replay cursor and explicit bounds |
+| Cognitive workspace | Task/decision revision | Approximate; rebuild from exact task/evidence state |
+| Engram tables/component weights | Versioned model/candidate | Frozen within an accepted version |
+| Identity snapshot/parallel branch | Source authority versus agent experience | Separate dated histories and explicit modes |
 
-## 5. MiniCPM5-2B modification plan
+Generated hypotheses may be stored as hypotheses in task/branch state. They do
+not become observed facts, verified outcomes or automatic write authorization.
+Routing selects eligible material; it cannot grant eligibility or verification.
 
-Local facts: 42 layers, width 2048, FFN 6144, 16 query heads, 2 KV heads, head
-width 128, vocabulary 130560, BF16 weights 5.03 GB. Ports 13/27, observer 41.
+## 5. MiniCPM5 construction details
 
-### M0 — Preserve the current measurement baseline
-Keep the sealed source, E3 extension, exact journal, tools, verifier and restart
-tests. Do not replace native attention or MLP blocks in the first wave.
+The sealed `openbmb/MiniCPM5-2B` is a Llama decoder: 42 layers, width 2048,
+FFN 6144, GQA 16/2, head width 128, vocabulary 130560, 2,516,756,480 original
+parameters. Reuse revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52` and its
+tokenizer/template. Ports 13/27 and observer 41 are starting choices, not optima.
 
-### M1 — GDN-2-lite native memory block
-At blocks 13 and 27, after the complete native block result:
+### M0 — Corrected baselines and Spark BF16 comparison
 
-- state `M ∈ R[H, dk, dv]`, start `H=4`, `dk=dv=128`;
-- learned Q/K/V projections from the native pre-attention hidden state;
-- L2-normalized queries and keys;
-- channel-wise erase gate `β`, write gate `ω`, decay `λ`;
-- stable update `M ← (I − β k kᵀ) · diag(λ) · M + β k (ω ⊙ v)ᵀ`;
-- read `qM / sqrt(dk)`, RMSNorm, output gate, bounded SiLU;
-- zero-init final residual projection and an independent branch gate;
-- only observed source/tool bytes may be written; never generated text.
+**M0a, required:** retain MiniCPM5 as the measured reference.
 
-The state itself is small: `4×128×128 = 65,536` values, about 256 KiB FP32.
-Projections dominate the parameter cost. Start with **one shared state across
-13/27** and a **private-state control**.
+Check corrected inference at a small point and the selected 4096 workload;
+attempt 8192 only if the existing guard permits the next bounded point. Report
+inference separately from modules-only backward. Re-evaluate repair ranking
+with the corrected menu, random/order controls and deterministic procedure
+baseline. Historical cases are regressions; new capability needs fresh families.
+Preserve source seal, active manifests, failed runs and protected draft.
 
-Acceptance: null parity, independent branch influence, chunk-start consistency,
-no future-token leak, delayed-use gain over zero/shuffled/disabled, correction
-and restart reset.
+**M0b, optional challenger:** the [official Spark release](https://github.com/XHToken/Spark-X2.6)
+describes a text model with configurable reasoning and an architecture inherited
+from X2.5. Its model card identifies custom `spark2_5` code. Pin and inspect the
+exact config, native implementation and tokenizer before choosing port indices;
+the current Llama adapter must reject it until a dedicated adapter exists.
+Preserve sliding/full-attention behavior, fused projections, head gating,
+tied-weight ownership, positions/caches, end markers and thinking mode wherever
+the pinned implementation defines them. Do not copy MiniCPM's 13/27 indices.
+Qualify pinned Spark code against the locked runtime; its upstream quickstart
+version recommendation is not permission to replace the working MiniCPM
+environment. If a different dependency set is necessary, isolate and record the
+comparison environment and disclose backend/version differences.
 
-### M2 — Learned writer and shared-depth commit
-Train `FastWriteEncoder` on actual observations. Both ports read one chunk-start
-snapshot; both write proposals are aggregated into one host-authorized commit.
-Pass outer task loss through earlier writes for a bounded horizon. Compare
-shared versus private state at equal total state and compute.
+Use the BF16 source checkpoint for this comparison. The repository's current
+`muon8bit` quantizes momentum, **not trainable weights or gradients**: trainable
+parameters are FP32, with FP32 auxiliary AdamW groups. `--dtype bf16` selects
+compute autocast, not BF16 parameter residency. BF16-resident training would
+need a separately tested optimizer/residency change. Do not infer FP8 training
+support from an FP8 inference release, or MPS training support from MLX inference.
 
-### M3 — Static Engram path
-Causal 2/3-gram hashing, top-k table rows, contextual gate, residual. Start with
-`2^16` rows × 128/256 width, freeze table between candidates, sparse optimizer.
-Exact names, dates, numbers and citations remain in the ledger. Measure collision
-rate, bytes touched, cold/warm latency and additive benefit over record memory.
+Nominal 4B arithmetic is a planning estimate: BF16 weights ≈7.45 GiB; FP32 weights
+plus FP32 gradients ≈29.8 GiB; adding one byte/parameter of momentum gives
+≈33.5 GiB before auxiliary AdamW state, activations, workspaces, memory layers and
+temporary copies. Inventory actual tensors and tied storage; **50 GiB is a stop
+policy, not a fit result**. First qualify inference, then modules-only backward,
+then one full update/export/reload if its measured budget permits. Any later
+frozen quantized arm must retain input gradients through downstream operations
+when required by inserted modules. Quantization changes are separate controls.
 
-### M4 — Runtime compiler and candidate loop
-Implement payload builders and executors for `ContextPack`, `RecordLatent`,
-`BranchMemoryImage`, `ProcedureArtifact` and `NeuralCandidate`. Add independent
-evaluation, atomic publication, rollback and transitive invalidation. Then run:
+Compare unmodified MiniCPM5 and unmodified Spark on identical eligible task
+families, observations, tools, answer limits and verification. Pin thinking mode;
+report hidden/generated reasoning tokens, latency, peak memory and total cost.
+Use a common output/time budget and disclose actual compute rather than claiming
+equal FLOPs from equal steps. Evaluate structured actions, verified multi-step
+reasoning, missing information, calibration and general retention. Only then
+compare each model with/without the same memory contract and matched memory
+budget. Keep D0/D1/D2 meanings within each backbone. Preregister numeric gain,
+regression and resource thresholds before observing comparison results; the
+existing promotion policy remains in force. No Spark acquisition, adapter or
+capability result is asserted by this document.
 
-`actual outcome → director proposal → source-bound practice → isolated candidate
-→ independent held-out evaluation → publish/reject/defer → restart → later task`
+### M1 — Episode contract and thin compiler
 
-The deterministic director remains until the checked-proposal gate reaches
-10 accepted / 10 rejected. Current count: 5 accepted / 8 rejected.
+Declare observation/query/distractor/correction/restart boundaries; independent
+source/decision-family splits; eligible teacher inputs; supervised masks;
+retention cases; training/promotion/audit roles and numeric resource budgets.
+The exposed 2,000-target release is not a fresh final audit. Split new worlds and
+families before expansion.
 
-### M5 — CMS / HOPE-lite
-Introduce explicit frequencies: fast per-chunk state, medium task/branch gates
-and procedures, slow candidate parameters. Learn only `η` and `α` first. Compare
-one/two/three rates and fixed/learned update rules. A full HOPE reproduction is
-an architecture-scale pretraining project, not a local wrapper.
+Connect one observed experience to a real typed payload and later consumer.
+Reuse `ArtifactRegistry`, `RepairProcedure`, writer/image producers, isolated
+candidate experiments and `ManifestRegistry`. Extend their connection to bind:
 
-### M6 — Identity/personality
-Add `IdentityContext` to `DecisionFrame` with mode, cutoff, purpose, snapshot
-digest and evidence IDs. Feed approved slots to a separate reader with its own
-gate. Identity may rank valid actions or request clarification; it cannot rewrite
-facts, satisfy a failed verifier or change the protected goal. Use fictional
-decision families first; authentic data and human review remain required.
+- complete payload bytes and source/span hashes, not only metadata or paths;
+- parent manifest, base/tokenizer/processor/writer/update-rule versions;
+- owner/mode/purpose/cutoff, evidence epoch, dependencies and expiry;
+- dimensions, dtype, chunk/cursor and all required update buffers;
+- validation/evaluation receipts and accept/reject/defer state.
 
-## 6. MiniCPM-V 4.7 plan
+Add current-eligibility rechecks before publication/outward actions, exclusive
+publication/parent comparison, interrupted-publication recovery and transitive
+invalidation through practice data and trained descendants. Reuse atomic
+replacement/ancestor rollback. Rejected/inconclusive candidates preserve the
+parent. Image rebuilding is not neural unlearning. Keep a bounded procedure
+baseline while connecting real neural candidates.
 
-Verified config: 24 text layers, width 1024; **3 linear-attention / 1 full-attention**
-repeating blocks; full-attention indices 3, 7, 11, 15, 19, 23; linear state
-`[B,16,128,128]` plus convolution history; vision tower 27 layers, width 1152;
-16× downsample; canvas M-RoPE; vocabulary 248094.
+### M2 — One learned adaptive-memory path
 
-Do **not** insert a second GDN-2 memory into every linear block. The VLM already
-has native Gated DeltaNet linear attention; duplicating it would confound
-attribution and risk state corruption.
+First qualify a single complete-block insertion, then two private insertions.
+Preserve native attention/MLPs and independently gated record/workspace paths.
+The new layer is a residual memory branch, not a replacement for native attention.
+Version its writer, update rule, state layout and reader separately from the
+backbone. Start on MiniCPM5; a qualified Spark or VLM adapter receives newly trained
+projections and regenerated memories, never a blind extension-weight transplant.
+Use contextual observation-only features for head-specific Q/K/V and gates.
+Separate observations from teacher-forced answers: answer annotations, generated
+continuations and future observations are never writes. Source features remain
+differentiable when their producer trains.
 
-Proposed route:
+Start with per-head `M ∈ R[dk,dv]`, optionally `H=4`, `dk=dv=128`. Each head has
+distinct write projections. Four FP32 matrices occupy 256 KiB; parameters,
+activations, replay, gradients and optimizer state need separate measurement.
 
-- ports after full-attention boundaries **7 and 15**, observer **23**;
-- memory width 128 initially, then 256 only with measured benefit;
-- preserve native recurrent, convolution, full-attention KV and M-RoPE state;
-- make `rope_deltas` request-owned and reset between requests;
-- leave the vision tower and merger unchanged in the first adapter;
-- add cross-modal record latents after fusion: image/video hash, crop, frame time,
-  processor/vision/merger versions and exact visual reference;
-- add Engram only on the text side after fusion;
-- apply personality conditioning after fusion, on text/action tokens only.
+**Proposed SGDN-2 reference, column-vector notation:**
 
-Phases:
+```text
+||k||₂ ≤ 1
+β ∈ [0,1]^dk; ω ∈ [0,1]^dv; λ ≤ 0
+u = sqrt(β) ⊙ k
+D = diag(exp(λ))
+M_next = (I − u uᵀ) D M + u (ω ⊙ v)ᵀ
+read = Mᵀ q
+```
 
-1. Text memory block trained and measured on MiniCPM5; transfer method, not
-   weights.
-2. VLM adapter with zero-init outputs and text-only parity.
-3. Image/video position and cache parity.
-4. Visual delayed-use and source-correction tests.
-5. Cross-request isolation and state reset.
-6. Visual memory evaluation; captions alone are not visual memory.
+This uses [MemT-1.0 Appendix C](https://arxiv.org/html/2610.26825v2#A3)'s
+symmetrized erase. The earlier `β k kᵀ` expression was not that channel-wise
+form. Bounded erasure does not guarantee unlimited retention under repeated
+writes. Specify decay, bounded values or a state bound and measure saturation.
+Use declared read normalization, a sigmoid gate and zero final residual
+projection. Ordinary SiLU is not a bounded gate.
 
-VLM weights are not local; the adapter remains blocked until they are available.
+State transitions are pure functions returning tensors/proposals. Checkpoint
+recomputation performs no host writes. Keep deployment snapshots detached;
+a bounded training unroll carries gradients across observation chunks. Check
+writer gradients after the zero output projection opens, not only at initialization.
+
+Train later-answer/action supervision after original context removal. Compare
+a full-context teacher with a memory-only-history student, following
+[MemT-1.0's objective](https://arxiv.org/html/2610.26825v2#S3.SS3), using checked
+targets. Include general replay/retention, a declared short multi-chunk gradient
+horizon, and unseen associations. A 32–64-update screen is diagnostic, not a
+sufficient training claim.
+
+Evaluate new entity/value bindings, seen values in new combinations, changed
+templates, delayed corrections and interference. Compare exact/full-text
+context, linear memory, zero, shuffled and disabled paths. Lower loss or changed
+logits alone does not pass. Contextual features alone already failed in E4.
+
+### M3 — Shared-depth learning
+
+All ports read the same committed chunk-start state. Writes remain proposals
+until one completed-chunk publication. Later reads must differentiate through
+earlier writes within the declared horizon. Include cross-depth gradient-cut
+and per-port write/read controls, restart and future/same-chunk leakage tests.
+
+Specify the reducer before training: uTTT's combined gradient update differs
+from gated state transitions. For a project SGDN-2 prototype, a fixed convex
+combination of per-port next-state proposals, each computed from the same
+starting state, is an explicit candidate reducer; it is not uTTT. Compare
+private/shared variants with the same engine. An aggregated-gradient engine is
+a separate arm. Summed gated deltas do not inherit stability automatically.
+
+Match total state, trainable parameters and active compute where claimed. If an
+arm matches only storage, disclose this and add a compute control. Count master
+accumulators, optimizer/momentum buffers, attention state and replay. Measure
+long-history interference before increasing state size.
+
+**M3 measured update (24 October 2026):** the independent verdict is
+`accept_m3_ownership_interfaces`. Shared and private each scored 4/4 dev and
+4/4 held-out, with matched writer/reader parameters, different per-depth
+proposals and all implementation/lineage checks passing. Update 2, after the
+zero projections opened, reached earlier writes at both depths; gradient-cut
+removed only first-chunk gradients. Fresh processes reloaded both extensions
+and images without observation encoding. Shared uses 65536 state bytes and
+private 131072, so outcomes are descriptive, not capacity-normalized. Both
+candidates fail the fixed retention replay 0/2 versus parent 2/2. Diagnose that
+regression before M4; do not infer readiness for promotion from the ownership
+verdict. See [M3 results](../experiments/20261024_M3_Depth_Ownership_Results.md).
+
+### M4 — Engram and dynamic routing
+
+Implement deterministic multi-head causal 2/3-gram hashes, learned tables,
+contextual gates and zero-init residuals. Declare per-order/head sizes and total
+budget; roughly `2^16` rows at width 128/256 is a pilot, not a paper-equivalent
+configuration. Qualify optimizer/sparse-gradient behavior on MPS. Measure
+collisions, bytes touched, optimizer residency and cold/warm latency.
+
+Compare early injection with established memory ports; another backbone's early
+layer result does not identify a MiniCPM optimum. Preserve exact identifiers in
+the ledger. Learned top-k routing is separate from Engram's addressing rule.
+
+The requested **dynamic Engram path** is this proposed composition:
+
+1. Learned pattern tables frozen within each accepted version.
+2. Editable episodic records/branch state with independent lineage.
+3. A router over exact retrieval, adaptive state, lookup and procedures.
+4. Verified consolidation into a new table/component candidate when justified.
+
+Start with deterministic routing/cost logs. Learn read/write routing separately
+after checked trajectories exist. Corrections invalidate overlays/descendants;
+trained tables require a permitted rebuild or qualified removal method when
+revoked data affected them. Require additive benefit over record/fast memory.
+
+### M5 — Candidate learning, RSI and continuing operation
+
+Connect `actual outcome → diagnosis → eligible practice → isolated candidate →
+independent evaluation → publish/reject/defer → restart → later task`.
+Procedure growth and parameter changes have separate metrics. Calibrate
+success/action-value estimates on disjoint outcomes before they control routing
+or expenditure; they never authorize success.
+
+Retain D0 ordinary full tuning, D1 frozen-base/new-modules and D2 full augmented
+tuning with matched parents/data and declared search/compute. The eight-update
+D2 action negative does not settle co-adaptation for new memory. Complete admitted
+S2 comparisons and select the developmental parent before selected-system
+post-freeze claims. A fixed-baseline thin loop may be built earlier under S3
+preparation; its base must not silently change between cycles.
+
+Start with fixed verified practice. C13 has 5 accepted and 8 rejected/deferred
+groups against its 10/10 collection minimum. Reaching that minimum permits study
+preparation, not a selector-success claim. Prefer a small ranking/bandit study
+before complex RL.
+
+Run ten chronological cycles: T0 persists nothing; T1 stores evidence; T2 uses
+fixed verified replay/candidates; T3 learns selection plus candidate updates.
+Include replay-matched T2, common exposure/evaluation budgets, retention,
+distribution change, no-improvement periods, rejection, rollback and restart.
+Count generation/verifier/training/evaluation and rejected-candidate costs.
+Promotion/audit data never train the director. Separate small opt-in pilot
+acceptance from default promotion; preserve independent-pair/statistical gates.
+
+**RSI scope:** improvement must change a candidate skill, memory component,
+reasoning policy or eligible parameters and improve independent later behavior.
+Additional reflection text or a larger record store alone is not recursive
+model improvement. Use these increasing scopes:
+
+1. **Verified practice and candidate SFT.** Diagnose real failures; propose
+   bounded tasks, data/self-edits or tool-grounded reasoning traces; verify
+   outcomes with deterministic executors where possible. Train isolated named
+   components with fixed replay and compare to their frozen parent. Correct
+   answers do not prove a generated rationale is sound: verify executable steps
+   or mark intermediate reasoning as unverified. Keep generated practice distinct
+   from observed facts and authentic personality history.
+2. **Learned improvement policy.** After sufficient accepted/rejected candidates,
+   learn what to practice, replay or update. SEAL motivates rewarding downstream
+   gain after actual adaptation. Compare against replay-matched fixed practice;
+   use ranking/bandit selection before considering RL. Admit RL only after reward
+   reliability, coverage, resource limits and anti-leakage checks are qualified.
+3. **Later code/architecture proposals.** Propose source changes or new memory
+   variants in an isolated candidate checkout/artifact. A separately controlled
+   evaluator runs fixed tests and held-out tasks. Candidate code cannot rewrite
+   its audit, success rules, resource guard, source permissions or protected
+   identity goals, nor publish itself. Integration uses the existing review and
+   publication authority. A DGM-style software gain is reported separately from
+   parameter learning and from evidence of improved learning ability.
+
+Each cycle records parent/candidate hashes, evidence cutoff, generated-data
+lineage, trainable inventory, replay, verifier outcomes, later-task results,
+retention, costs and accept/reject/defer. Recheck eligibility at publication;
+restart must restore the accepted version, and a damaging next candidate must
+roll back without contaminating the parent. Test both reasoning transfer and
+memory acquisition/correction on fresh future families. Improved *ability to
+learn* requires better later adaptation under matched exposure/update budgets,
+not simply a rising score on rehearsed cases. No accelerating or open-ended RSI
+claim follows from a successful bounded cycle.
+
+### M6 — Learned multi-rate consolidation
+
+After simple-loop evidence, compare one/two/three learned levels. Declare each
+level's parameters, initialization, context stream, loss, accumulation, update
+frequency, buffers, reset/persistence and transfer to slower levels. Begin with
+fixed versus learned step-size/forget coefficients on matched workloads. Naming
+fast matrices, procedures and a training schedule does not implement CMS. A
+HOPE reproduction remains a separate research scope.
+
+## 6. M7 — MiniCPM-V 4.7-1B
+
+Use the pretrained MiniCPM-V vision path as the first multimodal target. Keep
+Spark a text comparison initially. Adding an unrelated vision encoder to Spark
+would require a separately trained alignment/projector, paired image-text data,
+visual instruction/reasoning training and retention study; it is a later option,
+not a shortcut around a native VLM adapter.
+
+The [official config](https://huggingface.co/openbmb/MiniCPM-V-4.7-1B/blob/379f120c2ff3588e6e06559ec6b9ec15cc05114e/config.json)
+has a 24-layer, width-1024 Qwen3.5 text core: three linear layers per full-attention
+layer, at full-attention indices 3/7/11/15/19/23. Vision is 27 layers, width 1152.
+Preserve merger/processor, 16× downsample, canvas M-RoPE and vocabulary 248094.
+Seal model, processor and implementation revisions before native execution.
+
+Use a separate adapter. Initial ports 7/15 and observer 23, memory width 128,
+are hypotheses. Preserve recurrent/convolution state, attention KV and
+request-specific `rope_deltas`. Native linear state is not an autobiographical
+database. Keep added memory separately owned; do not overwrite native state or
+duplicate an extra engine in every linear block.
+
+Qualify native text/image generation, zero-init parity, image/video positions,
+cache equivalence, isolation and reset before training memory. Transfer methods
+and contracts, retrain projections and re-encode sources; MiniCPM5 extension
+weights are incompatible. Use an available correct native implementation before
+optimizing kernels.
+
+Visual payloads bind image/video bytes, crop/frame/time and producer versions.
+Compare actual-image, wrong-image, no-image and caption-only controls, chronology,
+correction and text retention. Distinguish `full_text` from `full_vlm`. Initially
+condition text/actions on identity after fusion. Weights are not local; continue
+independent text work while that dependency is unresolved.
+
+Stage visual training after native parity:
+
+1. **Frozen native vision/text reference:** qualify actual image-conditioned
+   outputs, processor expansion and positions before adding memory. Do not
+   substitute captions for the image arm.
+2. **Visual-memory alignment:** freeze the existing tower/mergers initially;
+   train the new visual writer, memory readers and selected action interfaces on
+   eligible image/frame observations. Later queries receive memory after the
+   original visual context is removed. Keep frame times, spatial references and
+   corrections in the exact ledger.
+3. **Verified visual reasoning:** use object/region relations, OCR/document
+   evidence, temporal changes and tool-verifiable tasks with disjoint scenes,
+   documents and sessions. Score final outcomes and evidence dependence; only
+   independently checked intermediate steps become reasoning targets. Include
+   wrong-image, no-image, caption-only, shuffled-memory and text-retention arms.
+4. **Selective co-adaptation if justified:** declare merger/last-vision-block/
+   text trainable groups and verify their gradients; label this partial tuning.
+   `full_vlm` requires every declared native visual/text group and a newly
+   measured budget. Changes to the visual producer invalidate cached features
+   and require re-encoding. Integrate visual candidates into M5 only after these
+   controls pass.
+
+MiniCPM-V-4.7-35B-A3B may supply a separately costed teacher or inference reference
+once its backend and resource plan qualify. Teacher generations are proposals
+requiring verification and split controls; they cannot see the final audit.
+Its active-expert designation does not authorize local full-model training.
 
 ## 7. Personality and semi-cognitive integration
 
-The host loop is stronger than the model policy. Preserve the exact task graph,
-typed actions, receipts and verifier. The practical semi-cognitive interface is:
+Archive, snapshots, modes, branch isolation, prompt renderer, native workspace
+reader and fictional scorer exist. Extend approved source → slot encoder →
+identity read/context → decision binding → workspace/action ranking. Bind
+subject/mode/snapshot/purpose/cutoff/evidence through persistence and replay.
+The native reader remains untrained; attachment is not fidelity evidence.
 
-1. host enumerates a bounded authorized action menu;
-2. model ranks actions and supplies typed arguments;
-3. host validates authority, schema and budget;
-4. host executes and records a receipt;
-5. model sees the actual outcome and may revise the plan;
-6. only the independent verifier declares success.
+Keep conditional priorities, exceptions, evidence and uncertainty separate from
+facts and style. Compare generic, approved-summary, archive-retrieval and neural
+conditioning with equal information. Hold out complete decision/topic families
+before expansion. Measure choice, clarification, counterfactual sensitivity,
+temporal fidelity, unknown handling, competence, style and attributable branch
+divergence separately. Authentic data and source-person review are required;
+fictional tests do not substitute for them.
 
-This is not a free-form policy. Candidate-generation rules, scores, chosen index
-and random controls must be logged. Identity is a separate branch: conditional
-priorities can change ranking or clarification, not facts or verification.
-Fictional contract tests come first; authentic fidelity requires permitted data
-and human review.
+[Interview-grounded simulations](https://arxiv.org/abs/2411.10109v3) motivate
+source-based behavioral evaluation and test-retest comparison;
+[persona vectors](https://www.anthropic.com/research/persona-vectors) concern
+selected traits, not whole-person reconstruction. Human source history and
+agent-owned skills/experience remain distinct; protected goals cannot silently
+change through a skill update.
 
-## 8. Acceptance gates
+Preserve sense → core → immutable decision → action → actual outcome. Exact
+task state owns goals/obligations; approximate workspace combines evidence,
+hypotheses and priorities. Additional retrieval starts a new pinned decision.
+Sense KV is not action KV. Train ranking/typed arguments with actual branching
+outcomes, deterministic/no-core/feed-forward/extra-inference controls. Add deeper
+recurrence, CTM or Coconut only if justified. Norms and self-reports are not
+calibrated success probabilities.
+
+## 8. Acceptance and first complete milestone
 
 | Area | Required evidence |
 |---|---|
-| Native memory | Null parity; independent branch effect; delayed use > zero/shuffled/disabled; correction/revocation; restart; no future/generated writes |
-| Shared depth | Shared vs private at equal state/compute; cross-depth write ablation; chunk-start consistency; no same-chunk leakage |
-| Engram | Additive gain over record memory; collision/bytes/latency; frozen table between candidates; no fact authority |
-| Compiler | Payload/source hashes; atomic publish; rollback; transitive invalidation; changed-tensor audit |
-| Self-evolution | Real parameter update; improvement on unseen cases; retention; bad-candidate rejection; restart; cost |
-| Action | Completion; plan change after real failure; zero false success; malformed actions; restart |
-| Identity | Null mode; mode/cutoff; source/branch isolation; no verifier override; provenance vs preference ranking; human review |
-| VLM | Text/vision parity; M-RoPE; recurrent/conv/KV state; cross-request isolation; visual delayed use |
-| Resources | Peak driver, swap, free memory, tokens, tool calls, latency, artifact bytes; 40 GiB / 512 MiB / 15% guards |
+| Spark challenger | Pinned BF16/native adapter; parity and real update/reload; matched plain/augmented controls; measured memory/cost; no regression before promotion |
+| Memory | Null parity; later loss reaches earlier writes; unseen bindings; zero/shuffle/disable; correction, saturation and restart |
+| Shared depth | Defined reducer; chunk-start reads; one commit; cross-depth intervention; honest state/compute accounting |
+| Routing/Engram | Additive utility; collision/interference/latency; immutable version; eligibility |
+| Compiler | Real payload/consumer; hashes and parent/source checks; recovery, invalidation and rollback |
+| Learning/RSI | Actual parameter/procedure change; verified practice; unseen later-task and later-adaptation gain; fixed audit, retention, rejection and complete costs |
+| Action/core | Plan change after failure; completion; malformed/false-success rates; benefit beyond simpler controls |
+| Identity | Null/mode/cutoff; source/branch attribution; conditional choices; authentic review for fidelity |
+| VLM | Native parity; position/recurrent/conv/KV ownership; image dependence, delayed use and text retention |
+| Resources | Actual tokens/state bytes, driver memory, swap delta, free memory, time and tool/verifier cost |
 
-## 9. Defects corrected in this package
+First demonstrate: observe an unseen association → use it after context removal
+→ restart → handle a dated correction → compile/reuse a verified repair on an
+unseen later task. Inject a bad candidate and demonstrate rejection/rollback.
+Use fictional priorities for integration tests and authentic approved evidence
+only when supplied. This bounded milestone does not complete long-horizon or
+personal-fidelity goals.
 
-1. **Capacity inference autograd retention.** `scripts/run_e2_capacity.py` now
-   wraps record-writer and sense producers in `inference_call()`, which executes
-   under `torch.no_grad()`. The old 8192-unit boundary is preserved as historical
-   evidence, but correctly configured inference must be remeasured before using
-   it as a model limit.
-2. **Constant candidates omitted from action menus.** `candidate_actions.py` now
-   parses host-read numeric strings (rejecting booleans and non-finite values)
-   into menu values. The `set_train_retry_01` fixture now exposes
-   `BACKOFF_SECONDS=0.4`, `REQUEST_TIMEOUT_MS=1200`, and `RETRY_ATTEMPTS=2`
-   instead of zero constant candidates. Model behavior with the added candidates
-   is not yet measured.
-3. **Pre-admission invalidation was ineffective.** `RequestScheduler` now records
-   revoked request IDs independently of generation and refuses admission before
-   any operation runs. A regression test covers `invalidate()` before `admit()`.
-4. **Status reconciliation.** The implementation registry, execution state and
-   resumption record are corrected to the current suite, capacity evidence,
-   C11/C13 states and the 16-unit retrieval versus 4096-unit capacity distinction.
+## 9. Operational and evidence rules
 
-## 10. Limits and do-not-do list
+- Reuse the locked environment and sealed original. Native jobs use MPS without
+  CPU fallback and one exclusive worker. The user-authorized default is now
+  **50 GiB = 53,687,091,200 bytes** (about 53.7 decimal GB), using the existing
+  GiB convention. Training and generation wrappers derive this from
+  `CapacityPolicy`; a sampled value at or above it stops the job. Sustained
+  512 MiB swap growth and 15% minimum host-free checks remain, with three
+  consecutive host samples; insufficient initial host-free memory blocks launch.
+  Host pressure can therefore stop below 50 GiB. No allocator/OS limit is changed.
+- Historical protocols and reports retain their explicit 40 GiB policy. For new
+  50 GiB work, version the protocol and bind the guard's actual policy, current
+  code hashes and fresh output paths. Do not reuse a pinned 40 GiB launcher as a
+  50 GiB experiment or relabel the old 48.08 GiB stop as a pass. Never raise a
+  limit further to rescue an arm; sampled guards are not an OOM guarantee.
+- Preserve D0/D1/D2 optimizer membership and changed-tensor reports. Keep frozen
+  downstream computation differentiable where new modules need it. Defaults
+  remain unchanged until their promotion gates pass.
+- Do not repeat failed objectives unchanged, stack all mechanisms in one arm,
+  infer capability from tests/loss, or silently relabel partial tuning as full.
+- Protect `src/replica_lab/runtime_pilot.py`, source/selected weights and negative
+  evidence. Use unique run directories; no unrelated cleanup, routine downloads,
+  remote pushes or external publication.
+- After each package, record commands, pins, raw reports, measured scope,
+  negatives and next action. Historical experiment reports retain their results.
 
-- Do not stack Titans, uTTT, MemT, HOPE and Engram in one arm.
-- Do not cite MemT's 34B or HOPE's 15B training budgets as local plans.
-- Do not repeat free-form E3 action arms; constrained decoding, DAgger, large
-  supervision, action guards and full-backbone D2 all failed.
-- Do not use full-backbone training to rescue the action interface; bf16 D2
-  completed 8 updates at 39.10 GiB and still scored 0/6.
-- Do not call an online-updated table Engram.
-- Do not use generated text as a fast-memory write.
-- Do not report hidden-state norms as calibrated confidence.
-- Do not claim personality fidelity without authentic permitted data and human
-  review.
-- Do not describe a sidecar port as a reproduction of HOPE, MemT-1.0, Titans or
-  uTTT.
-
-## 11. Sources checked
-
-- [Titans: Learning to Memorize at Test Time](https://arxiv.org/abs/2501.00663)
-- [Universal Test-Time Training](https://arxiv.org/abs/2610.05484)
-- [MemT-1.0: Towards Memory-Native Evolution](https://arxiv.org/abs/2610.26825)
-- [Nested Learning: The Illusion of Deep Learning Architectures](https://arxiv.org/abs/2512.24695)
-- [Google Research: Introducing Nested Learning](https://research.google/blog/introducing-nested-learning-a-new-ml-paradigm-for-continual-learning/)
-- [Conditional Memory via Scalable Lookup (Engram)](https://arxiv.org/abs/2601.07372)
-- [Mem-T: Densifying Rewards for Long-Horizon Memory Agents](https://arxiv.org/abs/2601.23014)
-- [Gated DeltaNet-2](https://arxiv.org/abs/2605.22791)
-- [MiniCPM5-2B model card](https://huggingface.co/openbmb/MiniCPM5-2B)
-- [MiniCPM-V 4.7 1B model card](https://huggingface.co/openbmb/MiniCPM-V-4.7-1B)
-- [Transformers MiniCPM-V 4.7 documentation](https://huggingface.co/docs/transformers/main/model_doc/minicpmv4_7)
-- Local: [memory and runtime compilation](03_Memory_and_Runtime_Compilation.md),
-  [fast memory](10_Fast_Memory_Reference.md),
-  [typed artifacts](11_Runtime_Artifacts.md),
-  [learning director](13_Learning_Director.md),
-  [E2 capacity results](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md),
-  [E3 native results](../experiments/20261023_E3_Native_Results.md).
+Code `6e8ec34` already fixed inference retention, numeric-string menus and
+invalidation-before-admission. This revision changes only the shared guard
+default and its CLI/test coverage in executable code; it adds no native results.
+Current entry points: [execution state](../../execution_state.md),
+[continuation](../../AGENT_CONTINUE.md),
+[status registry](../../configs/architecture_implementation_status_v1.json),
+[resumption](../experiments/20261023_Resumption_Record.md).

@@ -1,216 +1,172 @@
 # Coding-agent continuation instruction
 
-**Current work — E3 bounded mixed-outcome completion and restart on 23 October
-2026 UTC.** The shared width-256/eight-slot/two-iteration core, independent
-memory/workspace readers, exact task journal, typed actions, real fixture tools
-and independent verifier are connected. On a fresh synthetic mixed family (pass
-cases stop after verification; repair cases change one constant), **4/4
-head-conditioned and 4/4 no-head held-out episodes completed** with correct
-repairs, passing evaluators, 0 malformed actions and 0 false success claims. The
-action-kind head was rejected: no-head controls had identical action kinds, so
-the head has no measured benefit. **Fresh-process continuation passes 12/12**:
-process 1 observed evaluator exit 1 and stopped after two decisions; process 2
-resumed the same journal and ledger, applied the single repair, passed the
-evaluator and did not replay completed actions.
+Current documentation review: 24 October 2026, against code/protocol HEAD `bde63a7`
+on `codex/d2-capacity-runtime-pilot`. This update records M2/M3 evidence and the
+retention blocker. It does not launch an agent, native experiment or automation.
 
-Earlier `write_file` and `set_constant` families remain preserved negatives
-(0/8 and 0/7); the bounded mixed success is not a general capability claim. The
-success head has a **diagnostic fit** on 18 actual outcomes but remains
-**uncalibrated, unpublished and without success authority**. E2 novel-value
-reading remains 0/16, E4 delayed use was rejected (0/8 held-out; compositional
-1/8 with no control gain), E5 procedure publication/rollback passes, and C16
-identity conditioning awaits authentic permitted source. Full suite **1211
-passed / 21 subtests**. No active native job; no base copy, download or Neural
-Engine claim.
+## Resume from evidence
 
-**E3 narrower repair (23 October):** fresh `set_constant` family passes
-all engineering checks but scores **0/7**; the model repeats `read` despite
-teacher loss 0.015. This is a second negative action-policy family, not a tool
-defect. Do not rerun a near-identical action arm; target action selection or
-advance E4. See [results](docs/experiments/20261023_E3_Set_Constant_Results.md).
+Read these in order, then inspect the affected code and raw reports:
 
-**E2 reader candidate (23 October):** D1 answer-loss training on 24 cases
-left dev+held-out exact accuracy **0/16** (parent 0/16); values were not copied.
-Deferred, no default change. See
-[reader candidate results](docs/experiments/20261023_E2_Reader_Candidate_Results.md).
+1. [Execution state](execution_state.md) — current snapshot first; older entries
+   preserve historical results.
+2. [Research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
+   — current M0–M7 construction order, research distinctions and acceptance gates.
+3. [Loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md)
+   — the complete iteration, evaluation and handoff protocol.
+4. [Resumption record](docs/experiments/20261023_Resumption_Record.md),
+   [implementation status](configs/architecture_implementation_status_v1.json)
+   and the relevant component specification.
+5. [Start instructions](AGENT_START.md), applicable repository instructions,
+   recent Git history and current worktree changes.
 
-**Memory answer facade (23 October):** opt-in pointer provenance or exact-source
-fallback, never fabricated; pointer metrics unchanged. See
-[memory answer path](docs/architecture/12_Memory_Answer_Path.md).
+The current M0–M7 order supersedes older next-task paragraphs. E1–E6, C01–C18
+and S-stage identifiers remain useful component and scientific-gate references.
+Preserve dated experiment results; an old measurement is not a new result.
 
-**E2 pointer units (23 October):** whole-word candidates fix truncation but
-both token/word score 2/12; source/query selection remains. See
-[pointer units](docs/experiments/20261023_E2_Pointer_Units_Results.md).
+MiniCPM5 remains the required baseline. M0b adds an optional **Spark-X2.6-4B
+BF16** comparison with its own native adapter and resource/quality gates. M7
+uses MiniCPM-V's pretrained vision path; the later larger model is
+**MiniCPM-V-4.7-35B-A3B**. New memory layers and bounded RSI follow the gates in
+document 15; none of these planned paths is qualified by the documentation.
 
-**E2 pointer fresh consumer (23 October):** 3/12 untouched-value exact,
-partial subword copies; provenance/exact fallback pass; opt-in only. See
-[fresh pointer results](docs/experiments/20261023_E2_Pointer_Fresh_Service_Results.md).
+## Current accepted evidence and limits
 
-**E2 pointer consumer (23 October):** published pointer through answer service,
-dev 3/6, heldout 2/10, complete provenance; exact fallback passes; no default
-change. See [consumer results](docs/experiments/20261023_E2_Pointer_Service_Results.md).
+- The native MiniCPM5 adapter, record memory, shared recurrent workspace,
+  independent readers, exact task journal, bounded tools and independent
+  verification are connected. Mixed-family completion is 4/4 with and without
+  the action-kind head; that head has no measured benefit. Restart passes
+  12/12 acceptance checks. These are narrow synthetic results.
+- Free-form action learning remains negative. Candidate ranking historically
+  scored 17/17 repairs (15 held-out); the numeric-string menu correction in
+  `6e8ec34` changes candidate sets, so rerun fresh matched controls before
+  using that aggregate as evidence for the corrected interface.
+- Corrected inference passed the small and selected 4096-unit workloads; the
+  latter reached 28.5944 GiB with detached writer/sense and 28 nonzero backward
+  gradients per point. The 8192-unit point was not rerun. Fresh corrected menus
+  fail on distractors; old-case regression and the deterministic procedure pass.
+- M2's shared-value SGDN-2 diagnostic passed 4/4 dev and 4/4 held-out after
+  context removal, above linear and null controls, with correction/restart and
+  2/2 retention. Its unique-value arm memorized training values and was rejected.
+- M3 shared and private ownership both passed 8/8 dev+held-out, update-two
+  cross-chunk gradients, gradient-cut and fresh-process image restart. Private
+  uses twice the logical state; no capacity-matched or uTTT claim is made.
+  Both candidates nevertheless fail retention replay **0/2** versus parent 2/2.
+  Diagnose that regression before any repair arm or M4 expansion.
+- Procedure compilation, execution, candidate rejection, single-writer atomic
+  publication and ancestor rollback exist; the compiled procedure passed
+  3/3 held-out cases plus dev. Do not rebuild these as missing primitives.
+  Coordinated compiler transactions, complete payload binding and an
+  integrated neural improvement loop remain open.
+- C16 has a native identity reader after the workspace path, persistent
+  identity contracts and fictional tests. Its encoder/training, authentic
+  source-based evaluation and fidelity are open. The success head has a
+  diagnostic fit but is uncalibrated and has no success authority.
+- The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
+  Later focused private-linear and shared-equivalence regressions also pass.
+  The 50 GiB guard, source seals and all failed native reports are preserved.
 
-**E4 permitted replay (23 October):** bounded host replay after correction
-rebuilds fast state, clears workspace, rejects generated text; no learned benefit.
-See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+## Next work package and progression
 
-**E4 source invalidation (23 October):** host correction clears workspace and
-matching fast lineage; unmatching fast state preserved; old images are historical.
-See [fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+**Start with the M3 retention diagnostic:** evaluate the accepted candidates on
+the two replay cases with correct, zero, disabled, shuffled, full-context and
+per-port controls. Do not retrain until the failing branch and recovery controls
+are measured. Any repair requires a fresh protocol and fresh retention audit.
 
-**E4 image reload (23 October):** exact owner/scope/producer image loads into
-a fresh bridge and seeds runtime; cross-branch/tampered images rejected. See
-[fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
+M0a/M1/M2/M3 are complete within their recorded scopes. M0b remains an optional
+Spark BF16 comparison and does not block MiniCPM5. After retention is resolved,
+continue M4 static lookup/dynamic routing, then M5 bounded RSI, M6 learned
+timescales and M7 native vision. Authentic identity fidelity still requires
+permitted source material and human review.
 
-**E2 pointer publication (23 October):** accepted opt-in candidate, harmful
-candidate rejected, manifest rollback verified; exact text remains default. See
-[pointer publication](docs/experiments/20261023_E2_Pointer_Publication_Results.md).
+Then use this order, advancing only on the declared gate:
 
-**E4 contextual writer (23 October):** loss 50.1→8.3 but train 3/24,
-heldout 0/8, controls 0/8; rejected. See
-[contextual writer results](docs/experiments/20261023_E4_Contextual_Writer_Results.md).
+- **M1:** fresh chronological, source-separated episodes and one thin typed
+  compiler path that reuses the ledger, catalog, verifier and publisher.
+- **M2:** one useful adaptive-memory path with distinct head writes, bounded
+  SGDN-2-inspired recurrence, pure multi-chunk training state and delayed-use
+  supervision. Separate functional training from detached deployment state.
+- **M3:** compare shared-depth and private memory using the same update engine,
+  information and budget. Shared-state semantics and gradient aggregation
+  must be defined before claiming uTTT-style behavior.
+- **M4:** bounded static Engram-style lookup plus versioned episodic routing;
+  evaluate routing, collision behavior, invalidation, deletion and cost.
+- **M5:** candidate training, independent comparison, publication/rejection,
+  recovery and ten chronological T0/T1/T2/T3 cycles. Preserve the fair
+  developmental D0/D1/D2 study before freezing a selected deployed parent.
+  RSI progresses from verified practice/candidate SFT to learned selection;
+  later code/architecture proposals keep evaluation and promotion external.
+- **M6:** distinct learned multi-rate levels and objectives only after useful
+  simpler adaptation is established. Timers alone do not implement HOPE.
+- **M7:** a separate native MiniCPM-V-4.7-1B adapter and qualification.
+  Transfer contracts and methodology; retrain interfaces and re-encode
+  memories for its Qwen3.5/hybrid/vision representation.
+  Start with native visual parity, then frozen-tower visual-memory alignment,
+  verified visual reasoning and separately justified co-adaptation.
 
-**E2 exact-span pointer (23 October):** opt-in novel-value copy, dev 3/6,
-heldout 2/10, shuffled 0/16; flat training loss, no default. See
-[pointer results](docs/experiments/20261023_E2_Pointer_Copy_Results.md).
+Personality/identity work runs alongside M1–M3 where permitted source and
+evaluation are available. Use equal-information no-identity, prompt-only and
+native-reader controls. Calibrate uncertainty before allowing it to control
+actions or learning. Missing authentic sources block fidelity claims, not
+independent memory/compiler construction.
 
-**E2 record-token copy head (23 October):** interface/null/serialization pass;
-copy-enabled and disabled both 0/16; rejected. See
-[copy-head results](docs/experiments/20261023_E2_Copy_Head_Results.md).
+The first integrated milestone is verified observation → useful delayed
+memory → restart → correction/revocation → compiled procedure → improved
+later unseen task → harmful-candidate rejection and rollback. Passing
+contracts alone does not complete that milestone.
 
-**E3 pooled success head (23 October):** trained on 18 actual outcomes,
-case-heldout 0.8125 vs 0.7778 majority, Brier 0.342; uncalibrated and
-unpublished, no authority. See [results](docs/experiments/20261023_E3_Success_Head_Results.md).
+## Preserve scope, artifacts and resource limits
 
-**E3 core controls (23 October):** full path 2/2 vs core-disabled/FF/extra
-1/2 each on a fresh repair/pass pair; repair-specific signal, no recurrent-core
-superiority. See [core-control results](docs/experiments/20261023_E3_Mixed_Core_Controls_Results.md).
+Reuse the locked environment and sealed original
+`checkpoints/minicpm5_source`, revision
+`f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Keep tokenizer/template provenance,
+selected D0/D1/D2 checkpoints, E1/E2/E3 extensions, failures and raw reports.
+Missing/corrupt source must fail offline. No routine downloads, duplicate
+native saves, historical-report rewrites or unrelated cleanup.
 
-**E3 exact-constant prompt evidence (23 October):** 4/4 fresh completions
-with host-read current names/values (no expected bound); narrower interface, not
-general capability. See [prompt evidence results](docs/experiments/20261023_E3_Prompt_Evidence_Results.md).
+Preserve the untracked `src/replica_lab/runtime_pilot.py`; do not modify,
+import, delete or stage it without an explicit change in scope. Preserve all
+other user changes. Do not invent a remote or push.
 
-**E3 fresh mixed family (23 October):** 3/4 no-head completions with new
-constant names/values; the miss was a new-constant name typo with rejected stop
-claims. See [fresh mixed results](docs/experiments/20261023_E3_Fresh_Mixed_Controls_Results.md).
+Native training/generation on this Mac uses MPS, CPU fallback disabled, one
+exclusive native worker, and the new default **50 GiB driver** threshold
+(53,687,091,200 bytes), with unchanged sustained 512 MiB swap growth and 15%
+minimum host free memory over three host samples. Initial low host-free memory
+blocks launch. Samples can miss peaks. Historical explicit 40 GiB protocols,
+reports and the pinned D2 resume launcher retain their original limits; create
+a new version with matched policy/code hashes for new 50 GiB work. This changes
+no allocator limit and establishes no new model fit.
+CPU remains appropriate for host I/O and small contract tests. MPS is not ANE.
+Use experimental `muon8bit` plus the documented auxiliary FP32 AdamW groups
+unless a comparison explicitly changes the optimizer. Record actual trainable
+membership, gradients, changed tensors, tokens, time and memory.
 
-**E3 fresh-process restart (23 October):** copied mixed repair case; process 1
-observed exit 1, process 2 resumed journal and completed; **12/12** acceptance.
-See [restart results](docs/experiments/20261023_E3_Mixed_Restart_Results.md).
+BF16 source weights/compute do not imply BF16 parameter residency in the current
+FP32 trainer. Muon int8 momentum does not enable FP8 weight training. Qualify
+Spark's real gradients, optimizer ownership and export/reload separately.
 
-**E3 mixed-outcome policy head (23 October):** 4/4 head-conditioned and
-4/4 no-head held-out episodes completed with independent evaluator passes; head
-and controls had identical action kinds, so the head is rejected (no measured
-benefit). See
-[policy-head results](docs/experiments/20261023_E3_Policy_Head_Results.md).
+D0 means plain full tuning; D1 means frozen base/new modules; D2 means full
+augmented tuning, including embeddings/head. Do not silently replace full
+scope with LoRA/freezing to fit. A valid offload/residency implementation is
+separate work. The exposed 2,000-target release is an infrastructure fixture;
+fresh family-level evaluation and S1 admission still gate a broad campaign.
 
-**E3 mixed-outcome probe (23 October):** 1.00 kind accuracy vs 0.875
-step-only, 0.375 majority on 16 held-out states; representation signal only,
-no policy head or action generation. See
-[mixed probe results](docs/experiments/20261023_E3_Mixed_Policy_Probe_Results.md).
+## Work and report discipline
 
-**E3 policy probe (23 October):** prompt-only core states classified action
-kinds at 100%, but all teacher trajectories share the same 5-step order; result
-is step-confounded and inconclusive. No policy head promoted. See
-[probe results](docs/experiments/20261023_E3_Policy_Probe_Results.md).
+For each iteration: establish current evidence → choose the smallest
+discriminating hypothesis → record protocol and controls → implement a
+coherent change → run meaningful checks → run an admitted bounded experiment
+when authorized → decide accept/reject/inconclusive → update evidence and
+handoff. Use fresh output directories and preserve failures.
 
-**E4 delayed-use candidate (23 October):** learned write projection + native
-fast readers; 0/8 held-out, 7/24 train, correct/shuffled differ but no
-association gain; compositional 1/8 vs 1/8 shuffled, 0/8 controls. Rejected,
-no default change. See
-[E4 delayed-use results](docs/experiments/20261023_E4_Delayed_Use_Results.md).
+Continue through authorized work without repeatedly asking for confirmation.
+A document is not permission to start an unrequested campaign, launch other
+chats or create an automation. Delegate only when the active user/environment
+instructions authorize it. Commit focused changes when authorized and
+permitted; never claim an uncommitted protocol is a preregistered Git commit.
 
-**E5 neural candidate (23 October):** existing E2 reranker evaluated against
-its parent on held-out sources: top1 0.25 → 0.50, but lexical 0.75. Accepted
-opt-in only; lexical default unchanged. See
-[neural candidate results](docs/experiments/20261023_E5_Neural_Candidate_Results.md).
-
-**E5 procedure candidate (23 October):** a compiled repair procedure passed
-3/3 held-out + dev with independent receipts, published with harmful-candidate
-rejection and rollback. No neural candidate or learned action policy was
-promoted by that package; the later mixed family completed 4/4 with and without a head. See
-[procedure results](docs/experiments/20261023_E5_Procedure_Results.md).
-
-**E4 typed artifacts (23 October):** kind-specific ContextPack/RecordLatent/
-BranchMemoryImage/ProcedureArtifact/NeuralCandidate metadata, lifecycle and
-dependency invalidation are implemented/tested. No execution, candidate
-training or publication yet. See
-[typed artifacts](docs/architecture/11_Runtime_Artifacts.md).
-
-**E4 fast-memory reference (23 October):** staged observation writes, one
-chunk-start commit, bounds/lineage/reset and strict image persistence are
-implemented and tested on the host. Opt-in native read ports pass null parity/independent influence; an untrained observation bridge now commits actual read/test observations into the next decision. Learned writes and delayed-use evaluation remain pending. See
-[fast-memory reference](docs/architecture/10_Fast_Memory_Reference.md).
-
-**C16 identity contracts (23 October):** source episodes, approved snapshots,
-conditional principles, mode-bound contexts, branch isolation, correction/
-revocation, a null prompt path and an optional zero-init reader are implemented
-with fictional tests. No authentic source, trained identity conditioning or
-fidelity evaluation exists. See
-[identity interface](docs/architecture/09_Replica_Identity_Interface.md).
-
-**E2 follow-up (23 October):** source-separated retrieval gives held-out
-recall@1 **0.75** lexical/dense and **0.50** learned rerank; each slot arm answers
-**0/6**, oracle slots **0/4**, and exact text **3/3**. The novel-value
-writer/reader path is the bottleneck; eligibility and long-chunk inclusion pass.
-Largest actually exercised retrieval/answer workload: **16 units / 2,043 source
-tokens / 256 prompt tokens / 8 generated tokens** plus modules-only 16-unit
-backward, at **12.51 GiB** peak driver, zero swap. Capacity is separate: the
-selected extension passed **4096 units** at 30.59 GiB; 8192 was attempted with
-the pre-fix inference harness and stopped by the guard at 48.08 GiB. The harness
-now runs writer/sense under `torch.no_grad()`, so corrected inference must be
-remeasured. Reranking stays opt-in; lexical is the default. D2 capacity was not
-run. See
-[E2 results](docs/experiments/20261023_E2_Retrieval_and_Capacity_Results.md).
-
-**Open:** configuration repair, correct action/argument selection, full-core
-plan continuation, success-head calibration, novel-value E2 writer/reader
-transfer, ranking quality, and a post-fix inference remeasurement of the
-4096/8192 boundary. Do not retune the held-out set. Next is either a separately
-preregistered native-memory block (GDN-2-lite plus learned writer) with fresh
-cases or a writer/reader improvement arm. No broad corpus campaign or model
-promotion is admitted.
-
-Validation: integrated full suite **1208 passed / 21 subtests**; E3-focused
-suite **157 passed** at its last recorded run. Attempt 1 (parity order), attempt
-2 (EOS-as-second-JSON parser) and the interrupted pre-check (nested binding) are
-preserved; attempt 3 is accepted. Source seal and the protected untracked
-runtime draft remain unchanged.
-
-**Storage rule:** reuse `checkpoints/minicpm5_source` revision
-`f97400052a43d642bbc6e9975e2397e3ae6a6b52`. Preserve the selected earlier D0/D1/D2
-checkpoints, attempt 1's negative evidence, and the current E1/E2 extension.
-No routine downloads, duplicate native saves, or unrelated cleanup. New native
-jobs use MPS with fallback disabled and the existing exclusive worker/guard.
-`runtime_pilot.py` remains protected, untracked and outside the implementation.
-
-Resume the existing TAIS Obsidian / Replica work. Preserve the objective and all established constraints. Do not restart the project.
-
-**Storage rule:** original model bytes at `checkpoints/minicpm5_source` must be reused, never reacquired routinely. They and `runs/` stay outside Git. Follow [checkpoint retention and Git hygiene](docs/experiments/20261022_Git_and_Checkpoint_Hygiene.md); the 16 marked old runtime directories were retired by the [authorized cleanup](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md). Preserve selected D0/D1 artifacts and D2 evidence. New model downloads require an explicit intentional `--allow-network` invocation; normal source checks remain offline. The earlier maintenance pause was superseded by the user's D2 resume instruction.
-
-Read execution_state.md, recent commits, git status, the last raw run report, AGENT_START.md and the relevant work package in docs/03_Implementation_and_Runbook.md. Distinguish tested code from proposed work and pretrained-model experiments from fixture tests.
-
-Future checkpoint saves under `runs/` now use verified hash-based APFS weight
-sharing. Read [applied storage and disk measurements](docs/experiments/20261022_Checkpoint_Cleanup_Applied.md).
-The pool was seeded from retained native snapshots; sidecars and runtime state
-remain independent. Preserve the BF16 original and strict historical runtime
-code contracts. Pool garbage collection is separate explicit work. Storage
-maintenance alone does not authorize unrelated training campaigns.
-
-Preserve the setup choice: experimental Muon 8-bit on the M2 Ultra Mac Studio (64 GiB), then the later RTX PRO 4000 Blackwell SFF (24 GB). Auxiliary FP32 AdamW keeps embeddings/head/slot queries eligible. Reuse the locked environment, sealed original and completed checkpoints; do not reacquire another revision or silently substitute AdamW. Preserve the historical constant-zero failure and the successful eight-update tiny-overfit result (export train 8/8, dev 14/16); its diagnostic checkpoint remains selected. No architecture or post-freeze learning candidate was promoted. CUDA full-text residency still needs the separate P2 path.
-
-Current branch is `codex/d2-capacity-runtime-pilot`. S0.5 bounded D0/D2 actual 256/512 capacity and S2.3 D2 tiny memorization/scope/restart pass. D2 stops at update 8 after 8/8 at updates 4 and 8; saved-export train 8/8 and dev 14/16, all EOS at cap 256. All 381 originals and 48 added tensors change; all recorded guards pass. D1 memorization and its failed arm remain preserved. The historical D2 suite passed 479 tests with one restricted-context MPS skip; the final v2 integration package passes 819/one skip; preregistration remains 798/one skip. Source and acquisition receipt remain unchanged. Read execution_state.md and reports/native_augmented_D2_experiment_20261022.json. Continue the integrated E1/E2/E3 architecture build and independent S1 admission/evaluation; preserve the S2.4 fair-comparison proposal without launching the 20k campaign. Useful gain, retention and full learning-loop integration remain pending.
-
-**Hardware requirement:** native model training and generation on this Mac must use `--device mps`, with CPU fallback disabled. CPU is for host I/O, data/weight verification and small contract tests. Neural Engine execution requires a separately qualified backend; do not describe MPS as ANE or silently substitute CPU model execution. See docs/experiments/20261022_Apple_Accelerators.md.
-
-State briefly: current accepted checkpoint/manifest; last verified gate; current failing or incomplete gate; next concrete action. Then perform that action. Reuse prior successful checks unless a change invalidates them.
-
-Use parallel workers with disjoint ownership when useful. Keep one owner for schemas and integration. Preserve uncommitted user changes and use focused commits. Do not invent remotes, silently substitute models or broaden into unrelated architecture rewrites.
-
-The mandatory scientific path remains D0 plain full tuning, D1 frozen base/new modules and D2 full augmented tuning, followed by a frozen-base longitudinal comparison against memory-only and fixed-learning controls. The first complete loop includes cognition/control, experience, candidate training, independent evaluation and the Replica branch.
-
-If a run is blocked by VRAM, implement a valid offload/sharding path or report the failed scope; do not silently change full tuning into LoRA or partial training. If the native VLM path is not implemented, keep it explicitly pending.
-
-When generating data, use the supplied prompt packet, maintain source/split lineage, keep teacher output unverified until independent checks, and never fabricate autobiography or expose sealed tests.
-
-Finish the next work package with raw evidence, update execution_state.md and the status matrix, and identify the next smallest action. Report implemented, tested, trained, evaluated and unrun separately.
+Report implemented, tested, trained, evaluated and unrun separately. Include
+the exact parent/revision, commands, raw evidence, comparisons, costs, retained
+artifact, current limitation and next smallest action. Reuse passing checks
+unless a change invalidates them. Stop an unsafe or invalid experiment,
+preserve its evidence, and continue independent work where possible.

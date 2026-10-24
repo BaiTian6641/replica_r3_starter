@@ -1,0 +1,70 @@
+{
+  "schema_version": "replica.validation.m3_depth.v1",
+  "date_utc": "2026-10-24",
+  "decision": "accept_m3_ownership_interfaces",
+  "comparison": "reports/m3_depth_comparison_attempt02/comparison.json",
+  "protocols": {
+    "shared_training": {"commit": "9fd1be1", "path": "configs/m3_depth_v2.json"},
+    "private_and_gradient_training": {"commit": "79e6e4a", "path": "configs/m3_depth_v3.json"},
+    "fresh_restart": {"commit": "82660a3", "path": "configs/m3_depth_v4.json"},
+    "score_only": {"commit": "bde63a7", "path": "configs/m3_depth_v5.json"}
+  },
+  "reports": {
+    "shared": "runs/m3_depth_shared_attempt02/run_report.json",
+    "private": "runs/m3_depth_private_attempt03/run_report.json",
+    "gradient_cut": "runs/m3_depth_gradient_cut_attempt01/run_report.json",
+    "shared_restart": "runs/m3_depth_shared_restart_attempt01/run_report.json",
+    "private_restart": "runs/m3_depth_private_restart_attempt01/run_report.json"
+  },
+  "metrics": {
+    "shared": {"dev": 1.0, "heldout": 1.0, "linear_dev": 0.25, "linear_heldout": 0.5},
+    "private": {"dev": 1.0, "heldout": 1.0, "linear_dev": 0.0, "linear_heldout": 0.5},
+    "gradient_cut": {"dev": 1.0, "heldout": 1.0, "linear_dev": 0.25, "linear_heldout": 0.25},
+    "paired_answer_agreement": 1.0,
+    "fresh_restart": "2/2 correct amber answers; authenticated image and lineage; no observation encoding",
+    "correction": "8/8 corrected answers in shared and private",
+    "retention_parent": "2/2",
+    "retention_candidate": "0/2 shared and 0/2 private; both emitted copper for Paris and H2O"
+  },
+  "costs": {
+    "shared": {"wall_seconds": 72.96090804110281, "peak_driver_bytes": 11815763968, "new_tokens": 470, "extension_bytes": 48956635, "image_bytes": 66801, "state_bytes": 65536},
+    "private": {"wall_seconds": 70.39353949995711, "peak_driver_bytes": 11815763968, "new_tokens": 435, "extension_bytes": 48956636, "image_bytes": 132444, "state_bytes": 131072},
+    "gradient_cut": {"wall_seconds": 72.54154645791277, "peak_driver_bytes": 10911662080, "new_tokens": 477, "extension_bytes": 48956635, "image_bytes": 66801, "state_bytes": 65536},
+    "sequential_training_seconds": 215.8959939989727,
+    "fresh_restart_seconds": 9.50810495694168,
+    "optimizer_state_bytes_per_arm": 7485456,
+    "optimizer_int8_bytes_per_arm": 7340032,
+    "optimizer_fp32_bytes_per_arm": 145424,
+    "base_copies": 0,
+    "downloads": 0
+  },
+  "guard": {
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76,
+    "native_workers": 1,
+    "cpu_fallback": false
+  },
+  "validation": {
+    "full_suite": {"passed": 1249, "subtests": 21, "seconds": 133.03, "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider"},
+    "final_focused_regression": {"passed": 10, "seconds": 2.02, "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_m3_depth.py"}
+  },
+  "native_commands": [
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point run_m2_dynamic.py --report reports/m3_depth_shared_attempt02/guard.json -- --device mps --output runs/m3_depth_shared_attempt02 --protocol configs/m3_depth_v2.json --depth-arm shared",
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point run_m2_dynamic.py --report reports/m3_depth_private_attempt03/guard.json -- --device mps --output runs/m3_depth_private_attempt03 --protocol configs/m3_depth_v3.json --depth-arm private",
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point run_m2_dynamic.py --report reports/m3_depth_gradient_cut_attempt01/guard.json -- --device mps --output runs/m3_depth_gradient_cut_attempt01 --protocol configs/m3_depth_v3.json --depth-arm gradient_cut",
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point run_m3_restart.py --report reports/m3_depth_shared_restart_attempt01/guard.json -- --device mps --output runs/m3_depth_shared_restart_attempt01 --protocol configs/m3_depth_v4.json --depth-arm shared --candidate-run runs/m3_depth_shared_attempt02",
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point run_m3_restart.py --report reports/m3_depth_private_restart_attempt01/guard.json -- --device mps --output runs/m3_depth_private_restart_attempt01 --protocol configs/m3_depth_v4.json --depth-arm private --candidate-run runs/m3_depth_private_attempt03",
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/score_m3_depth.py --protocol configs/m3_depth_v5.json --shared runs/m3_depth_shared_attempt02/run_report.json --private runs/m3_depth_private_attempt03/run_report.json --gradient-cut runs/m3_depth_gradient_cut_attempt01/run_report.json --shared-restart runs/m3_depth_shared_restart_attempt01/run_report.json --private-restart runs/m3_depth_private_restart_attempt01/run_report.json --output reports/m3_depth_comparison_attempt02/comparison.json"
+  ],
+  "preserved_failures": [
+    "runs/m3_depth_private_attempt01/failure_report.json: linear control used a shared frame with a private manifest after 16 updates",
+    "runs/m3_depth_private_attempt02/failure_report.json: linear callsite omitted private ownership after 16 updates",
+    "reports/m3_depth_comparison_attempt01/comparison.json: deferred only on absolute-versus-relative parent path comparison"
+  ],
+  "claims": "Depth ownership, post-open gradients, image reload and fresh-process restart accepted on an exposed synthetic family. Retention regression remains open. No capacity-matched superiority, uTTT, general capability or production private-runtime claim.",
+  "next": "Inference-only retention ablation before any repair arm or M4 expansion."
+}

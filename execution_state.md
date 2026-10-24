@@ -1,27 +1,104 @@
-# Execution state — E2/E3/C16/E4/E5 integrated build
+# Execution state — integrated memory, cognition and learning
 
-**Authoritative current snapshot (23 October 2026 UTC).** Full suite **1211
-passed / 21 subtests** in **147.24 s**. No active native job. Branch
-`codex/d2-capacity-runtime-pilot`; base commit `fd9ea17` before the current
-documentation/defect package. The connected E3 mixed-outcome family has **4/4
-head-conditioned and 4/4 no-head completions**, and the copied-case
-fresh-process restart passes **12/12** acceptance checks. The action-kind head
-is rejected (no measured benefit). The success head has a diagnostic fit on 18
-actual outcomes but remains **uncalibrated, unpublished and without success
-authority**. E2 retrieval/capacity, C16 identity contracts, E4 fast
-memory/artifacts (delayed-use candidate rejected), and E5 procedure plus opt-in
-reranker remain as recorded. See the
-[research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
-and [E2/E3/E4/E5 handoff](docs/experiments/20261023_Handoff_E2_E3_E4.md).
 
-**Current-package corrections.** (1) The capacity inference harness now runs the
-record writer and sense pass under `torch.no_grad()`; the old 8192-unit 48.08 GiB
-boundary is historical evidence and correctly configured inference must be
-remeasured. (2) Action menus now parse host-read numeric string constants; the
-`set_train_retry_01` fixture exposes three constant candidates instead of zero.
-(3) `RequestScheduler` refuses a request invalidated before admission, before
-any operation runs. (4) Status fields below are reconciled; 16 units is the
-retrieval/answer workload, while 4096 units is the separate capacity maximum.
+**M2/M3 verified packages (24 October 2026 UTC).** M2's shared-value SGDN-2
+diagnostic passed 4/4 dev and 4/4 held-out after context removal, above linear
+(1/4 and 2/4) and all null controls, with correction, restart and 2/2 retention.
+The unique-value arm memorized training values and was rejected. M3 then passed
+`accept_m3_ownership_interfaces`: shared and private both scored 8/8 dev+held-out,
+with independent per-depth writers, a defined convex shared reducer, update-two
+historical gradients, gradient-cut, authenticated shared/private images and two
+fresh-process restarts. Shared/private answers agreed 8/8. Private uses 131072
+state bytes versus shared 65536, so no capacity-matched superiority is claimed.
+Peak driver was 11.0043 GiB and selected training took 215.896 s. See
+[M2 results](docs/experiments/20261024_M2_Dynamic_Memory_Results.md),
+[M3 results](docs/experiments/20261024_M3_Depth_Ownership_Results.md) and
+[the verdict](reports/m3_depth_comparison_attempt02/comparison.json).
+
+**Current blocker:** both M3 candidates score **0/2** on retention replay versus
+2/2 for their parents, emitting `copper` for `Paris` and `H2O`. The ownership
+verdict does not accept this regression. Run inference-only retention ablations
+before any repair arm or M4 expansion. Full integration passed **1249 tests / 21
+subtests in 133.03 s**; later focused M3 regressions also pass. M0b Spark and
+authentic identity fidelity remain unavailable optional tracks.
+
+**M0a/M1 verified packages (24 October 2026 UTC).** Corrected inference is
+detached: the small point passed 2/2 and selected 4096 passed 12/12 with 28
+nonzero backward gradients per point, zero swap growth and **28.5944 GiB**
+sampled peak; 8192 was not rerun. Old-case menu regression is 3/3, but fresh
+canonical is 1/4 and shuffled 0/4 due distractor selection; random 4/4 is not a
+valid baseline (8 premature false claims). The deterministic procedure passes
+3/3. M1's thin procedure compiler now executes, publishes, reconstructs after
+restart, rejects changed sources/parents, revokes descendants and rolls back;
+14 focused tests pass. See
+[M0a results](docs/experiments/20261024_M0a_Refreshed_Baselines.md) and
+[M1 results](docs/experiments/20261024_M1_Procedure_Compilation_Results.md).
+
+**Current plan and guard update (23 October 2026).** Reviewed code HEAD
+`377718e`, branch `codex/d2-capacity-runtime-pilot`. This revision updates
+documents/status and the sampled driver guard default from 40 to **50 GiB**.
+It runs no native model experiment and makes no new quality or capacity claim.
+The last recorded full suite is **1211 passed / 21 subtests in 147.24 s**;
+the current focused validation is **81 passed in 23.87 s**.
+
+Changed executable scope: `CapacityPolicy.driver_limit_bytes` is now
+53,687,091,200 bytes; both preflight CLI defaults derive from that policy.
+Tests cover below/at-limit behavior, late-exit telemetry and explicit 40 GiB
+overrides, plus guard-dependent validation/scoring contracts. Command:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_capacity_guard.py tests/test_generation_guard_runner.py tests/test_d2_validation.py tests/test_score_infrastructure_generations.py
+```
+
+Swap-growth 512 MiB, minimum host-free 15%, three consecutive host samples,
+initial-pressure refusal, one native worker and no CPU fallback remain. No
+allocator/OS settings changed. Historical explicit 40 GiB protocols/reports and
+the pinned D2 resume launcher keep their policy. New 50 GiB experiments require
+new protocol/code pins and fresh evidence; old guard failures remain failures.
+
+The authoritative construction order and acceptance gates are in the
+[research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md).
+Use the [loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md)
+and [resumption record](docs/experiments/20261023_Resumption_Record.md) to resume.
+
+**Current implementation and evidence.** Native memory/workspace/task paths,
+exact journals, bounded tools and independent verification are connected.
+Mixed completion is 4/4 with and without the action-kind head (no head benefit);
+restart passes 12/12 acceptance checks. Free-form action learning remains
+negative. The success head is diagnostically fitted but uncalibrated and has
+no success authority. Native identity conditioning is attached but untrained.
+E4 already has differentiable single-page learned-writer experiments, both
+0/8 held-out; useful multi-chunk learned memory is open. Procedure compilation,
+execution, single-writer atomic publication, rejection and rollback exist.
+General compiler transactions and integrated neural self-improvement are open.
+
+**Corrections already committed in `6e8ec34`.** Inference writer/sense now
+run under `torch.no_grad()`; numeric-string constants enter action menus;
+the scheduler rejects requests invalidated before admission. The historical
+4096-unit 30.59 GiB capacity and 8192-unit 48.08 GiB guard boundary predate the
+inference fix. Historical repair ranking of 17/17 (15 held-out) used the old
+candidate menus. Corrected capacity and fresh matched menu controls remain
+unrun. Retrieval/answer quality was measured separately at 16 units.
+
+**Model decisions:** keep MiniCPM5 as the baseline. Optional M0b compares
+Spark-X2.6-4B BF16 with a separate native adapter, measured Muon/FP32 residency,
+reasoning/action quality and retention. MiniCPM-V-4.7-1B supplies the pretrained
+vision path; 35B-A3B is a later qualified teacher/inference or transfer option.
+No new weights, adapter, memory mechanism or RSI capability were implemented.
+
+**Next work:** inference-only M3 retention diagnosis → separately admitted
+retention repair if a concrete cause is identified → M4 static lookup/dynamic
+routing → M5 developmental comparison and bounded RSI → M6 learned multi-rate
+levels → M7 native VLM. M0b is optional and does not block MiniCPM5. Identity
+work proceeds only with permitted sources; calibration precedes control use.
+D0/D1/D2 fairness and release admission remain required before
+selected-system/broad-campaign claims.
+
+## Historical execution entries
+
+Entries below preserve the state when their work packages were recorded.
+Their test counts, “current/next” language and resource measurements are
+historical; use the snapshot above and the final next-gate section to resume.
 
 **Current work — integrated E2/E3/C13/C16/C17 with measured boundaries (23 October
 2026 UTC).** The shared width-256/eight-slot/two-iteration core, independent
@@ -744,6 +821,31 @@ The D2 package's full suite passed **479 tests**, with one restricted-context MP
 
 ## Next concrete gate
 
-S1.2 supplies the bounded 2,000-target release. Query-policy v2 resolves termination while leaving abstention collapse and evidence-use failures; separately predeclare a grounded model-to-host pilot and complete independent evaluation/public admission. The [S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) specifies equal information, parents, fair search and parameter/compute controls; numeric budgets and S1.5 admission remain unresolved. Existing diagnostics do not justify the 20k campaign or model promotion. Early host-loop preparation may proceed separately; selected-system integration still depends on S2.5.
+M0a remeasures the corrected MiniCPM5 inference capacity path under the new
+50 GiB default with a fresh matching protocol/code pin
+and evaluates the corrected action menus on fresh matched families. Reuse
+existing regression coverage; preserve old capacity/ranking reports as
+historical evidence.
 
-Cognitive contracts, identity/lineage, source permissions and the proposed semi-cognitive loop remain as specified in [the design contracts](docs/experiments/20261022_Cognitive_Contracts.md). Useful memory benefit, ten-cycle learning, authentic Replica fidelity, VLM, augmented KV caching, ANE acceleration and Blackwell residency remain separate open gates.
+M0b optionally compares Spark BF16 after native/resource qualification; it does
+not block the MiniCPM5 sequence. Follow document 15 for memory-layer stages,
+verified RSI and the MiniCPM-V visual-training path.
+
+M1 then establishes fresh chronological train/dev/promotion/audit roles and
+one typed compiler path using the existing ledger, catalog and publisher.
+M2 builds a functional multi-chunk adaptive-memory trainer and one useful
+memory path before M3 tests shared-depth coupling. Follow
+[the detailed acceptance matrix](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
+and [loop instructions](docs/architecture/16_Loop_Agent_Instructions.md).
+
+The exposed 2,000-target release remains infrastructure evidence.
+[The S2.4 proposal](docs/experiments/20261022_S2_4_Screen_Proposal.md) still
+requires eligible fresh data, equal information, matched parents, fair search
+and parameter/compute controls. Thin early loop preparation may proceed;
+selected-system longitudinal claims require the developmental comparison
+and S2.5 selection. No 20k campaign or model promotion is admitted by this
+documentation update.
+
+Useful memory benefit, ten-cycle learning, authentic Replica fidelity,
+native VLM, augmented KV reuse, ANE acceleration and Blackwell residency
+remain separate open gates.

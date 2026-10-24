@@ -1,0 +1,19 @@
+W1023 23:00:41.160000 4708 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 900.46it/s]Loading weights:  49%|████▊     | 185/381 [00:00<00:00, 888.16it/s]Loading weights:  72%|███████▏  | 274/381 [00:00<00:00, 871.52it/s]Loading weights:  95%|█████████▌| 362/381 [00:00<00:00, 861.57it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 880.13it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 648, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 630, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 428, in execute
+    value = generate(session, query, template, state,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 185, in generate
+    request = session.prepare(prompt_ids=ids, prompt_mask=mask, query=query_row['query'],
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 284, in prepare
+    frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 485, in make_frame
+    raise ValueError('Private fast frame requires exactly one state per injection port')
+ValueError: Private fast frame requires exactly one state per injection port
