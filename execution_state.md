@@ -16,11 +16,13 @@ Peak driver was 11.0043 GiB and selected training took 215.896 s. See
 [the verdict](reports/m3_depth_comparison_attempt02/comparison.json).
 
 **Current blocker:** both M3 candidates score **0/2** on retention replay versus
-2/2 for their parents, emitting `copper` for `Paris` and `H2O`. The ownership
-verdict does not accept this regression. Run inference-only retention ablations
-before any repair arm or M4 expansion. Full integration passed **1249 tests / 21
-subtests in 133.03 s**; later focused M3 regressions also pass. M0b Spark and
-authentic identity fidelity remain unavailable optional tracks.
+2/2 for their parents (`copper` shared, `amber` private). The ownership
+verdict does not accept this regression. Inference-only ablations are complete;
+zero, disabled and full-context recover 2/2 in both arms. No single-port ablation
+recovers or exactly reproduces the failure. Use fresh replay/audit splits before
+any repair or M4 expansion. Full integration passed **1249 tests / 21 subtests
+in 133.03 s**; later focused M3 regressions also pass. M0b Spark and authentic
+identity fidelity remain unavailable optional tracks.
 
 **M0a/M1 verified packages (24 October 2026 UTC).** Corrected inference is
 detached: the small point passed 2/2 and selected 4096 passed 12/12 with 28
@@ -86,10 +88,10 @@ reasoning/action quality and retention. MiniCPM-V-4.7-1B supplies the pretrained
 vision path; 35B-A3B is a later qualified teacher/inference or transfer option.
 No new weights, adapter, memory mechanism or RSI capability were implemented.
 
-**Next work:** inference-only M3 retention diagnosis → separately admitted
-retention repair if a concrete cause is identified → M4 static lookup/dynamic
-routing → M5 developmental comparison and bounded RSI → M6 learned multi-rate
-levels → M7 native VLM. M0b is optional and does not block MiniCPM5. Identity
+**Next work:** fresh retention-replay training/development/audit roles and a
+bounded repair candidate → M4 static lookup/dynamic routing if retention and
+delayed-use both pass → M5 developmental comparison and bounded RSI.
+M6 learned multi-rate levels → M7 native VLM. M0b is optional and does not block MiniCPM5. Identity
 work proceeds only with permitted sources; calibration precedes control use.
 D0/D1/D2 fairness and release admission remain required before
 selected-system/broad-campaign claims.

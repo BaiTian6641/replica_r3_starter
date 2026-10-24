@@ -1,0 +1,43 @@
+{
+  "schema_version": "replica.validation.m3_retention_diagnostic.v1",
+  "date_utc": "2026-10-24",
+  "protocol": "configs/m3_retention_diagnostic_v2.json",
+  "protocol_commit": "a97c2c8",
+  "decision": "fast_residual_interference_confirmed_no_single_port_repair",
+  "shared": {
+    "report": "runs/m3_retention_shared_attempt02/run_report.json",
+    "metrics": {"correct": 0.0, "linear": 0.0, "shuffled": 0.0, "zero": 1.0, "disabled": 1.0, "full_context": 1.0, "read_13_only": 0.0, "read_27_only": 0.0, "write_13_only": 0.0, "write_27_only": 0.0},
+    "wrong_answer": "copper",
+    "answers": 20,
+    "new_tokens": 61,
+    "wall_seconds": 10.583452583989128,
+    "peak_driver_bytes": 11815763968
+  },
+  "private": {
+    "report": "runs/m3_retention_private_attempt01/run_report.json",
+    "metrics": {"correct": 0.0, "linear": 0.0, "shuffled": 0.0, "zero": 1.0, "disabled": 1.0, "full_context": 1.0, "read_13_only": 0.0, "read_27_only": 0.0, "write_13_only": 0.0, "write_27_only": 0.0},
+    "wrong_answer": "amber",
+    "answers": 20,
+    "new_tokens": 51,
+    "wall_seconds": 9.554033000022173,
+    "peak_driver_bytes": 11815763968
+  },
+  "findings": {
+    "zero_disabled_full_context_recover": true,
+    "single_port_recovers": false,
+    "single_port_exactly_reproduces_failure": false,
+    "next_hypothesis": "fixed retention replay during training with fresh development and final-audit roles",
+    "diagnostic_cases_available_for_repair_training": false
+  },
+  "commands": [
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point eval_m3_retention.py --report reports/m3_retention_shared_attempt02/guard.json -- --device mps --output runs/m3_retention_shared_attempt02 --protocol configs/m3_retention_diagnostic_v2.json --depth-arm shared --candidate-run runs/m3_depth_shared_attempt02",
+    "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/run_capacity_preflight.py --entry-point eval_m3_retention.py --report reports/m3_retention_private_attempt01/guard.json -- --device mps --output runs/m3_retention_private_attempt01 --protocol configs/m3_retention_diagnostic_v2.json --depth-arm private --candidate-run runs/m3_depth_private_attempt03"
+  ],
+  "startup_failure": "runs/m3_retention_shared_attempt01/failure_report.json: role prose compared as dataset identity; no model execution or quality inference",
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "downloads": 0,
+  "base_copies": 0,
+  "swap_growth_bytes": 0,
+  "next": "Preregister fresh replay/development/final-audit roles before any retention-repair training. M4 remains pending."
+}

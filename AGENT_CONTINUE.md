@@ -68,10 +68,11 @@ document 15; none of these planned paths is qualified by the documentation.
 
 ## Next work package and progression
 
-**Start with the M3 retention diagnostic:** evaluate the accepted candidates on
-the two replay cases with correct, zero, disabled, shuffled, full-context and
-per-port controls. Do not retrain until the failing branch and recovery controls
-are measured. Any repair requires a fresh protocol and fresh retention audit.
+**M3 retention diagnosis is complete:** zero, disabled and full-context recover
+2/2 in both arms, while no single-port ablation recovers or exactly reproduces
+the failure. This supports a fixed retention-replay hypothesis, not a port
+ablation. Any repair requires fresh replay/development/audit roles; the two
+diagnostic cases remain evaluation-only.
 
 M0a/M1/M2/M3 are complete within their recorded scopes. M0b remains an optional
 Spark BF16 comparison and does not block MiniCPM5. After retention is resolved,

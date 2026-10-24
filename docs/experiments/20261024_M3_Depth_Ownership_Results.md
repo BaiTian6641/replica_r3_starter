@@ -49,8 +49,8 @@ claimed.
 ## 3. Retention failure — not accepted
 
 Both shared and private candidates scored **0/2** on the fixed retention replay,
-while their parents scored **2/2**. Both answered `copper` for the correct
-`Paris` and `H2O` replay cases. The preregistered ownership rule did not gate
+while their parents scored **2/2**. Shared answered `copper` and private answered
+`amber` for the correct `Paris` and `H2O` replay cases. The preregistered ownership rule did not gate
 retention, so the interface verdict remains valid, but this is a real unresolved
 competence regression. An inference-only ablation diagnostic precedes any repair
 arm or M4 expansion.
@@ -95,5 +95,8 @@ The full integration suite passed **1249 tests and 21 subtests in 133.03 s**.
 Subsequent focused regressions covered private linear frames and shared linear
 byte equivalence.
 
-**Next:** inference-only retention ablation, then a separately preregistered
-repair only if the controls identify a concrete cause. M4 remains pending.
+**Diagnostic:** [inference-only ablation](20261024_M3_Retention_Diagnostic.md)
+confirms fast-residual interference: zero, disabled and full-context recover
+2/2 in both arms, while no single-port control recovers or exactly reproduces
+the failure. **Next:** fresh retention-replay training/development/audit roles
+before any repair; M4 remains pending.
