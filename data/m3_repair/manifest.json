@@ -1,0 +1,520 @@
+{
+  "format": "replica.m3_repair.dataset.v1",
+  "created_at_utc": "2026-10-24",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "source_lineage": {
+    "original_delayed_root": "data/m2_shared",
+    "original_queries_sha256": "8e4c3b9f638c3460ae8fdc6a3865923049fd290d14b6a596ebe4a50527105792",
+    "original_records_sha256": "8d794777d5f529a49d322befb9c22c3da18388be4eb038331a5756c66ed50a5d",
+    "original_replay_excluded": [
+      "m2s_replay_01",
+      "m2s_replay_02"
+    ]
+  },
+  "delayed_value_set": [
+    "cobalt",
+    "saffron",
+    "teal",
+    "violet",
+    "amber",
+    "copper"
+  ],
+  "split_roles": {
+    "delayed_training": 24,
+    "retention_replay": 8,
+    "delayed_development": 4,
+    "delayed_audit": 4,
+    "delayed_regression": 8,
+    "retention_development": 2,
+    "retention_audit": 4
+  },
+  "role_rules": "Only delayed_training and retention_replay may train. Development, regression and final-audit rows never train or select thresholds. The two M3 diagnostic replay cases are excluded everywhere.",
+  "cases": [
+    {
+      "case_id": "m2s_train_01",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_alder",
+      "attribute": "What is the deploy region for project Alder?",
+      "value": "cobalt",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m2s_train_02",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_basin",
+      "attribute": "What is the launch code for project Basin?",
+      "value": "saffron",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m2s_train_03",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_cobalt",
+      "attribute": "What is the backup window for project Cobalt?",
+      "value": "teal",
+      "corrected_value": "copper"
+    },
+    {
+      "case_id": "m2s_train_04",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_dell",
+      "attribute": "What is the owner for project Dell?",
+      "value": "violet",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m2s_train_05",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_ember",
+      "attribute": "What is the review code for project Ember?",
+      "value": "amber",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m2s_train_06",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_fern",
+      "attribute": "What is the timeout seconds for project Fern?",
+      "value": "copper",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m2s_train_07",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_grove",
+      "attribute": "What is the retry limit for project Grove?",
+      "value": "cobalt",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m2s_train_08",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_hearth",
+      "attribute": "What is the release label for project Hearth?",
+      "value": "saffron",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m2s_train_09",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_inlet",
+      "attribute": "What is the deploy region for project Inlet?",
+      "value": "teal",
+      "corrected_value": "copper"
+    },
+    {
+      "case_id": "m2s_train_10",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_juniper",
+      "attribute": "What is the launch code for project Juniper?",
+      "value": "violet",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m2s_train_11",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_kite",
+      "attribute": "What is the backup window for project Kite?",
+      "value": "amber",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m2s_train_12",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_lark",
+      "attribute": "What is the owner for project Lark?",
+      "value": "copper",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m2s_train_13",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_meadow",
+      "attribute": "What is the review code for project Meadow?",
+      "value": "cobalt",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m2s_train_14",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_nectar",
+      "attribute": "What is the timeout seconds for project Nectar?",
+      "value": "saffron",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m2s_train_15",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_orchid",
+      "attribute": "What is the retry limit for project Orchid?",
+      "value": "teal",
+      "corrected_value": "copper"
+    },
+    {
+      "case_id": "m2s_train_16",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_pike",
+      "attribute": "What is the release label for project Pike?",
+      "value": "violet",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m2s_train_17",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_quarry",
+      "attribute": "What is the deploy region for project Quarry?",
+      "value": "amber",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m2s_train_18",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_ridge",
+      "attribute": "What is the launch code for project Ridge?",
+      "value": "copper",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m2s_train_19",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_sable",
+      "attribute": "What is the backup window for project Sable?",
+      "value": "cobalt",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m2s_train_20",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_talon",
+      "attribute": "What is the owner for project Talon?",
+      "value": "saffron",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m2s_train_21",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_umber",
+      "attribute": "What is the review code for project Umber?",
+      "value": "teal",
+      "corrected_value": "copper"
+    },
+    {
+      "case_id": "m2s_train_22",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_vale",
+      "attribute": "What is the timeout seconds for project Vale?",
+      "value": "violet",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m2s_train_23",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_wren",
+      "attribute": "What is the retry limit for project Wren?",
+      "value": "amber",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m2s_train_24",
+      "split": "train",
+      "case_role": "delayed_training",
+      "source_group": "m2s_yarrow",
+      "attribute": "What is the release label for project Yarrow?",
+      "value": "copper",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m2s_dev_25",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_zephyr",
+      "attribute": "What is the deploy region for project Zephyr?",
+      "value": "cobalt",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m2s_dev_26",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_beryl",
+      "attribute": "What is the launch code for project Beryl?",
+      "value": "saffron",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m2s_dev_27",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_cinder",
+      "attribute": "What is the backup window for project Cinder?",
+      "value": "teal",
+      "corrected_value": "copper"
+    },
+    {
+      "case_id": "m2s_dev_28",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_dune",
+      "attribute": "What is the owner for project Dune?",
+      "value": "violet",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m2s_heldout_29",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_aster",
+      "attribute": "What is the review code for project Aster?",
+      "value": "amber",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m2s_heldout_30",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_briar",
+      "attribute": "What is the timeout seconds for project Briar?",
+      "value": "copper",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m2s_heldout_31",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_cedar",
+      "attribute": "What is the retry limit for project Cedar?",
+      "value": "cobalt",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m2s_heldout_32",
+      "split": "regression",
+      "case_role": "delayed_regression",
+      "source_group": "m2s_flint",
+      "attribute": "What is the release label for project Flint?",
+      "value": "saffron",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m3r_retention_replay_01",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_01",
+      "attribute": "capital of Japan",
+      "value": "Tokyo",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_02",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_02",
+      "attribute": "chemical symbol for oxygen",
+      "value": "O",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_03",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_03",
+      "attribute": "largest planet in the Solar System",
+      "value": "Jupiter",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_04",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_04",
+      "attribute": "author of Pride and Prejudice",
+      "value": "Jane Austen",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_05",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_05",
+      "attribute": "square root of 144",
+      "value": "12",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_06",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_06",
+      "attribute": "first prime number",
+      "value": "2",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_07",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_07",
+      "attribute": "boiling point of water at sea level in Celsius",
+      "value": "100",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_replay_08",
+      "split": "train",
+      "case_role": "retention_replay",
+      "source_group": "m3r_retention_replay_world_08",
+      "attribute": "continent containing Egypt",
+      "value": "Africa",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_development_01",
+      "split": "retention_dev",
+      "case_role": "retention_development",
+      "source_group": "m3r_retention_development_world_01",
+      "attribute": "capital of Canada",
+      "value": "Ottawa",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_development_02",
+      "split": "retention_dev",
+      "case_role": "retention_development",
+      "source_group": "m3r_retention_development_world_02",
+      "attribute": "chemical symbol for sodium",
+      "value": "Na",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_audit_01",
+      "split": "retention",
+      "case_role": "retention_audit",
+      "source_group": "m3r_retention_audit_world_01",
+      "attribute": "capital of Australia",
+      "value": "Canberra",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_audit_02",
+      "split": "retention",
+      "case_role": "retention_audit",
+      "source_group": "m3r_retention_audit_world_02",
+      "attribute": "chemical symbol for chlorine",
+      "value": "Cl",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_audit_03",
+      "split": "retention",
+      "case_role": "retention_audit",
+      "source_group": "m3r_retention_audit_world_03",
+      "attribute": "largest ocean",
+      "value": "Pacific Ocean",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_retention_audit_04",
+      "split": "retention",
+      "case_role": "retention_audit",
+      "source_group": "m3r_retention_audit_world_04",
+      "attribute": "author of Romeo and Juliet",
+      "value": "William Shakespeare",
+      "corrected_value": null
+    },
+    {
+      "case_id": "m3r_delayed_development_01",
+      "split": "dev",
+      "case_role": "delayed_development",
+      "source_group": "m3r_delayed_development_world_01",
+      "attribute": "deploy region",
+      "value": "cobalt",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m3r_delayed_development_02",
+      "split": "dev",
+      "case_role": "delayed_development",
+      "source_group": "m3r_delayed_development_world_02",
+      "attribute": "launch code",
+      "value": "saffron",
+      "corrected_value": "teal"
+    },
+    {
+      "case_id": "m3r_delayed_development_03",
+      "split": "dev",
+      "case_role": "delayed_development",
+      "source_group": "m3r_delayed_development_world_03",
+      "attribute": "backup window",
+      "value": "teal",
+      "corrected_value": "violet"
+    },
+    {
+      "case_id": "m3r_delayed_development_04",
+      "split": "dev",
+      "case_role": "delayed_development",
+      "source_group": "m3r_delayed_development_world_04",
+      "attribute": "owner",
+      "value": "violet",
+      "corrected_value": "amber"
+    },
+    {
+      "case_id": "m3r_delayed_audit_05",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_05",
+      "attribute": "review code",
+      "value": "amber",
+      "corrected_value": "copper"
+    },
+    {
+      "case_id": "m3r_delayed_audit_06",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_06",
+      "attribute": "timeout seconds",
+      "value": "copper",
+      "corrected_value": "cobalt"
+    },
+    {
+      "case_id": "m3r_delayed_audit_07",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_07",
+      "attribute": "retry limit",
+      "value": "cobalt",
+      "corrected_value": "saffron"
+    },
+    {
+      "case_id": "m3r_delayed_audit_08",
+      "split": "heldout",
+      "case_role": "delayed_audit",
+      "source_group": "m3r_delayed_audit_world_08",
+      "attribute": "release label",
+      "value": "saffron",
+      "corrected_value": "teal"
+    }
+  ]
+}

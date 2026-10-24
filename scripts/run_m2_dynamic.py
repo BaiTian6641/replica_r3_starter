@@ -246,6 +246,18 @@ def execute(args, profiler, report):
     dev = [q for q in queries if q['split'] == 'dev']
     heldout = [q for q in queries if q['split'] == 'heldout']
     replay = [q for q in queries if q['split'] == 'retention']
+    regression = [q for q in queries if q['split'] == 'regression']
+    retention_dev = [q for q in queries if q['split'] == 'retention_dev']
+    parent_baseline = bool(protocol['evaluation'].get('parent_baseline', False))
+    replay_training = [q for q in train if q.get('case_role') == 'retention_replay']
+    delayed_training = [q for q in train if q.get('case_role') != 'retention_replay']
+    replay_per_update = int(protocol['training'].get('replay_examples_per_update', 0))
+    if replay_per_update < 0 or replay_per_update > int(protocol['training']['examples_per_update']):
+        raise ValueError('Invalid replay examples per update')
+    if replay_per_update and not replay_training:
+        raise ValueError('Replay schedule declared without replay cases')
+    if replay_training and not replay_per_update:
+        raise ValueError('Replay cases present without a declared replay schedule')
     template = DELAYED_USE_TEMPLATE
     depth_arm = getattr(args, 'depth_arm', None)
     depth_mode = protocol['fast_memory'].get('depth_mode', 'shared')
@@ -299,6 +311,9 @@ def execute(args, profiler, report):
                                               'fast_ports.'))),
                       'attention_cache': 'disabled; native action pass recomputes without KV reuse',
                       'retention_replay_cases': len(replay),
+                      'retention_training_cases': len(replay_training),
+                      'retention_development_cases': len(retention_dev),
+                      'retention_audit_cases': len(replay),
                       'retention_replay_extra_model_bytes': 0,
                       'optimizer_state': 'actual tensor bytes recorded after final update',
                       'information': 'identical source text; independent per-depth writers in both M3 arms',
@@ -307,13 +322,24 @@ def execute(args, profiler, report):
     check_time()
     ledger = RecordLedger(args.output / 'delayed_ledger.sqlite')
     session = MemorySession(model, tokenizer, ledger, max_candidate_units=64)
-    eval_queries = dev + heldout
+    eval_queries = dev + heldout + regression
+    metric_splits = ('dev', 'heldout', *(('regression',) if regression else ()))
     report['parent_disabled'] = evaluate(session, eval_queries, template,
                                          {'disabled': lambda q: None}, check=check_time)['disabled']
     report['parent_retention'] = evaluate(session, replay, template,
                                           {'correct': lambda q: depth_read(
                                               q['observations'], tag='parent-replay')},
                                           check=check_time)['correct']
+    if parent_baseline:
+        report['parent_correct'] = evaluate(
+            session, eval_queries, template,
+            {'correct': lambda q: depth_read(q['observations'], tag='parent-correct')},
+            check=check_time)['correct']
+        if retention_dev:
+            report['parent_retention_dev'] = evaluate(
+                session, retention_dev, template,
+                {'correct': lambda q: depth_read(q['observations'], tag='parent-retention-dev')},
+                check=check_time)['correct']
     previous = {name: p.requires_grad for name, p in model.new_named_parameters()}
     for name, parameter in model.new_named_parameters():
         parameter.requires_grad_(name.startswith(('fast_write_encoder.', 'fast_depth_write_encoders.',
@@ -325,15 +351,24 @@ def execute(args, profiler, report):
     if optimizer is None:
         raise RuntimeError('No SGDN-2 parameters are trainable')
     model.train()
-    report['training'] = {'optimizer': optimizer.audit(), 'updates': []}
+    report['training'] = {'optimizer': optimizer.audit(), 'updates': [],
+                          'replay_examples_per_update': replay_per_update,
+                          'delayed_training_cases': len(delayed_training),
+                          'replay_training_cases': len(replay_training)}
     for update in range(1, int(protocol['training']['updates']) + 1):
         optimizer.zero_grad(set_to_none=True)
         total = 0.0
         write_gradients = []
         action_tokens = 0
         target_tokens = 0
-        for offset in range(int(protocol['training']['examples_per_update'])):
-            query = train[(4 * (update - 1) + offset) % len(train)]
+        examples_per_update = int(protocol['training']['examples_per_update'])
+        replay_start = examples_per_update - replay_per_update
+        for offset in range(examples_per_update):
+            if offset >= replay_start:
+                replay_index = 2 * (update - 1) + offset - replay_start
+                query = replay_training[replay_index % len(replay_training)]
+            else:
+                query = delayed_training[(4 * (update - 1) + offset) % len(delayed_training)]
             probes = []
             read = depth_read(query['observations'], training=True,
                               tag=f'train-{update}-{offset}', gradient_probes=probes)
@@ -413,7 +448,7 @@ def execute(args, profiler, report):
             elif mode == 'full_context':
                 state = None
             elif mode == 'shuffled':
-                split = dev + heldout
+                split = eval_queries
                 other = split[(split.index(query) + 1) % len(split)]
                 state = depth_read(other['observations'], tag='shuffled')
             else:
@@ -435,7 +470,7 @@ def execute(args, profiler, report):
     report['metrics'] = {
         mode: {split: (sum(x['correct'] for x in values if x['split'] == split)
                        / sum(1 for x in values if x['split'] == split))
-               for split in ('dev', 'heldout')}
+               for split in metric_splits}
         for mode, values in results.items()}
     train_results = []
     for query in train:
@@ -446,6 +481,26 @@ def execute(args, profiler, report):
         check_time()
     report['train_results'] = train_results
     report['train_correct'] = sum(x['correct'] for x in train_results) / len(train_results)
+    role_by_case = {row['case_id']: row.get('case_role', 'delayed') for row in train}
+    report['train_by_role'] = {
+        role: {'correct': sum(row['correct'] for row in train_results if role_by_case[row['case_id']] == role),
+               'total': sum(1 for row in train_results if role_by_case[row['case_id']] == role)}
+        for role in sorted(set(role_by_case.values()))}
+    if retention_dev:
+        report['retention_dev'] = evaluate(
+            session, retention_dev, template,
+            {'correct': lambda q: depth_read(q['observations'], tag='candidate-retention-dev')},
+            check=check_time)['correct']
+    if parent_baseline:
+        accuracy = lambda rows: sum(row['correct'] for row in rows) / len(rows)
+        report['parent_metrics'] = {
+            'correct': {split: (sum(row['correct'] for row in report['parent_correct']
+                                      if row['split'] == split)
+                                / sum(1 for row in report['parent_correct'] if row['split'] == split))
+                        for split in metric_splits},
+            'retention': accuracy(report['parent_retention']),
+            'retention_dev': (accuracy(report['parent_retention_dev'])
+                              if 'parent_retention_dev' in report else None)}
     report['retention'] = evaluate(session, replay, template,
                                    {'correct': lambda q: depth_read(
                                        q['observations'], tag='candidate-replay')},
@@ -568,12 +623,42 @@ def execute(args, profiler, report):
                                for row in update['write_gradients'])
         report['checks']['finite_write_gradients'] = finite_gradients
         engineering_ok = engineering_ok and gradient_ok and finite_gradients
+    repair_ok = True
+    if parent_baseline:
+        if not regression or not retention_dev:
+            raise ValueError('Retention repair requires regression and retention-development splits')
+        retention_accuracy = sum(row['correct'] for row in report['retention']) / len(report['retention'])
+        retention_dev_accuracy = (sum(row['correct'] for row in report['retention_dev'])
+                                  / len(report['retention_dev']))
+        parent_retention_accuracy = (sum(row['correct'] for row in report['parent_retention'])
+                                     / len(report['parent_retention']))
+        parent_retention_dev_accuracy = (
+            sum(row['correct'] for row in report['parent_retention_dev'])
+            / len(report['parent_retention_dev']))
+        repair_ok = (
+            c >= report['parent_metrics']['correct']['heldout']
+            and m['correct']['regression'] >= report['parent_metrics']['correct']['regression']
+            and retention_accuracy > parent_retention_accuracy
+            and retention_dev_accuracy >= parent_retention_dev_accuracy)
+        report['repair_metrics'] = {
+            'fresh_delayed_parent': report['parent_metrics']['correct']['heldout'],
+            'fresh_delayed_candidate': c,
+            'original_regression_parent': report['parent_metrics']['correct']['regression'],
+            'original_regression_candidate': m['correct']['regression'],
+            'general_retention_parent': parent_retention_accuracy,
+            'general_retention_candidate': retention_accuracy,
+            'general_development_parent': parent_retention_dev_accuracy,
+            'general_development_candidate': retention_dev_accuracy,
+            'requirements_passed': repair_ok}
+        report['checks']['retention_repair_requirements'] = repair_ok
     if c > ctrl and m['correct']['dev'] >= m['disabled']['dev']:
         decision = 'accept'
     elif c <= ctrl:
         decision = 'reject'
     else:
         decision = 'defer'
+    if parent_baseline and decision == 'accept' and not repair_ok:
+        decision = 'reject'
     if depth_arm is not None and not engineering_ok:
         decision = 'defer'
     report['decision'] = decision
@@ -581,14 +666,17 @@ def execute(args, profiler, report):
                             'diagnostic_only' if depth_arm is not None else
                             'opt_in_only' if decision == 'accept' else 'not_published')
     report['generation_counts'] = {
-        'parent': len(report['parent_disabled']) + len(report['parent_retention']),
+        'parent': (len(report['parent_disabled']) + len(report['parent_retention'])
+                   + len(report.get('parent_correct', [])) + len(report.get('parent_retention_dev', []))),
         'candidate': sum(len(values) for values in results.values()),
         'train': len(train_results), 'retention': len(report['retention']),
+        'retention_dev': len(report.get('retention_dev', [])),
         'correction': 2 * len(corrections), 'restart': 2}
     report['generation_counts']['total'] = sum(report['generation_counts'].values())
     generated_rows = (report['parent_disabled'] + report['parent_retention']
+                      + report.get('parent_correct', []) + report.get('parent_retention_dev', [])
                       + [row for values in results.values() for row in values]
-                      + train_results + report['retention']
+                      + train_results + report['retention'] + report.get('retention_dev', [])
                       + [row for item in corrections for row in
                          (item['original_answer'], item['corrected_answer'])]
                       + [report['restart']['reloaded_answer'], report['restart']['correct_answer']])
