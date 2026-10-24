@@ -257,6 +257,7 @@ def execute(args, profiler, report):
     from replica_lab.architecture.loading import load_local_mps
     from replica_lab.memory_system import RecordLedger
     from replica_lab.memory_system.session import MemorySession
+    from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
     protocol = json.loads(args.protocol.read_text())
     report['evaluation_only'] = args.evaluate_only
     if args.evaluate_only != protocol.get('evaluation_only', False):
