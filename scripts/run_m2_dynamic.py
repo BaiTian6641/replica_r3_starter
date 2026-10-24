@@ -44,7 +44,8 @@ def make_read(model, tokenizer, observations, *, training=False, tag='state', li
                     write = model.encode_fast_observation(text, tokenizer, max_tokens=256)
                     part = write.head(head)
                     state = primitive.update_shared_chunk(
-                        state, [FastWrite(part.keys, part.values, state.chunk_index)])
+                        state, [FastWrite(part.keys.squeeze(2), part.values.squeeze(2),
+                                           state.chunk_index)])
                 weights.append(state.weights)
             weights = torch.stack(weights, dim=1)
         else:
