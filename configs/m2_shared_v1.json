@@ -1,0 +1,89 @@
+{
+  "format": "replica.m2.dynamic.v1",
+  "declared_at_utc": "2026-10-24",
+  "purpose": "M2b supervision diagnostic: six values shared across 24 fresh training entities, then new entity bindings of seen values. Distinguish failed value copying from training-value memorization using the same SGDN-2 mechanism and controls.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e1_e2_native_attempt02_20261023/selected_extension",
+  "parent_role": "E2 extension initialization and regression reference; SGDN-2 write/read parameters are fresh.",
+  "dataset": {
+    "root": "data/m2_shared",
+    "manifest_sha256": "5f334e6bd4a5ae70d8150ed011c659fb5a01673a3c94fca9b79296055c3433c7",
+    "queries_sha256": "8e4c3b9f638c3460ae8fdc6a3865923049fd290d14b6a596ebe4a50527105792",
+    "records_sha256": "8d794777d5f529a49d322befb9c22c3da18388be4eb038331a5756c66ed50a5d"
+  },
+  "splits": {
+    "train": 24,
+    "dev": 4,
+    "heldout": 4,
+    "retention": 2
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable": ["fast_write_encoder", "fast_ports"],
+    "feature_producer": "frozen native input-token embeddings of observed source pages; generated answers and future observations excluded",
+    "write_schedule": "two observed source pages -> two deferred functional commits; query/action never enters the write",
+    "optimizer": "muon8bit",
+    "lr_new": 0.02,
+    "lr_muon_new": 0.02,
+    "lr_base": 0.0,
+    "lr_muon_base": 0.0,
+    "updates": 16,
+    "examples_per_update": 4,
+    "warmup_updates": 2,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "seed": 20261024,
+    "loss": "response-only next-token cross entropy on answer plus EOS; prompt prefix masked",
+    "selection": "empty record bank; only committed fast state supplies observations",
+    "retention_replay": "two fixed retention cases evaluated before and after candidate training"
+  },
+  "evaluation": {
+    "dev_cases": 4,
+    "heldout_cases": 4,
+    "train_cases": 24,
+    "retention_cases": 2,
+    "arms": ["correct", "linear", "shuffled", "zero", "disabled", "full_context"],
+    "generation": {"max_new_tokens": 6, "greedy": true},
+    "metric": "exact stripped answer; raw generated token IDs and answers retained",
+    "correction": "apply each correction and require changed state and changed answer where appropriate",
+    "restart": "persist the first held-out image, reload it and compare generated answer/state digest"
+  },
+  "decision_rule": {
+    "accept": "correct held-out exact accuracy strictly above linear, shuffled, zero and disabled, with dev not below disabled",
+    "reject": "no positive held-out gain or dev regression",
+    "defer": "control-ambiguous result",
+    "no_promotion": "even an accepted small diagnostic is opt-in only"
+  },
+  "budget": {
+    "model_loads": 1,
+    "extension_reloads": 1,
+    "optimizer_updates": 16,
+    "eval_generations": 86,
+    "checkpoint_saves": 1,
+    "fast_state_images": 1,
+    "expected_storage_mib": 48
+  },
+  "limits": {
+    "driver_gib": 50,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1
+  },
+  "stop_conditions": [
+    "capacity guard failure",
+    "nonfinite loss, gradient or state",
+    "future/source text appears in the write",
+    "unexpected producer or fixture mismatch"
+  ],
+  "retention": "Keep parent extension, candidate extension, raw prompts/answers, persisted fast image and failure evidence. No base copy or download.",
+  "claims": "Shared-value delayed-use diagnostic on fresh synthetic pages; no general memory, reasoning, self-improvement or personal-fidelity claim."
+}
