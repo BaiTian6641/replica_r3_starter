@@ -22,13 +22,13 @@ sys.path.insert(0, str(ROOT / 'src'))
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def rows(path): return [json.loads(x) for x in Path(path).read_text().splitlines() if x.strip()]
 def digest_weights(weights):
+    from replica_lab.neural import FastWrite, LinearFastMemory, SGDN2Memory
     return hashlib.sha256(weights.detach().float().cpu().numpy().tobytes()).hexdigest()
-
 
 def make_read(model, tokenizer, observations, *, training=False, tag='state', linear=False):
     import torch
     from replica_lab.architecture.contracts import FastMemoryRead
-    from replica_lab.neural import LinearFastMemory, SGDN2Memory
+    from replica_lab.neural import FastWrite, LinearFastMemory, SGDN2Memory
     heads = model.manifest.fast_memory.heads
     key_size = model.manifest.fast_memory.key_size
     value_size = model.manifest.fast_memory.value_size
@@ -44,7 +44,7 @@ def make_read(model, tokenizer, observations, *, training=False, tag='state', li
                     write = model.encode_fast_observation(text, tokenizer, max_tokens=256)
                     part = write.head(head)
                     state = primitive.update_shared_chunk(
-                        state, [type(part)(part.keys, part.values, state.chunk_index)])
+                        state, [FastWrite(part.keys, part.values, state.chunk_index)])
                 weights.append(state.weights)
             weights = torch.stack(weights, dim=1)
         else:
