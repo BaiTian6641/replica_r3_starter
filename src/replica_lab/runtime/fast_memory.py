@@ -255,10 +255,8 @@ class FastMemorySession:
             return False
         if self._state.chunk_index >= self.config.max_chunks:
             raise ValueError('fast-memory chunk bound reached; rebuild or reset')
-        expected = (1, self.config.heads)
         if (write.keys.ndim != 4 or write.values.ndim != 4
-                or write.keys.shape[:2] != expected
-                or write.values.shape[:2] != expected
+                or write.keys.shape[0] != 1 or write.values.shape[0] != 1
                 or write.keys.shape[2:] != (self.config.heads, self.config.key_size)
                 or write.values.shape[2:] != (self.config.heads, self.config.value_size)
                 or not all(value.is_floating_point() and bool(torch.isfinite(value).all())

@@ -103,3 +103,29 @@ def test_sgdn2_host_commit_and_image_reload(tmp_path):
     assert loaded.state.chunk_index == 1
     assert loaded.state.update_count == 1
     assert image['schema'] == 'replica.fast_memory.state.v1'
+
+
+def test_sgdn2_host_accepts_more_tokens_than_heads(tmp_path):
+    scope = FastMemoryScope('fictional', 'branch-a', 'test', 'parallel_replica', 0)
+    config = FastMemoryConfig(key_size=2, value_size=2, heads=2, update_rule='sgdn2',
+                              max_tokens_per_chunk=8)
+    session = FastMemorySession(config, scope, producer='producer-1')
+    write = _write(
+        [
+            [[1.0, 0.0], [0.0, 1.0]],
+            [[1.0, 0.0], [0.0, 1.0]],
+            [[1.0, 0.0], [0.0, 1.0]],
+        ],
+        [
+            [[0.4, 0.2], [0.1, 0.3]],
+            [[0.4, 0.2], [0.1, 0.3]],
+            [[0.4, 0.2], [0.1, 0.3]],
+        ],
+    )
+    assert session.stage_sgdn2_observation('obs-multi', write, source_hash='b' * 64)
+    session.commit()
+    image = session.save(tmp_path / 'image')
+    loaded = FastMemorySession.load(tmp_path / 'image', config=config, scope=scope,
+                                    producer='producer-1')
+    assert loaded.state.chunk_index == 1
+    assert loaded.read(torch.ones(1, 1, 2)).shape == (1, 1, 4)

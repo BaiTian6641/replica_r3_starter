@@ -276,6 +276,7 @@ def execute(args, profiler, report):
         producer=model.fast_producer_key())
     for index, text in enumerate(query['observations']):
         write = model.encode_fast_observation(text, tokenizer)
+        write = replace(write, chunk_index=fs.state.chunk_index)
         fs.stage_sgdn2_observation(f'observation-{index}', write,
                                    source_hash=hashlib.sha256(text.encode()).hexdigest())
     fs.commit()
