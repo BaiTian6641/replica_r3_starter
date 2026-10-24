@@ -104,7 +104,8 @@ def main():
         checks[f'{name}_implementation_match'] = report.get('implementation_sha256') == report_pins[name]
         checks[f'{name}_source_and_parent'] = (
             report['source_lock']['revision'] == protocol['source_revision']
-            and report['parent_extension'] == protocol['parent_extension']
+            and Path(report['parent_extension']).resolve()
+            == (ROOT / protocol['parent_extension']).resolve()
             and report.get('downloads') == 0)
         checks[f'{name}_generation_budget'] = (
             report['generation_counts']['total'] <= protocol['budget']['generation_answers_per_arm']
@@ -129,6 +130,23 @@ def main():
     checks['gradient_cut_valid'] = (reports['gradient_cut']['checks'].get('first_chunk_gradient_cut') is True
                                     and reports['gradient_cut']['checks'].get('gradient_probe_after_output_open') is True
                                     and reports['gradient_cut'].get('deployment') == 'diagnostic_control')
+    restart_protocol_sha = protocol_sha
+    restart_pins = implementation_pins
+    restart_evidence = protocol.get('restart_evidence')
+    if restart_evidence is not None:
+        restart_protocol_path = ROOT / restart_evidence['protocol_path']
+        if sha(restart_protocol_path) != restart_evidence['protocol_sha256']:
+            raise ValueError('Restart evidence protocol bytes differ')
+        restart_protocol = load(restart_protocol_path)
+        if (restart_protocol['dataset'] != protocol['dataset']
+                or restart_protocol['decision_rule'] != protocol['decision_rule']):
+            raise ValueError('Restart evidence data or decision rule differs')
+        restart_protocol_sha = restart_evidence['protocol_sha256']
+        restart_pins = restart_protocol['implementation_sha256']
+        checks['declared_restart_evidence'] = (
+            Path(args.shared_restart).resolve() == (ROOT / restart_evidence['shared_report']).resolve()
+            and Path(args.private_restart).resolve()
+            == (ROOT / restart_evidence['private_report']).resolve())
     for name in ('shared', 'private'):
         restart = restarts[name]
         checks[f'{name}_fresh_restart'] = (
@@ -136,9 +154,9 @@ def main():
             and restart.get('fresh_process_reload') is True
             and restart.get('source_observations_reencoded') is False
             and restart.get('candidate_run_report_sha256') == sha(paths[name])
-            and restart.get('implementation_sha256') == implementation_pins
+            and restart.get('implementation_sha256') == restart_pins
             and restart.get('candidate_protocol_sha256') == protocol_shas[name]
-            and restart.get('execution_protocol_sha256') == protocol_sha
+            and restart.get('execution_protocol_sha256') == restart_protocol_sha
             and restart.get('costs', {}).get('profiled_wall_seconds', 0)
             <= protocol['budget']['restart_max_wall_seconds']
             and all(restart.get('checks', {}).values()))
@@ -170,6 +188,8 @@ def main():
         'decision': verdict,
         'arm_protocol_sha256': protocol_shas,
         'baseline_arms': baseline_arms,
+        'restart_execution_protocol_sha256': restart_protocol_sha,
+        'restart_evidence': restart_evidence,
         'checks': checks,
         'reports': {name: str(path) for name, path in paths.items()},
         'restart_reports': {'shared': str(args.shared_restart), 'private': str(args.private_restart)},
