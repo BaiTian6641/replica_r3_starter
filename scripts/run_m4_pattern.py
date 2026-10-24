@@ -471,13 +471,13 @@ def execute(args, profiler, report):
     metadata = save_fast_depth_image(image, correct_state, config=config, scope=scope,
                                      producer=model.fast_version_key(), chunk_index=len(query['observations']),
                                      update_count=len(query['observations']), cursor=cursor, lineage=lineage)
-    loaded_read, loaded_metadata = load_fast_depth_image(
-        image, config=config, scope=scope, producer=model.fast_version_key(),
-        frame_producer=model.fast_producer_key(), device='mps')
     correct_answer = generate_mode(query, 'router')
     pattern_correct_answer = next(row for row in report['candidate']['pattern']
                                   if row['case_id'] == query['case_id'])
     reloaded_extension = model.load_extension(extension)
+    loaded_read, loaded_metadata = load_fast_depth_image(
+        image, config=config, scope=scope, producer=model.fast_version_key(),
+        frame_producer=model.fast_producer_key(), device='mps')
     if correct_answer.get('route') == 'pattern':
         reloaded_answer = generate(session, query, DELAYED_USE_TEMPLATE, None, pattern=pattern_read())
     else:
