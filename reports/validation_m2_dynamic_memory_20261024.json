@@ -1,0 +1,48 @@
+{
+  "schema_version": "replica.validation.m2_dynamic_memory.v1",
+  "date_utc": "2026-10-24",
+  "m2_unique_value": {
+    "report": "runs/m2_dynamic_attempt06/run_report.json",
+    "decision": "reject",
+    "train_exact": "8/8",
+    "dev_exact": "0/4",
+    "heldout_exact": "0/4",
+    "failure": "loss collapsed and training values memorized; no unseen binding",
+    "cost_seconds": 53.70,
+    "peak_driver_gib": 11.004
+  },
+  "m2_shared_value": {
+    "protocol_commit": "ea4491f",
+    "report": "runs/m2_shared_attempt01/run_report.json",
+    "decision": "accept",
+    "train_exact": "24/24",
+    "dev_exact": "4/4",
+    "heldout_exact": "4/4",
+    "controls": {
+      "linear_dev": 0.25,
+      "linear_heldout": 0.5,
+      "shuffled_dev": 0.0,
+      "shuffled_heldout": 0.0,
+      "zero_dev": 0.0,
+      "zero_heldout": 0.0,
+      "disabled_dev": 0.0,
+      "disabled_heldout": 0.0,
+      "full_context_dev": 1.0,
+      "full_context_heldout": 0.75
+    },
+    "correction": "8/8 dev+heldout corrected answers correct; stale states rejected",
+    "restart": "persisted image reload answer matches and is correct",
+    "retention": "2/2 retention answers correct before and after candidate training",
+    "cost_seconds": 58.10,
+    "peak_driver_gib": 11.004,
+    "optimizer_updates": 16,
+    "new_base_copies": 0,
+    "downloads": 0
+  },
+  "guard": {
+    "driver_limit_gib": 50,
+    "swap_growth_limit_mib": 512,
+    "minimum_free_percent": 15
+  },
+  "claims": "Useful learned delayed memory on fresh shared-value synthetic bindings; not general memory, reasoning, self-improvement or personal fidelity."
+}
