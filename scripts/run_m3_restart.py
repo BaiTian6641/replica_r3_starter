@@ -37,10 +37,23 @@ def execute(args, profiler, report):
     if protocol.get('format') != 'replica.m3.depth.v1' or args.depth_arm not in protocol['depth_arms']:
         raise ValueError('M3 restart requires a declared M3 depth arm')
     candidate_report_path = args.candidate_run / 'run_report.json'
+    candidate_protocol_path = args.protocol
+    baseline = protocol.get('baseline_arms', {}).get(args.depth_arm)
+    if baseline is not None:
+        candidate_protocol_path = ROOT / baseline['protocol_path']
+        if (sha(candidate_protocol_path) != baseline['protocol_sha256']
+                or candidate_report_path.resolve() != (ROOT / baseline['report']).resolve()):
+            raise ValueError('M3 restart baseline protocol or candidate path differs')
+    candidate_protocol = json.loads(candidate_protocol_path.read_text())
+    if (candidate_protocol['dataset'] != protocol['dataset']
+            or candidate_protocol['decision_rule'] != protocol['decision_rule']):
+        raise ValueError('M3 restart baseline data or decision rule differs')
+    candidate_protocol_sha = sha(candidate_protocol_path)
     candidate = json.loads(candidate_report_path.read_text())
     if (candidate.get('status') != 'completed' or candidate.get('decision') != 'accept'
             or candidate.get('depth_arm') != args.depth_arm
-            or candidate.get('protocol_sha256') != sha(args.protocol)):
+            or candidate.get('protocol_sha256') != candidate_protocol_sha
+            or candidate.get('implementation_sha256') != candidate_protocol['implementation_sha256']):
         raise ValueError('M3 restart requires an accepted matching candidate run')
     data = ROOT / protocol['dataset']['root']
     if sha(data / 'manifest.json') != protocol['dataset']['manifest_sha256']:
@@ -62,6 +75,9 @@ def execute(args, profiler, report):
                   extension_manifest_digest=receipt['manifest_digest'],
                   candidate_run_report=str(candidate_report_path),
                   candidate_run_report_sha256=sha(candidate_report_path),
+                  candidate_protocol_path=str(candidate_protocol_path),
+                  candidate_protocol_sha256=candidate_protocol_sha,
+                  execution_protocol_sha256=sha(args.protocol),
                   candidate_extension=str(extension), depth_arm=args.depth_arm)
     scope = FastMemoryScope(query['subject_id'], query['branch_id'], query['purpose'],
                             'parallel_replica', 0)

@@ -75,19 +75,23 @@ def main():
     checks = {}
     protocol_shas = {name: protocol_sha for name in reports}
     report_pins = {name: implementation_pins for name in reports}
-    baseline = protocol.get('shared_baseline')
-    if baseline is not None:
+    baseline_arms = dict(protocol.get('baseline_arms', {}))
+    if protocol.get('shared_baseline') is not None:
+        baseline_arms.setdefault('shared', protocol['shared_baseline'])
+    for name, baseline in baseline_arms.items():
+        if name not in reports:
+            raise ValueError('M3 baseline names an unknown arm')
         baseline_path = ROOT / baseline['protocol_path']
         if sha(baseline_path) != baseline['protocol_sha256']:
-            raise ValueError('Shared baseline protocol bytes differ')
-        protocol_shas['shared'] = baseline['protocol_sha256']
+            raise ValueError(f'{name} baseline protocol bytes differ')
         baseline_protocol = load(baseline_path)
         if (baseline_protocol['dataset'] != protocol['dataset']
                 or baseline_protocol['decision_rule'] != protocol['decision_rule']):
-            raise ValueError('Shared baseline data or decision rule differs')
-        report_pins['shared'] = baseline_protocol['implementation_sha256']
-        checks['shared_declared_baseline'] = (
-            Path(args.shared).resolve() == (ROOT / baseline['report']).resolve())
+            raise ValueError(f'{name} baseline data or decision rule differs')
+        protocol_shas[name] = baseline['protocol_sha256']
+        report_pins[name] = baseline_protocol['implementation_sha256']
+        checks[f'{name}_declared_baseline'] = (
+            Path(paths[name]).resolve() == (ROOT / baseline['report']).resolve())
     for name, report in reports.items():
         checks[f'{name}_completed'] = report.get('status') == 'completed'
         checks[f'{name}_protocol_match'] = (report.get('protocol_sha256') == protocol_shas[name]
@@ -132,7 +136,9 @@ def main():
             and restart.get('fresh_process_reload') is True
             and restart.get('source_observations_reencoded') is False
             and restart.get('candidate_run_report_sha256') == sha(paths[name])
-            and restart.get('implementation_sha256') == report_pins[name]
+            and restart.get('implementation_sha256') == implementation_pins
+            and restart.get('candidate_protocol_sha256') == protocol_shas[name]
+            and restart.get('execution_protocol_sha256') == protocol_sha
             and restart.get('costs', {}).get('profiled_wall_seconds', 0)
             <= protocol['budget']['restart_max_wall_seconds']
             and all(restart.get('checks', {}).values()))
@@ -163,7 +169,7 @@ def main():
         'protocol_sha256': protocol_sha,
         'decision': verdict,
         'arm_protocol_sha256': protocol_shas,
-        'shared_baseline': baseline,
+        'baseline_arms': baseline_arms,
         'checks': checks,
         'reports': {name: str(path) for name, path in paths.items()},
         'restart_reports': {'shared': str(args.shared_restart), 'private': str(args.private_restart)},
