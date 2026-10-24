@@ -1,25 +1,28 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
-**Current status — 24 October 2026, M4 v7 protocol commit `d1364fc`.**
-M0a/M1/M2/M3 are complete within their recorded scopes. M3 retention repair and
-the M4 static-optimization arm are **rejected**. M4 direct pattern is 0/4 dev
-and 0/8 held-out/regression; every delayed router row selected fast with
-incomplete hash coverage, and fast+pattern adversarial is 0/4 versus disabled
-2/4. The v7 verdict passes 16/20 checks, including same-process extension/image
-restart, but does not promote M4 or repair retention. Fresh action-menu
-generalization, genuinely covered static utility, authentic identity fidelity,
-Spark, M5–M7 and production private dispatch remain open.
-M0b is optional and unadmitted; M5/M6/M7 are blocked by the documented upstream
-gates. Personality contracts and fictional evaluation exist, but authentic
-training/fidelity awaits permitted sources and human review.
+**Current priority — memory reliability recovery, 24 October 2026, protocol `9a43bad`.**
+The exact-record selective context passes **192/192**, but full-context parity
+fails on two absent-fact answers, so the reference bundle is rejected. The
+48-update reader-only D1 candidate scores **64/192** (32 unknown plus 32 general),
+with fact, correction and unaffected scores all zero and delayed-above-controls
+failing on both splits. All 32 images authenticate and fresh-process restart
+reproduces 7/7 answers. The next diagnostic is per-fact writer/state binding, not
+more updates, KL increases, model changes or neural RSI promotion. M4 remains
+rejected; M0b is optional and M5–M7 retain their separate gates. Authentic
+identity fidelity still requires permitted sources and human review.
 
 Read the [research plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),
 [loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md),
 [execution state](execution_state.md),
+[recovery pilot results](docs/experiments/20261024_Memory_Reliability_Recovery_Results.md),
 [M3 evidence](docs/experiments/20261024_M3_Depth_Ownership_Results.md) and
 [M4 evidence](docs/experiments/20261024_M4_Pattern_Results.md).
-The post-M4 full integration suite passed **1262 tests / 21 subtests in 133.73 s**
-([JUnit](reports/integration_m4_v7_20261024.xml); 1283 entries, zero failures).
+Latest recovery validation: **1,299 tests and 21 subtests passed**, zero failures,
+errors or skips, in 137.53 s
+([JUnit](reports/validation_memory_reliability_reader_20261024.xml)). The guarded native
+pilot and separate restart subsequently completed on MPS. The pilot scored
+0/16 delayed facts, 0/4 corrections, 0/12 unaffected facts and 0/8 general
+answers; full-context control scored 48/48. No candidate was promoted.
 MiniCPM5 remains the baseline. Native work uses one MPS worker, no CPU fallback,
 the **50 GiB** sampled driver stop and existing swap/host-pressure checks.
 Historical explicit 40 GiB protocols and all failed reports remain preserved.

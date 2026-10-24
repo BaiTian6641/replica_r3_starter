@@ -1,9 +1,19 @@
 # Coding-agent continuation instruction
 
-Current documentation review: 24 October 2026, against M4 v7 implementation
-`ad09a77` and protocol commit `d1364fc` on `codex/d2-capacity-runtime-pilot`.
-This update records the completed M4 static-arm rejection and its evidence
-boundaries. It does not launch an agent, native experiment or automation.
+**Current priority — memory reliability recovery, 24 October 2026.** Follow
+[the recovery sequence](docs/architecture/17_Memory_Reliability_Recovery.md):
+benchmark and independent scorer → persistent multi-query memory → incremental
+correction and retention → bounded MiniCPM5 fine-tuning and fresh-process
+continuation → verified improvement. M4 v7 is rejected. Its delayed router
+scores come from fast memory; old M2/M3 fixtures admit a query-blind last-line
+shortcut. Neither those scores nor fresh-state correction checks establish
+reliable persistent associative memory. RSI promotion remains gated on reliable
+memory and noninterference. Static Engram and Spark are optional comparisons;
+C13's collection threshold applies to learned selection, not fixed practice.
+The first recovery pilot completed 24 fine-tuning updates and was rejected.
+Persistent-state and fresh-process mechanics pass; recall, correction quality
+and unrelated-answer retention remain open. Preserve the failed candidate and
+resolve those gates before another promoted learning cycle.
 
 ## Resume from evidence
 
@@ -21,7 +31,8 @@ Read these in order, then inspect the affected code and raw reports:
 5. [Start instructions](AGENT_START.md), applicable repository instructions,
    recent Git history and current worktree changes.
 
-The current M0–M7 order supersedes older next-task paragraphs. E1–E6, C01–C18
+Document 17's reliability recovery supersedes immediate M0–M7 next-task
+paragraphs; M0–M7 remains the later construction reference. E1–E6, C01–C18
 and S-stage identifiers remain useful component and scientific-gate references.
 Preserve dated experiment results; an old measurement is not a new result.
 
@@ -72,34 +83,38 @@ document 15; none of these planned paths is qualified by the documentation.
   identity contracts and fictional tests. Its encoder/training, authentic
   source-based evaluation and fidelity are open. The success head has a
   diagnostic fit but is uncalibrated and has no success authority.
-- The post-M4 full integration suite passed **1262 tests / 21 subtests in
-  133.73 s** (1283 JUnit entries, zero failures/errors/skips); the focused M4
-  suite passed 9 tests. The 50 GiB guard, source seals and all failed native
-  reports are preserved.
+- The post-package full integration suite passed **1299 tests / 21 subtests in
+  137.53 s** (zero failures/errors/skips); 37 focused reliability tests also
+  passed. The 50 GiB guard, source seals and all failed native reports are preserved.
 
 ## Next work package and progression
 
-**M3 retention repair and M4 static optimization are rejected:** M3 delayed
-behavior is preserved, but general development remains 0/2 and adversarial
-memory remains 0/4 versus disabled 2/4. M4 direct pattern is 0/4 dev and 0/8
-held-out/regression; its router score is fast-memory behavior, not static
-benefit. Do not promote M4 or use fast scores to admit M5. Retention repair and
-genuinely covered non-training static utility remain open. Any M5 bounded-RSI
-arm requires a new predeclared parent/data/control protocol; then M6 learned
-timescales and M7 native vision. Authentic identity fidelity still requires
-permitted source material and human review.
+**Reader-only D1 is complete and rejected; reference parity also fails.** The
+[experiment record](docs/experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
+and [canonical verdict](reports/memory_reliability_v2_attempt03/verdict_final_v2.json)
+show 48 updates over 192 fresh cases, exactly eight changed reader tensors and
+64/192 fast answers (32 unknown plus 32 general). Fact, correction and unaffected
+scores are all zero; delayed-above-controls fails on both splits. Selective exact
+context is 192/192, but full context is 190/192 because two absent-fact answers
+are orange/green rather than unknown. The parity gate therefore rejects the
+bundle without negating selective exact-reference utility. All 32 images and
+source bindings authenticate, and fresh-process restart reproduces 7/7 answers.
+The native gate-off counter reports 0 but independently recomputes to 64; it is
+unauthenticated. Protocol v4 is at `9a43bad`; scorer/finalizer is at `6b29460`.
 
-**Current dependency disposition:** M0b is dropped as optional and unadmitted;
-no local Spark BF16 source/compatible isolated environment/adapter exists. M5
-is blocked by M4/M3 quality and retention gates plus C13's 5 accepted / 8
-rejected-or-deferred groups versus 10/10. M6 is blocked until a simpler loop
-survives retention and noninterference. M7 is blocked on local 1B VLM
-weights/revision, a separate adapter and native multimodal/cache parity; larger
-GGUF artifacts are not the target. Personality fictional integration is
-implemented; authentic training/fidelity awaits permitted records and human
-review. These are explicit blockers, not completed packages.
+**Next smallest diagnostic:** inspect per-fact writer/state bindings before a new
+writer arm. Reader-only failure does not prove storage is correct. Do not add
+updates, increase KL, switch models or advance neural RSI. Treat full-context
+absent-fact hallucination as a separate abstention diagnostic. M4, M3 repair and
+the first 24-update pilot remain rejected. Exact-record reference and persistence
+mechanics are reusable, but no learned-memory promotion is admitted.
 
-Then use this order, advancing only on the declared gate:
+Maintain document 17's recovery gates and the exact scorer's independent token,
+membership, family and source-lineage checks. C13's threshold gates learned
+selection only. Static Engram, Spark and VLM remain separate qualified paths;
+authentic identity still requires permitted sources and human review.
+
+Reference package definitions (do not restart completed M0–M4 work):
 
 - **M1:** fresh chronological, source-separated episodes and one thin typed
   compiler path that reuses the ledger, catalog, verifier and publisher.

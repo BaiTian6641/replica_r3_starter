@@ -1,0 +1,137 @@
+{
+  "schema_version": "replica.validation.memory_reliability.reader_only.v1",
+  "date_utc": "2026-10-24",
+  "decision": "reject",
+  "reference_decision": "reject_reference",
+  "candidate_decision": "reject",
+  "deployment": "diagnostic_only_not_published",
+  "lineage": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "protocol": "configs/memory_reliability_v4.json",
+    "protocol_commit": "9a43bad",
+    "finalizer_commit": "9277ed2",
+    "run_report": "runs/memory_reliability_v2_attempt03/run_report.json",
+    "restart_report": "runs/memory_reliability_v2_restart03/run_report.json",
+    "verdict": "reports/memory_reliability_v2_attempt03/verdict_final_v2.json",
+    "canonical_fixture": "reports/memory_reliability_v2_attempt03/smoke_fixture",
+    "canonical_scorer_artifact": "reports/memory_reliability_v2_attempt03/scorer_smoke_canonical.json",
+    "experiment_record": "docs/experiments/20261024_Memory_Reliability_Reader_Only_Results.md"
+  },
+  "failed_checks": [
+    "dev_fact_reliable",
+    "dev_changed_reliable",
+    "dev_unaffected_reliable",
+    "dev_delayed_above_controls",
+    "heldout_fact_reliable",
+    "heldout_changed_reliable",
+    "heldout_unaffected_reliable",
+    "heldout_delayed_above_controls",
+    "reference_full_context_parity"
+  ],
+  "metrics_by_split": {
+    "dev": {
+      "fast": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "ungated": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "0/16", "general": "0/16"},
+      "disabled": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "shuffled": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "last_chunk": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "adversarial": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "selective_context": {"fact": "32/32", "changed": "8/8", "unaffected": "24/24", "unknown": "16/16", "general": "16/16"},
+      "full_context": {"fact": "32/32", "changed": "8/8", "unaffected": "24/24", "unknown": "14/16", "general": "16/16"}
+    },
+    "heldout": {
+      "fast": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "ungated": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "0/16", "general": "0/16"},
+      "disabled": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "shuffled": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "last_chunk": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "adversarial": {"fact": "0/32", "changed": "0/8", "unaffected": "0/24", "unknown": "16/16", "general": "16/16"},
+      "selective_context": {"fact": "32/32", "changed": "8/8", "unaffected": "24/24", "unknown": "16/16", "general": "16/16"},
+      "full_context": {"fact": "32/32", "changed": "8/8", "unaffected": "24/24", "unknown": "16/16", "general": "16/16"}
+    }
+  },
+  "family_counts": {"dev": 4, "heldout": 4, "note": "Counterfactual variants are not independent families"},
+  "training": {
+    "updates": 48,
+    "examples_per_update": 4,
+    "unique_training_cases": 192,
+    "trainable_tensors": 8,
+    "trained_parameters": 2105344,
+    "changed_tensors": 8,
+    "unchanged_extension_tensors": 59,
+    "optimizer": "muon8bit_int8_momentum_with_auxiliary_fp32_adamw",
+    "parameter_residency": "FP32 parameters and gradients; no BF16-resident or FP8-training claim",
+    "preservation_kl_weight": 0.0,
+    "preservation_note": "General/unknown cases are gate-off by design; no general preservation KL is used. Fixed gate and disabled controls enforce retention.",
+    "base_frozen": true,
+    "writers_frozen": true,
+    "gate_scalars_frozen": true
+  },
+  "generation": {
+    "answers": 1920,
+    "generated_tokens": 4328,
+    "prompt_tokens": 134076,
+    "max_generated_tokens_per_answer": 4,
+    "max_prompt_tokens_per_answer": 143,
+    "extension_bytes": 48948272,
+    "downloads": 0,
+    "base_copies": 0
+  },
+  "persistence": {
+    "images_authenticated": 32,
+    "source_bindings_authenticated": 32,
+    "training_inclusive_epoch": 224,
+    "fresh_process_answers_reproduced": 7,
+    "fresh_process_tokens_reproduced": 14,
+    "fresh_process_state_equal": true,
+    "fresh_process_source_view_equal": true,
+    "scope": "Persisted-image source-binding parity, not live-ledger epoch equality or memory-quality acceptance"
+  },
+  "resources": {
+    "guard_elapsed_seconds": 515.4785187910311,
+    "restart_guard_elapsed_seconds": 8.530416958965361,
+    "sampled_peak_driver_bytes": 11815763968,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76.0,
+    "cpu_fallback": false,
+    "native_jobs": 2,
+    "native_jobs_note": "One training job and one separately declared restart job, each under the exclusive MPS worker lock"
+  },
+  "accounting_errata": {
+    "gate_off_examples": {
+      "native_reported_total": 0,
+      "independently_recomputed_total": 64,
+      "status": "unauthenticated",
+      "explanation": "32 unknown plus 32 general training cases are gate-off by construction; per-example no-grad status is not persisted. Evaluation gate-off parity is independently verified."
+    }
+  },
+  "verification": {
+    "focused_tests_passed": 37,
+    "full_integration": {
+      "passed": 1299,
+      "subtests_passed": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 137.53,
+      "junit": "reports/validation_memory_reliability_reader_20261024.xml"
+    },
+    "canonical_fixture_verification": "Recursive pin-only differences, native/smoke hashes, guard policies, metrics and failed-gate equality all passed",
+    "independent_outcome_review": "Reject; no RSI promotion"
+  },
+  "candidate_disposition": "Rejected and preserved in isolated run directory; no selected/default checkpoint changed and no neural RSI promotion",
+  "next_action": "Inspect per-fact writer/state bindings before considering a new writer arm. Reader-only failure does not prove storage is correct. Treat full-context absent-fact hallucination as a separate abstention diagnostic. Do not add updates, increase KL, switch models or promote RSI.",
+  "preserved_attempts": {
+    "reliability_v1": "24 updates rejected; recall/correction/retention failed; fresh-process mechanical parity passed",
+    "reference_attempt01": "Record-memory branch activated disabled path; invalid integration diagnostic",
+    "reference_attempt02": "Branch isolation restored full-context 48/48; scorer path issue subsequently corrected",
+    "reference_attempt03": "Evaluation-only scorer initialization/completeness issues corrected",
+    "reference_attempt04": "Deeper source-view/gate integrity issues identified and corrected",
+    "reference_attempt05": "Two-phase epoch model corrected",
+    "reference_attempt06": "Exact-reference accepted on v1 with authenticated source views and fresh-process parity",
+    "d1_attempt01": "Quality reject followed by missing-import restart failure",
+    "d1_attempt02": "Completed with epoch/novelty/reference-acceptance/preservation/image-budget defects corrected in v4",
+    "d1_attempt03": "Final reader-only reject with canonical verdict and mechanical restart pass"
+  }
+}

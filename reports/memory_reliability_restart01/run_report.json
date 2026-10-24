@@ -1,0 +1,364 @@
+{
+  "status": "completed",
+  "started_at_utc": "2026-10-24T15:51:30.090339+00:00",
+  "protocol_sha256": "02b8fdf6a341f4d2983d476777c4982e76adb8c94875209a9073ebb5ec6b4926",
+  "optimizer_updates": 0,
+  "checkpoints_saved": 0,
+  "downloads": 0,
+  "dataset_audit": {
+    "episodes": 12,
+    "families": 6,
+    "fact_queries": 48,
+    "first_line_accuracy": 0.22916666666666666,
+    "last_line_accuracy": 0.1875,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 24,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "split_episodes": {
+      "train": 8,
+      "dev": 2,
+      "heldout": 2
+    },
+    "heldout_values_absent_from_training": [
+      "crimson",
+      "indigo"
+    ]
+  },
+  "implementation_sha256": {
+    "scripts/run_memory_reliability.py": "663716472f722bf21a9d7e9fb838bc7903f49effb4c45b998fd8247cb100c797",
+    "scripts/score_memory_reliability.py": "8d06ded4e894d25974bc117ce9a6b408eafcc99b32c155143383eba1afde7e68",
+    "scripts/make_memory_reliability_data.py": "ea59e6fc2e9dda43c92e3de0d832c49598cf4184828b8e96a1c91228dbad028b",
+    "scripts/run_capacity_preflight.py": "846c2945b0e7d00f28d8a2ae2c9f3d22e5735b8924ede21c768f47ed387548a7",
+    "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+    "src/replica_lab/memory_reliability.py": "79c4cab4ad025a855237c35f944e3b3c69dd65c7886e91b700a24b282ac63432",
+    "src/replica_lab/reliability_scoring.py": "39616a752942ce23d9eb5d05170291ee878e52b9ac508a54708938fe402482e8",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "0652dd87129bd6c7683192d13d12e287325b111e62f7796f7e86e4c40e20886c",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/memory_system/session.py": "3359f318077b0ec1a08f87d3ff93c4fb24c53be7c8d193c5f3b5ea94376e415b",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "tests/test_memory_reliability.py": "17e36a082f2b56da0ecdb47c1d22f386566242ff466b4cb27179fee79c7da012"
+  },
+  "source_lock": {
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "requested_revision": "main",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "model_type": "llama",
+    "resolved_at": "2026-10-22T19:59:58.806109+00:00",
+    "weights_downloaded": true,
+    "integration_tested": false,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "local_bytes_sealed": true,
+    "upstream_authenticity_independently_verified": false
+  },
+  "answers": [
+    {
+      "case_id": "reliability_heldout_200_0:corrected:q0",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "changed",
+      "answer": "unknown",
+      "expected": "violet",
+      "correct": false,
+      "token_ids": [
+        22954,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 61,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    },
+    {
+      "case_id": "reliability_heldout_200_0:corrected:q1",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "unaffected",
+      "answer": "unknown",
+      "expected": "amber",
+      "correct": false,
+      "token_ids": [
+        22954,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 61,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    },
+    {
+      "case_id": "reliability_heldout_200_0:corrected:q2",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "unaffected",
+      "answer": "unknown",
+      "expected": "teal",
+      "correct": false,
+      "token_ids": [
+        22954,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 61,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    },
+    {
+      "case_id": "reliability_heldout_200_0:corrected:q3",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "unaffected",
+      "answer": "unknown",
+      "expected": "indigo",
+      "correct": false,
+      "token_ids": [
+        22954,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 61,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    },
+    {
+      "case_id": "reliability_heldout_200_0:corrected:unknown",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "unknown",
+      "answer": "unknown",
+      "expected": "unknown",
+      "correct": true,
+      "token_ids": [
+        22954,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 61,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    },
+    {
+      "case_id": "reliability_heldout_200_0:corrected:g0",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "general",
+      "answer": "5",
+      "expected": "15",
+      "correct": false,
+      "token_ids": [
+        42,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    },
+    {
+      "case_id": "reliability_heldout_200_0:corrected:g1",
+      "split": "heldout",
+      "episode_id": "reliability_heldout_200_0",
+      "stage": "corrected",
+      "kind": "general",
+      "answer": "unknown",
+      "expected": "6",
+      "correct": false,
+      "token_ids": [
+        22954,
+        1
+      ],
+      "generated_tokens": 2,
+      "prompt_tokens": 59,
+      "state_digest": "7980feb620b164942b0d546d3fbf383f7af41e27d4c5cbdb8fa4b9dd3acd03c8"
+    }
+  ],
+  "checks": {
+    "state_equal": true,
+    "tokens_equal": true,
+    "lineage_count": true
+  },
+  "source_reencoded": false,
+  "training_updates": 0,
+  "generation_answers": 7,
+  "previous_report_sha256": "5aea250dd6abb85c8f8d8b1ea67895fb1865bc4e5f9dc830c031c528527c2dd6",
+  "decision": "mechanical_restart_pass",
+  "deployment": "diagnostic_only_not_published",
+  "profile": {
+    "schema_version": 1,
+    "device": "mps",
+    "started_at": "2026-10-24T15:51:30.090634+00:00",
+    "ended_at": "2026-10-24T15:51:36.097196+00:00",
+    "elapsed_seconds": 6.00643266714178,
+    "sample_interval_seconds": 0.25,
+    "rss_sample_interval_seconds": 2.0,
+    "sample_count": 25,
+    "memory": {
+      "rss_peak_process_lifetime_bytes": 15560704000,
+      "rss_peak_sampled_bytes": 3205955584,
+      "mps_allocated_peak_sampled_bytes": 10128364032,
+      "mps_driver_peak_sampled_bytes": 10754867200
+    },
+    "mps_recommended_max_memory_bytes": 55662788608,
+    "host_start": {
+      "timestamp": "2026-10-24T15:51:30.091357+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 2048.00M  used = 1248.56M  free = 799.44M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 2147483648,
+        "used_bytes": 1309210050,
+        "free_bytes": 838273597
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 94%",
+      "memory_free_percent": 94.0
+    },
+    "host_end": {
+      "timestamp": "2026-10-24T15:51:36.025446+00:00",
+      "platform": "darwin",
+      "swapusage_raw": "total = 2048.00M  used = 1248.56M  free = 799.44M  (encrypted)",
+      "swapusage": {
+        "total_bytes": 2147483648,
+        "used_bytes": 1309210050,
+        "free_bytes": 838273597
+      },
+      "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 76%",
+      "memory_free_percent": 76.0
+    },
+    "phases": [
+      {
+        "type": "phase",
+        "phase": "model_loaded",
+        "timestamp": "2026-10-24T15:51:34.358794+00:00",
+        "elapsed_seconds": 4.153031917056069,
+        "seconds_since_previous_mark": 4.153031917056069,
+        "synchronize_seconds": 9.124865755438805e-06,
+        "memory_sample": {
+          "type": "sample",
+          "timestamp": "2026-10-24T15:51:34.243775+00:00",
+          "elapsed_seconds": 4.153046000050381,
+          "phase": "model_loaded",
+          "rss_peak_process_lifetime_bytes": 15560704000,
+          "rss_current_bytes": 3205955584,
+          "rss_measurement_age_seconds": 0,
+          "mps_allocated_bytes": 10124357120,
+          "mps_driver_bytes": 10746216448
+        },
+        "fields": {
+          "parameters": {
+            "regime": "modules_only",
+            "original": {
+              "tensors": 381,
+              "parameters": 2516756480,
+              "trainable": 0,
+              "names": []
+            },
+            "new": {
+              "tensors": 67,
+              "parameters": 12235268,
+              "trainable": 12235268,
+              "names": [
+                "record_writer.encoder.slot_queries",
+                "record_writer.encoder.input_norm.weight",
+                "record_writer.encoder.input_norm.bias",
+                "record_writer.encoder.input_projection.weight",
+                "record_writer.encoder.attention.in_proj_weight",
+                "record_writer.encoder.attention.in_proj_bias",
+                "record_writer.encoder.attention.out_proj.weight",
+                "record_writer.encoder.attention.out_proj.bias",
+                "record_writer.encoder.output_norm.weight",
+                "record_writer.encoder.output_norm.bias",
+                "memory_ports.13.gate_logit",
+                "memory_ports.13.query_norm.weight",
+                "memory_ports.13.query_norm.bias",
+                "memory_ports.13.memory_norm.weight",
+                "memory_ports.13.memory_norm.bias",
+                "memory_ports.13.query_projection.weight",
+                "memory_ports.13.key_projection.weight",
+                "memory_ports.13.value_projection.weight",
+                "memory_ports.13.output_projection.weight",
+                "memory_ports.27.gate_logit",
+                "memory_ports.27.query_norm.weight",
+                "memory_ports.27.query_norm.bias",
+                "memory_ports.27.memory_norm.weight",
+                "memory_ports.27.memory_norm.bias",
+                "memory_ports.27.query_projection.weight",
+                "memory_ports.27.key_projection.weight",
+                "memory_ports.27.value_projection.weight",
+                "memory_ports.27.output_projection.weight",
+                "sense_ports.13.input_norm.weight",
+                "sense_ports.13.input_norm.bias",
+                "sense_ports.13.projection.weight",
+                "sense_ports.27.input_norm.weight",
+                "sense_ports.27.input_norm.bias",
+                "sense_ports.27.projection.weight",
+                "sense_ports.41.input_norm.weight",
+                "sense_ports.41.input_norm.bias",
+                "sense_ports.41.projection.weight",
+                "reranker.query_norm.weight",
+                "reranker.query_norm.bias",
+                "reranker.record_norm.weight",
+                "reranker.record_norm.bias",
+                "reranker.query_projection.weight",
+                "reranker.record_projection.weight",
+                "fast_depth_write_encoders.13.input_norm.weight",
+                "fast_depth_write_encoders.13.input_norm.bias",
+                "fast_depth_write_encoders.13.key_projection.weight",
+                "fast_depth_write_encoders.13.value_projection.weight",
+                "fast_depth_write_encoders.13.erase_projection.weight",
+                "fast_depth_write_encoders.13.write_projection.weight",
+                "fast_depth_write_encoders.13.forget_projection.weight",
+                "fast_depth_write_encoders.27.input_norm.weight",
+                "fast_depth_write_encoders.27.input_norm.bias",
+                "fast_depth_write_encoders.27.key_projection.weight",
+                "fast_depth_write_encoders.27.value_projection.weight",
+                "fast_depth_write_encoders.27.erase_projection.weight",
+                "fast_depth_write_encoders.27.write_projection.weight",
+                "fast_depth_write_encoders.27.forget_projection.weight",
+                "fast_ports.13.gate_logit",
+                "fast_ports.13.query_norm.weight",
+                "fast_ports.13.query_norm.bias",
+                "fast_ports.13.query_projection.weight",
+                "fast_ports.13.output_projection.weight",
+                "fast_ports.27.gate_logit",
+                "fast_ports.27.query_norm.weight",
+                "fast_ports.27.query_norm.bias",
+                "fast_ports.27.query_projection.weight",
+                "fast_ports.27.output_projection.weight"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "errors": [],
+    "notes": [
+      "All memory values are bytes; GiB = bytes / 2**30.",
+      "MPS and RSS sampled peaks may miss transient allocations.",
+      "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+      "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+      "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+    ]
+  },
+  "ended_at_utc": "2026-10-24T15:51:36.097689+00:00"
+}

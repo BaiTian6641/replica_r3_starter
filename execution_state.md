@@ -1,5 +1,102 @@
 # Execution state — integrated memory, cognition and learning
 
+**Current priority — memory reliability recovery, 24 October 2026.** Follow
+[the recovery sequence](docs/architecture/17_Memory_Reliability_Recovery.md):
+benchmark and independent scorer → persistent multi-query memory → incremental
+correction and retention → bounded MiniCPM5 fine-tuning and fresh-process
+continuation → verified improvement. M4 v7 is rejected. Its delayed router
+scores come from fast memory; old M2/M3 fixtures admit a query-blind last-line
+shortcut. Neither those scores nor fresh-state correction checks establish
+reliable persistent associative memory. RSI promotion remains gated on reliable
+memory and noninterference. Static Engram and Spark are optional comparisons;
+C13's collection threshold applies to learned selection, not fixed practice.
+The first recovery pilot completed 24 fine-tuning updates and was rejected.
+Persistent-state and fresh-process mechanics pass; recall, correction quality
+and unrelated-answer retention remain open. Preserve the failed candidate and
+resolve those gates before another promoted learning cycle.
+
+## Reliability recovery outcome — 24 October 2026
+
+**Completed and rejected:** [full report](docs/experiments/20261024_Memory_Reliability_Recovery_Results.md),
+[final independent verdict](reports/memory_reliability_attempt02/verdict_final.json).
+MiniCPM5 D1 trained 7,356,418 fast writer/reader parameters for 24 updates on
+96 examples; all original parameters and non-fast extension tensors are unchanged.
+Actual Muon int8-momentum scope was 7,340,032 parameters, plus 16,386 auxiliary
+AdamW parameters. One isolated extension was saved; selected defaults are unchanged.
+
+Benchmark/scorer repair now rejects cached-score tampering, wrong gold, missing
+or duplicate cases/arms and inconsistent token decoding. Fresh counterfactual
+multi-query data reduces the last-value shortcut to 9/48 fact queries. The
+historical M4 audit verifies 434 nested answer rows including duplicate restart
+references/external controls; its rejection and generation accounting remain intact.
+
+The candidate scores **0/16 initial facts, 0/4 corrections, 0/12 unaffected facts,
+8/8 absent facts and 0/8 general answers**. Disabled general answers score 8/8;
+full-context control scores 48/48 overall. Both evaluation splits fail quality.
+The independent verdict rejects 12/17 checks; no neural/RSI promotion is admitted.
+
+All eight depth images authenticate exact scope, producer, source lineage and
+2→3 counters. Fresh-process reload reproduces **7/7 token sequences and state
+digests**, without training or source replay. This proves the tested persistence
+mechanics, including persistence of incorrect answers; it does not prove useful
+memory, crash/power-loss recovery, revocation or unlearning.
+
+The actual native pilot took **115.35 s**, sampled driver peak **11.0043 GiB**;
+restart took **6.01 s**, peak **10.0163 GiB**. Both observed zero swap growth and
+passed the unchanged 50 GiB guard. Initial restricted-context attempt01 stopped
+at host telemetry before model loading; attempt02 is the sole training run.
+No base download/copy, protected-pilot modification or Git commit occurred.
+
+Validation: **19 new recovery tests passed**; full suite **1,280 passed,
+21 subtests passed, one restricted-context MPS skip**, 151.31 s, one existing
+sparse-tensor warning. [JUnit](reports/validation_memory_reliability_20261024.xml).
+The protocol is timestamped/hash-pinned, not committed, at Git base `280d4dd`.
+
+Next: durable exact-record retrieval/correction reference and crash/revocation
+coverage; a discriminating query-selectivity/read-interference diagnosis; then
+a newly declared bounded D1 experiment on independent families. Reuse v1 only
+as exposed regression evidence. Do not restart the same fine-tuning recipe or
+advance RSI from mechanical success.
+
+## Exact-reference and reader-only outcome — 24 October 2026
+
+**Final decision: reject the learned candidate and reject the reference bundle on
+full-context parity.** See [the experiment record](docs/experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
+and [canonical verdict](reports/memory_reliability_v2_attempt03/verdict_final_v2.json).
+Selective exact context is **192/192**; full context is **190/192** because two
+absent-fact answers are `orange`/`green` rather than `unknown`. The parity gate
+therefore rejects the bundle without negating selective exact-reference utility.
+
+The reader-only D1 arm completed **48 updates over 192 fresh training cases** and
+changed exactly eight reader tensors (2,105,344 parameters). It scores **64/192**
+fast answers: 32 unknown plus 32 general, with **0/64 fact, 0/16 changed and
+0/48 unaffected**. Both splits independently fail all fact/correction floors and
+delayed-above-controls checks. Parent-disabled behavior is unchanged, so factual
+noninterference checks are vacuous. General/unknown retention passes.
+
+All 32 images and source bindings authenticate, including training-inclusive
+epoch 224. Fresh-process restart reproduces 7/7 answers and source bindings with
+zero updates/checkpoints. Guarded wall time is 515.48 s; restart is 8.53 s;
+sampled driver peak is 11,815,763,968 bytes with zero swap growth and 76% minimum
+host-free memory. Protocol v4 is committed at `9a43bad`; scorer/finalizer fixes
+are at `6b29460`. The final verdict separates native and smoke-fixture hashes and
+records the gate-off accounting erratum: independently recomputed 64 versus
+native counter 0. The counter is unauthenticated, not evidence of a gate-on-only
+objective.
+
+**Next:** inspect per-fact writer/state bindings before considering a new writer
+arm. Reader-only failure does not establish correct storage. Do not add updates,
+increase KL, switch models or promote RSI. Treat full-context absent-fact
+hallucination as a separate abstention diagnostic.
+
+Post-package full integration passed **1299 tests and 21 subtests in 137.53 s**
+(zero failures/errors/skips), with 37 focused reliability tests also passing.
+See `reports/validation_memory_reliability_reader_20261024.xml`.
+
+## Preserved snapshots before the reliability recovery
+
+These dated records preserve prior results; document 17 controls the next work.
+
 
 **M2/M3 verified packages (24 October 2026 UTC).** M2's shared-value SGDN-2
 diagnostic passed 4/4 dev and 4/4 held-out after context removal, above linear

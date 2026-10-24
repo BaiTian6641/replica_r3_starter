@@ -1,0 +1,429 @@
+{
+  "format": "replica.memory_reliability.verdict.v1",
+  "decision": "reject",
+  "deployment": "diagnostic_only_not_published",
+  "report_sha256": "52661f1759edcd46ffc2b94a8e5b90c156d203e415f9f5ca10c839069fc8e197",
+  "protocol_sha256": "1825c8aa3a0bbde9f28fb17206eb18eb8445775896d445fd6e62ce88befa0667",
+  "dataset_audit": {
+    "episodes": 12,
+    "families": 6,
+    "fact_queries": 48,
+    "first_line_accuracy": 0.22916666666666666,
+    "last_line_accuracy": 0.1875,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 24,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "split_episodes": {
+      "train": 8,
+      "dev": 2,
+      "heldout": 2
+    },
+    "heldout_values_absent_from_training": [
+      "crimson",
+      "indigo"
+    ]
+  },
+  "decoded_answer_rows": 480,
+  "images": {
+    "images_authenticated": 8,
+    "actual_tensor_bytes_checked": true,
+    "scope_source_lineage_and_counters_checked": true,
+    "multiple_queries_per_state": true,
+    "source_bindings_authenticated": 8
+  },
+  "guard": {
+    "path": "reports/memory_exact_reference_attempt03.guard.json",
+    "sha256": "427dbc33fcc128099581b2b603ac4ed01543d6106b93fbb9ef0987bb9c4e9c1d",
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    }
+  },
+  "restart": null,
+  "regressions": {
+    "dev": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    },
+    "heldout": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    }
+  },
+  "families": {
+    "by_family": {
+      "parent": {
+        "disabled": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.25,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.25,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.25,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        }
+      },
+      "candidate": {
+        "adversarial": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "disabled": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "full_context": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "last_chunk": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "selective_context": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "shuffled": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "ungated": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            }
+          }
+        }
+      }
+    },
+    "independent_family_counts": {
+      "dev": 2,
+      "heldout": 2
+    }
+  },
+  "failed_checks": [
+    "dev_fact_reliable",
+    "dev_changed_reliable",
+    "dev_unaffected_reliable",
+    "dev_delayed_above_controls",
+    "heldout_fact_reliable",
+    "heldout_changed_reliable",
+    "heldout_unaffected_reliable",
+    "heldout_delayed_above_controls"
+  ],
+  "checkpoint_changes": null,
+  "reference_decision": "accept_reference",
+  "candidate_decision": "reject",
+  "evaluation_only": true,
+  "scope": "Small exposed synthetic diagnostic; no RSI or broad memory claim"
+}

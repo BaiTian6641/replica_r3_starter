@@ -1,23 +1,15 @@
 # 03 - Construction plan and executable runbook
 
-**Current implementation — M4 v7 protocol commit `d1364fc`, 24 October 2026.**
-M0a/M1/M2/M3 have measured boundaries. M3 retention repair and M4 static
-optimization are **rejected**: M4 direct pattern is 0/4 dev and 0/8
-held-out/regression, and fast+pattern adversarial is 0/4 versus disabled 2/4.
-Every delayed router row selected fast with incomplete coverage. The v7 verdict
-passes 16/20 checks including same-process extension/image restart, but does
-not promote M4 or repair retention. M0b is optional and unadmitted; M5/M6/M7
-remain blocked by their upstream gates, and authentic identity fidelity awaits
-permitted sources and human review. Production private dispatch remains open.
-
-The post-M4 full integration suite passed **1262 tests / 21 subtests in 133.73 s**
-(1283 JUnit entries, zero failures/errors/skips).
-See [M0a](experiments/20261024_M0a_Refreshed_Baselines.md),
-[M1](experiments/20261024_M1_Procedure_Compilation_Results.md),
-[M2](experiments/20261024_M2_Dynamic_Memory_Results.md),
-[M3](experiments/20261024_M3_Depth_Ownership_Results.md) and
-[M4](experiments/20261024_M4_Pattern_Results.md) for protocols, exact commands,
-controls, costs and preserved failures.
+**Current priority — memory reliability recovery, 24 October 2026, protocol `9a43bad`.**
+The exact-record selective context passes **192/192**, but full-context parity
+fails on two absent-fact answers, so the reference bundle is rejected. The
+48-update reader-only D1 candidate scores **64/192** (32 unknown plus 32 general),
+with fact, correction and unaffected scores all zero and delayed-above-controls
+failing on both splits. All 32 images authenticate and fresh-process restart
+reproduces 7/7 answers. The next diagnostic is per-fact writer/state binding, not
+more updates, KL increases, model changes or neural RSI promotion. M4 remains
+rejected; M0b is optional and M5–M7 retain their separate gates. Authentic
+identity fidelity still requires permitted sources and human review.
 
 Use [the current research plan](architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
 and [loop-agent instructions](architecture/16_Loop_Agent_Instructions.md)
@@ -30,6 +22,60 @@ BF16 native comparison, staged new memory layers, bounded RSI and MiniCPM-V
 visual-memory/reasoning training. These require separate adapters and evaluation;
 they are not new supported runner modes. Current Muon int8 momentum does not
 change FP32 parameter/gradient residency, even with BF16 compute autocast.
+
+## Reliability recovery result and commands
+
+The final comparison is documented in the
+[reader-only results](experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
+and [canonical verdict](../reports/memory_reliability_v2_attempt03/verdict_final_v2.json).
+Use fresh output/report paths on every rerun; these are the exact guarded commands
+used for the completed attempt and restart:
+
+```bash
+PYTHONUNBUFFERED=1 .venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_memory_reliability.py \
+  --report reports/memory_reliability_v2_attempt03.guard.json \
+  --driver-limit-gib 50 --swap-growth-limit-mib 512 \
+  --minimum-free-percent 15 --sustained-host-samples 3 \
+  -- --device mps --output runs/memory_reliability_v2_attempt03 \
+  --protocol configs/memory_reliability_v4.json
+
+PYTHONUNBUFFERED=1 .venv/bin/python scripts/run_capacity_preflight.py \
+  --entry-point run_memory_reliability.py \
+  --report reports/memory_reliability_v2_restart03.guard.json \
+  --driver-limit-gib 50 --swap-growth-limit-mib 512 \
+  --minimum-free-percent 15 --sustained-host-samples 3 \
+  -- --device mps --output runs/memory_reliability_v2_restart03 \
+  --protocol configs/memory_reliability_v4.json \
+  --restart-run runs/memory_reliability_v2_attempt03
+```
+
+The independent scorer and canonical finalizer are separate host-side steps:
+
+```bash
+.venv/bin/python scripts/score_memory_reliability.py \
+  --protocol reports/memory_reliability_v2_attempt03/smoke_fixture/protocol.json \
+  --run reports/memory_reliability_v2_attempt03/smoke_fixture/run \
+  --guard reports/memory_reliability_v2_attempt03/smoke_fixture/guard.json \
+  --restart-run reports/memory_reliability_v2_attempt03/smoke_fixture/restart \
+  --restart-guard reports/memory_reliability_v2_attempt03/smoke_fixture/restart_guard.json \
+  --output reports/memory_reliability_v2_attempt03/scorer_smoke_canonical.json
+
+.venv/bin/python scripts/finalize_memory_reliability_verdict.py \
+  --protocol configs/memory_reliability_v4.json \
+  --run runs/memory_reliability_v2_attempt03 \
+  --guard reports/memory_reliability_v2_attempt03.guard.json \
+  --restart-run runs/memory_reliability_v2_restart03 \
+  --restart-guard reports/memory_reliability_v2_restart03.guard.json \
+  --smoke-verdict reports/memory_reliability_v2_attempt03/scorer_smoke_canonical.json \
+  --fixture reports/memory_reliability_v2_attempt03/smoke_fixture \
+  --output reports/memory_reliability_v2_attempt03/verdict_final_v2.json
+```
+
+The candidate is rejected on six per-split fact/correction floors, two
+delayed-above-controls checks and full-context parity. The selective exact
+reference is correct on all 192 cases; full context has two absent-fact errors.
+Do not retune the recipe or promote RSI.
 
 ## Current native memory policy
 

@@ -1,0 +1,643 @@
+{
+  "format": "replica.memory_reliability.verdict.v1",
+  "decision": "reject",
+  "deployment": "diagnostic_only_not_published",
+  "report_sha256": "3111b9abdf1c13a01d07434dbbcdbdd4a8196922eed0f7cc94a19a8fec119e28",
+  "protocol_sha256": "7e43b06ec274ff4218e9260447cc0a7b2b7d25b08a32776c188b8f48435c2da5",
+  "dataset_audit": {
+    "episodes": 12,
+    "families": 6,
+    "fact_queries": 48,
+    "first_line_accuracy": 0.22916666666666666,
+    "last_line_accuracy": 0.1875,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 24,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "split_episodes": {
+      "train": 8,
+      "dev": 2,
+      "heldout": 2
+    },
+    "heldout_values_absent_from_training": [
+      "crimson",
+      "indigo"
+    ]
+  },
+  "decoded_answer_rows": 480,
+  "images": {
+    "images_authenticated": 8,
+    "actual_tensor_bytes_checked": true,
+    "scope_source_lineage_and_counters_checked": true,
+    "multiple_queries_per_state": true,
+    "source_bindings_authenticated": 8
+  },
+  "guard": {
+    "path": "reports/memory_exact_reference_attempt06.guard.json",
+    "sha256": "c740eddd9f4e7b20a9fc5ed0e4d534cc4da0bdae2d7426b02a5258b7894b33c0",
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    }
+  },
+  "restart": {
+    "report_sha256": "50f89fc7e317741b4ca2a0d2c6fe59ec09197cdac3e43ce50327385a57591661",
+    "answers_decoded": 7,
+    "guard": {
+      "path": "reports/memory_exact_reference_restart01.guard.json",
+      "sha256": "14c9a03ac1bcbc356e3073096d095d1d8186f7e0176db5724dfd61aab4bfef99",
+      "policy": {
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15.0,
+        "sustained_host_samples": 3
+      }
+    }
+  },
+  "metrics": {
+    "parent": {
+      "fast": {
+        "dev": {
+          "fact": 0.25,
+          "changed": 1.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.125,
+          "changed": 1.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      }
+    },
+    "candidate": {
+      "fast": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "ungated": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "shuffled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "last_chunk": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "full_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "selective_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "adversarial": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      }
+    }
+  },
+  "checks": {
+    "dev_fact_reliable": false,
+    "dev_changed_reliable": false,
+    "dev_unaffected_reliable": false,
+    "dev_unknown": true,
+    "dev_delayed_above_controls": false,
+    "dev_retention": true,
+    "dev_fact_no_correct_to_wrong": true,
+    "dev_changed_no_correct_to_wrong": true,
+    "dev_unaffected_no_correct_to_wrong": true,
+    "dev_unknown_no_correct_to_wrong": true,
+    "dev_retention_no_correct_to_wrong": true,
+    "heldout_fact_reliable": false,
+    "heldout_changed_reliable": false,
+    "heldout_unaffected_reliable": false,
+    "heldout_unknown": true,
+    "heldout_delayed_above_controls": false,
+    "heldout_retention": true,
+    "heldout_fact_no_correct_to_wrong": true,
+    "heldout_changed_no_correct_to_wrong": true,
+    "heldout_unaffected_no_correct_to_wrong": true,
+    "heldout_unknown_no_correct_to_wrong": true,
+    "heldout_retention_no_correct_to_wrong": true,
+    "disabled_token_parity": true,
+    "persistent_correction_lineage": true,
+    "gate_routes_verified": true,
+    "gate_off_disabled_parity": true,
+    "gate_off_coverage": true,
+    "reference_all_cases_correct": true,
+    "reference_full_context_parity": true,
+    "reference_no_correct_to_wrong": true,
+    "reference_off_disabled_parity": true,
+    "fresh_process_tokens_and_state": true,
+    "fresh_process_source_view": true
+  },
+  "regressions": {
+    "dev": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    },
+    "heldout": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    }
+  },
+  "families": {
+    "by_family": {
+      "parent": {
+        "disabled": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.25,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.25,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.25,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 1.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        }
+      },
+      "candidate": {
+        "adversarial": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "disabled": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "full_context": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "last_chunk": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "selective_context": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "shuffled": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "ungated": {
+          "dev": {
+            "reliability_dev_100_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            },
+            "reliability_dev_100_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            }
+          },
+          "heldout": {
+            "reliability_heldout_200_0": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            },
+            "reliability_heldout_200_1": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.0
+            }
+          }
+        }
+      }
+    },
+    "independent_family_counts": {
+      "dev": 2,
+      "heldout": 2
+    }
+  },
+  "failed_checks": [
+    "dev_fact_reliable",
+    "dev_changed_reliable",
+    "dev_unaffected_reliable",
+    "dev_delayed_above_controls",
+    "heldout_fact_reliable",
+    "heldout_changed_reliable",
+    "heldout_unaffected_reliable",
+    "heldout_delayed_above_controls"
+  ],
+  "checkpoint_changes": null,
+  "reference_decision": "accept_reference",
+  "candidate_decision": "reject",
+  "evaluation_only": true,
+  "scope": "Small exposed synthetic diagnostic; no RSI or broad memory claim"
+}

@@ -1,0 +1,12 @@
+W1024 14:48:11.233000 38283 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 909.03it/s]Loading weights:  49%|████▊     | 185/381 [00:00<00:00, 902.38it/s]Loading weights:  72%|███████▏  | 276/381 [00:00<00:00, 872.22it/s]Loading weights:  96%|█████████▌| 364/381 [00:00<00:00, 869.87it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 890.33it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_memory_reliability.py", line 417, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_memory_reliability.py", line 406, in main
+    profiler.start(); execute(args,profiler,report)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_memory_reliability.py", line 314, in execute
+    memory = PersistentFastMemory.load(
+             ^^^^^^^^^^^^^^^^^^^^
+NameError: name 'PersistentFastMemory' is not defined

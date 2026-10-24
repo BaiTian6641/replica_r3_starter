@@ -2,12 +2,12 @@
   "schema_version": "replica.architecture_implementation_status.v1",
   "updated_at_utc": "2026-10-24",
   "design": "configs/architecture_design_v1.json",
-  "documentation": "docs/architecture/08_E3_Implementation.md",
+  "documentation": "docs/architecture/17_Memory_Reliability_Recovery.md",
   "research_crosscheck": "docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md",
   "E1": "implemented_native_interfaces_qualified",
   "E2": "corrected_small_and_4096_capacity_passed; 8192 not rerun; novel_value_reader_open",
   "E3": "old_case_menu_regression_3/3; fresh_canonical_1/4_shuffled_0/4_distractor_failure; random_not_valid_baseline; free_form_negative",
-  "E4": "M2_shared_value_delayed_use_accepted; M3_ownership_and_restart_accepted; retention_repair_rejected_adversarial_and_novel_value_open",
+  "E4": "M3 ownership mechanics retained; audited counterfactual persistent-memory pilot trained 24 updates and rejected; recall/correction/retention quality open",
   "E5": "procedure_and_opt_in_neural_candidates_evaluated; publication_rejection_rollback_implemented; integrated_neural_improvement_loop_open",
   "E6": "separate_native_VLM_adapter_and_local_weights_pending",
   "implemented_component_scope": {
@@ -15,7 +15,7 @@
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
     "C03": "exact temporal record ledger; task/action integration through the E3 runtime",
     "C04": "pointer context opt-in repeats 12/12 on two in-template families; cross-template top-record test confounded by lexical top1 7/12; no default",
-    "C05": "lexical/dense/rerank retrieval; cross-template reranking negative; historical selected-extension 4096-unit capacity before inference fix, corrected limit unrun",
+    "C05": "lexical/dense/rerank retrieval and opt-in context paths; corrected 4096-unit capacity passed at 28.5944 GiB; useful selective neural retrieval remains open",
     "C08": "authorized goal, conditions, constraints, claims, obligations, exact journal; restart reconstruction passes 12/12 on a copied mixed repair",
     "C09": "core/workspace and action head; bounded mixed family 4/4 with and without head; full path 2/2 vs 1/2 for core-disabled/FF/extra controls; no recurrent-specific benefit",
     "C10": "historical repair ranking 17/17 (15 held-out), random 0/11 and order controls; corrected numeric-string menus require fresh matched evaluation; answer ranking/free-form remain negative",
@@ -23,7 +23,7 @@
     "C15": "single-writer atomic manifest publication, parent/candidate metadata binding and ancestor rollback; procedure and opt-in pointer paths tested; coordinated catalog/source-epoch durability and complete payload hashing open",
     "C17": "request frames, single-job admission/lease/invalidation, exact-key host-payload cache and rejection before admission; native KV reuse pending",
     "C16": "persistent identity archive/snapshot/context/modes/branch isolation plus optional native reader after workspace; fictional scorer; source-to-slot encoder/training/authentic fidelity open",
-    "C06": "M2 useful synthetic delayed memory accepted but candidate retention is 0/2 (amber); M3 independent depth writers, convex shared reducer, private/shared images and fresh-process restart accepted; both M3 candidates also fail retention replay 0/2; M4 static pattern/routing implemented but rejected; learned multi-rate CMS remains open",
+    "C06": "M3 depth ownership and authenticated images; recovery adds counterfactual multi-query benchmark, independent scorer, persistent incremental append and fresh-process parity; 24-update D1 pilot rejected on recall/correction/retention; learned multi-rate CMS open",
     "C12": "typed metadata and executable procedure/pointer/context paths; generic compiler transaction, complete payload binding and coordinated recovery remain open",
     "C14": "procedure candidate accepted; reranker candidate accepted opt-in; D1 reader candidate deferred (0/16); E4 delayed-use candidate rejected; E2 copy-head candidate rejected; E2 pointer copy accepted opt-in; pointer candidate published opt-in with rollback; context-head candidate accepted opt-in",
     "C13": "deterministic director, runtime-summary adapter, actual-outcome audit and checked-proposal sufficiency gate; learned selector deferred (5 accepted/8 rejected vs 10/10 minimum)"
@@ -33,14 +33,14 @@
   "selected_extension": "runs/e3_set_attempt03_20261023/selected_extension",
   "original_source": "checkpoints/minicpm5_source",
   "scope_limits": [
-    "plan/status and 50 GiB guard-default update at base code HEAD 377718e; 81 focused software tests passed; no native experiment, new model or capability promotion",
+    "Earlier plan/guard-only update at 377718e is historical; current recovery includes one actual 24-update D1 native pilot and a separate mechanical restart, with no capability promotion",
     "native text adapter is batch-one and uses uncached augmented generation; VLM adapter and native KV reuse are unqualified",
     "sealed MiniCPM5 source is unchanged; selected original/extension artifacts and negative reports remain preserved",
     "exposed 2000-target synthetic release is infrastructure evidence, not a sealed audit or unseen-mechanism benchmark",
     "historical E2 retrieval/answer workload used 16 units, 2043 source tokens, 256 query tokens and 8 generated tokens",
     "historical selected 4096-unit capacity used synthetic 128-token sources and a validated max_units-only migration; 30.59 GiB and 559.4 s are pre-inference-fix measurements",
     "8192-unit pre-fix probe stopped at 48.08 GiB; it is not a pass or a corrected inference limit",
-    "inference writer/sense no_grad fix in 6e8ec34 invalidates reuse of the old peaks as corrected capacity evidence; fresh bounded measurement is pending",
+    "inference writer/sense no_grad fix in 6e8ec34 invalidates reuse of the old peaks as corrected capacity evidence; corrected 4096 measurement now passes at 28.5944 GiB; 8192 remains unrun",
     "capacity evidence does not establish useful retrieval or answer quality; inference, backward and optimizer-step capacity must be distinguished",
     "E2 held-out top1 was 0.75 lexical/dense and 0.50 learned rerank; lexical remains default",
     "E2 answer-loss reader candidate remained 0/16 dev+held-out; novel-value representation/copy remains a bottleneck",
@@ -70,7 +70,7 @@
   "capacity_result": "reports/e2_capacity_attempt03_20261023/run_report.json",
   "answer_path_diagnostic": "reports/e2_diagnostic_20261023/run_report.json",
   "new_scope_limits": [
-    "current construction order is M0-M7 in the research cross-check; older E/S-stage IDs retain their scientific/component meaning",
+    "Document 17 recovery gates control immediate work; M0-M7 remains the later construction reference and older E/S IDs retain scientific/component meaning",
     "fresh corrected capacity and action-menu measurements precede new mechanism claims",
     "M2 isolates one useful adaptive path before M3 shared-depth coupling; functional training and detached deployment state are distinct",
     "M1 reuses existing compiler/publication primitives; M5 adds the complete candidate/longitudinal evidence chain",
@@ -242,8 +242,8 @@
       "qualified": "none"
     }
   },
-  "reviewed_code_head": "ad09a77",
-  "review_scope": "M4 v7 static optimization, true collision audit and authenticated same-process restart; independent reject with original M4 preserved",
+  "reviewed_code_head": "280d4dd",
+  "review_scope": "Recovery implemented and one bounded MiniCPM5 D1 pilot completed/rejected; reliable memory quality remains open",
   "loop_agent_instructions": "docs/architecture/16_Loop_Agent_Instructions.md",
   "current_construction_order": [
     "M0a_corrected_MiniCPM5_capacity_and_menu_baselines",
@@ -261,12 +261,12 @@
     "success_uncertainty_calibration_before_control_authority"
   ],
   "last_recorded_validation": {
-    "passed": 1262,
+    "passed": 1299,
     "subtests": 21,
-    "total_junit_entries": 1283,
-    "seconds": 133.73,
-    "junit": "reports/integration_m4_v7_20261024.xml",
-    "scope": "full integration after M4 and verdict-metadata corrections; zero failures/errors/skips; M4 focused suite also passed 9 tests"
+    "skipped": 0,
+    "seconds": 137.53,
+    "junit": "reports/validation_memory_reliability_reader_20261024.xml",
+    "scope": "Full integration after exact-reference and reader-only implementation; zero failures/errors/skips and one existing sparse-tensor warning. 37 focused reliability tests also passed."
   },
   "current_guard_validation": {
     "date": "2026-10-23",
@@ -298,7 +298,7 @@
       "learned_practice_update_selection_vs_replay_matched_fixed_policy",
       "later_isolated_code_architecture_proposals_with_external_evaluation_and_promotion"
     ],
-    "qualification": "M2 learned delayed-use and M3 ownership accepted on exposed synthetic data; M3 retention regression remains open; M4 static arm rejected and covered-case utility unmeasured; M5+ claims require new protocols",
+    "qualification": "M2/M3 mechanics supported; associative recall confounded by benchmark shortcut; retention fails; M4 rejected; recovery precedes neural RSI",
     "fixed_boundaries": "audit, verification, resource policy, permissions and protected identity goals remain outside candidate control"
   },
   "selected_extension_scope": "retained_v2_core_action_artifact; no_general_policy_or_developmental_model_promotion",
@@ -313,13 +313,72 @@
   "m4_decision": "reject_diagnostic_only; original rejection preserved; fresh-process restart conditional and unrun",
   "remaining_package_gates": {
     "M0b": "dropped_optional_unadmitted; no local Spark BF16 source, compatible isolated environment or adapter; does not block MiniCPM5",
-    "M5": "blocked; M4/M3 quality and retention gates failed and C13 has 5 accepted / 8 rejected-or-deferred versus 10/10; new admitted protocol and real candidate comparisons required",
+    "M5": "neural promotion requires reliable persistent memory, correction, retention and independent later-task gain; fixed practice/plumbing may proceed; 10/10 gates learned selection only",
     "M6": "blocked; no simpler-loop result has survived retention and noninterference",
     "M7": "blocked; local MiniCPM-V-4.7-1B weights/revision, separate adapter and native multimodal/cache parity unavailable",
-    "personality": "fictional integration implemented; authentic training/fidelity blocked on permitted decision records, reserved families and human review"
+    "personality": "fictional integration implemented; authentic training/fidelity blocked on permitted decision records, reserved families and human review",
+    "R1": "software/persistence mechanics passed; first 24-update D1 pilot rejected on selective memory and general noninterference; use new protocol/data for another hypothesis"
   },
   "historical_selected_capacity_result": "reports/e2_capacity4096_selected_attempt01/run_report.json",
   "historical_capacity_guard_boundary": "reports/e2_capacity8192_selected_attempt01/failure_report.json",
   "corrected_capacity_result": "runs/m0a_capacity4096_attempt01/run_report.json",
-  "corrected_menu_result": "reports/validation_m0a_baselines_20261024.json"
+  "corrected_menu_result": "reports/validation_m0a_baselines_20261024.json",
+  "r1_result": "runs/memory_reliability_v2_attempt03/run_report.json",
+  "r1_verdict": "reports/memory_reliability_v2_attempt03/verdict_final_v2.json",
+  "r1_protocol": "configs/memory_reliability_v4.json",
+  "recovery_plan": "docs/architecture/17_Memory_Reliability_Recovery.md",
+  "immediate_execution_order": [
+    "preserve_recovery_pilot_rejection_and_verify_existing_scorer",
+    "durable_exact_record_reference_and_crash_revocation_coverage",
+    "diagnose_query_selective_binding_readout_and_noninterference",
+    "new_protocol_and_independent_families_then_bounded_MiniCPM5_D1_comparison",
+    "neural_RSI_only_after_recall_correction_retention_and_restart_quality_gates"
+  ],
+  "review_findings": [
+    "last-line shortcut: M2 shared 32/32, M3 delayed 44/44",
+    "scorer must recompute gold/token correctness and reject cached-metric inconsistencies",
+    "corrections must append to existing persistent state",
+    "role/split metadata must not select runtime memory routes",
+    "static branch needs acquired stable knowledge tests, distinct from new episode facts"
+  ],
+  "reliability_recovery": {
+    "report": "docs/experiments/20261024_Memory_Reliability_Recovery_Results.md",
+    "protocol": "configs/memory_reliability_v1.json",
+    "protocol_git_commit": null,
+    "raw_result": "runs/memory_reliability_attempt02/run_report.json",
+    "verdict": "reports/memory_reliability_attempt02/verdict_final.json",
+    "restart": "runs/memory_reliability_restart01/run_report.json",
+    "candidate_extension": "runs/memory_reliability_attempt02/candidate_extension",
+    "decision": "reject_diagnostic_only_not_selected",
+    "optimizer_updates": 24,
+    "gradient_examples": 96,
+    "trainable_parameters": 7356418,
+    "changed_tensors": 24,
+    "nonfast_tensors_unchanged": true,
+    "quality_counts": {
+      "initial_facts": "0/16",
+      "corrected_facts": "0/4",
+      "unaffected_facts": "0/12",
+      "unknown": "8/8",
+      "general": "0/8",
+      "disabled_general": "8/8",
+      "full_context": "48/48"
+    },
+    "authenticated_images": 8,
+    "fresh_process_token_state_parity": "7/7",
+    "final_gates": {
+      "passed": 5,
+      "failed": 12,
+      "total": 17
+    },
+    "resources": {
+      "driver_peak_gib": 11.004287719726562,
+      "seconds": 115.3481215420179,
+      "swap_growth_bytes": 0,
+      "guard_gib": 50
+    },
+    "scope": "One dev and one heldout counterfactual family; now exposed. Persistence of wrong answers is not memory quality. No crash/power-loss recovery or unlearning claim.",
+    "next": "Existing exact-record reference, query-selective binding/read diagnosis and relevance-based noninterference before a fresh bounded D1 study; no RSI advancement."
+  },
+  "current_construction_order_role": "Later component reference; immediate_execution_order and reliability_recovery control the next action"
 }

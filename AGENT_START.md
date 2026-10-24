@@ -1,38 +1,26 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current evidence: 24 October 2026, code/protocol HEAD `c4355ff`.**
-M0a/M1/M2/M3 are complete within their recorded scopes. M3 retention repair is
-**rejected**: delayed behavior is preserved, but general development remains
-0/2, adversarial memory remains 0/4 versus disabled 2/4, and novel-value
-delayed cases remain 0/2. The rejected candidate is not a new parent; original
-Paris/H2O and fresh-restart checks were not run. M4 proceeds next only as a
-different mechanism comparison with retention explicitly open. Spark, authentic
-identity fidelity, M5–M7 and production private dispatch remain open.
+**Current priority — memory reliability recovery, 24 October 2026.** Follow
+[the recovery sequence](docs/architecture/17_Memory_Reliability_Recovery.md):
+benchmark and independent scorer → persistent multi-query memory → incremental
+correction and retention → bounded MiniCPM5 fine-tuning and fresh-process
+continuation → verified improvement. M4 v7 is rejected. Its delayed router
+scores come from fast memory; old M2/M3 fixtures admit a query-blind last-line
+shortcut. Neither those scores nor fresh-state correction checks establish
+reliable persistent associative memory. RSI promotion remains gated on reliable
+memory and noninterference. Static Engram and Spark are optional comparisons;
+C13's collection threshold applies to learned selection, not fixed practice.
+The first recovery pilot completed 24 fine-tuning updates and was rejected.
+Persistent-state and fresh-process mechanics pass; recall, correction quality
+and unrelated-answer retention remain open. Preserve the failed candidate and
+resolve those gates before another promoted learning cycle.
 
-Begin with [continuation instructions](AGENT_CONTINUE.md),
-[execution state](execution_state.md), the
-[research and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
-and [loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md).
-Do not retune the same replay recipe. Older E/S-stage labels remain scientific
-and component references.
+**Final reader-only update:** 48 updates are complete and rejected. Selective
+exact context is 192/192, but full-context parity fails on two absent-fact
+answers; learned fast recall/correction/unaffected remain zero. Do not advance
+RSI. The next diagnostic is writer/state binding, not more steps or KL.
 
-MiniCPM5 remains the required baseline. Optional M0b compares Spark-X2.6-4B
-BF16 through a separate native adapter; no local Spark or VLM weights are
-present, so those tracks do not block MiniCPM5. M5 defines bounded RSI through
-verified practice, isolated candidates and later learned selection. M7 reuses
-MiniCPM-V's pretrained vision path; 35B-A3B is a separately qualified option.
-
-The last full integration suite passed **1249 tests / 21 subtests in 133.03 s**.
-Native work uses one MPS worker, no CPU fallback, the **50 GiB** sampled driver
-stop, 512 MiB sustained swap growth and 15% minimum host free over three samples.
-Historical explicit 40 GiB protocols remain pinned. New experiments require
-versioned protocols, exact code/data hashes and fresh output directories.
-
-Reuse the sealed source and selected artifacts. Protect the untracked
-`src/replica_lab/runtime_pilot.py`; do not modify, import, delete or stage it.
-Do not download routine weights, duplicate the base or rewrite historical reports.
-This document starts no native job or automation; execution authority comes
-from the active user instruction.
+Read AGENT_CONTINUE.md and the current execution snapshot before the historical reference below.
 
 ## Mission
 
