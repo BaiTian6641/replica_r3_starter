@@ -1,6 +1,9 @@
 """M4 causal pattern tables, native branch and deterministic routing contracts."""
 
 import pytest
+import importlib.util
+import sys
+from pathlib import Path
 import torch
 
 from architecture_helpers import action_batch, synthetic_frame, tiny_adapter
@@ -177,3 +180,20 @@ def test_additive_pattern_migration_is_strict(tmp_path):
     invalid.seal_original_identity()
     with pytest.raises(ValueError, match='additive pattern branch'):
         invalid.load_extension(destination, accept_parent_pattern=True)
+
+
+def test_m4_hash_collection_counts_lookups_and_unique_indices():
+    module_spec = importlib.util.spec_from_file_location(
+        'run_m4_pattern_test', Path(__file__).resolve().parents[1] / 'scripts/run_m4_pattern.py')
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+    runner = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(runner)
+    adapter = tiny_adapter(pattern=SPEC)
+    counts = {}
+    hashes = runner.collect_query_hashes(
+        adapter, torch.tensor([[1, 2, 3, 4]]), torch.ones(1, 4, dtype=torch.bool), counts)
+    assert hashes and counts
+    lookups = sum(counts.values())
+    assert lookups >= len(hashes)
+    assert lookups - len(hashes) >= 0
+    assert all(isinstance(key, tuple) and len(key) == 3 for key in counts)

@@ -22,6 +22,15 @@ sys.path.insert(0, str(ROOT / 'src'))
 from run_m2_dynamic import DELAYED_USE_TEMPLATE, generate, make_read, rows, sha, zero_read
 
 
+
+def collect_query_hashes(model, ids, mask, hash_counts):
+    result = set()
+    for order, head, index, available in model.pattern_port.hash_indices(ids, mask):
+        if bool(available.any()):
+            for value in index[available].tolist():
+                result.add((order, head, int(value)))
+                hash_counts[(order, head, int(value))] = hash_counts.get((order, head, int(value)), 0) + 1
+    return result
 def accuracy(rows):
     return sum(row['correct'] for row in rows) / len(rows)
 
@@ -102,12 +111,7 @@ def execute(args, profiler, report):
     def pattern_read():
         return PatternRead(model.pattern_producer_key(), protocol['pattern']['version'])
     def query_hashes(ids, mask):
-        result = set()
-        for order, head, index, available in model.pattern_port.hash_indices(ids, mask):
-            if bool(available.any()):
-                result.update((order, head, int(value)) for value in index[available].tolist())
-                hash_counts[(order, head, int(value))] = hash_counts.get((order, head, int(value)), 0) + 1
-        return result
+        return collect_query_hashes(model, ids, mask, hash_counts)
     trained_hashes = set()
     for query in train:
         text = DELAYED_USE_TEMPLATE.replace('{query}', query['query']).replace('{observation}', '')
