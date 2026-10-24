@@ -1,0 +1,96 @@
+{
+  "format": "replica.m3.retention_diagnostic.v1",
+  "protocol_version": 1,
+  "declared_at_utc": "2026-10-24T04:55:00Z",
+  "implementation_commit": "1cf1f52",
+  "implementation_overlay": "Pre-existing 50 GiB guard-default working-tree changes are retained; exact file hashes below bind execution.",
+  "purpose": "Evaluate the frozen M3 retention-repair candidate on the original Paris/H2O failure after acceptance. Require 2/2 correct before calling that triggering failure repaired; do not train or select thresholds here.",
+  "baseline_arms": {
+    "shared": {
+      "protocol_path": "configs/m3_retention_repair_v1.json",
+      "protocol_sha256": "1de8cb9ef52ca0da6e1e6f3d1d2c934551bf9d7c8918d38c3bf5fee6b203503f",
+      "report": "runs/m3_repair_attempt01/run_report.json"
+    }
+  },
+  "candidate_dataset": {
+    "root": "data/m3_repair",
+    "manifest_sha256": "c546ba5015b8ac4f1ea691f43feb6e4bad47104d9005ac689698a4053f06ada4",
+    "queries_sha256": "9f5a4abdadb99ff882bcced37d63bafb898e8dcde1e831b169ed9aa9562001d1",
+    "records_sha256": "7a2d3cacdca646ed23685f6ba9e58fc162b1831a2286282bb10834ff203a6fb3"
+  },
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "dataset": {
+    "root": "data/m2_shared",
+    "manifest_sha256": "5f334e6bd4a5ae70d8150ed011c659fb5a01673a3c94fca9b79296055c3433c7",
+    "queries_sha256": "8e4c3b9f638c3460ae8fdc6a3865923049fd290d14b6a596ebe4a50527105792",
+    "records_sha256": "8d794777d5f529a49d322befb9c22c3da18388be4eb038331a5756c66ed50a5d",
+    "role": "Only the original Paris/H2O diagnostic cases. They remain outside repair training and threshold selection."
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_writers": true,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "evaluation": {
+    "retention_cases": 2,
+    "arms": ["correct", "linear", "shuffled", "zero", "disabled", "full_context", "read_13_only", "read_27_only", "write_13_only", "write_27_only"],
+    "generation": {"max_new_tokens": 6, "greedy": true, "max_prompt_tokens": 256},
+    "metric": "Exact stripped answer and answer-exact agreement with the correct arm; preserve all token IDs and outputs.",
+    "parent_reference": "The frozen shared M3 parent emitted copper for both cases (0/2)."
+  },
+  "decision_rule": {
+    "original_failure_repaired": "Correct arm must answer Paris and H2O exactly (2/2). Zero, disabled, full-context and per-port outcomes are reported separately and cannot substitute for this gate.",
+    "no_promotion": "This is one bounded original-failure check, not general retention or production evidence."
+  },
+  "budget": {
+    "model_loads_per_arm": 1,
+    "extension_reloads_per_arm": 1,
+    "optimizer_updates_per_arm": 0,
+    "checkpoint_saves_per_arm": 0,
+    "generation_answers_per_arm": 20,
+    "max_generated_tokens_per_arm": 120,
+    "max_wall_seconds_per_arm": 60,
+    "expected_storage_mib_per_arm": 2,
+    "native_jobs": 1,
+    "execution_order": ["run_only_after_repair_acceptance"]
+  },
+  "limits": {
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1,
+    "cpu_fallback": false
+  },
+  "stop_conditions": [
+    "capacity guard or host-pressure failure",
+    "nonfinite logits or state",
+    "wall-time, token or generation budget exceeded",
+    "candidate, dataset, protocol or implementation mismatch",
+    "unexpected arm or state ownership"
+  ],
+  "retention": "Preserve raw answers, metrics, diagnostic fields, profiles and guard traces. No base copy, download or checkpoint.",
+  "claims": "Original Paris/H2O failure check on one frozen repair candidate; no broad retention, calibration or capability claim.",
+  "implementation_sha256": {
+    "scripts/run_m2_dynamic.py": "c41089bd205b0fd0b7c94c9edc5fcda816b39ab692e94e8220592bb13e2c06f2",
+    "scripts/eval_m3_retention.py": "e88632b41bd46e08d1a85d4647ee858aaa0b11664c5789271739ba5147b414af",
+    "scripts/run_m3_restart.py": "27b3656b9f7f5f53125c495a7a8e6cc4c8472a2d064b4ee63d8191c71d77abff",
+    "scripts/run_capacity_preflight.py": "ca60ef9784353ded2c4baead8931fcd76bbcbe38244541217ee516c390f541a1",
+    "scripts/make_m3_repair_data.py": "bf42597122deeea850f2846c3da3319f70bb3c225327c4ccbe9ad58c573146b7",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/optimizers.py": "e5bf4d3ed11bcc35d0a52372cb8a76faf07c689e45ba9a59dd0c423f2618fbd6",
+    "src/replica_lab/architecture/contracts.py": "5ba50dcae70843e77d37bc8f870f6f83b4091abfbb0ab40ed3822d129ee71157",
+    "src/replica_lab/architecture/minicpm5.py": "c73df56bf062970eba3c29052b9f04eb27a589a9394f4a238a5460d15867717c",
+    "src/replica_lab/architecture/loading.py": "ffdee8328ae6afc40b6b1eadc1abe57ca2950c2b125b6b7e6d32b3a4beeba57d",
+    "src/replica_lab/architecture/ports.py": "d5a969844b4e4afe644a2bb99908f4622a46ec32dfaf8ff1942404c1d9f2344f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/memory_system/session.py": "b238fa0e3d0e59bf140767e8213f9c2269c4a87848a129e5960c9157f6129b2f"
+  }
+}
