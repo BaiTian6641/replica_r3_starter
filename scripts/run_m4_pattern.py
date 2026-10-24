@@ -89,6 +89,26 @@ def execute(args, profiler, report):
             or parent_report.get('protocol_sha256') != protocol['parent_protocol']['sha256']
             or parent_report.get('implementation_sha256') != parent_protocol['implementation_sha256']):
         raise ValueError('M4 parent is not the accepted shared candidate')
+    parent_controls = None
+    if protocol.get('parent_controls'):
+        control_path = ROOT / protocol['parent_controls']['path']
+        if sha(control_path) != protocol['parent_controls']['sha256']:
+            raise ValueError('M4 parent-control bytes differ')
+        parent_controls = json.loads(control_path.read_text())
+        control_report_path = Path(parent_controls.get('parent_run_report')
+                                   or parent_controls['parent_evidence']['report'])
+        control_report_sha = parent_controls.get('parent_run_report_sha256', sha(parent_report_path))
+        if (control_report_path.resolve() != parent_report_path.resolve()
+                or control_report_sha != protocol['parent_run_report_sha256']
+                or Path(parent_controls['parent_extension']).resolve()
+                != Path(args.parent_extension).resolve()):
+            raise ValueError('M4 parent-control lineage differs')
+        for split, expected in (('retention', 4), ('retention_dev', 2)):
+            if len(parent_controls[f'parent_{split}']['adversarial']) != expected:
+                raise ValueError('M4 parent-control adversarial count differs')
+        report['parent_controls'] = {'path': str(control_path),
+                                     'sha256': protocol['parent_controls']['sha256'],
+                                     'generated_in_this_run': False}
     torch.manual_seed(protocol['training']['seed'])
     fast_spec = FastMemorySpec(
         heads=protocol['fast_memory']['heads'], key_size=protocol['fast_memory']['key_size'],
@@ -242,12 +262,17 @@ def execute(args, profiler, report):
                 token_ids = tokenizer(text, add_special_tokens=False)['input_ids']
                 if len(token_ids) > protocol['budget']['max_source_tokens_per_chunk']:
                     raise ValueError('M4 source-LM chunk exceeds token bound')
-                ids = torch.tensor([token_ids], dtype=torch.long, device='mps')
+                source_ids = torch.tensor([token_ids], dtype=torch.long, device='mps')
+                if tokenizer.bos_token_id is None:
+                    raise ValueError('M4 source-LM requires the sealed BOS token')
+                prefix = torch.tensor([[tokenizer.bos_token_id]], dtype=torch.long, device='mps')
+                ids = torch.cat((prefix, source_ids), dim=1)
                 labels = ids.clone()
+                labels[:, :prefix.shape[1]] = -100
                 scope = EligibilityScope(query['subject_id'], query['branch_id'], query['purpose'],
                                          query['as_of'], 'parallel_replica', None)
                 with session.training_request(
-                        prompt_ids=ids, prompt_mask=torch.ones_like(ids, dtype=torch.bool),
+                        prompt_ids=prefix, prompt_mask=torch.ones_like(prefix, dtype=torch.bool),
                         query=query['query'], scope=scope,
                         task=TaskGraph(query['case_id'], query['query']), fast_state=None,
                         pattern=pattern_read(), core_impl='none', enabled_branches=('memory', 'pattern')) as request:
@@ -355,6 +380,12 @@ def execute(args, profiler, report):
                                         for mode, values in report['parent']['retention'].items()}
     report['parent_general_dev_metrics'] = {mode: accuracy(values)
                                             for mode, values in report['parent']['retention_dev'].items()}
+    if parent_controls is not None:
+        for split, metric_name in (('retention', 'parent_general_metrics'),
+                                   ('retention_dev', 'parent_general_dev_metrics')):
+            adversarial_rows = parent_controls[f'parent_{split}']['adversarial']
+            report['parent'][split]['adversarial'] = adversarial_rows
+            report[metric_name]['adversarial'] = accuracy(adversarial_rows)
     report['train_results'] = [dict(generate_mode(query, 'pattern'), case_id=query['case_id'],
                                     split='train', case_role=query.get('case_role')) for query in train]
     report['train_correct'] = accuracy(report['train_results'])
