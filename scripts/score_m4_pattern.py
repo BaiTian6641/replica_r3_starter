@@ -51,8 +51,11 @@ def main():
     parent_controls = None
     if args.parent_controls is not None:
         parent_controls = json.loads(args.parent_controls.read_text())
-        if (parent_controls['parent_run_report'] != protocol['parent_run_report']
-                or sha(ROOT / parent_controls['parent_run_report']) != protocol['parent_run_report_sha256']
+        control_report_path = (parent_controls.get('parent_run_report')
+                               or parent_controls['parent_evidence']['report'])
+        control_report_sha = parent_controls.get('parent_run_report_sha256', sha(ROOT / control_report_path))
+        if (Path(control_report_path).resolve() != (ROOT / protocol['parent_run_report']).resolve()
+                or control_report_sha != protocol['parent_run_report_sha256']
                 or Path(parent_controls['parent_extension']).resolve()
                 != (ROOT / protocol['parent_extension']).resolve()):
             raise ValueError('M4 parent-control lineage differs')
