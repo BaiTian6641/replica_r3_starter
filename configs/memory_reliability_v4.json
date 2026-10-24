@@ -3,7 +3,7 @@
   "protocol_path": "configs/memory_reliability_v4.json",
   "declared_at_utc": "2026-10-24T20:05:31.541339+00:00",
   "git_base_commit": "280d4dde5606eee909bf29cd6171777f305f305c",
-  "git_protocol_commit": null,
+  "git_protocol_commit": "0828492",
   "commit_limitation": "Corrected reader-only protocol is hash-pinned and committed before native launch; exact commit is recorded in handoff.",
   "purpose": "Test one discriminating change after the exact-reference and noninterference prerequisites pass: reader-only D1 training for query-selective memory while writers, gate scalars, routing and the sealed backbone remain fixed.",
   "hypothesis": "The rejected joint writer/reader failure is primarily a readout bottleneck. Training only fast-port query/output projections can improve delayed recall and correction without changing stored writer state or unrelated behavior. A negative result localizes the next hypothesis to writer binding or state capacity.",
