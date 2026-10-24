@@ -169,6 +169,7 @@ def main():
     parser.add_argument('--evaluation-only', action='store_true')
     parser.add_argument('--restart-guard', type=Path)
     parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
     if args.output.exists():
         parser.error('Use a fresh verdict output path')
     protocol = json.loads(args.protocol.read_text())
