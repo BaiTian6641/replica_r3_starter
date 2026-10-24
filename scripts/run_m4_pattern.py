@@ -199,7 +199,10 @@ def execute(args, profiler, report):
                 elif mode == 'shuffled':
                     fast, pattern = depth_read(queries[(index + 1) % len(queries)]['observations']), None
                 elif mode == 'adversarial':
-                    fast, pattern = depth_read([adversarial]), None
+                    if protocol['evaluation'].get('adversarial_uses_pattern', False):
+                        fast, pattern = None, pattern_read()
+                    else:
+                        fast, pattern = depth_read([adversarial]), None
                 elif mode == 'full_context':
                     fast, pattern = None, None
                 else:
@@ -219,6 +222,61 @@ def execute(args, profiler, report):
     previous = {name: parameter.requires_grad for name, parameter in model.new_named_parameters()}
     for name, parameter in model.new_named_parameters():
         parameter.requires_grad_(name.startswith('pattern_port.'))
+    source_lm_updates = int(protocol['training'].get('source_lm_updates', 0))
+    report['training'] = {}
+    if source_lm_updates:
+        source_items = [(query, text) for query in train for text in query['observations']]
+        source_optimizer = build_optimizer(
+            model, 'muon8bit', lr_base=0.0, lr_new=protocol['training']['lr_new'],
+            lr_muon_base=0.0, lr_muon_new=protocol['training']['lr_muon_new'], weight_decay=0.0)
+        if source_optimizer is None:
+            raise RuntimeError('M4 source-LM optimizer has no trainable parameters')
+        model.train()
+        report['training']['source_lm'] = {'updates': []}
+        for update in range(1, source_lm_updates + 1):
+            source_optimizer.zero_grad(set_to_none=True)
+            losses = []
+            source_tokens = 0
+            for offset in range(int(protocol['training']['source_lm_examples_per_update'])):
+                query, text = source_items[(12 * (update - 1) + offset) % len(source_items)]
+                token_ids = tokenizer(text, add_special_tokens=False)['input_ids']
+                if len(token_ids) > protocol['budget']['max_source_tokens_per_chunk']:
+                    raise ValueError('M4 source-LM chunk exceeds token bound')
+                ids = torch.tensor([token_ids], dtype=torch.long, device='mps')
+                labels = ids.clone()
+                scope = EligibilityScope(query['subject_id'], query['branch_id'], query['purpose'],
+                                         query['as_of'], 'parallel_replica', None)
+                with session.training_request(
+                        prompt_ids=ids, prompt_mask=torch.ones_like(ids, dtype=torch.bool),
+                        query=query['query'], scope=scope,
+                        task=TaskGraph(query['case_id'], query['query']), fast_state=None,
+                        pattern=pattern_read(), core_impl='none', enabled_branches=('memory', 'pattern')) as request:
+                    output = session.forward(request, ids, labels=labels)
+                    loss = output.loss
+                    if not bool(torch.isfinite(loss)):
+                        raise FloatingPointError('nonfinite M4 source-LM loss')
+                    session.backward(request, loss)
+                losses.append(float(loss.detach()))
+                source_tokens += len(token_ids)
+            torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad],
+                                           1.0, error_if_nonfinite=True)
+            source_optimizer.step(); source_optimizer.zero_grad(set_to_none=True)
+            report['training']['source_lm']['updates'].append({
+                'update': update, 'loss_sum': sum(losses), 'mean_loss': sum(losses) / len(losses),
+                'source_tokens': source_tokens})
+            report['optimizer_updates'] += 1
+            profiler.mark('m4_source_lm_update', update=update, loss=report['training']['source_lm']['updates'][-1]['mean_loss'])
+            check_time()
+        report['training']['source_lm']['optimizer_final'] = source_optimizer.audit()
+        warmup_extension = args.output / 'warmup_extension'
+        warmup_receipt = model.save_extension(warmup_extension)
+        report['checkpoints_saved'] += 1
+        report['training']['source_lm']['checkpoint'] = {
+            'path': str(warmup_extension), 'format': warmup_receipt['format'],
+            'weights_sha256': warmup_receipt['weights_sha256'],
+            'manifest_digest': warmup_receipt['manifest_digest'], 'base_saved': False}
+        del source_optimizer
+        torch.manual_seed(protocol['training']['seed'])
     optimizer = build_optimizer(model, 'muon8bit', lr_base=0.0,
                                 lr_new=protocol['training']['lr_new'],
                                 lr_muon_base=0.0, lr_muon_new=protocol['training']['lr_muon_new'],
@@ -226,7 +284,7 @@ def execute(args, profiler, report):
     if optimizer is None:
         raise RuntimeError('M4 pattern optimizer has no trainable parameters')
     model.train()
-    report['training'] = {'optimizer': optimizer.audit(), 'updates': []}
+    report['training'].update(optimizer=optimizer.audit(), updates=[])
     for update in range(1, int(protocol['training']['updates']) + 1):
         optimizer.zero_grad(set_to_none=True)
         losses = []
@@ -264,7 +322,7 @@ def execute(args, profiler, report):
         if gradient_audit is not None:
             record['parameter_gradients'] = gradient_audit
         report['training']['updates'].append(record)
-        report['optimizer_updates'] = update
+        report['optimizer_updates'] += 1
         profiler.mark('m4_update', update=update, loss=record['mean_loss'])
         check_time()
     report['training']['optimizer_final'] = optimizer.audit()
@@ -274,7 +332,7 @@ def execute(args, profiler, report):
     model.eval()
     extension = args.output / 'selected_extension'
     receipt = model.save_extension(extension)
-    report['checkpoints_saved'] = 1
+    report['checkpoints_saved'] += 1
     report['extension'] = {'path': str(extension), 'format': receipt['format'],
                            'weights_sha256': receipt['weights_sha256'],
                            'manifest_digest': receipt['manifest_digest'],
@@ -297,7 +355,7 @@ def execute(args, profiler, report):
                                         for mode, values in report['parent']['retention'].items()}
     report['parent_general_dev_metrics'] = {mode: accuracy(values)
                                             for mode, values in report['parent']['retention_dev'].items()}
-    report['train_results'] = [dict(generate_mode(query, 'router'), case_id=query['case_id'],
+    report['train_results'] = [dict(generate_mode(query, 'pattern'), case_id=query['case_id'],
                                     split='train', case_role=query.get('case_role')) for query in train]
     report['train_correct'] = accuracy(report['train_results'])
     corrections = []
@@ -341,45 +399,20 @@ def execute(args, profiler, report):
                          'reloaded_answer': reloaded_answer, 'correct_answer': correct_answer,
                          'answer_equal': reloaded_answer['answer'] == correct_answer['answer'],
                          'source_observations_reencoded': False}
-    collisions = {}
-    for order in pattern_spec.orders:
-        for head in range(pattern_spec.heads):
-            indices = [item for item in report['trained_hash_ids'] if item[0] == order and item[1] == head]
-            unique = len(indices)
-            collisions[f'{order}_{head}'] = {
-                'unique_indices': unique,
-                'table_rows': pattern_spec.table_rows,
-                'hash_coverage': unique / pattern_spec.table_rows,
-                'touched_bytes': unique * pattern_spec.width * 4,
-            }
+    parent_fast = report['parent_metrics']['fast']
     report['collisions'] = collisions
-    report['resource_accounting'] = {
-        'table_parameter_bytes': sum(parameter.numel() * parameter.element_size()
-                                     for parameter in model.pattern_port.tables.parameters()),
-        'dense_gradient_materialization_upper_bound_bytes': sum(
-            parameter.numel() * parameter.element_size() for parameter in model.pattern_port.tables.parameters()),
-        'optimizer_state_bytes': report['training']['optimizer_final']['state_tensor_bytes'],
-        'attention_cache': 'disabled; native action pass recomputes without KV reuse',
-    }
     ids = encode_prompt(tokenizer, DELAYED_USE_TEMPLATE.replace('{query}', dev[0]['query'])
                         .replace('{observation}', ''), 'mps')
-    collisions = {}
-    for order in pattern_spec.orders:
-        for head in range(pattern_spec.heads):
-            counts = [count for (item_order, item_head, _), count in hash_counts.items()
-                      if item_order == order and item_head == head]
-            lookups = sum(counts)
-            unique = len(counts)
-            collisions[f'{order}_{head}'] = {
-                'lookups': lookups,
-                'unique_indices': unique,
-                'collisions': lookups - unique,
-                'collision_rate': (lookups - unique) / lookups if lookups else 0.0,
-                'table_rows': pattern_spec.table_rows,
-                'hash_coverage': unique / pattern_spec.table_rows,
-                'touched_bytes': unique * pattern_spec.width * 4,
-            }
-    parent_fast = report['parent_metrics']['fast']
+    mask = torch.ones_like(ids, dtype=torch.bool)
+    with torch.no_grad():
+        hidden = model.base.get_input_embeddings()(ids)
+        timings = []
+        for _ in range(3):
+            start = time.monotonic()
+            model.pattern_port(hidden, ids, mask)
+            torch.mps.synchronize()
+            timings.append(time.monotonic() - start)
+    report['lookup_latency'] = {'cold_seconds': timings[0], 'warm_min_seconds': min(timings[1:])}
     candidate = report['metrics']['router']
     general_parent = report['parent_general_metrics']
     general_candidate = report['general_metrics']
@@ -430,6 +463,21 @@ def execute(args, profiler, report):
         'restart_answer_equal': report['restart']['answer_equal'],
         'sparse_optimizer_step': report['training']['optimizer_final']['state_tensor_bytes'] > 0,
     }
+    if source_lm_updates:
+        baseline = protocol['no_warmup_control']
+        report['checks'].update({
+            'direct_pattern_covered_regression': report['metrics']['pattern']['regression'] > max(
+                baseline['pattern_regression'], report['metrics']['linear']['regression'],
+                report['metrics']['shuffled']['regression'], report['metrics']['zero']['regression'],
+                report['metrics']['disabled']['regression']),
+            'direct_pattern_covered_dev': report['metrics']['pattern']['dev'] > max(
+                baseline['pattern_dev'], report['metrics']['linear']['dev'],
+                report['metrics']['shuffled']['dev'], report['metrics']['zero']['dev'],
+                report['metrics']['disabled']['dev']),
+            'pattern_adversarial_noninterference': (
+                general_candidate['adversarial'] >= general_candidate['disabled']
+                and general_dev_candidate['adversarial'] >= general_dev_parent['adversarial']),
+        })
     engineering_ok = engineering_ok and gradient_ok and all(report['checks'].values())
     report['decision'] = 'accept' if engineering_ok else 'reject'
     report['deployment'] = 'diagnostic_only'
@@ -457,6 +505,8 @@ def execute(args, profiler, report):
             or sum(row['generated_tokens'] for row in all_rows) > protocol['budget']['max_generated_tokens_per_arm']):
         raise ValueError('M4 generation budget exceeded')
     report['token_costs'] = {
+        'source_lm_action_tokens': sum(update.get('source_tokens', 0)
+                                       for update in report['training'].get('source_lm', {}).get('updates', [])),
         'training_action_tokens': sum(update['action_tokens'] for update in report['training']['updates']),
         'training_target_tokens': sum(update['target_tokens'] for update in report['training']['updates']),
         'generation_prompt_tokens': sum(row['prompt_tokens'] for row in all_rows),

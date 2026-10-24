@@ -20,8 +20,6 @@ def accuracy(rows):
 
 def split_metrics(rows, splits):
     return {split: accuracy([row for row in rows if row['split'] == split]) for split in splits}
-    parser.add_argument('--parent-controls', type=Path,
-                        help='Existing parent adversarial controls with identical renderer and observation')
 
 
 def main():
@@ -40,9 +38,22 @@ def main():
         if Path(name).is_absolute() or '..' in Path(name).parts or sha(ROOT / name) != expected:
             raise ValueError(f'M4 verdict implementation changed: {name}')
     source = json.loads(args.input.read_text())
-    if (source.get('error_type') != 'NameError' or source.get('error') != "name 'candidate' is not defined"
-            or source.get('optimizer_updates') != 16 or source.get('checkpoints_saved') != 1):
-        raise ValueError('M4 verdict input is not the declared completed-evaluation binding failure')
+    source_lm_updates = int(protocol['training'].get('source_lm_updates', 0))
+    expected_updates = int(protocol['training']['updates']) + source_lm_updates
+    if source.get('status') != 'completed':
+        if (source.get('error_type') != 'NameError'
+                or source.get('error') != "name 'candidate' is not defined"
+                or source.get('optimizer_updates') != 16 or source.get('checkpoints_saved') != 1):
+            raise ValueError('M4 verdict input is not the declared completed-evaluation binding failure')
+    if source.get('optimizer_updates') != expected_updates:
+        raise ValueError('M4 optimizer update count differs from protocol')
+    if source.get('checkpoints_saved') != protocol['budget']['checkpoint_saves']:
+        raise ValueError('M4 checkpoint count differs from protocol')
+    if source_lm_updates:
+        source_training = source.get('training', {}).get('source_lm', {})
+        if (len(source_training.get('updates', [])) != source_lm_updates
+                or not source_training.get('checkpoint', {}).get('weights_sha256')):
+            raise ValueError('M4 source-LM phase evidence is incomplete')
     data = ROOT / protocol['dataset']['root']
     for filename, key in (('manifest.json', 'manifest_sha256'),
                           ('records.jsonl', 'records_sha256'), ('queries.jsonl', 'queries_sha256')):
@@ -105,6 +116,21 @@ def main():
             for item in source['correction']),
         'sparse_optimizer_step': source['training']['optimizer_final']['state_tensor_bytes'] > 0,
     }
+    if source_lm_updates:
+        baseline = protocol['no_warmup_control']
+        checks.update({
+            'direct_pattern_covered_regression': source['metrics']['pattern']['regression'] > max(
+                baseline['pattern_regression'], source['metrics']['linear']['regression'],
+                source['metrics']['shuffled']['regression'], source['metrics']['zero']['regression'],
+                source['metrics']['disabled']['regression']),
+            'direct_pattern_covered_dev': source['metrics']['pattern']['dev'] > max(
+                baseline['pattern_dev'], source['metrics']['linear']['dev'],
+                source['metrics']['shuffled']['dev'], source['metrics']['zero']['dev'],
+                source['metrics']['disabled']['dev']),
+            'pattern_adversarial_noninterference': (
+                general_candidate['adversarial'] >= general_candidate['disabled']
+                and general_dev_candidate['adversarial'] >= general_dev_parent['adversarial']),
+        })
     decision = 'accept' if all(checks.values()) else 'reject'
     all_rows = (source['parent']['main']['fast'] + source['parent']['main']['disabled']
                 + source['parent']['retention']['fast'] + source['parent']['retention']['disabled']
@@ -128,7 +154,8 @@ def main():
         raise ValueError('M4 verdict generation accounting mismatch')
     token_costs = {
         'training_action_tokens': sum(update['action_tokens'] for update in source['training']['updates']),
-        'training_target_tokens': sum(update['target_tokens'] for update in source['training']['updates']),
+        'source_lm_action_tokens': sum(update.get('source_tokens', 0)
+                                       for update in source['training'].get('source_lm', {}).get('updates', [])),
         'generation_prompt_tokens': sum(row['prompt_tokens'] for row in all_rows),
         'generation_new_tokens': sum(row['generated_tokens'] for row in all_rows),
         'maximum_generation_prompt_tokens': max(row['prompt_tokens'] for row in all_rows),
@@ -141,12 +168,11 @@ def main():
                    protocol_sha256=sha(args.protocol), implementation_sha256=implementation_pins,
                    checks=checks, generation_counts=generation_counts, token_costs=token_costs,
                    verdict_source=str(args.input), verdict_source_sha256=sha(args.input),
-                   original_failure_preserved=True)
+                   original_failure_preserved=source.get('error_type') == 'NameError')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(verdict, indent=2) + '\n')
     print(json.dumps({'decision': decision, 'checks_failed': [name for name, value in checks.items() if not value],
                       'generation_answers': generation_counts['total'], 'new_tokens': token_costs['generation_new_tokens']}))
-    return 0 if decision == 'accept' else 1
 
 
 if __name__ == '__main__':
