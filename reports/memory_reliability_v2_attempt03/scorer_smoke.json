@@ -1,0 +1,963 @@
+{
+  "format": "replica.memory_reliability.verdict.v1",
+  "decision": "reject",
+  "deployment": "diagnostic_only_not_published",
+  "report_sha256": "df57e36f855e576e8e5214b22c82bf996b019a24784b1c0e5e1f2d0bf60d7931",
+  "protocol_sha256": "519f177bc3e02edde2944e9293c8898b49f024fd3eb36eec217f547875eadc91",
+  "dataset_audit": {
+    "episodes": 32,
+    "families": 16,
+    "fact_queries": 128,
+    "first_line_accuracy": 0.203125,
+    "last_line_accuracy": 0.1484375,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 64,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "split_episodes": {
+      "train": 16,
+      "dev": 8,
+      "heldout": 8
+    },
+    "split_families": {
+      "train": 8,
+      "dev": 4,
+      "heldout": 4
+    },
+    "query_forms": {
+      "0": 40,
+      "1": 40,
+      "2": 40,
+      "3": 40
+    },
+    "heldout_values_absent_from_train_and_dev": [
+      "crimson",
+      "gold",
+      "indigo",
+      "maroon",
+      "navy",
+      "obsidian",
+      "onyx",
+      "quartz"
+    ],
+    "heldout_values_absent_from_training": [
+      "crimson",
+      "gold",
+      "indigo",
+      "maroon",
+      "navy",
+      "obsidian",
+      "onyx",
+      "quartz"
+    ]
+  },
+  "decoded_answer_rows": 1920,
+  "images": {
+    "images_authenticated": 32,
+    "actual_tensor_bytes_checked": true,
+    "scope_source_lineage_and_counters_checked": true,
+    "multiple_queries_per_state": true,
+    "source_bindings_authenticated": 32
+  },
+  "guard": {
+    "path": "/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/d1_scorer_smoke_5mc5o_s3/guard.json",
+    "sha256": "23c51e867eaaa147216df0ebd101c93b5503c8f31ee554aa0d5c14aed25001a5",
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    }
+  },
+  "restart": {
+    "report_sha256": "cfb0f1667f18633abb7d3ba9d82e88bc3a4d73660ac73c541665c3a74d01b3bf",
+    "answers_decoded": 7,
+    "guard": {
+      "path": "/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/d1_scorer_smoke_5mc5o_s3/restart_guard.json",
+      "sha256": "e0192f6367a15cadad1686aa23d35edb28968513e16a03947966a61823233ef9",
+      "policy": {
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15.0,
+        "sustained_host_samples": 3
+      }
+    }
+  },
+  "metrics": {
+    "parent": {
+      "fast": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      }
+    },
+    "candidate": {
+      "fast": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "ungated": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 0.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 0.0,
+          "general": 0.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "shuffled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "last_chunk": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "full_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 0.875,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "selective_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "adversarial": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      }
+    }
+  },
+  "checks": {
+    "dev_fact_reliable": false,
+    "dev_changed_reliable": false,
+    "dev_unaffected_reliable": false,
+    "dev_unknown": true,
+    "dev_delayed_above_controls": false,
+    "dev_retention": true,
+    "dev_fact_no_correct_to_wrong": true,
+    "dev_changed_no_correct_to_wrong": true,
+    "dev_unaffected_no_correct_to_wrong": true,
+    "dev_unknown_no_correct_to_wrong": true,
+    "dev_retention_no_correct_to_wrong": true,
+    "heldout_fact_reliable": false,
+    "heldout_changed_reliable": false,
+    "heldout_unaffected_reliable": false,
+    "heldout_unknown": true,
+    "heldout_delayed_above_controls": false,
+    "heldout_retention": true,
+    "heldout_fact_no_correct_to_wrong": true,
+    "heldout_changed_no_correct_to_wrong": true,
+    "heldout_unaffected_no_correct_to_wrong": true,
+    "heldout_unknown_no_correct_to_wrong": true,
+    "heldout_retention_no_correct_to_wrong": true,
+    "disabled_token_parity": true,
+    "persistent_correction_lineage": true,
+    "gate_routes_verified": true,
+    "gate_off_disabled_parity": true,
+    "gate_off_coverage": true,
+    "reference_all_cases_correct": true,
+    "reference_full_context_parity": false,
+    "reference_no_correct_to_wrong": true,
+    "reference_off_disabled_parity": true,
+    "fresh_process_tokens_and_state": true,
+    "fresh_process_source_view": true
+  },
+  "regressions": {
+    "dev": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    },
+    "heldout": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    }
+  },
+  "families": {
+    "by_family": {
+      "parent": {
+        "disabled": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        }
+      },
+      "candidate": {
+        "adversarial": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "disabled": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "full_context": {
+          "dev": {
+            "family_1100": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 0.5,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "last_chunk": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "selective_context": {
+          "dev": {
+            "family_1100": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "shuffled": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "ungated": {
+          "dev": {
+            "family_1100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_1101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_1102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_1103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            }
+          },
+          "heldout": {
+            "family_1200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_1201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_1202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_1203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            }
+          }
+        }
+      }
+    },
+    "independent_family_counts": {
+      "dev": 4,
+      "heldout": 4
+    }
+  },
+  "failed_checks": [
+    "dev_fact_reliable",
+    "dev_changed_reliable",
+    "dev_unaffected_reliable",
+    "dev_delayed_above_controls",
+    "heldout_fact_reliable",
+    "heldout_changed_reliable",
+    "heldout_unaffected_reliable",
+    "heldout_delayed_above_controls",
+    "reference_full_context_parity"
+  ],
+  "checkpoint_changes": {
+    "changed_tensors": [
+      "fast_ports.13.output_projection.weight",
+      "fast_ports.13.query_norm.bias",
+      "fast_ports.13.query_norm.weight",
+      "fast_ports.13.query_projection.weight",
+      "fast_ports.27.output_projection.weight",
+      "fast_ports.27.query_norm.bias",
+      "fast_ports.27.query_norm.weight",
+      "fast_ports.27.query_projection.weight"
+    ],
+    "unchanged_tensor_count": 59
+  },
+  "reference_decision": "reject_reference",
+  "candidate_decision": "reject",
+  "evaluation_only": false,
+  "scope": "Small exposed synthetic diagnostic; no RSI or broad memory claim"
+}
