@@ -1,0 +1,157 @@
+{
+  "format": "replica.memory_reliability.exact_reference.protocol.v2",
+  "protocol_path": "configs/memory_exact_reference_v2.json",
+  "declared_at_utc": "2026-10-24T18:51:06.954348+00:00",
+  "git_base_commit": "280d4dde5606eee909bf29cd6171777f305f305c",
+  "git_protocol_commit": null,
+  "commit_limitation": "Evaluation-only protocol is timestamped and hash-pinned before native launch; uncommitted worktree, not a Git preregistration commit.",
+  "evaluation_only": true,
+  "purpose": "Validate a durable exact-record selective-context reference and deterministic evidence gate against the rejected v1 learned candidate without another training run.",
+  "hypothesis": "Fact-level ledger admission, supersession and exact retrieval should match full-context answers while gate-off paths preserve the disabled base. This diagnoses reference/readout separately from learned fast-memory quality.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+  "parent_extension": "runs/m3_depth_shared_attempt02/selected_extension",
+  "parent_weights_sha256": "29267d2201562996fcf573f9349c06cd55392ecc2afc8976fa699729cdfa1b64",
+  "parent_run_report": "runs/m3_depth_shared_attempt02/run_report.json",
+  "parent_run_report_sha256": "b40aeb536dcdc589a8cc337a3efd5172010267e46f19c0e811d00442512eeebe",
+  "parent_role": "M3 ownership reference with failed retention; not an accepted general-memory baseline.",
+  "candidate_extension": "runs/memory_reliability_attempt02/candidate_extension",
+  "candidate_weights_sha256": "13fec4a36cfd19c49ad70166ac699acef0206df06b62cc4d07116685e98b8974",
+  "candidate_run_report": "runs/memory_reliability_attempt02/run_report.json",
+  "candidate_run_report_sha256": "5aea250dd6abb85c8f8d8b1ea67895fb1865bc4e5f9dc830c031c528527c2dd6",
+  "candidate_role": "Rejected 24-update v1 candidate used only for diagnosis; never selected as default or promoted.",
+  "dataset": {
+    "path": "data/memory_reliability_v1/episodes.json",
+    "sha256": "c9ac894b522ffab89aa863c7d6ed9b3c626a8521301fa519b62116f0691a8422",
+    "manifest_sha256": "e465c21d01c815cc8d8fc3df29b4b1c106ec388fa4f7e57ac9b83563b5bd7de3",
+    "seed": 20261024,
+    "scope": "Exposed v1 regression material only; no training or checkpoint selection."
+  },
+  "exact_reference": {
+    "enabled": true,
+    "record_granularity": "One immutable fact line per record; correction supersedes only its changed fact.",
+    "state_ownership": "RecordLedger is authoritative; fast tensors are derived, source-view-bound images.",
+    "recovery": "Atomic image publication, transaction-fault rollback, stale-view rejection and permitted-source rebuild; not a power-loss or neural-unlearning claim."
+  },
+  "evidence_gate": {
+    "enabled": true,
+    "rule": "Eligible structured fact must cover query content and an entity-like term. Conflict, absent evidence and unstructured lookalike text disable fast memory.",
+    "forbidden_inputs": [
+      "case_role",
+      "split",
+      "kind",
+      "expected_answer",
+      "gold",
+      "audit_labels"
+    ],
+    "disabled_behavior": "Exact frozen-base inference with no fast branch."
+  },
+  "primary_fast_arm": "fast",
+  "reference_arm": "selective_context",
+  "evaluation_arms": {
+    "parent": [
+      "fast",
+      "disabled"
+    ],
+    "candidate": [
+      "fast",
+      "ungated",
+      "disabled",
+      "shuffled",
+      "last_chunk",
+      "full_context",
+      "selective_context",
+      "adversarial"
+    ]
+  },
+  "evaluation": {
+    "adversarial_observation": "The launch code for project Alder is teal.",
+    "metadata_invariance": "Changing split, role, kind or expected answer metadata must not change route or generated tokens.",
+    "reference_decision": "Exact selective context must be correct on all 48 cases, match full-context correctness, have no full-context-correct-to-reference-wrong row, and preserve disabled tokens when gate off.",
+    "candidate_decision": "Rejected candidate quality remains separately scored; reference acceptance never promotes it."
+  },
+  "training": {
+    "seed": 20261024,
+    "updates": 0,
+    "examples_per_update": 4,
+    "lr": 0.001,
+    "preservation_kl_weight": 1.0,
+    "trainable_prefixes": []
+  },
+  "acceptance": {
+    "fact_correct_changed_unaffected_min_each_split": 0.75,
+    "unknown_min_each_split": 0.75,
+    "no_correct_to_wrong_kinds": [
+      "fact",
+      "changed",
+      "unaffected",
+      "unknown",
+      "general"
+    ],
+    "reference_all_cases_correct": true,
+    "reference_full_context_parity": true,
+    "reference_no_correct_to_wrong": true,
+    "gate_off_disabled_parity": true,
+    "persistent_authenticated_scope_lineage_counters": true,
+    "failed_gate": "Reject learned candidate and preserve parent; exact-reference acceptance is reported separately."
+  },
+  "budget": {
+    "native_training_jobs": 0,
+    "native_evaluation_jobs": 1,
+    "model_loads_per_job": 1,
+    "extension_reloads_per_job": 2,
+    "max_wall_seconds": 600,
+    "max_generated_answers": 480,
+    "max_generated_tokens": 2880,
+    "max_prompt_tokens": 256,
+    "max_target_tokens": 8,
+    "max_source_tokens": 256,
+    "max_action_tokens": 264,
+    "optimizer_updates": 0,
+    "checkpoints": 0,
+    "depth_images": 8,
+    "expected_extension_mib": 0
+  },
+  "limits": {
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1,
+    "cpu_fallback": false
+  },
+  "stop_conditions": [
+    "capacity or host-pressure guard",
+    "nonfinite state or output",
+    "hash/provenance/scope/source-view mismatch",
+    "token/time/generation/artifact bound",
+    "missing or stale MPS telemetry"
+  ],
+  "publication": "None. Evaluation-only diagnostic with no checkpoint save, source download or selected-default change.",
+  "implementation_sha256": {
+    "scripts/run_memory_reliability.py": "e4de824b9e5276a00a4aab06e61beae32c9f27d8ba93de92693ad121c0da9114",
+    "scripts/score_memory_reliability.py": "578ae43ba105f8b7d997454be9fa16c41319f2c5d0dff31856ed0c4572d06209",
+    "scripts/make_memory_reliability_data.py": "ea59e6fc2e9dda43c92e3de0d832c49598cf4184828b8e96a1c91228dbad028b",
+    "scripts/run_capacity_preflight.py": "846c2945b0e7d00f28d8a2ae2c9f3d22e5735b8924ede21c768f47ed387548a7",
+    "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+    "src/replica_lab/memory_reliability.py": "79c4cab4ad025a855237c35f944e3b3c69dd65c7886e91b700a24b282ac63432",
+    "src/replica_lab/reliability_scoring.py": "166da33279a99f966c8addefcde65e56944e7871db7423c3c4dc1ad4cfa31575",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "c20b5ae8bdad5d92ecaa7a013a829964f0cc42d5e57f65482359d283cf554af6",
+    "src/replica_lab/runtime/exact_memory.py": "fdeb6ae852c6ea20b1bfdcc71aae2c381a78d6ed966c9599465df76e2eb3ee5b",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/memory_system/session.py": "3359f318077b0ec1a08f87d3ff93c4fb24c53be7c8d193c5f3b5ea94376e415b",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "tests/test_exact_memory.py": "bfe398e62b1effe79ccaeb3dd5e09d6a1dc4b016b94dafc89baec79d265ec5c3",
+    "tests/test_memory_reliability.py": "17e36a082f2b56da0ecdb47c1d22f386566242ff466b4cb27179fee79c7da012"
+  },
+  "implementation_overlay": "Corrects record-memory branch activation in exact mode: full/gate-off paths use enabled_ports=() and fast uses only the fast branch. Dataset, candidate, arms, acceptance and budget are unchanged."
+}
