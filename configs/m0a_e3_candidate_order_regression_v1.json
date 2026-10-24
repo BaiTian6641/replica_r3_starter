@@ -1,0 +1,50 @@
+{
+  "format": "replica.e3_m0a_candidate_menus.v1",
+  "declared_at_utc": "2026-10-23",
+  "purpose": "Regression-only rerun of the historical three-case candidate-order family with corrected numeric-string menus. Do not tune or use for fresh capability claims.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "parent_extension": "runs/e3_set_attempt03_20261023/selected_extension",
+  "fixtures": {
+    "root": "fixtures/e3_candidate_order/cases",
+    "manifest_sha256": "7ae5ba51372122fea6452b227237b3997eed4fc6e9ada0ab458a4dd7feedd02b",
+    "train": [],
+    "dev": [],
+    "heldout": ["order_heldout_01", "order_heldout_02", "order_heldout_03"]
+  },
+  "core": {
+    "width": 256,
+    "slots": 8,
+    "steps": 2,
+    "heads": 4,
+    "task_features": 24,
+    "ffn_hidden": 1024,
+    "control_hidden": 340
+  },
+  "evaluation": {
+    "cases": ["order_heldout_01", "order_heldout_02", "order_heldout_03"],
+    "max_decisions": 7,
+    "max_tool_calls": 4,
+    "prompt_tokens": 1024,
+    "generated_tokens": 128
+  },
+  "arms": {
+    "model_canonical": {"selection": "model", "shuffle_candidates": false}
+  },
+  "training": {
+    "optimizer_updates": 0,
+    "model_loads_per_neural_arm": 1
+  },
+  "limits": {
+    "driver_gib": 50,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1
+  },
+  "acceptance": {
+    "package_accept_if": "the regression arm completes with all menus, scores, indices and receipts retained and guard completes",
+    "quality_rule": "compare against historical canonical 3/3 only; do not generalize to fresh cases",
+    "defer_if": "guard stop, missing evidence, or malformed protocol"
+  },
+  "claims": "Old-case regression only; corrected menus, no training, no default promotion."
+}
