@@ -42,3 +42,15 @@ def test_fast_route_missing_backward_is_rejected():
                 'training': {'updates': 1, 'expected_route_counts': counts}}
     with pytest.raises(ValueError, match='Fast-route'):
         validate_training_routes(report, episodes, protocol)
+
+
+def test_dataset_audit_comparison_uses_json_key_semantics():
+    import json
+    from scripts.score_memory_reliability import dataset_audits_match
+    from replica_lab.memory_reliability import audit_dataset
+    episodes = build_episodes(general_by_split='general_v2')
+    independent = audit_dataset(episodes, general_oracle='general_v2')
+    cached = json.loads(json.dumps(independent))
+    assert dataset_audits_match(cached, independent)
+    cached['query_forms']['0'] += 1
+    assert not dataset_audits_match(cached, independent)

@@ -23,6 +23,10 @@ from replica_lab.reliability_scoring import (metrics_and_checks, regression_inve
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+def dataset_audits_match(cached, independent):
+    """Compare audits using their actual JSON report representation."""
+    return cached == json.loads(json.dumps(independent))
+
 
 def checkpoint_producer(path, expected_sha):
     """Reconstruct the stable writer/reader producer from actual saved tensors."""
@@ -217,7 +221,7 @@ def main():
     if report.get('writer_representation', 'raw_pages') != expected_representation:
         raise ValueError('Run writer representation differs from protocol')
     if (protocol['dataset'].get('general_oracle') is not None
-            and report.get('dataset_audit') != dataset_audit):
+            and not dataset_audits_match(report.get('dataset_audit'), dataset_audit)):
         raise ValueError('Cached dataset audit differs from independent audit')
     expected_tensors = set(protocol['training'].get('expected_trainable_tensors', ()))
     if not args.evaluation_only:
