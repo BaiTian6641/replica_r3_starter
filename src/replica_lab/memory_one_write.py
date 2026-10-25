@@ -412,12 +412,20 @@ def score_one_write(rows, codebooks, *, thresholds=None, mechanical):
     settings = dict(ONE_WRITE_THRESHOLDS)
     settings.update(thresholds or {})
     prepared = []
+    fact_keys = []
     for row in rows:
+        if (row.get('against') not in ONE_WRITE_READ_PATHS
+                or row.get('phase') not in {'before_save', 'after_save'}):
+            raise ValueError('One-write readout has an unknown read path or phase')
+        book = codebooks.get(row.get('codebook_key'))
+        if book is None or row.get('world_id') != book.get('world_id'):
+            raise ValueError('One-write readout references a foreign codebook')
+        fact_id = book.get('fact_id')
+        if not isinstance(fact_id, str) or not fact_id:
+            raise ValueError('One-write codebook lacks fact identity')
+        fact_keys.append((row['world_id'], fact_id, row['layer']))
         if row.get('status') != 'ok':
             continue
-        book = codebooks.get(row.get('codebook_key'))
-        if book is None or row['world_id'] != book['world_id']:
-            raise ValueError('One-write readout references a foreign codebook')
         entry = book['layers'].get(str(row['layer']))
         if entry is None or row['key_sha256'] != entry['key_sha256']:
             raise ValueError('One-write readout key differs from its source writer')
@@ -443,13 +451,17 @@ def score_one_write(rows, codebooks, *, thresholds=None, mechanical):
     zero, cross = metric('zero_state'), metric('cross_depth')
     pairing = {}
     for against in ONE_WRITE_READ_PATHS:
-        before = {(row['world_id'], row['layer']): row for row in rows
-                  if row['against'] == against and row['phase'] == 'before_save'}
-        after = {(row['world_id'], row['layer']): row for row in rows
-                 if row['against'] == against and row['phase'] == 'after_save'}
-        if set(before) != set(after) or not before:
-            pairing[against] = {'n': 0, 'max_abs_difference': None, 'equal': False}
-            continue
+        before, after = {}, {}
+        for row, fact_key in zip(rows, fact_keys):
+            if row['against'] != against:
+                continue
+            target = before if row['phase'] == 'before_save' else after
+            if fact_key in target:
+                raise ValueError(f'Duplicate one-write parity row: {against}/{fact_key}')
+            target[fact_key] = row
+        if not before or set(before) != set(after):
+            missing = sorted(set(before) ^ set(after))
+            raise ValueError(f'Missing one-write parity rows: {against}/{missing[:3]}')
         difference = max(
             float((torch.tensor(before[key]['readout'])
                    - torch.tensor(after[key]['readout'])).abs().max())

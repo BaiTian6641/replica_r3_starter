@@ -159,6 +159,40 @@ def test_save_reload_parity_detects_changed_after_rows(tmp_path):
     assert scored['decision'] == 'fail_save_reload_parity'
 
 
+
+def test_save_reload_parity_covers_earlier_facts_and_rejects_bad_rows(tmp_path):
+    model, report, rows = tiny_run(tmp_path, facts_per_world=2)
+    codebooks = report['codebooks']
+    mechanical = {'frozen': report['frozen']}
+    first_fact = min(codebooks, key=lambda key: (codebooks[key]['world_id'],
+                                                codebooks[key]['fact_id']))
+    fact_id = codebooks[first_fact]['fact_id']
+
+    changed = copy.deepcopy(rows)
+    target = next(row for row in changed
+                  if row['codebook_key'] == first_fact
+                  and row['against'] == 'shared_mean'
+                  and row['phase'] == 'before_save')
+    target['readout'] = [[0.0 for _ in head] for head in target['readout']]
+    scored = score_one_write(changed, codebooks, mechanical=mechanical)
+    assert scored['decision'] == 'fail_save_reload_parity', fact_id
+    parity = report['gates']['save_reload_parity']['metrics']
+    assert parity['shared_mean']['n'] == 8
+
+    duplicated = copy.deepcopy(rows)
+    duplicated.append(copy.deepcopy(duplicated[0]))
+    with pytest.raises(ValueError, match='Duplicate'):
+        score_one_write(duplicated, codebooks, mechanical=mechanical)
+
+    missing = copy.deepcopy(rows)
+    missing.remove(next(row for row in missing
+                        if row['codebook_key'] == first_fact
+                        and row['against'] == 'shared_mean'
+                        and row['phase'] == 'before_save'))
+    with pytest.raises(ValueError, match='Missing'):
+        score_one_write(missing, codebooks, mechanical=mechanical)
+
+
 def test_prepare_and_admit_bind_exact_one_write_pins(tmp_path):
     model_root = tmp_path / 'source'
     model_root.mkdir()

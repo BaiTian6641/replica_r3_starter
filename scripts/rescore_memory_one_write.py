@@ -18,6 +18,34 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+
+def compare_historical(scored, report):
+    """Allow only full-fact parity count corrections, never outcome changes."""
+    old_gates = report['gates']
+    new_gates = scored['gates']
+    if (scored['summary'] == report['summary'] and new_gates == old_gates
+            and scored['decision'] == report['decision']):
+        return 'matched', {}
+    old_counts = {name: old_gates['save_reload_parity']['metrics'][name]['n']
+                  for name in old_gates['save_reload_parity']['metrics']}
+    new_counts = {name: new_gates['save_reload_parity']['metrics'][name]['n']
+                  for name in new_gates['save_reload_parity']['metrics']}
+    def normalized(gates):
+        value = json.loads(json.dumps(gates))
+        for item in value['save_reload_parity']['metrics'].values():
+            item.pop('n', None)
+        return value
+    coverage_only = (
+        scored['summary'] == report['summary']
+        and scored['decision'] == report['decision']
+        and normalized(new_gates) == normalized(old_gates)
+        and set(new_counts) == set(old_counts)
+        and all(new_counts[name] >= old_counts[name] for name in new_counts))
+    details = {'historical_n': old_counts, 'replayed_n': new_counts,
+               'only_full_fact_coverage_counts_changed': coverage_only}
+    return ('matched_with_full_fact_coverage' if coverage_only else 'differs'), details
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--run', type=Path, required=True)
@@ -40,6 +68,7 @@ def main(argv=None):
     manifests = [path for path in (args.run / 'images').rglob('persistent_manifest.json')]
     for path in manifests:
         read_persistent_manifest(path.parent)
+    comparison, coverage = compare_historical(scored, report)
     score = {
         'format': 'replica.memory_one_write_independent_score.v1',
         'native_report_sha256': sha(args.run / 'run_report.json'),
@@ -48,10 +77,8 @@ def main(argv=None):
         'evaluated_rows': len(rows),
         'unique_cases': len(rows) // 2,
         'state_images_authenticated': len(manifests),
-        'independent_rescore': 'matched' if (
-            scored['summary'] == report['summary']
-            and scored['gates'] == report['gates']
-            and scored['decision'] == report['decision']) else 'differs',
+        'independent_rescore': comparison,
+        'parity_coverage': coverage,
         **scored,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -59,7 +86,8 @@ def main(argv=None):
     print(json.dumps({key: score[key] for key in (
         'independent_rescore', 'decision', 'failed_gates', 'evaluated_rows',
         'unique_cases', 'state_images_authenticated')}, indent=2))
-    return 0 if score['independent_rescore'] == 'matched' else 1
+    return 0 if score['independent_rescore'] in {
+        'matched', 'matched_with_full_fact_coverage'} else 1
 
 
 if __name__ == '__main__':

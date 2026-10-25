@@ -1,0 +1,128 @@
+{
+  "format": "replica.memory_one_write_independent_score.v1",
+  "native_report_sha256": "0a8fd52526612db4ed6b11219936d0e012fc547f90d116af714e1dd3eec0065b",
+  "protocol_sha256": "b0b9b39086eaa6826d6d35835e57a6c58d16054fb9460efb8065bdc3c6bc402d",
+  "data_sha256": "1a0d865d15044cfde84229d165fa75768a6153e7dd5ed91134e051e0c027c1be",
+  "evaluated_rows": 128,
+  "unique_cases": 64,
+  "state_images_authenticated": 8,
+  "independent_rescore": "matched",
+  "parity_coverage": {},
+  "summary": {
+    "per_depth_mean_cosine": 0.9292726404964924,
+    "shared_mean_cosine": 0.9233233332633972,
+    "zero_max_abs_cosine": 0.0,
+    "cross_depth_mean_cosine": -0.00015672482550144196,
+    "save_reload_max_abs_difference": 0.0
+  },
+  "localisation": {
+    "key_cross_cosine_mean": -0.010042631183750927,
+    "value_cross_cosine_mean": -0.14697223249822855,
+    "gate_mean": 0.4953000843524933,
+    "erase_mean": 0.47198474407196045,
+    "decay_mean": 0.5063316002488136,
+    "key_norm_mean": 1.1983911767601967,
+    "value_norm_mean": 8.4353868663311
+  },
+  "gates": {
+    "per_depth_recovery": {
+      "status": "pass",
+      "metrics": {
+        "n": 16,
+        "mean_cosine": 0.9292726404964924,
+        "min_cosine": 0.9101321697235107,
+        "max_abs_cosine": 0.9643573760986328,
+        "mean_readout_norm": 3.338754430413246
+      },
+      "thresholds": {
+        "one_write_recovery_floor": 0.6
+      }
+    },
+    "shared_reduction": {
+      "status": "pass",
+      "metrics": {
+        "n": 16,
+        "mean_cosine": 0.9233233332633972,
+        "min_cosine": 0.9060436487197876,
+        "max_abs_cosine": 0.963414192199707,
+        "mean_readout_norm": 1.6743925958871841
+      },
+      "thresholds": {
+        "one_write_reduction_floor": 0.6
+      }
+    },
+    "zero_state": {
+      "status": "pass",
+      "metrics": {
+        "n": 16,
+        "mean_cosine": 0.0,
+        "min_cosine": 0.0,
+        "max_abs_cosine": 0.0,
+        "mean_readout_norm": 0.0
+      },
+      "thresholds": {
+        "one_write_zero_max_abs_cosine": 0.1
+      }
+    },
+    "cross_depth_readout": {
+      "status": "report_only",
+      "metrics": {
+        "n": 16,
+        "mean_cosine": -0.00015672482550144196,
+        "min_cosine": -0.09417399019002914,
+        "max_abs_cosine": 0.1317834109067917,
+        "mean_readout_norm": 0.35229084361344576
+      },
+      "thresholds": {}
+    },
+    "save_reload_parity": {
+      "status": "pass",
+      "metrics": {
+        "per_depth": {
+          "n": 16,
+          "max_abs_difference": 0.0,
+          "equal": true
+        },
+        "shared_mean": {
+          "n": 16,
+          "max_abs_difference": 0.0,
+          "equal": true
+        },
+        "cross_depth": {
+          "n": 16,
+          "max_abs_difference": 0.0,
+          "equal": true
+        },
+        "zero_state": {
+          "n": 16,
+          "max_abs_difference": 0.0,
+          "equal": true
+        }
+      },
+      "thresholds": {
+        "one_write_parity_atol": 1e-06
+      }
+    },
+    "frozen_weights": {
+      "status": "pass",
+      "metrics": {
+        "optimizer_updates": 0,
+        "parameter_versions_equal": true,
+        "parameters_updated": [],
+        "requires_grad_all_false": true,
+        "requires_grad_before_all_false": true
+      },
+      "thresholds": {
+        "optimizer_updates": 0,
+        "parameters_updated": []
+      }
+    }
+  },
+  "failed_gates": [],
+  "decision": "one_write_storage_ok",
+  "smallest_next_repair_discriminator": {
+    "action": "One write recovers under the observed key; add a two-fact interference case before addressing work.",
+    "failed_gates": []
+  },
+  "quality_scope": "Observed-key storage recovery only; no addressing, native language readout or useful-memory claim"
+}
