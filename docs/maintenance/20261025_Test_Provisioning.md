@@ -45,3 +45,6 @@ Historical protocol hashes are never rewritten.
   subtests at the rebind fix) with zero skips beyond explicitly reasoned ones.
 - From a clean tracked export without ignored inputs: only the declared
   integration tests skip, each printing its provisioning command.
+- A [focused clean-export replay](../../reports/clean_export_verification_20261025.json)
+  at `4112e18` passes **69 tests with one explicitly reasoned integration skip**;
+  bounded RSI alone passes 11 with that skip and 12/12 when provisioned.

@@ -1,0 +1,21 @@
+{
+  "format": "replica.clean_export_verification.v1",
+  "commit": "4112e18cffa3d02bdd2bf114424567438d31edb0",
+  "scope": "focused self-contained unit tests plus explicitly marked integration evidence",
+  "method": "git archive HEAD extracted to an empty temporary directory; absolute project .venv used; no ignored native artifacts copied",
+  "commands": [
+    "pytest -q -p no:cacheprovider tests/test_bounded_rsi.py tests/test_memory_one_write.py tests/test_vision_diagnostic.py tests/test_spark2_5.py tests/test_spark_preparation.py",
+    "pytest -q -rs -p no:cacheprovider tests/test_bounded_rsi.py"
+  ],
+  "result": {
+    "focused_tests": {"passed": 69, "skipped": 1, "failed": 0, "seconds": 8.04},
+    "bounded_rsi_tests": {"passed": 11, "skipped": 1, "failed": 0, "seconds": 5.89}
+  },
+  "skip": {
+    "test": "tests/test_bounded_rsi.py::test_historical_native_evidence_remains_explicitly_provisioned",
+    "integration": true,
+    "reason": "missing local artifact(s) — provision first: runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json: copy the immutable V0 score replay from the provisioned native-evidence workspace; historical integration only"
+  },
+  "provisioned_environment_result": "tests/test_bounded_rsi.py: 12 passed, including the historical integration test",
+  "claim": "Focused clean-export unit suite passes; only explicitly selected historical integration evidence skips with provisioning instructions. This is not a full-suite clean-export claim."
+}
