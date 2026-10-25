@@ -1,0 +1,578 @@
+"""Matched-episode localisation contracts on tiny CPU adapters.
+
+These tests are self-contained: a random tiny native adapter exercises the real
+writer, shared-state read, save/reload and frozen-answer plumbing on CPU.  They
+establish episode identity, rank/margin/unknown/correction scoring, first
+failing-stage selection, row-inventory rejection and the information boundary.
+They do not measure pretrained MiniCPM quality and never run native MPS.
+"""
+from copy import deepcopy
+import hashlib
+import json
+from pathlib import Path
+
+import pytest
+import torch
+
+from architecture_helpers import tiny_adapter
+from conftest import require_local_artifacts
+from replica_lab.memory_matched import (
+    CODEBOOK_FORMAT,
+    COMPLEXITIES,
+    DEFAULT_LIMITS,
+    FORBIDDEN_INPUT_MARKERS,
+    LABELS_FORMAT,
+    PROTOCOL_FORMAT,
+    admit_matched_prepared,
+    derive_matched_labels,
+    derive_state_labels,
+    episode_states,
+    generate_matched_episodes,
+    matched_inventory,
+    matched_workload,
+    prepare_matched,
+    run_matched_diagnostic,
+    score_matched,
+    select_first_failing_stage,
+    state_observation_sha256,
+    validate_matched_episodes,
+    verify_matched_prepared,
+    writer_inputs,
+)
+from replica_lab.runtime.fact_memory import fact_source_text
+from test_memory_diagnosis import SPEC, Tokenizer
+
+ROOT = Path(__file__).resolve().parents[1]
+SMALL = ('correction', 'interference')
+FAMILY_PLAN = {'train': 1, 'dev': 1, 'heldout': 1}
+
+
+def _protocol(**overrides):
+    value = {
+        'format': PROTOCOL_FORMAT, 'seed': 20261026, 'layer': 0,
+        'families_per_split': FAMILY_PLAN, 'complexities': list(SMALL),
+        'variants': 2, 'thresholds': {}, 'limits': {},
+        'generation': {'max_new_tokens': 6, 'max_prompt_tokens': 256},
+        'zero_updates': True,
+    }
+    value.update(overrides)
+    return value
+
+
+def _stub_answerer(ledger):
+    def answer(*, prompt_ids, prompt_mask, query, scope, fast_state):
+        return 'unknown', []
+    return answer
+
+
+def _tiny_run(tmp_path, *, complexities=SMALL, answerer_factory=_stub_answerer):
+    model = tiny_adapter(fast_memory=SPEC).eval()
+    episodes = generate_matched_episodes(
+        families_per_split=FAMILY_PLAN, complexities=complexities)
+    protocol = _protocol(complexities=list(complexities))
+    report = run_matched_diagnostic(
+        model, Tokenizer(), protocol, output_dir=tmp_path / 'run',
+        episodes=episodes, answerer_factory=answerer_factory)
+    return model, episodes, protocol, report, tmp_path / 'run'
+
+
+def _rows(path):
+    return [json.loads(line) for line in Path(path).read_text().splitlines()]
+
+
+def _sha_json(value):
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True).encode('utf-8')).hexdigest()
+
+
+def test_episodes_are_deterministic_split_separated_and_label_free():
+    first = generate_matched_episodes()
+    assert first == generate_matched_episodes()
+    assert first != generate_matched_episodes(seed=20261027)
+    audit = validate_matched_episodes(first)
+    assert audit['episodes'] == 30 and audit['families'] == 15
+    assert audit['states'] == 42 and audit['queries'] == 108
+    assert audit['query_forms'] == [0, 1, 2, 3]
+    assert audit['heldout_values_absent_from_prior_splits'] is True
+
+    for episode in first:
+        payload = writer_inputs(episode)
+        text = json.dumps(payload, sort_keys=True).casefold()
+        for marker in FORBIDDEN_INPUT_MARKERS:
+            assert marker not in text
+        assert set(payload) == {'episode_id', 'world_id', 'facts',
+                                'distractors', 'corrections', 'observations',
+                                'queries'}
+        labels = derive_state_labels(episode, episode_states(episode)[0])
+        assert 'expected' in labels['targets']['q0']
+        # The writer input is unchanged by deriving evaluation labels.
+        assert json.dumps(writer_inputs(episode), sort_keys=True) == \
+            json.dumps(payload, sort_keys=True)
+        for item in episode['distractors']:
+            assert item['origin_world_id'] != episode['world_id']
+            origin = next(other for other in first
+                          if other['world_id'] == item['origin_world_id'])
+            assert origin['split'] == episode['split']
+
+    # Query text is rendered from the observed address only, never from a value.
+    changed = deepcopy(first[0])
+    changed['facts'][0]['value'] = 'val-never-observed-elsewhere'
+    assert [query['text'] for query in changed['queries']] == \
+        [query['text'] for query in first[0]['queries']]
+
+    with pytest.raises(ValueError):
+        fact_source_text({'entity': 'e', 'attribute': 'a', 'value': 'v',
+                          'expected_answer': 'leak'})
+
+
+def test_episode_corruptions_are_rejected():
+    episodes = generate_matched_episodes(complexities=SMALL)
+    with pytest.raises(ValueError, match='unique|duplicate'):
+        validate_matched_episodes(episodes + [deepcopy(episodes[0])],
+                                  families_per_split=FAMILY_PLAN,
+                                  complexities=SMALL)
+
+    duplicate = deepcopy(episodes)
+    duplicate[2]['facts'][0]['entity'] = duplicate[0]['facts'][0]['entity']
+    duplicate[2]['facts'][0]['attribute'] = duplicate[0]['facts'][0]['attribute']
+    with pytest.raises(ValueError, match='address'):
+        validate_matched_episodes(duplicate, families_per_split=FAMILY_PLAN,
+                                  complexities=SMALL)
+
+    dated = deepcopy(episodes)
+    dated[0]['corrections'][0]['observed_at'] = dated[0]['facts'][0]['observed_at']
+    with pytest.raises(ValueError, match='observed after|generator'):
+        validate_matched_episodes(dated, families_per_split=FAMILY_PLAN,
+                                  complexities=SMALL)
+
+    observations = deepcopy(episodes)
+    observations[0]['observations'][0]['lines'].pop()
+    with pytest.raises(ValueError, match='observation'):
+        validate_matched_episodes(observations, families_per_split=FAMILY_PLAN,
+                                  complexities=SMALL)
+
+    labelled = deepcopy(episodes)
+    labelled[0]['facts'][0]['expected_answer'] = 'gold'
+    with pytest.raises(ValueError, match='unexpected fields|label'):
+        validate_matched_episodes(labelled, families_per_split=FAMILY_PLAN,
+                                  complexities=SMALL)
+
+
+def test_verifier_labels_flip_correction_and_keep_unaffected(tmp_path):
+    episodes = generate_matched_episodes(complexities=SMALL)
+    labels = derive_matched_labels(episodes)
+    episode = episodes[0]
+    initial = labels[episode['episode_id']]['initial']
+    corrected = labels[episode['episode_id']]['corrected']
+    corrected_query = corrected['corrected_query_ids'][0]
+    old_expected = initial['targets'][corrected_query]['expected']
+    new_expected = corrected['targets'][corrected_query]['expected']
+    assert old_expected != new_expected
+    assert initial['targets'][corrected_query]['target_role'] == 'source'
+    assert corrected['targets'][corrected_query]['target_role'] == 'correction_target'
+    for query_id in corrected['unaffected_query_ids']:
+        assert corrected['targets'][query_id]['expected'] == \
+            initial['targets'][query_id]['expected']
+        assert corrected['targets'][query_id]['target_role'] == 'retained'
+    unknown = corrected['unknown_query_ids'][0]
+    assert corrected['targets'][unknown]['expected'] == 'unknown'
+    assert corrected['targets'][unknown]['target_entry_id'] is None
+    assert corrected['negative_entries'], 'A correction must expose a superseded negative'
+
+
+def test_tiny_run_preserves_episode_identity_and_mechanics(tmp_path):
+    model, episodes, protocol, report, output = _tiny_run(tmp_path)
+    assert report['status'] == 'completed'
+    assert report['optimizer_updates'] == 0
+    assert report['parameters_updated'] == []
+    assert report['mechanical']['frozen']['parameter_versions_equal'] is True
+    assert report['mechanical']['frozen']['requires_grad_all_false'] is True
+    assert report['mechanical_gates']['zero_updates']['status'] == 'pass'
+    assert report['mechanical_gates']['save_reload_parity']['status'] == 'pass'
+    assert report['mechanical_gates']['row_inventory']['status'] == 'pass'
+    assert report['mechanical_valid'] is True
+    assert report['counts']['readout_rows'] == len(_rows(output / 'readouts.jsonl'))
+    assert report['counts']['answer_rows'] == len(_rows(output / 'answers.jsonl'))
+    assert report['readouts_sha256'] == hashlib.sha256(
+        (output / 'readouts.jsonl').read_bytes()).hexdigest()
+    for name in ('readouts.jsonl', 'answers.jsonl', 'codebooks.json',
+                 'mechanical.json', 'rankings.jsonl', 'failures.json'):
+        assert (output / name).is_file()
+    assert all(row['equal'] is True for row in report['mechanical']['rows'])
+
+    readouts = _rows(output / 'readouts.jsonl')
+    answers = _rows(output / 'answers.jsonl')
+    codebooks = json.loads((output / 'codebooks.json').read_text())['codebooks']
+    for row in readouts + answers:
+        assert not any(marker in row for marker in
+                       ('expected', 'expected_answer', 'gold', 'label',
+                        'audit_label', 'role', 'kind', 'split'))
+    # One codebook per episode/state serves every readout stage.
+    for key, book in codebooks.items():
+        assert key == f"{book['episode_id']}/{book['state']}"
+        assert book['observation_sha256'] == _sha_json([
+            {'page_id': page['page_id'], 'observed_at': page['observed_at'],
+             'date': page['date'], 'lines': list(page['lines'])}
+            for page in next(state['observations'] for episode in episodes
+                             for state in episode_states(episode)
+                             if episode['episode_id'] == book['episode_id']
+                             and state['name'] == book['state'])])
+    # Every stage reads the identical observation bytes for an episode/state.
+    by_state = {}
+    for row in readouts:
+        by_state.setdefault((row['episode_id'], row['state']), set()).add(
+            row['observation_sha256'])
+    assert all(len(values) == 1 for values in by_state.values())
+    # Stage 2 and 3 share the independently rendered query digest.
+    query_digests = {}
+    for row in readouts:
+        if row['stage'] in (1, 2, 3) and not row['case_id'].startswith('control:'):
+            query_digests.setdefault(
+                (row['episode_id'], row['state'], row['query_id']), set()).add(
+                    row['query_text_sha256'])
+    assert all(len(values) == 1 for values in query_digests.values())
+    for row in answers:
+        assert row['observation_sha256'] == next(
+            value for (episode_id, state), values in by_state.items()
+            if episode_id == row['episode_id'] and state == row['state']
+            for value in values)
+        assert row['query_text_sha256'] == next(
+            value for (episode_id, state, query_id), values in query_digests.items()
+            if episode_id == row['episode_id'] and state == row['state']
+            and query_id == row['query_id'] for value in values)
+    # Context removal changes only the fast state: the prompt bytes are identical.
+    memory_prompts = {(row['episode_id'], row['state'], row['query_id']):
+                      row['prompt_sha256'] for row in answers
+                      if row['arm'] == 'memory'}
+    removed_prompts = {(row['episode_id'], row['state'], row['query_id']):
+                       row['prompt_sha256'] for row in answers
+                       if row['arm'] == 'context_removed'}
+    assert memory_prompts == removed_prompts
+    assert {row['arm'] for row in answers} == {
+        'memory', 'exact_source', 'full_context', 'context_removed'}
+    assert report['decision'] in {
+        'stage1_storage_upper_bound_failed', 'stage2_addressing_failed',
+        'stage3_value_discrimination_failed',
+        'stage4_native_generation_failed'}
+    assert report['first_failing_stage'] in (1, 2, 3, 4)
+    assert report['promote_v5_memory'] is False
+    assert report['neural_promotion'] is False
+
+
+def _synthetic_codebook():
+    return {
+        'a': {'value_vector': [[1.0, 0.0]], 'write_key': [[1.0, 0.0]],
+              'value_sha256': 'a', 'write_key_sha256': 'a',
+              'value_norm': 1.0, 'key_norm': 1.0},
+        'b': {'value_vector': [[0.0, 1.0]], 'write_key': [[0.0, 1.0]],
+              'value_sha256': 'b', 'write_key_sha256': 'b',
+              'value_norm': 1.0, 'key_norm': 1.0},
+        'c': {'value_vector': [[0.8, 0.2]], 'write_key': [[0.8, 0.2]],
+              'value_sha256': 'c', 'write_key_sha256': 'c',
+              'value_norm': 0.824621125, 'key_norm': 0.824621125},
+        'old': {'value_vector': [[0.9, 0.1]], 'write_key': [[0.9, 0.1]],
+                'value_sha256': 'old', 'write_key_sha256': 'old',
+                'value_norm': 0.905538514, 'key_norm': 0.905538514},
+    }
+
+
+def _synthetic_labels():
+    live = [
+        {'record_id': 'a', 'entity': 'e1', 'attribute': 'a1', 'value': 'v1',
+         'role': 'correction_target', 'source_family': 'source',
+         'origin_world_id': 'w1', 'observed_at': 1, 'live': True},
+        {'record_id': 'b', 'entity': 'e2', 'attribute': 'a2', 'value': 'v2',
+         'role': 'retained', 'source_family': 'source',
+         'origin_world_id': 'w1', 'observed_at': 1, 'live': True},
+        {'record_id': 'c', 'entity': 'e3', 'attribute': 'a3', 'value': 'v3',
+         'role': 'distractor', 'source_family': 'independent_world',
+         'origin_world_id': 'w2', 'observed_at': 1, 'live': True},
+    ]
+    negative = [
+        {'record_id': 'old', 'entity': 'e1', 'attribute': 'a1', 'value': 'v0',
+         'role': 'superseded_negative', 'source_family': 'source',
+         'origin_world_id': 'w1', 'observed_at': 1, 'live': False},
+    ]
+    return {
+        'episode_id': 'e1', 'world_id': 'w1', 'family_id': 'f1',
+        'split': 'dev', 'complexity': 'correction', 'variant': 0,
+        'state': 'corrected', 'cutoff': 2,
+        'observed_record_ids': ['a', 'b', 'c', 'old'],
+        'live_entries': live, 'negative_entries': negative,
+        'targets': {
+            'qf': {'expected': 'v1', 'kind': 'fact',
+                   'target_entry_id': 'a', 'target_role': 'correction_target',
+                   'target_source_family': 'source', 'query_form': 0,
+                   'query_text_sha256': 'query'},
+            'qg': {'expected': 'v2', 'kind': 'fact',
+                   'target_entry_id': 'b', 'target_role': 'retained',
+                   'target_source_family': 'source', 'query_form': 1,
+                   'query_text_sha256': 'query'},
+            'qu': {'expected': 'unknown', 'kind': 'unknown',
+                   'target_entry_id': None, 'target_role': 'unknown',
+                   'target_source_family': 'none', 'query_form': 2,
+                   'query_text_sha256': 'query'},
+        },
+        'corrected_query_ids': ['qf'], 'unaffected_query_ids': ['qg'],
+        'unknown_query_ids': ['qu'],
+    }
+
+
+def _synthetic_codebook_record():
+    return {
+        'format': CODEBOOK_FORMAT, 'episode_id': 'e1', 'world_id': 'w1',
+        'state': 'corrected', 'cutoff': 2, 'layer': 0,
+        'observation_sha256': 'obs', 'memory_history_sha256': 'hist',
+        'state_digest': 'digest',
+        'entries': _synthetic_codebook(),
+        'live_entry_ids': ['a', 'b', 'c'],
+        'negative_entry_ids': ['old'],
+    }
+
+
+def _synthetic_row(case_id, readout, *, query_id=None, stage=3, arm=None):
+    arm = arm or ('query_value' if not case_id.startswith('control:')
+                  else 'control')
+    return {
+        'format': 'replica.memory_matched.readout.v1', 'stage': stage,
+        'episode_id': 'e1', 'world_id': 'w1', 'state': 'corrected',
+        'cutoff': 2, 'case_id': case_id, 'query_id': query_id,
+        'arm': arm, 'codebook_key': 'e1/corrected', 'layer': 0,
+        'observation_sha256': 'obs', 'query_text_sha256': 'query',
+        'readout_space': 'value', 'owner_entry_id': None, 'status': 'ok',
+        'unavailable_reason': None,
+        'readout': readout, 'readout_sha256': _sha_json(readout),
+        'readout_norm': (sum(value * value for head in readout for value in head)
+                         ** 0.5),
+    }
+
+
+def _synthetic_mechanical():
+    limits = dict(DEFAULT_LIMITS)
+    return {
+        'frozen': {'optimizer_updates': 0, 'parameters_updated': [],
+                   'parameter_versions_equal': True,
+                   'requires_grad_all_false': True},
+        'rows': [{'equal': True}], 'limits': limits,
+    }
+
+
+def test_rank_margin_unknown_and_correction_scoring():
+    labels = {'e1': {'corrected': _synthetic_labels()}}
+    codebooks = {'e1/corrected': _synthetic_codebook_record()}
+    readouts = [
+        _synthetic_row('qf', [[1.0, 0.0]], query_id='qf'),
+        _synthetic_row('qg', [[0.0, 1.0]], query_id='qg'),
+        _synthetic_row('qu', [[0.0, 1.0]], query_id='qu'),
+        _synthetic_row('control:zero', [[0.0, 0.0]]),
+    ]
+    inventory = [(3, 'e1', 'corrected', row['case_id'], row['arm'])
+                 for row in readouts]
+    score = score_matched(
+        readouts, [], codebooks, labels,
+        mechanical=_synthetic_mechanical(), inventory=inventory)
+    rankings = {row['case_id']: row for row in score['rankings']}
+    qf = rankings['qf']
+    assert qf['target_rank'] == 1 and qf['top1'] is True
+    assert qf['margin_over_strongest_distractor'] > 0
+    assert qf['superseded_margin'] > 0
+    qg = rankings['qg']
+    assert qg['target_rank'] == 1 and qg['top1'] is True
+    qu = rankings['qu']
+    assert qu['target_entry_id'] is None
+    assert qu['false_recall'] is True
+    assert qu['false_recall_kind'] == 'unknown_address'
+    zero = rankings['control:zero']
+    assert zero['accepted'] is False and zero['false_recall'] is False
+    stage3 = score['stages'][3]['metrics']
+    assert stage3['correction']['top1_rate'] == 1.0
+    assert stage3['unaffected']['top1_rate'] == 1.0
+    assert stage3['unknown']['false_recall_rate'] == 1.0
+    assert stage3['false_recall_by_kind']['unknown_address'] == 1
+
+    # A target ranked behind a stronger distractor has rank > 1 and a negative margin.
+    weaker = _synthetic_row('qf', [[0.2, 0.8]], query_id='qf')
+    weaker_inventory = [(3, 'e1', 'corrected', 'qf', 'query_value')]
+    ranked = score_matched(
+        [weaker], [], codebooks, labels,
+        mechanical=_synthetic_mechanical(), inventory=weaker_inventory)
+    row = ranked['rankings'][0]
+    assert row['target_rank'] > 1
+    assert row['top1'] is False
+    assert row['margin_over_strongest_distractor'] < 0
+
+
+def test_scoring_rejects_duplicate_missing_and_foreign_rows():
+    labels = {'e1': {'corrected': _synthetic_labels()}}
+    codebooks = {'e1/corrected': _synthetic_codebook_record()}
+    rows = [
+        _synthetic_row('qf', [[1.0, 0.0]], query_id='qf'),
+        _synthetic_row('qu', [[0.0, 1.0]], query_id='qu'),
+    ]
+    inventory = [(3, 'e1', 'corrected', row['case_id'], row['arm'])
+                 for row in rows]
+    with pytest.raises(ValueError, match='Duplicate'):
+        score_matched(rows + [deepcopy(rows[0])], [], codebooks, labels,
+                      mechanical=_synthetic_mechanical(), inventory=inventory)
+    missing = [(3, 'e1', 'corrected', 'absent', 'query_value')]
+    with pytest.raises(ValueError, match='Missing'):
+        score_matched(rows, [], codebooks, labels,
+                      mechanical=_synthetic_mechanical(),
+                      inventory=missing + inventory[:-1])
+    foreign = deepcopy(rows)
+    foreign[0]['codebook_key'] = 'other/corrected'
+    with pytest.raises(ValueError, match='missing codebook'):
+        score_matched(foreign, [], codebooks, labels,
+                      mechanical=_synthetic_mechanical(), inventory=inventory)
+    forged = deepcopy(rows)
+    forged[0]['readout_sha256'] = '0' * 64
+    with pytest.raises(ValueError, match='Readout bytes'):
+        score_matched(forged, [], codebooks, labels,
+                      mechanical=_synthetic_mechanical(), inventory=inventory)
+    duplicated_answers = [{
+        'format': 'replica.memory_matched.answer.v1', 'stage': 4,
+        'episode_id': 'e1', 'world_id': 'w1', 'state': 'corrected', 'cutoff': 2,
+        'query_id': 'qf', 'query_form': 0, 'query_text_sha256': 'query',
+        'observation_sha256': 'obs', 'arm': 'memory', 'context_sha256': 'ctx',
+        'context_source_ids': [], 'prompt_sha256': 'p', 'prompt_tokens': 1,
+        'max_new_tokens': 6, 'token_ids': [1], 'generated_tokens': 1,
+        'answer': 'v1', 'answer_sha256': hashlib.sha256(b'v1').hexdigest(),
+        'status': 'ok'}]
+    with pytest.raises(ValueError, match='Duplicate matched answer'):
+        score_matched(
+            rows, duplicated_answers + [deepcopy(duplicated_answers[0])],
+            codebooks, labels, mechanical=_synthetic_mechanical(),
+            inventory=inventory + [(4, 'e1', 'corrected', 'qf', 'memory')])
+
+
+def test_answer_scoring_uses_verifier_labels_and_context_removal():
+    labels = {'e1': {'corrected': _synthetic_labels()}}
+    codebooks = {'e1/corrected': _synthetic_codebook_record()}
+    answers = []
+    plan = {
+        'memory': {'qf': 'v1', 'qg': 'v2', 'qu': 'unknown'},
+        'context_removed': {'qf': 'v2', 'qg': 'v1', 'qu': 'v2'},
+        'exact_source': {'qf': 'v1', 'qg': 'v2', 'qu': 'unknown'},
+        'full_context': {'qf': 'v1', 'qg': 'v2', 'qu': 'unknown'},
+    }
+    for arm, mapping in plan.items():
+        for query_id, answer in mapping.items():
+            answers.append({
+                'format': 'replica.memory_matched.answer.v1', 'stage': 4,
+                'episode_id': 'e1', 'world_id': 'w1', 'state': 'corrected',
+                'cutoff': 2, 'query_id': query_id, 'query_form': 0,
+                'query_text_sha256': 'query', 'observation_sha256': 'obs',
+                'arm': arm, 'context_sha256': 'ctx', 'context_source_ids': [],
+                'prompt_sha256': 'p', 'prompt_tokens': 1, 'max_new_tokens': 6,
+                'token_ids': [1], 'generated_tokens': 1, 'answer': answer,
+                'answer_sha256': hashlib.sha256(answer.encode()).hexdigest(),
+                'status': 'ok',
+            })
+    inventory = [(4, 'e1', 'corrected', row['query_id'], row['arm'])
+                 for row in answers]
+    score = score_matched([], answers, codebooks, labels,
+                          mechanical=_synthetic_mechanical(),
+                          inventory=inventory)
+    metrics = score['stages'][4]['metrics']
+    assert metrics['memory']['accuracy'] == 1.0
+    assert metrics['memory']['unknown']['false_answer_rate'] == 0.0
+    assert metrics['context_removed']['accuracy'] == 0.0
+    assert metrics['exact_source']['accuracy'] == 1.0
+    assert metrics['full_context']['accuracy'] == 1.0
+
+
+def test_first_failing_stage_selection():
+    def stages(fail):
+        return {stage: {'status': ('fail' if stage == fail else 'pass')}
+                for stage in (1, 2, 3, 4)}
+    assert select_first_failing_stage(stages(1), mechanical_valid=True) == 1
+    assert select_first_failing_stage(stages(2), mechanical_valid=True) == 2
+    assert select_first_failing_stage(stages(3), mechanical_valid=True) == 3
+    assert select_first_failing_stage(stages(4), mechanical_valid=True) == 4
+    assert select_first_failing_stage(stages(0), mechanical_valid=True) == 0
+    assert select_first_failing_stage(stages(3), mechanical_valid=False) is None
+
+
+def test_inventory_and_workload_are_model_free_and_exact():
+    episodes = generate_matched_episodes(complexities=SMALL)
+    inventory = matched_inventory(episodes)
+    assert len(inventory) == len(set(inventory))
+    workload = matched_workload(episodes, {'limits': {}})
+    assert workload['readout_rows'] + workload['answer_rows'] == len(inventory)
+    assert workload['per_stage']['4'] == workload['answer_rows']
+    stages = {item[0] for item in inventory}
+    assert stages == {1, 2, 3, 4}
+    assert any(item[3] == 'control:superseded_probe' for item in inventory)
+    assert any(item[3] == 'unknown' for item in inventory)
+
+
+@require_local_artifacts('checkpoints/minicpm5_source',
+                         'configs/minicpm5_sealed_lock.local.json',
+                         'runs/memory_reliability_v5_attempt01/candidate_extension')
+def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
+    output = tmp_path / 'prepared'
+    manifest = prepare_matched(output)
+    assert manifest['native_computation'] is False
+    assert manifest['audit']['episodes'] == 30
+    assert (output / 'episodes.json').is_file()
+    assert (output / 'labels.json').is_file()
+    assert (output / 'protocol.json').is_file()
+    labels = json.loads((output / 'labels.json').read_text())
+    assert labels['format'] == LABELS_FORMAT
+    assert labels['evaluation_only'] is True
+    receipt = admit_matched_prepared(output)
+    assert receipt['status'] == 'admitted'
+    assert receipt['checks']['seeded_episode_regeneration'] is True
+    assert receipt['checks']['verifier_labels_regenerated'] is True
+    assert receipt['checks']['label_free_writer_inputs'] is True
+    assert verify_matched_prepared(output)['status'] == 'admitted'
+
+    labels_path = output / 'labels.json'
+    original = labels_path.read_text()
+    payload = json.loads(original)
+    payload['episodes'][next(iter(payload['episodes']))]['initial']['targets'][
+        'q0']['expected'] = 'tampered'
+    labels_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n')
+    with pytest.raises(ValueError):
+        verify_matched_prepared(output)
+    labels_path.write_text(original)
+    assert verify_matched_prepared(output)['status'] == 'admitted'
+
+
+def test_default_frozen_answerer_is_wired_on_cpu(tmp_path):
+    from replica_lab.architecture.loading import encode_prompt
+    from replica_lab.memory_matched import (
+        MATCHED_TEMPLATE, _build_memory, _default_answerer_factory,
+        _ledger_for_state, _state_scope,
+    )
+    from replica_lab.runtime.exact_memory import ExactMemoryReference
+
+    episodes = generate_matched_episodes(complexities=SMALL)
+    episode = episodes[0]
+    state = episode_states(episode)[0]
+    model = tiny_adapter(fast_memory=SPEC).eval()
+    before = tuple((name, parameter._version)
+                   for name, parameter in model.named_parameters())
+    memory = _build_memory(model, Tokenizer(), episode, state)
+    ledger = _ledger_for_state(episode, state, tmp_path)
+    reference = ExactMemoryReference(ledger)
+    try:
+        scope = _state_scope(episode, state)
+        answerer = _default_answerer_factory(
+            model, Tokenizer(), {'generation': {'max_new_tokens': 2}})(ledger)
+        query = episode['queries'][0]
+        prompt = MATCHED_TEMPLATE.replace('{query}', query['text']).replace(
+            '{observation}', '')
+        ids = encode_prompt(Tokenizer(), prompt, 'cpu')
+        for fast_state in (memory.read(), None):
+            text, tokens = answerer(
+                prompt_ids=ids, prompt_mask=torch.ones_like(ids),
+                query=query['text'], scope=scope, fast_state=fast_state)
+            assert 0 < len(tokens) <= 2
+            assert text == Tokenizer().decode(tokens, skip_special_tokens=True).strip()
+    finally:
+        reference.close()
+        ledger.close()
+    after = tuple((name, parameter._version)
+                  for name, parameter in model.named_parameters())
+    assert before == after

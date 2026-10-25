@@ -1,0 +1,148 @@
+{
+  "format": "replica.memory_matched.config.v1",
+  "declared_at_utc": "2026-10-25T00:00:00+00:00",
+  "purpose": "Localise the first failing stage of the rejected learned-memory path on matched episodes, without another training arm.",
+  "hypothesis": "Storage recovers under the exact observed key, so the remaining failure is one of query-derived addressing, candidate/value discrimination (including corrections), or native-language use of the frozen fast state. Matched episodes and controls must identify the first failing stage from raw measurements.",
+  "episode_contract": {
+    "matched": "The same episode inventory, derived labels and rank/margin/false-recall definitions drive stages 1-4 and every control.",
+    "progression": ["single", "pair", "triple", "correction", "interference"],
+    "observations": "One dated initial page per world; correction/interference worlds add one dated correction page observed strictly later.",
+    "queries": "One rendered query per observed fact plus one unobserved-address query; all four declared query forms are exercised.",
+    "distractors": "Independent-world facts from another family in the same split; interference worlds add same-attribute and same-entity near misses.",
+    "splits": "train/dev/heldout are world-separated; counterfactual variants stay inside one family and split; heldout observed values are disjoint from train/dev.",
+    "labels": "Expected answers, roles and query kinds are derived by a verifier from observed records and dated corrections. They are never stored in writer, query-encoder, sense or prompt inputs.",
+    "exact_observed_key": "Stage 1 is a storage upper bound only; it is not addressing capability."
+  },
+  "seed": 20261026,
+  "families_per_split": {"train": 1, "dev": 1, "heldout": 1},
+  "complexities": ["single", "pair", "triple", "correction", "interference"],
+  "variants": 2,
+  "layer": 13,
+  "representation": "fact_binding_key_value.v1",
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "required_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "writer_extension": {
+    "path": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+    "role": "frozen rejected writer diagnostic artifact; no optimizer and no weight update may run"
+  },
+  "engine": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true
+  },
+  "generation": {
+    "max_new_tokens": 6,
+    "max_prompt_tokens": 256,
+    "greedy": true,
+    "arms": ["memory", "exact_source", "full_context", "context_removed"],
+    "memory_arm": "Frozen PersistentFastMemory read consumed by MemorySession.prepare/generate; empty source context.",
+    "context_removed_arm": "Same prompt as the memory arm with fast_state=None; measures whether memory actually changes the answer.",
+    "exact_source_arm": "Eligible current-view records selected by the query through ExactMemoryReference; observed source text only.",
+    "full_context_arm": "Every observed page line up to the state cutoff, including the dated correction; no evaluator label."
+  },
+  "information_boundary": {
+    "forbidden_inputs": ["expected", "expected_answer", "gold", "label", "audit_label", "split", "kind", "role", "complexity", "variant", "target_role"],
+    "raw_rows": "Raw readout and answer artifacts carry no expected/answer label; the scorer re-derives correctness from verifier labels.",
+    "controls": "Exact-source and full-context prompts contain only observed source lines. They never receive gold answers, evaluator roles or split metadata."
+  },
+  "thresholds": {
+    "match_cosine_floor": 0.5,
+    "match_margin_floor": 0.05,
+    "storage_top1_floor": 0.85,
+    "storage_mean_rank_max": 1.2,
+    "storage_margin_floor": 0.02,
+    "storage_false_recall_max": 0.05,
+    "storage_cross_world_false_recall_max": 0.05,
+    "addressing_cosine_floor": 0.5,
+    "addressing_margin_floor": 0.05,
+    "addressing_top1_floor": 0.6,
+    "addressing_mean_rank_max": 1.5,
+    "addressing_margin_mean_floor": 0.01,
+    "addressing_false_recall_max": 0.3,
+    "addressing_unknown_false_recall_max": 0.3,
+    "candidate_top1_floor": 0.7,
+    "candidate_mean_rank_max": 1.4,
+    "candidate_margin_floor": 0.02,
+    "candidate_false_recall_max": 0.1,
+    "correction_top1_floor": 0.6,
+    "unaffected_top1_floor": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "superseded_selection_max": 0.1,
+    "cross_world_selection_max": 0.05,
+    "zero_false_recall_max": 0.0,
+    "answer_accuracy_floor": 0.6,
+    "correction_answer_floor": 0.6,
+    "unaffected_answer_floor": 0.6,
+    "unknown_answer_false_max": 0.2,
+    "memory_minus_removed_floor": 0.2,
+    "exact_source_answer_floor": 0.6,
+    "full_context_answer_floor": 0.6
+  },
+  "limits": {
+    "max_episodes": 64,
+    "max_states": 160,
+    "max_facts_per_episode": 8,
+    "max_distractors_per_episode": 8,
+    "max_queries": 20000,
+    "max_generated_answers": 2400,
+    "max_generated_tokens": 14400,
+    "max_prompt_tokens": 256,
+    "max_new_tokens": 6,
+    "max_layers": 2,
+    "max_preserved_failures": 500,
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "native_jobs": 1
+  },
+  "guard": {
+    "entry_point": "scripts/run_memory_matched.py",
+    "guard_env": "REPLICA_CAPACITY_GUARD=1",
+    "fallback_env": "PYTORCH_ENABLE_MPS_FALLBACK=0",
+    "offline_env": ["HF_HUB_OFFLINE=1", "TRANSFORMERS_OFFLINE=1", "HF_DATASETS_OFFLINE=1"],
+    "cpu_fallback": false,
+    "exclusive": "exclusive_mps_worker",
+    "compatibility": "Uses the existing exclusive MPS worker and fallback-off 50 GiB capacity guard unchanged."
+  },
+  "budget": {
+    "optimizer_updates": 0,
+    "gradient_examples": 0,
+    "native_training_jobs": 0,
+    "native_diagnostic_jobs": 1,
+    "checkpoints_saved": 0,
+    "model_loads_per_job": 1,
+    "extension_reloads_per_job": 1,
+    "max_wall_seconds": 900
+  },
+  "stop_conditions": [
+    "capacity or host-pressure guard",
+    "nonfinite state or readout",
+    "hash/provenance/scope/source-view mismatch",
+    "row inventory, token or artifact bound",
+    "frozen parameter or save/reload parity failure",
+    "missing or stale MPS telemetry"
+  ],
+  "decision_rule": {
+    "order": [1, 2, 3, 4],
+    "first_failure": "The first stage in order whose predeclared gates fail is the reported first failing stage.",
+    "mechanical_exclusion": "Zero updates and mechanical save/reload parity are not a useful-memory stage; failing them invalidates the run instead of selecting a stage.",
+    "no_repair_without_evidence": "The report names the smallest next measurement discriminator only; it does not propose writer/reader/addressing/integration changes without measured evidence."
+  },
+  "limitations": [
+    "Stage 1 is an exact observed-key storage upper bound, not an addressing capability.",
+    "Opaque observed values are not natural language; generation accuracy on them is not a general language-memory claim.",
+    "Correction is latest-value append/supersession, not deletion, revocation or neural unlearning.",
+    "No training arm runs, so split separation does not test cross-split generalisation.",
+    "The frozen rejected v5 writer remains rejected; this package is diagnostic-only and publishes nothing.",
+    "Mechanical persistence/reload parity is separate from useful memory.",
+    "CPU tiny-adapter tests establish contracts and scoring, not native model quality."
+  ]
+}
