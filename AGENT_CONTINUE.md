@@ -1,14 +1,16 @@
 # Coding-agent continuation instruction
 
-**Current priority — frozen storage/addressing/readout diagnosis, not blind retuning.**
-R1–R4 are verified and native V0 is accepted interface-only. V1 completed
-128 projector-only updates /512 examples but independent scoring rejects:
-18/64 correct-image versus20/64 wrong and22/64 no-image; text retention22/32
-is unchanged but below its75% floor. No V2/LoRA or learned V3/neural RSI admission.
-Keep the V1 raw results and rejected candidate. Exact visual-source retrieval
-and sandbox procedure publication/rollback are separately exercised CPU controls,
-not useful learned memory. Continue the no-update storage diagnostic under the
-same one-worker, fallback=0, 50 GiB safeguards.
+**Current priority — one-write/per-depth storage discriminator, not blind retuning.**
+R1–R4 are repaired; native V0 is accepted interface-only. V1 completed128 updates
+but rejects at18/64 correct-image vs20/64 wrong /22/64 no-image. Text22/32 is
+unchanged but below75%; no V2/LoRA or learned V3/neural RSI admission.
+The frozen native storage probe completes552 evaluations /276 unique cases:
+observed-key14/56 top1, native12/56; storage/addressing/correction/readout fail,
+while12 saved states and raw reload parity authenticate. No weight update.
+One-write shared-depth vs isolated-depth control is the next discriminator.
+Keep v5/V1 rejected, exact-source and sandbox procedure results engineering-only,
+and the same exclusive fallback-off50 GiB safeguards. Final clean export:
+1,572 tests +21 subtests in183.02 s; source/model pins and all raw failures retained.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

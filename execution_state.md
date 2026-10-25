@@ -231,6 +231,43 @@ The original rejected v5 writer hash `ff339867...c11f49` stays frozen.
 declares zero updates and the unchanged exclusive fallback-off 50 GiB guard.
 No stored-observation vector recovery is useful language memory by itself.
 
+## Frozen native storage diagnosis — useful storage not accepted
+
+Native probe01 completes **552 physical evaluations /276 unique after-load
+cases**, with zero updates and no changed tensors. Independent fresh CPU
+rescoring matches every gate/summary and authenticates all 12 persisted images
+plus before/after raw parity sets. See
+[native diagnostic qualification](reports/memory_storage_probe_20261025/qualification.json).
+
+Observed-write-key top1 is **14/56**, with only **2/56** confident recoveries.
+Canonical addressing is 28/112 top1; native-reader top1 is12/56 with zero
+confident recoveries. Corrected/unaffected confident recoveries are0/12 and0/24.
+Storage, addressing, correction and native-readout gates fail. Source bindings,
+stale-source rejection, revocation and same-process save/load parity pass.
+Mechanical persistence is not useful learned memory. Copy/pointer remains
+unconstructed because the storage gate fails; v5's rejection is unchanged.
+
+Guard elapsed is80.490 s; peak driver10,763,304,960 bytes, zero swap growth and
+78% minimum host-free. All encoder/model inference is native MPS, fallback=0.
+There is no new memory-training arm. The whole source export at `1c609c3`
+passes **1,572 tests +21 subtests in183.02 s**, with one existing sparse warning.
+[Final source validation](reports/memory_storage_probe_20261025/final_source_validation.json)
+records the explicit external model inputs and exact archive hash.
+
+A separately labelled retrospective CPU geometry control leaves canonical gates
+and rejection unchanged: all56 perfect observed-value vectors can satisfy the
+declared margin, while centering actual observed-key readouts worsens top1
+from14/56 to12/56. Thus neither label distinguishability nor a simple mean
+offset explains away the failed storage result. See
+[geometry analysis](reports/memory_storage_probe_20261025/observed_code_geometry.json).
+
+**Next smallest discriminating package:** preregister one fact /one write under
+the exact observed key, with full shared-depth reduction versus isolated
+per-depth proposals. This distinguishes writer/gate failure from cross-depth or
+multi-fact interference before any further writer, reader, pointer or LoRA tuning.
+V1 is rejected, V2/learned V3/neural RSI remain unadmitted. Spark precision/backend
+qualification remains separate and unrun; no baseline change or model promotion.
+
 
 
 ## Repository maintenance — 25 October 2026

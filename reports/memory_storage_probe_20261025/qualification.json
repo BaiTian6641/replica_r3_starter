@@ -1,0 +1,77 @@
+{
+  "format": "replica.memory_storage_native_qualification.v1",
+  "disposition": "useful_storage_not_accepted",
+  "native_code_commit": "1c609c3ba40e37b99520d167e800356f2bd42b05",
+  "protocol_sha256": "f4dd63df2b7abe06e2f91777c1420787d8f9aac7f64543f483b73e007bc5c83c",
+  "data_sha256": "579917456164252b203315005f40421f47e207b55f747a4ea373f99828dbc3e1",
+  "rejected_writer_weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+  "v5_disposition": "rejected_unchanged",
+  "optimizer_updates": 0,
+  "changed_tensors": [],
+  "worlds": 4,
+  "primary_facts_per_world": 3,
+  "cross_world_distractors_per_world": 2,
+  "evaluated_rows": 552,
+  "unique_after_reload_cases": 276,
+  "state_images_authenticated": 12,
+  "counts": {
+    "observed_write_key_top1": 14,
+    "observed_write_key_targets": 56,
+    "confident_storage_recoveries": 2,
+    "native_reader_top1": 12,
+    "native_reader_targets": 56,
+    "corrected_confident_recoveries": 0,
+    "corrected_targets": 12,
+    "unaffected_confident_recoveries": 0,
+    "unaffected_targets": 24
+  },
+  "summary": {
+    "canonical_top1": 0.25,
+    "correction_recovered_rate": 0.0,
+    "native_top1": 0.21428571428571427,
+    "revocation_false_accept_rate": 0.0,
+    "storage_recovered_rate": 0.03571428571428571,
+    "storage_top1": 0.25,
+    "unaffected_retention_rate": 0.0,
+    "unknown_false_accept_rate": 0.16666666666666666,
+    "wrong_key_target_leak_rate": 0.0
+  },
+  "failed_gates": [
+    "storage_recovery",
+    "addressing",
+    "correction",
+    "native_readout"
+  ],
+  "mechanical": {
+    "source_binding": "pass",
+    "stale_source_rejected": true,
+    "revocation": "pass",
+    "same_process_load_state_parity": true,
+    "same_process_load_raw_readout_parity": true,
+    "raw_parity_sets": 12
+  },
+  "independent_cpu_rescore": "matched canonical decision/gates/summary with full raw hashes,12 authenticated persistence manifests and raw before/after parity; no native rerun",
+  "resource": {
+    "guard_elapsed_seconds": 80.4901492500212,
+    "peak_sampled_driver_bytes": 10763304960,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_bytes": 0,
+    "minimum_host_free_percent": 78,
+    "cpu_fallback": false
+  },
+  "pointer_copy_comparator": "not_constructed_storage_recovery_gate_failed",
+  "posthoc_geometry": {
+    "scope": "retrospective CPU discriminator, not new acceptance gates",
+    "ideal_observed_value_oracle_confident": 56,
+    "oracle_cases": 56,
+    "raw_storage_top1": 14,
+    "centered_storage_top1": 12,
+    "storage_cases": 56,
+    "centering_repair": "not_supported_by_this_control",
+    "native_rejection_unchanged": true
+  },
+  "next_smallest_action": "Preregister a one-fact one-write probe with full shared-depth reduction versus isolated per-depth proposals; no reader/pointer training until stored observed values recover under the diagnostic key.",
+  "neural_memory_promoted": false,
+  "perception_promoted": false,
+  "integrated_rsi": false
+}

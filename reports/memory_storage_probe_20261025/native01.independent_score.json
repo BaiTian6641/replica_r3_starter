@@ -1,0 +1,435 @@
+{
+  "format": "replica.memory_storage_independent_score.v1",
+  "native_report_sha256": "af14604bb7eea180d1f9a7591d8f54077977bcc4e6d559eb7822b08963afac18",
+  "data_sha256": "579917456164252b203315005f40421f47e207b55f747a4ea373f99828dbc3e1",
+  "protocol_sha256": "f4dd63df2b7abe06e2f91777c1420787d8f9aac7f64543f483b73e007bc5c83c",
+  "independent_rescore": "matched",
+  "evaluated_rows": 552,
+  "unique_after_reload_cases": 276,
+  "restart_state_images_authenticated": 12,
+  "restart_raw_parity_sets": 12,
+  "optimizer_updates": 0,
+  "parameters_updated": [],
+  "thresholds": {
+    "match_cosine_floor": 0.5,
+    "match_margin_floor": 0.05,
+    "storage_top1_floor": 0.6,
+    "wrong_key_target_leak_max": 0.1,
+    "zero_false_accept_max": 0.0,
+    "unknown_false_accept_max": 0.2,
+    "addressing_top1_floor": 0.4,
+    "cross_world_false_accept_max": 0.2,
+    "native_reader_top1_floor": 0.4,
+    "correction_recovery_floor": 0.6,
+    "superseded_selection_max": 0.1,
+    "unaffected_retention_floor": 0.6,
+    "revocation_false_accept_max": 0.2
+  },
+  "gates": {
+    "frozen_weights": {
+      "status": "pass",
+      "metrics": {
+        "optimizer_updates": 0,
+        "parameter_versions_equal": true,
+        "parameters_updated": [],
+        "requires_grad_all_false": true,
+        "requires_grad_before_all_false": true
+      },
+      "thresholds": {
+        "optimizer_updates": 0,
+        "parameters_updated": []
+      }
+    },
+    "storage_recovery": {
+      "status": "fail",
+      "metrics": {
+        "storage": {
+          "n": 56,
+          "ok": 56,
+          "unavailable": 0,
+          "accepted": 10,
+          "accept_rate": 0.17857142857142858,
+          "target_n": 56,
+          "top1": 0.25,
+          "recovered_rate": 0.03571428571428571,
+          "mean_target_cosine": 0.8442661560007504,
+          "min_target_cosine": 0.6269890069961548,
+          "max_target_cosine": 0.9233072400093079
+        },
+        "zero": {
+          "n": 12,
+          "ok": 12,
+          "unavailable": 0,
+          "accepted": 0,
+          "accept_rate": 0.0,
+          "target_n": 0,
+          "top1": null,
+          "recovered_rate": null,
+          "mean_target_cosine": null,
+          "min_target_cosine": null,
+          "max_target_cosine": null
+        },
+        "wrong_key": {
+          "n": 12,
+          "owner_rate": 0.0,
+          "target_leak_rate": 0.0
+        }
+      },
+      "thresholds": {
+        "storage_top1_floor": 0.6,
+        "zero_false_accept_max": 0.0,
+        "wrong_key_target_leak_max": 0.1
+      }
+    },
+    "addressing": {
+      "status": "fail",
+      "metrics": {
+        "canonical": {
+          "n": 112,
+          "ok": 112,
+          "unavailable": 0,
+          "accepted": 20,
+          "accept_rate": 0.17857142857142858,
+          "target_n": 112,
+          "top1": 0.25,
+          "recovered_rate": 0.03571428571428571,
+          "mean_target_cosine": 0.8450484259852341,
+          "min_target_cosine": 0.6266157627105713,
+          "max_target_cosine": 0.9239616990089417
+        },
+        "zero": {
+          "n": 12,
+          "ok": 12,
+          "unavailable": 0,
+          "accepted": 0,
+          "accept_rate": 0.0,
+          "target_n": 0,
+          "top1": null,
+          "recovered_rate": null,
+          "mean_target_cosine": null,
+          "min_target_cosine": null,
+          "max_target_cosine": null
+        },
+        "unknown": {
+          "n": 12,
+          "ok": 12,
+          "unavailable": 0,
+          "accepted": 2,
+          "accept_rate": 0.16666666666666666,
+          "target_n": 0,
+          "top1": null,
+          "recovered_rate": null,
+          "mean_target_cosine": null,
+          "min_target_cosine": null,
+          "max_target_cosine": null
+        },
+        "cross_world": {
+          "n": 12,
+          "ok": 12,
+          "unavailable": 0,
+          "accepted": 2,
+          "accept_rate": 0.16666666666666666,
+          "target_n": 0,
+          "top1": null,
+          "recovered_rate": null,
+          "mean_target_cosine": null,
+          "min_target_cosine": null,
+          "max_target_cosine": null
+        }
+      },
+      "thresholds": {
+        "addressing_top1_floor": 0.4,
+        "unknown_false_accept_max": 0.2,
+        "cross_world_false_accept_max": 0.2
+      }
+    },
+    "native_readout": {
+      "status": "fail",
+      "metrics": {
+        "native": {
+          "n": 56,
+          "ok": 56,
+          "unavailable": 0,
+          "accepted": 0,
+          "accept_rate": 0.0,
+          "target_n": 56,
+          "top1": 0.21428571428571427,
+          "recovered_rate": 0.0,
+          "mean_target_cosine": 0.3114148037774222,
+          "min_target_cosine": 0.19921915233135223,
+          "max_target_cosine": 0.4009794294834137
+        },
+        "prerequisite": null
+      },
+      "thresholds": {
+        "native_reader_top1_floor": 0.4
+      }
+    },
+    "correction": {
+      "status": "fail",
+      "metrics": {
+        "correction": {
+          "n": 12,
+          "ok": 12,
+          "unavailable": 0,
+          "accepted": 0,
+          "accept_rate": 0.0,
+          "target_n": 12,
+          "top1": 1.0,
+          "recovered_rate": 0.0,
+          "mean_target_cosine": 0.8887197226285934,
+          "min_target_cosine": 0.8729908466339111,
+          "max_target_cosine": 0.9183488488197327
+        },
+        "unaffected": {
+          "n": 24,
+          "ok": 24,
+          "unavailable": 0,
+          "accepted": 0,
+          "accept_rate": 0.0,
+          "target_n": 24,
+          "top1": 0.0,
+          "recovered_rate": 0.0,
+          "mean_target_cosine": 0.8014911487698555,
+          "min_target_cosine": 0.6311039924621582,
+          "max_target_cosine": 0.8752188682556152
+        },
+        "superseded": {
+          "n": 32,
+          "rate": 0.0
+        },
+        "superseded_entry_absent": true,
+        "superseded_negative_present": true
+      },
+      "thresholds": {
+        "correction_recovery_floor": 0.6,
+        "unaffected_retention_floor": 0.6,
+        "superseded_selection_max": 0.1
+      }
+    },
+    "revocation": {
+      "status": "pass",
+      "metrics": {
+        "revoked": {
+          "n": 4,
+          "false_accept_rate": 0.0
+        },
+        "revoked_entry_absent": true
+      },
+      "thresholds": {
+        "revocation_false_accept_max": 0.2
+      }
+    },
+    "source_binding": {
+      "status": "pass",
+      "metrics": {
+        "all_bound": true,
+        "require_source_binding": true,
+        "stale_rejected": true
+      },
+      "thresholds": {
+        "require_source_binding": true,
+        "stale_rejected": true
+      }
+    },
+    "restart": {
+      "status": "pass",
+      "metrics": {
+        "all_readout_equal": true,
+        "all_state_equal": true,
+        "details": [
+          {
+            "after_inventory_sha256": "f260dcaf84d811da239c11c3087f17157c867eca9c00126faff61636f0525ff7",
+            "after_rows": 24,
+            "before_inventory_sha256": "f260dcaf84d811da239c11c3087f17157c867eca9c00126faff61636f0525ff7",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "initial",
+            "world_id": "world-dc450d042d"
+          },
+          {
+            "after_inventory_sha256": "ed3dc492cc11de0844fd2c8e6d8ad7978cc42650b11b0398bfc4ebafd3abbd19",
+            "after_rows": 24,
+            "before_inventory_sha256": "ed3dc492cc11de0844fd2c8e6d8ad7978cc42650b11b0398bfc4ebafd3abbd19",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "corrected",
+            "world_id": "world-dc450d042d"
+          },
+          {
+            "after_inventory_sha256": "ae022915101e3551656f9006cf3ca95c649d1f09d04334cd048cbf443402618c",
+            "after_rows": 21,
+            "before_inventory_sha256": "ae022915101e3551656f9006cf3ca95c649d1f09d04334cd048cbf443402618c",
+            "before_rows": 21,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 21,
+            "stage": "current_view",
+            "world_id": "world-dc450d042d"
+          },
+          {
+            "after_inventory_sha256": "b919cbc465f37a3243348f1deafb7d4b92c88365fcb0eb31460dee0b3bfe68c0",
+            "after_rows": 24,
+            "before_inventory_sha256": "b919cbc465f37a3243348f1deafb7d4b92c88365fcb0eb31460dee0b3bfe68c0",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "initial",
+            "world_id": "world-dd5bc1ba57"
+          },
+          {
+            "after_inventory_sha256": "d753af74dc9923f7ded4c83c8830dc65d24a613c8b79d546529d5af63807121d",
+            "after_rows": 24,
+            "before_inventory_sha256": "d753af74dc9923f7ded4c83c8830dc65d24a613c8b79d546529d5af63807121d",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "corrected",
+            "world_id": "world-dd5bc1ba57"
+          },
+          {
+            "after_inventory_sha256": "0123def0b1eb3b789ef3501bf022ca7f87e77af1194d3b522616e218a9151ec0",
+            "after_rows": 21,
+            "before_inventory_sha256": "0123def0b1eb3b789ef3501bf022ca7f87e77af1194d3b522616e218a9151ec0",
+            "before_rows": 21,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 21,
+            "stage": "current_view",
+            "world_id": "world-dd5bc1ba57"
+          },
+          {
+            "after_inventory_sha256": "caf57c15529f63229a1fcaaa50f1d6944d890dd14c4f5297add97c692441f9d5",
+            "after_rows": 24,
+            "before_inventory_sha256": "caf57c15529f63229a1fcaaa50f1d6944d890dd14c4f5297add97c692441f9d5",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "initial",
+            "world_id": "world-5d7bf25478"
+          },
+          {
+            "after_inventory_sha256": "5de52b42fcfe2fd9739a9a57116d18cafa1f5633788d1478634f8fafcf0501ef",
+            "after_rows": 24,
+            "before_inventory_sha256": "5de52b42fcfe2fd9739a9a57116d18cafa1f5633788d1478634f8fafcf0501ef",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "corrected",
+            "world_id": "world-5d7bf25478"
+          },
+          {
+            "after_inventory_sha256": "4d2de027054edfdb2e80cd383badf23a6a155ced5fc4b6164fd73361f577170d",
+            "after_rows": 21,
+            "before_inventory_sha256": "4d2de027054edfdb2e80cd383badf23a6a155ced5fc4b6164fd73361f577170d",
+            "before_rows": 21,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 21,
+            "stage": "current_view",
+            "world_id": "world-5d7bf25478"
+          },
+          {
+            "after_inventory_sha256": "9aca07259e7bb7065329f7ac1486e6276a60c5f0c7969a8e2e891e89903b516f",
+            "after_rows": 24,
+            "before_inventory_sha256": "9aca07259e7bb7065329f7ac1486e6276a60c5f0c7969a8e2e891e89903b516f",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "initial",
+            "world_id": "world-478fdab1b8"
+          },
+          {
+            "after_inventory_sha256": "34ac01cf9f72d8b90f68ad9d7122bdd490dbbaf9e3ebb578b1454ca9b02e1d92",
+            "after_rows": 24,
+            "before_inventory_sha256": "34ac01cf9f72d8b90f68ad9d7122bdd490dbbaf9e3ebb578b1454ca9b02e1d92",
+            "before_rows": 24,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 24,
+            "stage": "corrected",
+            "world_id": "world-478fdab1b8"
+          },
+          {
+            "after_inventory_sha256": "002f33dfcfe0492edf169b01d3fbc4b0b618c9bc3fb195442928d9bd6679bf2c",
+            "after_rows": 21,
+            "before_inventory_sha256": "002f33dfcfe0492edf169b01d3fbc4b0b618c9bc3fb195442928d9bd6679bf2c",
+            "before_rows": 21,
+            "equal": true,
+            "mismatch_count": 0,
+            "paired_rows": 21,
+            "stage": "current_view",
+            "world_id": "world-478fdab1b8"
+          }
+        ],
+        "evaluated_pairs": 276
+      },
+      "thresholds": {
+        "all_state_equal": true,
+        "all_readout_equal": true
+      }
+    }
+  },
+  "decision": "defer_useful_memory_storage_recovery_failed",
+  "failed_gates": [
+    "storage_recovery",
+    "addressing",
+    "correction",
+    "native_readout"
+  ],
+  "promote_v5_memory": false,
+  "v5_status": "rejected_by_prior_evidence",
+  "neural_promotion": false,
+  "deployment": "diagnostic_only_not_published",
+  "pointer_copy_comparator": "not_constructed_storage_recovery_gate_blocked",
+  "targeted_training_justified": false,
+  "smallest_next_repair_discriminator": {
+    "gate": "storage_recovery",
+    "observed": {
+      "n": 56,
+      "ok": 56,
+      "unavailable": 0,
+      "accepted": 10,
+      "accept_rate": 0.17857142857142858,
+      "target_n": 56,
+      "top1": 0.25,
+      "recovered_rate": 0.03571428571428571,
+      "mean_target_cosine": 0.8442661560007504,
+      "min_target_cosine": 0.6269890069961548,
+      "max_target_cosine": 0.9233072400093079
+    },
+    "threshold": 0.6,
+    "action": "Measure a one-fact, one-write state read with its exact observed key. If that fails, repair the writer erase/gate path; if it passes but multi-fact fails, measure decay/overwrite interference with two to three facts. Do not train a reader first."
+  },
+  "unrun_scope": [
+    "full_blind_training_arm",
+    "pointer_copy_comparator",
+    "source_retrieval_answer_arm",
+    "memory_only_reader_training",
+    "native_generation_quality",
+    "v5_memory_promotion",
+    "neural_weight_update"
+  ],
+  "summary": {
+    "storage_top1": 0.25,
+    "storage_recovered_rate": 0.03571428571428571,
+    "canonical_top1": 0.25,
+    "native_top1": 0.21428571428571427,
+    "unknown_false_accept_rate": 0.16666666666666666,
+    "wrong_key_target_leak_rate": 0.0,
+    "correction_recovered_rate": 0.0,
+    "unaffected_retention_rate": 0.0,
+    "revocation_false_accept_rate": 0.0
+  },
+  "audit_source": "\nfrom pathlib import Path\nimport json, hashlib\nfrom replica_lab.memory_diagnosis import score_diagnostic, verify_prepared, _restart_readout_parity\nfrom replica_lab.runtime.persistent_fast_memory import read_persistent_manifest\nrun=Path('runs/memory_storage_probe_20261025/native01')\nreport=json.loads((run/'run_report.json').read_text())\nprotocol=json.loads(Path('data/memory_storage_probe_20261025/prepared01/protocol.json').read_text())\nverify_prepared(Path('data/memory_storage_probe_20261025/prepared01'))\nrows=[json.loads(line) for line in (run/'readouts.jsonl').read_text().splitlines()]\nbooks=json.loads((run/'codebooks.json').read_text())['codebooks']\nsha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()\nassert sha(run/'readouts.jsonl')==report['readouts_sha256']\nassert sha(run/'codebooks.json')==report['codebooks_sha256']\nassert len(rows)==protocol['planned_workload']['total_planned_rows']==552\nafter=[row for row in rows if row['phase']=='after_reload']\nassert len(after)==276\nparity=[]\nfor world,stage in sorted({(row['world_id'],row['stage']) for row in rows}):\n    subset=[row for row in rows if(row['world_id'],row['stage'])==(world,stage)]\n    before=[row for row in subset if row['phase']=='before_reload']\n    later=[row for row in subset if row['phase']=='after_reload']\n    parity.append(_restart_readout_parity(before,later))\nassert all(item['equal'] for item in parity)\nmechanical={name:report[name] for name in ('frozen','correction','revocation','source_binding','restart')}\nscore=score_diagnostic(after,books,thresholds=protocol['thresholds'],mechanical=mechanical)\nassert score['summary']==report['summary'] and score['gates']==report['gates'] and score['decision']==report['decision']\nmanifests=[path.parent for path in (run/'images').rglob('persistent_manifest.json')]\nfor path in manifests:read_persistent_manifest(path)\nprint(json.dumps({'format':'replica.memory_storage_independent_score.v1','native_report_sha256':sha(run/'run_report.json'),'data_sha256':sha('data/memory_storage_probe_20261025/prepared01/data.json'),'protocol_sha256':sha('data/memory_storage_probe_20261025/prepared01/protocol.json'),'independent_rescore':'matched','evaluated_rows':len(rows),'unique_after_reload_cases':len(after),'restart_state_images_authenticated':len(manifests),'restart_raw_parity_sets':len(parity),'optimizer_updates':report['optimizer_updates'],'parameters_updated':report['parameters_updated'],**score}))\n",
+  "audit_source_sha256": "ad06953a5698b76ad9903002628eb39031966b5213f228f55230baa2f4049567"
+}

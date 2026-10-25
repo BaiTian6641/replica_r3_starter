@@ -1,0 +1,7 @@
+{
+  "format": "replica.memory_storage_rescore_failure.v1",
+  "scope": "CPU throwaway audit, no native rerun",
+  "returncode": 1,
+  "stderr": "W1025 03:21:35.154000 16236 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.\nTraceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/memory_diagnosis.py\", line 1188, in score_diagnostic\n    computed = _score_rows(rows, codebooks, thresholds)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/memory_diagnosis.py\", line 1071, in _score_rows\n    raise ValueError('Readout references an unknown codebook')\nValueError: Readout references an unknown codebook\n",
+  "cause": "Audit caller passed the public codebook document envelope instead of its codebooks mapping. Native data/protocol/gates unchanged."
+}

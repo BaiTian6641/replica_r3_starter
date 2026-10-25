@@ -1,0 +1,98 @@
+{
+  "format": "replica.implementation_handoff.v1",
+  "baseline": {
+    "repo": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "unchanged": true,
+    "native_driver_guard_bytes": 53687091200,
+    "one_exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_free_percent": 15,
+    "sustained_samples": 3
+  },
+  "repairs": {
+    "R1": "consumer-independent canonical scope/query/policy/limit and source/span authentication",
+    "R2": "exact seeded ordered unique schedule and real backward/gradient accounting",
+    "R3": "versioned raw/fact representations, atomic correct encoder rebuild, source rebind, declared legacy migration",
+    "code_commit": "757ace1"
+  },
+  "V0": {
+    "disposition": "accepted_interface_only",
+    "source_code_commit": "a2bc82ef0b6efec2ae7915c310df3c94d8305f59",
+    "scorer_repair_commit": "81c96f8",
+    "protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+    "score_sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443",
+    "optimizer_updates": 0,
+    "reference": "reports/vision_v0_20261025/qualification.json"
+  },
+  "V1": {
+    "disposition": "rejected_quality",
+    "updates": 128,
+    "examples": 512,
+    "changed_tensors": 6,
+    "new_lora_tensors": 0,
+    "code_commit": "9c11f2c9487ebd1afdb7dbbb34e1d6e95cceff10",
+    "protocol_sha256": "980454c29f31f1196af71889aecf4fa6a5e99da996d4351d7798c73d34ca36c2",
+    "reference": "reports/vision_v1_20261025/qualification.json"
+  },
+  "memory_diagnosis": {
+    "disposition": "failed_storage_recovery",
+    "updates": 0,
+    "evaluated_rows": 552,
+    "unique_cases": 276,
+    "protocol_sha256": "f4dd63df2b7abe06e2f91777c1420787d8f9aac7f64543f483b73e007bc5c83c",
+    "reference": "reports/memory_storage_probe_20261025/qualification.json"
+  },
+  "exact_visual_sources": "accepted evidence retrieval engineering; factual/learned memory-only recall not evaluated; metadata-only corrections",
+  "bounded_cycle": "accepted isolated procedure plumbing with real rejection/rollback/replay; no neural updates or policy learning; no integrated/accelerating RSI",
+  "gated_unrun": [
+    "V2 language adapters/LoRA",
+    "learned visual V3",
+    "neural RSI",
+    "longitudinal RSI",
+    "Spark native inference/backward/update/reload"
+  ],
+  "dataset": {
+    "catalogued_external_sources": 34,
+    "metadata_pinned_external_sources": 22,
+    "external_assets_acquired_bytes": 0,
+    "owned_verified_png_assets": 1220,
+    "owned_png_bytes": 400867,
+    "normalized_visual_model_rows": 2688,
+    "eligible_v1_rows": 2048,
+    "named_v1_admitted_training_rows": 512,
+    "actual_trained_rows": 512,
+    "train_worlds": 64,
+    "evaluation_cases": 64,
+    "eval_worlds": 32,
+    "owned_renderer_source_families": 1,
+    "protected_retention_rows": 32,
+    "tranche_logical_bytes": 4475237,
+    "disk_ceiling_bytes": 26843545600
+  },
+  "spark": {
+    "fp8_repo": "XHToken/Spark-X2.6-4B-FP8",
+    "fp8_revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+    "independent_bf16_repo": "XHToken/Spark-X2.6-4B",
+    "bf16_revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+    "captured_header_shards": 6,
+    "metadata_header_bytes_fetched": 29708033,
+    "weight_payloads_acquired": 0,
+    "remote_code_executed": false,
+    "native_fp8_training": "not qualified; dedicated spark2_5 adapter and isolated backend/operator gates remain blockers",
+    "dequantized_derivative_created": false,
+    "precision_note": "Official FP8 compressed-tensors float quantization:static channel weights,dynamic per-token activations. BF16 label/MLX inference/Muon int8 momentum do not prove FP8 MPS training."
+  },
+  "verification": {
+    "clean_source_commit": "1c609c3ba40e37b99520d167e800356f2bd42b05",
+    "full_suite_passed": 1572,
+    "subtests": 21,
+    "seconds": 183.02,
+    "warnings": 1,
+    "clean_export_source_archive_sha256": "e5ce3f13c7a15e73e4a7be6a2a32c4107adca8e64bcc6b6c8ff65d8274ab6010"
+  },
+  "preservation": "Protected runtime_pilot.py never modified/imported/deleted/staged; sealed sources and baseline .venv untouched; unrelated Dynamic Engram/Spark consolidation/vocabulary research changes left outside intended commits. No push/deploy/chats/scheduling/OS allocator changes.",
+  "next_smallest_discriminator": "One fact/one write:full shared-depth reduction versus isolated per-depth proposals, exact observed key; do not train reader/pointer first or retune several mechanisms.",
+  "source_limit": "Historical native/scorer replays must use their pinned committed code snapshot; later source edits intentionally invalidate live code-pin checks. Model/runtime weights remain ignored explicit hash-pinned local inputs."
+}
