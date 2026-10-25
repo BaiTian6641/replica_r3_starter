@@ -876,8 +876,14 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
     schedule = training_schedule(rows, train)
     groups = projector_optimizer_groups(
         adapter.vision_projector, train, prefix="vision_projector.")
-    optimizer = ReplicaOptimizer(groups, "muon8bit")
-    route = optimizer_route(groups)
+    optimizer_name = train.get("optimizer", "muon8bit")
+    require(optimizer_name in ("muon8bit", "sgd"), "Unsupported projector optimizer")
+    if optimizer_name == "sgd":
+        optimizer = torch.optim.SGD(
+            [parameter for group in groups for parameter in group["params"]],
+            lr=float(train["lr_new"]))
+    else:
+        optimizer = ReplicaOptimizer(groups, "muon8bit")
     trainable = freeze_for_v1(adapter)
     require({item["name"] for item in route} == set(trainable),
             "Optimizer route and trainable receipt differ")
@@ -1008,7 +1014,12 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
         for parameter in [dict(adapter.named_parameters())[name]])
     require(base_unchanged, "V1 training changed the sealed native identity")
     require(nonprojector_unchanged, "V1 training changed a non-projector tensor")
-    audit = optimizer.audit()
+    audit = (optimizer.audit() if optimizer_name == "muon8bit" else {
+        "optimizer": "sgd", "lr": float(train["lr_new"]),
+        "parameter_dtype": "float32",
+        "groups": [{"group_name": "projector_sgd",
+                    "param_names": [item["name"] for group in groups
+                                    for item in group["param_names"]]}]})
     adapter.eval()
     return {
         "trace": trace,

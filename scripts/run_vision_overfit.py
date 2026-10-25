@@ -64,7 +64,7 @@ def prepare(args):
             "updates": args.updates, "grad_accum": args.grad_accum,
             "lr_new": args.lr, "momentum": 0.95, "ns_steps": 5,
             "block_size": 2048, "weight_decay": 0.01, "max_grad_norm": 1.0,
-            "max_seconds": args.max_seconds, "optimizer": "muon8bit",
+            "max_seconds": args.max_seconds, "optimizer": args.optimizer,
             "repeats": args.repeats, "seed": args.seed,
             "repeat_policy": "declared_epochs",
             "schedule_version": "seeded_epoch_shuffle.v1",
@@ -213,6 +213,11 @@ def run(args):
             if args.stage == "overfit_reload" and args.prior_report is not None:
                 prior = json.loads(args.prior_report.read_text())
                 prior_rows = prior.get("overfit_generations", prior.get("generations", []))
+                prior_path = args.prior_report.parent / "overfit_generations.jsonl"
+                if prior_path.is_file():
+                    prior_rows = json.loads(prior_path.read_text())
+                else:
+                    prior_rows = prior.get("overfit_generations", prior.get("generations", []))
                 require(prior_rows == generations,
                         "Fresh-process reload changed generated answers")
                 report["reload_bitwise_equal"] = True
@@ -241,6 +246,7 @@ def main(argv=None):
                                 default=ROOT / "configs/minicpm5_vision_v1_projector_alignment_v2.json")
     prepare_parser.add_argument("--seed", type=int, default=17)
     prepare_parser.add_argument("--train-worlds", type=int, default=8)
+    prepare_parser.add_argument("--optimizer", choices=("muon8bit", "sgd"), default="muon8bit")
     prepare_parser.add_argument("--dev-worlds", type=int, default=8)
     prepare_parser.add_argument("--per-world-cases", type=int, default=1)
     prepare_parser.add_argument("--updates", type=int, default=16)

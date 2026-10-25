@@ -45,7 +45,8 @@ def validate_overfit_protocol(protocol):
             'Overfit repeats stay bounded at four seeded epochs')
     require(train['seed'] >= 0 and type(train['seed']) is int,
             'Overfit seed must be a nonnegative integer')
-    require(train['optimizer'] == 'muon8bit', 'Overfit keeps the declared optimizer route')
+    require(train['optimizer'] in ('muon8bit', 'sgd'),
+            'Overfit optimizer must be the declared Muon or SGD arm')
     require(protocol['eval']['max_new_tokens'] >= 2,
             'Overfit evaluation needs at least two generated tokens')
     require('max_export_bytes' in protocol['limits']
