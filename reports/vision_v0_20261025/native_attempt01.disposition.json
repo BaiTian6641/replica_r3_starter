@@ -1,0 +1,44 @@
+{
+  "format": "replica.vision_native_disposition.v1",
+  "status": "rejected_interface_failure",
+  "protocol_sha256": "781f5eef48a239bc9aaed69c3b3515894fb326ac715f460379fe85a241ca8ac7",
+  "run": "runs/minicpm5_vision_v0_20261025/attempt01",
+  "guard": "reports/vision_v0_20261025/native_attempt01.guard.json",
+  "failure": "Production VisionFeatureService constructor omitted _preprocessor; observe failed before encoder inference.",
+  "gradient_or_optimizer_updates": 0,
+  "visual_generation_rows": 0,
+  "accepted_native_v0": false,
+  "text_only_parity": {
+    "shape": [
+      1,
+      22,
+      130560
+    ],
+    "exact": true,
+    "max_absolute_difference": 0.0
+  },
+  "guard_summary": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1250489794,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 5,
+    "driver_samples": 24,
+    "peak_driver_bytes": 11815763968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76.0,
+    "stop_reason": null
+  },
+  "guard_elapsed_seconds": 8.8220474999398,
+  "targeted_fix": "Initialize the optional tiny-fixture preprocessing hook to None in the production constructor, preserving the official processor path.",
+  "regression_evidence": "Native attempt01 is the failing-before consumer execution. Twenty-four feature/runner CPU checks pass in 7.95 s after the constructor change; native passing-after is still pending.",
+  "source_payloads_changed": false,
+  "resource_limits_changed": false,
+  "v5_disposition": "rejected_unchanged"
+}

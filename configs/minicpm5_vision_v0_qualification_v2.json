@@ -1,0 +1,231 @@
+{
+  "format": "replica.vision_qualification_protocol.v1",
+  "stage": "v0",
+  "root": ".",
+  "source_parent_commit": "82f11636645f58a66f8649bae62f1f24746e8b94",
+  "purpose": "Isolated visual interface qualification; backward only, no optimizer step, no perception-quality or learned-memory claim.",
+  "model": {
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792"
+  },
+  "vision": {
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "encoder_width": 768,
+    "image_size": 224,
+    "patch_size": 16,
+    "max_visual_tokens": 196,
+    "projector_hidden": 2048,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "compute_dtype": "float32"
+  },
+  "vision_digest": "2eab38384f18de90e8f8d463a0080bd24a2b49eb58ac1d1df3cfd58dd63b2b0e",
+  "vision_source": {
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1",
+    "scope": {
+      "subject_id": "owned-v0-interface",
+      "branch_id": "isolated-v0",
+      "purpose": "isolated_visual_interface",
+      "as_of": 0,
+      "mode": "parallel_replica",
+      "snapshot_at": null
+    }
+  },
+  "data": {
+    "root": "data/vision_preparation_v1",
+    "stage": "v0",
+    "manifest": {
+      "path": "v0/vision_manifest.json",
+      "sha256": "7196a7ed46a570cf42891090db3f07acb8138ac8e24a68e3d4868121c01216ef"
+    },
+    "model_rows": {
+      "path": "v0/model_rows.jsonl",
+      "sha256": "daa4c48094d1695d85fe00f36c63a3f803202866ff115a3f1548944fbe728f2f"
+    },
+    "verifier_cases": {
+      "path": "v0/verifier_cases.jsonl",
+      "sha256": "ed7f8d6d7ebd2c9ba4c371a7124ec2084d741b1a1a8c45816d51cf163f3f2b3e"
+    },
+    "verifier_scenes": {
+      "path": "v0/verifier_scenes.jsonl",
+      "sha256": "c3db8b2222bf456198e27d0bf7f9979c79140a6abf9bf580aa0ede55ae2fb3ee"
+    }
+  },
+  "limits": {
+    "max_prompt_tokens": 256,
+    "max_new_tokens": 8,
+    "max_rows": 640,
+    "max_seconds": 900,
+    "max_updates": 1,
+    "max_repeats": 1,
+    "max_eval_cases": 3,
+    "max_export_bytes": 134217728,
+    "min_free_disk_bytes": 5368709120,
+    "max_cache_bytes": 8388608
+  },
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_free_admission": true,
+    "wall_time_semantics": "End-of-run acceptance ceiling plus fixed generation/update bounds; sampled memory watchdog remains authoritative."
+  },
+  "implementation_sha256": {
+    "src/replica_lab/__init__.py": "fea2eb9e656cda45f4aeef8e0756ecc35a8ddcbe256f00092c5a95bffced68c4",
+    "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/backbone.py": "81b288f0ca5f5b4e2989b6d7f9c874e49c6e19f9c76e6a3b79774b35ec3cfaf6",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/architecture/vision.py": "cec09a0345c2aee55714ac7dd22dfa1d085381938771102f1b7ace4f7f8045e8",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1",
+    "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/curriculum.py": "616b4b3fd95b188c030d3750150b246d68d7a59db26cd125b4cb2d16c41d0c88",
+    "src/replica_lab/episodes.py": "da2140ac838273ccd02309b691d359a1eadb19183bb4daa6805ddac428838e46",
+    "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+    "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92",
+    "src/replica_lab/host_action_contract.py": "8934b598993bbe623a24a7a1ea1142958aa79fd70fb0b8a4eb3e2014e82b560a",
+    "src/replica_lab/infrastructure_scoring.py": "0ad38111bbc3c4a247015f889f2b829047dcc2dda2f238116e8d372befe3ec1a",
+    "src/replica_lab/infrastructure_solver.py": "958cf686e26dbf49af0f7eca765167191417ad4fc246b3dbab612325fb5455d6",
+    "src/replica_lab/learning.py": "b6412e1afe46ca8096a640c85ea93105c8d3c0439b90a0101d34e83a453f4942",
+    "src/replica_lab/memory.py": "f722bac5fb7863af8c5176f6daca55296ae1fcbee5dae1317b79488fc4618724",
+    "src/replica_lab/memory_reliability.py": "b43809dc96d9ac4b11f57f1cc3f722730a04f36c2062aebbc106a69047e9ce1a",
+    "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+    "src/replica_lab/memory_system/answer.py": "4b722c2738a20fe6da53730c2ace3a0a37d43ef8fe6fbbec74206539b377a212",
+    "src/replica_lab/memory_system/context.py": "ea1b8a954aae9b7e59845fd5f1db4ef4ef81ac66a32d45723849860c67175ef2",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/reliability_scoring.py": "2be2b34dbd0b13b2cb2bbd4c1706d2d8b7aca6f93060fce7d33be6ba138f4905",
+    "src/replica_lab/replica/__init__.py": "5da4892a45e5863f236e8c3ab418c95117cf58b528d7e1de05cd149e62686c91",
+    "src/replica_lab/replica/fidelity.py": "85f12c6fab83232662726722d9e53cd77b10a8d50fe37c6d19c3020f81b00e0f",
+    "src/replica_lab/replica/identity.py": "6c1c643c38f76aa29dbee062000d01ce06f304dab7f3f9d06f3525473443d9f3",
+    "src/replica_lab/replica/reader.py": "6c23c6f64350f25711f40c41756d03984a2b879cf5fce28cc56b5e4ee0751271",
+    "src/replica_lab/response_contract.py": "296b0885867bbe14ee9a7a7ea4582486fddb5eaf1491a2474390fba762014704",
+    "src/replica_lab/response_policy_contract.py": "d24544b1993270e7dd532b28061f15fa3b1f50ec371d68ff8af4da7f076d9930",
+    "src/replica_lab/retention.py": "7f7c0f2fef59c1b69647c5001fb3c8198113dc6f640086b971ea186fc305bec1",
+    "src/replica_lab/runtime/__init__.py": "e337c1a19d253a96355f1c44eb28d4804ca6005b853b8c61f138a48926d3b391",
+    "src/replica_lab/runtime/actions.py": "7d02a6b2bb50ce989c575d427ced6fc8ce4552aa5a3d5776ef18eedabc9b8151",
+    "src/replica_lab/runtime/artifacts.py": "dda17e42c0223f8a48d2e5345ba59a5afe640e6feaf8c149cb914dedf939b572",
+    "src/replica_lab/runtime/cache.py": "dd4b59c0e948fb68485f85297be477903fcb8cecc504292f8b69f7f2c76b04f7",
+    "src/replica_lab/runtime/candidate_actions.py": "5578e429223d86353903be469bfdb4e599d90ba31b2c4844d98f9c1f485712aa",
+    "src/replica_lab/runtime/compilation.py": "3f8edb1d602e33967e1f50e6f1ab8080e3d649a9d8ca36f693bb16ec199dc07c",
+    "src/replica_lab/runtime/director.py": "652ece9827d56297b474e02f34a9609d340028a1b4c6f1c02b4d9467828e5315",
+    "src/replica_lab/runtime/director_data.py": "b38ed5ac7fcb56f6c1b23d8a56800e7509af8d15973411f45761644fe40c78e9",
+    "src/replica_lab/runtime/exact_memory.py": "22d94a0e08195df8b7f9a7e5f005543807a8a0b21373cc688d2e62b6220c2bf1",
+    "src/replica_lab/runtime/fact_memory.py": "5254c5f4e5aaa63743d145e845ac66ef5fad41a54b98f2869fa4fcabfc53186b",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/runtime/fast_memory_bridge.py": "48988a1e9e000358ea1ce6be754772b0a50fdb9b601b54d2a3d70e97efec4c33",
+    "src/replica_lab/runtime/journal.py": "c63003d593e4c392774cd1aa45c788abd7ba497e7376323d264e356b6089c529",
+    "src/replica_lab/runtime/learning_cycle.py": "ab6e9b65d89163065ae340259e7f993acf7ef8b5ad21de291cda8dc33fe64531",
+    "src/replica_lab/runtime/learning_proposal.py": "c58098c5d8fde27fe9e995b0e8fa5228343e690d07605dd02f6a4ef7f891ec9b",
+    "src/replica_lab/runtime/loop.py": "abff24e4aa2cea1a45baa5176d81a01bc4dc3a1c3375f676eec1afe479375459",
+    "src/replica_lab/runtime/memory_representation.py": "6f8d24607ceafd74918dc21747e0a6151b5d301e1df9638c86e1ffc7b73dfda1",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "4861c5a6d281882e8b89ade918a80ee2116f1fd60a079b0617ca5f9ff32abbed",
+    "src/replica_lab/runtime/procedures.py": "5aa83a79ed2047e83630066e0ab7a005e20d787c9922954477d0b0be5d51978f",
+    "src/replica_lab/runtime/routing.py": "f5803445856945c7ec0daba058e37b849883488cb845f189f907747c70485956",
+    "src/replica_lab/runtime/scheduler.py": "ca85158f7774c2ea110b23f4e4993eab1259a664fbd4d31e7f3b1792ea3d9ac8",
+    "src/replica_lab/runtime/task_graph.py": "c68973b71d869d6ca7e2fe60f6e6b872fad627a65f50508886c5d96d0435b19d",
+    "src/replica_lab/runtime/tools.py": "0f220ec0116b4c54afc90b3688a1d2df38d99e238a14f87e18533362b217712d",
+    "src/replica_lab/runtime/workspace_store.py": "e9719b81cee9276d5a1f2e661cb732244cfb013a6e99041284f0aa600b571d92",
+    "src/replica_lab/spark_preparation.py": "d42a54a3e6da592d6b0e34295e40142afd3025cf2c28337a28c9a79f5d6346ab",
+    "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+    "src/replica_lab/training_tools.py": "6e5ebb1d95a7165ce587fa1335372dd78055e9a8ae51f7979806682159cfddd7",
+    "src/replica_lab/vision_qualification.py": "6c80723b5ec8f630385e551ff16e52bb7db3bbf343f2a9e07a66b9f47e9d625d",
+    "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397",
+    "scripts/run_vision_qualification.py": "3880fb290b2bc51140e938d255ca7e52a5b67f06c8f86607fa8e77038246aebf",
+    "scripts/score_vision_qualification.py": "8380640bcf254b03a9884d43bb506fa4b096cf203d25eac7a813845390ebff1b",
+    "scripts/run_capacity_preflight.py": "5b614357090d7f51286f649a2caa667aecd791031e1f469b03f4a905554a8ad3",
+    "scripts/prepare_vision_encoder.py": "7ea399ad9ed062cec0838da445ae478d407fb716e2cb1bc65acc06693f916fcf",
+    "scripts/prepare_vision_environment.py": "fa6b8a609804a368607b651d01a4718e14fae22b02fc06cdc93881071a5a89f8",
+    "requirements-vision-overlay.lock": "57a5820a8eaa06c37cdc8e10c6df796bb8814391177381d1f02518ecf9464bee",
+    "requirements-vision-overlay.txt": "70c4f707a7453ac707216f4658519fdc5064754374e6bc61cba6e57823709554",
+    "uv.lock": "fdc9752ad23b543d0d04d2a5c347f20d86741eb1112df38b5eb52458f7c858cb",
+    "requirements-neural.txt": "2e4fecaaed90fa45f4fb5ef6a2689a32ef4606b2ed976a0348885ac3a9955610",
+    "configs/vision_encoder_source_v1.json": "733e5166d43c8dc5a1246b8d58ab4b470533c02400d4ff4175689ffb0b24a879"
+  },
+  "trainable_contract": {
+    "scope": "vision_projector_only",
+    "parameter_count": 5772800,
+    "tensors": {
+      "vision_projector.0.weight": [
+        768
+      ],
+      "vision_projector.0.bias": [
+        768
+      ],
+      "vision_projector.1.weight": [
+        2048,
+        768
+      ],
+      "vision_projector.1.bias": [
+        2048
+      ],
+      "vision_projector.3.weight": [
+        2048,
+        2048
+      ],
+      "vision_projector.3.bias": [
+        2048
+      ]
+    },
+    "dtype": "float32",
+    "optimizer_updates": 0
+  },
+  "v0": {
+    "probe": {
+      "case_id": "v0-f004-root-color",
+      "wrong_image_case_id": "v0-f009-root-color",
+      "split": "audit"
+    },
+    "parity": {
+      "prompt": "The quick brown fox crosses the quiet road.",
+      "atol": 0.0
+    },
+    "backward": {
+      "prompt": "Inspect the supplied image without using source metadata.",
+      "target_text": "observed",
+      "max_response_tokens": 8
+    },
+    "generation": {
+      "max_new_tokens": 8,
+      "seed": 17
+    },
+    "distinct_logit_min": 1e-06,
+    "distinct_logit_semantics": "First next-token distributions only; later divergent continuations are excluded.",
+    "require_restart": true,
+    "restart": {
+      "atol": 1e-05,
+      "rtol": 1e-05
+    },
+    "update": {
+      "enabled": false,
+      "optimizer": "sgd",
+      "lr": 0.001
+    },
+    "update_note": "No optimizer is instantiated. The optional SGD smoke arm is not selected. V1 uses separately pinned Muon8bit/AdamW groups."
+  },
+  "parent_protocol_sha256": "781f5eef48a239bc9aaed69c3b3515894fb326ac715f460379fe85a241ca8ac7",
+  "change": "Production feature-service initialization repair only. Data, seeds, cases, limits, gates and zero-update scope are unchanged."
+}

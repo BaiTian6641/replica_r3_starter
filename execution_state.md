@@ -25,11 +25,11 @@ source is 1,500,804,926 bytes including unused text-tower tensors; only its
 official PIL code 2 (bilinear), not bicubic. Both explicit metadata corrections
 preserve their parent manifests and change no source payload bytes.
 
-[Executable V0 protocol](configs/minicpm5_vision_v0_qualification_v1.json):
+[Initial V0 protocol](configs/minicpm5_vision_v0_qualification_v1.json):
 `781f5eef48a239bc9aaed69c3b3515894fb326ac715f460379fe85a241ca8ac7`.
 It pins 83 implementation/environment files, sealed baseline/source/data hashes,
 six projector tensors / 5,772,800 parameters and **zero optimizer updates**.
-Native generation/backward and fresh-process export/reload are still unrun.
+At this initial admission, visual generation/backward and fresh-process reload were unrun.
 No V1 training rows are admitted. The Pillow-only overlay preserves `.venv`;
 the native guard remains 50 GiB, fallback=0, one worker, 512 MiB sustained swap
 growth and 15% host-free over three samples. The v5 candidate remains rejected.
@@ -45,6 +45,26 @@ visual-data audit and sealed-source offline reuse. The unchanged prior passing
 checks are reused, not presented as a second full-suite execution. The
 [source admission](reports/vision_v0_20261025/source_qualification.json) permits
 only bounded V0 inference/backward/restart under the preregistered protocol.
+
+## Native V0 attempt01 and targeted constructor repair
+
+Attempt01 failed before encoder inference because the production service omitted
+its optional `_preprocessor` initialization; the tiny fixture factory set it.
+The guard itself did not stop: **11,815,763,968-byte peak driver**, zero swap
+growth, 76% minimum host-free and 8.822 s guard elapsed. The actual native
+text-only bypass logits are bitwise equal (`[1,22,130560]`, maximum difference 0).
+No visual generation, projector backward or optimizer update completed.
+The [failed disposition](reports/vision_v0_20261025/native_attempt01.disposition.json),
+child log, guard, raw failure and profiler records remain preserved.
+
+One targeted fix initializes that hook to `None` in the real constructor.
+Twenty-four feature/runner tests pass in 7.95 s. Corrected
+[protocol v2](configs/minicpm5_vision_v0_qualification_v2.json)
+(`a1fdfb12ad204011de5761348c03e1f555ca4676ee660b5866a8dd840211ef36`)
+changes only this code pin; data, seeds, cases, gates, limits and zero-update scope
+remain fixed. Native passing-after verification and fresh-process reload are
+still required; V1 remains unadmitted.
+
 
 
 ## Repository maintenance — 25 October 2026

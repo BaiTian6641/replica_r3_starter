@@ -1301,6 +1301,7 @@ class VisionFeatureService:
             raise VisionSourceError("Actual MPS is required; no CPU encoder fallback")
         self._device = torch.device("mps")
         self._processor = load_pil_image_processor(self.source)
+        self._preprocessor = None  # Alternate preprocessing is limited to tiny fixtures.
         self._processor_stamp = processor_configuration_digest(self._processor)
         _require_runtime_pins(self.source)
         from transformers import SiglipVisionModel

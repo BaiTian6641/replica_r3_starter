@@ -1,10 +1,10 @@
 # Coding-agent continuation instruction
 
 **Current priority — qualify the implemented isolated MiniCPM5 V0 interface.**
-R1–R4 remain verified at `757ace1` (140 integrated tests and a 1,372-test
-+21-subtest tracked export). V0 now passes 82 focused software checks and an
-actual official-processor CPU smoke; native inference/backward/restart is pending.
-Use `configs/minicpm5_vision_v0_qualification_v1.json` under the unchanged guard.
+R1–R4 remain verified at `757ace1` (140 integrated tests and a tracked export
+with 1,372 tests plus 21 subtests). V0 passes its CPU contracts. Native attempt01
+failed before encoder inference on a constructor field; its raw failure is kept.
+Use corrected `configs/minicpm5_vision_v0_qualification_v2.json` under the guard.
 Memory, core and identity stay disabled. Spark remains host-only and unqualified.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
