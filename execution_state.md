@@ -66,6 +66,21 @@ across relocations without changing data, source hashes or admission fields.
 relocation/tampering regressions; the original 1,220-image audit still passes.
 All existing generated assets and provenance files remain byte-identical.
 
+Stage 5 committed as `7925cfd`. Final validation from a clean, relocated
+`git archive 7925cfd` export passes **116 tests in 6.40 s** and the complete
+visual-data audit. The [maintenance audit](reports/repository_hygiene_20261025/audit.json)
+inventories 4,752 tracked files, 162 Markdown documents, 189 text/PDF documents,
+1,150 JSON files, 53,612 JSONL rows and 577 Python files. All current-document
+links, code fences and syntax checks pass; all seven R2 archive hashes match.
+The eight-page architecture atlas was extracted, rendered and reviewed.
+
+The archive's already-missing `validation_report.json` attachment is recorded
+without altering historical bytes. Eleven links intentionally target ignored
+local model/run evidence. No blob exceeds 50 MiB; the maximum remains 8,148,167
+bytes. The protected pilot, historical evidence and all visual data bytes are
+unchanged. Only the concurrent native V0 implementation remains outside this
+maintenance's commits and validation. No remote push or history rewrite occurred.
+
 ## Current evidence and limits
 
 - The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192

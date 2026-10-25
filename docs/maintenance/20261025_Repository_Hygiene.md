@@ -103,3 +103,10 @@ The focused visual-data suite passes 19 tests, including relocated checkout
 audit/regeneration and rejection of changed source paths, hashes, mixed checkout
 roots and acquisition flags. This qualifies fixture portability, not native
 visual model behavior or training admission.
+
+The final clean export at `7925cfd` passes **116 focused tests** and the complete
+visual-data audit. The [audit record](../../reports/repository_hygiene_20261025/audit.json)
+includes the document inventory, all-source syntax checks, historical hash
+verification, stored-blob sizes, preserved local links and validation scope.
+The [JUnit evidence](../../reports/repository_hygiene_20261025/clean_export_tests.xml)
+comes from the relocated export, excluding active concurrent V0 implementation.
