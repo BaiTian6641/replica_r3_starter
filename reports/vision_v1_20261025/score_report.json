@@ -1,0 +1,868 @@
+{
+  "format": "replica.vision_qualification_score.v1",
+  "stage": "v1",
+  "status": "completed",
+  "accepted": false,
+  "engineering_pass": true,
+  "engineering_failures": [],
+  "quality_pass": false,
+  "quality_failures": [
+    "min_correct_accuracy",
+    "min_correct_margin_wrong",
+    "min_correct_margin_shuffled",
+    "min_correct_margin_noimage",
+    "min_correct_margin_captiononly",
+    "min_correct_margin_ocrtextonly",
+    "min_text_retention_accuracy"
+  ],
+  "quality_values": {
+    "correct_accuracy": 0.28125,
+    "unique_families": 32,
+    "unknown_rate": 0.0,
+    "text_retention_accuracy": 0.6875,
+    "retention_baseline_accuracy": 0.6875,
+    "retention_drop": 0.0
+  },
+  "quality_gates": {
+    "min_correct_accuracy": 0.65,
+    "min_correct_margin_wrong": 0.2,
+    "min_correct_margin_shuffled": 0.2,
+    "min_correct_margin_noimage": 0.2,
+    "min_correct_margin_captiononly": -0.35,
+    "min_correct_margin_ocrtextonly": 0.2,
+    "min_unique_families": 32,
+    "max_unknown_rate": 0.15,
+    "min_text_retention_accuracy": 0.75,
+    "max_text_retention_drop": 0.0
+  },
+  "quality_claim": "Bounded procedural/projector alignment pilot only; not broad perception or deployment evidence",
+  "protocol_sha256": "980454c29f31f1196af71889aecf4fa6a5e99da996d4351d7798c73d34ca36c2",
+  "run_report_path": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v1_20261025/attempt02/run_report.json",
+  "run_report_sha256": "549b5a06e7a20da8a8a3be88ee8e403bd7a7ea553212cc7ab32f45fbbd968f88",
+  "v0_score_report_sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443",
+  "admission_sha256": "8b0157cf1f268042dc479d05e34cdbdb468743fb771e9b36e21162034869b7c5",
+  "checks": {
+    "budget_counts": true,
+    "budget_stop_absent": true,
+    "declared_updates_completed": true,
+    "decoder_autograd_retained": true,
+    "evaluation_complete": true,
+    "evaluation_controls_complete": true,
+    "named_admission_verified": true,
+    "nonprojector_tensors_frozen": true,
+    "only_projector_weights_changed": true,
+    "optimizer_audit": true,
+    "projector_only_trainable": true,
+    "response_only_labels": true,
+    "retention_complete": true,
+    "runner_self_checks": true,
+    "strict_extension_export": true,
+    "v0_prerequisite_accepted": true,
+    "v0_report_hash": true,
+    "zero_nonprojector_gradients": true
+  },
+  "training": {
+    "updates": 128,
+    "trainable": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "optimizer_route": [
+      {
+        "name": "vision_projector.0.bias",
+        "shape": [
+          768
+        ],
+        "algorithm": "adamw",
+        "group_name": "vision_projector_adamw"
+      },
+      {
+        "name": "vision_projector.0.weight",
+        "shape": [
+          768
+        ],
+        "algorithm": "adamw",
+        "group_name": "vision_projector_adamw"
+      },
+      {
+        "name": "vision_projector.1.bias",
+        "shape": [
+          2048
+        ],
+        "algorithm": "adamw",
+        "group_name": "vision_projector_adamw"
+      },
+      {
+        "name": "vision_projector.1.weight",
+        "shape": [
+          2048,
+          768
+        ],
+        "algorithm": "muon8bit",
+        "group_name": "vision_projector_muon8bit"
+      },
+      {
+        "name": "vision_projector.3.bias",
+        "shape": [
+          2048
+        ],
+        "algorithm": "adamw",
+        "group_name": "vision_projector_adamw"
+      },
+      {
+        "name": "vision_projector.3.weight",
+        "shape": [
+          2048,
+          2048
+        ],
+        "algorithm": "muon8bit",
+        "group_name": "vision_projector_muon8bit"
+      }
+    ],
+    "optimizer_audit": {
+      "optimizer": "muon8bit",
+      "implementation": "replica_portable_eager_v1",
+      "parameter_dtype": "float32",
+      "muon_temporary_dtype": "float32",
+      "muon_nesterov": false,
+      "muon_lr_adjustment": "match_rms_adamw",
+      "momentum": 0.95,
+      "block_size": 2048,
+      "ns_steps": 5,
+      "groups": [
+        {
+          "group_name": "vision_projector_muon8bit",
+          "scope": "vision_projector",
+          "algorithm": "muon8bit",
+          "lr": 0.0001,
+          "weight_decay": 0.01,
+          "param_names": [
+            "vision_projector.1.weight",
+            "vision_projector.3.weight"
+          ],
+          "tensors": 2,
+          "parameters": 5767168
+        },
+        {
+          "group_name": "vision_projector_adamw",
+          "scope": "vision_projector",
+          "algorithm": "adamw",
+          "lr": 0.0001,
+          "weight_decay": 0.01,
+          "param_names": [
+            "vision_projector.0.weight",
+            "vision_projector.0.bias",
+            "vision_projector.1.bias",
+            "vision_projector.3.bias"
+          ],
+          "tensors": 4,
+          "parameters": 5632
+        }
+      ],
+      "state_tensor_bytes": 5823488,
+      "state_bytes_by_dtype": {
+        "torch.int8": 5767168,
+        "torch.float32": 56320
+      }
+    }
+  },
+  "metrics": {
+    "controls": {
+      "correct": {
+        "available": true,
+        "cases": 64,
+        "correct": 18,
+        "accuracy": 0.28125,
+        "unknown": 0,
+        "unknown_rate": 0.0,
+        "unique_families": 32,
+        "family_accuracy": {
+          "v1-world-000": 0.0,
+          "v1-world-001": 0.0,
+          "v1-world-002": 0.0,
+          "v1-world-003": 0.5,
+          "v1-world-004": 0.0,
+          "v1-world-005": 1.0,
+          "v1-world-006": 0.0,
+          "v1-world-007": 1.0,
+          "v1-world-008": 0.0,
+          "v1-world-009": 0.0,
+          "v1-world-010": 0.0,
+          "v1-world-011": 0.5,
+          "v1-world-012": 0.0,
+          "v1-world-013": 0.0,
+          "v1-world-014": 0.5,
+          "v1-world-015": 0.0,
+          "v1-world-016": 0.0,
+          "v1-world-017": 1.0,
+          "v1-world-018": 0.5,
+          "v1-world-019": 1.0,
+          "v1-world-020": 0.0,
+          "v1-world-021": 0.5,
+          "v1-world-022": 0.0,
+          "v1-world-023": 0.5,
+          "v1-world-024": 0.0,
+          "v1-world-025": 0.5,
+          "v1-world-026": 0.0,
+          "v1-world-027": 0.5,
+          "v1-world-028": 0.0,
+          "v1-world-029": 0.0,
+          "v1-world-030": 0.5,
+          "v1-world-031": 0.5
+        }
+      },
+      "wrong": {
+        "available": true,
+        "cases": 64,
+        "correct": 20,
+        "accuracy": 0.3125,
+        "unknown": 0,
+        "unknown_rate": 0.0,
+        "unique_families": 32,
+        "family_accuracy": {
+          "v1-world-000": 0.0,
+          "v1-world-001": 0.5,
+          "v1-world-002": 0.0,
+          "v1-world-003": 0.5,
+          "v1-world-004": 0.0,
+          "v1-world-005": 1.0,
+          "v1-world-006": 0.0,
+          "v1-world-007": 1.0,
+          "v1-world-008": 0.0,
+          "v1-world-009": 0.0,
+          "v1-world-010": 0.0,
+          "v1-world-011": 0.5,
+          "v1-world-012": 0.0,
+          "v1-world-013": 0.5,
+          "v1-world-014": 0.0,
+          "v1-world-015": 0.0,
+          "v1-world-016": 0.0,
+          "v1-world-017": 1.0,
+          "v1-world-018": 0.0,
+          "v1-world-019": 1.0,
+          "v1-world-020": 0.0,
+          "v1-world-021": 1.0,
+          "v1-world-022": 0.0,
+          "v1-world-023": 0.5,
+          "v1-world-024": 0.0,
+          "v1-world-025": 0.5,
+          "v1-world-026": 0.5,
+          "v1-world-027": 1.0,
+          "v1-world-028": 0.0,
+          "v1-world-029": 0.0,
+          "v1-world-030": 0.0,
+          "v1-world-031": 0.5
+        }
+      },
+      "shuffled": {
+        "available": true,
+        "cases": 64,
+        "correct": 15,
+        "accuracy": 0.234375,
+        "unknown": 0,
+        "unknown_rate": 0.0,
+        "unique_families": 32,
+        "family_accuracy": {
+          "v1-world-000": 0.0,
+          "v1-world-001": 0.5,
+          "v1-world-002": 0.0,
+          "v1-world-003": 0.5,
+          "v1-world-004": 0.0,
+          "v1-world-005": 0.5,
+          "v1-world-006": 0.0,
+          "v1-world-007": 0.5,
+          "v1-world-008": 0.0,
+          "v1-world-009": 0.5,
+          "v1-world-010": 0.0,
+          "v1-world-011": 0.0,
+          "v1-world-012": 0.5,
+          "v1-world-013": 0.0,
+          "v1-world-014": 0.0,
+          "v1-world-015": 0.5,
+          "v1-world-016": 0.0,
+          "v1-world-017": 0.5,
+          "v1-world-018": 0.5,
+          "v1-world-019": 1.0,
+          "v1-world-020": 0.0,
+          "v1-world-021": 0.5,
+          "v1-world-022": 0.0,
+          "v1-world-023": 0.5,
+          "v1-world-024": 0.0,
+          "v1-world-025": 0.0,
+          "v1-world-026": 0.0,
+          "v1-world-027": 0.5,
+          "v1-world-028": 0.0,
+          "v1-world-029": 0.0,
+          "v1-world-030": 0.0,
+          "v1-world-031": 0.5
+        }
+      },
+      "noimage": {
+        "available": true,
+        "cases": 64,
+        "correct": 22,
+        "accuracy": 0.34375,
+        "unknown": 0,
+        "unknown_rate": 0.0,
+        "unique_families": 32,
+        "family_accuracy": {
+          "v1-world-000": 0.0,
+          "v1-world-001": 0.5,
+          "v1-world-002": 0.0,
+          "v1-world-003": 0.5,
+          "v1-world-004": 0.0,
+          "v1-world-005": 1.0,
+          "v1-world-006": 1.0,
+          "v1-world-007": 0.0,
+          "v1-world-008": 0.5,
+          "v1-world-009": 0.0,
+          "v1-world-010": 1.0,
+          "v1-world-011": 0.5,
+          "v1-world-012": 0.0,
+          "v1-world-013": 0.5,
+          "v1-world-014": 1.0,
+          "v1-world-015": 0.0,
+          "v1-world-016": 0.5,
+          "v1-world-017": 1.0,
+          "v1-world-018": 0.0,
+          "v1-world-019": 0.0,
+          "v1-world-020": 0.0,
+          "v1-world-021": 1.0,
+          "v1-world-022": 0.5,
+          "v1-world-023": 0.0,
+          "v1-world-024": 0.5,
+          "v1-world-025": 1.0,
+          "v1-world-026": 0.0,
+          "v1-world-027": 0.0,
+          "v1-world-028": 0.0,
+          "v1-world-029": 0.0,
+          "v1-world-030": 0.0,
+          "v1-world-031": 0.0
+        }
+      },
+      "captiononly": {
+        "available": true,
+        "cases": 64,
+        "correct": 60,
+        "accuracy": 0.9375,
+        "unknown": 0,
+        "unknown_rate": 0.0,
+        "unique_families": 32,
+        "family_accuracy": {
+          "v1-world-000": 1.0,
+          "v1-world-001": 1.0,
+          "v1-world-002": 1.0,
+          "v1-world-003": 1.0,
+          "v1-world-004": 1.0,
+          "v1-world-005": 1.0,
+          "v1-world-006": 1.0,
+          "v1-world-007": 0.5,
+          "v1-world-008": 1.0,
+          "v1-world-009": 1.0,
+          "v1-world-010": 1.0,
+          "v1-world-011": 1.0,
+          "v1-world-012": 1.0,
+          "v1-world-013": 1.0,
+          "v1-world-014": 0.5,
+          "v1-world-015": 1.0,
+          "v1-world-016": 1.0,
+          "v1-world-017": 1.0,
+          "v1-world-018": 1.0,
+          "v1-world-019": 0.5,
+          "v1-world-020": 1.0,
+          "v1-world-021": 1.0,
+          "v1-world-022": 0.5,
+          "v1-world-023": 1.0,
+          "v1-world-024": 1.0,
+          "v1-world-025": 1.0,
+          "v1-world-026": 1.0,
+          "v1-world-027": 1.0,
+          "v1-world-028": 1.0,
+          "v1-world-029": 1.0,
+          "v1-world-030": 1.0,
+          "v1-world-031": 1.0
+        }
+      },
+      "ocrtextonly": {
+        "available": true,
+        "cases": 64,
+        "correct": 15,
+        "accuracy": 0.234375,
+        "unknown": 0,
+        "unknown_rate": 0.0,
+        "unique_families": 32,
+        "family_accuracy": {
+          "v1-world-000": 0.0,
+          "v1-world-001": 0.0,
+          "v1-world-002": 0.0,
+          "v1-world-003": 0.5,
+          "v1-world-004": 0.0,
+          "v1-world-005": 0.0,
+          "v1-world-006": 0.0,
+          "v1-world-007": 1.0,
+          "v1-world-008": 0.0,
+          "v1-world-009": 0.0,
+          "v1-world-010": 1.0,
+          "v1-world-011": 0.5,
+          "v1-world-012": 0.0,
+          "v1-world-013": 0.0,
+          "v1-world-014": 1.0,
+          "v1-world-015": 0.0,
+          "v1-world-016": 0.0,
+          "v1-world-017": 0.0,
+          "v1-world-018": 0.0,
+          "v1-world-019": 1.0,
+          "v1-world-020": 0.0,
+          "v1-world-021": 0.0,
+          "v1-world-022": 0.5,
+          "v1-world-023": 0.5,
+          "v1-world-024": 0.0,
+          "v1-world-025": 0.0,
+          "v1-world-026": 0.0,
+          "v1-world-027": 1.0,
+          "v1-world-028": 0.0,
+          "v1-world-029": 0.0,
+          "v1-world-030": 0.0,
+          "v1-world-031": 0.5
+        }
+      }
+    },
+    "paired": {
+      "wrong": {
+        "cases": 64,
+        "correct_accuracy": 0.28125,
+        "control_accuracy": 0.3125,
+        "correct_margin": -0.03125
+      },
+      "shuffled": {
+        "cases": 64,
+        "correct_accuracy": 0.28125,
+        "control_accuracy": 0.234375,
+        "correct_margin": 0.046875
+      },
+      "noimage": {
+        "cases": 64,
+        "correct_accuracy": 0.28125,
+        "control_accuracy": 0.34375,
+        "correct_margin": -0.0625
+      },
+      "captiononly": {
+        "cases": 64,
+        "correct_accuracy": 0.28125,
+        "control_accuracy": 0.9375,
+        "correct_margin": -0.65625
+      },
+      "ocrtextonly": {
+        "cases": 64,
+        "correct_accuracy": 0.28125,
+        "control_accuracy": 0.234375,
+        "correct_margin": 0.046875
+      }
+    },
+    "retention": {
+      "cases": 32,
+      "correct": 22,
+      "accuracy": 0.6875,
+      "unknown": 0,
+      "unknown_rate": 0.0,
+      "unique_families": 32,
+      "tokens_by_case": {
+        "retention-arithmetic-00": [
+          741,
+          130073
+        ],
+        "retention-arithmetic-01": [
+          682,
+          130073
+        ],
+        "retention-arithmetic-02": [
+          1308,
+          130073
+        ],
+        "retention-arithmetic-03": [
+          627,
+          130073
+        ],
+        "retention-arithmetic-04": [
+          1599,
+          130073
+        ],
+        "retention-arithmetic-05": [
+          3398,
+          130073
+        ],
+        "retention-arithmetic-06": [
+          3865,
+          130073
+        ],
+        "retention-arithmetic-07": [
+          732,
+          130073
+        ],
+        "retention-strings-08": [
+          97,
+          1531,
+          130073
+        ],
+        "retention-strings-09": [
+          26652,
+          341,
+          130073
+        ],
+        "retention-strings-10": [
+          290,
+          913,
+          105,
+          130073
+        ],
+        "retention-strings-11": [
+          97,
+          38527,
+          72,
+          130073
+        ],
+        "retention-logic-12": [
+          15889,
+          130073
+        ],
+        "retention-logic-13": [
+          9390,
+          130073
+        ],
+        "retention-logic-14": [
+          15889,
+          130073
+        ],
+        "retention-logic-15": [
+          9390,
+          130073
+        ],
+        "retention-units-16": [
+          4028,
+          37,
+          21688,
+          130073
+        ],
+        "retention-units-17": [
+          7903,
+          37,
+          117427,
+          450,
+          130073
+        ],
+        "retention-units-18": [
+          7603,
+          4533,
+          130073
+        ],
+        "retention-units-19": [
+          3217,
+          3036,
+          130073
+        ],
+        "retention-calendar-20": [
+          67983,
+          130073
+        ],
+        "retention-calendar-21": [
+          71519,
+          130073
+        ],
+        "retention-calendar-22": [
+          67983,
+          130073
+        ],
+        "retention-calendar-23": [
+          71519,
+          130073
+        ],
+        "retention-language-24": [
+          30992,
+          130073
+        ],
+        "retention-language-25": [
+          66,
+          684,
+          130073
+        ],
+        "retention-language-26": [
+          520,
+          4677,
+          130073
+        ],
+        "retention-language-27": [
+          513,
+          908,
+          130073
+        ],
+        "retention-structured_text-28": [
+          1415,
+          130073
+        ],
+        "retention-structured_text-29": [
+          1922,
+          130073
+        ],
+        "retention-structured_text-30": [
+          3865,
+          130073
+        ],
+        "retention-structured_text-31": [
+          4929,
+          130073
+        ]
+      }
+    },
+    "evaluation_cases": [
+      "v1-w016-p0-b-crop-shape",
+      "v1-w023-p0-a-absent",
+      "v1-w019-p0-a-absent",
+      "v1-w014-p0-a-spatial",
+      "v1-w028-p0-a-color",
+      "v1-w027-p0-a-absent",
+      "v1-w001-p0-a-crop-color",
+      "v1-w018-p0-b-spatial",
+      "v1-w002-p0-a-color",
+      "v1-w006-p0-a-spatial",
+      "v1-w010-p0-b-crop-spatial",
+      "v1-w031-p0-a-crop-color",
+      "v1-w020-p0-b-color",
+      "v1-w015-p0-b-color",
+      "v1-w004-p0-b-shape",
+      "v1-w013-p0-a-count",
+      "v1-w012-p0-b-crop-color",
+      "v1-w007-p0-b-absent",
+      "v1-w000-p0-a-shape",
+      "v1-w003-p0-b-absent",
+      "v1-w008-p0-a-color",
+      "v1-w021-p0-a-crop-count",
+      "v1-w017-p0-a-crop-count",
+      "v1-w030-p0-b-crop-color",
+      "v1-w022-p0-a-crop-spatial",
+      "v1-w024-p0-a-color",
+      "v1-w005-p0-b-count",
+      "v1-w029-p0-a-color",
+      "v1-w011-p0-b-absent",
+      "v1-w009-p0-b-crop-color",
+      "v1-w025-p0-a-crop-count",
+      "v1-w026-p0-a-spatial",
+      "v1-w016-p0-b-color",
+      "v1-w023-p0-a-color",
+      "v1-w019-p0-a-crop-absent",
+      "v1-w014-p0-b-crop-spatial",
+      "v1-w028-p0-b-color",
+      "v1-w027-p0-b-crop-absent",
+      "v1-w001-p0-b-count",
+      "v1-w018-p0-a-color",
+      "v1-w002-p0-b-crop-color",
+      "v1-w006-p0-a-crop-spatial",
+      "v1-w010-p0-b-spatial",
+      "v1-w031-p0-b-absent",
+      "v1-w020-p0-a-shape",
+      "v1-w015-p0-a-crop-color",
+      "v1-w004-p0-b-crop-shape",
+      "v1-w013-p0-a-color",
+      "v1-w012-p0-a-crop-color",
+      "v1-w007-p0-b-crop-absent",
+      "v1-w000-p0-b-color",
+      "v1-w003-p0-b-crop-color",
+      "v1-w008-p0-b-crop-color",
+      "v1-w021-p0-b-count",
+      "v1-w017-p0-b-count",
+      "v1-w030-p0-b-spatial",
+      "v1-w022-p0-a-crop-color",
+      "v1-w024-p0-b-color",
+      "v1-w005-p0-a-crop-count",
+      "v1-w029-p0-a-crop-color",
+      "v1-w011-p0-a-color",
+      "v1-w009-p0-a-crop-color",
+      "v1-w025-p0-a-crop-color",
+      "v1-w026-p0-b-color"
+    ],
+    "controls_evaluated": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage",
+      "captiononly",
+      "ocrtextonly"
+    ]
+  },
+  "extension_lineage": {
+    "changed": [
+      "vision_projector.0.bias",
+      "vision_projector.0.weight",
+      "vision_projector.1.bias",
+      "vision_projector.1.weight",
+      "vision_projector.3.bias",
+      "vision_projector.3.weight"
+    ],
+    "frozen": [
+      "memory_ports.13.gate_logit",
+      "memory_ports.13.key_projection.weight",
+      "memory_ports.13.memory_norm.bias",
+      "memory_ports.13.memory_norm.weight",
+      "memory_ports.13.output_projection.weight",
+      "memory_ports.13.query_norm.bias",
+      "memory_ports.13.query_norm.weight",
+      "memory_ports.13.query_projection.weight",
+      "memory_ports.13.value_projection.weight",
+      "memory_ports.27.gate_logit",
+      "memory_ports.27.key_projection.weight",
+      "memory_ports.27.memory_norm.bias",
+      "memory_ports.27.memory_norm.weight",
+      "memory_ports.27.output_projection.weight",
+      "memory_ports.27.query_norm.bias",
+      "memory_ports.27.query_norm.weight",
+      "memory_ports.27.query_projection.weight",
+      "memory_ports.27.value_projection.weight",
+      "record_writer.encoder.attention.in_proj_bias",
+      "record_writer.encoder.attention.in_proj_weight",
+      "record_writer.encoder.attention.out_proj.bias",
+      "record_writer.encoder.attention.out_proj.weight",
+      "record_writer.encoder.input_norm.bias",
+      "record_writer.encoder.input_norm.weight",
+      "record_writer.encoder.input_projection.weight",
+      "record_writer.encoder.output_norm.bias",
+      "record_writer.encoder.output_norm.weight",
+      "record_writer.encoder.slot_queries",
+      "reranker.query_norm.bias",
+      "reranker.query_norm.weight",
+      "reranker.query_projection.weight",
+      "reranker.record_norm.bias",
+      "reranker.record_norm.weight",
+      "reranker.record_projection.weight",
+      "sense_ports.13.input_norm.bias",
+      "sense_ports.13.input_norm.weight",
+      "sense_ports.13.projection.weight",
+      "sense_ports.27.input_norm.bias",
+      "sense_ports.27.input_norm.weight",
+      "sense_ports.27.projection.weight",
+      "sense_ports.41.input_norm.bias",
+      "sense_ports.41.input_norm.weight",
+      "sense_ports.41.projection.weight"
+    ],
+    "changed_count": 6,
+    "frozen_count": 43
+  },
+  "extension": {
+    "weights_sha256": "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4",
+    "manifest_sha256": "fcc08d850ac4c1dd880a5a662ebbfee9d93b87a4dea80344ec7f114f882a6854",
+    "format": "replica.minicpm5.extensions.v4",
+    "tensor_count": 49
+  },
+  "artifacts": {
+    "v1/training_trace.jsonl": "8e2d76e3efdfd4dff31ffcc2ed40a744f3d89f413fa573b4ede10153cec04f35",
+    "v1/training_examples.jsonl": "969685657ffaed33558423051a754fc4b87f90d1c21784ea9393ae791ebf07d7",
+    "v1/baseline_retention_generations.jsonl": "3d788bdb971059bb954de6677accabf035c4fe4068163ce86e7879ba980ef4ed",
+    "v1/trainable_receipt.json": "98353843004cf75be5cca980c7171d9775c8abc78b2cd973f77fdd8b0d4838b2",
+    "v1/optimizer_route.json": "81080c7961495ee4cc9bd5f08c8d44947ff035ed904c37037d7669f79d0d04b6",
+    "v1/optimizer_audit.json": "6ab8ae709088ac76b831f30f083d97797e35dd802f6c04aed000aef2f6568506",
+    "v1/eval_generations.jsonl": "2753315d1ff4c97ccd111498ffaad07672a457bda2094ecf63eca2ff8d46a18d",
+    "v1/retention_generations.jsonl": "3d788bdb971059bb954de6677accabf035c4fe4068163ce86e7879ba980ef4ed",
+    "v1/extension_lineage.json": "e41522da67d38fc48d289b1e878f05cbe8026b1540d30f07665bc7f0b221f951",
+    "final_extension/manifest.json": "fcc08d850ac4c1dd880a5a662ebbfee9d93b87a4dea80344ec7f114f882a6854",
+    "final_extension/extensions.safetensors": "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4",
+    "profile_samples.jsonl": "5ee92286d0fc85dd22059d577b5e9a78cb1dabbd06933c9334e2932ca636a73e",
+    "profile_summary.json": "bb3b116a225d1e347fdc0138fbb6a6ceea44a854544e3be5543cf796854539e3"
+  },
+  "blocks_dependents": [
+    "V2",
+    "V3_learned_visual_memory"
+  ],
+  "scored_at_utc": "2026-10-25T08:00:05.378984+00:00",
+  "scoring_source": {
+    "mode": "native_pinned_scorer",
+    "implementation_sha256": {
+      "src/replica_lab/__init__.py": "fea2eb9e656cda45f4aeef8e0756ecc35a8ddcbe256f00092c5a95bffced68c4",
+      "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+      "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+      "src/replica_lab/architecture/backbone.py": "81b288f0ca5f5b4e2989b6d7f9c874e49c6e19f9c76e6a3b79774b35ec3cfaf6",
+      "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+      "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+      "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf",
+      "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+      "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+      "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+      "src/replica_lab/architecture/vision.py": "2618381544eaea95c31989281f5c941e1531ab6ccfd9fbf53a41e768b92b2978",
+      "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+      "src/replica_lab/checkpoint_storage.py": "7cfd3496f71a23f74b20162f24eaea7514c5fc5d1e4eb2f0100b1e5e428e96a1",
+      "src/replica_lab/checkpointing.py": "83727f62e20a2a3ead7aff5e631138bde992cb8f806a6adaeaa761aae885c8c4",
+      "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+      "src/replica_lab/curriculum.py": "616b4b3fd95b188c030d3750150b246d68d7a59db26cd125b4cb2d16c41d0c88",
+      "src/replica_lab/episodes.py": "da2140ac838273ccd02309b691d359a1eadb19183bb4daa6805ddac428838e46",
+      "src/replica_lab/evaluation.py": "dec5479225bbc937e2c0395b876eb83b1cc1ed962fb5c03f970b20f168f9c624",
+      "src/replica_lab/generation.py": "1adc1bfa099bf6f02f00636a8fce30f1636fd27e0d479ed8913fd84536428f92",
+      "src/replica_lab/host_action_contract.py": "8934b598993bbe623a24a7a1ea1142958aa79fd70fb0b8a4eb3e2014e82b560a",
+      "src/replica_lab/infrastructure_scoring.py": "0ad38111bbc3c4a247015f889f2b829047dcc2dda2f238116e8d372befe3ec1a",
+      "src/replica_lab/infrastructure_solver.py": "958cf686e26dbf49af0f7eca765167191417ad4fc246b3dbab612325fb5455d6",
+      "src/replica_lab/learning.py": "b6412e1afe46ca8096a640c85ea93105c8d3c0439b90a0101d34e83a453f4942",
+      "src/replica_lab/memory.py": "f722bac5fb7863af8c5176f6daca55296ae1fcbee5dae1317b79488fc4618724",
+      "src/replica_lab/memory_reliability.py": "b43809dc96d9ac4b11f57f1cc3f722730a04f36c2062aebbc106a69047e9ce1a",
+      "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+      "src/replica_lab/memory_system/answer.py": "4b722c2738a20fe6da53730c2ace3a0a37d43ef8fe6fbbec74206539b377a212",
+      "src/replica_lab/memory_system/context.py": "ea1b8a954aae9b7e59845fd5f1db4ef4ef81ac66a32d45723849860c67175ef2",
+      "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+      "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+      "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+      "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+      "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+      "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+      "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+      "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+      "src/replica_lab/reliability_scoring.py": "2be2b34dbd0b13b2cb2bbd4c1706d2d8b7aca6f93060fce7d33be6ba138f4905",
+      "src/replica_lab/replica/__init__.py": "5da4892a45e5863f236e8c3ab418c95117cf58b528d7e1de05cd149e62686c91",
+      "src/replica_lab/replica/fidelity.py": "85f12c6fab83232662726722d9e53cd77b10a8d50fe37c6d19c3020f81b00e0f",
+      "src/replica_lab/replica/identity.py": "6c1c643c38f76aa29dbee062000d01ce06f304dab7f3f9d06f3525473443d9f3",
+      "src/replica_lab/replica/reader.py": "6c23c6f64350f25711f40c41756d03984a2b879cf5fce28cc56b5e4ee0751271",
+      "src/replica_lab/response_contract.py": "296b0885867bbe14ee9a7a7ea4582486fddb5eaf1491a2474390fba762014704",
+      "src/replica_lab/response_policy_contract.py": "d24544b1993270e7dd532b28061f15fa3b1f50ec371d68ff8af4da7f076d9930",
+      "src/replica_lab/retention.py": "7f7c0f2fef59c1b69647c5001fb3c8198113dc6f640086b971ea186fc305bec1",
+      "src/replica_lab/runtime/__init__.py": "e337c1a19d253a96355f1c44eb28d4804ca6005b853b8c61f138a48926d3b391",
+      "src/replica_lab/runtime/actions.py": "7d02a6b2bb50ce989c575d427ced6fc8ce4552aa5a3d5776ef18eedabc9b8151",
+      "src/replica_lab/runtime/artifacts.py": "dda17e42c0223f8a48d2e5345ba59a5afe640e6feaf8c149cb914dedf939b572",
+      "src/replica_lab/runtime/cache.py": "dd4b59c0e948fb68485f85297be477903fcb8cecc504292f8b69f7f2c76b04f7",
+      "src/replica_lab/runtime/candidate_actions.py": "5578e429223d86353903be469bfdb4e599d90ba31b2c4844d98f9c1f485712aa",
+      "src/replica_lab/runtime/compilation.py": "3f8edb1d602e33967e1f50e6f1ab8080e3d649a9d8ca36f693bb16ec199dc07c",
+      "src/replica_lab/runtime/director.py": "652ece9827d56297b474e02f34a9609d340028a1b4c6f1c02b4d9467828e5315",
+      "src/replica_lab/runtime/director_data.py": "b38ed5ac7fcb56f6c1b23d8a56800e7509af8d15973411f45761644fe40c78e9",
+      "src/replica_lab/runtime/exact_memory.py": "22d94a0e08195df8b7f9a7e5f005543807a8a0b21373cc688d2e62b6220c2bf1",
+      "src/replica_lab/runtime/fact_memory.py": "5254c5f4e5aaa63743d145e845ac66ef5fad41a54b98f2869fa4fcabfc53186b",
+      "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+      "src/replica_lab/runtime/fast_memory_bridge.py": "48988a1e9e000358ea1ce6be754772b0a50fdb9b601b54d2a3d70e97efec4c33",
+      "src/replica_lab/runtime/journal.py": "c63003d593e4c392774cd1aa45c788abd7ba497e7376323d264e356b6089c529",
+      "src/replica_lab/runtime/learning_cycle.py": "ab6e9b65d89163065ae340259e7f993acf7ef8b5ad21de291cda8dc33fe64531",
+      "src/replica_lab/runtime/learning_proposal.py": "c58098c5d8fde27fe9e995b0e8fa5228343e690d07605dd02f6a4ef7f891ec9b",
+      "src/replica_lab/runtime/loop.py": "abff24e4aa2cea1a45baa5176d81a01bc4dc3a1c3375f676eec1afe479375459",
+      "src/replica_lab/runtime/memory_representation.py": "6f8d24607ceafd74918dc21747e0a6151b5d301e1df9638c86e1ffc7b73dfda1",
+      "src/replica_lab/runtime/persistent_fast_memory.py": "4861c5a6d281882e8b89ade918a80ee2116f1fd60a079b0617ca5f9ff32abbed",
+      "src/replica_lab/runtime/procedures.py": "5aa83a79ed2047e83630066e0ab7a005e20d787c9922954477d0b0be5d51978f",
+      "src/replica_lab/runtime/routing.py": "f5803445856945c7ec0daba058e37b849883488cb845f189f907747c70485956",
+      "src/replica_lab/runtime/scheduler.py": "ca85158f7774c2ea110b23f4e4993eab1259a664fbd4d31e7f3b1792ea3d9ac8",
+      "src/replica_lab/runtime/task_graph.py": "c68973b71d869d6ca7e2fe60f6e6b872fad627a65f50508886c5d96d0435b19d",
+      "src/replica_lab/runtime/tools.py": "0f220ec0116b4c54afc90b3688a1d2df38d99e238a14f87e18533362b217712d",
+      "src/replica_lab/runtime/workspace_store.py": "e9719b81cee9276d5a1f2e661cb732244cfb013a6e99041284f0aa600b571d92",
+      "src/replica_lab/spark_preparation.py": "d42a54a3e6da592d6b0e34295e40142afd3025cf2c28337a28c9a79f5d6346ab",
+      "src/replica_lab/training_state.py": "b11d90adf39843e4b266c7c698c2705ed2c3fc7aae3d3462da406ba89d559c46",
+      "src/replica_lab/training_tools.py": "6e5ebb1d95a7165ce587fa1335372dd78055e9a8ae51f7979806682159cfddd7",
+      "src/replica_lab/vision_qualification.py": "ef11dfe3bbcf8b6ff23f7a8cffba89b8cf7be0fdadc9fea0510fd7b7bff0bc9a",
+      "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397",
+      "scripts/run_vision_qualification.py": "81cbdeb7ad30548ac6736d26d044d53cad33ce8c3135d17b1823f7007e80754a",
+      "scripts/score_vision_qualification.py": "718b6d5a2f7488157546961a6cec2359332e7c71688079262837347f7048a30f",
+      "scripts/run_capacity_preflight.py": "5b614357090d7f51286f649a2caa667aecd791031e1f469b03f4a905554a8ad3",
+      "scripts/prepare_vision_encoder.py": "7ea399ad9ed062cec0838da445ae478d407fb716e2cb1bc65acc06693f916fcf",
+      "scripts/prepare_vision_environment.py": "fa6b8a609804a368607b651d01a4718e14fae22b02fc06cdc93881071a5a89f8",
+      "requirements-vision-overlay.lock": "57a5820a8eaa06c37cdc8e10c6df796bb8814391177381d1f02518ecf9464bee",
+      "requirements-vision-overlay.txt": "70c4f707a7453ac707216f4658519fdc5064754374e6bc61cba6e57823709554",
+      "uv.lock": "fdc9752ad23b543d0d04d2a5c347f20d86741eb1112df38b5eb52458f7c858cb",
+      "requirements-neural.txt": "2e4fecaaed90fa45f4fb5ef6a2689a32ef4606b2ed976a0348885ac3a9955610",
+      "configs/vision_encoder_source_v1.json": "733e5166d43c8dc5a1246b8d58ab4b470533c02400d4ff4175689ffb0b24a879",
+      "src/replica_lab/vision_admission.py": "4361aaec6a941ddc0d588e76844b11e9f07e776e7b517ecda9470f9b78006a50",
+      "scripts/admit_vision_data.py": "df740e3942066156fd0408e1ff403bae68befb90f47afe1a632c1c1d7452b2af"
+    }
+  }
+}

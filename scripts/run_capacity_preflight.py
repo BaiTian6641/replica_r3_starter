@@ -68,6 +68,7 @@ def main():
                                                  "run_m2_dynamic.py",
                                                  "run_memory_reliability.py",
                                                  "run_vision_qualification.py",
+                                                 "run_memory_storage_probe.py",
                                                  "run_m3_restart.py",
                                                  "eval_m3_retention.py",
                                                  "run_m4_pattern.py",

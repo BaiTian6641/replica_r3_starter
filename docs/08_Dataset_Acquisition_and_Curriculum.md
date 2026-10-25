@@ -14,6 +14,19 @@ All new entries have `auto_admit=false` and `training_admitted=false`. The
 existing [runtime registry](../configs/dataset_registry.json) remains the
 experiment-admission interface; this research catalog does not override it.
 
+**Current owned tranche — 25 October 2026:** external acquisition remains zero.
+The owned renderer provides 1,220 verified PNGs (400,867 asset bytes), 2,688
+label-free visual model rows and separate scene/verifier records. A named
+[V1 admission](../data/vision_alignment_v1_20261025/intake02/admission.json)
+selects 512 training rows from 64 complete worlds /256 assets; the eligible V1
+inventory is 2,048 rows, not 2,048 admitted training rows. Evaluation uses 64
+cases across 32 disjoint worlds, with 32 additional protected text-retention
+cases. One renderer source family is not broad external-family coverage.
+The catalog's 34 external /22 pinned metadata counts remain metadata only.
+The new named visual admission does not alter the catalog or original prepared
+manifests. Logical tranche bytes are 4,475,237, below the separate 25 GiB ceiling.
+
+
 ## 1. Intake states and ownership
 
 Track each source through **located → metadata pinned → assets acquired → content

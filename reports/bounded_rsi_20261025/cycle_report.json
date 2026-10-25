@@ -1,0 +1,578 @@
+{
+  "base": {
+    "base_revision": "procedure-sandbox-r0",
+    "identity_version": "replica.identity.procedure_sandbox.v1",
+    "manifest_digest": "cfbee8c61ed6de00defb309b1247bf3787e419b89b862babfc2cce3d4bd0659d",
+    "manifest_id": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "parent": null,
+    "payload_digest": "9938ee7f8708b4a54afdadd4ebb2623cf161933072f3fcaa5f01655ba43be25e"
+  },
+  "candidate": {
+    "artifact_digest_proposed": "b9a87d5a03587c3b36be6b1cecc458ce51d6f148f772e91ca98d39ac0f82978e",
+    "artifact_id": "artifact-repair-config",
+    "base_revision": "procedure-sandbox-r0",
+    "claims_ignored": [],
+    "cutoff": 4,
+    "evidence_epoch": 0,
+    "identity_version": "replica.identity.procedure_sandbox.v1",
+    "name": "repair-config",
+    "parent_manifest_id": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "proposal_id": "director-procedure-9bdb5ed720e1d2c9",
+    "source_hashes": {
+      "obs.0001.source.src_train_backoff.observed_failure": "7cb63fd2565d1c2096c95a090d9c21fa4ca77651dc75b5e42b047c2258ea72b8",
+      "obs.0002.source.src_train_backoff.observed_repair": "9b97a5353360624bb4107086234c0d4c230e919852f7a97feb50777113573707",
+      "obs.0003.source.src_train_depth.observed_failure": "d74d7a01303646a57295e3fe876f5e50b5a8964a1575f21c8da3f9bc196e3b54",
+      "obs.0004.source.src_train_depth.observed_repair": "c48e1c2e55a2cbe326543a2d49ef4ccbbba879cc8f1e75aeb649cf80b85bb55e"
+    },
+    "source_record_ids": [
+      "obs.0001.source.src_train_backoff.observed_failure",
+      "obs.0002.source.src_train_backoff.observed_repair",
+      "obs.0003.source.src_train_depth.observed_failure",
+      "obs.0004.source.src_train_depth.observed_repair"
+    ],
+    "workspace_entry": "workspace/app_settings.py"
+  },
+  "episodic_observations": [
+    {
+      "case_id": "src_train_backoff",
+      "error": null,
+      "evaluator_runs": 1,
+      "final_exit_code": 1,
+      "receipt": {
+        "exit_code": 1,
+        "stderr_excerpt": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_excerpt": "QUEUE_BACKOFF_MS = 40 but policy requires QUEUE_BACKOFF_MS >= 120.0\n",
+        "stdout_sha256": "b84b1e8a5585c1294c85ef15d13f784661fc602e6d31069e2f0d46e120ecb3cc",
+        "timed_out": false
+      },
+      "record_id": "obs.0001.source.src_train_backoff.observed_failure",
+      "split": "source",
+      "stage": "observed_failure",
+      "status": "error",
+      "tool_calls": 1,
+      "workspace_hashes_digest": "af2fbefd97a19454107376ef2a9dd7fd5d2a11900c8b6034ab7bf23f03d26ad1",
+      "world_family": "source.queue_policy.v1"
+    },
+    {
+      "case_id": "src_train_backoff",
+      "error": null,
+      "evaluator_runs": 3,
+      "final_exit_code": 0,
+      "receipt": {
+        "exit_code": 0,
+        "stderr_excerpt": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_excerpt": "policy ok\n",
+        "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+        "timed_out": false
+      },
+      "record_id": "obs.0002.source.src_train_backoff.observed_repair",
+      "split": "source",
+      "stage": "observed_repair",
+      "status": "succeeded",
+      "tool_calls": 5,
+      "workspace_hashes_digest": "176f760197d8764c543c5cbc6d3eb54b5e878521ae0cd645f215250efaa33fbc",
+      "world_family": "source.queue_policy.v1"
+    },
+    {
+      "case_id": "src_train_depth",
+      "error": null,
+      "evaluator_runs": 1,
+      "final_exit_code": 1,
+      "receipt": {
+        "exit_code": 1,
+        "stderr_excerpt": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_excerpt": "QUEUE_MAX_DEPTH = 4 but policy requires QUEUE_MAX_DEPTH >= 9.0\n",
+        "stdout_sha256": "a6b635f2952c7b5be848fa2b113dec02210bb8cd2e698195e1809c82fdf541c4",
+        "timed_out": false
+      },
+      "record_id": "obs.0003.source.src_train_depth.observed_failure",
+      "split": "source",
+      "stage": "observed_failure",
+      "status": "error",
+      "tool_calls": 1,
+      "workspace_hashes_digest": "9d7c1a013418ef1adc6b487aa9f82fa1c3d0fc0d51c329d96c07f162de421178",
+      "world_family": "source.queue_policy.v1"
+    },
+    {
+      "case_id": "src_train_depth",
+      "error": null,
+      "evaluator_runs": 3,
+      "final_exit_code": 0,
+      "receipt": {
+        "exit_code": 0,
+        "stderr_excerpt": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_excerpt": "policy ok\n",
+        "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+        "timed_out": false
+      },
+      "record_id": "obs.0004.source.src_train_depth.observed_repair",
+      "split": "source",
+      "stage": "observed_repair",
+      "status": "succeeded",
+      "tool_calls": 5,
+      "workspace_hashes_digest": "ab0f30a0d3196a31f094c4ad1103b3cf04ccecb3fb3d40b6d9e38c4e5ef984be",
+      "world_family": "source.queue_policy.v1"
+    }
+  ],
+  "format": "replica.bounded_rsi.cycle.v1",
+  "neural": {
+    "blockers": [
+      "perception_quality_not_established",
+      "learned_memory_rejected",
+      "correction_evidence_not_pinned",
+      "retention_evidence_not_pinned"
+    ],
+    "decision": "deferred",
+    "format": "replica.bounded_rsi.neural_gate.v1",
+    "gates": {
+      "correction": {
+        "checks": null,
+        "decision": null,
+        "evidence_sha256": null,
+        "passed": false,
+        "pin_sha256": null,
+        "status": "not_pinned"
+      },
+      "memory": {
+        "decision": "reject",
+        "deployment": "diagnostic_only_not_published",
+        "evidence_sha256": "0a0e040d1102fab1d024b1a9c9300ab3a40eab9c0f281872f347c92479d29286",
+        "failed_checks": [
+          "dev_fact_reliable",
+          "dev_changed_reliable",
+          "dev_unaffected_reliable",
+          "dev_delayed_above_controls",
+          "heldout_fact_reliable",
+          "heldout_changed_reliable",
+          "heldout_unaffected_reliable",
+          "heldout_delayed_above_controls",
+          "reference_all_cases_correct",
+          "reference_full_context_non_regression",
+          "reference_no_correct_to_wrong"
+        ],
+        "passed": false,
+        "pin_sha256": "0a0e040d1102fab1d024b1a9c9300ab3a40eab9c0f281872f347c92479d29286",
+        "status": "verified"
+      },
+      "perception": {
+        "accepted": true,
+        "engineering_pass": true,
+        "evidence_sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443",
+        "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+        "passed": false,
+        "pin_sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443",
+        "quality_claim": "V0 is an interface qualification; no broad-perception claim",
+        "quality_pass": null,
+        "status": "verified"
+      },
+      "retention": {
+        "checks": null,
+        "decision": null,
+        "evidence_sha256": null,
+        "passed": false,
+        "pin_sha256": null,
+        "status": "not_pinned"
+      }
+    },
+    "neural_artifact_created": false,
+    "neural_training_performed": false,
+    "pins": [
+      {
+        "format": "replica.vision_qualification_score.v1",
+        "gate": "perception",
+        "pinned": true,
+        "relative_path": "runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json",
+        "sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443"
+      },
+      {
+        "format": "replica.memory_reliability.verdict.v1",
+        "gate": "memory",
+        "pinned": true,
+        "relative_path": "reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json",
+        "sha256": "0a0e040d1102fab1d024b1a9c9300ab3a40eab9c0f281872f347c92479d29286"
+      },
+      {
+        "format": "replica.bounded_rsi.neural_evidence.v1",
+        "gate": "correction",
+        "pinned": false,
+        "relative_path": "reports/bounded_rsi_neural_correction/verdict.json",
+        "sha256": null
+      },
+      {
+        "format": "replica.bounded_rsi.neural_evidence.v1",
+        "gate": "retention",
+        "pinned": false,
+        "relative_path": "reports/bounded_rsi_neural_retention/verdict.json",
+        "sha256": null
+      }
+    ],
+    "promotable": false,
+    "promotion_authority": "host",
+    "scope": "neural RSI promotion requires independently pinned accepted perception, useful learned memory, correction and retention evidence; no software check may promote a neural candidate",
+    "software_promoted": false,
+    "trained_parameters": [],
+    "updates": []
+  },
+  "policy": {
+    "base_revision": "procedure-sandbox-r0",
+    "branch_id": "bounded-procedure-sandbox",
+    "evidence_epoch": 0,
+    "guard": {
+      "max_evaluator_runs": 5,
+      "max_tool_calls": 8
+    },
+    "identity_version": "replica.identity.procedure_sandbox.v1",
+    "purpose": "bounded_procedure_rsi",
+    "rejection_family": "reject.dual_constraint.v1",
+    "source_family": "source.queue_policy.v1",
+    "subject_id": "owned-procedure-subject",
+    "verification_family": "verify.retry_policy.v1"
+  },
+  "practice": {
+    "after_successes": 2,
+    "before_successes": 0,
+    "case_ids": [
+      "src_train_backoff",
+      "src_train_depth"
+    ],
+    "cases": [
+      {
+        "case_id": "src_train_backoff",
+        "error": null,
+        "final_exit_code": 0,
+        "initial_exit_code": 1,
+        "parsed_bound": {
+          "actual": "40",
+          "expected": "120.0",
+          "name": "QUEUE_BACKOFF_MS"
+        },
+        "repair_status": "succeeded",
+        "role": "train"
+      },
+      {
+        "case_id": "src_train_depth",
+        "error": null,
+        "final_exit_code": 0,
+        "initial_exit_code": 1,
+        "parsed_bound": {
+          "actual": "4",
+          "expected": "9.0",
+          "name": "QUEUE_MAX_DEPTH"
+        },
+        "repair_status": "succeeded",
+        "role": "train"
+      }
+    ],
+    "evaluator_runs": 6,
+    "failure_record_ids": [
+      "obs.0001.source.src_train_backoff.observed_failure",
+      "obs.0003.source.src_train_depth.observed_failure"
+    ],
+    "family_id": "source.queue_policy.v1",
+    "proposal": {
+      "budget": {
+        "attempts": 2,
+        "cost_units": 82.0,
+        "failures": 2,
+        "max_proposals": 1
+      },
+      "created_at": 0,
+      "data_manifest": {
+        "source_event_ids": [
+          "obs.0001.source.src_train_backoff.observed_failure",
+          "obs.0003.source.src_train_depth.observed_failure"
+        ],
+        "task_family": "source.queue_policy.v1",
+        "task_id": "source.queue_policy.v1"
+      },
+      "decision": "proposed",
+      "diagnostic": {
+        "procedure": {
+          "attempts": 2,
+          "cost_units": 82.0,
+          "failures": 2,
+          "source_event_ids": [
+            "obs.0001.source.src_train_backoff.observed_failure",
+            "obs.0003.source.src_train_depth.observed_failure"
+          ],
+          "successes": 0,
+          "task_families": [
+            "source.queue_policy.v1"
+          ],
+          "verified_receipts": 2
+        }
+      },
+      "digest": "340b4ee85c6762828eaf343d91c68bd6ec1dfcbac8364912373cd8a445da2086",
+      "evaluation_plan": "independent grouped evaluation against the parent; retention and cost reported; no auditor/gold exposure",
+      "format": "replica.learning.proposal.v1",
+      "optimizer": "host_tools",
+      "parent_manifest_id": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+      "proposal_id": "director-procedure-9bdb5ed720e1d2c9",
+      "reason": "repeated_procedure_failure",
+      "source_event_ids": [
+        "obs.0001.source.src_train_backoff.observed_failure",
+        "obs.0003.source.src_train_depth.observed_failure"
+      ],
+      "target_id": "repair-config",
+      "target_kind": "procedure"
+    },
+    "repair_record_ids": [
+      "obs.0002.source.src_train_backoff.observed_repair",
+      "obs.0004.source.src_train_depth.observed_repair"
+    ],
+    "source_records": [
+      {
+        "authenticity": "observed_tool",
+        "kind": "tool",
+        "record_hash": "7cb63fd2565d1c2096c95a090d9c21fa4ca77651dc75b5e42b047c2258ea72b8",
+        "record_id": "obs.0001.source.src_train_backoff.observed_failure"
+      },
+      {
+        "authenticity": "observed_tool",
+        "kind": "tool",
+        "record_hash": "9b97a5353360624bb4107086234c0d4c230e919852f7a97feb50777113573707",
+        "record_id": "obs.0002.source.src_train_backoff.observed_repair"
+      },
+      {
+        "authenticity": "observed_tool",
+        "kind": "tool",
+        "record_hash": "d74d7a01303646a57295e3fe876f5e50b5a8964a1575f21c8da3f9bc196e3b54",
+        "record_id": "obs.0003.source.src_train_depth.observed_failure"
+      },
+      {
+        "authenticity": "observed_tool",
+        "kind": "tool",
+        "record_hash": "c48e1c2e55a2cbe326543a2d49ef4ccbbba879cc8f1e75aeb649cf80b85bb55e",
+        "record_id": "obs.0004.source.src_train_depth.observed_repair"
+      }
+    ],
+    "tool_calls": 10
+  },
+  "procedure_gain": {
+    "evaluator_runs": 15,
+    "rejection_cases": 1,
+    "rejection_passed": 0,
+    "source_after_successes": 2,
+    "source_before_successes": 0,
+    "source_cases": 2,
+    "tool_calls": 22,
+    "unit": "bounded_owned_procedural_cases",
+    "verification_cases": 2,
+    "verification_passed": 2
+  },
+  "publication": {
+    "artifact_id": "artifact-repair-config",
+    "base_revision": "procedure-sandbox-r0",
+    "candidate_digest": "9cd071fa25c2149a1b44e45906076956ace18d4c4c31531795fb992c8cbea836",
+    "evaluation_scope": "independent_fixture_execution",
+    "evidence_epoch": 0,
+    "identity_version": "replica.identity.procedure_sandbox.v1",
+    "manifest_id": "2b90d00f942497fa59c57822156b36055766c45dd13c2ed462c0bc837403c668",
+    "parent": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "source_hashes": {
+      "obs.0001.source.src_train_backoff.observed_failure": "7cb63fd2565d1c2096c95a090d9c21fa4ca77651dc75b5e42b047c2258ea72b8",
+      "obs.0002.source.src_train_backoff.observed_repair": "9b97a5353360624bb4107086234c0d4c230e919852f7a97feb50777113573707",
+      "obs.0003.source.src_train_depth.observed_failure": "d74d7a01303646a57295e3fe876f5e50b5a8964a1575f21c8da3f9bc196e3b54",
+      "obs.0004.source.src_train_depth.observed_repair": "c48e1c2e55a2cbe326543a2d49ef4ccbbba879cc8f1e75aeb649cf80b85bb55e"
+    }
+  },
+  "qualification": {
+    "accelerated": false,
+    "acceleration_claim": null,
+    "description": "This qualifies bounded procedural plumbing only; it does not establish integrated RSI or acceleration.",
+    "integrated_rsi": false,
+    "isolated_output_registry": true,
+    "neural_promotions": 0,
+    "procedure_cycle_verified": true,
+    "scope": "procedure_plumbing_only",
+    "selected_manifest_touched": false
+  },
+  "rejection": {
+    "active_after": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "active_before": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "active_unchanged": true,
+    "artifact_id": "artifact-repair-config-rejection-probe",
+    "artifact_status": "rejected",
+    "candidate_name": "repair-config-rejection-probe",
+    "cases": [
+      {
+        "case_id": "rej_holdout_dual",
+        "error": "evaluator_failed",
+        "final_exit_code": 1,
+        "independent_passed": false,
+        "last_receipt": {
+          "exit_code": 1,
+          "kind": "run_test",
+          "stderr_excerpt": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_excerpt": "LOCK_CEILING = 1 but policy requires LOCK_CEILING >= 5.0\n",
+          "stdout_sha256": "e79cdfd702c6960b96382bddab058365550607d1dd3538eb3dce26d8e3c866c5",
+          "timed_out": false,
+          "tool_error": null,
+          "tool_status": "error"
+        },
+        "role": "heldout",
+        "status": "failed"
+      }
+    ],
+    "claims_ignored": [],
+    "evaluation_accepted": false,
+    "evaluator_runs": 3,
+    "family_id": "reject.dual_constraint.v1",
+    "publish_error": "independent verification did not accept the candidate",
+    "publish_refused": true,
+    "split": "rejection",
+    "tool_calls": 4
+  },
+  "replay_digest": "fd5b74fd4d98258725fc61be27077e23f4e1c3f56279993249b3ab7bec39b276",
+  "retrieval": {
+    "memory_only_recall": {
+      "reason": "no learned visual memory passed its gate; the v5 verdict is reject and diagnostic-only",
+      "status": "not_exercised"
+    },
+    "source_retrieval": {
+      "corrections": 0,
+      "epoch": 0,
+      "evidence_epoch": 0,
+      "mode": "exact_record_hash_binding",
+      "records": 4,
+      "revocations": 1,
+      "source_hashes": {
+        "obs.0001.source.src_train_backoff.observed_failure": "7cb63fd2565d1c2096c95a090d9c21fa4ca77651dc75b5e42b047c2258ea72b8",
+        "obs.0002.source.src_train_backoff.observed_repair": "9b97a5353360624bb4107086234c0d4c230e919852f7a97feb50777113573707",
+        "obs.0003.source.src_train_depth.observed_failure": "d74d7a01303646a57295e3fe876f5e50b5a8964a1575f21c8da3f9bc196e3b54",
+        "obs.0004.source.src_train_depth.observed_repair": "c48e1c2e55a2cbe326543a2d49ef4ccbbba879cc8f1e75aeb649cf80b85bb55e"
+      }
+    }
+  },
+  "rollback": {
+    "active_after_rollback": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "active_before_rollback": "2b90d00f942497fa59c57822156b36055766c45dd13c2ed462c0bc837403c668",
+    "ancestor_manifest_digest": "cfbee8c61ed6de00defb309b1247bf3787e419b89b862babfc2cce3d4bd0659d",
+    "ancestor_manifest_id": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "base_restored": true,
+    "candidate_artifact_id": "artifact-repair-config",
+    "candidate_artifact_status": "revoked",
+    "protected_payload_digest": "9938ee7f8708b4a54afdadd4ebb2623cf161933072f3fcaa5f01655ba43be25e",
+    "restored_manifest_id": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "revoked": true
+  },
+  "selector_policy": {
+    "changes": [],
+    "owner": "host",
+    "reason": "selector-policy updates require a separately evaluated candidate and are outside this bounded slice"
+  },
+  "unrun_scope": [
+    "neural training, fine-tuning or promotion",
+    "pinned perception quality on a broad held-out suite (V0 is interface-only)",
+    "learned visual memory recall (v5 remains rejected)",
+    "independent correction and retention evidence for neural promotion",
+    "selector-policy learning and update",
+    "longitudinal campaign or repeated-cycle acceleration measurement",
+    "integrated RSI beyond isolated host-owned procedural repair"
+  ],
+  "verification": {
+    "accepted": true,
+    "artifact_digest": "e784cbde3e9f99ab0b9e1b44ec5fe9c29d517cc18ad2be529eb125fd5db6c626",
+    "artifact_id": "artifact-repair-config",
+    "candidate_digest": "9cd071fa25c2149a1b44e45906076956ace18d4c4c31531795fb992c8cbea836",
+    "candidate_name": "repair-config",
+    "cases": [
+      {
+        "case_id": "ver_holdout_window",
+        "error": null,
+        "final_exit_code": 0,
+        "independent_passed": true,
+        "last_receipt": {
+          "exit_code": 0,
+          "kind": "run_test",
+          "stderr_excerpt": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_excerpt": "policy ok\n",
+          "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+          "timed_out": false,
+          "tool_error": null,
+          "tool_status": "ok"
+        },
+        "role": "dev",
+        "status": "succeeded"
+      },
+      {
+        "case_id": "ver_holdout_ceiling",
+        "error": null,
+        "final_exit_code": 0,
+        "independent_passed": true,
+        "last_receipt": {
+          "exit_code": 0,
+          "kind": "run_test",
+          "stderr_excerpt": "",
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout_excerpt": "policy ok\n",
+          "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+          "timed_out": false,
+          "tool_error": null,
+          "tool_status": "ok"
+        },
+        "role": "heldout",
+        "status": "succeeded"
+      }
+    ],
+    "evaluation_scope": "independent_fixture_execution",
+    "evaluator_runs": 6,
+    "family_id": "verify.retry_policy.v1",
+    "parent_manifest_id": "188bfc9bd328487a3f1227e8c78edb8e6a872d261027ea921e276388acf5d6c9",
+    "split": "verification",
+    "tool_calls": 8
+  },
+  "worlds": {
+    "case_ids_disjoint": true,
+    "families": {
+      "rejection": {
+        "cases": 1,
+        "family_id": "reject.dual_constraint.v1",
+        "roles": [
+          "heldout"
+        ]
+      },
+      "source": {
+        "cases": 2,
+        "family_id": "source.queue_policy.v1",
+        "roles": [
+          "train"
+        ]
+      },
+      "verification": {
+        "cases": 2,
+        "family_id": "verify.retry_policy.v1",
+        "roles": [
+          "dev",
+          "heldout"
+        ]
+      }
+    },
+    "family_ids": [
+      "source.queue_policy.v1",
+      "verify.retry_policy.v1",
+      "reject.dual_constraint.v1"
+    ],
+    "independent_world_families": 2,
+    "rejection_case_ids": [
+      "rej_holdout_dual"
+    ],
+    "rejection_family_cases": 1,
+    "source_case_ids": [
+      "src_train_backoff",
+      "src_train_depth"
+    ],
+    "source_family_cases": 2,
+    "verification_case_ids": [
+      "ver_holdout_window",
+      "ver_holdout_ceiling"
+    ],
+    "verification_family_cases": 2
+  }
+}

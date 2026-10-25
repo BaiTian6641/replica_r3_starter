@@ -1,10 +1,11 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current priority — 25 October 2026:** R1–R4 are implemented and verified at
-`757ace1`. Qualify **isolated MiniCPM5 V0** with memory/core/identity injections
-disabled; native V0 remains unqualified. Follow with visual alignment,
-instruction tuning, qualified visual memory and bounded RSI. Prepare the official
-Spark FP8/BF16 path and eligible dataset manifests independently now.
+**Current priority — 25 October 2026:** R1–R4 are verified, and isolated native
+MiniCPM5 V0 is independently accepted as an untrained interface. V1 is rejected;
+no V2 until usable alignment/retention exists. Continue frozen storage/addressing/
+readout diagnosis, not blind training. Useful learned memory still blocks
+dependent visual memory and neural RSI. Keep all original 50 GiB safeguards.
+Spark FP8/BF16 and dataset preparation remain independent; no Spark native claim.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

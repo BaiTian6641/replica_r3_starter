@@ -1,0 +1,52 @@
+[
+  {
+    "name": "vision_projector.0.bias",
+    "shape": [
+      768
+    ],
+    "algorithm": "adamw",
+    "group_name": "vision_projector_adamw"
+  },
+  {
+    "name": "vision_projector.0.weight",
+    "shape": [
+      768
+    ],
+    "algorithm": "adamw",
+    "group_name": "vision_projector_adamw"
+  },
+  {
+    "name": "vision_projector.1.bias",
+    "shape": [
+      2048
+    ],
+    "algorithm": "adamw",
+    "group_name": "vision_projector_adamw"
+  },
+  {
+    "name": "vision_projector.1.weight",
+    "shape": [
+      2048,
+      768
+    ],
+    "algorithm": "muon8bit",
+    "group_name": "vision_projector_muon8bit"
+  },
+  {
+    "name": "vision_projector.3.bias",
+    "shape": [
+      2048
+    ],
+    "algorithm": "adamw",
+    "group_name": "vision_projector_adamw"
+  },
+  {
+    "name": "vision_projector.3.weight",
+    "shape": [
+      2048,
+      2048
+    ],
+    "algorithm": "muon8bit",
+    "group_name": "vision_projector_muon8bit"
+  }
+]

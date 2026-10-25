@@ -1,13 +1,14 @@
 # Coding-agent continuation instruction
 
-**Current priority — run the preregistered projector-only V1 arm.**
-R1–R4 are verified; isolated native V0 is independently accepted as interface
-only. Its frozen decoder passes input gradients to six projector tensors;
-zero weights changed and fresh-process logits are bitwise equal. V0 is untrained.
-Use `configs/minicpm5_vision_v1_projector_alignment_v2.json`: 128 updates, 512
-verified training rows /64 worlds, 64 eval cases /32 disjoint worlds, six FP32
-projector tensors, frozen encoder/backbone and no memory/core/identity injections.
-Do not admit V2 or learned visual-memory/RSI until their quality prerequisites pass.
+**Current priority — frozen storage/addressing/readout diagnosis, not blind retuning.**
+R1–R4 are verified and native V0 is accepted interface-only. V1 completed
+128 projector-only updates /512 examples but independent scoring rejects:
+18/64 correct-image versus20/64 wrong and22/64 no-image; text retention22/32
+is unchanged but below its75% floor. No V2/LoRA or learned V3/neural RSI admission.
+Keep the V1 raw results and rejected candidate. Exact visual-source retrieval
+and sandbox procedure publication/rollback are separately exercised CPU controls,
+not useful learned memory. Continue the no-update storage diagnostic under the
+same one-worker, fallback=0, 50 GiB safeguards.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

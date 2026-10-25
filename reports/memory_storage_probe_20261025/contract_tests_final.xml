@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="9" time="5.003" timestamp="2026-10-25T03:05:12.986298-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_memory_diagnosis" name="test_world_generation_is_seeded_disjoint_and_label_free" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_prepare_and_admit_bind_exact_source_data_and_protocol_pins" time="0.007" /><testcase classname="tests.test_memory_diagnosis" name="test_native_reader_unavailable_is_reported_not_fabricated" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_planned_workload_counts_reloads_and_enforces_limit" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_rejects_poor_storage_before_any_reader_comparator" time="0.000"><failure message="ValueError: Readout world/stage differs from its source codebook">def test_scoring_rejects_poor_storage_before_any_reader_comparator():
+        rows = passing_rows()
+        for row in rows:
+            if row['query_kind'] == 'observed_write_key' and row['target_entry_id'] in {'a', 'b'}:
+                row['readout'] = [[0.0, 1.0]] if row['target_entry_id'] == 'a' else [[1.0, 0.0]]
+                row['matched'] = True  # Producer claims are ignored by the scorer.
+                row['top_entry_id'] = row['target_entry_id']
+&gt;       result = score_diagnostic(
+            rows, synthetic_codebook(),
+            thresholds={'storage_top1_floor': 0.8},
+            mechanical=synthetic_mechanical())
+
+tests/test_memory_diagnosis.py:278: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/memory_diagnosis.py:1188: in score_diagnostic
+    computed = _score_rows(rows, codebooks, thresholds)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rows = [{'status': 'ok', 'query_kind': 'observed_write_key', 'stage': 'initial', 'expected': 'target', ...}, {'status': 'ok',...target', ...}, {'status': 'ok', 'query_kind': 'canonical_address', 'stage': 'initial', 'expected': 'target', ...}, ...]
+codebooks = {'synthetic/world/stage/layer-0': {'key': 'synthetic/world/stage/layer-0', 'world_id': 'synthetic/world', 'stage': 'initial', 'layer': 0, ...}}
+thresholds = {'match_cosine_floor': 0.5, 'match_margin_floor': 0.05, 'storage_top1_floor': 0.8, 'wrong_key_target_leak_max': 0.1, ...}
+
+    def _score_rows(rows, codebooks, thresholds):
+        """Recompute every acceptance decision from raw readouts and codebook vectors."""
+        computed = {}
+        for index, row in enumerate(rows):
+            if row.get('status') != 'ok' or row.get('readout') is None:
+                computed[index] = {'accepted': False, 'top_entry_id': None,
+                                   'top_cosine': None, 'margin': None, 'scores': {}}
+                continue
+            codebook = codebooks.get(row['codebook_key'])
+            if codebook is None:
+                raise ValueError('Readout references an unknown codebook')
+            if (row.get('world_id') != codebook['world_id']
+                    or row.get('stage') != codebook['stage']):
+&gt;               raise ValueError('Readout world/stage differs from its source codebook')
+E               ValueError: Readout world/stage differs from its source codebook
+
+src/replica_lab/memory_diagnosis.py:1074: ValueError</failure></testcase><testcase classname="tests.test_memory_diagnosis" name="test_scoring_recomputes_passes_from_raw_readouts_and_keeps_v5_rejected" time="0.000"><failure message="ValueError: Readout world/stage differs from its source codebook">def test_scoring_recomputes_passes_from_raw_readouts_and_keeps_v5_rejected():
+        rows = passing_rows()
+        for row in rows:
+            if row['query_kind'] == 'observed_write_key' and row['target_entry_id'] == 'a':
+                row['matched'] = False
+                row['top_entry_id'] = 'b'
+&gt;       result = score_diagnostic(rows, synthetic_codebook(),
+                                  thresholds=None, mechanical=synthetic_mechanical())
+
+tests/test_memory_diagnosis.py:297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/memory_diagnosis.py:1188: in score_diagnostic
+    computed = _score_rows(rows, codebooks, thresholds)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rows = [{'status': 'ok', 'query_kind': 'observed_write_key', 'stage': 'initial', 'expected': 'target', ...}, {'status': 'ok',...target', ...}, {'status': 'ok', 'query_kind': 'canonical_address', 'stage': 'initial', 'expected': 'target', ...}, ...]
+codebooks = {'synthetic/world/stage/layer-0': {'key': 'synthetic/world/stage/layer-0', 'world_id': 'synthetic/world', 'stage': 'initial', 'layer': 0, ...}}
+thresholds = {'match_cosine_floor': 0.5, 'match_margin_floor': 0.05, 'storage_top1_floor': 0.6, 'wrong_key_target_leak_max': 0.1, ...}
+
+    def _score_rows(rows, codebooks, thresholds):
+        """Recompute every acceptance decision from raw readouts and codebook vectors."""
+        computed = {}
+        for index, row in enumerate(rows):
+            if row.get('status') != 'ok' or row.get('readout') is None:
+                computed[index] = {'accepted': False, 'top_entry_id': None,
+                                   'top_cosine': None, 'margin': None, 'scores': {}}
+                continue
+            codebook = codebooks.get(row['codebook_key'])
+            if codebook is None:
+                raise ValueError('Readout references an unknown codebook')
+            if (row.get('world_id') != codebook['world_id']
+                    or row.get('stage') != codebook['stage']):
+&gt;               raise ValueError('Readout world/stage differs from its source codebook')
+E               ValueError: Readout world/stage differs from its source codebook
+
+src/replica_lab/memory_diagnosis.py:1074: ValueError</failure></testcase><testcase classname="tests.test_memory_diagnosis" name="test_scoring_detects_readout_selecting_superseded_value" time="0.000"><failure message="ValueError: Readout world/stage differs from its source codebook">def test_scoring_detects_readout_selecting_superseded_value():
+        codebook = synthetic_codebook()
+        old_vector = codebook['synthetic/world/stage/layer-0'][
+            'negative_entries']['old']['value_vector']
+        rows = passing_rows()
+        mutated = 0
+        for row in rows:
+            if (row['stage'] == 'corrected' and row['role'] == 'correction_target'
+                    and row['status'] == 'ok'):
+                row['readout'] = old_vector
+                mutated += 1
+        assert mutated &gt;= 2
+&gt;       result = score_diagnostic(rows, codebook, thresholds=None,
+                                  mechanical=synthetic_mechanical())
+
+tests/test_memory_diagnosis.py:327: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/memory_diagnosis.py:1188: in score_diagnostic
+    computed = _score_rows(rows, codebooks, thresholds)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rows = [{'status': 'ok', 'query_kind': 'observed_write_key', 'stage': 'initial', 'expected': 'target', ...}, {'status': 'ok',...target', ...}, {'status': 'ok', 'query_kind': 'canonical_address', 'stage': 'initial', 'expected': 'target', ...}, ...]
+codebooks = {'synthetic/world/stage/layer-0': {'key': 'synthetic/world/stage/layer-0', 'world_id': 'synthetic/world', 'stage': 'initial', 'layer': 0, ...}}
+thresholds = {'match_cosine_floor': 0.5, 'match_margin_floor': 0.05, 'storage_top1_floor': 0.6, 'wrong_key_target_leak_max': 0.1, ...}
+
+    def _score_rows(rows, codebooks, thresholds):
+        """Recompute every acceptance decision from raw readouts and codebook vectors."""
+        computed = {}
+        for index, row in enumerate(rows):
+            if row.get('status') != 'ok' or row.get('readout') is None:
+                computed[index] = {'accepted': False, 'top_entry_id': None,
+                                   'top_cosine': None, 'margin': None, 'scores': {}}
+                continue
+            codebook = codebooks.get(row['codebook_key'])
+            if codebook is None:
+                raise ValueError('Readout references an unknown codebook')
+            if (row.get('world_id') != codebook['world_id']
+                    or row.get('stage') != codebook['stage']):
+&gt;               raise ValueError('Readout world/stage differs from its source codebook')
+E               ValueError: Readout world/stage differs from its source codebook
+
+src/replica_lab/memory_diagnosis.py:1074: ValueError</failure></testcase><testcase classname="tests.test_memory_diagnosis" name="test_scoring_reports_missing_native_reader_without_promoting_memory" time="0.000"><failure message="ValueError: Readout world/stage differs from its source codebook">def test_scoring_reports_missing_native_reader_without_promoting_memory():
+        rows = [row for row in passing_rows() if row['query_kind'] != 'native_reader']
+        rows.append(synthetic_row('native_reader', None, target=None,
+                                  expected='unsupported', role='native_reader',
+                                  source_family='none', status='unavailable',
+                                  unavailable_reason='native fast reader unavailable: no fast_ports'))
+&gt;       result = score_diagnostic(rows, synthetic_codebook(),
+                                  thresholds=None, mechanical=synthetic_mechanical())
+
+tests/test_memory_diagnosis.py:343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/memory_diagnosis.py:1188: in score_diagnostic
+    computed = _score_rows(rows, codebooks, thresholds)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rows = [{'status': 'ok', 'query_kind': 'observed_write_key', 'stage': 'initial', 'expected': 'target', ...}, {'status': 'ok',...target', ...}, {'status': 'ok', 'query_kind': 'canonical_address', 'stage': 'initial', 'expected': 'target', ...}, ...]
+codebooks = {'synthetic/world/stage/layer-0': {'key': 'synthetic/world/stage/layer-0', 'world_id': 'synthetic/world', 'stage': 'initial', 'layer': 0, ...}}
+thresholds = {'match_cosine_floor': 0.5, 'match_margin_floor': 0.05, 'storage_top1_floor': 0.6, 'wrong_key_target_leak_max': 0.1, ...}
+
+    def _score_rows(rows, codebooks, thresholds):
+        """Recompute every acceptance decision from raw readouts and codebook vectors."""
+        computed = {}
+        for index, row in enumerate(rows):
+            if row.get('status') != 'ok' or row.get('readout') is None:
+                computed[index] = {'accepted': False, 'top_entry_id': None,
+                                   'top_cosine': None, 'margin': None, 'scores': {}}
+                continue
+            codebook = codebooks.get(row['codebook_key'])
+            if codebook is None:
+                raise ValueError('Readout references an unknown codebook')
+            if (row.get('world_id') != codebook['world_id']
+                    or row.get('stage') != codebook['stage']):
+&gt;               raise ValueError('Readout world/stage differs from its source codebook')
+E               ValueError: Readout world/stage differs from its source codebook
+
+src/replica_lab/memory_diagnosis.py:1074: ValueError</failure></testcase><testcase classname="tests.test_memory_diagnosis" name="test_tiny_fixture_runs_frozen_diagnostic_with_controls_and_restart" time="2.917" /></testsuite></testsuites>

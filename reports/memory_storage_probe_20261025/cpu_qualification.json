@@ -1,0 +1,33 @@
+{
+  "format": "replica.memory_storage_cpu_qualification.v1",
+  "scope": "deterministic_tiny_fixture_only",
+  "status": "completed",
+  "decision": "defer_useful_memory_correction_or_retention_failed",
+  "evaluated_rows": 180,
+  "unique_after_reload_cases": 90,
+  "optimizer_updates": 0,
+  "updated_tensors": [],
+  "restart_state_exact": true,
+  "restart_readout_exact": true,
+  "failed_gates": [
+    "correction",
+    "native_readout"
+  ],
+  "tests": {
+    "probe_and_guard_passed": 29,
+    "seconds": 4.89
+  },
+  "raw_directory": "runs/memory_storage_probe_20261025/cpu_contract02",
+  "raw_sha256": {
+    "worlds.json": "aa910893896a3485e70d84f66757cef1449a12b11e3f598794da685a45b3d3c7",
+    "readouts.jsonl": "e1544223517550928ac22e6e0cc296354fb451c3349c566871dc82e2b1477204",
+    "codebooks.json": "a54faf3d14f3dedd10262b2f6d283e0ca2b03826f8273ee1504f724c3c2b31fe"
+  },
+  "implementation_sha256": {
+    "src/replica_lab/memory_diagnosis.py": "ff50fa95f979627c6af4141f5a3bee76fd6f28a2dc7bbde347f9b313005505fb",
+    "scripts/run_memory_storage_probe.py": "97259b7c06ba973f0e76f9610913230f940ac7e458ae7a9cfc1d648c6e047796",
+    "tests/test_memory_diagnosis.py": "9860a8c2a17fd601ba03e885ce28a6bee71b8c23ad833cb6a302c1aa8f63782b"
+  },
+  "source_limit": "Uncommitted hashed source bundle at this CPU smoke; not a preregistered native experiment. No MiniCPM5/native-memory quality conclusion follows from the tiny fixture.",
+  "native_probe": "Next package prepares/commits fresh opaque data/protocol/source pins and uses the unchanged native guard with the rejected v5 writer, zero weight updates."
+}

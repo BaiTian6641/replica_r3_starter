@@ -1,0 +1,46 @@
+{
+  "optimizer": "muon8bit",
+  "implementation": "replica_portable_eager_v1",
+  "parameter_dtype": "float32",
+  "muon_temporary_dtype": "float32",
+  "muon_nesterov": false,
+  "muon_lr_adjustment": "match_rms_adamw",
+  "momentum": 0.95,
+  "block_size": 2048,
+  "ns_steps": 5,
+  "groups": [
+    {
+      "group_name": "vision_projector_muon8bit",
+      "scope": "vision_projector",
+      "algorithm": "muon8bit",
+      "lr": 0.0001,
+      "weight_decay": 0.01,
+      "param_names": [
+        "vision_projector.1.weight",
+        "vision_projector.3.weight"
+      ],
+      "tensors": 2,
+      "parameters": 5767168
+    },
+    {
+      "group_name": "vision_projector_adamw",
+      "scope": "vision_projector",
+      "algorithm": "adamw",
+      "lr": 0.0001,
+      "weight_decay": 0.01,
+      "param_names": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.bias",
+        "vision_projector.3.bias"
+      ],
+      "tensors": 4,
+      "parameters": 5632
+    }
+  ],
+  "state_tensor_bytes": 5823488,
+  "state_bytes_by_dtype": {
+    "torch.int8": 5767168,
+    "torch.float32": 56320
+  }
+}

@@ -130,6 +130,13 @@ actual token bounds are in [CPU admission](../../reports/vision_v1_20261025/cpu_
 Caption-only receives oracle scene metadata explicitly; it is not ordinary
 training/sensing input. V1 remains unrun at this preregistration.
 
+The measured arm subsequently completes and is
+[independently rejected](../../reports/vision_v1_20261025/qualification.json):
+correct image18/64, wrong20/64, shuffled15/64, no-image22/64, oracle caption60/64,
+empty OCR15/64. Text retention is22/32 before/after with exact token parity, below
+the75% absolute floor. Six projector tensors change; frozen components do not.
+V2 is not admitted. Falling loss does not override these failed quality gates.
+
 
 For V1, use eligible image-caption/grounding pairs and response-only supervised
 loss. For V2, use visual questions, instruction following, spatial relations,

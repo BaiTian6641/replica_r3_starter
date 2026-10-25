@@ -1,24 +1,40 @@
 # Integrated memory, learning, vision and bounded RSI design
 
 **Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
-The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
-next and remains natively unqualified. Reuse the recorded 140 integrated tests
-and 1,372-test +21-subtest source-export result in
-[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
-native work. The dated design and historical results below retain their scope.
+The repair prerequisites are satisfied. Isolated native V0 is independently
+accepted as interface-only: six projector gradients, zero updates, bitwise
+fresh-process logits. Projector-only V1 has a pinned 512-row/128-update protocol.
+The rejected v5 writer is not promoted. Exact visual-source retrieval and a
+sandbox procedure publication/rejection/rollback cycle have separate CPU
+engineering qualification; neither is learned visual memory or neural RSI.
 
 **Design revision: 25 October 2026. Reviewed implementation: `7c7018e`.**
 This is a proposed system and qualification plan, not a record of new training.
 MiniCPM5 remains the baseline; the native memory guard remains **50 GiB**.
 The completed v5 writer experiment is rejected. Its mechanical persistence
-passes do not establish useful learned memory. No visual or neural RSI candidate
-has been qualified by this revision.
+passes do not establish useful learned memory. V0 qualifies only an interface;
+no useful-perception, learned-memory or neural-RSI capability is implied.
 
 The immediate sequence is **remaining verification and representation-preserving
 memory rebuild fixes → isolated MiniCPM5 V0 → V1/V2 visual fine-tuning → qualified
 visual memory → bounded RSI**. Spark FP8/BF16 source and backend preparation,
 dataset curation and memory diagnosis can proceed independently. Another blind
 memory-training attempt is not a prerequisite for isolated V0.
+
+### Independently exercised engineering controls
+
+| Control | Actual evidence | Excluded claim |
+|---|---|---|
+| [MiniCPM5 V0](../../reports/vision_v0_20261025/qualification.json) | Frozen-decoder input gradients, correct/wrong/no-image generation, exact fresh-process reload | Useful perception or learned memory |
+| [Exact visual sources](../../reports/exact_visual_source_20261025/qualification.json) | 36 original assets across 12 worlds, one renderer family; delayed authenticated retrieval, reload without re-encoding, unaffected reference, ancestor/descendant revocation | Factual memory-only recall or learned V3; correction is metadata/crop/owner lineage only |
+| [Bounded procedure cycle](../../reports/bounded_rsi_20261025/qualification.json) | Real practice, independent verification, rejected candidate, sandbox publication, authenticated ancestor rollback and deterministic replay | Neural updates, learning-policy improvement, integrated or accelerating RSI |
+
+The source-retrieval and procedure smokes use explicitly hashed source bundles;
+they are not described as preregistered neural experiments. Candidate bindings,
+base/identity metadata and archived rollback contents are authenticated by the
+host. Current perception-quality, useful-memory, correction and retention pins
+do not admit neural promotion. No longitudinal campaign has started.
+
 
 | Detailed contract | Purpose |
 |---|---|

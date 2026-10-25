@@ -1,0 +1,508 @@
+{
+  "practice": [
+    {
+      "case_id": "src_train_backoff",
+      "receipts": [
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/owned_worlds/source/source.queue_policy.v1/src_train_backoff",
+            "duration_ms": 30,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "217a7f751de4ce9f1fd80be16ff0d77cfc2dd5dd8aa702e0130ae23080208660",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "QUEUE_BACKOFF_MS = 40 but policy requires QUEUE_BACKOFF_MS >= 120.0\n",
+            "stdout_sha256": "b84b1e8a5585c1294c85ef15d13f784661fc602e6d31069e2f0d46e120ecb3cc",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "32ba0ffe81aad2ff160acfd4151fb84a1bf3b7e924b0f8fd6bf8fa951060d829"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "32ba0ffe81aad2ff160acfd4151fb84a1bf3b7e924b0f8fd6bf8fa951060d829"
+            }
+          },
+          "status": "error"
+        }
+      ],
+      "record_id": "obs.0001.source.src_train_backoff.observed_failure",
+      "stage": "observed_failure"
+    },
+    {
+      "case_id": "src_train_backoff",
+      "receipts": [
+        {
+          "content": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nQUEUE_BACKOFF_MS = 40\n",
+          "excerpt": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nQUEUE_BACKOFF_MS = 40\n",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "32ba0ffe81aad2ff160acfd4151fb84a1bf3b7e924b0f8fd6bf8fa951060d829",
+          "size": 77,
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/owned_worlds/source/source.queue_policy.v1/src_train_backoff",
+            "duration_ms": 25,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "3f81d1759a0343f977639fbcc4f34d5817d7bd384b0b4efa8e9240a2050c33dd",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "QUEUE_BACKOFF_MS = 40 but policy requires QUEUE_BACKOFF_MS >= 120.0\n",
+            "stdout_sha256": "b84b1e8a5585c1294c85ef15d13f784661fc602e6d31069e2f0d46e120ecb3cc",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "32ba0ffe81aad2ff160acfd4151fb84a1bf3b7e924b0f8fd6bf8fa951060d829"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "32ba0ffe81aad2ff160acfd4151fb84a1bf3b7e924b0f8fd6bf8fa951060d829"
+            }
+          },
+          "status": "error"
+        },
+        {
+          "kind": "set_constant",
+          "name": "QUEUE_BACKOFF_MS",
+          "new_value": "120.0",
+          "old_value": "40",
+          "path": "workspace/app_settings.py",
+          "receipt": {
+            "created": false,
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "3a64f693c790a1a4accc9f724f3d58a71bc5cd4d60005ad92363471bf7484cc3",
+            "size": 80,
+            "status": "ok"
+          },
+          "sha256": "3a64f693c790a1a4accc9f724f3d58a71bc5cd4d60005ad92363471bf7484cc3",
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/owned_worlds/source/source.queue_policy.v1/src_train_backoff",
+            "duration_ms": 24,
+            "exit_code": 0,
+            "kind": "run_test",
+            "receipt_sha256": "4b4c3538d194a019f3d542fb3730ec1b4fd7b5c788864b673ac564ffcc4d5ceb",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "policy ok\n",
+            "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "3a64f693c790a1a4accc9f724f3d58a71bc5cd4d60005ad92363471bf7484cc3"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "3a64f693c790a1a4accc9f724f3d58a71bc5cd4d60005ad92363471bf7484cc3"
+            }
+          },
+          "status": "ok"
+        }
+      ],
+      "record_id": "obs.0002.source.src_train_backoff.observed_repair",
+      "stage": "observed_repair"
+    },
+    {
+      "case_id": "src_train_depth",
+      "receipts": [
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/owned_worlds/source/source.queue_policy.v1/src_train_depth",
+            "duration_ms": 24,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "2560515da9aa7600156aa26f2b0e0c71b12b684223c1a6bc7e4303e9dbbeac12",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "QUEUE_MAX_DEPTH = 4 but policy requires QUEUE_MAX_DEPTH >= 9.0\n",
+            "stdout_sha256": "a6b635f2952c7b5be848fa2b113dec02210bb8cd2e698195e1809c82fdf541c4",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "e1ab3ca3a99529dc8ce3d2ae69af45eb952362ab11bffab0997a986459812543"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "e1ab3ca3a99529dc8ce3d2ae69af45eb952362ab11bffab0997a986459812543"
+            }
+          },
+          "status": "error"
+        }
+      ],
+      "record_id": "obs.0003.source.src_train_depth.observed_failure",
+      "stage": "observed_failure"
+    },
+    {
+      "case_id": "src_train_depth",
+      "receipts": [
+        {
+          "content": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nQUEUE_MAX_DEPTH = 4\n",
+          "excerpt": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nQUEUE_MAX_DEPTH = 4\n",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "e1ab3ca3a99529dc8ce3d2ae69af45eb952362ab11bffab0997a986459812543",
+          "size": 75,
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/owned_worlds/source/source.queue_policy.v1/src_train_depth",
+            "duration_ms": 24,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "2560515da9aa7600156aa26f2b0e0c71b12b684223c1a6bc7e4303e9dbbeac12",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "QUEUE_MAX_DEPTH = 4 but policy requires QUEUE_MAX_DEPTH >= 9.0\n",
+            "stdout_sha256": "a6b635f2952c7b5be848fa2b113dec02210bb8cd2e698195e1809c82fdf541c4",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "e1ab3ca3a99529dc8ce3d2ae69af45eb952362ab11bffab0997a986459812543"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "e1ab3ca3a99529dc8ce3d2ae69af45eb952362ab11bffab0997a986459812543"
+            }
+          },
+          "status": "error"
+        },
+        {
+          "kind": "set_constant",
+          "name": "QUEUE_MAX_DEPTH",
+          "new_value": "9.0",
+          "old_value": "4",
+          "path": "workspace/app_settings.py",
+          "receipt": {
+            "created": false,
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "dce255ca74c57f111261e6bea67635360dc7e203f0bc5ff1b041eee0a55948c4",
+            "size": 77,
+            "status": "ok"
+          },
+          "sha256": "dce255ca74c57f111261e6bea67635360dc7e203f0bc5ff1b041eee0a55948c4",
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/owned_worlds/source/source.queue_policy.v1/src_train_depth",
+            "duration_ms": 25,
+            "exit_code": 0,
+            "kind": "run_test",
+            "receipt_sha256": "b1b6366a9b43ad19dbb9c9e3b49ceecb79703c57933d5e25dbb44bd4e1bcafbf",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "policy ok\n",
+            "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "dce255ca74c57f111261e6bea67635360dc7e203f0bc5ff1b041eee0a55948c4"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "dce255ca74c57f111261e6bea67635360dc7e203f0bc5ff1b041eee0a55948c4"
+            }
+          },
+          "status": "ok"
+        }
+      ],
+      "record_id": "obs.0004.source.src_train_depth.observed_repair",
+      "stage": "observed_repair"
+    }
+  ],
+  "rejection": [
+    {
+      "case_id": "rej_holdout_dual",
+      "error": "evaluator_failed",
+      "final_exit_code": 1,
+      "independent_passed": false,
+      "receipts": [
+        {
+          "content": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nLOCK_TIMEOUT = 1\nLOCK_CEILING = 1\n",
+          "excerpt": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nLOCK_TIMEOUT = 1\nLOCK_CEILING = 1\n",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "9d355f0a777c6dddd54516286a7abd18f8c22255b2812ca71ac08125f9d6fcd1",
+          "size": 89,
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/verification/rejection/artifact-repair-config-rejection-probe/rej_holdout_dual",
+            "duration_ms": 26,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "c057ba877e96286cb16a43887b45a39fc596556335de7a5f0ac8e9ec4acaf696",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "LOCK_TIMEOUT = 1 but policy requires LOCK_TIMEOUT >= 5.0\n",
+            "stdout_sha256": "4676516ddeac856c808ccdf789f6f7bbb096fe2b7e99ef16d878667a52dd20a0",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "9d355f0a777c6dddd54516286a7abd18f8c22255b2812ca71ac08125f9d6fcd1"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "9d355f0a777c6dddd54516286a7abd18f8c22255b2812ca71ac08125f9d6fcd1"
+            }
+          },
+          "status": "error"
+        },
+        {
+          "kind": "set_constant",
+          "name": "LOCK_TIMEOUT",
+          "new_value": "5.0",
+          "old_value": "1",
+          "path": "workspace/app_settings.py",
+          "receipt": {
+            "created": false,
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "2357726a6ea2895019cb113b82a36fc181887e013e9ded7ae8c68cf3569b3af9",
+            "size": 91,
+            "status": "ok"
+          },
+          "sha256": "2357726a6ea2895019cb113b82a36fc181887e013e9ded7ae8c68cf3569b3af9",
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/verification/rejection/artifact-repair-config-rejection-probe/rej_holdout_dual",
+            "duration_ms": 29,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "d5cfaa5bfd5ed11d6a906cce4da5087f8fcee5deb0450a596a65f00d25f8b346",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "LOCK_CEILING = 1 but policy requires LOCK_CEILING >= 5.0\n",
+            "stdout_sha256": "e79cdfd702c6960b96382bddab058365550607d1dd3538eb3dce26d8e3c866c5",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "2357726a6ea2895019cb113b82a36fc181887e013e9ded7ae8c68cf3569b3af9"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "2357726a6ea2895019cb113b82a36fc181887e013e9ded7ae8c68cf3569b3af9"
+            }
+          },
+          "status": "error"
+        }
+      ],
+      "role": "heldout",
+      "status": "failed"
+    }
+  ],
+  "verification": [
+    {
+      "case_id": "ver_holdout_window",
+      "error": null,
+      "final_exit_code": 0,
+      "independent_passed": true,
+      "receipts": [
+        {
+          "content": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nRETRY_WINDOW_SEC = 5\n",
+          "excerpt": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nRETRY_WINDOW_SEC = 5\n",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "c2ec9463bf98f58a64a06533a1cb1c589545ad54f12bbf25405f8b8c952ba9ba",
+          "size": 76,
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/verification/verification/artifact-repair-config/ver_holdout_window",
+            "duration_ms": 25,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "12b67bba8dd9881604ac8845179e90159bc783189c0b070c67b97ce6b25e93ff",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "RETRY_WINDOW_SEC = 5 but policy requires RETRY_WINDOW_SEC >= 15.0\n",
+            "stdout_sha256": "624edd93063c42e036ff10a7298a667f210aff94508ac0c677954a185547b680",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "c2ec9463bf98f58a64a06533a1cb1c589545ad54f12bbf25405f8b8c952ba9ba"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "c2ec9463bf98f58a64a06533a1cb1c589545ad54f12bbf25405f8b8c952ba9ba"
+            }
+          },
+          "status": "error"
+        },
+        {
+          "kind": "set_constant",
+          "name": "RETRY_WINDOW_SEC",
+          "new_value": "15.0",
+          "old_value": "5",
+          "path": "workspace/app_settings.py",
+          "receipt": {
+            "created": false,
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "5c071e06f437f5f07f4c51355f843ef9cb40b0fa0238179c30bf14e530b7d168",
+            "size": 79,
+            "status": "ok"
+          },
+          "sha256": "5c071e06f437f5f07f4c51355f843ef9cb40b0fa0238179c30bf14e530b7d168",
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/verification/verification/artifact-repair-config/ver_holdout_window",
+            "duration_ms": 25,
+            "exit_code": 0,
+            "kind": "run_test",
+            "receipt_sha256": "a786bf36fdc4b3a868c6a741ad8d02c84360546122e7bc759299f053afa87628",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "policy ok\n",
+            "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "5c071e06f437f5f07f4c51355f843ef9cb40b0fa0238179c30bf14e530b7d168"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "5c071e06f437f5f07f4c51355f843ef9cb40b0fa0238179c30bf14e530b7d168"
+            }
+          },
+          "status": "ok"
+        }
+      ],
+      "role": "dev",
+      "status": "succeeded"
+    },
+    {
+      "case_id": "ver_holdout_ceiling",
+      "error": null,
+      "final_exit_code": 0,
+      "independent_passed": true,
+      "receipts": [
+        {
+          "content": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nRETRY_CEILING = 2\n",
+          "excerpt": "\"\"\"Owned synthetic settings module; host-generated.\"\"\"\nRETRY_CEILING = 2\n",
+          "kind": "read_file",
+          "path": "workspace/app_settings.py",
+          "sha256": "b74694dc28e7046f0075e3ff236f871bce27a719e881462c26a05ae99a888e12",
+          "size": 73,
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/verification/verification/artifact-repair-config/ver_holdout_ceiling",
+            "duration_ms": 24,
+            "exit_code": 1,
+            "kind": "run_test",
+            "receipt_sha256": "f160cf680e8cd4f909653f4ce99d9e32c75019be69086ccd0538ba382e197d35",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "RETRY_CEILING = 2 but policy requires RETRY_CEILING >= 7.0\n",
+            "stdout_sha256": "131fb30f7336d5d7e68b98f07e98a1a45b1dab368953bc56c0516c844b8022c5",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "b74694dc28e7046f0075e3ff236f871bce27a719e881462c26a05ae99a888e12"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "b74694dc28e7046f0075e3ff236f871bce27a719e881462c26a05ae99a888e12"
+            }
+          },
+          "status": "error"
+        },
+        {
+          "kind": "set_constant",
+          "name": "RETRY_CEILING",
+          "new_value": "7.0",
+          "old_value": "2",
+          "path": "workspace/app_settings.py",
+          "receipt": {
+            "created": false,
+            "kind": "write_file",
+            "path": "workspace/app_settings.py",
+            "sha256": "247d9d20b4145278c7d58ad18ef78f35d7f03534e4bf1f90adabdfca42e420f4",
+            "size": 75,
+            "status": "ok"
+          },
+          "sha256": "247d9d20b4145278c7d58ad18ef78f35d7f03534e4bf1f90adabdfca42e420f4",
+          "status": "ok"
+        },
+        {
+          "kind": "run_test",
+          "receipt": {
+            "command": [
+              "/Users/flare/replica_r3_starter/.venv/bin/python",
+              "evaluator.py"
+            ],
+            "cwd": "/Users/flare/replica_r3_starter/runs/bounded_rsi_20261025/attempt01/verification/verification/artifact-repair-config/ver_holdout_ceiling",
+            "duration_ms": 24,
+            "exit_code": 0,
+            "kind": "run_test",
+            "receipt_sha256": "1f51c90d023c379a622e6ba97880ca3b2515d38f17ea04457b0fc56ef0ec3e35",
+            "stderr_excerpt": "",
+            "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout_excerpt": "policy ok\n",
+            "stdout_sha256": "e5334e64731bcca61496b486ae4cec8039e7007c23d0be0dd09457e010e6b425",
+            "timed_out": false,
+            "workspace_hashes_after": {
+              "app_settings.py": "247d9d20b4145278c7d58ad18ef78f35d7f03534e4bf1f90adabdfca42e420f4"
+            },
+            "workspace_hashes_before": {
+              "app_settings.py": "247d9d20b4145278c7d58ad18ef78f35d7f03534e4bf1f90adabdfca42e420f4"
+            }
+          },
+          "status": "ok"
+        }
+      ],
+      "role": "heldout",
+      "status": "succeeded"
+    }
+  ]
+}

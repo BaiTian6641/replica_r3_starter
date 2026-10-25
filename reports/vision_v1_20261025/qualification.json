@@ -1,0 +1,170 @@
+{
+  "format": "replica.vision_v1_qualification.v1",
+  "disposition": "rejected_projector_alignment_quality",
+  "engineering_pass": true,
+  "quality_pass": false,
+  "selected_model_promoted": false,
+  "protocol_sha256": "980454c29f31f1196af71889aecf4fa6a5e99da996d4351d7798c73d34ca36c2",
+  "code_commit": "9c11f2c9487ebd1afdb7dbbb34e1d6e95cceff10",
+  "native_run_report_sha256": "549b5a06e7a20da8a8a3be88ee8e403bd7a7ea553212cc7ab32f45fbbd968f88",
+  "score_report_sha256": "bcf5ac96844aa70728859a20eebde62da2c42e12e1bf91d9e301650e759ca274",
+  "initial_weights_sha256": "042a6fa354acb793c3fa4476d419ac0ae938ff3ceb853a201719fb6ea214599c",
+  "final_weights_sha256": "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "vision_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "admitted_training_rows": 512,
+  "consumed_training_rows": 512,
+  "training_world_groups": 64,
+  "evaluation_cases": 64,
+  "evaluation_world_groups": 32,
+  "source_families": 1,
+  "optimizer_updates": 128,
+  "backward_calls": 512,
+  "gradient_owners": "six vision_projector tensors only",
+  "changed_tensors": 6,
+  "unchanged_other_extension_tensors": 43,
+  "base_and_encoder_frozen": true,
+  "optimizer_state_bytes": 5823488,
+  "state_bytes_by_dtype": {
+    "torch.int8": 5767168,
+    "torch.float32": 56320
+  },
+  "weights_gradients_temporary_dtype": "float32",
+  "control_scores": {
+    "correct": {
+      "correct": 18,
+      "cases": 64,
+      "accuracy": 0.28125
+    },
+    "wrong": {
+      "correct": 20,
+      "cases": 64,
+      "accuracy": 0.3125
+    },
+    "shuffled": {
+      "correct": 15,
+      "cases": 64,
+      "accuracy": 0.234375
+    },
+    "noimage": {
+      "correct": 22,
+      "cases": 64,
+      "accuracy": 0.34375
+    },
+    "captiononly": {
+      "correct": 60,
+      "cases": 64,
+      "accuracy": 0.9375
+    },
+    "ocrtextonly": {
+      "correct": 15,
+      "cases": 64,
+      "accuracy": 0.234375
+    }
+  },
+  "text_retention": {
+    "baseline_correct": 22,
+    "after_correct": 22,
+    "cases": 32,
+    "before_after_tokens_bitwise_equal": true,
+    "declared_accuracy_floor": 0.75,
+    "failed_absolute_floor": true,
+    "regression_drop": 0.0
+  },
+  "quality_failures": [
+    "min_correct_accuracy",
+    "min_correct_margin_wrong",
+    "min_correct_margin_shuffled",
+    "min_correct_margin_noimage",
+    "min_correct_margin_captiononly",
+    "min_correct_margin_ocrtextonly",
+    "min_text_retention_accuracy"
+  ],
+  "training_loss": {
+    "first_update_mean": 10.42173147201538,
+    "last_update_mean": 1.7385981976985931,
+    "claim": "Falling supervised loss did not establish image grounding."
+  },
+  "resources": {
+    "optimizer_updates": 128,
+    "training_wall_seconds": 267.9302840831224,
+    "evaluation_wall_seconds": 130.1775348749943,
+    "retention_wall_seconds": 6.295341958990321,
+    "baseline_retention_wall_seconds": 6.437254624906927,
+    "training_backward_calls": 512,
+    "evaluation_prompt_tokens": 16678,
+    "evaluation_generated_tokens": 1095,
+    "retention_generated_tokens": 80,
+    "vision_cache_before": {
+      "encoder_producer": "ab60a1103f7fdde0b11a0cb28a5efd40e0abb450f6f33f04b87e869d63fa645a",
+      "source_id": "google/siglip2-base-patch16-224@75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+      "device": "mps",
+      "entries": 0,
+      "bytes": 0,
+      "max_bytes": 8388608,
+      "hits": 0,
+      "misses": 0,
+      "invalidations": 0,
+      "evictions": 0,
+      "encoder": {
+        "tensor_count": 208,
+        "parameter_elements": 92884224,
+        "trainable_names": [],
+        "gradient_names": [],
+        "parameter_stamp_unchanged": true,
+        "dtypes": [
+          "torch.float32"
+        ],
+        "devices": [
+          "mps:0"
+        ],
+        "encoder_producer": "ab60a1103f7fdde0b11a0cb28a5efd40e0abb450f6f33f04b87e869d63fa645a"
+      }
+    },
+    "vision_cache_after": {
+      "encoder_producer": "ab60a1103f7fdde0b11a0cb28a5efd40e0abb450f6f33f04b87e869d63fa645a",
+      "source_id": "google/siglip2-base-patch16-224@75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+      "device": "mps",
+      "entries": 13,
+      "bytes": 7830004,
+      "max_bytes": 8388608,
+      "hits": 2,
+      "misses": 702,
+      "invalidations": 0,
+      "evictions": 689,
+      "encoder": {
+        "tensor_count": 208,
+        "parameter_elements": 92884224,
+        "trainable_names": [],
+        "gradient_names": [],
+        "parameter_stamp_unchanged": true,
+        "dtypes": [
+          "torch.float32"
+        ],
+        "devices": [
+          "mps:0"
+        ],
+        "encoder_producer": "ab60a1103f7fdde0b11a0cb28a5efd40e0abb450f6f33f04b87e869d63fa645a"
+      }
+    },
+    "downloads": 0,
+    "profiled_wall_seconds": 416.4495244999416,
+    "sampled_peak_driver_bytes": 11989827584,
+    "sampled_peak_rss_bytes": 3305570304
+  },
+  "guard": {
+    "sampled_peak_driver_bytes": 11989827584,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_bytes": 0,
+    "minimum_host_free_percent": 74,
+    "elapsed_seconds": 419.76720262505114
+  },
+  "correction_and_learned_visual_memory": "not qualified/not run; exact-source metadata correction remains separate",
+  "restart": "V0 untrained fresh-process restart was exact; V1 final extension strictly reloaded in-process before evaluation; no trained V1 fresh-process quality claim",
+  "dependent_disposition": {
+    "V2": "not_admitted_alignment_quality_failed",
+    "learned_V3": "blocked_perception_and_useful_memory",
+    "neural_RSI": "blocked_no_relevant_quality_evidence"
+  },
+  "next_smallest_discriminator": "Frozen feature/connector readout probe on fresh held-out worlds before one targeted alignment repair; continue independent no-update memory storage/addressing probe. No blind retuning or LoRA expansion."
+}

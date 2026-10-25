@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="9" time="5.027" timestamp="2026-10-25T02:52:35.513178-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_memory_diagnosis" name="test_world_generation_is_seeded_disjoint_and_label_free" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_prepare_and_admit_bind_exact_source_data_and_protocol_pins" time="0.007" /><testcase classname="tests.test_memory_diagnosis" name="test_native_reader_unavailable_is_reported_not_fabricated" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_planned_workload_counts_reloads_and_enforces_limit" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_rejects_poor_storage_before_any_reader_comparator" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_recomputes_passes_from_raw_readouts_and_keeps_v5_rejected" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_detects_readout_selecting_superseded_value" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_reports_missing_native_reader_without_promoting_memory" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_tiny_fixture_runs_frozen_diagnostic_with_controls_and_restart" time="2.942"><failure message="AssertionError: assert 90 == 180&#10; +  where 90 = len([{'world_id': 'world-c416ccd20c', 'stage': 'initial', 'codebook_key': 'world-c416ccd20c/initial/layer-0', 'layer': 0, ...id': 'world-c416ccd20c', 'stage': 'initial', 'codebook_key': 'world-c416ccd20c/initial/layer-0', 'layer': 0, ...}, ...])">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-531/test_tiny_fixture_runs_frozen_0')
+
+    def test_tiny_fixture_runs_frozen_diagnostic_with_controls_and_restart(tmp_path):
+        model = tiny_adapter(fast_memory=SPEC).eval()
+        result = run_diagnostic(
+            model, Tokenizer(), protocol(), output_dir=tmp_path / 'diagnosis',
+            ledger_dir=tmp_path / 'ledger', device='cpu')
+        rows = result['readouts']
+        assert result['status'] == 'completed'
+        assert result['optimizer_updates'] == 0
+        assert result['parameters_updated'] == []
+        assert result['frozen']['parameter_versions_equal'] is True
+        assert result['frozen']['requires_grad_all_false'] is True
+        assert result['representation'] == FACT_REPRESENTATION
+        assert result['representation_config']['name'] == 'fact_binding_key_value'
+        assert result['producer'] and result['model_producer'] and result['dependencies']
+        assert result['codebooks'] and result['readouts_sha256']
+        assert (tmp_path / 'diagnosis' / 'readouts.jsonl').is_file()
+        assert (tmp_path / 'diagnosis' / 'codebooks.json').is_file()
+    
+        kinds = {row['query_kind'] for row in rows}
+        assert {'observed_write_key', 'canonical_address', 'canonical_paraphrase',
+                'native_reader', 'wrong_key', 'zero', 'unknown', 'cross_world',
+                'revoked_query'} &lt;= kinds
+        zero_rows = [row for row in rows if row['query_kind'] == 'zero']
+        assert zero_rows and all(row['readout_norm'] == 0.0 for row in zero_rows)
+        assert all(row['accepted'] is False for row in zero_rows)
+        storage_rows = [row for row in rows
+                        if row['query_kind'] == 'observed_write_key'
+                        and row['target_entry_id'] is not None and row['status'] == 'ok']
+        assert storage_rows
+        assert max(row['target_cosine'] for row in storage_rows) &gt; 0.0
+        assert any(row['top_entry_id'] == row['target_entry_id'] for row in storage_rows)
+        native_rows = [row for row in rows
+                       if row['query_kind'] == 'native_reader' and row['status'] == 'ok']
+        assert native_rows and all(row['readout_norm'] &gt; 0.0 for row in native_rows)
+    
+        # Codebooks contain only observed source values and addresses, never labels.
+        for codebook in result['codebooks'].values():
+            for entry in codebook['entries'].values():
+                assert 'expected_answer' not in entry
+                assert 'value' not in entry
+                assert entry['value_sha256']
+        correction_entries = [entry
+                              for codebook in result['codebooks'].values()
+                              if codebook['stage'] == 'corrected'
+                              for entry in codebook['entries'].values()
+                              if entry['role'] == 'correction_target']
+        assert correction_entries and all(entry['correction'] for entry in correction_entries)
+        assert result['correction']['superseded_entry_absent'] is True
+        assert result['correction']['superseded_negative_present'] is True
+        assert result['revocation']['revoked_entry_absent'] is True
+        assert [row for row in rows if row['query_kind'] == 'revoked_query'
+                and row['status'] == 'ok']
+        assert result['source_binding']['all_bound'] is True
+        assert result['source_binding']['stale_rejected'] is True
+        assert result['restart']['all_state_equal'] is True
+        assert result['restart']['all_readout_equal'] is True
+        assert result['promote_v5_memory'] is False
+        assert result['neural_promotion'] is False
+        assert result['decision'].startswith(('defer_', 'diagnostic_'))
+        assert result['pointer_copy_comparator'] in {
+            'not_constructed_storage_recovery_gate_blocked',
+            'not_constructed_no_learned_readout_gate'}
+        assert result['counts']['rows'] == len(rows)
+        assert result['workload']['total_planned_rows'] == 180
+&gt;       assert result['workload']['actual_rows'] == len(rows) == 180
+E       AssertionError: assert 90 == 180
+E        +  where 90 = len([{'world_id': 'world-c416ccd20c', 'stage': 'initial', 'codebook_key': 'world-c416ccd20c/initial/layer-0', 'layer': 0, ...id': 'world-c416ccd20c', 'stage': 'initial', 'codebook_key': 'world-c416ccd20c/initial/layer-0', 'layer': 0, ...}, ...])
+
+tests/test_memory_diagnosis.py:406: AssertionError</failure></testcase></testsuite></testsuites>

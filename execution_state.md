@@ -1,6 +1,6 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — R1–R4 verified; isolated native V0 accepted; V1 preregistered.**
+**Current implementation — R1–R4 repaired; V0 interface accepted; measured V1 rejected.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -163,6 +163,61 @@ pass in 8.57 s. [Protocol v2](configs/minicpm5_vision_v1_projector_alignment_v2.
 (`980454c29f31f1196af71889aecf4fa6a5e99da996d4351d7798c73d34ca36c2`)
 changes only the runner code pin. Data, seed, checkpoint, schedule, optimizer,
 resource policy and every numerical quality gate remain unchanged.
+
+## Measured projector-only V1 disposition — rejected
+
+V1 attempt02 completes all **128 updates /512 actual backward calls** under the
+unchanged preregistered gates. Exactly six projector tensors change; 43 other
+extension tensors and the original backbone remain unchanged. The encoder is
+frozen with no gradients. Independent scoring passes engineering and rejects
+quality; see [V1 qualification](reports/vision_v1_20261025/qualification.json).
+
+| Control | Correct /64 |
+|---|---:|
+| Correct image | 18 |
+| Wrong image | 20 |
+| Shuffled image | 15 |
+| No image | 22 |
+| Oracle caption-only | 60 |
+| Verified empty OCR text | 15 |
+
+All 32 dev world groups belong to one owned renderer family. Correct-image
+accuracy is 28.125%, below the 65% floor and every declared control margin.
+Text retention remains bitwise unchanged at **22/32 before and after**, but
+fails the absolute 75% floor. Mean training loss falls from 10.4217 to 1.7386;
+that does not establish visual grounding. V2 is not admitted; no LoRA is trained.
+Learned V3 and neural RSI remain blocked by perception and rejected v5 memory.
+
+Training/evaluation take 267.930 /130.178 s; total sampled profile 416.450 s,
+guard 419.767 s. Peak driver is **11,989,827,584 bytes**, zero swap growth and
+74% minimum host-free. Actual optimizer state is 5,823,488 bytes: 5,767,168 int8
+momentum bytes plus 56,320 FP32 state bytes; weights, gradients and Muon
+temporaries are FP32. Final extension hash:
+`bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4`.
+All raw answers, example/update traces, checks, profiles and rejection are retained.
+
+## Independent exact-source and bounded-host controls
+
+The [exact visual-source baseline](reports/exact_visual_source_20261025/qualification.json)
+passes 10 tests and an actual CPU CLI: 36 sources /12 worlds /one owned renderer,
+36 delayed exact retrievals, restart without re-encoding, an unaffected reference
+and two-record ancestor/descendant revocation. Corrections cover metadata/crop/
+owner lineage only; factual memory-only recall is explicitly not evaluated.
+
+The [bounded sandbox procedure cycle](reports/bounded_rsi_20261025/qualification.json)
+passes 11 tests and actual practice/independent verification/rejection/publication/
+authenticated rollback with deterministic replay. Source cases improve 0/2→2/2,
+independent verification is 2/2, the rejected family is 0/1, and the candidate
+artifact is revoked when the protected ancestor is restored. It performs
+22 tool calls /15 evaluator runs, zero neural updates and no selector-policy
+change. This is procedure plumbing, not integrated or accelerating RSI.
+
+Fresh storage/addressing/readout diagnostics now preserve all before/after-load
+raw evaluations, score only unique after-load cases, retain superseded observed
+values as evaluation-only negatives, enforce exact workload limits and
+authenticate target roles from source codebooks. The 29 probe/guard checks pass.
+One actual tiny CPU smoke is mechanical only. The next native package is a
+zero-weight-update probe of the rejected writer, not another blind training arm.
 
 
 

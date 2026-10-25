@@ -2,9 +2,11 @@
 
 **Implementation update, 25 October 2026.** R1–R4 passed at `757ace1`: 140
 integrated tests, a fresh-process representation replay smoke and a tracked export
-of 1,372 tests +21 subtests in 166.68 s. Isolated V0 is now the next eligible
-package. The v5 writer remains rejected; no native memory retraining was needed.
-Spark/data preparation stays host-only and independent.
+of 1,372 tests +21 subtests in 166.68 s. The later isolated native V0 interface
+passes input-gradient/generation/fresh-process gates, with no training or useful
+perception claim; see [V0 qualification](../../reports/vision_v0_20261025/qualification.json).
+The v5 writer remains rejected. No blind native memory retraining was required.
+Spark/data preparation stays independent; learned-memory utility remains open.
 
 Use the [loop prompt](16_Loop_Agent_Instructions.md),
 [integrated design](19_Integrated_Memory_Learning_and_RSI_Design.md),
