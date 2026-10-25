@@ -1,0 +1,960 @@
+{
+  "format": "replica.memory_reliability.verdict.v1",
+  "decision": "reject",
+  "deployment": "diagnostic_only_not_published",
+  "report_sha256": "282c76e2b91ccfec67de7664dffeb43ec49fb7bd85f589ae85c2564b4d75419a",
+  "protocol_sha256": "fac98defeba24f4fd838d001a42f72087af98f935a7a18e5752e5abce19c2e7d",
+  "dataset_audit": {
+    "episodes": 32,
+    "families": 16,
+    "fact_queries": 128,
+    "first_line_accuracy": 0.1953125,
+    "last_line_accuracy": 0.1484375,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 64,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "unique_general_questions": 16,
+    "unique_general_questions_by_split": {
+      "train": 8,
+      "dev": 8,
+      "heldout": 8
+    },
+    "split_episodes": {
+      "train": 16,
+      "dev": 8,
+      "heldout": 8
+    },
+    "split_families": {
+      "train": 8,
+      "dev": 4,
+      "heldout": 4
+    },
+    "query_forms": {
+      "0": 40,
+      "1": 40,
+      "2": 40,
+      "3": 40
+    },
+    "heldout_values_absent_from_train_and_dev": [
+      "alabaster",
+      "azure",
+      "burgundy",
+      "chartreuse",
+      "ochre",
+      "pewter",
+      "plum",
+      "slate"
+    ],
+    "heldout_values_absent_from_training": [
+      "alabaster",
+      "azure",
+      "burgundy",
+      "chartreuse",
+      "ochre",
+      "pewter",
+      "plum",
+      "slate"
+    ]
+  },
+  "decoded_answer_rows": 1920,
+  "images": {
+    "images_authenticated": 32,
+    "actual_tensor_bytes_checked": true,
+    "scope_source_lineage_and_counters_checked": true,
+    "multiple_queries_per_state": true,
+    "source_bindings_authenticated": 32
+  },
+  "guard": {
+    "path": "reports/memory_reliability_v5_scorer_fix_eval02.guard.json",
+    "sha256": "3f0d9a86b8e882ef5d384f376287b3b14e16891a7d81008b41d64498ef3a25fe",
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    }
+  },
+  "restart": {
+    "report_sha256": "7b24a061ff1fc4c2cf307894b6bd1a24f9642abb525b6ecdf815a133a38345e3",
+    "answers_decoded": 7,
+    "guard": {
+      "path": "reports/memory_reliability_v5_scorer_fix_restart01.guard.json",
+      "sha256": "e77f7ef81e10d71ef9a508a8d15a42c2772e71f6a7efef7c1e389df5df3e6b4e",
+      "policy": {
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912,
+        "minimum_free_percent": 15.0,
+        "sustained_host_samples": 3
+      }
+    }
+  },
+  "metrics": {
+    "parent": {
+      "fast": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      }
+    },
+    "candidate": {
+      "fast": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      },
+      "ungated": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 0.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 0.0,
+          "general": 0.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      },
+      "shuffled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      },
+      "last_chunk": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      },
+      "full_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 0.5
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 0.9375,
+          "general": 0.5625
+        }
+      },
+      "selective_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      },
+      "adversarial": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.75
+        }
+      }
+    }
+  },
+  "checks": {
+    "dev_fact_reliable": false,
+    "dev_changed_reliable": false,
+    "dev_unaffected_reliable": false,
+    "dev_unknown": true,
+    "dev_delayed_above_controls": false,
+    "dev_retention": true,
+    "dev_fact_no_correct_to_wrong": true,
+    "dev_changed_no_correct_to_wrong": true,
+    "dev_unaffected_no_correct_to_wrong": true,
+    "dev_unknown_no_correct_to_wrong": true,
+    "dev_retention_no_correct_to_wrong": true,
+    "heldout_fact_reliable": false,
+    "heldout_changed_reliable": false,
+    "heldout_unaffected_reliable": false,
+    "heldout_unknown": true,
+    "heldout_delayed_above_controls": false,
+    "heldout_retention": true,
+    "heldout_fact_no_correct_to_wrong": true,
+    "heldout_changed_no_correct_to_wrong": true,
+    "heldout_unaffected_no_correct_to_wrong": true,
+    "heldout_unknown_no_correct_to_wrong": true,
+    "heldout_retention_no_correct_to_wrong": true,
+    "disabled_token_parity": true,
+    "persistent_correction_lineage": true,
+    "gate_routes_verified": true,
+    "gate_off_disabled_parity": true,
+    "gate_off_coverage": true,
+    "reference_all_cases_correct": false,
+    "reference_full_context_non_regression": false,
+    "reference_no_correct_to_wrong": false,
+    "reference_off_disabled_parity": true,
+    "fresh_process_tokens_and_state": true,
+    "fresh_process_source_view": true
+  },
+  "regressions": {
+    "dev": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    },
+    "heldout": {
+      "fact": [],
+      "changed": [],
+      "unaffected": [],
+      "unknown": [],
+      "general": []
+    }
+  },
+  "families": {
+    "by_family": {
+      "parent": {
+        "disabled": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        }
+      },
+      "candidate": {
+        "adversarial": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "disabled": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "fast": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "full_context": {
+          "dev": {
+            "family_2100": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.0
+            },
+            "family_2102": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.5
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.0
+            },
+            "family_2202": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 0.75,
+              "general": 1.0
+            },
+            "family_2203": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.25
+            }
+          }
+        },
+        "last_chunk": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "selective_context": {
+          "dev": {
+            "family_2100": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 1.0,
+              "changed": 1.0,
+              "unaffected": 1.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "shuffled": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 0.5
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 1.0,
+              "general": 1.0
+            }
+          }
+        },
+        "ungated": {
+          "dev": {
+            "family_2100": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_2101": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_2102": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_2103": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            }
+          },
+          "heldout": {
+            "family_2200": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_2201": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_2202": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            },
+            "family_2203": {
+              "fact": 0.0,
+              "changed": 0.0,
+              "unaffected": 0.0,
+              "unknown": 0.0,
+              "general": 0.0
+            }
+          }
+        }
+      }
+    },
+    "independent_family_counts": {
+      "dev": 4,
+      "heldout": 4
+    }
+  },
+  "failed_checks": [
+    "dev_fact_reliable",
+    "dev_changed_reliable",
+    "dev_unaffected_reliable",
+    "dev_delayed_above_controls",
+    "heldout_fact_reliable",
+    "heldout_changed_reliable",
+    "heldout_unaffected_reliable",
+    "heldout_delayed_above_controls",
+    "reference_all_cases_correct",
+    "reference_full_context_non_regression",
+    "reference_no_correct_to_wrong"
+  ],
+  "checkpoint_changes": null,
+  "training_routes": null,
+  "reference_decision": "reject_reference",
+  "candidate_decision": "reject",
+  "evaluation_only": true,
+  "scope": "Small exposed synthetic diagnostic; no RSI or broad memory claim"
+}

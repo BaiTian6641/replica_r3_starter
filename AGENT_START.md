@@ -1,26 +1,27 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current priority — memory reliability recovery, 24 October 2026.** Follow
-[the recovery sequence](docs/architecture/17_Memory_Reliability_Recovery.md):
-benchmark and independent scorer → persistent multi-query memory → incremental
-correction and retention → bounded MiniCPM5 fine-tuning and fresh-process
-continuation → verified improvement. M4 v7 is rejected. Its delayed router
-scores come from fast memory; old M2/M3 fixtures admit a query-blind last-line
-shortcut. Neither those scores nor fresh-state correction checks establish
-reliable persistent associative memory. RSI promotion remains gated on reliable
-memory and noninterference. Static Engram and Spark are optional comparisons;
-C13's collection threshold applies to learned selection, not fixed practice.
-The first recovery pilot completed 24 fine-tuning updates and was rejected.
-Persistent-state and fresh-process mechanics pass; recall, correction quality
-and unrelated-answer retention remain open. Preserve the failed candidate and
-resolve those gates before another promoted learning cycle.
+**Current priority — v5 memory repair is complete and rejected; diagnose
+storage/read separation next.** Read the [v5 experiment record](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md),
+[execution state](execution_state.md) and [canonical verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
+Then follow [memory recovery](docs/architecture/17_Memory_Reliability_Recovery.md)
+and the separate [MiniCPM5 vision plan](docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md).
 
-**Final reader-only update:** 48 updates are complete and rejected. Selective
-exact context is 192/192, but full-context parity fails on two absent-fact
-answers; learned fast recall/correction/unaffected remain zero. Do not advance
-RSI. The next diagnostic is writer/state binding, not more steps or KL.
+The writer-only arm completed 48 updates with exactly 14 changed tensors. Fast
+and disabled both score 56/192 with zero factual answers; the candidate is not
+selected. The corrected scorer authenticated 32 images/source bindings and a
+seven-answer mechanical restart. Clean-export validation is 1,311 tests +21
+subtests, with 49 focused reliability tests. Eval01 is preserved as failed
+scoring infrastructure; eval02 is canonical.
 
-Read AGENT_CONTINUE.md and the current execution snapshot before the historical reference below.
+Do not repeat writer/reader training on this exposed set. Implement a fresh
+storage/read-separation probe and use explicit copy/pointer only when observed
+values are recoverable, under a new committed protocol. Isolated vision may
+proceed with memory/core/identity disabled; it cannot qualify this memory path
+or integrated RSI. Spark is later work. Preserve historical protocols, rejected
+candidates and the protected runtime pilot.
+
+Read [the complete loop prompt](docs/architecture/16_Loop_Agent_Instructions.md),
+AGENT_CONTINUE.md and the current execution snapshot before older reference prose.
 
 ## Mission
 
@@ -35,7 +36,7 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The last recorded suite is 1211 passed / 21 subtests; earlier 819/798-test entries are historical snapshots, not the current test count. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
+4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The last recorded full suite is 1,299 passed / 21 subtests; the latest review separately reran 37 focused tests. Older suite totals are historical snapshots. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
 
 ## First session: do concrete work
 
@@ -87,7 +88,7 @@ Build thin fixed-baseline loop infrastructure early. Before claiming a selected-
 
 Replace the fixed symbolic compiler/director in the demo with real learned policy and candidate neural/skill updates before making any model self-improvement claim. Run T0/T1/T2/T3 controls for ten initial chronological cycles. Count selected practice, replay, verifier and compute costs. A procedure library gain and a neural learning gain are separate results.
 
-MiniCPM-V-4.7-1B needs a native hybrid VLM port and actual image gradients. Preserve processor expansion, mRoPE and recurrent caches; do not insert the Llama wrapper blindly. Larger model ports need freshly trained interfaces and re-encoded source memories.
+MiniCPM5 vision development follows document 18: a pretrained encoder, new width-2048 projector, alignment, instruction/reasoning tuning, then qualified visual memory and bounded RSI. MiniCPM-V-4.7-1B remains a separate native hybrid reference/teacher; preserve its processor, mRoPE and caches rather than transplanting its projector. Spark comes later with a dedicated adapter, new connector and re-encoded source memories.
 
 ## Progress discipline
 

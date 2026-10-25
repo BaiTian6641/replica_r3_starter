@@ -1,46 +1,53 @@
 # Coding-agent continuation instruction
 
-**Current priority — memory reliability recovery, 24 October 2026.** Follow
-[the recovery sequence](docs/architecture/17_Memory_Reliability_Recovery.md):
-benchmark and independent scorer → persistent multi-query memory → incremental
-correction and retention → bounded MiniCPM5 fine-tuning and fresh-process
-continuation → verified improvement. M4 v7 is rejected. Its delayed router
-scores come from fast memory; old M2/M3 fixtures admit a query-blind last-line
-shortcut. Neither those scores nor fresh-state correction checks establish
-reliable persistent associative memory. RSI promotion remains gated on reliable
-memory and noninterference. Static Engram and Spark are optional comparisons;
-C13's collection threshold applies to learned selection, not fixed practice.
-The first recovery pilot completed 24 fine-tuning updates and was rejected.
-Persistent-state and fresh-process mechanics pass; recall, correction quality
-and unrelated-answer retention remain open. Preserve the failed candidate and
-resolve those gates before another promoted learning cycle.
+**Current priority — v5 memory repair is complete and rejected; diagnose
+storage/read separation next.** Read the [v5 experiment record](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md),
+[execution state](execution_state.md) and [canonical verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
+Then follow [memory recovery](docs/architecture/17_Memory_Reliability_Recovery.md)
+and the separate [MiniCPM5 vision plan](docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md).
+
+The writer-only arm completed 48 updates / 192 cases with exactly 14 changed
+tensors. Candidate fast and disabled both score 56/192; initial facts,
+corrections and unaffected facts remain zero. This is not useful learned memory
+and is not selected. Exact fact retrieval works as a control, but the reference
+bundle rejects on general correctness and two full-context non-regressions.
+The corrected scorer authenticated 32 images/source bindings and a seven-answer
+fresh-process restart. These are mechanical passes, not quality acceptance.
+
+Final clean-export validation is **1,311 tests +21 subtests in 148.69 s**, with
+**49 focused reliability tests**. Scorer corrections are `eff2079` and `5aa7e75`;
+eval01 is preserved as failed infrastructure, and eval02 is canonical. One
+48,948,272-byte extension was saved without a base copy. Total guarded native
+wall across training, two evaluation replays and restart is 1,751.69 seconds.
+
+Do not repeat writer/reader training on this exposed set. Implement a fresh
+storage/read-separation probe and use explicit copy/pointer only when observed
+values are recoverable, under a new committed protocol. Isolated vision may
+proceed with memory/core/identity disabled; it cannot qualify this memory path
+or integrated RSI. Spark is later work. Preserve all historical evidence and the
+untracked protected `src/replica_lab/runtime_pilot.py` unchanged.
 
 ## Resume from evidence
 
-Read these in order, then inspect the affected code and raw reports:
+Read these in order, then inspect affected code and raw evidence:
 
-1. [Execution state](execution_state.md) — current snapshot first; older entries
-   preserve historical results.
-2. [Research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
-   — current M0–M7 construction order, research distinctions and acceptance gates.
-3. [Loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md)
-   — the complete iteration, evaluation and handoff protocol.
-4. [Resumption record](docs/experiments/20261023_Resumption_Record.md),
-   [implementation status](configs/architecture_implementation_status_v1.json)
-   and the relevant component specification.
-5. [Start instructions](AGENT_START.md), applicable repository instructions,
-   recent Git history and current worktree changes.
+1. [Execution state](execution_state.md): current review and next package first.
+2. [Reproducibility and memory recovery](docs/architecture/17_Memory_Reliability_Recovery.md):
+   clean-checkout, context/scorer, binding/readout and targeted repair gates.
+3. [Loop-agent prompt](docs/architecture/16_Loop_Agent_Instructions.md): complete
+   ordered implementation loop, preservation rules and reporting.
+4. [MiniCPM5 vision plan](docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md):
+   V0–V4 contracts, training, visual memory, RSI and later Spark.
+5. [Research/backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),
+   [implementation status](configs/architecture_implementation_status_v1.json),
+   applicable component/stage documents and current Git changes.
 
-Document 17's reliability recovery supersedes immediate M0–M7 next-task
-paragraphs; M0–M7 remains the later construction reference. E1–E6, C01–C18
-and S-stage identifiers remain useful component and scientific-gate references.
-Preserve dated experiment results; an old measurement is not a new result.
-
-MiniCPM5 remains the required baseline. M0b adds an optional **Spark-X2.6-4B
-BF16** comparison with its own native adapter and resource/quality gates. M7
-uses MiniCPM-V's pretrained vision path; the later larger model is
-**MiniCPM-V-4.7-35B-A3B**. New memory layers and bounded RSI follow the gates in
-document 15; none of these planned paths is qualified by the documentation.
+Documents 17 and 18 control immediate ordering. M0–M7, E1–E6, C01–C18 and
+scientific-stage IDs remain component/claim references, not instructions to
+restart completed work or prioritize Spark. MiniCPM5 stays the baseline; its
+new visual projector is trained separately. MiniCPM-V-4.7-1B is an optional
+pretrained reference/teacher, with 35B-A3B a separately qualified larger option.
+No new model or capability is qualified by this documentation update.
 
 ## Current accepted evidence and limits
 
@@ -89,66 +96,43 @@ document 15; none of these planned paths is qualified by the documentation.
 
 ## Next work package and progression
 
-**Reader-only D1 is complete and rejected; reference parity also fails.** The
-[experiment record](docs/experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
-and [canonical verdict](reports/memory_reliability_v2_attempt03/verdict_final_v2.json)
-show 48 updates over 192 fresh cases, exactly eight changed reader tensors and
-64/192 fast answers (32 unknown plus 32 general). Fact, correction and unaffected
-scores are all zero; delayed-above-controls fails on both splits. Selective exact
-context is 192/192, but full context is 190/192 because two absent-fact answers
-are orange/green rather than unknown. The parity gate therefore rejects the
-bundle without negating selective exact-reference utility. All 32 images and
-source bindings authenticate, and fresh-process restart reproduces 7/7 answers.
-The native gate-off counter reports 0 but independently recomputes to 64; it is
-unauthenticated. Protocol v4 is at `9a43bad`; scorer/finalizer is at `6b29460`.
+1. **Reproducibility and integrity first.** Package the missing scorer/builder/test
+   dependencies in intended tracked source; prove clean-export import/tests.
+   Authenticate consumed context spans/records/scope/status. Fix explicit route
+   and effective-gradient accounting. Version prospective correctness/nonregression
+   gates; preserve the historical parity rejection and native/smoke provenance.
+2. **Diagnose and repair memory.** Separate stored binding, addressing and output
+   copying, using fresh families and wider retention. E4 contextual features
+   already failed 0/8 heldout; do not repeat that arm unchanged. Run one newly
+   declared targeted repair, then independently accept/reject/defer and verify
+   correction/restart. Preserve all negative candidates and count their cost.
+3. **MiniCPM5 V0–V2.** After the completed repair package, qualify fused visual
+   input, then projector-only alignment and declared adapter/LoRA instruction/
+   reasoning training. Keep memory/core/identity disabled for independent vision
+   while any memory-quality gate remains unresolved.
+4. **V3 visual memory.** Require accepted perception and the chosen memory path;
+   distinguish exact image retrieval from learned state. Test image removal,
+   multiple later queries, correction, unaffected facts and fresh-process reuse.
+5. **V4/M5 bounded RSI.** Begin verified candidate SFT only after relevant quality,
+   retention and verifier gates; then longitudinal fixed/replay-matched controls.
+   Learned selection, RL and code/architecture changes are later separate studies.
+6. **Later Spark.** After the MiniCPM5 visual-memory/RSI work has documented
+   outcomes, qualify native Spark text, then new visual connector/adapters and
+   model-specific memories. Reuse methods and data, not projection weights.
 
-**Next smallest diagnostic:** inspect per-fact writer/state bindings before a new
-writer arm. Reader-only failure does not prove storage is correct. Do not add
-updates, increase KL, switch models or advance neural RSI. Treat full-context
-absent-fact hallucination as a separate abstention diagnostic. M4, M3 repair and
-the first 24-update pilot remain rejected. Exact-record reference and persistence
-mechanics are reusable, but no learned-memory promotion is admitted.
+The latest canonical [reader-only verdict](reports/memory_reliability_v2_attempt03/verdict_final_v2.json)
+remains reject. It records 48 updates, 64/192 gated fast answers, 32 authenticated
+memory snapshots and 7/7 restart answers. Native gate-off accounting reports 0
+versus 64 independently derived. The 32 general-answer cases repeat only four
+questions; neither this bypass result nor the old M2/M3 last-line-solvable
+fixtures demonstrate broad retention or learned associative memory.
 
-Maintain document 17's recovery gates and the exact scorer's independent token,
-membership, family and source-lineage checks. C13's threshold gates learned
-selection only. Static Engram, Spark and VLM remain separate qualified paths;
-authentic identity still requires permitted sources and human review.
-
-Reference package definitions (do not restart completed M0–M4 work):
-
-- **M1:** fresh chronological, source-separated episodes and one thin typed
-  compiler path that reuses the ledger, catalog, verifier and publisher.
-- **M2:** one useful adaptive-memory path with distinct head writes, bounded
-  SGDN-2-inspired recurrence, pure multi-chunk training state and delayed-use
-  supervision. Separate functional training from detached deployment state.
-- **M3:** compare shared-depth and private memory using the same update engine,
-  information and budget. Shared-state semantics and gradient aggregation
-  must be defined before claiming uTTT-style behavior.
-- **M4:** bounded static Engram-style lookup plus versioned episodic routing;
-  evaluate routing, collision behavior, invalidation, deletion and cost.
-- **M5:** candidate training, independent comparison, publication/rejection,
-  recovery and ten chronological T0/T1/T2/T3 cycles. Preserve the fair
-  developmental D0/D1/D2 study before freezing a selected deployed parent.
-  RSI progresses from verified practice/candidate SFT to learned selection;
-  later code/architecture proposals keep evaluation and promotion external.
-- **M6:** distinct learned multi-rate levels and objectives only after useful
-  simpler adaptation is established. Timers alone do not implement HOPE.
-- **M7:** a separate native MiniCPM-V-4.7-1B adapter and qualification.
-  Transfer contracts and methodology; retrain interfaces and re-encode
-  memories for its Qwen3.5/hybrid/vision representation.
-  Start with native visual parity, then frozen-tower visual-memory alignment,
-  verified visual reasoning and separately justified co-adaptation.
-
-Personality/identity work runs alongside M1–M3 where permitted source and
-evaluation are available. Use equal-information no-identity, prompt-only and
-native-reader controls. Calibrate uncertainty before allowing it to control
-actions or learning. Missing authentic sources block fidelity claims, not
-independent memory/compiler construction.
-
-The first integrated milestone is verified observation → useful delayed
-memory → restart → correction/revocation → compiled procedure → improved
-later unseen task → harmful-candidate rejection and rollback. Passing
-contracts alone does not complete that milestone.
+Reuse the procedure compiler, exact ledger, artifact/publisher and rollback paths.
+M4 static-pattern utility is still unproven; Engram and multi-rate mechanisms
+remain optional studies. C13's collection gate applies to learned selection,
+not deterministic verified-practice plumbing. Personality work uses approved
+sources and independent fidelity review; source absence does not block unrelated
+implementation. Keep factual verification independent of identity conditioning.
 
 ## Preserve scope, artifacts and resource limits
 

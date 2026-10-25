@@ -1,19 +1,114 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current priority — memory reliability recovery, 24 October 2026.** Follow
-[the recovery sequence](docs/architecture/17_Memory_Reliability_Recovery.md):
-benchmark and independent scorer → persistent multi-query memory → incremental
-correction and retention → bounded MiniCPM5 fine-tuning and fresh-process
-continuation → verified improvement. M4 v7 is rejected. Its delayed router
-scores come from fast memory; old M2/M3 fixtures admit a query-blind last-line
-shortcut. Neither those scores nor fresh-state correction checks establish
-reliable persistent associative memory. RSI promotion remains gated on reliable
-memory and noninterference. Static Engram and Spark are optional comparisons;
-C13's collection threshold applies to learned selection, not fixed practice.
-The first recovery pilot completed 24 fine-tuning updates and was rejected.
-Persistent-state and fresh-process mechanics pass; recall, correction quality
-and unrelated-answer retention remain open. Preserve the failed candidate and
-resolve those gates before another promoted learning cycle.
+**Current work — v5 fact-binding writer repair completed and rejected.** Evidence
+through `36c3c0a`; see the [experiment record](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md)
+and [canonical independent verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
+The candidate is not selected or published. Learned-memory quality remains open;
+engineering reproducibility, authenticated persistence and restart are passing.
+
+## Current evidence and limits
+
+- The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192
+  cases: 14 tensors and 5,251,072 parameters. Update-two gradients reach all 14
+  writers; exactly 14 tensors changed and 53 remained unchanged. The original
+  backbone, readers and gates stayed frozen.
+- Independent routes contain 128 fast-state and 64 gate-off cases. There are 192
+  actual backward calls, including 64 gate-off calls on non-fast graphs. These
+  are explicit invocation records, not per-example gradient attribution.
+- Candidate fast and disabled both score **56/192**, with **0/64 initial facts,
+  0/16 corrections and 0/48 unaffected facts**. Their tokens differ on 128
+  factual routes, so influence is nonzero but not useful. All fact floors and
+  both delayed-above-controls gates fail.
+- Selective exact context scores 184/192 and full context 176/192. The reference
+  bundle still rejects: general accuracy is 24/32 and full context wins two RAM
+  cases, violating prospective non-regression. Exact fact retrieval remains a
+  separate working control, not learned memory.
+- The corrected scorer decoded 1,920 rows, authenticated 32 images/source
+  bindings, and accepted fresh-process mechanical restart: seven answers,
+  token/state parity, seven-entry lineage and source-view equality. Restart
+  persistence of wrong answers is not memory quality or power-loss recovery.
+- One 48,948,272-byte extension was saved with no base copy. Training/eval02/
+  restart child times are 637.228/548.855/7.182 seconds. Peak sampled MPS driver
+  is 11,815,763,968 bytes, with zero swap growth and 76% minimum host-free.
+- Final clean-export validation: **1,311 tests +21 subtests in 148.69 s**, and
+  **49 focused reliability tests**. One existing sparse-tensor warning remains.
+  See [reproducibility evidence](reports/reproducibility_v5_source_export_20261024.json).
+
+Two scorer defects were fixed without editing native history: `eff2079` repaired
+imports/gate-off accounting and `5aa7e75` canonicalized JSON audit comparison.
+Eval01 is preserved as a failed scoring attempt; eval02 is the canonical
+no-training replay. Total guarded wall across training, two evaluation replays
+and restart is 1,751.69 seconds.
+
+## Current blocker and next action
+
+The blocker is learned association/readout, not wiring. Do not add updates,
+switch writer/reader recipes or tune against the exposed set. Next implement a
+fresh **storage/read-separation probe**; compare explicit copy/pointer only when
+observed values are recoverable, under a new committed protocol. Isolated vision
+may proceed separately with memory/core/identity disabled; it cannot qualify
+this failed memory path or integrated RSI. Spark remains later work.
+
+Reproduce the final independent verdict (fresh verdict output path):
+
+```bash
+.venv/bin/python scripts/score_memory_reliability.py \
+  --protocol configs/memory_reliability_v5_scorer_fix_eval02.json \
+  --run runs/memory_reliability_v5_scorer_fix_eval02 \
+  --guard reports/memory_reliability_v5_scorer_fix_eval02.guard.json \
+  --restart-run runs/memory_reliability_v5_scorer_fix_restart01 \
+  --restart-guard reports/memory_reliability_v5_scorer_fix_restart01.guard.json \
+  --evaluation-only \
+  --output reports/memory_reliability_v5_scorer_fix_eval02/verdict_review.json
+```
+
+Preserve all rejected candidates, raw reports and the untracked protected
+`src/replica_lab/runtime_pilot.py` unchanged.
+
+## Previous review and documentation handoff — 24 October 2026
+
+Reviewed HEAD `988a46b` and its nine commits after `280d4dd`, current dirty source
+and documents, affected implementation and native evidence. Independent token
+replay reproduces all nine failed gates in
+[the canonical verdict](reports/memory_reliability_v2_attempt03/verdict_final_v2.json).
+The read-only review reran the 37 focused reliability tests (7.36 s); it inspected
+but did not rerun the recorded 1,299-test / 21-subtest full suite.
+
+Reproduced open defects: clean tracked HEAD source cannot import
+`replica_lab.reliability_scoring` because `answer_audit.py` is untracked;
+`verify_context` accepts altered span text with the original selection/digest.
+The v1 builder and test file are also untracked protocol dependencies. Existing
+native evidence is not shown to be tampered with; the consumer verifier needs
+stronger checks before reuse. The source package, span verification, routing
+accounting and prospective reference gate remain unmodified executable code.
+
+The training schedule contains 64 gate-off and 128 gate-on cases; its native
+counter says 0 gate-off. General retention has four distinct arithmetic queries,
+and each evaluation split has four independent families. The earlier E4
+contextual writer also failed 0/8 heldout; next diagnose binding/readout/copying
+rather than repeating contextual features or adding steps without a hypothesis.
+
+The user requested documentation and loop-prompt updates based on this review.
+Documents 15–18 and the entry points now order repairs before MiniCPM5 visual
+alignment/instruction tuning, visual memory and bounded RSI, with Spark later.
+MiniCPM-V is an optional pretrained reference/teacher. This revision changes
+Markdown only: it implements none of the reviewed code fixes, starts no training
+or acquisition, and preserves all old protocol pins, reports and verdicts.
+
+Documentation validation: 16 updated/new Markdown files checked, all 335 local
+link targets resolve, fenced blocks balance and `git diff --check` passes.
+No runtime test suite was rerun for this documentation-only change; the review
+and saved full-suite results above retain their separate scopes.
+
+**Next action:** document 17's reproducibility/context/scorer package, then one
+diagnosed memory repair. Once that package has a measured outcome, isolated
+V0–V2 vision may proceed with memory disabled even if learned-memory quality
+remains rejected. Learned V3 memory and integrated V4/M5 RSI require their own
+prerequisite quality and retention gates. Do not promote a failed dependency.
+
+## Historical recovery records
+
+The dated outcomes below are preserved evidence, not the current task queue.
 
 ## Reliability recovery outcome — 24 October 2026
 

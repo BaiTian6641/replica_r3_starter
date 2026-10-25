@@ -1,0 +1,40 @@
+{
+  "format": "replica.memory_reliability.failure_analysis.v1",
+  "run": "runs/memory_reliability_v5_attempt01/run_report.json",
+  "run_sha256": "0fa0dec3d59fac7a183dde9572559295b516b345ec8e7ecfe6cb3211a6fd46a0",
+  "decode": "Independent sealed-tokenizer decode of all candidate rows; gold reconstructed from data/memory_reliability_v4/episodes.json",
+  "candidate_fast_vs_disabled": {
+    "correctness_differences": 0,
+    "token_differences": 128,
+    "interpretation": "Fast memory changes factual-route tokens but does not change any correctness outcome; nonzero influence is not useful learned association."
+  },
+  "correct_counts": {
+    "candidate_fast": {"dev": 28, "heldout": 28, "total": 56, "cases": 192},
+    "candidate_disabled": {"dev": 28, "heldout": 28, "total": 56, "cases": 192},
+    "selective_context": {"dev": 92, "heldout": 92, "total": 184, "cases": 192},
+    "full_context": {"dev": 88, "heldout": 88, "total": 176, "cases": 192}
+  },
+  "per_split_fact_and_retention": {
+    "candidate_fast": {
+      "dev": {"fact": [0, 32], "changed": [0, 8], "unaffected": [0, 24], "unknown": [16, 16], "general": [12, 16]},
+      "heldout": {"fact": [0, 32], "changed": [0, 8], "unaffected": [0, 24], "unknown": [16, 16], "general": [12, 16]}
+    },
+    "selective_context": {
+      "dev": {"fact": [32, 32], "changed": [8, 8], "unaffected": [24, 24], "unknown": [16, 16], "general": [12, 16]},
+      "heldout": {"fact": [32, 32], "changed": [8, 8], "unaffected": [24, 24], "unknown": [16, 16], "general": [12, 16]}
+    }
+  },
+  "reference_comparison": {
+    "correctness_differences": 12,
+    "full_context_correct_to_selective_wrong": 2,
+    "selective_correct_to_full_context_wrong": 10,
+    "full_context_wins": [
+      {"case_id": "reliability_heldout_2202_0:corrected:g0", "query": "What does RAM stand for?", "full_context_answer": "Random Access Memory", "selective_answer": "RAM", "expected": "random access memory"},
+      {"case_id": "reliability_heldout_2202_1:corrected:g0", "query": "What does RAM stand for?", "full_context_answer": "Random Access Memory", "selective_answer": "RAM", "expected": "random access memory"}
+    ],
+    "selective_wins_example": {"case_id": "reliability_heldout_2202_0:corrected:unknown", "full_context_answer": "plum", "selective_answer": "unknown", "expected": "unknown"},
+    "interpretation": "The prospective non-regression gate fails on two full-context wins; aggregate selective superiority does not erase per-case regressions. Exact fact retrieval remains separately correct."
+  },
+  "preserved_raw_outputs": "runs/memory_reliability_v5_attempt01/run_report.json retains all 1,920 generated rows, including unsuccessful trajectories and token IDs.",
+  "scope": "Failure analysis only; no learned-memory, broad-retention, calibration or RSI acceptance."
+}

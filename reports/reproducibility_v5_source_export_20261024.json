@@ -16,6 +16,19 @@
     "full_tests": {"passed": 1308, "failed": 0, "subtests_passed": 21, "warnings": 1, "wall_seconds": 141.25},
     "warning_scope": "Existing sparse-tensor invariant warning in tests/test_m4_pattern.py; no failure"
   },
+  "final_corrected_scorer_export": {
+    "head": "36c3c0a",
+    "evaluation_protocol": "configs/memory_reliability_v5_scorer_fix_eval02.json",
+    "protocol_sha256": "fac98defeba24f4fd838d001a42f72087af98f935a7a18e5752e5abce19c2e7d",
+    "implementation_pins": "27/27 pass",
+    "focused_tests": {"passed": 49, "failed": 0},
+    "full_tests": {"passed": 1311, "failed": 0, "subtests_passed": 21, "warnings": 1, "wall_seconds": 148.69},
+    "historical_pin_note": "Original v5 native bytes and scorer pins are preserved, not re-pinned; eval02 is the canonical corrected-scorer replay.",
+    "canonical_verdict": "reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json",
+    "canonical_verdict_sha256": "0a0e040d1102fab1d024b1a9c9300ab3a40eab9c0f281872f347c92479d29286",
+    "decision": "reject",
+    "restart": "mechanical pass; seven answers and source/state parity"
+  },
   "rejected_setup_attempts": [
     {"tests_passed": 1279, "tests_failed": 21, "subtests_passed": 21, "cause": "Clean archive intentionally lacked external sealed model files and five guard/scorer dependencies were not yet committed"},
     {"tests_passed": 1302, "tests_failed": 6, "subtests_passed": 21, "cause": "Symlinked sealed model resolved outside the export and violated response-contract logical path binding"}

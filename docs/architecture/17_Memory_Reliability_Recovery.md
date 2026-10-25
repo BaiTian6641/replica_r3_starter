@@ -1,149 +1,234 @@
-# Memory reliability recovery and bounded fine-tuning
+# Reproducibility and memory reliability recovery
 
-24 October 2026. This sequence supersedes older next-package instructions after
-the review of `280d4dd`. Preserve the M0–M4 records and rejected candidates.
-The user authorized documentation, benchmark/scorer repair, persistent-memory
-work and subsequent bounded fine-tuning. No RSI promotion is implied.
+**Revised 24 October 2026 after the completed v5 writer-repair package.** This is
+the immediate work order. It supersedes older next-package prose while
+preserving historical protocols, raw answers and rejected candidates. Follow
+with [MiniCPM5 vision, visual memory and RSI](18_MiniCPM5_Vision_Training_and_Continual_Learning.md),
+then later Spark support. The [loop prompt](16_Loop_Agent_Instructions.md) is the
+execution entry point. Documentation itself starts no job; native evidence is
+linked below.
 
-**Executed outcome:** [the first recovery pilot](../experiments/20261024_Memory_Reliability_Recovery_Results.md)
-completed 24 MiniCPM5 D1 updates and was rejected. Benchmark/scorer checks,
-authenticated persistent images and fresh-process parity pass. Recall is 0/16,
-corrected facts 0/4, unaffected facts 0/12 and unrelated answers 0/8 versus the
-disabled base's 8/8. Full-context control scores 48/48. The next unresolved gate
-is selective useful memory with noninterference; do not repeat this recipe or
-advance RSI because the mechanical checks passed.
+## 0. Current v5 outcome and next action
 
-**Final reader-only outcome:** [the experiment record](../experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
-and [canonical verdict](../../reports/memory_reliability_v2_attempt03/verdict_final_v2.json)
-complete the comparison. Selective exact context passes 192/192, but full context
-is 190/192 because two absent-fact answers are orange/green rather than unknown;
-the declared parity gate therefore rejects the reference bundle. The 48-update
-reader-only D1 candidate scores 64/192 (32 unknown plus 32 general), with all
-fact/correction/unaffected floors and delayed-above-controls failing. All 32
-images authenticate and fresh-process restart passes 7/7. Protocol v4 is at
-`9a43bad`; the finalizer separates native and smoke-fixture provenance and records
-the gate-off counter erratum (64 independently derived versus 0 reported).
-The next discriminating action is per-fact writer/state binding diagnosis, not
-more updates, KL increases, model changes or neural RSI promotion.
+The [v5 fact-binding writer experiment](../experiments/20261024_Memory_Reliability_Writer_Binding_Results.md)
+is complete and rejected. One 48-update writer-only arm changed exactly 14
+tensors / 5,251,072 parameters. Candidate fast and disabled both score 56/192,
+with zero initial/corrected/unaffected facts. Their factual tokens differ on 128
+routes, so nonzero influence does not imply useful association. The candidate is
+not selected or promoted.
 
-## Current evidence
+The [canonical corrected-scorer verdict](../../reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json)
+independently decodes 1,920 answers, authenticates 32 images/source bindings and
+verifies a seven-answer fresh-process restart. Selective exact context scores
+184/192 versus full-context 176/192, but the reference bundle rejects on general
+correctness and two full-context non-regressions. Eval01 remains a preserved
+failed scoring attempt; eval02 is canonical. Scorer fixes are `eff2079` and
+`5aa7e75`. Final clean-export validation is 1,311 tests +21 subtests in 148.69 s,
+with 49 focused reliability tests.
 
-M4 v7 completed 20 updates but direct pattern scored 0/4 development and 0/8
-held-out/regression. All 20 delayed routes used fast memory. Fast+pattern
-adversarial accuracy was 0/4 against disabled 2/4. Same-process extension/image
-reload and the collision audit passed. The rejection remains unchanged.
+**Next:** implement a fresh storage/read-separation probe on observed facts;
+compare explicit copy/pointer only when values are recoverable. Do not repeat
+writer/reader training on this exposed set. Isolated vision may proceed with
+memory/core/identity disabled, but cannot qualify the failed memory path or
+integrated RSI.
 
-The review independently decoded all 427 answers and reconciled their metrics.
-However, the scorer trusted cached aggregates: four changed aggregate values
-could reverse its gates without changing answers. A last-line extractor scores
-32/32 on M2 shared and 44/44 on M3 delayed data. Those exposed fixtures measure
-information transport, not established query-selective memory. Existing
-correction checks rebuild a fresh state and do not establish incremental edits.
+## 1. Verified starting point
 
-## Immediate execution order
+The [reader-only experiment](../experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
+completed 48 updates over 192 scheduled training cases, changing eight reader
+tensors / 2,105,344 parameters while the original backbone, writers and gate
+scalars remained frozen. Across dev and heldout, learned fast memory scores
+0/64 facts, 0/16 corrections, 0/48 unaffected facts, 32/32 unknowns and 32/32
+general cases. The successful set equals the disabled baseline's successful set.
+Selective exact context is 192/192; full context is 190/192. All 32 serialized
+memory snapshots/source bindings authenticate, and a fresh process reproduces
+7/7 answers and bindings. These snapshots are not visual image inputs.
 
-1. **Benchmark and independent scorer.** Construct new counterfactual episode
-   pairs with identical queries and different facts. Split complete families
-   before expansion. Randomize fact order; distractor values must be independent
-   of answers. Query several attributes from the same state, include absent
-   facts and unseen values, and separate training/dev/audit families. Audit
-   first/last-value and query-only shortcuts. Decode raw output token IDs with
-   the sealed tokenizer, derive gold from the dataset, enforce exact case/arm
-   membership and reject duplicate, missing, changed-target or inconsistent
-   metric reports. Cached `correct` flags cannot authorize acceptance.
-2. **Persistent-memory mechanics.** Reuse SGDN-2 and the existing image format.
-   Append observations to one functional state; read it for multiple queries.
-   Persist and reload that state without replaying observations. Append a
-   correction to the loaded state and test both the corrected and unaffected
-   facts. Bind scope, source lineage, counters and producer versions; reject
-   wrong-scope/stale images. Test mechanics offline before native work.
-3. **One bounded MiniCPM5 fine-tuning pilot.** Freeze the sealed base and train
-   declared fast-memory writer/reader components (D1, not full tuning). Use a
-   fresh hashed protocol, fixed steps, fixed train-only practice and retention
-   supervision. Record parent and disabled controls. Evaluate delayed recall,
-   incremental correction, unaffected-fact retention, unknowns and unrelated
-   questions. Include a base-preservation objective as a separately declared
-   hypothesis; do not repeat the exposed M3 replay recipe. Save an isolated
-   candidate regardless of quality, then independently accept/reject/defer.
-4. **Fresh-process continuation.** Reload the exact candidate and persisted
-   corrected image in a new guarded process. Reproduce multiple answers and
-   state/lineage before claiming durable useful memory. A quality rejection
-   may still support a separately labelled mechanical restart diagnostic.
-5. **Bounded improvement only after reliability.** One verified practice →
-   isolated update → fresh-task/retention comparison → publish/reject → restart
-   cycle precedes longitudinal RSI. Then compare T0/T1/T2/T3 with matched
-   exposure and compute. C13's 10/10 collection threshold gates a learned
-   selector, not deterministic plumbing or fixed verified practice.
+The [canonical verdict](../../reports/memory_reliability_v2_attempt03/verdict_final_v2.json)
+rejects nine gates. The reference bundle rejects because the original protocol
+requires correctness equality with the imperfect full-context control. Preserve
+that decision; selective retrieval's correct answers remain useful evidence.
+The native run used about 11.00 GiB sampled MPS driver memory and 515.48 seconds.
+These measurements do not qualify a visual model or a larger training budget.
 
-Static Engram is an optional comparison after these gates, not a prerequisite
-for every fixed-baseline loop. Test stable acquired knowledge/rules with unseen
-query forms separately from new episode facts. Hash coverage is not evidence
-that a fact is known. Routing may consume eligible runtime evidence and query
-features, never split/role/gold labels; swapping audit metadata must not change
-the route. Do not lower coverage thresholds to manufacture a successful arm.
+The review independently decoded the answers, reproduced the failed gates and
+reran 37 focused tests successfully. The recorded full integration result is
+1,299 tests plus 21 subtests passing in 137.53 seconds; the review did not rerun
+that full suite. Passing tests coexist with the open defects below.
 
-## Acceptance and experiment discipline
+| Review finding | Evidence and implication |
+|---|---|
+| Clean checkout fails scorer import | `reliability_scoring.py` imports untracked `answer_audit.py`; a clean HEAD source export raises `ModuleNotFoundError` |
+| Incomplete protocol source package | `scripts/make_memory_reliability_data.py` and `tests/test_memory_reliability.py` are also untracked dependencies named by protocol v4 |
+| Exact-context verification gap | Replacing `ExactContext.spans[0].text` while retaining the valid selection/digest still passes `verify_context` |
+| Reference gate rejects improvement | Selective 192/192 versus full-context 190/192 fails equality; a prospective correctness/nonregression rule is needed |
+| Incorrect routing counter | Native `gate_off_examples` totals 0; 32 unknown + 32 general training examples are gate-off, leaving 128 gate-on factual examples |
+| Narrow retention evidence | The 32 evaluation general cases repeat only four distinct arithmetic questions; each split contains four independent counterfactual families |
 
-Benchmark/scorer integrity is a prerequisite for training admission. Mechanical
-persistence checks do not imply memory quality. Quality promotion requires
-delayed gain over disabled/shuffled controls, correct incremental updates with
-unaffected-fact preservation, and no regression on unrelated development AND
-audit questions against the disabled baseline and parent. Report exact-answer
-format failures separately from semantic diagnostics without changing gates
-after observing results. Any failed gate keeps the candidate diagnostic only.
+The context reproduction identifies an API contract defect, not evidence that
+the saved native answers were tampered with. Gate-off evaluation parity protects
+those tested unrelated answers through bypass; it does not establish learned
+noninterference under active memory.
 
-Keep protocol/data/code hashes and timestamped pre-run evidence; record whether
-Git committed them. A hashed pre-run file is not a preregistered Git commit.
-Preserve prior attempts. Do not repeatedly tune on exposed audits. New native
-work uses one exclusive MPS worker, fallback disabled, 50 GiB sampled driver,
-512 MiB sustained swap growth and 15% minimum host-free limits. Preserve the
-protected `src/replica_lab/runtime_pilot.py` and all unrelated user changes.
+## 2. First package: reproducibility, integrity and scoring
 
-MiniCPM5 remains baseline; Spark BF16 is optional and separately qualified.
-MiniCPM-V needs its native processor/adapter before visual memory training.
-Authentic personality fidelity requires permitted source records and human
-review; fictional fixtures remain engineering evidence. Learned multi-rate
-memory and architecture-changing RSI follow simpler reliable adaptation.
+Complete these repairs before new native training:
 
-## Required handoff
+1. Inventory tracked and untracked runtime, builder, scorer and test dependencies.
+   Include the necessary source files in a focused reproducible source commit
+   when authorized/permitted; never sweep in unrelated files or the protected
+   runtime pilot. Verify imports, dataset/scorer entry points and focused tests
+   from a clean tracked export using the declared environment. Model weights
+   remain separately sealed local artifacts, not files to add to Git.
+2. Authenticate the consumed exact context, not merely its selection receipt.
+   Check selected-record membership, current eligibility, expected caller scope,
+   record hashes, span offsets/text, duplicates and status. Bind the query if a
+   verified context can be reused for another query. Recompute canonical spans
+   from the ledger or enforce equivalent byte-level checks. Test modified spans,
+   records/status/scope, stale epochs, supersession and revocation at consumption.
+3. Repair routing accounting independently of `loss.requires_grad`. Persist
+   explicit route, requested versus actually used state, effective trainable
+   groups and gradient participation. Keep scheduled examples distinct from
+   examples that exercise a learnable memory path. Do not retrofit missing
+   per-example gradient evidence into the old native report.
+4. For a new versioned protocol, require independently correct exact-reference
+   answers and no correct-to-wrong regressions against full context. Agreement
+   with full context is a diagnostic, not a requirement to repeat its mistakes.
+   Give full-context missing-fact hallucination its own diagnostic. Retain the
+   old parity rejection and all native/smoke-fixture provenance unchanged.
+5. Expand evaluation diversity and scorer integrity tests. Decode token IDs with
+   the sealed tokenizer; derive gold from authenticated data; verify exact
+   case/arm membership and reject missing/duplicate rows, changed targets,
+   cached-score tampering and inconsistent aggregates. Report family and unique
+   question counts alongside answer counts.
 
-Record changed files, exact data/protocol/parent hashes, software checks, actual
-updates and trainable groups, decoded results by split and control, persistent
-correction/restart evidence, retention, resources, candidate disposition and
-the next discriminating hypothesis. Never describe a completed rejected run
-as a successful memory or RSI milestone.
+Protocol v4's historical scorer pin differs from the current scorer. That is
+not permission to repin the old experiment: create new code/data/protocol pins
+for the next run. A retrospective smoke fixture must remain explicitly distinct
+from native evidence. If Git permissions prevent a commit, report the clean-
+commit gate as open, validate an explicit hashed source bundle for independent
+work, and never claim clean-checkout reproducibility or a committed pre-run seal.
 
-## Implemented recovery tools and declared pilot
+**Exit:** the intended tracked source imports and its focused tests pass in a
+clean environment/export; forged contexts fail; route accounting is consistent;
+new scorers pass adversarial fixtures; historical verdicts remain reproducible
+under their recorded provenance. Actual native execution also needs a pinned,
+reviewable next protocol and valid source artifacts.
 
-- `scripts/make_memory_reliability_data.py` generates 12 counterfactual episodes
-  across six disjoint families. The fixed v1 diagnostic contains 96 training
-  and 48 evaluation cases; each evaluation split has only one paired family.
-  First-value and last-value shortcuts score 11/48 and 9/48; the best query-only
-  answer over each counterfactual pair is capped at 24/48. Crimson and indigo
-  are absent from training. This is a small exposed diagnostic, not broad
-  generalization evidence.
-- `src/replica_lab/answer_audit.py` checks dataset-derived gold, decoded tokens,
-  exact memberships, correctness and cached aggregates. The historical M4
-  replay verified 434 nested answer rows including duplicate restart references
-  and six external controls; this does not change its 427-generation count.
-  Aggregate tampering and deleting an arm together with its metric are rejected.
-  The existing historical v7 protocol still pins its old implementation; do not
-  edit it to match today's scorer or overwrite the old verdict.
-- `src/replica_lab/runtime/persistent_fast_memory.py` reuses the production
-  per-depth writers, convex shared SGDN-2 reducer and authenticated depth-image
-  format. Reload preserves scope, producer, exact lineage and counters without
-  encoding old pages. Appending a correction is a latest-value experiment,
-  **not deletion, revocation or neural unlearning**; those still require the
-  existing permitted-source invalidation/rebuild policy.
-- [The v1 protocol](../../configs/memory_reliability_v1.json) fixes 24 updates,
-  four examples/update, a seeded single pass over training cases, learning rate
-  0.001 and base-preservation KL weight 1.0 on train-only general questions.
-  Only fast-memory writers/readers train; the sealed MiniCPM5 base stays frozen.
-  One training job and one mechanical fresh-process check are declared.
-  Parent/disabled/shuffled/last-chunk/full-context controls and independent
-  image/answer scoring govern rejection. No selected default is replaced.
+## 3. Second package: diagnose storage, readout and correction
 
-The [pre-run seal](../../reports/memory_reliability_prerun_20261024.json) records
-code/data/protocol hashes before launch. The protocol is not committed; its
-Git base is `280d4dd`. Use the resulting experiment report for actual outcome,
-not this pre-run declaration.
+Reader-only failure does not prove correct storage. The active fast writer
+projects raw input-token embeddings. However, the
+[earlier contextual-writer arm](../experiments/20261023_E4_Contextual_Writer_Results.md)
+already produced 0/8 heldout recall despite a loss reduction. Do not repeat it
+unchanged or assume that contextual features alone solve the failure.
+
+Inspect existing writers, readers and copy/pointer paths before creating more
+layers. Use the following discriminating diagnostics on fresh families:
+
+- **Binding sensitivity:** swap entity/attribute/value assignments while keeping
+  the token inventory comparable. Identical states for different required
+  associations expose lost information; different states alone do not prove
+  usable bindings.
+- **Storage/read separation:** test whether observed values are recoverable from
+  the state through a bounded probe on independent families. An oracle key/value
+  representation built only from observed source facts is a labelled diagnostic
+  control, never an undeclared deployment mechanism or answer-label write.
+- **Decoder/copy separation:** compare the native residual reader with an
+  explicit copy/pointer diagnostic when the relevant stored value is known to
+  be recoverable. Distinguish failed storage, failed addressing and failed output.
+- **Chronological correction:** append observations once, answer multiple queries,
+  save/reload without old-source encoding, then append a correction and test
+  changed plus unaffected facts. Include missing/conflicting evidence and scopes.
+- **Interference:** vary fact count, distractors, delay and query forms; check
+  seen values in new bindings and genuinely unseen observed values. Measure
+  saturation and unrelated behavior with memory both active and bypassed.
+
+Use the exact-record reference as a practical control. Its current structured
+fact parser and lexical coverage gate are narrow mechanisms, not general
+semantic retrieval. Exposed v1/v3 evaluations are regressions after inspection,
+not fresh final audits. Split complete families before variants, captions or
+teacher expansion; audit query-only, first/last-value and template shortcuts.
+
+**Exit:** a report identifies the failing boundary, the diagnostic evidence,
+what remains uncertain, and one falsifiable repair hypothesis. A lower loss,
+nonzero gradient or changing state digest does not close the quality gate.
+
+## 4. Third package: one targeted MiniCPM5 memory repair
+
+Use the diagnosed failure to select one change: for example an explicit
+association objective, a writer representation, query addressing or an output
+copy interface. These are alternatives to choose from evidence, not instructions
+to activate every mechanism. Preserve the sealed original and keep D1 scope
+explicit unless a separate co-adaptation study is declared.
+
+Before native execution, freeze a fresh protocol defining parent/source/data/
+code hashes, trainable tensors, optimizer/rates, loss/masks, replay, independent
+families, controls and numeric update/token/time/resource caps. Run focused
+contracts first. Measure parent, disabled, exact/full-context, shuffled and
+last-observation controls. If using teacher distributions, independently check
+teacher correctness; the full-context control is not infallible.
+
+Qualify delayed factual gain, incremental correction, unaffected-fact retention,
+unknown/conflict handling and broader text retention on both development and
+independent evaluation families. Keep per-case regressions and family-level
+uncertainty. The four arithmetic queries from the old fixture are insufficient
+for a broad retention claim. Report actual scheduled/gate-on examples, gradient
+membership and changed tensors, not only optimizer calls.
+
+Save an isolated candidate and independently accept/reject/defer. Run a declared
+fresh-process persistence check; a rejected quality candidate may still support
+an explicitly labelled mechanical diagnostic. Do not select checkpoints or tune
+thresholds on the audit. Preserve negative attempts and count their costs.
+
+Use one exclusive MPS worker with fallback disabled, 50 GiB sampled driver stop,
+512 MiB sustained swap-growth and 15% minimum host-free limits. Samples can miss
+transients. No guard increase, allocator change, repeated failed recipe or silent
+parameter freezing is a recovery action. Preserve `src/replica_lab/runtime_pilot.py`.
+
+**Exit:** a complete, reproducible repair package with measured acceptance or
+rejection and a specific next hypothesis. Reliable learned-memory promotion
+requires factual gain, correction/retention and restart together. Atomic snapshot
+publication is not power-loss durability, and permitted-source rebuild is not
+neural unlearning; qualify those claims separately.
+
+## 5. Progression to vision, visual memory and RSI
+
+After the three packages above, follow document 18's V0–V2 MiniCPM5 visual input,
+projector alignment and instruction/reasoning training. If learned-memory quality
+remains rejected, isolate that vision experiment with memory/core/identity
+injections disabled. This preserves priority for memory repairs without turning
+an unresolved research result into an indefinite ban on independent perception.
+
+V3 learned visual memory requires both accepted perception and an independently
+qualified chosen memory path. Exact visual retrieval is a separate baseline and
+must not be relabelled learned memory. Integrated neural RSI promotion requires
+useful memory/correction, broad retention, reliable visual behavior where used,
+independent outcome verification and tested rejection/rollback. Fixed-practice
+and publication plumbing may proceed earlier; C13's 10/10 threshold applies to
+learned selection, not to deterministic plumbing.
+
+Keep static Engram, learned multi-rate memory and architecture-changing RSI as
+later separate hypotheses. Spark BF16/native/vision support comes after the
+MiniCPM5 visual-memory/RSI work has a documented outcome and reusable contracts.
+MiniCPM-V is an optional pretrained reference/teacher; it does not replace the
+new MiniCPM5 encoder/projector plan. Personality conditioning uses approved
+sources and separate fidelity review, without changing factual verification.
+
+## 6. Handoff and preserved evidence
+
+For each package record: changed files; source/protocol/parent/code identities;
+clean-export and focused/integration checks; actual trainable groups and updates;
+decoded results by split/control and independent family; route/gradient counts;
+correction/restart evidence; retention; resource/teacher/verifier cost; candidate
+disposition; and the next discriminating action. Mark implemented, tested,
+trained, evaluated and unrun separately. Keep historical native artifacts intact.
+
+Preserve the rejected [first recovery pilot](../experiments/20261024_Memory_Reliability_Recovery_Results.md),
+[reader-only comparison](../experiments/20261024_Memory_Reliability_Reader_Only_Results.md),
+[M3 repair](../experiments/20261024_M3_Retention_Repair_Results.md),
+[M4 pattern study](../experiments/20261024_M4_Pattern_Results.md), their protocols
+and all failed attempts. Reuse the accepted narrow
+[procedure lifecycle](../experiments/20261024_M1_Procedure_Compilation_Results.md).
+Do not rebuild passing infrastructure or convert engineering success into a
+claim of learned recall, general retention, personality fidelity or RSI.

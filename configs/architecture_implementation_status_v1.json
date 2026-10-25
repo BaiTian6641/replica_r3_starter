@@ -261,12 +261,12 @@
     "success_uncertainty_calibration_before_control_authority"
   ],
   "last_recorded_validation": {
-    "passed": 1299,
+    "passed": 1311,
     "subtests": 21,
     "skipped": 0,
-    "seconds": 137.53,
-    "junit": "reports/validation_memory_reliability_reader_20261024.xml",
-    "scope": "Full integration after exact-reference and reader-only implementation; zero failures/errors/skips and one existing sparse-tensor warning. 37 focused reliability tests also passed."
+    "seconds": 148.69,
+    "evidence": "reports/reproducibility_v5_source_export_20261024.json",
+    "scope": "Clean git-archive export with hardlinked sealed source; zero failures and one existing sparse-tensor warning. 49 focused reliability tests also passed."
   },
   "current_guard_validation": {
     "date": "2026-10-23",
@@ -317,7 +317,7 @@
     "M6": "blocked; no simpler-loop result has survived retention and noninterference",
     "M7": "blocked; local MiniCPM-V-4.7-1B weights/revision, separate adapter and native multimodal/cache parity unavailable",
     "personality": "fictional integration implemented; authentic training/fidelity blocked on permitted decision records, reserved families and human review",
-    "R1": "software/persistence mechanics passed; first 24-update D1 pilot rejected on selective memory and general noninterference; use new protocol/data for another hypothesis"
+    "R1": "V5 fact-binding writer trained 48 updates and is rejected on all factual quality floors; corrected scorer, 32 images and mechanical restart pass. Next storage/read separation probe; no learned-memory or RSI promotion"
   },
   "historical_selected_capacity_result": "reports/e2_capacity4096_selected_attempt01/run_report.json",
   "historical_capacity_guard_boundary": "reports/e2_capacity8192_selected_attempt01/failure_report.json",
@@ -328,10 +328,10 @@
   "r1_protocol": "configs/memory_reliability_v4.json",
   "recovery_plan": "docs/architecture/17_Memory_Reliability_Recovery.md",
   "immediate_execution_order": [
-    "preserve_recovery_pilot_rejection_and_verify_existing_scorer",
-    "durable_exact_record_reference_and_crash_revocation_coverage",
-    "diagnose_query_selective_binding_readout_and_noninterference",
-    "new_protocol_and_independent_families_then_bounded_MiniCPM5_D1_comparison",
+    "preserve_v5_rejection_and_corrected_scorer_evidence",
+    "diagnose_storage_read_separation_on_fresh_observed_facts",
+    "compare_explicit_copy_pointer_only_when_values_are_recoverable",
+    "isolated_vision_with_memory_core_identity_disabled_may_proceed_separately",
     "neural_RSI_only_after_recall_correction_retention_and_restart_quality_gates"
   ],
   "review_findings": [
@@ -380,5 +380,57 @@
     "scope": "One dev and one heldout counterfactual family; now exposed. Persistence of wrong answers is not memory quality. No crash/power-loss recovery or unlearning claim.",
     "next": "Existing exact-record reference, query-selective binding/read diagnosis and relevance-based noninterference before a fresh bounded D1 study; no RSI advancement."
   },
-  "current_construction_order_role": "Later component reference; immediate_execution_order and reliability_recovery control the next action"
+  "reliability_v5": {
+    "report": "docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md",
+    "protocol": "configs/memory_reliability_v5.json",
+    "protocol_content_commit": "6b4de12",
+    "protocol_metadata_commit": "45ba43d",
+    "evaluation_protocol": "configs/memory_reliability_v5_scorer_fix_eval02.json",
+    "evaluation_protocol_content_commit": "2833242",
+    "evaluation_protocol_metadata_commit": "36c3c0a",
+    "scorer_correction_commits": ["eff2079", "5aa7e75"],
+    "raw_result": "runs/memory_reliability_v5_attempt01/run_report.json",
+    "engineering_audit": "reports/memory_reliability_v5_attempt01/engineering_audit.json",
+    "failure_analysis": "reports/memory_reliability_v5_attempt01/failure_analysis.json",
+    "evaluation_result": "runs/memory_reliability_v5_scorer_fix_eval02/run_report.json",
+    "verdict": "reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json",
+    "restart": "runs/memory_reliability_v5_scorer_fix_restart01/run_report.json",
+    "preserved_failed_scoring_replay": "runs/memory_reliability_v5_scorer_fix_eval01/run_report.json",
+    "candidate_extension": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "candidate_weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+    "decision": "reject_diagnostic_only_not_selected",
+    "reference_decision": "reject_reference",
+    "evaluation_only_replay": true,
+    "optimizer_updates": 48,
+    "gradient_examples": 192,
+    "trainable_parameters": 5251072,
+    "changed_tensors": 14,
+    "unchanged_tensors": 53,
+    "route_counts": {"fast": 128, "disabled": 64, "backward_calls": 192, "disabled_backward_calls": 64},
+    "quality_counts": {
+      "initial_facts": "0/64",
+      "corrected_facts": "0/16",
+      "unaffected_facts": "0/48",
+      "unknown": "32/32",
+      "general": "24/32",
+      "selective_context_total": "184/192",
+      "full_context_total": "176/192"
+    },
+    "authenticated_images": 32,
+    "fresh_process_token_state_parity": "7/7",
+    "final_gates": {"passed": 20, "failed": 11, "total": 31},
+    "resources": {
+      "driver_peak_bytes": 11815763968,
+      "training_seconds": 637.2283430420794,
+      "evaluation_replay_seconds": 548.8552365840878,
+      "restart_seconds": 7.18152662506327,
+      "total_guard_wall_seconds": 1751.69,
+      "swap_growth_bytes": 0,
+      "guard_gib": 50
+    },
+    "storage": {"candidate_extension_bytes": 48948272, "base_saved": false, "original_run_kib": 53240, "evaluation_run_kib": 5084, "restart_kib": 84},
+    "scope": "One fresh writer-representation arm and no-training scorer replays. Fast and disabled correctness are identical at 56/192; factual influence is not useful memory. Mechanical restart passes. No broad retention, calibration or RSI claim.",
+    "next": "Diagnose storage/read separation on fresh observed facts; use explicit copy/pointer only when values are recoverable. Do not repeat writer/reader training on this exposed set."
+  },
+  "current_construction_order_role": "Later component reference; immediate_execution_order and reliability_v5 control the next action"
 }
