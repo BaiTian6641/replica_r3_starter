@@ -46,6 +46,7 @@
     "worlds": 30
   },
   "checks": {
+    "complete_pages_no_truncation": true,
     "config_pin": true,
     "episode_bytes": true,
     "implementation_pins": true,
@@ -53,6 +54,8 @@
     "label_free_writer_inputs": true,
     "manifest_format": true,
     "no_native_computation": true,
+    "prompt_audit_regenerated": true,
+    "prompt_bound_covers_rows": true,
     "protocol_bytes": true,
     "seeded_episode_regeneration": true,
     "source_pins": true,
@@ -61,7 +64,7 @@
     "writer_extension_pins": true
   },
   "config_sha256": "57fc541c3d57bf53e268625d72a4ba18d75a69cdb5c9d7ee58f251f1ee8aa613",
-  "created_at_utc": "2026-10-25T23:35:38.307734+00:00",
+  "created_at_utc": "2026-10-25T23:43:33.244380+00:00",
   "episodes_sha256": "48074931487e8215b7ca1491719953af05158604493688c48a1a5fd62f778bd1",
   "families_per_split": {
     "dev": 1,
@@ -71,7 +74,7 @@
   "format": "replica.memory_matched.admission.v1",
   "implementation_sha256": {
     "configs/memory_matched_v1.json": "57fc541c3d57bf53e268625d72a4ba18d75a69cdb5c9d7ee58f251f1ee8aa613",
-    "scripts/prepare_memory_matched.py": "00c3d56ea19ef900c06df1c091b2867c8d3eb0a4ad8187ca16b8d6916514c0e9",
+    "scripts/prepare_memory_matched.py": "07f6138f0ea4dcfd9d73b0b675f095daac9af0aa2718607078077843a155b5c8",
     "scripts/run_memory_matched.py": "7e3a96f78365015fc24c449c81451affdbc556213ddf3083b71f3c89ac686853",
     "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
     "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
@@ -80,7 +83,7 @@
     "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
     "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
     "src/replica_lab/memory_diagnosis.py": "a1dcd58416982a7893aba3dfe4ede22dce83153b87e63e24eaf071758c048de4",
-    "src/replica_lab/memory_matched.py": "d172e19f30fb47e2c2df8536fdfa20e02506ec6131b50b364bb977385c947fdd",
+    "src/replica_lab/memory_matched.py": "99fec50231efa55a3ce8c5d6be8fde26261218ecae8e7c2c9bfd535d8706a974",
     "src/replica_lab/memory_reliability.py": "b43809dc96d9ac4b11f57f1cc3f722730a04f36c2062aebbc106a69047e9ce1a",
     "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
     "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
@@ -95,6 +98,13 @@
     "src/replica_lab/runtime/persistent_fast_memory.py": "c0728e2ed7235662b91a2ab1d51259052a5ba147946f7e73599deb28ffde4665"
   },
   "labels_sha256": "43af487341f7277815b2899c877b792992660ba57be788bab64b980cf16f151e",
+  "observed_max_prompt_tokens": 269,
+  "per_arm_max_prompt_tokens": {
+    "context_removed": 71,
+    "exact_source": 103,
+    "full_context": 269,
+    "memory": 71
+  },
   "planned_workload": {
     "answer_rows": 648,
     "episodes": 30,
@@ -110,8 +120,11 @@
     "readout_rows": 750,
     "states": 42
   },
-  "prepared_manifest_sha256": "54c88dc396b6469d72668bf7584ecf2e413e2fbb70d6c4b93cf3b1b071888e45",
-  "protocol_sha256": "babc57daf7d4fea60eea3a37cbb36cffa9a67002000da19d1cb3320705ed1542",
+  "prepared_manifest_sha256": "e729fc840afe9b91a7714299d5c07fc97a1c0bc858b9e96c030beaa0573fcde3",
+  "previous_bound_would_fail": true,
+  "prompt_audit_sha256": "8ad478491d3e4eb3b003f1add9445a85da51f88cb4801c937e0d2bf1889ea446",
+  "prompt_bound": 269,
+  "protocol_sha256": "7bc2892c50332ae5b8c4de68ed2cc052c98f0d6f93a54abc2d5b7b2dcb53f028",
   "seed": 20261026,
   "source": {
     "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",

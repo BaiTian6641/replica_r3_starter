@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 """Prepare deterministic matched-memory episodes, verifier labels and pins.
 
-This command performs no model load, no native computation and no weight
-update.  ``--admit`` re-verifies every pin and writes an admission receipt.
+This command performs no model-weight load, no neural forward and no weight
+update; it loads only the sealed tokenizer to audit prompt bounds.  ``--admit``
+re-verifies every pin, re-runs the prompt audit, and writes an admission receipt.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
+
+for key in ('HF_HUB_OFFLINE', 'TRANSFORMERS_OFFLINE', 'HF_DATASETS_OFFLINE'):
+    os.environ.setdefault(key, '1')
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))

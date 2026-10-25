@@ -53,11 +53,11 @@
   "generation": {
     "greedy": true,
     "max_new_tokens": 6,
-    "max_prompt_tokens": 256
+    "max_prompt_tokens": 269
   },
   "implementation_sha256": {
     "configs/memory_matched_v1.json": "57fc541c3d57bf53e268625d72a4ba18d75a69cdb5c9d7ee58f251f1ee8aa613",
-    "scripts/prepare_memory_matched.py": "00c3d56ea19ef900c06df1c091b2867c8d3eb0a4ad8187ca16b8d6916514c0e9",
+    "scripts/prepare_memory_matched.py": "07f6138f0ea4dcfd9d73b0b675f095daac9af0aa2718607078077843a155b5c8",
     "scripts/run_memory_matched.py": "7e3a96f78365015fc24c449c81451affdbc556213ddf3083b71f3c89ac686853",
     "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
     "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
@@ -66,7 +66,7 @@
     "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
     "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
     "src/replica_lab/memory_diagnosis.py": "a1dcd58416982a7893aba3dfe4ede22dce83153b87e63e24eaf071758c048de4",
-    "src/replica_lab/memory_matched.py": "d172e19f30fb47e2c2df8536fdfa20e02506ec6131b50b364bb977385c947fdd",
+    "src/replica_lab/memory_matched.py": "99fec50231efa55a3ce8c5d6be8fde26261218ecae8e7c2c9bfd535d8706a974",
     "src/replica_lab/memory_reliability.py": "b43809dc96d9ac4b11f57f1cc3f722730a04f36c2062aebbc106a69047e9ce1a",
     "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
     "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
@@ -97,7 +97,7 @@
     "max_layers": 2,
     "max_new_tokens": 6,
     "max_preserved_failures": 500,
-    "max_prompt_tokens": 256,
+    "max_prompt_tokens": 269,
     "max_queries": 20000,
     "max_states": 160,
     "minimum_free_percent": 15,
@@ -121,6 +121,70 @@
     "queries": 108,
     "readout_rows": 750,
     "states": 42
+  },
+  "prompt_audit": {
+    "bound": 269,
+    "bound_justification": "maximum rendered prompt token count across every episode/state/query/arm row; complete observed pages, no truncation",
+    "complete_pages": true,
+    "configured_bound": 256,
+    "first_row_over_previous_bound": {
+      "arm": "full_context",
+      "complexity": "interference",
+      "episode_id": "epi-e-dedc6b92d6",
+      "observation_sha256": "8b4c83f73f87566c000ce05541d0523d2a662482de4223629df9f4146eb7287a",
+      "prompt_sha256": "0f50e7640e3df2beb140351470b70216c0b85da158f15f8590112c6d4149421d",
+      "query_form": 0,
+      "query_id": "q0",
+      "source_record_ids": [
+        "rec-2e404ad9b3",
+        "rec-f9f1c26be2",
+        "rec-1a0677d061",
+        "rec-d65262aeb3",
+        "rec-63dd7c57ca",
+        "rec-27b276d01c",
+        "rec-b316810360"
+      ],
+      "split": "train",
+      "state": "corrected",
+      "tokens": 269
+    },
+    "format": "replica.memory_matched.prompt_audit.v1",
+    "max_row": {
+      "arm": "full_context",
+      "complexity": "interference",
+      "episode_id": "epi-e-dedc6b92d6",
+      "observation_sha256": "8b4c83f73f87566c000ce05541d0523d2a662482de4223629df9f4146eb7287a",
+      "prompt_sha256": "0f50e7640e3df2beb140351470b70216c0b85da158f15f8590112c6d4149421d",
+      "query_form": 0,
+      "query_id": "q0",
+      "source_record_ids": [
+        "rec-2e404ad9b3",
+        "rec-f9f1c26be2",
+        "rec-1a0677d061",
+        "rec-d65262aeb3",
+        "rec-63dd7c57ca",
+        "rec-27b276d01c",
+        "rec-b316810360"
+      ],
+      "split": "train",
+      "state": "corrected",
+      "tokens": 269
+    },
+    "observed_max_tokens": 269,
+    "path": "prompt_audit.json",
+    "per_arm_max_tokens": {
+      "context_removed": 71,
+      "exact_source": 103,
+      "full_context": 269,
+      "memory": 71
+    },
+    "previous_bound_would_fail": true,
+    "rows_over_previous_bound": 30,
+    "sha256": "8ad478491d3e4eb3b003f1add9445a85da51f88cb4801c937e0d2bf1889ea446",
+    "tokenizer_identity": "581018fb9bfbe84330ee232df2fc1d01e88c48e3d7de08217634a6eadaa86310",
+    "tokenizer_model_max_length": 131072,
+    "total_rows": 648,
+    "truncation": false
   },
   "representation": "fact_binding_key_value.v1",
   "seed": 20261026,

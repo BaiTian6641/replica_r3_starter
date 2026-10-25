@@ -546,17 +546,29 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
     assert (output / 'episodes.json').is_file()
     assert (output / 'labels.json').is_file()
     assert (output / 'protocol.json').is_file()
+    assert (output / 'prompt_audit.json').is_file()
     labels = json.loads((output / 'labels.json').read_text())
     protocol = json.loads((output / 'protocol.json').read_text())
+    prompt_audit = json.loads((output / 'prompt_audit.json').read_text())
     assert labels['format'] == LABELS_FORMAT
     assert labels['evaluation_only'] is True
     assert protocol['budget']['max_wall_seconds'] == 900
     assert protocol['budget'] == manifest['budget']
     assert 'declared monotonic wall-clock deadline' in protocol['stop_conditions']
+    assert protocol['generation']['max_prompt_tokens'] == prompt_audit['bound']
+    assert protocol['limits']['max_prompt_tokens'] == prompt_audit['bound']
+    assert manifest['prompt_audit_sha256'] == hashlib.sha256(
+        (output / 'prompt_audit.json').read_bytes()).hexdigest()
+    assert manifest['prompt_bound'] >= manifest['observed_max_prompt_tokens']
+    assert all(row['tokens'] <= prompt_audit['bound']
+               for row in prompt_audit['rows'])
     receipt = admit_matched_prepared(output)
     assert receipt['status'] == 'admitted'
     assert receipt['checks']['seeded_episode_regeneration'] is True
     assert receipt['checks']['verifier_labels_regenerated'] is True
+    assert receipt['checks']['prompt_audit_regenerated'] is True
+    assert receipt['checks']['prompt_bound_covers_rows'] is True
+    assert receipt['checks']['complete_pages_no_truncation'] is True
     assert receipt['checks']['label_free_writer_inputs'] is True
     assert verify_matched_prepared(output)['status'] == 'admitted'
 
@@ -810,6 +822,9 @@ def test_declared_deadline_is_enforced():
         enforce_elapsed_deadline(100.0, 0, now=101.0)
 
 
+@require_local_artifacts('checkpoints/minicpm5_source',
+                         'configs/minicpm5_sealed_lock.local.json',
+                         'runs/memory_reliability_v5_attempt01/candidate_extension')
 def test_prepared02_audits_interference_and_declared_budget():
     prepared = ROOT / 'data/memory_matched_20261025/prepared02'
     if not (prepared / 'episodes.json').is_file():
@@ -824,9 +839,20 @@ def test_prepared02_audits_interference_and_declared_budget():
     assert protocol['budget']['max_wall_seconds'] == 900
     assert protocol['budget'] == manifest['budget']
     assert 'declared monotonic wall-clock deadline' in protocol['stop_conditions']
+    prompt_audit = json.loads((prepared / 'prompt_audit.json').read_text())
+    assert prompt_audit['previous_bound_would_fail'] is True
+    assert prompt_audit['observed_max_tokens'] > prompt_audit['configured_bound']
+    assert protocol['generation']['max_prompt_tokens'] == prompt_audit['bound']
+    assert protocol['limits']['max_prompt_tokens'] == prompt_audit['bound']
+    assert protocol['prompt_audit']['sha256'] == hashlib.sha256(
+        (prepared / 'prompt_audit.json').read_bytes()).hexdigest()
+    assert all(row['tokens'] <= prompt_audit['bound']
+               for row in prompt_audit['rows'])
     receipt = verify_matched_prepared(prepared)
     assert receipt['status'] == 'admitted'
     assert receipt['checks']['verifier_labels_regenerated'] is True
+    assert receipt['checks']['prompt_audit_regenerated'] is True
+    assert receipt['checks']['prompt_bound_covers_rows'] is True
     interference = [episode for episode in data['episodes']
                     if episode['complexity'] == 'interference']
     assert interference
@@ -922,3 +948,36 @@ def test_post_profiler_and_post_report_deadline_crossings_fail_closed():
     assert finalized['elapsed_seconds'] >= finalized['profile']['elapsed_seconds']
     assert all(item['status'] == 'completed' for item in writes)
     assert all(item['deadline_ok'] is True for item in writes)
+
+
+@require_local_artifacts('checkpoints/minicpm5_source',
+                         'configs/minicpm5_sealed_lock.local.json')
+def test_prompt_bound_audit_detects_previous_256_failure_before_native():
+    from replica_lab.memory_matched import _load_sealed_tokenizer, audit_prompt_bounds
+
+    prepared = ROOT / 'data/memory_matched_20261025/prepared02'
+    if not (prepared / 'episodes.json').is_file():
+        pytest.skip('prepared02 is not provisioned; run scripts/prepare_memory_matched.py --admit')
+    data = json.loads((prepared / 'episodes.json').read_text())
+    protocol = json.loads((prepared / 'protocol.json').read_text())
+    stored = json.loads((prepared / 'prompt_audit.json').read_text())
+    tokenizer = _load_sealed_tokenizer(ROOT / 'checkpoints/minicpm5_source')
+    audit = audit_prompt_bounds(
+        data['episodes'], tokenizer, configured_bound=256)
+    assert audit == stored
+    assert audit['configured_bound'] == 256
+    assert audit['previous_bound_would_fail'] is True
+    assert audit['observed_max_tokens'] > 256
+    assert audit['max_row']['tokens'] == audit['observed_max_tokens']
+    assert audit['first_row_over_previous_bound']['tokens'] > 256
+    assert audit['bound'] >= audit['observed_max_tokens']
+    assert audit['bound'] > 256
+    assert all(row['tokens'] <= audit['bound'] for row in audit['rows'])
+    assert audit['complete_pages'] is True
+    assert audit['truncation'] is False
+    assert audit['per_arm']['full_context']['max_tokens'] <= audit['bound']
+    assert protocol['generation']['max_prompt_tokens'] == audit['bound']
+    assert protocol['limits']['max_prompt_tokens'] == audit['bound']
+    assert protocol['prompt_audit']['previous_bound_would_fail'] is True
+    assert protocol['prompt_audit']['max_row']['tokens'] == \
+        audit['observed_max_tokens']

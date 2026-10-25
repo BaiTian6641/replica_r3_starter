@@ -37,6 +37,7 @@ import json
 from pathlib import Path
 import random
 import statistics
+import tempfile
 import time
 
 import torch
@@ -86,6 +87,7 @@ RUN_FORMAT = 'replica.memory_matched.run.v1'
 READOUT_FORMAT = 'replica.memory_matched.readout.v1'
 ANSWER_FORMAT = 'replica.memory_matched.answer.v1'
 CODEBOOK_FORMAT = 'replica.memory_matched.codebook.v1'
+PROMPT_AUDIT_FORMAT = 'replica.memory_matched.prompt_audit.v1'
 
 SPLITS = ('train', 'dev', 'heldout')
 COMPLEXITIES = ('single', 'pair', 'triple', 'correction', 'interference')
@@ -1724,6 +1726,131 @@ def _evaluate_answers(episode, state, memory, *, reference, scope,
     return rows
 
 
+def _load_sealed_tokenizer(model_path):
+    """Load only the sealed tokenizer; no model weights or native forward."""
+    from transformers import AutoTokenizer
+    path = _resolve_path(model_path)
+    _require(path.is_dir(), 'Sealed tokenizer source directory is missing')
+    tokenizer = AutoTokenizer.from_pretrained(
+        str(path), local_files_only=True, trust_remote_code=False)
+    _require(getattr(tokenizer, 'is_fast', False),
+             'Sealed source requires its native fast tokenizer')
+    return tokenizer
+
+
+def audit_prompt_bounds(episodes, tokenizer, *, configured_bound):
+    """Render every arm prompt with the sealed tokenizer before any native run.
+
+    Full-context observations are complete observed pages; the audit never
+    truncates a page or a rendered prompt.  It records each arm's maximum, the
+    exact global maximum row, the first row that would exceed the previous
+    declared bound, and the bound that covers every row.
+    """
+    from .architecture.loading import encode_prompt
+    from .runtime.memory_representation import tokenizer_identity
+
+    _require(type(configured_bound) is int and configured_bound > 0,
+             'Configured prompt bound must be a positive integer')
+    _require(isinstance(episodes, list) and episodes,
+             'Prompt audit requires episodes')
+    per_arm = {arm: {'rows': 0, 'max_tokens': -1, 'max_row': None}
+               for arm in ANSWER_ARMS}
+    rows = []
+    max_row = None
+    first_over = None
+    rows_over = 0
+    with tempfile.TemporaryDirectory(prefix='matched-prompt-audit-') as temporary:
+        ledger_root = Path(temporary)
+        for episode in episodes:
+            for state in episode_states(episode):
+                full_lines = [line for page in state['observations']
+                              for line in page['lines']]
+                full_context = '\n'.join(full_lines)
+                ledger = _ledger_for_state(episode, state, ledger_root)
+                reference = ExactMemoryReference(ledger)
+                try:
+                    scope = _state_scope(episode, state)
+                    for query in episode['queries']:
+                        for arm in ANSWER_ARMS:
+                            observation, source_ids = _context_text(
+                                arm, episode, state, reference, scope, query)
+                            if arm == 'full_context':
+                                _require(
+                                    observation == full_context,
+                                    'Full-context prompt dropped observed page lines')
+                                _require(
+                                    len(full_lines) == sum(
+                                        len(page['lines'])
+                                        for page in state['observations']),
+                                    'Full-context page inventory differs')
+                            prompt = MATCHED_TEMPLATE.replace(
+                                '{query}', query['text']).replace(
+                                    '{observation}', observation)
+                            ids = encode_prompt(tokenizer, prompt, 'cpu')
+                            tokens = int(ids.shape[1])
+                            row = {
+                                'episode_id': episode['episode_id'],
+                                'state': state['name'], 'split': episode['split'],
+                                'complexity': episode['complexity'],
+                                'query_id': query['query_id'],
+                                'query_form': query['form'], 'arm': arm,
+                                'tokens': tokens,
+                                'prompt_sha256': _sha_text(prompt),
+                                'observation_sha256':
+                                    state_observation_sha256(episode, state),
+                                'source_record_ids': list(source_ids),
+                            }
+                            rows.append(row)
+                            arm_metric = per_arm[arm]
+                            arm_metric['rows'] += 1
+                            if tokens > arm_metric['max_tokens']:
+                                arm_metric['max_tokens'] = tokens
+                                arm_metric['max_row'] = row
+                            if max_row is None or tokens > max_row['tokens']:
+                                max_row = row
+                            if tokens > configured_bound:
+                                rows_over += 1
+                                if first_over is None:
+                                    first_over = row
+                finally:
+                    reference.close()
+                    ledger.close()
+    _require(rows and max_row is not None, 'Prompt audit produced no rows')
+    observed = int(max_row['tokens'])
+    bound = max(configured_bound, observed)
+    model_max = int(getattr(tokenizer, 'model_max_length', 0) or 0)
+    recorded_model_max = model_max if 0 < model_max < 10 ** 9 else None
+    if recorded_model_max is not None:
+        _require(bound <= recorded_model_max,
+                 'Measured prompt bound exceeds the sealed tokenizer/model '
+                 'position budget; narrow the observed pages explicitly')
+    audit = {
+        'format': PROMPT_AUDIT_FORMAT,
+        'configured_bound': configured_bound,
+        'bound': bound,
+        'bound_justification': (
+            'maximum rendered prompt token count across every '
+            'episode/state/query/arm row; complete observed pages, no truncation'),
+        'observed_max_tokens': observed,
+        'max_row': max_row,
+        'per_arm': per_arm,
+        'first_row_over_previous_bound': first_over,
+        'rows_over_previous_bound': rows_over,
+        'previous_bound_would_fail': rows_over > 0,
+        'total_rows': len(rows),
+        'complete_pages': True,
+        'truncation': False,
+        'tokenizer_identity': tokenizer_identity(tokenizer),
+        'tokenizer_model_max_length': recorded_model_max,
+        'rows': rows,
+    }
+    _require(all(row['tokens'] <= bound for row in rows),
+             'Audited prompt does not fit the recommended bound')
+    _require(audit['observed_max_tokens'] <= audit['bound'],
+             'Observed maximum exceeds the audited bound')
+    return audit
+
+
 # ---------------------------------------------------------------------------
 # Independent scorer
 # ---------------------------------------------------------------------------
@@ -2756,8 +2883,12 @@ def _protocol_from_config(config, *, episodes_sha256, labels_sha256,
     }
 
 
-def prepare_matched(output, *, config_path=None, config=None):
-    """Write deterministic episodes, verifier labels and exact pins; no model."""
+def prepare_matched(output, *, config_path=None, config=None, tokenizer=None):
+    """Write deterministic episodes, verifier labels and exact pins; no model.
+
+    The sealed tokenizer is loaded for a prompt-bound audit only.  No model
+    weights are loaded, no neural forward runs and no native computation occurs.
+    """
     output = Path(output)
     if output.exists() and any(output.iterdir()):
         raise ValueError('Prepare output must be fresh or empty')
@@ -2795,6 +2926,13 @@ def prepare_matched(output, *, config_path=None, config=None):
     _require(extension['weights_sha256']
              == config['writer_extension']['weights_sha256'],
              'Frozen writer extension bytes differ from the configuration pin')
+    configured_bound = _resolve_limits(config.get('limits'))['max_prompt_tokens']
+    if tokenizer is None:
+        tokenizer = _load_sealed_tokenizer(config['source']['model_path'])
+    prompt_audit = audit_prompt_bounds(
+        episodes, tokenizer, configured_bound=configured_bound)
+    prompt_audit_path = output / 'prompt_audit.json'
+    _write_json(prompt_audit_path, prompt_audit)
     implementation = _implementation_sha256()
     protocol = _protocol_from_config(
         config, episodes_sha256=_sha_file(episodes_path),
@@ -2804,16 +2942,50 @@ def prepare_matched(output, *, config_path=None, config=None):
     protocol['source'] = source
     protocol['writer_extension'] = extension
     protocol['implementation_sha256'] = implementation
+    protocol['limits']['max_prompt_tokens'] = prompt_audit['bound']
+    protocol['generation']['max_prompt_tokens'] = prompt_audit['bound']
+    protocol['prompt_audit'] = {
+        'format': prompt_audit['format'],
+        'path': 'prompt_audit.json',
+        'sha256': _sha_file(prompt_audit_path),
+        'configured_bound': prompt_audit['configured_bound'],
+        'bound': prompt_audit['bound'],
+        'observed_max_tokens': prompt_audit['observed_max_tokens'],
+        'max_row': prompt_audit['max_row'],
+        'first_row_over_previous_bound':
+            prompt_audit['first_row_over_previous_bound'],
+        'rows_over_previous_bound': prompt_audit['rows_over_previous_bound'],
+        'previous_bound_would_fail':
+            prompt_audit['previous_bound_would_fail'],
+        'per_arm_max_tokens': {
+            arm: prompt_audit['per_arm'][arm]['max_tokens']
+            for arm in ANSWER_ARMS},
+        'total_rows': prompt_audit['total_rows'],
+        'complete_pages': prompt_audit['complete_pages'],
+        'truncation': prompt_audit['truncation'],
+        'tokenizer_identity': prompt_audit['tokenizer_identity'],
+        'tokenizer_model_max_length':
+            prompt_audit['tokenizer_model_max_length'],
+        'bound_justification': prompt_audit['bound_justification'],
+    }
     protocol['planned_workload'] = matched_workload(episodes, protocol)
     protocol_path = output / 'protocol.json'
     _write_json(protocol_path, protocol)
     manifest = {
         'format': PREPARED_FORMAT, 'created_at_utc': _utc_now(),
         'native_computation': False,
+        'prompt_audit_tokenizer_only': True,
         'seed': seed, 'variants': variants,
         'families_per_split': families,
         'episodes_sha256': _sha_file(episodes_path),
         'labels_sha256': _sha_file(labels_path),
+        'prompt_audit_sha256': _sha_file(prompt_audit_path),
+        'prompt_bound': prompt_audit['bound'],
+        'observed_max_prompt_tokens': prompt_audit['observed_max_tokens'],
+        'previous_bound_would_fail': prompt_audit['previous_bound_would_fail'],
+        'per_arm_max_prompt_tokens': {
+            arm: prompt_audit['per_arm'][arm]['max_tokens']
+            for arm in ANSWER_ARMS},
         'protocol_sha256': _sha_file(protocol_path),
         'config_sha256': protocol['config_sha256'],
         'audit': audit,
@@ -2833,12 +3005,15 @@ def verify_matched_prepared(prepared):
     episodes_path = prepared / 'episodes.json'
     labels_path = prepared / 'labels.json'
     protocol_path = prepared / 'protocol.json'
-    for path in (manifest_path, episodes_path, labels_path, protocol_path):
+    prompt_audit_path = prepared / 'prompt_audit.json'
+    for path in (manifest_path, episodes_path, labels_path, protocol_path,
+                 prompt_audit_path):
         _require(path.is_file(), f'Prepared matched artifact is missing: {path.name}')
     manifest = json.loads(manifest_path.read_text())
     protocol = json.loads(protocol_path.read_text())
     data = json.loads(episodes_path.read_text())
     labels = json.loads(labels_path.read_text())
+    prompt_audit = json.loads(prompt_audit_path.read_text())
     _require(manifest.get('format') == PREPARED_FORMAT,
              'Prepared matched manifest format differs')
     _require(manifest.get('native_computation') is False,
@@ -2849,11 +3024,15 @@ def verify_matched_prepared(prepared):
              'Prepared matched format differs')
     _require(manifest.get('episodes_sha256') == _sha_file(episodes_path)
              and manifest.get('labels_sha256') == _sha_file(labels_path)
+             and manifest.get('prompt_audit_sha256')
+             == _sha_file(prompt_audit_path)
              and manifest.get('protocol_sha256') == _sha_file(protocol_path),
              'Prepared matched bytes differ from their manifest pins')
     _require(protocol['episodes']['sha256'] == _sha_file(episodes_path)
-             and protocol['labels']['sha256'] == _sha_file(labels_path),
-             'Protocol episode/label pins differ')
+             and protocol['labels']['sha256'] == _sha_file(labels_path)
+             and protocol['prompt_audit']['sha256']
+             == _sha_file(prompt_audit_path),
+             'Protocol episode/label/prompt-audit pins differ')
     episodes = data.get('episodes')
     audit = validate_matched_episodes(
         episodes, families_per_split=data['families_per_split'],
@@ -2894,6 +3073,38 @@ def verify_matched_prepared(prepared):
         'Matched source pins changed')
     _require(manifest.get('source') == source,
              'Matched source pins differ between protocol and manifest')
+    recomputed_prompt_audit = audit_prompt_bounds(
+        episodes, _load_sealed_tokenizer(source['model_path']),
+        configured_bound=prompt_audit['configured_bound'])
+    _require(recomputed_prompt_audit == prompt_audit,
+             'Prepared prompt audit differs from the sealed-tokenizer audit')
+    prompt_bound = prompt_audit['bound']
+    _require(protocol['limits']['max_prompt_tokens'] == prompt_bound
+             and protocol['generation']['max_prompt_tokens'] == prompt_bound,
+             'Protocol prompt bound differs from the audited bound')
+    _require(prompt_audit['observed_max_tokens'] <= prompt_bound
+             and all(row['tokens'] <= prompt_bound
+                     for row in prompt_audit['rows']),
+             'Audited prompt rows exceed the protocol prompt bound')
+    _require(prompt_audit['complete_pages'] is True
+             and prompt_audit['truncation'] is False,
+             'Prompt audit must keep complete pages without truncation')
+    _require(manifest.get('prompt_bound') == prompt_bound
+             and manifest.get('observed_max_prompt_tokens')
+             == prompt_audit['observed_max_tokens']
+             and manifest.get('per_arm_max_prompt_tokens')
+             == {arm: prompt_audit['per_arm'][arm]['max_tokens']
+                 for arm in ANSWER_ARMS}
+             and manifest.get('previous_bound_would_fail')
+             == prompt_audit['previous_bound_would_fail'],
+             'Prompt-audit manifest summary differs from the audit')
+    _require(protocol['prompt_audit']['bound'] == prompt_bound
+             and protocol['prompt_audit']['observed_max_tokens']
+             == prompt_audit['observed_max_tokens']
+             and protocol['prompt_audit']['per_arm_max_tokens']
+             == {arm: prompt_audit['per_arm'][arm]['max_tokens']
+                 for arm in ANSWER_ARMS},
+             'Prompt-audit protocol summary differs from the audit')
     extension = protocol.get('writer_extension')
     _require(isinstance(extension, dict)
              and _extension_pins(extension['path']) == extension,
@@ -2906,6 +3117,14 @@ def verify_matched_prepared(prepared):
         'prepared_manifest_sha256': _sha_file(manifest_path),
         'episodes_sha256': _sha_file(episodes_path),
         'labels_sha256': _sha_file(labels_path),
+        'prompt_audit_sha256': _sha_file(prompt_audit_path),
+        'prompt_bound': prompt_bound,
+        'observed_max_prompt_tokens': prompt_audit['observed_max_tokens'],
+        'per_arm_max_prompt_tokens': {
+            arm: prompt_audit['per_arm'][arm]['max_tokens']
+            for arm in ANSWER_ARMS},
+        'previous_bound_would_fail':
+            prompt_audit['previous_bound_would_fail'],
         'protocol_sha256': _sha_file(protocol_path),
         'config_sha256': protocol['config_sha256'],
         'source': source, 'source_lock_sha256': source['model_lock_sha256'],
@@ -2919,6 +3138,9 @@ def verify_matched_prepared(prepared):
             'label_bytes': True, 'protocol_bytes': True,
             'seeded_episode_regeneration': True,
             'verifier_labels_regenerated': True,
+            'prompt_audit_regenerated': True,
+            'prompt_bound_covers_rows': True,
+            'complete_pages_no_truncation': True,
             'workload_bound': True, 'config_pin': True,
             'source_pins': True, 'implementation_pins': True,
             'writer_extension_pins': True, 'no_native_computation': True,
