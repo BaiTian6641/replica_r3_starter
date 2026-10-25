@@ -1,16 +1,19 @@
 # Coding-agent continuation instruction
 
-**Current priority — optimizer ablation after a confirmed vision learning failure.**
-R1–R4 are repaired; V0 accepted interface-only; measured V1 rejected. New
-one-write/interference diagnostics recover storage incrementally (0.929→0.877→0.853),
-so the earlier multi-fact failure is addressing/correction, not a basic write failure.
-Frozen vision features support a linear readout (combined dev0.4167 vs chance0.0833),
-but the tiny overfit cohort cannot fit its train worlds at16 or32 updates (0/8 on
-every control). Fit analysis confirms argmax is wrong on all8 (learning, not decoding);
-fresh-process extension reload is bitwise exact. A bounded SGD ablation now tests
-whether the Muon route/clip is the bottleneck before any connector change or V1 retry.
-Keep V2/LoRA and learned V3/neural RSI unadmitted; preserve v5 and V1 rejections,
-exact-source engineering controls, Spark backend blockers and the 50 GiB guard.
+**Current priority — fresh-world vision error/readout diagnosis; no further blind V1 tuning.**
+R1–R4 are repaired; V0 is accepted interface-only; both projector-only V1 arms
+are rejected. The 128-update 4096-wide tiny overfit arm fits 8/8 training worlds
+but scores 0/8 on fresh dev correct, wrong and no-image controls. The full
+4096-wide V1 arm passes engineering and zero-update fresh-process bitwise reload,
+but independent scoring gives correct image 21/64, wrong 12/64, shuffled 15/64,
+no-image 22/64, oracle caption 60/64 and empty OCR 15/64. Text retention stays
+bitwise unchanged at 22/32, below the absolute floor. See
+[wide V1 results](docs/experiments/20261025_MiniCPM5_Vision_V1_Wide_Results.md).
+The final suite passes 1,615 tests +21 subtests; independent evidence review
+finds no integrity discrepancies.
+Keep V2/LoRA and learned V3/neural RSI unadmitted; preserve v5 and both V1
+rejections, exact-source engineering controls, Spark backend blockers and the
+50 GiB guard.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

@@ -9,7 +9,7 @@
   "E3": "old_case_menu_regression_3/3; fresh_canonical_1/4_shuffled_0/4_distractor_failure; random_not_valid_baseline; free_form_negative",
   "E4": "v5 writer-only 48-update D1 arm rejected on factual quality; R1-R4 caller, exact schedule, representation rebuild and reproducible source verified at 757ace1; useful learned recall remains open",
   "E5": "procedure_and_opt_in_neural_candidates_evaluated; publication_rejection_rollback_implemented; integrated_neural_improvement_loop_open",
-  "E6": "native V0 accepted interface-only; V1 completed128 projector updates/512 examples and is rejected:18/64 correct-image vs20/64 wrong,22/64 no-image; text22/32 unchanged but below floor; no V2",
+  "E6": "native V0 accepted interface-only; 2048 and 4096 projector-only V1 arms each completed128 updates/512 examples and are rejected; wide arm21/64 correct-image vs12/64 wrong,22/64 no-image; engineering and bitwise fresh-process reload pass; text22/32 unchanged below floor; no V2",
   "implemented_component_scope": {
     "C01": "native MiniCPM5 text adapter; VLM separate",
     "C02": "independent memory and workspace residual ports at 13/27; sense 13/27/41",
@@ -84,8 +84,8 @@
       "designed": true,
       "implemented": true,
       "integrated": true,
-      "trained": "frozen source; V0 untrained; V1 projector-only arm preregistered",
-      "evaluated": "E1/E2 text plus native V0 input gradients/generation/bitwise restart",
+      "trained": "frozen source/encoder; 2048 and 4096 projector-only V1 arms trained128 updates each; no accepted perception",
+      "evaluated": "E1/E2 text; native V0 interface; rejected V1 controls at18/64 and21/64 correct-image; wide-arm fresh-process bitwise reload",
       "qualified": "text short-context and isolated V0 interface only"
     },
     "C02": {
@@ -242,11 +242,11 @@
       "qualified": "none"
     }
   },
-  "reviewed_code_head": "757ace1",
-  "review_scope": "R1-R4 at 757ace1; native V0 interface accepted under a2bc82e with explicit scorer-only replay at81c96f8; V1 clean export2dcc705, entry fix9c11f2c; learned capability gates remain separate.",
+  "reviewed_code_head": "665dbb9",
+  "review_scope": "R1-R4 at 757ace1; native V0 interface accepted under a2bc82e with explicit scorer-only replay at81c96f8; first V1 rejected; wide V1 native ddc6a07 with scorer-only replay665dbb9 passes engineering/reload and rejects learned quality; final suite1615 tests+21 subtests and independent evidence review pass; capability gates remain separate.",
   "loop_agent_instructions": "docs/architecture/16_Loop_Agent_Instructions.md",
   "current_construction_order": [
-    "fresh_frozen_storage_addressing_readout_diagnosis; V1_rejected_no_blind_retuning_or_V2",
+    "fresh_frozen_storage_addressing_readout_diagnosis; both_V1_arms_rejected_fresh_world_error_readout_diagnosis_no_blind_retuning_or_V2",
     "V3_exact_visual_retrieval_then_qualified_learned_visual_memory",
     "V4_bounded_verified_candidate_learning_then_matched_longitudinal_RSI"
   ],
@@ -282,7 +282,7 @@
   },
   "planned_backbone_roles": {
     "baseline": "openbmb/MiniCPM5-2B; sealed local source retained; first vision retrofit",
-    "vision_path": "MiniCPM5-2B plus one qualified pretrained encoder and new width-2048 projector; V0 then V1/V2, visual memory and bounded RSI",
+    "vision_path": "MiniCPM5-2B plus frozen SigLIP2; 2048 and 4096 connector arms rejected on V1 quality; fresh-world diagnosis before any V2, visual memory or bounded RSI",
     "text_challenger": "XHToken/Spark-X2.6-4B-FP8 official adaptation base, revision 0318d6f6ab070c7b5b43052db571489b2508006c; source/backend preparation now, native training unqualified",
     "spark_bf16_control": "XHToken/Spark-X2.6-4B, revision 66e3ae7bee54e0a523d692cb8ef841f35409807b; independent official BF16 control, not FP8 dequantization",
     "spark_vision_path": "Dedicated spark2_5 adapter and new width-2560 connector; qualify sliding/full attention, precision, input gradients, updates and reload",
@@ -314,7 +314,7 @@
     "M0b": "Spark preparation reopened for official FP8 base plus BF16 control; weights/backend/native adapter/training unqualified; independent track does not block MiniCPM5 or require completed RSI",
     "M5": "neural promotion requires reliable persistent memory, correction, retention and independent later-task gain; fixed practice/plumbing may proceed; 10/10 gates learned selection only",
     "M6": "blocked; no simpler-loop result has survived retention and noninterference",
-    "M7": "V0 native interface accepted; V1 trained128 updates and rejected on image/control/text gates; no V2. MiniCPM-V remains separately unqualified.",
+    "M7": "V0 native interface accepted; both V1 connector arms trained128 updates and rejected on image/control/text gates; wide-arm engineering and bitwise fresh-process reload pass; no V2. MiniCPM-V remains separately unqualified.",
     "personality": "fictional integration implemented; authentic training/fidelity blocked on permitted decision records, reserved families and human review",
     "R1": "Complete at 757ace1: consumer-bound query/scope/policy and canonical selection/status",
     "R2": "Complete at 757ace1: exact unique ordered update indices and seeded case schedule",

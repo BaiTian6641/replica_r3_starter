@@ -1,0 +1,48 @@
+W1025 14:43:56.349000 64636 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 863.45it/s]Loading weights:  46%|████▌     | 174/381 [00:00<00:00, 857.79it/s]Loading weights:  69%|██████▉   | 263/381 [00:00<00:00, 863.75it/s]Loading weights:  92%|█████████▏| 350/381 [00:00<00:00, 846.04it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 858.59it/s]
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 19790.29it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: /Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1583, in <module>
+    if __name__ == "__main__":
+        ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1543, in main
+    else:
+         
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1410, in execute_v1
+    "protocol_sha256": protocol_sha,
+                             ^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 298, in verify_implementation_pins
+    require(actual[relative] == _sha(expected, f"implementation_sha256[{relative}]"),
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 92, in require
+    raise QualificationError(message)
+replica_lab.vision_qualification.QualificationError: Implementation bytes changed: scripts/run_vision_qualification.py

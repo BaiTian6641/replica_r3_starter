@@ -1,0 +1,54 @@
+{
+  "status": "stopped_or_failed",
+  "started_at_utc": "2026-10-25T19:43:54.354129+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-vision/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py",
+    "--device",
+    "mps",
+    "--output",
+    "runs/minicpm5_vision_v1_wide_20261025/attempt05",
+    "--protocol",
+    "configs/minicpm5_vision_v1_projector_wide_v1.json",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v1_wide_20261025/attempt05",
+  "child_log": "reports/vision_v1_wide_20261025/attempt05.guard.child.log",
+  "host_samples": "reports/vision_v1_wide_20261025/attempt05.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "ced3f50dcf67229c101d3f6584733c97bca63a7dd17419f9a84d5993c4b049a9",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 1,
+  "elapsed_seconds": 417.5818876659032,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1242101186,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 202,
+    "driver_samples": 1587,
+    "peak_driver_bytes": 11956273152,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 74.0,
+    "stop_reason": null
+  }
+}

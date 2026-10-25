@@ -1,0 +1,14 @@
+W1025 14:30:13.159000 58782 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 918.13it/s]Loading weights:  49%|████▉     | 186/381 [00:00<00:00, 884.70it/s]Loading weights:  72%|███████▏  | 275/381 [00:00<00:00, 884.96it/s]Loading weights:  96%|█████████▌| 364/381 [00:00<00:00, 885.34it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 907.00it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_overfit.py", line 285, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_overfit.py", line 281, in main
+    return run(args)
+           ^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_overfit.py", line 152, in run
+    adapter.load_extension(checkpoint_path)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 778, in load_extension
+    raise ValueError('Incompatible or changed extension manifest/bytes')
+ValueError: Incompatible or changed extension manifest/bytes

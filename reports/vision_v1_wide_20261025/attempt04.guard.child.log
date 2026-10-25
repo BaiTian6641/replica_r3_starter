@@ -1,0 +1,65 @@
+W1025 14:42:39.218000 63970 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 845.87it/s]Loading weights:  45%|████▌     | 172/381 [00:00<00:00, 845.11it/s]Loading weights:  68%|██████▊   | 258/381 [00:00<00:00, 846.92it/s]Loading weights:  90%|█████████ | 343/381 [00:00<00:00, 847.82it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 860.06it/s]
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 15020.15it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: /Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1582, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1542, in main
+    result = execute_v1(args, protocol, protocol_sha, dataset,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1354, in execute_v1
+    training = train_projector(adapter, session, tokenizer, stage_protocol,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1027, in train_projector
+    with session.training_request(
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 495, in training_request
+    request = self.prepare(training=True, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 244, in prepare
+    sense = self.adapter.sense(prompt_ids, prompt_mask, visual=visual)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 519, in sense
+    _, summaries = self._native(prompt_ids, prompt_mask, capture=True, visual=visual)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 466, in _native
+    hidden = torch.cat((self.project_visual(visual), hidden), dim=1)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 455, in project_visual
+    self._check_visual(visual)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 452, in _check_visual
+    raise ValueError('Visual producer, spatial layout, budget, dtype or device differs')
+ValueError: Visual producer, spatial layout, budget, dtype or device differs

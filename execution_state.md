@@ -1,6 +1,6 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — R1–R4 repaired; V0 interface accepted; measured V1 rejected.**
+**Current implementation — R1–R4 repaired; V0 interface accepted; both V1 connector arms rejected; wide-arm engineering and fresh-process reload pass.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -195,6 +195,48 @@ momentum bytes plus 56,320 FP32 state bytes; weights, gradients and Muon
 temporaries are FP32. Final extension hash:
 `bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4`.
 All raw answers, example/update traces, checks, profiles and rejection are retained.
+
+## Second V1 wide-connector arm — engineering pass, quality rejected
+
+The [wide V1 results](docs/experiments/20261025_MiniCPM5_Vision_V1_Wide_Results.md)
+record the final attempt07/restart07/score08 evidence. The preregistered arm uses
+a 4096-wide, 11,542,016-parameter projector with fresh seed-17 initialization,
+the same admitted data, 128 updates/512 backward calls and unchanged quality
+gates. Independent scoring passes engineering, including mandatory fresh-process
+reload, but returns `accepted=false` on learned quality.
+
+| Control | Correct /64 |
+|---|---:|
+| Correct image | 21 |
+| Wrong image | 12 |
+| Shuffled image | 15 |
+| No image | 22 |
+| Oracle caption-only | 60 |
+| Verified empty OCR text | 15 |
+
+Correct-image accuracy is 32.8125%, below the 65% floor and the no-image control.
+Margins over wrong/shuffled are only 14.0625/9.375 percentage points, below the
+20-point gates. Text retention remains bitwise unchanged at 22/32 before/after,
+below the 75% absolute floor. Training loss falls 9.3908→1.7836 without
+establishing grounded generalization. V2/LoRA remains unadmitted.
+
+Exactly six projector tensors change; 43 other extension tensors, the encoder
+and sealed backbone remain unchanged. A fresh process performs zero updates and
+reproduces evaluation and retention JSONL bitwise. The scorer correction uses a
+declared scorer-only replay pinned to native commit `ddc6a07` and both native
+reports; no native gate or runner bytes change. Primary/reload peak sampled
+driver is 11,956,273,152/10,768,056,320 bytes, with zero swap growth and 74/76%
+minimum host free. Guard elapsed is 420.248/144.060 s. Each extension is
+65,688,472 bytes; no base copy is saved.
+The final full suite passes **1,615 tests +21 subtests in 188.62 s**, and the
+[independent review](reports/vision_v1_wide_20261025/independent_review.md)
+finds no integrity discrepancies.
+
+Tiny-cohort diagnostics show why capacity alone is not a promotion: the
+128-update wide arm fits 8/8 training worlds but scores 0/8 on fresh dev
+correct, wrong and no-image controls. Attempts 01–06, restart06 and score07 are
+preserved engineering failures/superseded attempts, not final evidence. The next
+boundary is fresh-world error/readout diagnosis, not repeated dev-set retuning.
 
 ## Independent exact-source and bounded-host controls
 

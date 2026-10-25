@@ -1,0 +1,12 @@
+{
+  "format": "replica.vision_qualification_score_failure.v1",
+  "status": "failed",
+  "stage": "v1",
+  "protocol_sha256": "a4db0c125a783ebb80f23fb9a4f04d0ecee97a7c5e9bffbc6a58309fb47aeb90",
+  "run_report_path": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v1_wide_20261025/attempt07/run_report.json",
+  "run_report_sha256": "fa69e42678057cd45a3710d0c614093c7626d1dc3d874a20e13e14cc81d5daa1",
+  "error_type": "KeyError",
+  "error": "'extension'",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/scripts/score_vision_qualification.py\", line 964, in main\n    score = score_v1(args, protocol, protocol_sha, dataset, tokenizer,\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/score_vision_qualification.py\", line 851, in score_v1\n    restart = verify_v1_restart(args, run, report, protocol, run_report_sha)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/score_vision_qualification.py\", line 807, in verify_v1_restart\n    == report[\"extension\"][\"weights_sha256\"]\n       ~~~~~~^^^^^^^^^^^^^\nKeyError: 'extension'\n",
+  "scored_at_utc": "2026-10-25T20:09:12.483751+00:00"
+}

@@ -137,6 +137,17 @@ empty OCR15/64. Text retention is22/32 before/after with exact token parity, bel
 the75% absolute floor. Six projector tensors change; frozen components do not.
 V2 is not admitted. Falling loss does not override these failed quality gates.
 
+The second [wide V1 protocol](../../configs/minicpm5_vision_v1_projector_wide_v1.json)
+tests only a 4096-wide connector with fresh seeded initialization and the same
+data, schedule, controls and gates. Fresh initialization still requires accepted
+V0 and identical immutable encoder/processor/source identity; a width change is
+not permission to change the visual producer. V1 qualification now also requires
+a zero-update fresh process whose evaluation and retention generations match the
+primary run bitwise. The [measured result](../experiments/20261025_MiniCPM5_Vision_V1_Wide_Results.md)
+passes engineering and reload but is independently rejected: correct image
+21/64, wrong 12/64, shuffled 15/64, no-image 22/64, oracle caption 60/64 and
+empty OCR 15/64, with text retention unchanged at 22/32. V2 remains unadmitted.
+
 
 For V1, use eligible image-caption/grounding pairs and response-only supervised
 loss. For V2, use visual questions, instruction following, spatial relations,

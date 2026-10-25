@@ -1,0 +1,53 @@
+W1025 14:58:09.615000 68212 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 92/381 [00:00<00:00, 912.27it/s]Loading weights:  48%|████▊     | 184/381 [00:00<00:00, 905.75it/s]Loading weights:  72%|███████▏  | 275/381 [00:00<00:00, 890.20it/s]Loading weights:  96%|█████████▌| 365/381 [00:00<00:00, 873.19it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 893.35it/s]
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 22120.06it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: /Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1584, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1535, in main
+    result = (execute_v1_restart(args, protocol, protocol_sha, dataset,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 883, in execute_v1_restart
+    evaluation = evaluate_v1(adapter, session, tokenizer, protocol, service,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1215, in evaluate_v1
+    write_jsonl(Path(output) / "v1" / "eval_generations.jsonl", rows)
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 53, in write_jsonl
+    Path(path).write_text("".join(json.dumps(row, allow_nan=False) + "\n"
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py", line 1047, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/minicpm5_vision_v1_wide_20261025/restart06/v1/eval_generations.jsonl'

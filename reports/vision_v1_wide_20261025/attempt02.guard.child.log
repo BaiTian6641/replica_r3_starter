@@ -1,0 +1,14 @@
+W1025 14:40:08.293000 62174 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1582, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1542, in main
+    result = execute_v1(args, protocol, protocol_sha, dataset,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1303, in execute_v1
+    verify_v0_prerequisite(stage_protocol)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 1260, in verify_v0_prerequisite
+    require(report.get("vision_spec_digest") == protocol["vision_digest"]
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 92, in require
+    raise QualificationError(message)
+replica_lab.vision_qualification.QualificationError: Accepted V0 uses another vision producer

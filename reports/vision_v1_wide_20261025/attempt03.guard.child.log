@@ -1,0 +1,18 @@
+W1025 14:42:11.383000 63701 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1582, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1542, in main
+    result = execute_v1(args, protocol, protocol_sha, dataset,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1308, in execute_v1
+    admission = verify_admission(
+                ^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 1091, in verify_admission
+    document, digest = admission_document(protocol)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 1081, in admission_document
+    require(document.get("run_id") == protocol["v1"]["run_id"],
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 92, in require
+    raise QualificationError(message)
+replica_lab.vision_qualification.QualificationError: Training admission belongs to another named run
