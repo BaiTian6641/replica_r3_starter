@@ -147,6 +147,13 @@ four targeted mechanical failures then pass after correction. Unchanged passes
 are reused rather than described as a second suite execution. V1 native training
 is not yet run. V2 and learned V3/RSI remain gated, not implicitly admitted.
 
+Clean tracked export `2dcc705` passes **1,541 tests +21 subtests in 176.69 s**
+with one existing sparse-invariant warning. From that export, all 85 source pins,
+the real accepted V0/checkpoint dependency, 512 admitted rows, exact 128-update
+schedule and scorer imports validate. Sealed model/parent runtime inputs are
+explicit APFS clones, not tracked payloads. See
+[V1 source admission](reports/vision_v1_20261025/source_admission.json).
+
 
 
 ## Repository maintenance — 25 October 2026

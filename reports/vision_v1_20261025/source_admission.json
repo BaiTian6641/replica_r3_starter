@@ -1,0 +1,66 @@
+{
+  "format": "replica.vision_v1_source_admission.v1",
+  "status": "accepted_for_one_bounded_projector_only_run",
+  "code_commit": "2dcc7056c652e931e97a63d1e4a7f1271d6a7614",
+  "source_archive_sha256": "355e2515e2123587bf4d4fa0b1964ca4f631c7f5f7333e99bf25e53b27e22d67",
+  "protocol": "configs/minicpm5_vision_v1_projector_alignment_v1.json",
+  "protocol_sha256": "044cebb9b1eafe8a529eb42b04e98217a4b8b755fba4d465ba815ebec410a401",
+  "full_suite": {
+    "passed": 1541,
+    "passed_subtests": 21,
+    "warnings": 1,
+    "seconds": 176.69,
+    "junit": "reports/vision_v1_20261025/clean_export_tests.xml"
+  },
+  "clean_export_admission_smoke": {
+    "implementation_files_verified": 85,
+    "v0_accepted": true,
+    "admitted_training_rows": 512,
+    "exact_updates": 128,
+    "scorer_import": "passed"
+  },
+  "external_pinned_inputs": "APFS clones of sealed MiniCPM5/SigLIP source inputs and accepted V0 runtime artifacts plus copied local model lock. These are explicit local dependencies, not tracked model payloads; original inputs/environments unchanged.",
+  "v1_dataset": "data/vision_alignment_v1_20261025/intake02/admission.json",
+  "training_hyperparameters": {
+    "seed": 17,
+    "updates": 128,
+    "repeats": 1,
+    "grad_accum": 4,
+    "lr_new": 0.0001,
+    "momentum": 0.95,
+    "ns_steps": 5,
+    "block_size": 2048,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1800,
+    "optimizer": "muon8bit",
+    "schedule_version": "seeded_epoch_shuffle.v1",
+    "repeat_policy": "once"
+  },
+  "quality_gates": {
+    "min_correct_accuracy": 0.65,
+    "min_correct_margin_wrong": 0.2,
+    "min_correct_margin_shuffled": 0.2,
+    "min_correct_margin_noimage": 0.2,
+    "min_correct_margin_captiononly": -0.35,
+    "min_correct_margin_ocrtextonly": 0.2,
+    "min_unique_families": 32,
+    "max_unknown_rate": 0.15,
+    "min_text_retention_accuracy": 0.75,
+    "max_text_retention_drop": 0.0
+  },
+  "native_output": "runs/minicpm5_vision_v1_20261025/attempt01",
+  "guard_report": "reports/vision_v1_20261025/native_attempt01.guard.json",
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_free_admission": true,
+    "wall_time_semantics": "End-of-run acceptance ceiling plus fixed generation/update bounds; sampled memory watchdog remains authoritative."
+  },
+  "native_execution": "not yet run at admission",
+  "scope": "Only projector training; no encoder/base/LoRA/memory/core/identity updates; useful perception remains unqualified until independent scoring."
+}
