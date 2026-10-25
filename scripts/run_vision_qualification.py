@@ -1319,6 +1319,7 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
     validate_budget(budget_plan, stage_protocol["limits"])
     training_schedule(admission["_training_rows"], stage_protocol["v1"]["train"])
     require(torch.backends.mps.is_available(), "MPS is unavailable; no CPU fallback")
+    torch.manual_seed(stage_protocol["v1"]["train"]["seed"])
     adapter, tokenizer, lock = load_local_mps(
         args.model_path, args.model_lock, profiler=args.profiler, vision=spec)
     require(adapter.manifest.vision.digest == spec.digest,

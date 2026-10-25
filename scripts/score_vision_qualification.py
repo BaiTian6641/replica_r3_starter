@@ -785,6 +785,47 @@ def verify_v1_retention(run, report, protocol, admission, tokenizer, *, baseline
     return {**result, "tokens_by_case": tokens}
 
 
+def verify_v1_restart(args, run, report, protocol, run_report_sha):
+    require(args.restart is not None,
+            "Fresh-process restart evidence is required for V1 acceptance")
+    path = Path(args.restart) / "restart_report.json"
+    require(path.is_file(), "Fresh-process V1 restart report is missing")
+    restart = json.loads(path.read_text(encoding="utf-8"))
+    require(restart.get("format") == "replica.vision_qualification_restart.v1"
+            and restart.get("stage") == "v1",
+            "Restart is not a V1 evaluation reload")
+    require(restart.get("status") == "completed", "V1 restart did not complete")
+    require(restart.get("protocol_sha256") == sha256_file(args.protocol),
+            "V1 restart used another protocol")
+    require(restart.get("prior_run_report_sha256") == run_report_sha,
+            "V1 restart did not compare against this primary run")
+    require(restart.get("implementation_sha256") == protocol["implementation_sha256"],
+            "V1 restart implementation pins differ from the protocol")
+    require(restart.get("zero_updates") is True,
+            "V1 restart performed an optimizer update")
+    require(restart.get("prior_extension_weights_sha256")
+            == report["extension"]["weights_sha256"]
+            == restart.get("loaded_extension", {}).get("weights_sha256"),
+            "V1 restart loaded a different extension")
+    require(all(restart.get("checks", {}).values()),
+            "V1 restart self-checks failed")
+    artifact_digests = {}
+    for relative in ("v1/eval_generations.jsonl", "v1/retention_generations.jsonl"):
+        primary_path = Path(run) / relative
+        restart_path = Path(args.restart) / relative
+        require(primary_path.is_file() and restart_path.is_file(),
+                f"V1 restart artifact is missing: {relative}")
+        primary_sha = sha256_file(primary_path)
+        restart_sha = sha256_file(restart_path)
+        require(primary_sha == restart_sha,
+                f"V1 fresh-process generations differ: {relative}")
+        require(restart.get("artifacts", {}).get(relative) == restart_sha,
+                f"V1 restart artifact receipt differs: {relative}")
+        artifact_digests[relative] = restart_sha
+    return {"restart_report_sha256": sha256_file(path),
+            "zero_updates": True, "artifacts": artifact_digests}
+
+
 def score_v1(args, protocol, protocol_sha, dataset, tokenizer, run, report,
              run_report_sha):
     require_same_implementation(report, protocol)
@@ -807,6 +848,7 @@ def score_v1(args, protocol, protocol_sha, dataset, tokenizer, run, report,
     lineage = verify_v1_extension(run, report, protocol, training)
     evaluation = verify_v1_evaluation(run, report, protocol, dataset,
                                       admission, tokenizer)
+    restart = verify_v1_restart(args, run, report, protocol, run_report_sha)
     costs = report.get("costs", {})
     checks = {
         "v0_prerequisite_accepted": v0_report["accepted"] is True,
@@ -833,6 +875,7 @@ def score_v1(args, protocol, protocol_sha, dataset, tokenizer, run, report,
             "correct", {}).get("available") is True,
         "evaluation_controls_complete": True,
         "retention_complete": report["retention"]["complete"] is True,
+        "fresh_process_restart": restart["zero_updates"] is True,
         "runner_self_checks": all(bool(value)
                                   for value in report.get("checks", {}).values()),
         "budget_counts": (
@@ -883,6 +926,7 @@ def score_v1(args, protocol, protocol_sha, dataset, tokenizer, run, report,
                           Path(run) / "final_extension" / "manifest.json"),
                       "format": lineage["final"]["format"],
                       "tensor_count": len(lineage["final"]["tensor_names"])},
+        "restart": restart,
         "artifacts": artifacts,
         "blocks_dependents": ([] if accepted else ["V2", "V3_learned_visual_memory"]),
         "scored_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -898,7 +942,7 @@ def main():
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--model-lock", type=Path, required=True)
     parser.add_argument("--restart", "--restart-run", dest="restart", type=Path,
-                        help="Fresh-process V0 restart directory scored with its primary")
+                        help="Fresh-process V0/V1 restart directory scored with its primary")
     parser.add_argument("--scoring-replay", type=Path,
                         help="Hash-pinned post-native scorer-only repair; never changes native gates")
     args = parser.parse_args()

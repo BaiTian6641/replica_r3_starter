@@ -96,3 +96,45 @@ def test_scorer_replay_requires_explicit_immutable_audit_scope(tmp_path, field, 
     args.scoring_replay.write_text(json.dumps(replay))
     with pytest.raises(QualificationError):
         scorer.verify_scoring_source(args, protocol, root=tmp_path)
+
+
+
+def v1_restart_fixture(tmp_path):
+    run, restart = tmp_path / 'run', tmp_path / 'restart'
+    for root in (run, restart):
+        (root / 'v1').mkdir(parents=True)
+    relatives = ('v1/eval_generations.jsonl', 'v1/retention_generations.jsonl')
+    for relative in relatives:
+        payload = json.dumps({'case_id': 'case', 'generated_ids': [1, 2]}) + '\n'
+        (run / relative).write_text(payload)
+        (restart / relative).write_text(payload)
+    protocol = {'implementation_sha256': {'scripts/score_vision_qualification.py': 'c' * 64}}
+    protocol_path = tmp_path / 'protocol.json'
+    protocol_path.write_text(json.dumps(protocol))
+    weights = 'a' * 64
+    restart_report = {
+        'format': 'replica.vision_qualification_restart.v1', 'stage': 'v1',
+        'status': 'completed', 'protocol_sha256': sha256_file(protocol_path),
+        'prior_run_report_sha256': 'b' * 64,
+        'implementation_sha256': protocol['implementation_sha256'],
+        'prior_extension_weights_sha256': weights,
+        'loaded_extension': {'weights_sha256': weights}, 'zero_updates': True,
+        'checks': {'tokens_equal': True, 'retention_tokens_equal': True},
+        'artifacts': {relative: sha256_file(run / relative) for relative in relatives},
+    }
+    (restart / 'restart_report.json').write_text(json.dumps(restart_report))
+    args = SimpleNamespace(restart=restart, protocol=protocol_path)
+    report = {'extension': {'weights_sha256': weights}}
+    return args, run, restart, report, protocol
+
+
+def test_v1_scorer_requires_bitwise_fresh_process_generation_receipts(tmp_path):
+    args, run, restart, report, protocol = v1_restart_fixture(tmp_path)
+    result = scorer.verify_v1_restart(args, run, report, protocol, 'b' * 64)
+    assert result['zero_updates'] is True
+    assert result['restart_report_sha256'] == sha256_file(restart / 'restart_report.json')
+
+    changed = restart / 'v1/eval_generations.jsonl'
+    changed.write_text(json.dumps({'case_id': 'case', 'generated_ids': [9]}) + '\n')
+    with pytest.raises(QualificationError, match='generations differ'):
+        scorer.verify_v1_restart(args, run, report, protocol, 'b' * 64)
