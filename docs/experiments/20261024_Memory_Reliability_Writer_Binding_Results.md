@@ -157,8 +157,8 @@ policy. Samples can miss transients; MPS is not ANE and MPS/RSS overlap.
 
 Total guarded wall across all four jobs is 1,751.69 seconds. Each full
 parent/candidate evaluation generated 1,920 answers, 5,786 tokens and 134,120
-prompt tokens. Restart generated seven answers / 28 tokens. No CPU training or
-fallback was used.
+prompt tokens. Restart generated seven answers / 28 tokens. No native CPU
+training or MPS fallback was used; tiny CPU fixtures were contract-only.
 
 One **48,948,272-byte extension** was saved at
 `runs/memory_reliability_v5_attempt01/candidate_extension`, with base_saved=false.
