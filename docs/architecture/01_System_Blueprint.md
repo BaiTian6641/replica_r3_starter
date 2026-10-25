@@ -1,10 +1,30 @@
 # The integrated Replica architecture
 
-Design review: 22 October 2026, America/Chicago (23 October UTC).
-Status: **proposed implementation architecture**, informed by source inspection;
-the current native experiments validate only the smaller adapter described below.
-Start with the [design index](README.md), then the model-specific
-[backbone contract](02_Backbone_Integration.md).
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
+
+**Implementation reconciliation: 25 October 2026, reviewed HEAD `7c7018e`.**
+This is the target architecture with substantial native text/runtime components
+implemented. Narrow native results do not yet establish useful persistent
+neural learning or personal fidelity. Use the
+[current research plan](15_Research_Crosscheck_and_Backbone_Plan.md) and
+[loop-agent instructions](16_Loop_Agent_Instructions.md) for current repair,
+MiniCPM5 V0, vision, visual-memory and RSI order, with Spark preparation now. The [design index](README.md) and model-specific
+[backbone contract](02_Backbone_Integration.md) retain the full design.
+
+MiniCPM5 remains the baseline. Repair caller-context/schedule verification and
+representation-preserving rebuild first, then add
+a pretrained visual encoder and a newly trained MiniCPM5 projector. Qualify
+visual alignment/instructions before visual memory and verified RSI. MiniCPM-V
+is an optional pretrained reference/teacher. Prepare official Spark FP8/BF16
+now; qualify its native adapter and new connector later under independent gates. See [the visual plan](18_MiniCPM5_Vision_Training_and_Continual_Learning.md).
+Model, memory and learning-policy changes keep independent controls. The full
+[system design](19_Integrated_Memory_Learning_and_RSI_Design.md) connects memory,
+runtime compilation, personality, vision and bounded learning.
 
 ## 1. The decision this design makes
 
@@ -64,31 +84,36 @@ Every component has a detailed mechanism and block diagram in this package.
 “Existing” means a reusable foundation; it does not assert a complete production
 implementation or learned capability. The machine-readable inventory is
 [architecture_design_v1.json](../../configs/architecture_design_v1.json).
+Current implementation/training/evaluation state is separate in
+[architecture_implementation_status_v1.json](../../configs/architecture_implementation_status_v1.json).
 
 | ID | Component and design idea | Integration and use | Current boundary / detailed design |
 |---|---|---|---|
-| C01 | Native backbone adapter: preserve pretrained computation and expose explicit ports | MiniCPM5 first; a distinct hybrid VLM adapter second | One last-block text wrapper exists; [backbone design](02_Backbone_Integration.md) |
-| C02 | Sense and residual access ports: learned projections connect native and memory spaces | Sense known observations; read record, fast and workspace state into native blocks | Single memory/workspace port exists; multiple ports and request ABI proposed; [port design](02_Backbone_Integration.md) |
-| C03 | Evidence and episode store: retain exact source, temporal and ownership information | Supplies eligible records, actual outcomes and replay lineage | Reference SQLite store exists; production transactions and indexes proposed; [memory design](03_Memory_and_Runtime_Compilation.md) |
-| C04 | Record encoder and latent store: reusable per-record representations | Encode source-only chunks; cache only compatible inference payloads | Current writer pools an entire retrieved set; persistent per-record pipeline proposed; [memory design](03_Memory_and_Runtime_Compilation.md) |
-| C05 | Retrieval router and pager: learn usefulness within host-permitted candidates | Hybrid search, learned rerank, explicit exact-text fetch and cost accounting | Full learned router/pager proposed; [memory design](03_Memory_and_Runtime_Compilation.md) |
-| C06 | Fast neural memory: adapt bounded associative state from observed history | Multi-depth readers share an owner-scoped state and a commit schedule | Functional linear primitive exists, unattached; integrated learning proposed; [memory design](03_Memory_and_Runtime_Compilation.md) |
-| C07 | Conditional lookup memory: reserve sparse capacity for repeated patterns | Separate Engram-inspired branch, independent from personal evidence | Optional measured extension; [memory design](03_Memory_and_Runtime_Compilation.md) |
-| C08 | Task graph and neural workspace: exact commitments plus compressed working state | Maintain goal, subgoals, unresolved evidence, hypotheses and next action | Exact journal and eight-slot workspace implemented/native-qualified; learned continuation negative; [E3 results](../experiments/20261023_E3_Native_Results.md) |
-| C09 | Shared cognitive core: bounded comparison and revision | Sense → route → recurrent workspace → inject/action; multiple ports share the core | Connected core, readers and controls implemented/native-qualified; engineering pass, learned benefit negative; [E3 results](../experiments/20261023_E3_Native_Results.md) |
-| C10 | Action executor and outcome verifier: bind proposed actions to real results | Retrieve, ask, verify, tool, revise, answer, stop | Typed actions, real fixture tools, independent success check and restart implemented; model completion negative; [E3 results](../experiments/20261023_E3_Native_Results.md) |
-| C11 | Capability and value-of-information model: predict usefulness empirically | Predict success and benefit of another read, question, tool or compute step | Success-head interface implemented; untrained (one outcome class), no calibration claim; [E3 results](../experiments/20261023_E3_Native_Results.md) |
-| C12 | Runtime compiler and skill catalog: convert experience into reusable artifacts | Context packs, latent pages, fast-state images, procedures and candidate datasets | Fixed symbolic demo exists; full source-bound compiler proposed; [memory design](03_Memory_and_Runtime_Compilation.md) |
-| C13 | Learning director: select worthwhile bounded changes | Choose memory operation, practice, replay, skill or neural update | Static curricula exist; learned selection proposed; [cognitive design](04_Semi_Cognition_Learning_and_Replica.md) |
-| C14 | Candidate trainer and evaluator: update declared parameters and measure later behavior | D0/D1/D2 development, then parent-bound sidecar/skill candidates | Native Muon training/restart exists; connected learning service proposed; [build plan](05_Implementation_Sequence.md) |
-| C15 | Manifest, checkpoint and publication service: activate compatible revisions | Atomic model/memory/compiler versions, rollback and source invalidation | Reference registry/storage helpers exist; complete migration proposed; sections 5–6 below |
-| C16 | Replica identity service: source history and branch development stay attributable | Mode-specific context, conditional values and held-out personal decisions | Versioned identity contracts, source/branch isolation, null path, prompt integration and optional reader implemented with fictional tests; no authentic archive/training/fidelity; [identity interface](09_Replica_Identity_Interface.md) |
-| C17 | Request scheduler and cache manager: explicit ownership of all live state | Serialize initial GPU work; pin epoch, native caches and memory state per request | Current adapter has one mutable context; production ownership proposed; section 5 below |
-| C18 | Multimodal ingress and memory writer: retain visual grounding | Native image processor → vision merger → text core, with source/frame lineage | Separate V4.7 port planned; [backbone design](02_Backbone_Integration.md) |
+| C01 | Native backbone adapter: preserve pretrained computation and expose explicit ports | MiniCPM5 text and new visual-input interface; optional hybrid VLM reference and later Spark | Text multi-port adapter exists; visual retrofit remains unqualified; [backbone design](02_Backbone_Integration.md) |
+| C02 | Sense and residual access ports: learned projections connect native and memory spaces | Sense known observations; read record, fast and workspace state into native blocks | Independent memory/workspace/fast readers at 13/27 and sense at 13/27/41 implemented; useful gain open; [port design](02_Backbone_Integration.md) |
+| C03 | Evidence and episode store: retain exact source, temporal and ownership information | Supplies eligible records, actual outcomes and replay lineage | Temporal ledger, eligibility, corrections and task observations implemented; coordinated compiler transactions open; [memory design](03_Memory_and_Runtime_Compilation.md) |
+| C04 | Record encoder and latent store: reusable per-record representations | Encode source-only chunks; cache only compatible inference payloads | Contextual per-record writer, versioned latents and opt-in pointer/context paths exist; novel-value/cross-template utility unresolved; [memory design](03_Memory_and_Runtime_Compilation.md) |
+| C05 | Retrieval router and pager: learn usefulness within host-permitted candidates | Hybrid search, learned rerank, explicit exact-text fetch and cost accounting | Lexical/native-dense retrieval, learned reranker and exact fetch exist; lexical remains default; general learned routing open; [memory design](03_Memory_and_Runtime_Compilation.md) |
+| C06 | Fast neural memory: adapt bounded associative state from observed history | Multi-depth readers share an owner-scoped state and a commit schedule | Host lifecycle/native readers and differentiable single-page writers exist; both learned candidates 0/8 held-out; multi-chunk useful learning open; [fast-memory reference](10_Fast_Memory_Reference.md) |
+| C07 | Conditional lookup memory: reserve sparse capacity for repeated patterns | Separate Engram-inspired branch, independent from personal evidence | Planned and unimplemented; static pattern lookup plus dynamic routing requires separate evidence; [research plan](15_Research_Crosscheck_and_Backbone_Plan.md) |
+| C08 | Task graph and neural workspace: exact commitments plus compressed working state | Maintain goal, subgoals, unresolved evidence, hypotheses and next action | Exact journal/eight-slot workspace implemented; narrow mixed completion and 12/12 copied-case restart checks; [current resumption](../experiments/20261023_Resumption_Record.md) |
+| C09 | Shared cognitive core: bounded comparison and revision | Sense → route → recurrent workspace → inject/action; multiple ports share the core | Core/readers/controls implemented; tiny 2/2 versus 1/2 controls do not establish recurrent benefit; [research plan](15_Research_Crosscheck_and_Backbone_Plan.md) |
+| C10 | Action executor and outcome verifier: bind proposed actions to real results | Retrieve, ask, verify, tool, revise, answer, stop | Tools/verifier/restart implemented; mixed completion passes, free-form negative; historical ranking needs corrected-menu evaluation; [current resumption](../experiments/20261023_Resumption_Record.md) |
+| C11 | Capability and value-of-information model: predict usefulness empirically | Predict success and benefit of another read, question, tool or compute step | Diagnostic fit on 18 outcomes; uncalibrated/unpublished and no success authority; [head results](../experiments/20261023_E3_Success_Head_Results.md) |
+| C12 | Runtime compiler and skill catalog: convert experience into reusable artifacts | Context packs, latent pages, fast-state images, procedures and candidate datasets | Typed artifacts, procedure execution and opt-in neural consumers exist; coordinated durable compiler remains open; [artifact contracts](11_Runtime_Artifacts.md) |
+| C13 | Learning director: select worthwhile bounded changes | Choose memory operation, practice, replay, skill or neural update | Deterministic director, runtime adapter and checked-proposal gate exist; 5 accepted/8 rejected-deferred below 10/10 minimum; learned selection open; [research plan](15_Research_Crosscheck_and_Backbone_Plan.md) |
+| C14 | Candidate trainer and evaluator: update declared parameters and measure later behavior | D0/D1/D2 development, then parent-bound sidecar/skill candidates | Native trainers/restart and isolated procedure/neural candidates exist; integrated longitudinal gain open; [build plan](05_Implementation_Sequence.md) |
+| C15 | Manifest, checkpoint and publication service: activate compatible revisions | Atomic model/memory/compiler versions, rollback and source invalidation | Single-writer atomic manifest publication and ancestor rollback exist; complete payload binding and cross-store recovery open; [artifact contracts](11_Runtime_Artifacts.md) |
+| C16 | Replica identity service: source history and branch development stay attributable | Mode-specific context, conditional values and held-out personal decisions | Optional native reader attached after workspace; persistent contracts and fictional scorer exist; encoder/training/authentic fidelity open; [identity interface](09_Replica_Identity_Interface.md) |
+| C17 | Request scheduler and cache manager: explicit ownership of all live state | Serialize initial GPU work; pin epoch, native caches and memory state per request | Request frames, single-job admission, pre-admission invalidation and host cache exist; native KV reuse pending; [research plan](15_Research_Crosscheck_and_Backbone_Plan.md) |
+| C18 | Multimodal ingress and memory writer: retain visual grounding | Native image processor → vision merger → text core, with source/frame lineage | Separate V4.7 port planned; local weights and native multimodal qualification pending; [backbone design](02_Backbone_Integration.md) |
 
 ## 3. Concrete first configuration
 
-These are **design allocations**, not selected hyperparameters or measured fit.
+These are the original connected-system design allocations. The text core,
+record ports and host fast-state geometry are implemented with bounded native
+engineering evidence; they are not selected hyperparameters or proof of useful
+learned memory. M2's new memory geometry is a separate measured candidate.
 The historical 64-wide, four-slot, last-layer adapter remains a reference arm.
 
 | Quantity | First connected text configuration |

@@ -36,6 +36,20 @@ dated recovery record. All 17 JSON files, 1,410 JSONL rows and one JUnit documen
 parse. These are preserved past results, not experiments rerun or prospectively
 registered by this maintenance; no historical payload was edited.
 
+Stage 2 committed as `a7a2097`. A concurrent session then committed the Spark
+and visual preparation package as `7418b99`; it is retained as its own package.
+Independent maintenance validation ran `tests/test_spark_preparation.py` and
+`tests/test_visual_data.py`: **37 passed in 0.42 s**. The visual audit-only CLI
+also passes over 1,220 owned images and 2,688 candidate rows, with zero external
+acquisitions and zero training admission.
+
+Stage 3 records the accumulated architecture and Spark/Dynamic Engram research
+documents, and reconciles active entry points with the existing R1–R4 repair
+qualification. Both research stage graphs are acyclic; analytical costs and
+historical source pins reproduce. The 51-file design package has 528 valid local
+links. Recorded research and model test results retain their original dates and
+scope. This stage does not qualify the concurrently edited native V0 code.
+
 ## Current evidence and limits
 
 - The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192

@@ -1,6 +1,27 @@
 # Memory architecture and runtime compilation
 
-**Design proposal, reviewed 23 October 2026 UTC / 22 October America/Chicago.** This chapter develops the [existing system design](../01_System_Design.md), [R2 implementation contracts](../../reference/r2/02_Architecture_and_Implementation_Contracts.md), and [cognitive contracts](../experiments/20261022_Cognitive_Contracts.md). It specifies the intended system; current `memory.py` and `neural.py` establish only smaller primitives. No new model execution, model acquisition or training is reported here.
+**Design proposal, reviewed 23 October 2026 UTC / 22 October America/Chicago.** This chapter develops the [existing system design](../01_System_Design.md), [R2 implementation contracts](../../reference/r2/02_Architecture_and_Implementation_Contracts.md), and [cognitive contracts](../experiments/20261022_Cognitive_Contracts.md). It specifies the intended system; subsequent code includes native readers, host state/persistence, learned single-page writer experiments and procedure publication/rollback. Useful learned multi-chunk memory remains unqualified. No new model execution, model acquisition or training is reported here.
+
+**Current ordering and evidence (24 October 2026):** use
+[the research cross-check](15_Research_Crosscheck_and_Backbone_Plan.md) and
+[loop-agent instructions](16_Loop_Agent_Instructions.md). They distinguish
+paper mechanisms, implemented paths and proposed experiments, and supersede
+the original construction ordering in this chapter.
+
+The current plan repairs caller-bound context verification, exact schedule
+audits and representation-preserving rebuild first. MiniCPM5 then gains a separately trained visual
+encoder/projector interface, followed by visual memory and bounded RSI. Spark
+FP8/BF16 preparation proceeds now; native transfer has its own later gates.
+MiniCPM-V is an optional pretrained reference. See
+[document 17](17_Memory_Reliability_Recovery.md) and
+[document 18](18_MiniCPM5_Vision_Training_and_Continual_Learning.md).
+Compiler-produced candidates retain independent evaluation and cannot rewrite
+their verifier, guard or protected identity. New visual producers require new
+compatible projections, cache invalidation and eligible-source re-encoding.
+Bind raw/fact-binding/visual representation versions in producer and snapshot
+identity; unchanged-view rebuilds must preserve their encoding. See the
+[integrated design](19_Integrated_Memory_Learning_and_RSI_Design.md) for dynamic
+Engram routes, artifact dependencies and learning ownership.
 
 ## 1. Research findings and the design decision
 
@@ -11,8 +32,8 @@ Two different projects use similar names. **MemTensor's MemT-1.0** is the releva
 | [MemT-1.0 v2](https://arxiv.org/html/2610.26825v2) | Adds dynamic memory and trainable projections/gates to prepared backbones; stable Gated DeltaNet-2 updates and Mixture-of-Storage increase memory capability. Reports 34B training tokens across its pipeline; backbone weights are frozen during memory training. | Strong precedent for a pretrained retrofit, separate store/read phases and later-loss credit to earlier writes. Its scale and results do not establish inexpensive MiniCPM adaptation. |
 | [Mem-T v2](https://arxiv.org/abs/2601.23014v2) | Hierarchical working/factual/experiential/raw database; MoT-GRPO provides credit for construction and retrieval decisions. | Learned admission/retrieval policy and trajectories. This is a host-side memory-management policy, distinct from a native memory matrix. |
 | [Titans v1](https://arxiv.org/html/2501.00663v1) | Neural associative memory with gradient-based updates, momentum, forgetting, and alternative combinations with attention. | Investigate nonlinear adaptive memory after the linear reference. Surprise is an update signal, not proof that a statement is true or important. |
-| [TTT v1](https://arxiv.org/html/2407.04620v1) | Learns a small model as recurrent state through a self-supervised inner objective; outer training learns useful representations and update behavior. | Separate private fast state from trained global parameters and retain credit through earlier observed chunks. |
-| [uTTT v1](https://arxiv.org/html/2610.05484v1) | Shares fast state across depths. Its aggregated schedule reads one chunk-start state and combines writes after the chunk. | Shared ownership can support later cross-depth reuse; compare with private state at matched total state and compute. |
+| [TTT v4](https://arxiv.org/abs/2407.04620v4) | Learns a small model as recurrent state through a self-supervised inner objective; outer training learns useful representations and update behavior. | Separate private fast state from trained global parameters and retain credit through earlier observed chunks. |
+| [uTTT v1](https://arxiv.org/html/2610.05484v1) | Shares fast state across depths. Its aggregated schedule reads one chunk-start state, combines gradients into one update and preserves historical cross-depth outer gradients. | Shared ownership can support later cross-depth reuse; compare with private state at matched total state and compute. |
 | [Engram v2](https://arxiv.org/html/2601.07372v2) | Sparse hashed n-gram lookup with contextual gating provides learned static capacity. | Optional vocabulary/pattern memory branch. It does not provide an editable autobiographical evidence archive. |
 | [Nested Learning / HOPE v1](https://arxiv.org/html/2512.24695v1) | Optimization levels and context flows operate at different frequencies. Its pretrained Llama adaptation study reports 15B continued-pretraining tokens. | Explicit update timescales and owned losses; adapting a pretrained model is possible in principle, but this is not evidence of a cheap drop-in module. |
 
@@ -39,7 +60,7 @@ flowchart LR
 
 ## 2. State types, dimensions and ownership
 
-Reference proposal: MiniCPM5 hidden width `D=2048`; memory/core width `M=256`; at most `R=16` retrieved records with `K=4` slots each; workspace `S=8` slots and two core iterations. Two read/injection ports follow complete native blocks 13 and 27; block 41 supplies an observer. These are proposed replacements for the small last-block experiment, not already qualified configurations.
+Reference proposal: MiniCPM5 hidden width `D=2048`; memory/core width `M=256`; at most `R=16` retrieved records with `K=4` slots each; workspace `S=8` slots and two core iterations. Two read/injection ports follow complete native blocks 13 and 27; block 41 supplies an observer. These dimensions and ports are implemented and bounded native wiring has been qualified; useful architecture benefit remains unproven.
 
 | Component | Input → output | Owner and persistence | Learning/update cadence |
 |---|---|---|---|
@@ -104,9 +125,9 @@ Outer losses: answer/action cross-entropy, evidence-selection supervision where 
 
 ## 5. Private adaptive state and shared-depth commits
 
-Design idea: retain useful associations from recent observed experience inside a small adaptive module, while making ownership and causality explicit. Start with the existing functional linear reference, connected to learned keys/values/queries and native ports. It is a reference for adaptation, not a reproduction of Titans, uTTT or MemT-1.0.
+Design idea: retain useful associations from observed experience inside a small adaptive module, with explicit ownership and causality. The existing functional linear reference and learned single-page experiments remain controls. M2 first qualifies a useful single adaptive path; M3 studies shared-depth coupling. These are project experiments, not reproductions of Titans, uTTT or MemT-1.0.
 
-For normalized observed keys, use `Linner(Ac)=sum ||k Ac-v||²/(2N)`, then `A_next = Ac - clipped(eta * grad(Linner) + decay * Ac)`. Pool write gradients from all participating ports at the **same** `Ac`; normalize by the declared valid token/port count. Empty writes leave values unchanged. Learned step size, momentum, nonlinear memory, stable GDN-2 and expert routing are separate variants with separate state/compute accounting.
+For a separate gradient-update reference arm, normalized observed keys can use `Linner(Ac)=sum ||k Ac-v||²/(2N)`, then `A_next = Ac - clipped(eta * grad(Linner) + decay * Ac)`. This clipped project rule is not the default SGDN-2 candidate or a paper stability guarantee. Pool write gradients from all participating ports at the **same** `Ac`; normalize by the declared valid token/port count. Empty writes leave values unchanged. Learned step size, momentum, nonlinear memory and expert routing are separate variants with separate state/compute accounting. The exact SGDN-2-inspired recurrence, bounded gates and proposed shared-state reducer are specified in document 15; adding per-port gated deltas is not automatically a stable combined update.
 
 ```mermaid
 flowchart TD
@@ -163,6 +184,8 @@ flowchart LR
   N[Native hidden state] --> G
   G --> D[Independent residual delta]
 ```
+
+Dynamic routing adds a versioned episodic overlay and an evaluated router around this static pattern path. Publish table changes as candidates; do not turn the frozen lookup table into an untracked personal fact store. Compare exact retrieval, static-only, adaptive-only and routed combinations at matched information/cost, with collision, correction and deletion tests as specified in M4.
 
 Inputs are `[B,N]` token IDs; output is `[B,N,D]`. Host owns tokenizer/hash/table versions; the outer answer/action loss updates declared table/projection parameters in a candidate. Table size, collisions, bytes touched and end-to-end latency are explicit controls. M2 unified memory avoids a discrete PCIe copy but still has bandwidth/allocation costs. Do not import an enormous pretrained-table design into the first implementation budget.
 
@@ -252,7 +275,9 @@ Cache eviction is not neural unlearning. If revoked evidence trained a neural ca
 
 ## 10. Implementation sequence and acceptance evidence
 
-Implement the connected memory path in coherent increments: ledger/eligibility/retrieval → per-record compiler and two native read ports → real action/outcome journal → private adaptive state → scoped persisted image → procedure/candidate consolidation. Static lookup, nonlinear memory, GDN-2/MoS and multi-rate HOPE-like variants follow as independently costed alternatives. These component increments map to existing S2/S3/S4/S5 stages; they do not declare those gates passed.
+Much of the ledger, native read, action journal, snapshot and procedure path exists. Repair caller-bound context/canonical route verification, complete update schedules and representation-preserving rebuild first, then isolated MiniCPM5 V0 and visual fine-tuning. Continue fresh storage/addressing/readout diagnosis independently. The rejected v5 repair is complete; another blind training arm is not a V0 prerequisite. Qualified visual memory and RSI retain their quality gates. Spark FP8/BF16 preparation proceeds now; native transfer has separate gates. Static lookup/shared-depth/multi-rate studies remain hypotheses, not passed scientific claims.
+
+Exact visual retrieval and learned visual memory need distinct arms. Bind original image/region bytes and verification status; generated captions are predictions unless checked. Remove the image for memory-only later queries, record any source fetch, and test correction plus unaffected facts across restart. Producer/source changes invalidate cached features, memories, practice examples and candidate descendants. Reuse the existing compiler/publisher/rollback rather than building duplicate lifecycle code.
 
 Acceptance evidence must show changed behavior on new episodes when relevant records change, correct source/time/mode attribution, appropriate missing-information requests, reuse after restart, and loss of access after deletion. Architecture comparisons retain a full-text-memory baseline and ordinary full tuning so gains can be attributed to the new components. Report useful recall and procedural transfer separately from tiny memorization, grammar compliance and unit-test totals.
 

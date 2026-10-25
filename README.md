@@ -1,38 +1,42 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
-**Current priority — memory reliability recovery, 24 October 2026, protocol `9a43bad`.**
-The exact-record selective context passes **192/192**, but full-context parity
-fails on two absent-fact answers, so the reference bundle is rejected. The
-48-update reader-only D1 candidate scores **64/192** (32 unknown plus 32 general),
-with fact, correction and unaffected scores all zero and delayed-above-controls
-failing on both splits. All 32 images authenticate and fresh-process restart
-reproduces 7/7 answers. The next diagnostic is per-fact writer/state binding, not
-more updates, KL increases, model changes or neural RSI promotion. M4 remains
-rejected; M0b is optional and M5–M7 retain their separate gates. Authentic
-identity fidelity still requires permitted sources and human review.
+The [comprehensive Spark research report](docs/research/sparkx_2_6_4b_20261024/README.md)
+adds a current-code audit, model-native spatial/temporal vision and learning
+architecture, a 12-stage proposal, resource estimates and primary-source review.
+It incorporates the 25 October design update below; no new native training ran.
 
-Read the [research plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md),
-[loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md),
-[execution state](execution_state.md),
-[recovery pilot results](docs/experiments/20261024_Memory_Reliability_Recovery_Results.md),
-[M3 evidence](docs/experiments/20261024_M3_Depth_Ownership_Results.md) and
-[M4 evidence](docs/experiments/20261024_M4_Pattern_Results.md).
-Latest recovery validation: **1,299 tests and 21 subtests passed**, zero failures,
-errors or skips, in 137.53 s
-([JUnit](reports/validation_memory_reliability_reader_20261024.xml)). The guarded native
-pilot and separate restart subsequently completed on MPS. The pilot scored
-0/16 delayed facts, 0/4 corrections, 0/12 unaffected facts and 0/8 general
-answers; full-context control scored 48/48. No candidate was promoted.
-MiniCPM5 remains the baseline. Native work uses one MPS worker, no CPU fallback,
-the **50 GiB** sampled driver stop and existing swap/host-pressure checks.
-Historical explicit 40 GiB protocols and all failed reports remain preserved.
-Older results below are historical snapshots.
+**Current priority — 25 October 2026:** R1–R4 are implemented and verified at
+`757ace1`. Qualify **isolated MiniCPM5 V0** with memory/core/identity injections
+disabled; native V0 remains unqualified. Follow with visual alignment,
+instruction tuning, qualified visual memory and bounded RSI. Prepare the official
+Spark FP8/BF16 path and eligible dataset manifests independently now.
 
-**23 October 2026 | Experience-driven learning, small-model architecture experiments and a personal parallel Replica**
+The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
+fast and disabled both 56/192 with zero factual recall. Selective exact context
+is 184/192 versus full context 176/192; the reference still fails its declared
+general/nonregression gates. The original dependency, changed-span and route-count
+fixes and the later caller/schedule/representation repairs are complete.
+Thirty-two memory snapshots and seven recorded restart answers authenticate;
+mechanical parity is not learned-memory quality.
 
-The target is a semi-cognitive system that uses experience to improve its future behavior while keeping the deployed base ordinarily frozen. Develop and evaluate the interfaces through 1B/2B-class full fine-tuning first; then freeze a tested foundation, run continuing-learning experiments, and port useful mechanisms to larger models.
+The later [repair qualification](reports/memory_contract_repairs_20261025/qualification.json)
+records 140 integrated tests and a tracked export of 1,372 tests +21 subtests.
+Those recorded results were inspected, not rerun by this repository maintenance.
+The earlier review independently passed 49 focused tests, checked all 27 implementation
+pins, regenerated v4 data byte-for-byte and reproduced the scorer over 1,920
+answers. The full 1,311-test +21-subtest pass is separately recorded experiment
+evidence. No new native execution or training is reported by this design update.
 
-This package contains an executable research starter, detailed construction documents, an eight-page diagram atlas, a dataset catalog, eight complete dataset-generation/review prompts, schemas and coding-agent instructions. It is a new R3 bundle; the seven supplied R2 documents are preserved unchanged under reference/r2.
+Use [the complete loop prompt](docs/architecture/16_Loop_Agent_Instructions.md),
+[recovery](docs/architecture/17_Memory_Reliability_Recovery.md),
+[integrated design](docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark FP8/BF16 plan](docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md) and
+[data curriculum](docs/08_Dataset_Acquisition_and_Curriculum.md).
+MiniCPM5 and the 50 GiB guard remain fixed. No additional blind memory arm is
+required before V0; learned V3/RSI still require useful memory and retention.
+Spark native qualification follows reusable interfaces and backend gates, not
+RSI success. Preserve historical evidence and the protected untracked
+`src/replica_lab/runtime_pilot.py`.
 
 ## Preserved query-policy baseline — 22 October 2026 (America/Chicago)
 
@@ -122,10 +126,17 @@ one sealed source offline; a new run never downloads another original model. The
 | [References and evidence](docs/06_References_and_Evidence.md) | Papers, official repos, current release limits and what remains unrun |
 | [Diagram index](docs/07_Architecture_Diagrams.md) | Editable Mermaid source and links to standalone diagrams |
 | [Architecture atlas PDF](diagrams/Replica_R3_Architecture_Atlas.pdf) | Eight exportable vector block diagrams |
-| [Research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md) | Current evidence, M0–M7 gates and MiniCPM5/V4.7 plan |
+| [Research cross-check and backbone plan](docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md) | Current evidence, repair/vision/RSI order and later backbone comparisons |
+| [MiniCPM5 vision and continual learning](docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md) | Encoder/projector retrofit, isolated V0, fine-tuning, visual memory and bounded RSI |
 | [Loop-agent instructions](docs/architecture/16_Loop_Agent_Instructions.md) | Complete execution prompt, iteration rules, controls and completion evidence |
 | [Coding-agent start instructions](AGENT_START.md) | Concrete first session and worker boundaries |
 | [Continuation instructions](AGENT_CONTINUE.md) | Resume progress without restarting or reducing the objective |
+
+The expanded [integrated design](docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark FP8/BF16 preparation](docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md)
+and [dataset curriculum](docs/08_Dataset_Acquisition_and_Curriculum.md) specify
+the next architecture and data packages. The catalog contains 34 external source
+records, 22 pinned; assets remain unacquired and unadmitted by this update.
 
 ## Original bundle evidence
 
@@ -161,7 +172,7 @@ Full pretrained-model setup, immutable revision resolution, local byte sealing a
 5. Advance to larger models only after the mechanism survives controls, restart, retention and repeated seeds.
 6. Collect authentic Replica decisions from the beginning; preserve their source ownership and sealed tests.
 
-The primary text target is openbmb/MiniCPM5-2B, whose actual total is 2,516,756,480 parameters. MiniCPM-V-4.7-1B is a separate VLM port. The large roster remains google/gemma-4-26B-A4B-it and openbmb/MiniCPM-V-4.7-35B-A3B.
+The primary text and vision-retrofit target is openbmb/MiniCPM5-2B, whose actual total is 2,516,756,480 parameters. MiniCPM-V-4.7-1B is an optional separate pretrained VLM reference; Spark FP8/BF16 preparation starts now; native support follows reusable MiniCPM5 interfaces and independent backend gates. The large roster remains google/gemma-4-26B-A4B-it and openbmb/MiniCPM-V-4.7-35B-A3B.
 
 ## Important implementation scope
 
@@ -178,6 +189,12 @@ The starter contains fictional, solver-verified fixtures only. No authentic user
 Teacher prompts preserve source lineage and always mark their own candidates unverified. Independent executable checks or source-person confirmation provide the relevant admission evidence. Benchmark answer annotations never become memory input.
 
 ## Change discipline
+
+Follow the [tracking and staged-commit policy](docs/maintenance/20261025_Repository_Hygiene.md).
+Commit each coherent package promptly after its checks pass; stage explicit paths,
+preserve concurrent work, and keep model payloads and local scratch out of Git.
+Enable the versioned hook in each clone with
+`git config --local core.hooksPath .githooks`.
 
 When integrating into an existing project, audit and reuse its working code. Do not initialize a replacement repository or overwrite user changes merely because this bundle has a clean layout. If starting fresh, initialize the extracted project locally and add only an explicitly provided remote. The agent instructions include both paths.
 

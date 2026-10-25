@@ -1,27 +1,37 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current priority — v5 memory repair is complete and rejected; diagnose
-storage/read separation next.** Read the [v5 experiment record](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md),
-[execution state](execution_state.md) and [canonical verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
-Then follow [memory recovery](docs/architecture/17_Memory_Reliability_Recovery.md)
-and the separate [MiniCPM5 vision plan](docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md).
+**Current priority — 25 October 2026:** R1–R4 are implemented and verified at
+`757ace1`. Qualify **isolated MiniCPM5 V0** with memory/core/identity injections
+disabled; native V0 remains unqualified. Follow with visual alignment,
+instruction tuning, qualified visual memory and bounded RSI. Prepare the official
+Spark FP8/BF16 path and eligible dataset manifests independently now.
 
-The writer-only arm completed 48 updates with exactly 14 changed tensors. Fast
-and disabled both score 56/192 with zero factual answers; the candidate is not
-selected. The corrected scorer authenticated 32 images/source bindings and a
-seven-answer mechanical restart. Clean-export validation is 1,311 tests +21
-subtests, with 49 focused reliability tests. Eval01 is preserved as failed
-scoring infrastructure; eval02 is canonical.
+The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
+fast and disabled both 56/192 with zero factual recall. Selective exact context
+is 184/192 versus full context 176/192; the reference still fails its declared
+general/nonregression gates. The original dependency, changed-span and route-count
+fixes and the later caller/schedule/representation repairs are complete.
+Thirty-two memory snapshots and seven recorded restart answers authenticate;
+mechanical parity is not learned-memory quality.
 
-Do not repeat writer/reader training on this exposed set. Implement a fresh
-storage/read-separation probe and use explicit copy/pointer only when observed
-values are recoverable, under a new committed protocol. Isolated vision may
-proceed with memory/core/identity disabled; it cannot qualify this memory path
-or integrated RSI. Spark is later work. Preserve historical protocols, rejected
-candidates and the protected runtime pilot.
+The later [repair qualification](reports/memory_contract_repairs_20261025/qualification.json)
+records 140 integrated tests and a tracked export of 1,372 tests +21 subtests.
+Those recorded results were inspected, not rerun by this repository maintenance.
+The earlier review independently passed 49 focused tests, checked all 27 implementation
+pins, regenerated v4 data byte-for-byte and reproduced the scorer over 1,920
+answers. The full 1,311-test +21-subtest pass is separately recorded experiment
+evidence. No new native execution or training is reported by this design update.
 
-Read [the complete loop prompt](docs/architecture/16_Loop_Agent_Instructions.md),
-AGENT_CONTINUE.md and the current execution snapshot before older reference prose.
+Use [the complete loop prompt](docs/architecture/16_Loop_Agent_Instructions.md),
+[recovery](docs/architecture/17_Memory_Reliability_Recovery.md),
+[integrated design](docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark FP8/BF16 plan](docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md) and
+[data curriculum](docs/08_Dataset_Acquisition_and_Curriculum.md).
+MiniCPM5 and the 50 GiB guard remain fixed. No additional blind memory arm is
+required before V0; learned V3/RSI still require useful memory and retention.
+Spark native qualification follows reusable interfaces and backend gates, not
+RSI success. Preserve historical evidence and the protected untracked
+`src/replica_lab/runtime_pilot.py`.
 
 ## Mission
 
@@ -36,7 +46,7 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The last recorded full suite is 1,299 passed / 21 subtests; the latest review separately reran 37 focused tests. Older suite totals are historical snapshots. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
+4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The last recorded full clean-export suite is 1,311 passed /21 subtests; the latest review independently reran 49 focused tests. Older suite totals are historical snapshots. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
 
 ## First session: do concrete work
 
@@ -88,9 +98,14 @@ Build thin fixed-baseline loop infrastructure early. Before claiming a selected-
 
 Replace the fixed symbolic compiler/director in the demo with real learned policy and candidate neural/skill updates before making any model self-improvement claim. Run T0/T1/T2/T3 controls for ten initial chronological cycles. Count selected practice, replay, verifier and compute costs. A procedure library gain and a neural learning gain are separate results.
 
-MiniCPM5 vision development follows document 18: a pretrained encoder, new width-2048 projector, alignment, instruction/reasoning tuning, then qualified visual memory and bounded RSI. MiniCPM-V-4.7-1B remains a separate native hybrid reference/teacher; preserve its processor, mRoPE and caches rather than transplanting its projector. Spark comes later with a dedicated adapter, new connector and re-encoded source memories.
+MiniCPM5 vision development follows document 18: a pretrained encoder, new width-2048 projector, alignment, instruction/reasoning tuning, then qualified visual memory and bounded RSI. MiniCPM-V-4.7-1B remains a separate native hybrid reference/teacher; preserve its processor, mRoPE and caches rather than transplanting its projector. Spark FP8/BF16 preparation proceeds now; native transfer later uses a dedicated adapter, new width-2560 connector and re-encoded source memories. See documents 19–20 and the expanded data curriculum.
 
 ## Progress discipline
+
+The user authorizes focused local commits for completed packages. Follow the
+[tracking and staged-commit policy](docs/maintenance/20261025_Repository_Hygiene.md):
+review explicit staged paths and commit when the relevant checks pass. Keep
+active concurrent implementation and local artifacts out of unrelated commits.
 
 After each coherent work package, update execution_state.md with:
 

@@ -1,17 +1,40 @@
 # Construction roadmap — TAIS Obsidian / Replica R3
 
-**Current work ordering:** the [integrated architecture design](../architecture/README.md)
-and [E1–E6 build packages](../architecture/05_Implementation_Sequence.md) now guide
-construction. Implement explicit native/request interfaces and contextual record
-ports first, then the parallel core and real task loop. Memory compilation and
-actual candidate learning follow within the same system. The 33 stage IDs and
-dependencies are preserved; evidence gates determine claims and training
-admission, while implementation can proceed before all research gates pass.
-No model job or broad campaign was launched by this design review.
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
 
-Reviewed **22 October 2026, America/Chicago**. This is the executable work sequence for the architecture in [01_System_Design](../01_System_Design.md), with machine-readable dependencies in [stage_plan.json](../../configs/stage_plan.json). Substage artifacts below are planned unless a linked report establishes execution. The [execution state](../../execution_state.md) owns the latest run outcome; this plan does not replace its evidence.
+**Current ordering, 25 October 2026, reviewed HEAD `7c7018e`:**
+[caller-bound verification, exact schedule audits and representation rebuild](../architecture/17_Memory_Reliability_Recovery.md)
+first, then [isolated MiniCPM5 V0 and visual fine-tuning](../architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md),
+qualified visual memory and bounded RSI. Prepare official Spark FP8/BF16 sources,
+backend compatibility and eligible datasets independently now. Native Spark
+qualification follows reusable interfaces and its own gates, not RSI success.
 
-## Current boundary and immediate work
+Use [the loop prompt](../architecture/16_Loop_Agent_Instructions.md),
+[integrated design](../architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark plan](../architecture/20_Spark_X2_6_FP8_Preparation_Plan.md) and
+[data curriculum](../08_Dataset_Acquisition_and_Curriculum.md). The v5 memory
+repair is complete and rejected; do not repeat blind training as another V0
+prerequisite. Isolate V0 from memory/core/identity. Learned V3 and integrated RSI
+still require useful memory, corrections, retention and independent verification.
+MiniCPM-V remains an optional pretrained reference/teacher.
+
+MiniCPM5 and the 50 GiB native guard remain fixed. Preserve old results, source
+seals and rejected candidates. This revision updates documentation/descriptive
+metadata and gathers public source metadata, not runtime fixes, training, model
+weights or dataset assets.
+
+The 33 scientific stage IDs and [machine-readable dependencies](../../configs/stage_plan.json)
+remain intact. V0–V4 and Spark S0–S3 are implementation-package labels, not new
+scientific stage IDs or automatic passes of S2.5/S3/S4. The
+[execution state](../../execution_state.md) owns actual results; historical
+component stages below do not override the immediate queue above.
+
+## Historical stage baseline — 22 October 2026
 
 The M2 Ultra / 64 GiB Mac has a locked Python 3.12.14 environment, a sealed native `openbmb/MiniCPM5-2B` revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`, and a measured two-update full-text D0 path using experimental Muon 8-bit. All 381 original tensors changed and native export/reload matched. Those examples were **55 actual tokens**, although their configured ceiling was 256. Their generation collapsed to `0` on all 16 cases. Its 2/16 accuracy equals the constant-zero control. This is a preserved negative result, with no promoted developmental checkpoint. [Native experiment record](../../reports/minicpm5_mps_experiment_20261022.json).
 
@@ -85,18 +108,16 @@ Tiny-overfit exactness is an infrastructure gate, not a quality claim. The large
 
 ## Work ownership, resources and failure policy
 
-The integration owner controls shared schemas, source/model locks, acceptance and Git integration. Delegate disjoint files: a trainer worker owns model/resume/profiling; a data worker owns intake/export/solvers; a runtime worker owns host events/candidates; an independent evaluator checks leakage, scope and unsupported claims. Authentic Replica collection is a human-source track and never filled by generated biography. Current work runs on the existing checkout; each coherent package receives a focused local commit and updated execution state. No remote is assumed.
+The integration owner controls shared schemas, source/model locks, acceptance and Git integration. Delegate only when active user/environment instructions authorize it, with disjoint files: a trainer worker owns model/resume/profiling; a data worker owns intake/export/solvers; a runtime worker owns host events/candidates; an independent evaluator checks leakage, scope and unsupported claims. Authentic Replica collection is a human-source track and never filled by generated biography. Current work runs on the existing checkout; each coherent package receives a focused local commit and updated execution state. No remote is assumed.
 
 Every substage specifies an artifact, interface, dependency, test gate, resource cap, failure action and next smallest task in its detailed file and JSON entry. Run one bounded screen before multiplying seeds. On collapse, inspect sampling/masks/template/answer distribution and adjust a declared variable. On OOM or sustained pressure/swap growth, stop the bounded run, preserve the profile and reduce length/accumulation or implement residency changes without changing its claimed parameter scope. On no meaningful gain, preserve the negative and remove/redesign the mechanism. Optional research never blocks the simplest complete learned loop.
 
-The bounded **S2.3 package is complete** for the previous small adapter. Preserve
-all three short-answer negatives. The immediate build is **E1/E2**, followed by
-E3's real cognitive/action loop; qualify source sensitivity and inference
-settings within those components. S1.3/S1.4/S1.5 admission work proceeds alongside
-construction. A smaller purpose-built admitted release can support the connected
-system without waiting for every proposed public source; quarantined material
-remains excluded. S2.4 still requires an admitted release and declared fair
-comparison, retention, compute and exposure rules. Full S3.1 still depends on
-S2.5/S1.1; early implementation does not claim that gate. R0/R1 proceed separately
-with authentic source material. See the [current research decisions](../architecture/06_Research_Decisions.md)
-for the recovered TAIS upstream and memory-native retrofit evidence.
+The bounded **S2.3 package is complete** for the previous small adapter; preserve
+its short-answer negatives. E1/E2 native interfaces and E3 task paths now exist,
+so the old instruction to begin by rebuilding them is superseded. Resume the
+current reproducibility/memory package in document 17, then document 18's visual
+training, memory and RSI sequence. Source admission and evaluation preparation
+proceed with the affected package; quarantined material remains excluded.
+S2.4 still requires declared fair comparisons, retention, compute and exposure
+rules. Selected-system S3.1 keeps S2.5/S1.1 dependencies; early development does
+not claim that gate. Replica R0/R1 require authentic source material separately.

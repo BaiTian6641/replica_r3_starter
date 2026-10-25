@@ -1,26 +1,38 @@
 # Replica architecture research and design
 
-**Reviewed 22-23 October 2026, America/Chicago / 23 October UTC.** This is the
-current detailed design for rebuilding the research starter into the intended
-model-integrated system. It follows the user's request to prioritize the real
-architecture over further isolated short-answer probes.
+For the requested detailed Spark target analysis, see the
+[integrated Spark research report](../research/sparkx_2_6_4b_20261024/README.md):
+repository audit, spatial/temporal vision, Titans/HOPE-inspired learning,
+semi-cognitive integration, staged evaluation and research evidence. It includes
+the current FP8/BF16 preparation and remaining recovery requirements below.
 
-The objective is a pretrained LLM enhanced with complex memory, a parallel
-cognitive core, native memory access ports, self-evaluation, bounded learning
-and an authentic personal Replica branch. MiniCPM5-2B is the first technology
-validation model; MiniCPM-V-4.7-1B is the second, with its own native port.
+**Current priority, 25 October 2026, reviewed HEAD `7c7018e`:** remaining
+caller-context verification, complete route-sequence auditing and representation-
+preserving rebuild fixes, then isolated MiniCPM5 V0. Follow with V1/V2 visual
+fine-tuning, qualified visual memory and bounded RSI. Spark FP8/BF16 preparation
+and dataset curation proceed independently now. MiniCPM5 remains the baseline;
+the 50 GiB native guard is unchanged.
 
-**Implementation follow-up:** [E1/E2 implementation](07_E1_E2_Implementation.md),
-[E2 retrieval/capacity](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md),
-[E3 core/action loop](../experiments/20261023_E3_Native_Results.md),
-[E3 set_constant negative](../experiments/20261023_E3_Set_Constant_Results.md),
-[C16 identity](09_Replica_Identity_Interface.md),
-[E4 fast memory](10_Fast_Memory_Reference.md),
-[E4 artifacts](11_Runtime_Artifacts.md), [C13 director](13_Learning_Director.md), [C17 scheduler](14_Request_Scheduler.md),
-[E5 procedure](../experiments/20261023_E5_Procedure_Results.md) and the
-[research cross-check and backbone plan](15_Research_Crosscheck_and_Backbone_Plan.md)
-record the connected code, measured limits and the next native-memory plan. The
-research chapters below remain the design baseline.
+The v5 writer repair completed and rejected: fast and disabled both 56/192,
+zero learned factual recall. Exact context is 184/192 and all 128 facts, but
+fails the reference's general/nonregression gates. Source packaging, changed-span
+checks and original route counters are repaired. The review reproduced the
+remaining narrower defects and independently verified 49 focused tests, source/
+data pins and canonical scoring. See [recovery](17_Memory_Reliability_Recovery.md)
+for scope and [execution state](../../execution_state.md) for native evidence.
+
+The complete system plan is in
+[document 19](19_Integrated_Memory_Learning_and_RSI_Design.md), with
+[document 20](20_Spark_X2_6_FP8_Preparation_Plan.md) for the requested official
+Spark FP8 base and independent BF16 control, and
+[the dataset curriculum](../08_Dataset_Acquisition_and_Curriculum.md) for 34
+catalogued sources, 22 pinned metadata records and staged acquisition. No weights
+or dataset assets were acquired or newly admitted by this documentation update.
+
+MiniCPM5 receives its own encoder/projector interface. MiniCPM-V remains a
+separate optional pretrained reference/teacher. Spark needs a new width-2560
+connector and dedicated native adapter; its preparation does not wait for RSI,
+and its native/backend gates do not delay MiniCPM5.
 
 ## Read in this order
 
@@ -32,7 +44,13 @@ research chapters below remain the design baseline.
 | [4. Semi-cognition, learning and Replica](04_Semi_Cognition_Learning_and_Replica.md) | TAIS inheritance, task/core/action loop, capability, real candidate learning and personal identity integration |
 | [5. Implementation sequence](05_Implementation_Sequence.md) | Six connected build packages, code migration, training/evaluation and hardware plan |
 | [6. Research decisions](06_Research_Decisions.md) | Primary sources, distinctions, adaptation choices and unresolved questions |
-| [Research cross-check and backbone plan](15_Research_Crosscheck_and_Backbone_Plan.md) | Current implementation versus Titans/uTTT/MemT/HOPE/Engram/Mem-T, missing mechanisms, and the MiniCPM5/VLM modification sequence |
+| [Research cross-check and backbone plan](15_Research_Crosscheck_and_Backbone_Plan.md) | Research versus implementation; baseline, official Spark FP8/BF16, memory, vision and bounded RSI |
+| [Loop-agent execution instructions](16_Loop_Agent_Instructions.md) | Ready-to-use bounded implementation loop, first package, evidence gates, preservation rules and reporting |
+| [Reproducibility and memory recovery](17_Memory_Reliability_Recovery.md) | Caller-bound contexts, exact schedule, representation rebuild and independent memory diagnosis |
+| [MiniCPM5 vision and continual learning](18_MiniCPM5_Vision_Training_and_Continual_Learning.md) | V0–V4 visual input, alignment/instructions, visual memory and verified RSI |
+| [Integrated memory, learning and RSI design](19_Integrated_Memory_Learning_and_RSI_Design.md) | Ownership, dynamic routing, compilation, learning and qualification roadmap |
+| [Spark FP8/BF16 preparation](20_Spark_X2_6_FP8_Preparation_Plan.md) | Official pins, precision/backend gates, new vision/memory interfaces |
+| [Dataset acquisition and curriculum](../08_Dataset_Acquisition_and_Curriculum.md) | 34 sources, intake states, staged quantities, licenses, dedup and evaluators |
 
 Each detailed chapter contains block diagrams alongside component inputs,
 outputs, state ownership, training/update cadence and use. The
@@ -54,8 +72,9 @@ component to its design section and diagram.
   are different operations with different evidence requirements.
 - Start with a clear known-input sense pass, a bounded core update and an action
   pass. Preserve causal ownership before optimizing the schedule and caches.
-- Build the text implementation first, then adapt the same contracts to the
-  hybrid VLM. Larger-model transfer requires fresh model-specific interfaces.
+- Repair the text memory/evidence foundation, then train MiniCPM5's new visual
+  interface. Visual memory and RSI require independent quality gates. Optional
+  pretrained VLM and later Spark ports need model-specific interfaces.
 
 The concrete text starting design is width-256 shared state, eight workspace
 slots, two core iterations and ports after native blocks 13/27, with 41 as observer.
@@ -91,14 +110,12 @@ synthetic diagnostic, with no personal-fidelity or self-improvement result.
 
 ## Immediate implementation
 
-**E1/E2 implementation and bounded native diagnostic are complete** (reranking
-quality remains open). Their delivered scope is: explicit request/manifest interfaces, source-only
-contextual record encoding and two native memory ports. Next connect the shared
-core, task journal and real neural action/outcome loop in E3. Integrate temporal
-memory/compilation and actual candidate learning in E4/E5. Source admission and
-fair-comparison design proceed alongside construction; they do not require more
-rounds of the same sixteen-case prompt experiment before architecture work.
-
-No native jobs or checkpoint downloads are part of this research pass. Reuse
-the existing source and preserve previous evidence. See the [review record](../../reports/architecture_research_20261023/review.json)
-for source pins, diagram validation and preserved-code checks.
+Follow [document 17](17_Memory_Reliability_Recovery.md) for R1 caller-bound context,
+R2 complete schedule audit and R3 representation-preserving rebuild. Then follow
+[document 18](18_MiniCPM5_Vision_Training_and_Continual_Learning.md) for isolated
+V0. The rejected v5 package is complete; another blind memory-training arm is
+not a V0 prerequisite. Useful memory remains a gate for learned V3 and integrated
+RSI. Continue diagnostic memory probes, data intake and Spark source/backend
+preparation independently. The [loop prompt](16_Loop_Agent_Instructions.md)
+controls the next concrete work, while component chapters retain their detailed
+contracts and historical scientific dependencies.

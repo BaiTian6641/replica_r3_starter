@@ -1,5 +1,12 @@
 # MiniCPM5 vision training, visual memory and bounded improvement
 
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
+
 **Plan revision: 25 October 2026, following the review of `7c7018e`.**
 This is a proposed implementation and experiment plan. No visual adapter,
 visual training result, accepted neural memory or RSI result is established by

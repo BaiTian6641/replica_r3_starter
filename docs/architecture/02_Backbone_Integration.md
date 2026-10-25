@@ -1,12 +1,26 @@
-# Backbone integration: native MiniCPM models with a parallel cognitive core
+# Backbone integration: native models with a parallel cognitive core
 
 **Design review: 23 October 2026 UTC / 22 October America/Chicago. Status: proposed implementation specification.** This document specifies the backbone-facing part of the system in [System Design](../01_System_Design.md) and the [cognitive contracts](../experiments/20261022_Cognitive_Contracts.md). It preserves the measured starter as a reference while designing the complete interface. No model was trained, executed or downloaded for this review; public configuration/code and the existing local checkpoint header were inspected.
+
+**Current status reconciliation, 24 October 2026:** the native MiniCPM5
+multi-port adapter, request frames, two-pass core/task path and optional fast/
+identity readers now exist. Useful learned memory and native VLM execution
+remain unqualified. Caller-bound verification, schedule audits and representation-preserving
+rebuild precede the isolated MiniCPM5 visual retrofit in [document 18](18_MiniCPM5_Vision_Training_and_Continual_Learning.md).
+Follow [the research plan](15_Research_Crosscheck_and_Backbone_Plan.md)
+and [loop instructions](16_Loop_Agent_Instructions.md); the design contracts
+below remain requirements, not a claim that every described path is missing.
+
+The [Spark FP8/BF16 plan](20_Spark_X2_6_FP8_Preparation_Plan.md) records official
+source pins and a dedicated width-2560 adapter/connector path. Preparation starts
+now; native transfer follows reusable interfaces and independent backend gates.
+FP8 storage and Muon int8 momentum do not establish supported FP8 backward kernels.
 
 ## 1. Reuse pretrained capability, introduce a learned interface
 
 The design retains pretrained language understanding, tokenization, native attention, feed-forward layers and output vocabulary. New components learn how to turn authorized experience into useful internal state, how to read that state while reasoning, and when to act or learn. Development may co-adapt existing weights; routine deployed learning starts from a versioned, frozen developmental base.
 
-The initial implementation target is **MiniCPM5-2B with two internal memory/core ports and a shared parallel core**. The second target is **MiniCPM-V-4.7-1B with a separate native adapter**. Their common family name does not make their decoders interchangeable. Transfer the memory schemas, decision protocol, losses and evaluation methods first; retrain model-specific encoders/projections and requalify native state handling.
+The baseline is **MiniCPM5-2B with existing memory/core ports**. After repair, the first vision-development target adds a pretrained encoder and a new MiniCPM5 projector. **MiniCPM-V-4.7-1B is an optional pretrained reference/teacher with a separate native adapter**; its decoder and alignment are not interchangeable with MiniCPM5. Spark FP8/BF16 preparation starts now; native integration has separate later gates. Transfer schemas, protocols and evaluation methods; train model-specific projections and requalify native state.
 
 | Evidence | Verified backbone fact | Consequence for this design |
 |---|---|---|
@@ -18,6 +32,44 @@ The initial implementation target is **MiniCPM5-2B with two internal memory/core
 | Same configuration | Vision: 27 layers, width 1152, FFN 4304, 16 heads, patch size 14; canvas M-RoPE; default 16× downsampling | Preserve the vision tower, spatial merging, image/video boundaries and native multimodal positions |
 
 The local MiniCPM5 safetensors header contains **2,516,756,480 parameters in 381 tensors**. “2B” is the model name, not an exact allocation budget. Its BF16 weight file is 5,033,557,096 bytes; a full FP32 parameter copy alone is approximately 9.38 GiB. These are local inventory/arithmetic results, not a new runtime measurement. Exact VLM parameter inventory remains unverified because its weights were not acquired.
+
+### Spark preparation: official FP8 and independent BF16 control
+
+MiniCPM5 remains the required baseline. Prepare the official Spark FP8 source,
+BF16 control, metadata inventory and backend matrix now under
+[document 20](20_Spark_X2_6_FP8_Preparation_Plan.md). Native qualification follows
+repaired contracts and reusable V0 interfaces, not completion of RSI. Preserve
+Spark's `spark2_5` attention, head gates, tied storage, caches and reasoning
+mode under a dedicated adapter. Its width-2560 connector and memory projections
+must be trained separately; test visual-prefix visibility beyond its 512-token
+sliding window and in full-attention blocks.
+
+Current Muon int8 quantizes momentum while trainable weights/gradients remain
+FP32. Official compressed-tensors FP8 storage and dynamic activation quantization
+require supported forward/backward kernels; top-level BF16 dtype is not a tensor
+inventory. An explicitly dequantized FP8 derivative differs from the official
+BF16 checkpoint. Inference, input gradients, named updates, export/reload and
+residency need separate evidence. The 50 GiB stop is not a fit guarantee.
+
+### New MiniCPM5 visual-input interface
+
+The current adapter accepts token IDs and embeds them directly. Add a versioned
+visual observation and fused-prefix contract across adapter, session, sense/
+decision frames, training and generation. Use a frozen pretrained encoder and a
+trainable projector to width 2048; retain spatial patch/layout information.
+Bind image bytes, source scope, crop, processor and producer identities.
+
+Preserve masks, positions and the known prefix across sense/action/generation.
+Exclude visual/prompt positions from response loss, keep labels/future frames
+outside sensing and preserve input gradients through the frozen decoder to the
+projector. Cache only frozen producer outputs. First prove text-only bypass
+parity, real image dependence, gradients and export/reload; then train alignment
+and declared instruction adapters with text retention. Keep memory/core/identity
+injections disabled during initial independent visual qualification.
+
+The pretrained MiniCPM-V topology below applies only to that separate model.
+Do not copy its width-1024 connector, canvas M-RoPE or hybrid caches into the
+MiniCPM5 width-2048 Llama path. See document 18 for training stages and controls.
 
 ## 2. The backbone port is a complete-block boundary
 
@@ -128,7 +180,7 @@ For a cold bank of 16 source chunks with 128 tokens each, a 14-layer producer pr
 
 ## 5. Request state, cache and gradient ownership
 
-Replace the starter's model-global `_context` with an explicit request-owned `RequestContext`. A context contains its control frame, memory payload references, native attention/recurrent/position state, optional fast state, budget and revocation epoch. Model parameters are shared read-only during inference; mutable request tensors are not shared between requests.
+The architecture path now uses request-owned frames and scoped bindings; preserve that ownership rather than reusing the starter's model-global `_context` as a concurrency design. The complete cache-facing contract is an explicit request-owned `RequestContext`. A context contains its control frame, memory payload references, native attention/recurrent/position state, optional fast state, budget and revocation epoch. Model parameters are shared read-only during inference; mutable request tensors are not shared between requests.
 
 ```mermaid
 stateDiagram-v2
@@ -196,6 +248,20 @@ The inspected VLM stores `rope_deltas` on its model object. Initial qualificatio
 
 A visual memory payload binds frame/image content hash, observation time, crop coordinates, native processor/vision/merger versions and source permissions. Keep a permitted exact visual reference for review. Video frames after the decision cutoff cannot be encoded merely because a full clip was supplied to the dataset loader.
 
+For the optional pretrained MiniCPM-V reference, stage training as native visual
+parity → new visual-memory interfaces with the
+existing vision/text path frozen → verified visual reasoning → separately
+justified selective or full co-adaptation. Remove the original image before
+delayed memory queries; include actual/wrong/no-image, caption-only, shuffled
+memory, correction/restart and text-retention controls. Preserve disjoint scenes,
+documents and sessions, and re-encode after changing the feature producer.
+Later Spark work first qualifies its native text path, then trains a new visual
+connector under the proven MiniCPM5 data/evaluation contract; do not transplant
+MiniCPM5 or MiniCPM-V projector weights.
+MiniCPM-V-4.7-35B-A3B is a later teacher/inference/transfer option with separate
+resource qualification; active experts do not make its full weight set fit the
+local training budget. Detailed training scopes and gates are in document 15.
+
 ## 7. Parameter, compute and state budgets
 
 The following is **arithmetic for the proposed bridge skeleton**, not a measured inventory or speed promise. Let native width `h=2048`, interface width `d=256`, two active ports, two independent readers per port, 64 record slots and 8 workspace slots. Each reader uses Q/O projections across `h↔d` and K/V projections within `d`. The core uses one tied block with self-attention, cross-attention and a width-4d FFN, iterated twice.
@@ -218,18 +284,21 @@ At batch one, 64×256 FP32 record slots occupy **64 KiB**, and 8×256 workspace 
 
 Native FP32 text KV is approximately **84 KiB per cached token** across 42 blocks, or **42 MiB at 512 tokens**. VLM full-attention KV is approximately **24 KiB/token**, plus about **18 MiB** of FP32 recurrent matrices across its 18 linear blocks and approximately **1.69 MiB** of four-position convolution state. These are shape estimates, not allocator peaks; cache implementation/dtype can change them.
 
-The M2 Ultra GPU remains the initial execution backend. CPU host work handles records and scheduling; native model computation must not silently fall back to CPU. Neural Engine use is an independent export/operator qualification, not enabled by adding these Python modules. The already measured last-block MPS result does not qualify the larger core or VLM kernels. CUDA on RTX PRO 4000 Blackwell SFF receives a separate memory, kernel and optimizer qualification against the same contracts.
+The M2 Ultra GPU remains the initial execution backend. CPU host work handles records and scheduling; native model computation must not silently fall back to CPU. Neural Engine use is an independent export/operator qualification, not enabled by adding these Python modules. Bounded native MPS core/reader engineering has since been measured; it does not qualify useful memory learning or VLM kernels. CUDA on RTX PRO 4000 Blackwell SFF receives a separate memory, kernel and optimizer qualification against the same contracts.
 
 ## 8. Implementation boundary and acceptance
 
-| Existing component | Reusable evidence | Required replacement/extension |
+The table preserves the original migration map; several replacements are now
+implemented. Check the current status registry before recreating them.
+
+| Existing component | Reusable evidence | Original replacement/extension target |
 |---|---|---|
 | [LlamaMemoryAdapter](../../src/replica_lab/model_adapter.py) | Complete-block residual convention, original/new parameter registry, null parity and owned-backward concept | Port registry, request-owned context, separate sense schedule, multi-port core and later cache ABI |
 | [Neural primitives](../../src/replica_lab/neural.py) | Basic pooling/read/null-mask/recurrent-slot contracts | Contextual per-record payloads, typed shared core, action/calibration heads and versioned producers |
 | [Native architecture study](../stages/03_Native_Architecture_Study.md) | Scope/capacity/resume and small memorization evidence | Useful memory, plan continuation, evidence-sensitive decisions, retained pretrained ability and costs |
 | Current last-block generation | Fixed-context uncached reference | Two-pass actual-model action loop; subsequent cached and concurrent parity |
 
-Implement the text vertical slice in this order: native port manifest → contextual record payloads → two-pass shared core → actual proposal/host outcome feedback → selected learning/candidate path. Keep the original pretrained template and selected historical checkpoints. New component exports reference their parent base hash; do not make repeated full base copies for every module experiment.
+The first four links of the original text slice—native port manifest, contextual record payloads, two-pass shared core and actual proposal/host outcome feedback—now exist. Reuse them and follow M0–M7 for useful adaptive memory, shared-depth controls and the candidate learning path. Keep the original pretrained template and selected historical checkpoints. New component exports reference their parent base hash; do not make repeated full base copies for every module experiment.
 
 Acceptance must establish null parity, independent branch sensitivity, future-token exclusion, evidence-change sensitivity, per-record provenance, gradients through both native passes, correct restart/re-prefill, revoked-source invalidation, and an actual model-driven action followed by an observed outcome. Meaningful end-to-end tasks must accompany numerical contracts. A fixed-answer microbenchmark is a diagnostic, not the architecture's product definition.
 

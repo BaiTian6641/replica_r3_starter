@@ -1,5 +1,19 @@
 # 01 - A model that develops through experience
 
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
+
+**25 October planning update:** the [integrated design](architecture/19_Integrated_Memory_Learning_and_RSI_Design.md)
+and [loop prompt](architecture/16_Loop_Agent_Instructions.md) control current
+work: remaining verification/rebuild repairs, isolated MiniCPM5 V0, visual
+fine-tuning, qualified visual memory and bounded RSI. Prepare official Spark
+FP8/BF16 and the [expanded data curriculum](08_Dataset_Acquisition_and_Curriculum.md)
+independently now. Historical stages and measured evidence below keep their scope.
+
 **Current detailed architecture:** the [research and design package](architecture/README.md)
 expands this framework into 18 components with model-specific ports, diagrams,
 request/state ownership and a connected implementation sequence. Its explicit

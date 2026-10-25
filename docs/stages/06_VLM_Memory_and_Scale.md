@@ -1,12 +1,56 @@
-# S4/S5 — separate native VLM, optional memory and later hardware
+# S4/S5 — MiniCPM5 vision development, native VLM reference and later scale
 
-Reviewed **22 October 2026, America/Chicago**. See the [master roadmap](00_Master_Roadmap.md), [current execution state](../../execution_state.md) and [dated primary-source review](07_Research_Evidence_20261022.md). Gates and budgets are proposed unless a linked existing report establishes execution. Planned artifacts below do not claim files already exist.
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
 
-The small V4.7 VLM is a separate native hybrid text/vision port. Its processor-expanded image tokens, visual insertion, positional logic, recurrent state and attention cache must be preserved. A Llama text wrapper, image filename in memory text or caption-only score is not a VLM training result. Distinct full_text/full_vlm parameter inventories make training claims reviewable.
+**Ordering revised 25 October 2026 after review of `7c7018e`.** Follow
+[document 17](../architecture/17_Memory_Reliability_Recovery.md) for remaining
+caller-context, route-sequence and representation-rebuild fixes, then
+[document 18](../architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md)
+for isolated V0 and V1/V2 fine-tuning, qualified visual memory and bounded RSI.
+The [loop prompt](../architecture/16_Loop_Agent_Instructions.md) controls execution.
+No visual training or new native qualification is reported by this revision.
 
-Optional Titans/Hope/uTTT/Engram/latent interfaces remain one-at-a-time hypotheses. The functional linear fast-state primitive is an initial comparison, not a reproduction. Every depth port reads one chunk-start snapshot; completed writes publish after the chunk, without storage mutation during activation recomputation. State owner/reset and producer compatibility are explicit.
+## MiniCPM5 developmental vision packages
 
-The RTX PRO 4000 Blackwell SFF is a later 24 GB target, not installed hardware here. The current full-text FP32 mixed-state budget alone is 26.40 GB decimal before activations/temporaries. CUDA dtype support, mixed Muon partition/offload behavior, host RAM/staging and restart require qualification. Ordinary DDP or inference device_map does not solve that budget. Larger model ports inherit source records and tested protocols; their latent interfaces, calibrators, baselines and memory encodings must be trained/measured anew.
+V0 extends the width-2048 Llama adapter with real visual observations, a fused
+prefix, correct masks/positions, request ownership and input gradients, with all
+memory/core/identity injections disabled. V1 trains a new projector from one
+pinned frozen visual encoder into the frozen decoder. V2 adds declared visual
+instruction/reasoning adapters with text replay. V3 requires accepted perception
+and the chosen memory path; V4/M5 requires independent verified improvement,
+retention and rollback. These labels do not replace scientific stage IDs.
+
+The v5 writer repair has a measured rejection. Complete remaining R1–R3 contracts
+before native V0; do not require another blind memory arm. Include correct/wrong/
+no/shuffled-image and caption/OCR-only controls, independent scene/document
+families and broad text retention. Memory adds image removal, multiple later
+queries, correction, unaffected facts and fresh-process reuse. Follow the
+[staged data curriculum](../08_Dataset_Acquisition_and_Curriculum.md), not an
+unspecified whole-corpus download.
+
+The S4.1–S4.3 entries below apply to the optional pretrained MiniCPM-V reference/
+teacher. Its native processor, mergers, canvas M-RoPE, hybrid recurrence and
+caches are model-specific; they are not prerequisites for MiniCPM5 V0 or portable
+connector weights. Full selected-system claims retain applicable S2/S3/S4 gates.
+
+Prepare [official Spark FP8/BF16](../architecture/20_Spark_X2_6_FP8_Preparation_Plan.md)
+now. Later native work qualifies inference, input gradients, real updates and
+reload before a new width-2560 connector and model-specific memory. Test visual
+prefix visibility in its sliding/full attention. Native integration follows
+reusable V0 interfaces and its own backend gates, not successful RSI. MLX inference
+and an FP8 checkpoint label do not qualify PyTorch/MPS training.
+
+Keep one exclusive MPS worker, no CPU fallback, 50 GiB sampled driver stop and
+host checks. Muon int8 momentum does not change FP32 parameter/gradient residency.
+Projector/LoRA scopes are partial tuning. Profile actual image/text lengths;
+text-only peaks do not establish multimodal fit. Optional Titans/HOPE/uTTT/Engram
+mechanisms remain controlled hypotheses. The later Blackwell host requires its
+own hardware and residency qualification; S5 below retains separate gates.
 
 ## S4.1 — Pin and qualify the native small VLM
 

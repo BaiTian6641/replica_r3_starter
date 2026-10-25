@@ -1,8 +1,25 @@
 # 02 - Two stages, explicit controls, measured hardware
 
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
+
+**25 October planning update:** the [integrated design](architecture/19_Integrated_Memory_Learning_and_RSI_Design.md)
+and [loop prompt](architecture/16_Loop_Agent_Instructions.md) control current
+work: remaining verification/rebuild repairs, isolated MiniCPM5 V0, visual
+fine-tuning, qualified visual memory and bounded RSI. Prepare official Spark
+FP8/BF16 and the [expanded data curriculum](08_Dataset_Acquisition_and_Curriculum.md)
+independently now. Historical stages and measured evidence below keep their scope.
+
 **Current native preflight review: 22 October 2026 (America/Chicago). Original bundle planning label: 23 October 2026. All proposed budgets and acceptance margins require preregistration; the native measurements below establish short-run execution only.**
 
 Use the [detailed substage roadmap](stages/00_Master_Roadmap.md) for dependencies, artifacts, resource limits and exit gates. The [constant-zero diagnosis](experiments/20261022_Constant_Zero_Diagnosis.md) preserves the failed preflight and the successful eight-class training diagnostic separately.
+
+The staged quantities in the current dataset curriculum supersede old pilot
+budgets for V0–V4. Scientific comparisons below remain required for their claims.
 
 ## 1. The two-stage program
 
@@ -52,7 +69,7 @@ If an architectural change only increases confidence, or uses more evidence, or 
 
 ## 3. Small-model data and optimization
 
-Use the [20,000-target pilot](04_Datasets_and_Generation.md): 8,000 general replay, 3,000 verified reasoning, 4,000 temporal-memory episodes, 2,000 generic personalization examples, 1,000 tool-use/recovery examples, and 2,000 inquiry/control examples.
+The original proposed [20,000-target pilot](04_Datasets_and_Generation.md) was: 8,000 general replay, 3,000 verified reasoning, 4,000 temporal-memory episodes, 2,000 generic personalization examples, 1,000 tool-use/recovery examples, and 2,000 inquiry/control examples.
 
 Before that, use the bundled 48 deterministic examples and then 64-256 carefully inspected episodes. These verify infrastructure. They are too small and simple to establish cognition, architectural superiority or broad transfer.
 

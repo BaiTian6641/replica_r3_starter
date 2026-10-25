@@ -1,0 +1,74 @@
+{
+  "format": "replica.sparkx.research_review.v1",
+  "date_local": "2026-10-24",
+  "timezone": "America/Chicago",
+  "head": "7c7018e367369bd5df9677785dd3c4df05862a7e",
+  "branch": "codex/d2-capacity-runtime-pilot",
+  "status_before_authored_documents": " M README.md\n M docs/architecture/01_System_Blueprint.md\n M docs/architecture/02_Backbone_Integration.md\n M docs/architecture/03_Memory_and_Runtime_Compilation.md\n M docs/architecture/04_Semi_Cognition_Learning_and_Replica.md\n M docs/architecture/05_Implementation_Sequence.md\n M docs/architecture/07_E1_E2_Implementation.md\n M docs/architecture/08_E3_Implementation.md\n M docs/architecture/09_Replica_Identity_Interface.md\n M docs/architecture/10_Fast_Memory_Reference.md\n M docs/architecture/11_Runtime_Artifacts.md\n M docs/architecture/15_Research_Crosscheck_and_Backbone_Plan.md\n M docs/architecture/16_Loop_Agent_Instructions.md\n M docs/architecture/README.md\n M docs/experiments/20261023_Resumption_Record.md\n M docs/stages/00_Master_Roadmap.md\n M docs/stages/06_VLM_Memory_and_Scale.md\n?? docs/architecture/18_MiniCPM5_Vision_Training_and_Continual_Learning.md\n?? docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md\n?? docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md\n?? docs/experiments/20261024_Memory_Reliability_Recovery_Results.md\n?? reports/m0a_capacity4096_attempt01/\n?? reports/m0a_capacity_small_attempt01/\n?? reports/m0a_menu_model_canonical_attempt01/\n?? reports/m0a_menu_model_shuffled_attempt01/\n?? reports/m0a_menu_old_regression_attempt01/\n?? reports/m0a_menu_random_attempt01/\n?? reports/m2_dynamic_attempt01/\n?? reports/m2_dynamic_attempt02/\n?? reports/m2_dynamic_attempt03/\n?? reports/m2_dynamic_attempt04/\n?? reports/m2_dynamic_attempt05/\n?? reports/m2_dynamic_attempt06/\n?? reports/m2_shared_attempt01/\n?? reports/memory_reliability_attempt02/assessment.json\n?? reports/memory_reliability_attempt02/verdict_before_restart.json\n?? reports/memory_reliability_attempt02/verdict_final.json\n?? reports/memory_reliability_v5_attempt01.guard.child.log\n?? reports/memory_reliability_v5_attempt01.guard.host.jsonl\n?? reports/memory_reliability_v5_scorer_fix_eval01.guard.child.log\n?? reports/memory_reliability_v5_scorer_fix_eval01.guard.host.jsonl\n?? reports/memory_reliability_v5_scorer_fix_eval02.guard.child.log\n?? reports/memory_reliability_v5_scorer_fix_eval02.guard.host.jsonl\n?? reports/memory_reliability_v5_scorer_fix_eval02/verdict_pre_restart.json\n?? reports/memory_reliability_v5_scorer_fix_restart01.guard.child.log\n?? reports/memory_reliability_v5_scorer_fix_restart01.guard.host.jsonl\n?? reports/sparkx_2_6_4b_research_20261024/\n?? reports/validation_memory_reliability_20261024.xml\n?? src/replica_lab/runtime_pilot.py\n",
+  "initial_tracked_diff_sha256": "e6cfcacf30e0ac6fc6b62ed6362d51a84d2be7bebbe24c36936e296cd6555690",
+  "reviewed_local_files": {
+    "src/replica_lab/architecture/backbone.py": "a69bfd0f888acd24a175c51bb2265f392c89501fbf0274dbe1e95c58331b5200",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/runtime/director.py": "652ece9827d56297b474e02f34a9609d340028a1b4c6f1c02b4d9467828e5315",
+    "src/replica_lab/runtime/learning_cycle.py": "ab6e9b65d89163065ae340259e7f993acf7ef8b5ad21de291cda8dc33fe64531",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "execution_state.md": "2b199e67ec6663241cc8d1c94d39f77a406305b1017d1cc013ffde6660718ed8",
+    "reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json": "0a0e040d1102fab1d024b1a9c9300ab3a40eab9c0f281872f347c92479d29286",
+    "reports/reproducibility_v5_source_export_20261024.json": "434dfc5dc15fb11ebcdf122a83b935dacac973398c138e71dc18ca876fb0bd02"
+  },
+  "new_checks": {
+    "focused_tests_passed": 58,
+    "failed": 0,
+    "seconds_reported": 8.41,
+    "scope": "existing tiny/offline software tests in the working tree; not Spark or vision execution",
+    "command": "PYTORCH_ENABLE_MPS_FALLBACK=0 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 .venv/bin/python -m pytest -q tests/test_e3_core.py tests/test_architecture_ports.py tests/test_fast_memory.py tests/test_learning_cycle.py tests/test_memory_reliability_v2.py"
+  },
+  "historical_checks_not_rerun": {
+    "full_suite": 1311,
+    "subtests": 21,
+    "source": "reports/reproducibility_v5_source_export_20261024.json"
+  },
+  "scope": {
+    "model_weight_download": false,
+    "native_training": false,
+    "upstream_code_execution": false,
+    "production_code_modification": false,
+    "public_source_metadata_download": true
+  },
+  "initial_assumptions_before_user_clarification": [
+    "HOPS provisionally means HOPE / Nested Learning; awaiting clarification",
+    "4B describes language backbone; vision and memory parameters additional unless user says otherwise",
+    "personality description not yet supplied"
+  ],
+  "user_clarification": {
+    "date_local": "2026-10-25",
+    "confirmed_memory_learning_direction": "HOPE / Nested Learning",
+    "confirmed_parameter_scope": "4B-class Spark language backbone plus added vision, memory layers and inter-layer memory/self-learning components",
+    "total_model_parameter_cap_specified": false,
+    "initial_4_2_to_4_6_billion_total_shared_parameter_envelope": "engineering estimate, not a user-imposed cap",
+    "remaining_personality_input": "description file not yet supplied"
+  },
+  "final_reconciliation": {
+    "date_local": "2026-10-25",
+    "head": "7c7018e367369bd5df9677785dd3c4df05862a7e",
+    "note": "Concurrent documentation update inspected and incorporated; original executable source and canonical verdict unchanged. New narrow defect reproductions are attributed to the neighboring recovery review; affected code inspected here.",
+    "files": {
+      "execution_state.md": "46dc3c2096a35ef41ab85be40b19f17ff227ae77432915ed4eb7a69351b33050",
+      "README.md": "da42f5880af9bb349c77c4da7966a2e505452ce0db381522e80d91b233a5d214",
+      "docs/architecture/README.md": "05f4d96abf5ad398a147ea600bb07d0f9fca3da24ad9186bc52a666b9bd20394",
+      "docs/architecture/17_Memory_Reliability_Recovery.md": "4169cb17408bfb834b10cd327de0cd1e5357d4055a94571013b0051e7566725c",
+      "docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md": "dd58b53d1e8ed89aa6dd5216f9cea51c3f4b5ccd1dba77a2f7024a93b47ca519",
+      "docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md": "8d184e2cc56b0d68dad6540931e904caeb847d0a6a45e60b927740c05faa30d0",
+      "docs/08_Dataset_Acquisition_and_Curriculum.md": "356aa67866f964eae72af0ab1b4bc8ac58854af2ac9df94c3dd67505ee3a17fb",
+      "docs/research/20261024_Spark_Source_Record.json": "b92164e455aa0ed4e7696827fc59784d1fb91198cc7dd1ba817590e6099bb2c9",
+      "src/replica_lab/runtime/exact_memory.py": "f01593d182ee34decb580f12dda698d865050fcc9eb190770be67a7d27f1e3cb",
+      "src/replica_lab/runtime/persistent_fast_memory.py": "9e145d9367ff335e1b15e98b189428c7027c0fad2626e5db126fef8d7b3e57b5",
+      "src/replica_lab/reliability_scoring.py": "3d0a9800c32bdee7a52d30ef900965a81b91e51a6581e49de5b111b38a143167"
+    }
+  }
+}

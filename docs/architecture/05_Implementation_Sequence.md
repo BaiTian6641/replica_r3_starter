@@ -1,38 +1,38 @@
 # Build the connected architecture
 
-Reviewed 22 October 2026, America/Chicago. This is the implementation sequence
-for the [system blueprint](01_System_Blueprint.md), following the user's request
-to move from isolated temporary probes toward the designed system.
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
 
-This deliverable is research and design. It does not launch another response
-contract experiment, train a new model, or claim that the proposed modules exist.
-The previous GPU results remain evidence about the earlier adapter and protocol.
+**Current review: 25 October 2026, HEAD `7c7018e`.** The active order is
+**R1 caller-bound contexts, R2 exact route/update schedules, R3 representation-
+preserving rebuild → isolated MiniCPM5 V0 → V1/V2 fine-tuning → qualified visual
+memory → bounded RSI**. Spark FP8/BF16 preparation and dataset intake proceed
+independently now. Native Spark follows reusable interfaces and its own backend
+gates; it does not require completing RSI and does not block MiniCPM5.
 
-**Implementation update, 23 October 2026 UTC:** E1 is implemented/native-qualified.
-E2's follow-up now measures source-separated retrieval (held-out recall@1
-0.75 lexical/dense, 0.50 learned rerank), slot answers (0/6; oracle 0/4; exact
-text 3/3) and capacity (16 units / 2,043 source tokens / 256 prompt tokens /
-8 generated; modules-only 16-unit backward). The writer/reader novel-value path
-is the bottleneck; reranking remains opt-in. See
-[implementation](07_E1_E2_Implementation.md),
-[E1/E2 results](../experiments/20261023_E1_E2_Native_Results.md),
-[E2 follow-up](../experiments/20261023_E2_Retrieval_and_Capacity_Results.md) and
-the [machine-readable status](../../configs/architecture_implementation_status_v1.json).
-**E3 is implemented and native-qualified on the same date.** The shared core,
-workspace readers, exact journal, typed actions, fixture tools and restart loop
-pass engineering acceptance; model-driven task completion is negative on the
-exposed fixtures (0/8), and a fresh `set_constant` family is also negative
-(0/7, repeated read). The success head was not trained. See
-[E3 results](../experiments/20261023_E3_Native_Results.md) and
-[set_constant results](../experiments/20261023_E3_Set_Constant_Results.md). The original proposal
-below is preserved as the design baseline; its “proposed” labels describe the
-research handoff.
+Follow [recovery](17_Memory_Reliability_Recovery.md),
+[vision](18_MiniCPM5_Vision_Training_and_Continual_Learning.md),
+[integrated design](19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark](20_Spark_X2_6_FP8_Preparation_Plan.md) and
+[the loop prompt](16_Loop_Agent_Instructions.md). E1–E6/M0–M7 below are component
+maps, not instructions to repeat finished packages.
+
+The latest writer-only v5 candidate remains rejected, with zero factual memory.
+Exact retrieval answers all 128 facts but its reference bundle fails broader
+gates. Source packaging, direct span tamper checks and original route counters
+are repaired; narrower scope/route/rebuild defects remain. The completed v5
+package permits isolated V0 after those repairs, with memory/core/identity off.
+It does not qualify learned memory or integrated RSI.
 
 ## 1. What changes in the work plan
 
-The next engineering deliverable is a connected MiniCPM5 memory/core/runtime
-implementation. Repeating the same sixteen short-answer cases is no longer the
-main workstream. Preserve their failures and use them as narrow regressions
+The engineering objective is a useful connected MiniCPM5 memory/core/runtime
+system; substantial wiring already exists. Repeating the same sixteen
+short-answer cases is not the main workstream. Preserve their failures and use them as narrow regressions
 where relevant. Qualify inference settings and output grammars inside the actual
 interface being built, with task-appropriate budgets and preserved raw outputs.
 
@@ -48,11 +48,14 @@ flowchart LR
     A[E1: Explicit model and memory interfaces] --> B[E2: Persistent record memory and ports]
     B --> C[E3: Parallel core and real task loop]
     C --> D[E4: Temporal neural memory and compilation]
-    D --> E[E5: Candidate learning and fair comparisons]
+    C --> Q[R1-R3: Verification and rebuild fixes]
+    Q --> F[E6 V0-V2: Isolated MiniCPM5 vision training]
+    F --> V[V3: Qualified visual memory]
+    D --> V
+    V --> E[E5 V4: Verified candidate learning]
     C --> R[Replica source and decision integration]
-    E --> F[E6: Separate native VLM port]
     R --> G
-    F --> G[Longitudinal learning and larger-model transfer]
+    E --> G[Longitudinal evaluation and later Spark transfer]
 ```
 
 Data/source admission and evaluation design proceed alongside E1–E4. A connected
@@ -61,8 +64,9 @@ milestone requires trained behavior on new tasks, not a larger unit-test count.
 
 ## 2. Code migration rather than another parallel prototype
 
-The following are **proposed paths**, not files created in this research pass.
-Use one production entry point and reusable components; keep historical
+The following is the original **component/path map**. Several packages and
+entry points now exist; inspect the actual tree and current status before
+creating or moving code. Reuse production entry points and keep historical
 experiment code reproducible until a deliberate compatibility migration.
 
 | Area | Proposed package / primary classes | Existing foundation to reuse |
@@ -166,16 +170,20 @@ establish what the added core contributes after it is trained.
 **Result:** observed history changes a bounded neural memory that influences a
 later query, with replayable persistence and controlled invalidation.
 
-- Attach the functional linear memory first as the reference implementation of
-  the production fast-state interface. Learn its write/read projections through
-  later-query losses, not merely hand-set associative examples.
-- Implement explicit multi-depth chunk-start reads and a single deferred commit.
-  Compare shared and private memories at matched state and active computation.
-- Add a stable GDN-2-style update or nonlinear Titans-style memory as separate
-  candidate engines behind the same interface. Do not change retrieval, core,
-  decoder settings and memory update rule together in the first comparison.
-- Build `ContextPack`, `RecordLatents`, `BranchMemoryImage`, `ProcedureArtifact`
-  and `NeuralCandidate` outputs with distinct producers and invalidation rules.
+- Preserve the existing functional linear baseline and negative single-page
+  writer experiments. M2 adds distinct head writes, functional multi-chunk
+  training, delayed-use supervision and a bounded SGDN-2-inspired candidate.
+  Establish useful single-path behavior before increasing coupling.
+- M3 then defines one chunk-start snapshot, one deferred commit and a tested
+  reducer for shared-depth proposals. Compare shared/private state with the
+  same update engine, equal information and declared state/compute budgets.
+- Nonlinear Titans-style memory is a separately costed engine, not a label
+  for the existing linear state. Do not change retrieval, core, decoder
+  settings and memory rule together in the first comparison.
+- M1 reuses existing `ContextPack`, `RecordLatents`, `BranchMemoryImage`,
+  `ProcedureArtifact` and `NeuralCandidate` contracts in one thin executable
+  compiler path. Extend payload binding, recovery and coordinated publication
+  where missing; preserve existing procedure execution and atomic rollback.
 - Persist branch memory only with bounded lineage, replay cursor, size/update
   limits and expiry. Rebuild from eligible records after a source change; do not
   promise exact subtraction of an old contribution from nonlinear memory.
@@ -229,23 +237,35 @@ regression bounds; damaging candidates are rejected; inconclusive candidates
 defer; rollback and restart preserve the parent contract. Ten-cycle T0/T1/T2/T3
 comparisons then test whether learned selection outperforms fixed practice.
 
-## 8. E6 — Multimodal validation and larger-model transfer
+## 8. E6 — MiniCPM5 vision, visual memory and later transfer
 
-**Map:** native VLM substages, then S5. Reuse the abstract interfaces and datasets'
-lineage model, not text-model tensor weights or the Llama wrapper.
+**Map:** V0–V3 developmental visual work, qualified S4 claims and later model
+transfer. Preserve existing scientific dependencies for selected-system claims;
+a native-development prototype is not a selected deployment result.
 
-Preserve native SigLIP/merger/image layout and Qwen3.5 hybrid recurrence. Use the
-verified native topology, proposed VLM port map and request cache ownership in the
-[backbone design](02_Backbone_Integration.md). Train a visual record writer from
-actual image features and frame/time evidence; captions alone are insufficient.
-Distinguish `full_text` from `full_vlm`, and verify image dependence plus gradients
-through every component included in the stated scope.
+Extend the current MiniCPM5 adapter/session/frame ABI with a versioned visual
+observation and fused prefix. Pin one pretrained visual encoder/processor and
+train a new width-2048 projector. Keep all unrelated memory/core/identity
+injections disabled during interface/alignment qualification. Mask visual and
+prompt positions from loss, preserve positions and image layout across sense/
+action/generation, and retain input gradients through the frozen decoder.
 
-Only after repeatable text and VLM results should the design move to a larger
-compatible model. New hidden widths, attention types, MoE routes, processor
-versions and cache APIs require fresh adapter/writer training and re-encoding.
-The shared lesson is the interface and learning method, not automatic weight
-transplantation between models in the same product family.
+Follow [document 18](18_MiniCPM5_Vision_Training_and_Continual_Learning.md): V0
+interface/bypass/reload checks, V1 projector-only alignment, V2 declared visual
+instruction/reasoning tuning with text replay, then V3 delayed visual memory.
+Require correct/wrong/no/shuffled image, caption/OCR-only, held-out asset-family
+and text-retention controls. Visual memory adds image removal, multiple later
+queries, correction, unaffected facts and fresh-process continuation. V4/M5
+verified RSI follows these quality gates and the independent candidate lifecycle.
+
+MiniCPM-V-4.7-1B is a separate optional pretrained reference/teacher. Preserve
+its native window/spatial mergers, processor, Qwen3.5 hybrid recurrence and
+multimodal positions under its own adapter; its connector is not MiniCPM5's.
+Spark FP8/BF16 preparation proceeds now; native transfer later needs text
+qualification, a new connector/adapters and
+re-encoded model-specific memories. Transfer methods, data and lineage rather
+than text-model tensor weights. Distinguish projector-only, adapter, full_text
+and full_vlm scopes through actual named gradients and changed tensors.
 
 ## 9. Resource and progress discipline
 
@@ -254,6 +274,11 @@ host storage, source processing and small software checks use the CPU. The
 Neural Engine requires a separate supported deployment path. The current
 Muon 8-bit implementation quantizes momentum, while weights/gradients remain
 FP32 and auxiliary AdamW state remains FP32.
+
+The active driver guard default is now 50 GiB, with unchanged 512 MiB swap-growth
+and 15% host-free checks. Historical explicit 40 GiB protocols remain unchanged;
+fresh 50 GiB studies need new matching protocol/code pins. No fit is inferred
+from a source checkpoint's BF16/FP8 dtype or the increased stop threshold.
 
 Prior D2 driver peaks near 30 GiB at 512 tokens apply to the small old adapter.
 The new contextual writer, two passes and inner-loop differentiation introduce
@@ -265,5 +290,7 @@ residency/offload or dtype solution; a model-family name does not establish fit.
 Each package ends with one connected demonstration, a concise failure analysis,
 declared trained/untrained status, a selected checkpoint policy and a focused
 commit. Unit tests protect the new causal/state boundaries; they do not become
-the project milestone. The immediate next implementation is **E1 plus the E2
-source-to-port path**, followed directly by the E3 task loop.
+the project milestone. E1/E2 source-to-port and E3 task paths already exist.
+The next work is the clean-source/context/scorer and diagnosed memory recovery
+in document 17, followed by the gated vision/learning sequence in document 18. Corrected M0a measurements and the exposed M2/M3 mechanics are
+preserved results; do not repeat them as prerequisites already satisfied.

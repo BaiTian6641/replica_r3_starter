@@ -197,12 +197,16 @@ inconclusive controls remain reported as such.
 
 ## 7. Hardware and evidence rules
 
-Native execution is MPS FP32 with CPU fallback disabled, one job behind the
+The recorded native execution used MPS FP32 with CPU fallback disabled, one job behind the
 existing lock and capacity guard (40 GiB driver, 512 MiB sustained swap growth,
 15% free memory). The sealed source is reused; only extension tensors are saved.
 Storage work stays outside forward/backward hooks, and MPS backward hooks remain
 free of SQLite access. Raw prompts, completion IDs/text, tool receipts, frames,
 journal events and failure traces are retained.
+
+New experiments default to the user-authorized 50 GiB driver policy, with other
+guards unchanged. Keep historical explicit 40 GiB evidence and create new
+protocol/code pins; see the [current memory policy](../03_Implementation_and_Runbook.md#current-native-memory-policy).
 
 ## 8. Measured status (23 October 2026 UTC)
 

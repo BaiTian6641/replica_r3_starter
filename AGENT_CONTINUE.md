@@ -99,10 +99,9 @@ No new model or capability is qualified by this documentation update.
 
 ## Next work package and progression
 
-1. **R1–R3 verification and rebuild.** Bind the actual consumer's scope/query and
-   canonical route; reject duplicate/missing/reordered training updates; preserve
-   representation/schema/producer through rebuild and legacy snapshot handling.
-   Exercise actual consumers and complete source-export checks. See document 17.
+1. **R1–R4 complete at `757ace1`.** Reuse the recorded consumer/schedule/
+   representation and source-export qualification in document 17. Recheck only
+   contracts affected by new changes; do not restart this completed package.
 2. **Isolated MiniCPM5 V0.** After those fixes, qualify real visual tensors, masks,
    positions, input gradients, disabled text parity, request isolation and reload.
    The rejected v5 repair already has a measured outcome; do not repeat blind
@@ -169,6 +168,10 @@ separate work. The exposed 2,000-target release is an infrastructure fixture;
 fresh family-level evaluation and S1 admission still gate a broad campaign.
 
 ## Work and report discipline
+
+Follow the user-authorized [staged-commit policy](docs/maintenance/20261025_Repository_Hygiene.md).
+Commit each completed, validated package promptly using explicit paths. Preserve
+concurrent edits, local payloads and the protected ignored pilot.
 
 For each iteration: establish current evidence → choose the smallest
 discriminating hypothesis → record protocol and controls → implement a

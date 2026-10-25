@@ -114,11 +114,15 @@ The new entry-point allowlist includes `qualify_architecture.py` and
   -- --device mps --output runs/e1_e2_native_20261023
 ```
 
-The guard retains 40 GiB driver allocation, 512 MiB sustained system swap growth,
+The recorded qualification used 40 GiB driver allocation, 512 MiB sustained system swap growth,
 15% minimum system free memory, and stale-telemetry stops. Memory counters are
 sampled and can miss transients. MPS driver and process RSS overlap and must not
 be added. Profiling covers source verification/loading, source encoding,
 sensing, backward, optimization, generation and extension reload.
+
+The current wrapper default was raised to 50 GiB on 23 October; this historical
+protocol/results keep their original policy. Use a new version with matching
+guard/code pins for fresh work; see the [current memory policy](../03_Implementation_and_Runbook.md#current-native-memory-policy).
 
 The [fixed qualification protocol](../../configs/e1_e2_qualification_v1.json)
 predeclares four balanced synthetic examples, 32 D1 updates with Muon 8-bit,

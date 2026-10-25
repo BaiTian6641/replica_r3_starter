@@ -1,5 +1,16 @@
 # E4 reference fast memory: staged observation writes
 
+**Recovery qualification, 24 October 2026:** historical M2/M3 fixtures admit a
+last-line shortcut; their accepted mechanics do not establish selective recall.
+[Document 17](17_Memory_Reliability_Recovery.md) adds counterfactual multi-query
+episodes, authenticated reload without source replay, and a correction appended
+to the existing state. `PersistentFastMemory` integrates the native per-depth
+writers and existing depth-image format in this diagnostic; it does not replace
+the production ledger/revocation service. Latest-value correction quality and
+unaffected-fact retention require measured acceptance. A correction append does
+not erase the old fact and is not a revocation/unlearning implementation. The
+default invalidation/rebuild policy below remains authoritative for revocation.
+
 24 October 2026 UTC. Status: **M2 learned delayed-use and M3 shared/private
 depth ownership accepted on exposed synthetic episodes. Fresh-process image
 restart passes. M3 retention replay fails 0/2 and remains an active blocker;

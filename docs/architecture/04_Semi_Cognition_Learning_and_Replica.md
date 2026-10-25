@@ -4,6 +4,39 @@
 
 This chapter restores the full goal in [R2](../../reference/r2/01_Full_Chain_Framework_and_Reevaluation.md) and the [system design](../01_System_Design.md): a modified pretrained model that maintains goals, obtains and uses evidence, evaluates outcomes, learns useful procedures and develops a separately attributed Replica history. The earlier tiny experiments qualify parts of the implementation; they are not the architecture. This research revision changes no model weights and reports no new cognitive capability.
 
+**Current implementation reconciliation, 24 October 2026:** the core/task
+loop, bounded mixed-task completion, restart, procedure publication/rollback,
+deterministic director and optional native identity reader exist. Diagnostic
+success fitting is uncalibrated; useful neural self-improvement, learned
+practice selection and authentic personal fidelity remain open. Use
+[the current research plan](15_Research_Crosscheck_and_Backbone_Plan.md) and
+[loop-agent instructions](16_Loop_Agent_Instructions.md) for construction order,
+parallel identity work and the required controls.
+
+**RSI construction scope:** after reproducibility/memory repair, MiniCPM5 visual
+fine-tuning and qualified visual memory, V4/M5 stages verified reasoning/memory
+practice → isolated candidate SFT with retention replay → learned practice/update
+selection versus replay-matched controls → later code/architecture proposals.
+Independent evaluators and publication rules remain outside candidate control.
+Measure later-task transfer and later adaptation under matched budgets; longer
+reflection or accumulating records alone is not recursive improvement. Keep
+generated practice, agent experience and authentic personality history distinct.
+MiniCPM5 stays the baseline. Its new vision interface follows
+[document 18](18_MiniCPM5_Vision_Training_and_Continual_Learning.md). Spark FP8/BF16
+preparation proceeds independently now, with later native/backend gates;
+MiniCPM-V remains an optional pretrained reference/teacher. Relevant perception,
+useful memory/correction, broad retention and independent verifier gates precede
+integrated neural RSI. Fixed verified-practice/rollback plumbing may proceed
+earlier. A remaining memory-quality rejection permits isolated perception with
+memory disabled, not integrated RSI promotion.
+
+The [integrated design](19_Integrated_Memory_Learning_and_RSI_Design.md) separates
+observation writes, candidate training and improvement of the learning policy.
+After visual fusion, the core may learn whether to inspect a crop, use OCR,
+retrieve or abstain. Identity may influence presentation and priorities but not
+visual truth or task-success authority. Compare against simpler and compute-
+matched policies; keep generated practice out of authentic human source history.
+
 ## 1. Recovered TAIS lineage and decisions
 
 The user identified the actual upstream project, [BaiTian6641/TAIS-Obisian](https://github.com/BaiTian6641/TAIS-Obisian). Its inspected HEAD is **`85c134e857299431d1504636115d273a3de48bf2`**, committed **31 July 2026, 12:00:06 −05:00**. This supersedes the earlier bounded web search that did not identify a public project. A filtered, no-checkout clone supplied selected Markdown/Python blobs for reading; upstream code, tests and checkpoints were not executed. [The source inventory](../../reports/architecture_research_20261023/tais_learning_sources.json) records exact paths, hashes, review scope and limitations.

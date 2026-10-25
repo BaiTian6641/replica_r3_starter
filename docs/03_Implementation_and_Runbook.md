@@ -1,31 +1,39 @@
 # 03 - Construction plan and executable runbook
 
-**Current priority — memory reliability recovery, 24 October 2026, protocol `9a43bad`.**
-The exact-record selective context passes **192/192**, but full-context parity
-fails on two absent-fact answers, so the reference bundle is rejected. The
-48-update reader-only D1 candidate scores **64/192** (32 unknown plus 32 general),
-with fact, correction and unaffected scores all zero and delayed-above-controls
-failing on both splits. All 32 images authenticate and fresh-process restart
-reproduces 7/7 answers. The next diagnostic is per-fact writer/state binding, not
-more updates, KL increases, model changes or neural RSI promotion. M4 remains
-rejected; M0b is optional and M5–M7 retain their separate gates. Authentic
-identity fidelity still requires permitted sources and human review.
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
 
-Use [the current research plan](architecture/15_Research_Crosscheck_and_Backbone_Plan.md)
-and [loop-agent instructions](architecture/16_Loop_Agent_Instructions.md)
-for **M0–M7** construction order. Existing commands and P/S-stage contracts
-below remain references; they are not instructions to repeat completed or
-rejected arms or launch an unadmitted broad campaign.
+**Current priority — 25 October 2026, using the review of `7c7018e`.**
+Repair caller-bound exact-context verification, complete route/update sequence
+audits and representation-preserving memory rebuild, then isolated MiniCPM5 V0.
+The v5 writer arm is complete and rejected: fast/disabled both 56/192 with zero
+factual recall. Selective exact context is 184/192, but its reference still fails
+broader gates. Original source dependency, changed-span and counter fixes are
+complete; [document 17](architecture/17_Memory_Reliability_Recovery.md) specifies
+remaining reproductions and acceptance tests.
 
-Keep MiniCPM5 as the required baseline. The plan adds an optional Spark-X2.6-4B
-BF16 native comparison, staged new memory layers, bounded RSI and MiniCPM-V
-visual-memory/reasoning training. These require separate adapters and evaluation;
-they are not new supported runner modes. Current Muon int8 momentum does not
-change FP32 parameter/gradient residency, even with BF16 compute autocast.
+Use [the loop prompt](architecture/16_Loop_Agent_Instructions.md) and
+[integrated design](architecture/19_Integrated_Memory_Learning_and_RSI_Design.md)
+for the active queue: remaining fixes → V0 → visual fine-tuning → qualified visual
+memory → bounded RSI. Prepare [Spark FP8/BF16](architecture/20_Spark_X2_6_FP8_Preparation_Plan.md)
+and [eligible datasets](08_Dataset_Acquisition_and_Curriculum.md) independently now.
+These plans are not new supported runner modes. Native Spark follows reusable
+interfaces and backend gates; RSI success is not a prerequisite.
 
-## Reliability recovery result and commands
+MiniCPM5 and the 50 GiB guard remain fixed. Current Muon int8 momentum does not
+change FP32 parameter/gradient residency. This revision gathers public metadata
+and updates plans; it implements no fixes, training or asset acquisition.
+Commands and P/S stages below preserve their original evidence scope and are not
+instructions to repeat rejected arms. See [execution state](../execution_state.md)
+for the current canonical v5 scorer replay command and saved verdict.
 
-The final comparison is documented in the
+## Historical reader-only recovery result and commands
+
+The historical reader-only comparison is documented in the
 [reader-only results](experiments/20261024_Memory_Reliability_Reader_Only_Results.md)
 and [canonical verdict](../reports/memory_reliability_v2_attempt03/verdict_final_v2.json).
 Use fresh output/report paths on every rerun; these are the exact guarded commands

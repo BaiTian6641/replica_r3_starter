@@ -1,75 +1,78 @@
 # Research cross-check and backbone modification plan
 
-**Reconciled 23 October 2026, America/Chicago; inspected HEAD `377718e`.**
-This is the current construction order for dynamic memory, runtime compilation,
-bounded recursive self-improvement (RSI), personality integration, a Spark BF16
-comparison and the MiniCPM-V vision path. **MiniCPM5 remains the baseline.** M0–M7 are
-implementation packages mapped onto E1–E6; they preserve the 33 scientific stage
-IDs and dependencies. Use the [loop-agent instructions](16_Loop_Agent_Instructions.md).
+**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
+The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
+next and remains natively unqualified. Reuse the recorded 140 integrated tests
+and 1,372-test +21-subtest source-export result in
+[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
+native work. The dated design and historical results below retain their scope.
 
-Native integration and host lifecycle code are substantial. Useful learned
-memory and sustained self-improvement remain unproven. The next milestone is a
-complete chronological task with observation, delayed use, restart, correction
-and verified later reuse. Additional mechanisms require separate comparisons.
+**Research baseline: 23 October 2026; code review: 24 October, HEAD `7c7018e`; plan updated 25 October.**
+MiniCPM5 remains the baseline. The active order is **remaining verification and
+memory rebuild fixes → isolated MiniCPM5 V0 → V1/V2 visual fine-tuning → qualified
+visual memory → bounded RSI**. Prepare official Spark FP8/BF16 sources, backend
+capabilities and datasets now; native Spark integration follows reusable
+interfaces and its own gates, not a requirement to finish RSI first.
 
-This revision updates the plan/prompt and raises the active sampled MPS driver
-guard default to **50 GiB**. Focused guard checks are recorded in execution state;
-the last recorded full suite remains **1211 passed / 21 subtests**, **147.24 s**,
-after code commit `6e8ec34`. No model was trained or capacity remeasured for this
-update. Research findings are external evidence, not local execution results.
+The detailed current contracts are [recovery](17_Memory_Reliability_Recovery.md),
+[vision](18_MiniCPM5_Vision_Training_and_Continual_Learning.md),
+[integrated design](19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark FP8/BF16](20_Spark_X2_6_FP8_Preparation_Plan.md) and
+[data curriculum](../08_Dataset_Acquisition_and_Curriculum.md).
+Use [the loop prompt](16_Loop_Agent_Instructions.md) for execution. This revision
+updates plans and descriptive metadata; it implements no fixes or new training.
+
+## Immediate priority after the latest review
+
+The v5 fact-binding writer repair is complete and rejected. Required source
+files are now tracked; changed-span checking, route accounting and prospective
+reference gates were repaired. Do not repeat those original defects as current.
+The review verified source/data reproducibility, 49 focused tests and independent
+rescoring of 1,920 saved rows. The recorded 1,311-test /21-subtest full clean-export
+pass is separate experiment evidence, not a new review full-suite run.
+
+Three remaining repairs precede native V0: bind exact contexts to the caller's
+scope/query and canonical route; require the complete unique seeded update/case
+schedule; preserve raw versus fact-binding representation through rebuild and
+snapshot identity. Reproductions and exit tests are in document 17.
+
+The completed rejected v5 package permits isolated V0 after those fixes, with
+memory/core/identity disabled. Continue fresh storage/addressing/readout probes
+independently, using copy/pointer controls only when values are recoverable.
+Unresolved memory quality still blocks dependent learned visual memory and RSI.
 
 ## 1. Current implementation and evidence
 
-| Area | Implemented/measured | Remaining qualification |
-|---|---|---|
-| Text integration | MiniCPM5 complete-block ports 13/27, observer 41; independent memory/workspace/fast readers; null, gradient and extension reload checks | Useful architecture benefit under fair D0/D1/D2 controls |
-| Exact task and core | Task graph/journal, real tools, receipts, restart; width-256/eight-slot/two-iteration core | Core-specific generalization; 2/2 versus 1/2 controls do not establish recurrent superiority |
-| Record memory | Contextual writer, retrieval, exact fallback, opt-in pointer/context candidates | Reader candidate 0/16 dev+held-out; narrow pointer successes do not establish broad transfer |
-| Fast memory | M2 useful delayed-use accepted; M3 independent depth writers, convex shared reducer, private/shared images and fresh-process restart accepted | Both M3 candidates fail retention replay 0/2 versus parent 2/2; diagnose before M4 |
-| Actions | Mixed family 4/4 with and without head; corrected old-case menu regression 3/3; deterministic procedure 3/3 | Fresh corrected canonical 1/4 and shuffled 0/4 due distractors; free-form selection negative; no menu promotion |
-| Compilation/publication | Typed registry, executable repair procedure, isolated neural experiments, single-writer manifest publication and ancestor rollback | Coordinated durable compiler/trainer/publisher with complete payload validation, eligibility and recovery |
-| Learning | Procedure 3/3 held-out plus dev; reranker 0.25→0.50 against parent, below lexical 0.75; opt-in pointer/context publications | General neural task improvement, retention, learned selection and ten-cycle comparison |
-| Identity | Source/snapshot/mode/branch contracts, store, prompt path, optional native workspace reader, fictional scorer | Approved-source slot encoder, trained conditioning, authentic baselines and human review |
-| VLM | Separate design; native upstream implementation inspected | Local weights/processor qualification and multimodal execution |
+| Area | Current status and limit |
+|---|---|
+| Native backbone/runtime | MiniCPM5 adapter, request frames, core/workspace, exact ledger, bounded tools and narrow procedure lifecycle exist |
+| v5 writer-only D1 | 48 updates /192 cases, 14 changed tensors /5,251,072 parameters; original base/readers/gates frozen |
+| Learned memory quality | Fast and disabled both 56/192, with 0/64 facts, 0/16 corrections and 0/48 unaffected facts; reject |
+| Exact reference | Selective 184/192, full 176/192; selective gets all 128 facts but reference still rejects on general/nonregression gates |
+| Persistence | 32 authenticated memory snapshots and 7/7 recorded restart answers; mechanical success, not useful-memory or crash-durability proof |
+| Verification | Source package and initial payload check repaired; caller scope/canonical route, update-sequence and rebuild-representation defects remain |
+| Retention/data | 16 distinct evaluation questions and four counterfactual families per evaluation split; broad retention still unqualified |
+| Vision/RSI/identity | MiniCPM5 vision and accepted neural RSI unqualified; identity reader exists but is untrained and authentic fidelity unmeasured |
+| Spark/data preparation | Official FP8/BF16 metadata pinned; 34 external dataset sources catalogued, 22 pinned; no weights/assets acquired or newly admitted |
+
+See the [v5 result](../experiments/20261024_Memory_Reliability_Writer_Binding_Results.md)
+and [canonical verdict](../../reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
+Earlier reader-only, E4, M3 and M4 rejections remain historical negative evidence.
 
 ### Backbone roles and promotion rule
 
-| Role | Model/source | Current decision |
-|---|---|---|
-| Required text baseline | Sealed `openbmb/MiniCPM5-2B` | Continue M0–M6 here; retain it in every backbone comparison |
-| Optional text challenger | [Spark-X2.6-4B BF16](https://huggingface.co/XHToken/Spark-X2.6-4B) | Separate M0b adapter/resource/quality study; no migration or local training qualification yet |
-| First native vision path | [MiniCPM-V-4.7-1B](https://huggingface.co/openbmb/MiniCPM-V-4.7-1B) | Reuse its pretrained vision/text alignment and native processor; M7 trains model-specific memory interfaces |
-| Later larger vision/reasoning reference | [MiniCPM-V-4.7-35B-A3B](https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B) | Optional qualified teacher or inference arm; larger-model transfer needs a separate resource plan |
+| Role | Model and decision |
+|---|---|
+| Primary baseline | Sealed MiniCPM5-2B; 42 layers, width 2048; first text-to-vision retrofit |
+| Planned Spark adaptation base | Official [Spark-X2.6-4B-FP8](https://huggingface.co/XHToken/Spark-X2.6-4B-FP8), pinned in document 20; no local training qualification |
+| Precision/quality control | Official [Spark-X2.6-4B BF16](https://huggingface.co/XHToken/Spark-X2.6-4B); independent checkpoint, not a dequantized FP8 derivative |
+| Pretrained visual reference | MiniCPM-V-4.7-1B; separate hybrid adapter/processor, not a transferable MiniCPM5 projector |
+| Larger optional reference | MiniCPM-V-4.7-35B-A3B, separately qualified/costed; active parameters do not determine full residency |
 
-The larger published V4.7 name is **35B-A3B**, not 36B-A3B. Active expert count
-does not describe total resident weights or full-tuning memory. Using nominal
-35B parameters, BF16 weights alone are about 65.2 GiB, above the new guard before
-activations or optimizer state. Quantized inference is a separate qualification;
-it does not establish local full tuning. Neither new model has been qualified
-by this repository. Missing optional weights do not block MiniCPM5 construction.
-
-Promote an alternative only after native parity, actual training/reload,
-resource measurements, independent task gain and retention gates pass. Record
-its exact revision, tokenizer/template and reasoning mode. A backbone change and
-a memory-mechanism change are separate experimental factors.
-
-The selected capacity workload passed **4096 units at 30.59 GiB**; an 8192-unit
-attempt stopped at **48.08 GiB**. Both predate writer/sense `torch.no_grad()`:
-they are historical workload measurements, not corrected-inference limits.
-Capacity used short synthetic sources; retrieval/answer quality was separately
-measured at **16 units**, not 4096.
-
-[E4's training script](../../scripts/run_e4_delayed_use.py) already preserves
-gradients through one page's write. It repeats one matrix into four heads. The
-host reference likewise applies identical writes to identical initial heads.
-Different queries do not make those copies independent written capacity. The
-bridge's deterministic encoder is a software-test path; separate learned-writer
-experiments exist, were trained, and failed capability.
-
-Runtime staged writes/snapshots are deliberately detached. Extend the functional
-training path for bounded historical gradients; keep detached, owned deployment
-state. Removing runtime detaches globally would create unbounded graphs without
-solving representation quality.
+Promote a backbone or extension only after independent gain, retention and cost
+checks against the matched base and strongest practical control. Keep the 50 GiB
+native guard, one exclusive MPS worker and host checks. Muon int8 momentum does
+not imply int8 parameter/gradient storage or an FP8-capable training backend.
 
 ## 2. Primary-source cross-check
 
@@ -91,31 +94,54 @@ solving representation quality.
 HOPE is an architecture in Nested Learning. Mem-T and MemT-1.0 are different
 works. Their composition is this project's hypothesis. External training budgets
 and benchmark gains are not local budget estimates or acceptance thresholds.
-Pin code/model revisions before adoption; the links identify reviewed paper versions.
+Pin code/model revisions before adoption; the links identify reviewed paper versions. The
+[current uTTT author release](https://github.com/Zefan-Cai/uTTT) includes dense
+and MoE implementations; earlier descriptions of a limited release are historical.
+Our two-port SGDN-2 path is still not a reproduction. The integrated design in
+document 19 separates paper mechanisms from our dynamic routing, persistent
+source authority and bounded improvement hypotheses.
 
 ## 3. Revised construction order
 
-| Order | Package | Exit evidence before dependent expansion |
+| Priority | Current work | Exit evidence |
 |---|---|---|
-| M0 | M0a corrected MiniCPM5 baselines; optional M0b Spark BF16 comparison | Versioned capacity/menu results; challenger parity, measured residency and matched native quality |
+| 1 | R1 caller-bound contexts, R2 exact update schedule, R3 representation rebuild | Adversarial consumer/schedule/rebuild tests and reproducible source |
+| 2 | Isolated MiniCPM5 V0, then V1/V2 | Native interface, projector alignment, grounded instructions and text retention |
+| Independent | Fresh memory storage/addressing/readout diagnosis | Discriminating probes; one justified repair, preserving quality failures |
+| 3 | V3 visual memory | Qualified perception/memory, useful delayed recall, correction and restart |
+| 4 | V4/M5 bounded RSI | Verified candidate updates, unseen later-task gain, retention and rollback |
+| Preparation now | Spark S0 and eligible data manifests | Official FP8/BF16 pins, backend matrix, terms/split/asset audit |
+| Native transfer later | Spark S1–S3 | Stable reusable interface, native text/training qualification, new connector and measured quality/cost |
+
+The rejected v5 package is complete; do not require another blind memory arm
+before isolated V0. Exact visual retrieval is an independently evaluated baseline.
+Learned V3 and V4 retain prerequisite quality gates. Spark native work has no
+RSI-success dependency and does not block MiniCPM5. Optional mechanisms and
+identity work retain their own evidence/source requirements.
+
+The following M labels identify component studies, **not the current run order**:
+
+| Package | Component scope | Exit evidence before dependent expansion |
+|---|---|---|
+| M0 | M0a corrected MiniCPM5 baselines; M0b Spark FP8/BF16 preparation and later qualification | Versioned capacity/menu results; challenger parity, measured residency and matched native quality |
 | M1 | Fresh chronological episodes and thin compiler | Verified observation → typed payload → restart → source correction; existing procedure/publisher reused |
 | M2 | New MiniCPM5 memory layer: single insertion, then two private ports | Delayed-use gain over zero/shuffled/disabled on unseen associations |
 | M3 | Shared-depth study | Matched private/shared state and compute, historical gradients, defined reducer |
 | M4 | Static Engram and dynamic routing | Incremental utility, collisions/interference/latency and correction behavior |
 | M5 | Bounded RSI: verified practice, candidate updates, then learned selection | Independent reasoning/memory gain and retention, rejection/rollback, later-task reuse and T0–T3 cycles |
 | M6 | Learned multi-rate consolidation/CMS | Benefit over simpler schedules at disclosed total cost |
-| M7 | Separate MiniCPM-V 4.7 vision, reasoning and visual-memory training | Native multimodal/cache parity and image-dependent memory benefit |
+| M7 | MiniCPM5 V0–V4 vision retrofit; optional separate MiniCPM-V reference | Fused-prefix/gradient parity, trained image dependence, visual memory and retention; RSI claims also satisfy M5 |
 
 Identity contracts, source intake and evidence-only baselines proceed alongside
 M1–M3. Calibrate capability/action-value estimates before using them to control
 routing, inquiry or learning expenditure. Deterministic policies remain usable
 while learned replacements are unqualified.
 
-M1 connects one useful artifact path and defines M2's episodes; it does not
-require completing every generic compiler first. Independent VLM inspection can
-proceed earlier, but does not qualify native execution or skip text evidence.
-M0b is an optional comparison track after M0a, not a dependency that stalls
-M1–M6 on MiniCPM5. Retain separate arms when either backbone gains new memory.
+M1's thin procedure lifecycle already works; reuse it. Visual-interface inspection
+and tiny contract work can accompany repair, but native V0 follows R1–R3. Spark
+S0 preparation proceeds now; native qualification follows reusable interfaces
+and backend gates, without an RSI-success dependency. Retain separate plain/
+visual/memory arms when either backbone gains a new component.
 
 ## 4. Target composition and ownership
 
@@ -160,57 +186,34 @@ FFN 6144, GQA 16/2, head width 128, vocabulary 130560, 2,516,756,480 original
 parameters. Reuse revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52` and its
 tokenizer/template. Ports 13/27 and observer 41 are starting choices, not optima.
 
-### M0 — Corrected baselines and Spark BF16 comparison
+### M0 — Corrected baselines and Spark FP8/BF16 qualification
 
-**M0a, required:** retain MiniCPM5 as the measured reference.
+Preserve the corrected MiniCPM5 capacity/menu evidence and all negative controls.
+The current work queue is R1–R3 then isolated V0, not repetition of completed
+M0a runs. Capacity and answer quality are distinct; a larger accepted context
+allocation cannot certify useful memory or a better policy.
 
-Check corrected inference at a small point and the selected 4096 workload;
-attempt 8192 only if the existing guard permits the next bounded point. Report
-inference separately from modules-only backward. Re-evaluate repair ranking
-with the corrected menu, random/order controls and deterministic procedure
-baseline. Historical cases are regressions; new capability needs fresh families.
-Preserve source seal, active manifests, failed runs and protected draft.
+The [Spark plan](20_Spark_X2_6_FP8_Preparation_Plan.md) now uses official FP8
+revision `0318d6f6ab070c7b5b43052db571489b2508006c` as the planned adaptation
+base and official BF16 revision `66e3ae7bee54e0a523d692cb8ef841f35409807b` as
+an independent control. Prepare sources and backend compatibility now. Native
+qualification follows repaired contracts and reusable MiniCPM5 V0 interfaces;
+there is no requirement to wait for a successful RSI study.
 
-**M0b, optional challenger:** the [official Spark release](https://github.com/XHToken/Spark-X2.6)
-describes a text model with configurable reasoning and an architecture inherited
-from X2.5. Its model card identifies custom `spark2_5` code. Pin and inspect the
-exact config, native implementation and tokenizer before choosing port indices;
-the current Llama adapter must reject it until a dedicated adapter exists.
-Preserve sliding/full-attention behavior, fused projections, head gating,
-tied-weight ownership, positions/caches, end markers and thinking mode wherever
-the pinned implementation defines them. Do not copy MiniCPM's 13/27 indices.
-Qualify pinned Spark code against the locked runtime; its upstream quickstart
-version recommendation is not permission to replace the working MiniCPM
-environment. If a different dependency set is necessary, isolate and record the
-comparison environment and disclose backend/version differences.
+The actual 4B config is `spark2_5`, 36 layers, width 2560, three sliding blocks
+per full-attention block and a 512-token local window. Official FP8 uses
+compressed-tensors float quantization with dynamic per-token activation scales.
+Its BF16 config label is not the full weight dtype inventory. Preserve head
+gates, fused projections, positions, tied storage and template/thinking mode.
+Use a dedicated adapter and new width-2560 visual/memory projections.
 
-Use the BF16 source checkpoint for this comparison. The repository's current
-`muon8bit` quantizes momentum, **not trainable weights or gradients**: trainable
-parameters are FP32, with FP32 auxiliary AdamW groups. `--dtype bf16` selects
-compute autocast, not BF16 parameter residency. BF16-resident training would
-need a separately tested optimizer/residency change. Do not infer FP8 training
-support from an FP8 inference release, or MPS training support from MLX inference.
-
-Nominal 4B arithmetic is a planning estimate: BF16 weights ≈7.45 GiB; FP32 weights
-plus FP32 gradients ≈29.8 GiB; adding one byte/parameter of momentum gives
-≈33.5 GiB before auxiliary AdamW state, activations, workspaces, memory layers and
-temporary copies. Inventory actual tensors and tied storage; **50 GiB is a stop
-policy, not a fit result**. First qualify inference, then modules-only backward,
-then one full update/export/reload if its measured budget permits. Any later
-frozen quantized arm must retain input gradients through downstream operations
-when required by inserted modules. Quantization changes are separate controls.
-
-Compare unmodified MiniCPM5 and unmodified Spark on identical eligible task
-families, observations, tools, answer limits and verification. Pin thinking mode;
-report hidden/generated reasoning tokens, latency, peak memory and total cost.
-Use a common output/time budget and disclose actual compute rather than claiming
-equal FLOPs from equal steps. Evaluate structured actions, verified multi-step
-reasoning, missing information, calibration and general retention. Only then
-compare each model with/without the same memory contract and matched memory
-budget. Keep D0/D1/D2 meanings within each backbone. Preregister numeric gain,
-regression and resource thresholds before observing comparison results; the
-existing promotion policy remains in force. No Spark acquisition, adapter or
-capability result is asserted by this document.
+Measure native inference first, then real input gradients, named optimizer
+updates and fresh-process export/reload. Official MLX inference is not MPS
+training qualification. A dequantized FP8 derivative must be separately labelled;
+it cannot recover original BF16 precision. Isolate dependencies and profile all
+master/temporary/optimizer state under the unchanged 50 GiB policy. Compare
+matched prompts, information, reasoning-token budgets and practical controls
+before any selected-backbone change.
 
 ### M1 — Episode contract and thin compiler
 
@@ -316,15 +319,15 @@ zero projections opened, reached earlier writes at both depths; gradient-cut
 removed only first-chunk gradients. Fresh processes reloaded both extensions
 and images without observation encoding. Shared uses 65536 state bytes and
 private 131072, so outcomes are descriptive, not capacity-normalized. Both
-candidates fail the fixed retention replay 0/2 versus parent 2/2. Diagnose that
-regression before M4; do not infer readiness for promotion from the ownership
-verdict. See [M3 results](../experiments/20261024_M3_Depth_Ownership_Results.md).
+candidates fail the fixed retention replay 0/2 versus parent 2/2. That failure
+remained unresolved when M4 ran; the ownership verdict did not qualify quality
+promotion. See [M3 results](../experiments/20261024_M3_Depth_Ownership_Results.md).
 
 **M3 repair update:** the bounded replay candidate is rejected. Fresh delayed is
 6/8 and original regression 8/8, but development general remains 0/2 and final
 adversarial memory 0/4 versus disabled 2/4. Seen-value is 4/4, changed-template
 2/2 and novel-value 0/2. The candidate is not a parent and no original-failure
-or fresh-restart check ran. M4 proceeds only as a separate mechanism comparison;
+or fresh-restart check ran. M4 proceeded only as a separate mechanism comparison;
 retention is not repaired. See
 [repair results](../experiments/20261024_M3_Retention_Repair_Results.md).
 
@@ -439,13 +442,25 @@ fixed versus learned step-size/forget coefficients on matched workloads. Naming
 fast matrices, procedures and a training schedule does not implement CMS. A
 HOPE reproduction remains a separate research scope.
 
-## 6. M7 — MiniCPM-V 4.7-1B
+## 6. M7 — MiniCPM5 vision retrofit and optional MiniCPM-V reference
 
-Use the pretrained MiniCPM-V vision path as the first multimodal target. Keep
-Spark a text comparison initially. Adding an unrelated vision encoder to Spark
-would require a separately trained alignment/projector, paired image-text data,
-visual instruction/reasoning training and retention study; it is a later option,
-not a shortcut around a native VLM adapter.
+The first development target is now **MiniCPM5 with a pretrained visual encoder
+and a new projector to width 2048**. Follow [document 18](18_MiniCPM5_Vision_Training_and_Continual_Learning.md)
+for V0 fused-input/position/mask/gradient qualification, V1 projector-only
+alignment, V2 declared adapter/LoRA instruction and verified reasoning training,
+V3 persistent visual memory and V4 bounded RSI. Keep the encoder frozen initially
+and all unrelated injections disabled during visual bring-up. A frozen decoder
+must retain input gradients to train the projector. Cache only frozen features
+with full image/processor/producer provenance.
+
+Use correct/wrong/no/shuffled images, caption/OCR-only controls, held-out scenes/
+documents and broad text retention. Image removal, incremental correction and
+fresh-process continuation qualify visual memory separately from perception.
+MiniCPM-V cannot supply a drop-in MiniCPM5 projector; Spark later needs another
+new connector and model-specific adapter. The detailed native MiniCPM-V design
+below applies only to the optional pretrained reference/teacher arm.
+
+### Separate pretrained MiniCPM-V-4.7-1B arm
 
 The [official config](https://huggingface.co/openbmb/MiniCPM-V-4.7-1B/blob/379f120c2ff3588e6e06559ec6b9ec15cc05114e/config.json)
 has a 24-layer, width-1024 Qwen3.5 text core: three linear layers per full-attention
@@ -471,7 +486,7 @@ correction and text retention. Distinguish `full_text` from `full_vlm`. Initiall
 condition text/actions on identity after fusion. Weights are not local; continue
 independent text work while that dependency is unresolved.
 
-Stage visual training after native parity:
+For this optional pretrained MiniCPM-V arm, stage its own visual training after native parity:
 
 1. **Frozen native vision/text reference:** qualify actual image-conditioned
    outputs, processor expansion and positions before adding memory. Do not
@@ -533,7 +548,7 @@ calibrated success probabilities.
 
 | Area | Required evidence |
 |---|---|
-| Spark challenger | Pinned BF16/native adapter; parity and real update/reload; matched plain/augmented controls; measured memory/cost; no regression before promotion |
+| Spark challenger | Pinned official FP8 plus BF16 control, dedicated adapter and supported precision path; parity and real update/reload; matched plain/augmented controls; measured memory/cost; no regression before promotion |
 | Memory | Null parity; later loss reaches earlier writes; unseen bindings; zero/shuffle/disable; correction, saturation and restart |
 | Shared depth | Defined reducer; chunk-start reads; one commit; cross-depth intervention; honest state/compute accounting |
 | Routing/Engram | Additive utility; collision/interference/latency; immutable version; eligibility |
@@ -541,7 +556,8 @@ calibrated success probabilities.
 | Learning/RSI | Actual parameter/procedure change; verified practice; unseen later-task and later-adaptation gain; fixed audit, retention, rejection and complete costs |
 | Action/core | Plan change after failure; completion; malformed/false-success rates; benefit beyond simpler controls |
 | Identity | Null/mode/cutoff; source/branch attribution; conditional choices; authentic review for fidelity |
-| VLM | Native parity; position/recurrent/conv/KV ownership; image dependence, delayed use and text retention |
+| MiniCPM5 vision | Fused-prefix/mask/position and gradient contracts; image-dependent alignment/instructions; text retention; visual-memory correction/restart |
+| Pretrained VLM reference | Separate native processor/position/recurrent/conv/KV parity; verified teacher outputs and disclosed cost |
 | Resources | Actual tokens/state bytes, driver memory, swap delta, free memory, time and tool/verifier cost |
 
 First demonstrate: observe an unseen association → use it after context removal
@@ -577,9 +593,10 @@ personal-fidelity goals.
 - After each package, record commands, pins, raw reports, measured scope,
   negatives and next action. Historical experiment reports retain their results.
 
-Code `6e8ec34` already fixed inference retention, numeric-string menus and
-invalidation-before-admission. This revision changes only the shared guard
-default and its CLI/test coverage in executable code; it adds no native results.
+Code `6e8ec34` previously fixed inference retention, numeric-string menus and
+invalidation-before-admission. This revision changes documentation and execution
+priority only; it does not implement the newly identified defects, train vision
+or add native results. The existing 50 GiB executable policy is unchanged.
 Current entry points: [execution state](../../execution_state.md),
 [continuation](../../AGENT_CONTINUE.md),
 [status registry](../../configs/architecture_implementation_status_v1.json),

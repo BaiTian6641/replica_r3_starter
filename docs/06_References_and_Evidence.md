@@ -1,5 +1,11 @@
 # 06 - Primary sources and evidence limits
 
+**25 October documentation expansion, using 24 October source collection:** see the
+[integrated mechanism cross-check](architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
+[official Spark FP8/BF16 source record](research/20261024_Spark_Source_Record.json)
+and [dataset source catalog](datasets/20261024_Source_Catalog.json).
+These are research/preparation evidence, not new runtime or training results.
+
 **Current architecture review:** see the [primary-source research decisions](architecture/06_Research_Decisions.md)
 and the [backbone](architecture/02_Backbone_Integration.md), [memory](architecture/03_Memory_and_Runtime_Compilation.md),
 and [learning/Replica](architecture/04_Semi_Cognition_Learning_and_Replica.md) chapters.
@@ -23,7 +29,7 @@ The [dated research review](stages/07_Research_Evidence_20261022.md) records pri
 | R01 | [Engram, arXiv:2601.07372](https://arxiv.org/abs/2601.07372); [authors' repository](https://github.com/deepseek-ai/Engram) | Sparse conditional memory lookup/fusion | Editable episode ledger is our separate design |
 | R02 | [Titans, arXiv:2501.00663](https://arxiv.org/abs/2501.00663) | Neural memory that adapts during a stream | Linear reference state is not a reproduction |
 | R03 | [Nested Learning, arXiv:2512.24695](https://arxiv.org/html/2512.24695v1); [Google explanation](https://research.google/blog/introducing-nested-learning-a-new-ml-paradigm-for-continual-learning/) | Explicit optimization levels and update timescales | Published pretrained adaptation is much larger than the proposed pilot |
-| R04 | [uTTT, arXiv:2610.05484](https://arxiv.org/html/2610.05484v1); [authors' code](https://github.com/Zefan-Cai/uTTT) | State ownership across depth and chunk read/write ordering | Current language release is MoE-oriented, not a ready MiniCPM retrofit |
+| R04 | [uTTT, arXiv:2610.05484](https://arxiv.org/html/2610.05484v1); [authors' code](https://github.com/Zefan-Cai/uTTT) | State ownership across depth and chunk read/write ordering | The 24 October author release includes dense and MoE implementations; neither is a qualified MiniCPM retrofit |
 | R05 | [Mem-T, arXiv:2601.23014v2](https://arxiv.org/abs/2601.23014v2); [authors' code](https://github.com/yanweiyue/Mem-T) | Learning memory-operation policy and credit assignment | Official training script remains forthcoming |
 | R06 | [SEAL, arXiv:2506.10943v2](https://arxiv.org/abs/2506.10943v2); [authors' code](https://github.com/Continual-Intelligence/SEAL) | Train useful self-edit proposals by their adaptation outcomes | Does not remove verification or training cost |
 | R07 | [Absolute Zero, arXiv:2505.03335](https://arxiv.org/abs/2505.03335); [authors' code](https://github.com/LeapLabTHU/Absolute-Zero-Reasoner) | Executor-grounded self-proposed tasks | Pretrained knowledge and a structured verifier still matter |
@@ -53,7 +59,7 @@ The MiniCPM5 total count is 2,516,756,480 from its sealed tensor inventory, not 
 
 ## 3. Datasets
 
-The source-by-source catalog and constraints appear in [the dataset guide](04_Datasets_and_Generation.md); machine-readable intake entries are in [dataset_registry.json](../configs/dataset_registry.json). Every entry begins unpinned and not downloaded. The guide covers:
+The expanded source catalog and constraints appear in [the acquisition curriculum](08_Dataset_Acquisition_and_Curriculum.md), with 34 sources and 22 metadata pins in [the research catalog](datasets/20261024_Source_Catalog.json). The existing runtime [dataset_registry.json](../configs/dataset_registry.json) remains an unadmitted intake registry; metadata pins do not admit assets. The earlier [dataset guide](04_Datasets_and_Generation.md) covers:
 
 - PersonaMem-v2 and v3.
 - Cleaned LongMemEval and LongMemEval-V2.

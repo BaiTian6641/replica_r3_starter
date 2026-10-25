@@ -40,7 +40,7 @@ task successful.
 | `ReplicaBranchState` | same | Parallel-branch experiences and skills, separate from source; incompatible branch/snapshot rejected |
 | `IdentityArchive` / `IdentityResolver` | same | Host archive, approved snapshot construction, cutoff/correction filtering and revocation invalidation |
 | `render_identity_context` | same | Bounded prompt section; null/empty produces no text and never changes success authority |
-| `IdentityReader` | `replica/reader.py` | Optional independently gated residual reader; zero-initialized output, exact zero when disabled/empty/all-masked; not yet attached to a native block |
+| `IdentityReader` | `replica/reader.py` | Optional independently gated residual reader attached after core workspace construction; zero-initialized output, exact zero when disabled/empty/all-masked; untrained |
 | Runtime integration | `runtime/loop.py` | Optional `TaskRuntime(identity=...)` adds the approved context to the prompt; default `None` is byte-identical to the previous prompt |
 
 Modes are enforced: `source_snapshot`, `source_current`,
@@ -68,7 +68,9 @@ Null parity, disable parity, all-masked slots, nonzero influence, workspace-stor
 binding and v3 export/reload are tested with tiny offline tensors. No authentic
 identity slots or learned slot encoder exist yet; the reader is **untrained** and
 no personal conditioning or native capability is claimed. The connected prompt
-section remains the only host-facing use. Identity may influence priorities or
+section remains the established host-facing conditioning path; optional tensor
+slots can pass through the session/proposer, but no trained source-to-slot
+pipeline is qualified. Identity may influence priorities or
 information requests only after a separate trained candidate and evaluation; it
 cannot rewrite source facts, satisfy a failed verifier, override permissions or
 replace the authorized task goal.
@@ -93,7 +95,8 @@ source/branch isolation, branch-state mismatch, revocation, manifest
 compatibility, zero-init reader parity/independence and optional prompt
 inclusion. No native model, personal data, identity training or fidelity
 evaluation is claimed. The status registry marks C16 as implemented contracts
-only; the identity reader remains untrained and unattached.
+and an attached, untrained workspace reader. Attachment/null/export tests do
+not establish useful conditioning.
 
 
 ## Persistent host store (23 October 2026 UTC)
@@ -108,7 +111,20 @@ Revoked snapshots remain as history but cannot resolve.
 Branch experience is stored in the same private file but remains a separate
 ownership domain. It never becomes source testimony. The runtime still accepts
 only an explicitly resolved `IdentityContext`; identity remains optional, null
-by default and has no verifier or task-success authority. Native identity-reader
-attachment and any personal conditioning remain unimplemented and untrained.
+by default and has no verifier or task-success authority. Native workspace-reader
+attachment exists; a trained approved-source slot encoder and authentic personal
+conditioning remain unqualified.
 Authentic source material is still an external dependency; no personal data is
 bundled in Git.
+
+## Next integration work
+
+Follow the parallel identity track in the
+[revised construction plan](15_Research_Crosscheck_and_Backbone_Plan.md#7-personality-and-semi-cognitive-integration).
+Connect approved source slots and identity context consistently through decision
+binding, persistence and replay. Compare generic, approved-summary,
+archive-retrieval and neural-conditioning paths with equal eligible information.
+Separate conditional choices and exceptions from facts and optional style.
+Fictional cases can qualify these interfaces while authentic records are absent;
+they cannot qualify personal fidelity. This track starts alongside M1–M3 and
+does not wait for Engram or multi-rate consolidation.

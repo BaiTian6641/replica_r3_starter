@@ -1,0 +1,376 @@
+{
+  "format": "replica.sparkx.research_plan.v1",
+  "status": "proposal_not_executable_not_implemented",
+  "research_date_local": "2026-10-24",
+  "timezone": "America/Chicago",
+  "reviewed_repository_head": "7c7018e367369bd5df9677785dd3c4df05862a7e",
+  "model": {
+    "id": "XHToken/Spark-X2.6-4B",
+    "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+    "unique_parameters": 4112079360,
+    "weight_bytes_from_index": 8224158720,
+    "native_execution_in_this_review": false,
+    "role": "Architecture reference and independent official BF16 control"
+  },
+  "confirmed_requirements": {
+    "confirmed_date_local": "2026-10-25",
+    "memory_learning_direction": "HOPE / Nested Learning",
+    "parameter_budget": "4B-class Spark language backbone; added components have separate parameter budgets",
+    "additional_components": [
+      "vision",
+      "memory_layers",
+      "inter_layer_memory",
+      "inter_layer_self_learning"
+    ],
+    "user_specified_total_parameter_cap": null,
+    "parameter_accounting": "Count unique backbone and added shared parameters separately; report mutable fast weights and optimizer state per active session separately",
+    "initial_total_shared_parameters_estimate": [
+      4200000000,
+      4600000000
+    ],
+    "initial_estimate_is_a_cap": false
+  },
+  "assumptions": {
+    "personality": "description file pending; no content fabricated"
+  },
+  "report_root": "docs/research/sparkx_2_6_4b_20261024",
+  "baseline": "Retain MiniCPM5 as control; Spark is next target proposal; preserve existing execution records.",
+  "geometry_proposals": {
+    "memory_width": 256,
+    "reference_core_slots": 8,
+    "candidate_core_slots": 16,
+    "candidate_core_steps": [
+      2,
+      4
+    ],
+    "first_memory_port_zero_based": 11,
+    "second_memory_port_zero_based": 23,
+    "observer_zero_based": 35,
+    "optional_visual_ports_zero_based": [
+      3,
+      11,
+      23
+    ],
+    "fast_mlp_heads": 4,
+    "fast_mlp_dimensions_per_head": [
+      64,
+      128,
+      64
+    ],
+    "fast_state_parameters_excluding_bias": 65536
+  },
+  "deployment_contract": {
+    "model_native_components": [
+      "vision_encoder",
+      "spatial_bridge",
+      "temporal_module",
+      "recurrent_workspace",
+      "neural_memory",
+      "inter_layer_memory_readers_writers",
+      "inter_layer_self_learning_modules",
+      "policy_and_learning_proposal_heads",
+      "slow_skill_adapters",
+      "optional_personality_encoder"
+    ],
+    "runtime_services": [
+      "sensor_io",
+      "owned_state_storage",
+      "optimizer_execution",
+      "independent_evaluation",
+      "versioned_publication_and_rollback"
+    ],
+    "state_update_boundary": "observation commit; fixed decision state during generation",
+    "teacher_required_at_deployment": false
+  },
+  "host_policy_existing": {
+    "exclusive_mps_workers": 1,
+    "native_cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_limit_bytes": 536870912,
+    "minimum_host_free_percent": 15
+  },
+  "stages": [
+    {
+      "id": "SX0",
+      "title": "Evidence and data contracts",
+      "depends_on": [],
+      "gate_ids": [
+        "G0"
+      ],
+      "deliverable": "R1 caller-bound verification, R2 exact route schedule, R3 representation-preserving rebuild; fresh diagnostic and split/scorer contracts",
+      "status": "proposed"
+    },
+    {
+      "id": "SX1",
+      "title": "Spark native foundation",
+      "depends_on": [
+        "SX0"
+      ],
+      "gate_ids": [
+        "G1"
+      ],
+      "deliverable": "Dedicated adapter, dependency lock, parity and measured capacity",
+      "status": "proposed",
+      "native_execution_prerequisites": [
+        "SX0 remaining integrity repairs",
+        "stable reusable MiniCPM5 V0 interface",
+        "dedicated precision/backend gates; no dependency on RSI success"
+      ]
+    },
+    {
+      "id": "SX2",
+      "title": "Spatial visual alignment",
+      "depends_on": [
+        "SX1"
+      ],
+      "gate_ids": [
+        "G2"
+      ],
+      "deliverable": "Frozen towers plus trained bridge; optional declared adapters",
+      "status": "proposed"
+    },
+    {
+      "id": "SX3",
+      "title": "Temporal perception and reasoning",
+      "depends_on": [
+        "SX2"
+      ],
+      "gate_ids": [
+        "G3"
+      ],
+      "deliverable": "Causal temporal module, tracks/events, variable time sampling",
+      "status": "proposed"
+    },
+    {
+      "id": "SX4",
+      "title": "Useful adaptive memory",
+      "depends_on": [
+        "SX0",
+        "SX1"
+      ],
+      "gate_ids": [
+        "G4"
+      ],
+      "deliverable": "Linear/SGDN-2 control then nonlinear candidate",
+      "status": "proposed"
+    },
+    {
+      "id": "SX5",
+      "title": "Multimodal core",
+      "depends_on": [
+        "SX2"
+      ],
+      "gate_ids": [
+        "G5"
+      ],
+      "deliverable": "Typed-bank recurrent policy; temporal extension after SX3",
+      "status": "proposed"
+    },
+    {
+      "id": "SX6",
+      "title": "Joint visual episodic learning",
+      "depends_on": [
+        "SX3",
+        "SX4",
+        "SX5"
+      ],
+      "gate_ids": [
+        "G6"
+      ],
+      "deliverable": "Observe, remove source, delayed recall, correction and restart",
+      "status": "proposed"
+    },
+    {
+      "id": "SX7",
+      "title": "Instructed improvement",
+      "depends_on": [
+        "SX6"
+      ],
+      "gate_ids": [
+        "G7"
+      ],
+      "deliverable": "Verified isolated candidate adaptation and rollback",
+      "status": "proposed"
+    },
+    {
+      "id": "SX8",
+      "title": "Self-directed learning",
+      "depends_on": [
+        "SX7"
+      ],
+      "gate_ids": [
+        "G8"
+      ],
+      "deliverable": "Learned practice/proposal selection over matched ten-cycle campaign",
+      "status": "proposed"
+    },
+    {
+      "id": "SX9",
+      "title": "HOPE-inspired research",
+      "depends_on": [
+        "SX4",
+        "SX7"
+      ],
+      "gate_ids": [
+        "G7"
+      ],
+      "deliverable": "Explicit multi-rate buffers/objectives; optional self-referential learning",
+      "status": "proposed"
+    },
+    {
+      "id": "SX10",
+      "title": "Personality integration",
+      "depends_on": [
+        "SX0",
+        "SX5"
+      ],
+      "gate_ids": [],
+      "deliverable": "Description-conditioned decisions; authentic content and evaluation pending",
+      "status": "proposed",
+      "external_dependency": "User-supplied personality description and approved training/evaluation examples"
+    },
+    {
+      "id": "SX11",
+      "title": "Consolidated deployment",
+      "depends_on": [
+        "SX6",
+        "SX7",
+        "SX8"
+      ],
+      "gate_ids": [
+        "G9"
+      ],
+      "deliverable": "Joint retention, versioned complete export and measured deployment",
+      "status": "proposed",
+      "optional_components_require_separate_pass": [
+        "SX9",
+        "SX10"
+      ]
+    }
+  ],
+  "proposed_pilot_gates": {
+    "G0": {
+      "claim": "source/software integrity",
+      "applicable_tests_pass": true,
+      "bypass_parity": true,
+      "provenance_tamper_rejection": true
+    },
+    "G1": {
+      "claim": "native Spark qualification",
+      "prefill_decode_padding_window_parity": true,
+      "gradient_and_export_checks": true,
+      "measured_capacity": true
+    },
+    "G2": {
+      "claim": "spatial perception",
+      "answer_accuracy_min": 0.8,
+      "image_control_advantage_points_min": 15,
+      "grounding_success_min": 0.8,
+      "grounding_iou_threshold": 0.5
+    },
+    "G3": {
+      "claim": "temporal reasoning",
+      "controlled_accuracy_min": 0.75,
+      "temporal_control_advantage_points_min": 10,
+      "no_future_leakage": true
+    },
+    "G4": {
+      "claim": "useful memory",
+      "recall_min": 0.9,
+      "correction_min": 0.9,
+      "unaffected_min": 0.9,
+      "unknown_min": 0.95,
+      "disabled_shuffled_advantage_points_min": 20,
+      "restart": true
+    },
+    "G5": {
+      "claim": "core utility",
+      "success_advantage_points_min": 3,
+      "paired_95pct_interval_lower_bound_positive": true,
+      "matched_compute_control": true
+    },
+    "G6": {
+      "claim": "integrated visual memory",
+      "requires": [
+        "G2",
+        "G3",
+        "G4",
+        "G5"
+      ],
+      "source_time_attribution_min": 0.95,
+      "source_removed_for_memory_only": true
+    },
+    "G7": {
+      "claim": "candidate improvement",
+      "new_skill_gain_points_min": 5,
+      "paired_95pct_interval_lower_bound_positive": true,
+      "mean_retention_drop_points_max": 2,
+      "critical_family_drop_points_max": 5,
+      "no_new_must_pass_contract_failure": true,
+      "retention_references": [
+        "immediate parent",
+        "fixed pre-campaign baseline",
+        "all previously accepted skills"
+      ]
+    },
+    "G8": {
+      "claim": "learned improvement policy",
+      "chronological_cycles_min": 10,
+      "compares_fixed_and_random_selection": true,
+      "equal_total_cost_and_eligible_data": true,
+      "learning_to_learn_claim_requires_fresh_acquisition_curves": true
+    },
+    "G9": {
+      "claim": "deployment",
+      "export_state_compatibility": true,
+      "rollback_drill": true,
+      "resource_qualification": true
+    }
+  },
+  "evaluation": {
+    "roles": [
+      "train",
+      "development",
+      "calibration",
+      "promotion",
+      "final_audit"
+    ],
+    "split_unit": "scene/object/video-session/document-template/task-family before augmentation",
+    "promotion_independent_families_suggested_min": 100,
+    "minimum_is_not_power_calculation": true,
+    "shortlisted_mechanism_seeds": 3,
+    "uncertainty": "paired source-family cluster bootstrap; multiplicity control or untouched final audit",
+    "threshold_note": "Proposed targets to seal prospectively. Never rewrite historical gates."
+  },
+  "scope_of_this_task": {
+    "new_native_training": false,
+    "model_weight_acquisition": false,
+    "production_code_changes": false,
+    "new_focused_tests_passed": 58,
+    "historical_full_suite_rerun": false
+  },
+  "final_repository_reconciliation_date_local": "2026-10-25",
+  "precision_paths": [
+    {
+      "model_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "role": "Current repository adaptation-base candidate",
+      "status": "configuration_verified_native_support_unqualified"
+    },
+    {
+      "model_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "role": "independent official BF16 control",
+      "status": "source_verified_native_support_unqualified"
+    },
+    {
+      "role": "explicitly named dequantized FP8 derivative if needed",
+      "status": "not_created_not_equivalent_to_original_BF16"
+    }
+  ],
+  "related_existing_documents": [
+    "docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md",
+    "docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md",
+    "docs/08_Dataset_Acquisition_and_Curriculum.md"
+  ]
+}
