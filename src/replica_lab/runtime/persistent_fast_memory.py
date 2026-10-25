@@ -105,6 +105,58 @@ class PersistentFastMemory:
                 self.scope.subject_id, self.scope.branch_id, self.scope.purpose, self.scope.mode):
             raise PermissionError('Source view scope differs from the persistent state owner')
 
+
+    def _authorize_source_view(self, reference, view):
+        """Prove the consumed lineage is still authorized by this exact view.
+
+        Record-backed events must match an eligible record byte-for-byte, or be
+        superseded originals whose eligible correction this state consumed later.
+        Unbacked observation events must not repeat revoked source text, and the
+        state must already reflect every eligible correction in the view. A
+        metadata-only rebind can therefore never re-authorize stale contents:
+        only consuming the authoritative change (append) or an explicit verified
+        rebuild can. Unbacked events are text-authorized, so revocation inside a
+        larger observed page is detected only at that page's own granularity.
+        """
+        ledger = getattr(reference, 'ledger', None)
+        if ledger is None:
+            raise TypeError('Source binding requires the authoritative exact reference')
+        eligible = {record.record_id: record for record in view.records}
+        superseding = {record.supersedes: record for record in view.records
+                       if record.supersedes is not None}
+        positions = {event_id: index for index, (event_id, _) in enumerate(self.lineage)}
+        revoked = set(ledger.revoked_source_hashes())
+        for (event_id, source_hash), event in zip(self.lineage, self.events):
+            record = eligible.get(event_id)
+            if event['record_hash'] is not None:
+                if record is not None:
+                    if (source_hash != record.source_hash
+                            or event['record_hash'] != record.record_hash
+                            or event['supersedes'] != record.supersedes
+                            or event['correction'] != (record.supersedes is not None)):
+                        raise ValueError('Consumed record no longer matches the authoritative view')
+                    continue
+                correction = superseding.get(event_id)
+                if (correction is None
+                        or positions.get(correction.record_id, -1) <= positions[event_id]):
+                    raise ValueError('Consumed record is absent from the authoritative view; '
+                                     'rebuild before rebinding')
+                status = ledger.record_status(event_id)
+                if (status is None or status['revoked']
+                        or (status['source_hash'], status['record_hash'], status['supersedes'])
+                        != (source_hash, event['record_hash'], event['supersedes'])):
+                    raise ValueError('Consumed superseded record no longer matches the ledger')
+            else:
+                if source_hash in revoked:
+                    raise ValueError('Consumed observation repeats revoked source text; '
+                                     'rebuild before rebinding')
+        for correction in superseding.values():
+            if not any(event_id == correction.record_id
+                       or source_hash == correction.source_hash
+                       for event_id, source_hash in self.lineage):
+                raise ValueError('Authoritative view contains corrections this state never '
+                                 'consumed; append and rebind or rebuild')
+
     def bind_source(self, reference, *, scope):
         """Fetch a fresh authoritative view using the caller's independent scope."""
         from .exact_memory import ExactMemoryReference
@@ -113,6 +165,7 @@ class PersistentFastMemory:
         if not isinstance(reference, ExactMemoryReference):
             raise TypeError('Source binding requires the authoritative exact reference')
         view = reference.view(scope)
+        self._authorize_source_view(reference, view)
         self.source_binding = {'ledger_id': view.ledger_id, 'epoch': view.epoch,
                                'view_digest': view.digest}
         self._source_reference, self._source_scope = reference, scope
@@ -359,6 +412,7 @@ class PersistentFastMemory:
             if (binding['ledger_id'], binding['epoch'], binding['view_digest']) != (
                     view.ledger_id, view.epoch, view.digest):
                 raise ValueError('Fast source view is stale or belongs to another ledger')
+            result._authorize_source_view(source_reference, view)
             result.source_binding = binding
             result._source_reference, result._source_scope = source_reference, source_scope
         elif require_source_binding or expected_view_digest is not None:

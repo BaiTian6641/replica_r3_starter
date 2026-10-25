@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="2.328" timestamp="2026-10-25T13:19:58.047944-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_persistent_rebinding" name="test_revocation_blocks_metadata_only_rebind_until_verified_rebuild[raw_observation.v1]" time="0.117"><failure message="Failed: DID NOT RAISE ValueError">sources = (MiniCPM5Adapter(
+  (base): LlamaForCausalLM(
+    (model): LlamaModel(
+      (embed_tokens): Embedding(64, 16, padding...emory_reliability', branch_id='reliability_dev_100_0', purpose='reliability', mode='parallel_replica', source_epoch=0))
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-539/test_revocation_blocks_metadat0')
+representation = 'raw_observation.v1'
+
+    @pytest.mark.parametrize('representation', REPRESENTATIONS)
+    def test_revocation_blocks_metadata_only_rebind_until_verified_rebuild(sources, tmp_path, representation):
+        model, reference, episode, owner = sources
+        memory, initial = state_for(sources, representation)
+        memory.bind_source(reference, scope=scope(episode))
+        revoke_first(reference, episode, initial[0])
+        with pytest.raises(ValueError, match='stale'):
+            memory.read()
+&gt;       with pytest.raises(ValueError, match='absent from the authoritative view'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_persistent_rebinding.py:38: Failed</failure></testcase><testcase classname="tests.test_persistent_rebinding" name="test_revocation_blocks_metadata_only_rebind_until_verified_rebuild[fact_binding_key_value.v1]" time="0.170"><failure message="Failed: DID NOT RAISE ValueError">sources = (MiniCPM5Adapter(
+  (base): LlamaForCausalLM(
+    (model): LlamaModel(
+      (embed_tokens): Embedding(64, 16, padding...emory_reliability', branch_id='reliability_dev_100_0', purpose='reliability', mode='parallel_replica', source_epoch=0))
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-539/test_revocation_blocks_metadat1')
+representation = 'fact_binding_key_value.v1'
+
+    @pytest.mark.parametrize('representation', REPRESENTATIONS)
+    def test_revocation_blocks_metadata_only_rebind_until_verified_rebuild(sources, tmp_path, representation):
+        model, reference, episode, owner = sources
+        memory, initial = state_for(sources, representation)
+        memory.bind_source(reference, scope=scope(episode))
+        revoke_first(reference, episode, initial[0])
+        with pytest.raises(ValueError, match='stale'):
+            memory.read()
+&gt;       with pytest.raises(ValueError, match='absent from the authoritative view'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/test_persistent_rebinding.py:38: Failed</failure></testcase></testsuite></testsuites>

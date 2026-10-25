@@ -1,0 +1,38 @@
+{
+  "format": "replica.historical_verdict_replay.v1",
+  "recorded_at_utc": "2026-10-25T18:24:00Z",
+  "method": "git worktree at each pinned implementation commit plus APFS clones of ignored hash-pinned inputs (sealed model, run artifacts, local lock); historical protocol hashes are never rewritten. Live code-pin checks intentionally reject later working trees, which is why every replay runs inside its pinned commit worktree.",
+  "v0": {
+    "commit": "81c96f8",
+    "command": ".venv/bin/python scripts/score_vision_qualification.py --run runs/minicpm5_vision_v0_20261025/attempt02 --restart runs/minicpm5_vision_v0_20261025/restart01 --protocol configs/minicpm5_vision_v0_qualification_v3.json --scoring-replay configs/minicpm5_vision_v0_scoring_replay_v1.json --output runs/replay_verify_score01 --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json",
+    "original_score_sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443",
+    "reproduced": {"accepted": true, "engineering_pass": true, "quality_pass": null},
+    "differences": ["run_report_path (absolute worktree location)", "scored_at_utc"],
+    "cause": "Worktree path and wall-clock timestamp are the only differing keys; every verdict, check and metric is identical."
+  },
+  "v1": {
+    "commit": "9c11f2c",
+    "command": ".venv/bin/python scripts/score_vision_qualification.py --run runs/minicpm5_vision_v1_20261025/attempt02 --protocol configs/minicpm5_vision_v1_projector_alignment_v2.json --output runs/replay_verify_score01 --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json",
+    "original_score": "runs/minicpm5_vision_v1_20261025/score_attempt02/score_report.json (sha256 bcf5ac96844aa70728859a20eebde62da2c42e12e1bf91d9e301650e759ca274)",
+    "reproduced": {
+      "accepted": false,
+      "engineering_pass": true,
+      "quality_pass": false,
+      "quality_failures": ["min_correct_accuracy", "min_correct_margin_wrong", "min_correct_margin_shuffled", "min_correct_margin_noimage", "min_correct_margin_captiononly", "min_correct_margin_ocrtextonly", "min_text_retention_accuracy"]
+    },
+    "differences": ["run_report_path", "scored_at_utc"],
+    "cause": "Worktree path and timestamp only; control metrics and gates byte-identical."
+  },
+  "memory_probe": {
+    "commit": "1c609c3",
+    "method": "The audit source recorded in reports/memory_storage_probe_20261025/native01.independent_score.json (sha256-pinned) was re-executed inside the 1c609c3 worktree with runs/memory_storage_probe_20261025, data/memory_storage_probe_20261025, the sealed model and the rejected v5 writer extension cloned in.",
+    "reproduced": {
+      "decision": "defer_useful_memory_storage_recovery_failed",
+      "failed_gates": ["storage_recovery", "addressing", "correction", "native_readout"],
+      "independent_rescore": "matched"
+    },
+    "differences": [],
+    "cause": "Deterministic CPU audit over preserved raw artifacts at pinned code; 552 evaluated rows and all 12 authenticated state images reproduce exactly."
+  },
+  "scope_limit": "These replays prove the preserved raw artifacts and pinned code reproduce the recorded verdicts on CPU. They are not new native execution and change no capability claim."
+}

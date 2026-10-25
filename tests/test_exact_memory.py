@@ -203,6 +203,10 @@ def test_atomic_source_bound_image_and_stale_view_rejection(tmp_path, monkeypatc
                                   expected_view_digest=ref.view(scope(episode)).digest,
                                   source_reference=ref, source_scope=scope(episode))
     memory.bind_source(ref, scope=scope(episode))
+    with pytest.raises(ValueError, match='never consumed'):
+        memory.bind_source(ref, scope=scope(episode, 'corrected'))
+    memory.append('page-correction', episode['correction_observation'])
+    memory.bind_source(ref, scope=scope(episode, 'corrected'))
     # A failed image write never publishes a final or temporary directory.
     import replica_lab.runtime.persistent_fast_memory as module
     def interrupted(*args, **kwargs):

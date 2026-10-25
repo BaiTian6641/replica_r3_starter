@@ -218,6 +218,24 @@ class RecordLedger:
             raise ValueError(f"missing ledger metadata: {key}")
         return row[0]
 
+    def record_status(self, record_id: str) -> dict | None:
+        """Read-only immutable binding of one row, including revoked/superseded rows."""
+        if not isinstance(record_id, str):
+            raise TypeError("record_id must be text")
+        row = self._db.execute(
+            "SELECT record_id,supersedes,record_hash,source_hash,revoked "
+            "FROM memory_records WHERE record_id=?", (record_id,)).fetchone()
+        if row is None:
+            return None
+        return {"record_id": row[0], "supersedes": row[1], "record_hash": row[2],
+                "source_hash": row[3], "revoked": bool(row[4])}
+
+    def revoked_source_hashes(self) -> tuple[str, ...]:
+        """Exact source-text hashes removed from every eligible view."""
+        rows = self._db.execute(
+            "SELECT source_hash FROM memory_records WHERE revoked=1").fetchall()
+        return tuple(row[0] for row in rows)
+
     @property
     def epoch(self) -> int:
         return int(self._meta("epoch"))
