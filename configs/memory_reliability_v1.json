@@ -1,0 +1,170 @@
+{
+  "format": "replica.memory_reliability.protocol.v1",
+  "protocol_path": "configs/memory_reliability_v1.json",
+  "declared_at_utc": "2026-10-24T15:46:29.404770+00:00",
+  "git_base_commit": "280d4dde5606eee909bf29cd6171777f305f305c",
+  "git_protocol_commit": null,
+  "commit_limitation": "Protocol and implementation are timestamped and hash-pinned before native launch; uncommitted worktree, not a Git preregistration commit.",
+  "purpose": "Repair benchmark/scorer validity and test persistent multi-query correction/retention with one bounded D1 MiniCPM5 fast-memory fine-tuning pilot before RSI.",
+  "hypothesis": "Query-selective counterfactual multi-fact training plus train-only base-teacher preservation may improve an existing shared SGDN-2 writer/reader while preserving unrelated exact answers.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+  "parent_extension": "runs/m3_depth_shared_attempt02/selected_extension",
+  "parent_weights_sha256": "29267d2201562996fcf573f9349c06cd55392ecc2afc8976fa699729cdfa1b64",
+  "parent_run_report": "runs/m3_depth_shared_attempt02/run_report.json",
+  "parent_run_report_sha256": "b40aeb536dcdc589a8cc337a3efd5172010267e46f19c0e811d00442512eeebe",
+  "parent_role": "Preserved M3 shared ownership candidate; its retained/general memory quality is NOT accepted. M3 repair and M4 rejected candidates are not used.",
+  "dataset": {
+    "path": "data/memory_reliability_v1/episodes.json",
+    "sha256": "c9ac894b522ffab89aa863c7d6ed9b3c626a8521301fa519b62116f0691a8422",
+    "manifest_sha256": "e465c21d01c815cc8d8fc3df29b4b1c106ec388fa4f7e57ac9b83563b5bd7de3",
+    "seed": 20261024,
+    "train_episodes": 8,
+    "dev_episodes": 2,
+    "heldout_episodes": 2,
+    "train_cases": 96,
+    "evaluation_cases": 48,
+    "scope": "Fresh small synthetic diagnostic, now exposed; only one counterfactual family in each evaluation split. No broad or sealed audit claim."
+  },
+  "benchmark_contract": {
+    "four_fact_multiquery": true,
+    "two_source_pages": true,
+    "independent_distractor_values": true,
+    "complete_family_splits": true,
+    "counterfactual_identical_queries_different_answers": true,
+    "no_gold_or_role_routing": true,
+    "first_last_value_max_accuracy": 0.25,
+    "query_only_max_accuracy": 0.5,
+    "absent_query": true,
+    "heldout_novel_values": [
+      "crimson",
+      "indigo"
+    ]
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "chronology": "Each evaluation episode appends two source pages once, answers five questions on that shared state, saves/reloads without source reencoding, appends one correction to that same state, and answers changed/unaffected/unknown/general questions. Training uses functional state reconstruction and unrolled gradients per example, not deployment persistence.",
+  "correction_scope": "Latest-value append diagnostic; not deletion, revocation or neural unlearning. Historical fact information may remain encoded.",
+  "evaluation_arms": {
+    "parent": [
+      "fast",
+      "disabled"
+    ],
+    "candidate": [
+      "fast",
+      "disabled",
+      "shuffled",
+      "last_chunk",
+      "full_context"
+    ]
+  },
+  "controls": "Shuffled is the same-family counterfactual state. Last-chunk uses only the final page or correction. Disabled is exact frozen-base inference; full-context supplies observed facts and correction to the baseline prompt. Fixed fast path; no case-role router.",
+  "training": {
+    "regime": "modules_only",
+    "trainable": [
+      "fast_depth_write_encoders",
+      "fast_ports"
+    ],
+    "frozen": [
+      "original",
+      "record_writer",
+      "memory_ports"
+    ],
+    "optimizer": "muon8bit",
+    "optimizer_semantics": "Int8 Muon momentum with FP32 parameters/gradients; auxiliary FP32 AdamW for nonmatrix parameters. No claim of BF16 resident or FP8 training.",
+    "lr": 0.001,
+    "base_lr": 0.0,
+    "weight_decay": 0.0,
+    "updates": 24,
+    "examples_per_update": 4,
+    "seed": 20261024,
+    "preservation_kl_weight": 1.0,
+    "max_grad_norm": 1.0,
+    "schedule": "Seeded shuffle of round-robin query positions across all eight training worlds, one visit to each of 96 cases. Evaluation labels never train or select settings.",
+    "objective": "Response-only teacher-forced CE for all training cases; additionally KL(base-disabled teacher || fast-enabled student) over answer positions on 16 train-only general examples, weight 1.0. The base teacher is frozen and sees the same prefix/target history.",
+    "gradient_probe_updates": [
+      1,
+      2
+    ],
+    "no_quality_retuning": true
+  },
+  "acceptance": {
+    "fact_correct_changed_unaffected_min_each_split": 0.75,
+    "unknown_min_each_split": 0.75,
+    "delayed_strictly_above_disabled_shuffled_last_chunk": true,
+    "general_no_drop_vs_disabled_and_parent_fast": true,
+    "no_base_correct_to_candidate_wrong_general": true,
+    "disabled_token_parity": true,
+    "persistent_authenticated_scope_lineage_counters": true,
+    "fresh_process_multiqueury_token_state_parity": true,
+    "failed_gate": "Reject candidate and preserve parent; do not promote or advance neural RSI."
+  },
+  "budget": {
+    "native_training_jobs": 1,
+    "native_restart_jobs": 1,
+    "model_loads_per_job": 1,
+    "max_wall_seconds": 600,
+    "restart_max_wall_seconds": 90,
+    "max_generated_answers": 336,
+    "max_generated_tokens": 2016,
+    "restart_max_generated_answers": 7,
+    "restart_max_generated_tokens": 42,
+    "max_prompt_tokens": 256,
+    "max_target_tokens": 8,
+    "max_source_tokens": 256,
+    "max_action_tokens": 264,
+    "optimizer_updates": 24,
+    "gradient_examples": 96,
+    "checkpoints": 1,
+    "depth_images": 8,
+    "expected_extension_mib": 47
+  },
+  "limits": {
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1,
+    "cpu_fallback": false
+  },
+  "restart_policy": "One independent guarded restart is a mechanical diagnostic even if quality rejects. It loads the exact candidate and first heldout corrected image, without training or source reencoding, and reproduces all seven corrected-stage answers.",
+  "stop_conditions": [
+    "capacity or host-pressure guard",
+    "nonfinite loss/gradient/state",
+    "hash/provenance or scope mismatch",
+    "token/time/update/artifact bound",
+    "missing or stale MPS telemetry"
+  ],
+  "publication": "None. Candidate saved under isolated run path. Source and selected defaults are unchanged. Passing only qualifies this small diagnostic, not deployment or RSI.",
+  "implementation_sha256": {
+    "scripts/run_memory_reliability.py": "663716472f722bf21a9d7e9fb838bc7903f49effb4c45b998fd8247cb100c797",
+    "scripts/score_memory_reliability.py": "8d06ded4e894d25974bc117ce9a6b408eafcc99b32c155143383eba1afde7e68",
+    "scripts/make_memory_reliability_data.py": "ea59e6fc2e9dda43c92e3de0d832c49598cf4184828b8e96a1c91228dbad028b",
+    "scripts/run_capacity_preflight.py": "846c2945b0e7d00f28d8a2ae2c9f3d22e5735b8924ede21c768f47ed387548a7",
+    "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+    "src/replica_lab/memory_reliability.py": "79c4cab4ad025a855237c35f944e3b3c69dd65c7886e91b700a24b282ac63432",
+    "src/replica_lab/reliability_scoring.py": "39616a752942ce23d9eb5d05170291ee878e52b9ac508a54708938fe402482e8",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "0652dd87129bd6c7683192d13d12e287325b111e62f7796f7e86e4c40e20886c",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/memory_system/session.py": "3359f318077b0ec1a08f87d3ff93c4fb24c53be7c8d193c5f3b5ea94376e415b",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "tests/test_memory_reliability.py": "17e36a082f2b56da0ecdb47c1d22f386566242ff466b4cb27179fee79c7da012"
+  }
+}
