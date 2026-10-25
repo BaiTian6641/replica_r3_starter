@@ -93,6 +93,38 @@ def test_tracked_scope_catches_existing_blob_even_when_nothing_is_staged(repo):
     assert GUARD.audit_index("tracked", max_bytes=32)["status"] == "failed"
 
 
+@pytest.mark.parametrize("target", [
+    "/tmp/local-payload", "../../outside", "../runs/native/candidate_extension",
+    "../checkpoints/source", "../data/raw", "../nested/.cache", "../.env.private",
+])
+def test_local_or_external_symlink_targets_are_rejected(repo, target):
+    link = repo / "docs/local-link"
+    link.parent.mkdir()
+    link.symlink_to(target)
+    subprocess.run(["git", "add", "--", "docs/local-link"], check=True)
+    report = GUARD.audit_index()
+    assert report["status"] == "failed"
+    assert "symbolic link" in report["violations"][0]["reason"]
+    assert link.is_symlink() and str(link.readlink()) == target
+
+
+def test_relative_source_symlink_is_shareable(repo):
+    stage(repo, "README.md", b"Source documentation\n")
+    (repo / "docs").mkdir()
+    (repo / "docs/index.md").symlink_to("../README.md")
+    subprocess.run(["git", "add", "--", "docs/index.md"], check=True)
+    assert GUARD.audit_index()["status"] == "passed"
+
+
+def test_symlink_check_uses_index_target_not_working_target(repo):
+    link = repo / "link"
+    link.symlink_to("/tmp/local-payload")
+    subprocess.run(["git", "add", "--", "link"], check=True)
+    link.unlink()
+    link.symlink_to("README.md")
+    assert GUARD.audit_index()["status"] == "failed"
+
+
 @pytest.mark.parametrize("name", ["checkpoints/source/config.json", "runs/run/checkpoint/weights.bin",
     "models/source/tokenizer.json", "elsewhere/model.safetensors", "elsewhere/optimizer.bin",
     "elsewhere/model.gguf", "elsewhere/model.onnx", "elsewhere/example.mlpackage/metadata.json",

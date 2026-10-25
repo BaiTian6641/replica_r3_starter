@@ -41,6 +41,15 @@ this maintenance. The index guard rejects force-added payloads and local
 scratch paths as well as oversized Git blobs. It reads staged object sizes,
 so shrinking a working file after staging cannot evade the size check.
 
+The later clean-export check found two absolute symlinks under
+`reports/memory_reliability_v2_attempt03/smoke_fixture/run/`: `candidate_extension`
+and `images`. Their targets are ignored local `runs/` payloads. Both links are
+now ignored and removed from the index with `git rm --cached`; the working links,
+targets and adjacent historical reports remain intact. Old commits contain only
+the 88-byte and 75-byte link texts, not their payloads. The guard now checks
+staged link targets, rejecting absolute paths, repository escapes and links to
+excluded local artifacts while allowing relative links to source files.
+
 ## Commit each completed package
 
 1. Inspect `git status --short` and the diff; identify the files owned by the
@@ -66,7 +75,8 @@ git config --local core.hooksPath .githooks
 .venv/bin/python -m pytest tests/test_git_artifacts.py -q -p no:cacheprovider
 ```
 
-The maintenance check passes 65 tests, covering normal evidence additions,
+The final maintenance check passes 74 tests, covering normal evidence additions,
 forced additions of ignored artifacts, staged versus working file sizes,
-and full-index scans. The full starting index passes the expanded guard.
+full-index scans and staged symbolic-link targets. The expanded guard passes
+all 4,752 tracked files after the two local links are untracked.
 Native model execution is outside this check.

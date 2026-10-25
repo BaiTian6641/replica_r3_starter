@@ -10,6 +10,7 @@ import argparse
 import fnmatch
 import json
 from pathlib import PurePosixPath
+import posixpath
 import subprocess
 import sys
 
@@ -55,7 +56,7 @@ def artifact_reason(name):
             or basename.startswith(".coverage.")
             or basename.endswith((".pyc", ".pyo", ".pyd", ".swp", ".swo", "~"))):
         return "generated cache, coverage or editor file"
-    if path.suffix.lower().startswith(".sqlite"):
+    if fnmatch.fnmatch(basename, "*.sqlite*"):
         return "local database"
     if basename.endswith(ARCHIVE_SUFFIXES):
         return "bulk archive or backup"
@@ -64,6 +65,21 @@ def artifact_reason(name):
             or any(fnmatch.fnmatch(path.name.lower(), p) for p in
                    ("pytorch_model*.bin", "adapter_model*.bin", "optimizer*.bin", "training_args.bin"))):
         return "model/state or binary dataset artifact"
+    return None
+
+
+def symlink_reason(name, target):
+    """Inspect the staged link text without following any working-tree path."""
+    if not target or "\0" in target:
+        return "invalid symbolic link target"
+    if posixpath.isabs(target):
+        return "machine-local absolute symbolic link"
+    resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), target))
+    if resolved == ".." or resolved.startswith("../"):
+        return "symbolic link escapes the repository"
+    # The target may be a file or directory; both must obey the local-state rule.
+    if artifact_reason(resolved) or artifact_reason(resolved + "/__target__"):
+        return "symbolic link targets an excluded local artifact"
     return None
 
 
@@ -83,17 +99,17 @@ def audit_index(scope="staged", max_bytes=MAX_BLOB_BYTES):
         if stage != "0":
             violations.append({"path": name, "reason": "unmerged index entry"})
         elif mode != "160000":  # A submodule entry stores a commit ID, not its files.
-            entries.append((name, oid))
+            entries.append((name, oid, mode))
     sizes = {}
     if entries:
-        objects = sorted({oid for _, oid in entries})
+        objects = sorted({oid for _, oid, _ in entries})
         response = git("cat-file", "--batch-check=%(objectname) %(objecttype) %(objectsize)",
                        input=("\n".join(objects) + "\n").encode()).decode()
         for line in response.splitlines():
             fields = line.split()
             if len(fields) == 3 and fields[1] == "blob":
                 sizes[fields[0]] = int(fields[2])
-    for name, oid in entries:
+    for name, oid, mode in entries:
         reasons = []
         if artifact_reason(name):
             reasons.append(artifact_reason(name))
@@ -101,6 +117,13 @@ def audit_index(scope="staged", max_bytes=MAX_BLOB_BYTES):
             reasons.append("index object is missing or is not a blob")
         elif sizes[oid] > max_bytes:
             reasons.append("blob exceeds the project size limit")
+        if mode == "120000" and oid in sizes:
+            if sizes[oid] > 4096:
+                reasons.append("symbolic link target exceeds 4096 bytes")
+            else:
+                reason = symlink_reason(name, git("cat-file", "blob", oid).decode("utf-8", "surrogateescape"))
+                if reason:
+                    reasons.append(reason)
         if reasons:
             violations.append({"path": name, "object": oid,
                                "bytes": sizes.get(oid), "reason": "; ".join(reasons)})

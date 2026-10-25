@@ -50,6 +50,14 @@ historical source pins reproduce. The 51-file design package has 528 valid local
 links. Recorded research and model test results retain their original dates and
 scope. This stage does not qualify the concurrently edited native V0 code.
 
+Stage 3 committed as `7854a3f`. A clean export revealed two absolute symlinks
+under `reports/memory_reliability_v2_attempt03/smoke_fixture/run/` pointing to
+local `runs/` payloads. Stage 4 removes only their index entries and ignores them;
+both working symlinks and targets still exist. The guard now rejects staged
+absolute/escaping/local-artifact symlinks. The focused guard suite passes
+**74 tests in 5.86 s** and all **4,752 tracked files** pass the full-index guard.
+Old commits retain only the small symlink texts; no model bytes were tracked.
+
 ## Current evidence and limits
 
 - The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192
