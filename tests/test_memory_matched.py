@@ -28,6 +28,7 @@ from replica_lab.memory_matched import (
     derive_state_labels,
     enforce_elapsed_deadline,
     episode_states,
+    finalize_completed_report,
     generate_matched_episodes,
     matched_inventory,
     matched_workload,
@@ -838,3 +839,86 @@ def test_prepared02_audits_interference_and_declared_budget():
         assert any(item['entity'] == target['entity']
                    and item['attribute'] != target['attribute']
                    for item in episode['distractors'])
+
+
+def test_post_profiler_and_post_report_deadline_crossings_fail_closed():
+    # Profiler stop itself crosses the deadline: no completed report is written.
+    now = [0.0]
+    writes = []
+
+    def clock():
+        return now[0]
+
+    def stop_crossing():
+        now[0] = 901.0
+        return {'elapsed_seconds': 900.0}
+
+    result = {'format': 'test'}
+    with pytest.raises(TimeoutError):
+        finalize_completed_report(
+            result, started_monotonic=0.0, max_wall_seconds=900,
+            stop_profiler=stop_crossing, write_report=writes.append,
+            clock=clock)
+    assert writes and writes[-1]['status'] == 'failed'
+    assert writes[-1]['deadline_ok'] is False
+    assert all(item['status'] != 'completed' for item in writes)
+
+    # Report serialization itself crosses after a completed write: the artifact
+    # is overwritten with a failed report and never left completed.
+    now[0] = 0.0
+    writes.clear()
+
+    def stop_within_budget():
+        now[0] = 100.0
+        return {'elapsed_seconds': 99.0}
+
+    def write_then_cross(value):
+        writes.append(deepcopy(value))
+        if len(writes) == 1:
+            now[0] = 901.0
+
+    result = {'format': 'test'}
+    with pytest.raises(TimeoutError):
+        finalize_completed_report(
+            result, started_monotonic=0.0, max_wall_seconds=900,
+            stop_profiler=stop_within_budget,
+            write_report=write_then_cross, clock=clock)
+    assert writes[0]['status'] == 'completed'
+    assert writes[-1]['status'] == 'failed'
+    assert writes[-1]['deadline_ok'] is False
+    assert not any(item['status'] == 'completed'
+                   and item['deadline_ok'] is False for item in writes)
+    assert result['status'] == 'failed' and result['deadline_ok'] is False
+
+    # A profiler summary over budget is rejected even if the wall clock agrees.
+    writes.clear()
+    result = {'format': 'test'}
+    with pytest.raises(TimeoutError):
+        finalize_completed_report(
+            result, started_monotonic=0.0, max_wall_seconds=900,
+            stop_profiler=lambda: {'elapsed_seconds': 901.0},
+            write_report=writes.append, clock=lambda: 100.0)
+    assert writes[-1]['status'] == 'failed'
+    assert writes[-1]['deadline_ok'] is False
+
+    # Within-budget finalization writes only completed reports.
+    now[0] = 0.0
+    writes.clear()
+
+    def stop_ok():
+        now[0] = 50.0
+        return {'elapsed_seconds': 49.0}
+
+    def write_ok(value):
+        writes.append(deepcopy(value))
+        now[0] += 10.0
+
+    result = {'format': 'test'}
+    finalized = finalize_completed_report(
+        result, started_monotonic=0.0, max_wall_seconds=900,
+        stop_profiler=stop_ok, write_report=write_ok, clock=clock)
+    assert finalized['status'] == 'completed'
+    assert finalized['deadline_ok'] is True
+    assert finalized['elapsed_seconds'] >= finalized['profile']['elapsed_seconds']
+    assert all(item['status'] == 'completed' for item in writes)
+    assert all(item['deadline_ok'] is True for item in writes)

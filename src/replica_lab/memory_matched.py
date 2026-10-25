@@ -280,6 +280,72 @@ def enforce_elapsed_deadline(started_monotonic, max_wall_seconds, *,
     return elapsed
 
 
+def finalize_completed_report(result, *, started_monotonic, max_wall_seconds,
+                              stop_profiler, write_report, clock=None,
+                              label='native matched diagnostic'):
+    """Finalize profiling/reporting under the same monotonic deadline.
+
+    A completed status is written only after the profiler has stopped.  The
+    deadline is then enforced again after report serialization, immediately
+    before return.  Any crossing overwrites the artifact with a failed report so
+    ``status='completed'`` and ``deadline_ok=False`` can never be persisted
+    together.
+    """
+    _require(isinstance(result, dict), 'Finalization requires a report object')
+    _require(type(max_wall_seconds) is int and max_wall_seconds > 0,
+             'Deadline must be a positive integer number of seconds')
+    _require(callable(stop_profiler) and callable(write_report),
+             'Finalization requires profiler and report-writer callables')
+    current = time.monotonic if clock is None else clock
+    _require(callable(current), 'Finalization clock must be callable')
+
+    def failed(error):
+        elapsed = max(0.0, float(current()) - float(started_monotonic))
+        result.update({
+            'status': 'failed', 'deadline_seconds': max_wall_seconds,
+            'elapsed_seconds': elapsed, 'deadline_ok': False,
+            'finished_at_utc': _utc_now(),
+            'error_type': type(error).__name__, 'error': str(error),
+        })
+        write_report(result)
+
+    profile = stop_profiler()
+    result['profile'] = profile
+    profile_elapsed = float(profile.get('elapsed_seconds', 0.0))
+    if profile_elapsed > max_wall_seconds:
+        error = TimeoutError(
+            f'{label} profiler elapsed {profile_elapsed:.3f}s exceeds '
+            f'the declared {max_wall_seconds}s budget')
+        failed(error)
+        raise error
+    try:
+        elapsed = enforce_elapsed_deadline(
+            started_monotonic, max_wall_seconds, now=current(),
+            label=f'{label} profiler stop')
+        result.update({
+            'status': 'completed', 'deadline_seconds': max_wall_seconds,
+            'elapsed_seconds': max(elapsed, profile_elapsed),
+            'deadline_ok': True, 'finished_at_utc': _utc_now(),
+        })
+        write_report(result)
+        final_elapsed = enforce_elapsed_deadline(
+            started_monotonic, max_wall_seconds, now=current(),
+            label=f'{label} report finalization')
+        result.update({
+            'final_elapsed_seconds': final_elapsed,
+            'elapsed_seconds': max(final_elapsed, profile_elapsed),
+            'deadline_ok': True, 'finished_at_utc': _utc_now(),
+        })
+        write_report(result)
+        enforce_elapsed_deadline(
+            started_monotonic, max_wall_seconds, now=current(),
+            label=f'{label} return')
+    except TimeoutError as error:
+        failed(error)
+        raise
+    return result
+
+
 def _mean(values):
     values = [value for value in values if value is not None]
     return (sum(values) / len(values)) if values else None

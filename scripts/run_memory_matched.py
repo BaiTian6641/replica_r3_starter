@@ -29,6 +29,7 @@ from replica_lab.memory_matched import (  # noqa: E402
     ADMISSION_FORMAT,
     PROTOCOL_FORMAT,
     enforce_elapsed_deadline,
+    finalize_completed_report,
     run_matched_diagnostic,
     verify_matched_prepared,
 )
@@ -212,16 +213,8 @@ def run_native(args, parser):
                 model, tokenizer, protocol, output_dir=output,
                 ledger_dir=output / 'ledger', episodes=data['episodes'],
                 device='mps', writer_extension_receipt=extension_receipt)
-            elapsed_seconds = enforce_elapsed_deadline(
-                started_monotonic, max_wall_seconds,
-                label='native matched diagnostic')
             result['budget'] = budget
-            result['deadline_seconds'] = max_wall_seconds
-            result['elapsed_seconds'] = elapsed_seconds
-            result['deadline_ok'] = True
-            result['status'] = 'completed'
             result['started_at_utc'] = report['started_at_utc']
-            result['finished_at_utc'] = datetime.now(timezone.utc).isoformat()
             result['native_run'] = report['native']
             result['prepared'] = report['prepared']
             result['source'] = source
@@ -242,8 +235,12 @@ def run_native(args, parser):
                     (output / 'answers.jsonl').read_text().splitlines()):
                 raise ValueError('Raw answer row count differs')
             result['admission'] = admission
-            result['profile'] = profiler.stop()
-            dump(output / 'run_report.json', result)
+            finalize_completed_report(
+                result, started_monotonic=started_monotonic,
+                max_wall_seconds=max_wall_seconds,
+                stop_profiler=profiler.stop,
+                write_report=lambda value: dump(output / 'run_report.json', value),
+                label='native matched diagnostic')
             print(json.dumps({
                 'status': result['status'],
                 'decision': result['decision'],
@@ -252,12 +249,15 @@ def run_native(args, parser):
                 'counts': result['counts'],
                 'report': str(output / 'run_report.json'),
             }, sort_keys=True))
+            enforce_elapsed_deadline(
+                started_monotonic, max_wall_seconds,
+                label='native matched diagnostic return')
             return 0
     except BaseException as error:
         failure = dict(report, status='failed',
                        finished_at_utc=datetime.now(timezone.utc).isoformat(),
                        elapsed_seconds=time.monotonic() - started_monotonic,
-                       deadline_seconds=max_wall_seconds,
+                       deadline_seconds=max_wall_seconds, deadline_ok=False,
                        error_type=type(error).__name__, error=str(error),
                        traceback=traceback.format_exc(),
                        profile=profiler.stop())
