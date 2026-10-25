@@ -1,0 +1,39 @@
+{
+  "format": "replica.memory_reliability.training_engineering_audit.v1",
+  "run": "runs/memory_reliability_v5_attempt01/run_report.json",
+  "run_sha256": "0fa0dec3d59fac7a183dde9572559295b516b345ec8e7ecfe6cb3211a6fd46a0",
+  "protocol": "configs/memory_reliability_v5.json",
+  "protocol_sha256": "daa8aad1df5fa985eb343ab18bf27d566dadc2bd536aa15e7ef228890c4918f7",
+  "scorer_correction_commit": "eff2079",
+  "training_routes": {
+    "examples": 192,
+    "route_counts": {"fast": 128, "disabled": 64},
+    "memory_active_examples": 128,
+    "backward_calls": 192,
+    "disabled_backward_calls": 64,
+    "updates_checked": 48,
+    "gradient_attribution": "update_level_accumulated_only"
+  },
+  "checkpoint_changes": {
+    "changed_tensors": [
+      "fast_depth_write_encoders.13.erase_projection.weight",
+      "fast_depth_write_encoders.13.forget_projection.weight",
+      "fast_depth_write_encoders.13.input_norm.bias",
+      "fast_depth_write_encoders.13.input_norm.weight",
+      "fast_depth_write_encoders.13.key_projection.weight",
+      "fast_depth_write_encoders.13.value_projection.weight",
+      "fast_depth_write_encoders.13.write_projection.weight",
+      "fast_depth_write_encoders.27.erase_projection.weight",
+      "fast_depth_write_encoders.27.forget_projection.weight",
+      "fast_depth_write_encoders.27.input_norm.bias",
+      "fast_depth_write_encoders.27.input_norm.weight",
+      "fast_depth_write_encoders.27.key_projection.weight",
+      "fast_depth_write_encoders.27.value_projection.weight",
+      "fast_depth_write_encoders.27.write_projection.weight"
+    ],
+    "unchanged_tensor_count": 53
+  },
+  "update2": {"writer_nonzero": 14, "original_present": [], "nonfinite": []},
+  "parameter_trainable": 5251072,
+  "scope": "Independent engineering audit only. Backward calls include non-fast graph paths on gate-off examples; no per-example gradient attribution or quality acceptance is inferred."
+}

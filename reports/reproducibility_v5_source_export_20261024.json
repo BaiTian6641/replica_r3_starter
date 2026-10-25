@@ -1,0 +1,25 @@
+{
+  "format": "replica.reproducibility.source_export.v1",
+  "date_utc": "2026-10-24",
+  "head": "ee6316f",
+  "protocol_content_commit": "6b4de12",
+  "protocol_metadata_commit": "45ba43d",
+  "infrastructure_commit": "ee6316f",
+  "protocol": "configs/memory_reliability_v5.json",
+  "protocol_sha256_at_seal": "daa8aad1df5fa985eb343ab18bf27d566dadc2bd536aa15e7ef228890c4918f7",
+  "focused_tests": {"passed": 46, "failed": 0},
+  "clean_export": {
+    "method": "git archive HEAD; hardlink sealed local MiniCPM5 source into the export for path-bound model-free fixtures; no model bytes copied or downloaded",
+    "imports": "pass",
+    "dataset_regeneration_and_hash_equality": "pass",
+    "implementation_pins": "26/26 pass",
+    "full_tests": {"passed": 1308, "failed": 0, "subtests_passed": 21, "warnings": 1, "wall_seconds": 141.25},
+    "warning_scope": "Existing sparse-tensor invariant warning in tests/test_m4_pattern.py; no failure"
+  },
+  "rejected_setup_attempts": [
+    {"tests_passed": 1279, "tests_failed": 21, "subtests_passed": 21, "cause": "Clean archive intentionally lacked external sealed model files and five guard/scorer dependencies were not yet committed"},
+    {"tests_passed": 1302, "tests_failed": 6, "subtests_passed": 21, "cause": "Symlinked sealed model resolved outside the export and violated response-contract logical path binding"}
+  ],
+  "final_scope": "Source and protocol reproducibility only; this is not native memory-quality evidence.",
+  "protected_draft": "src/replica_lab/runtime_pilot.py remains untracked and untouched"
+}
