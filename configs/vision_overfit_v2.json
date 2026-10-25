@@ -1,0 +1,111 @@
+{
+  "format": "replica.vision_overfit_probe.protocol.v1",
+  "root": ".",
+  "stage": "v1",
+  "vision": {
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "encoder_width": 768,
+    "image_size": 224,
+    "patch_size": 16,
+    "max_visual_tokens": 196,
+    "projector_hidden": 2048,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "compute_dtype": "float32"
+  },
+  "vision_digest": "2eab38384f18de90e8f8d463a0080bd24a2b49eb58ac1d1df3cfd58dd63b2b0e",
+  "vision_source": {
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1",
+    "scope": {
+      "subject_id": "owned-v0-interface",
+      "branch_id": "isolated-v0",
+      "purpose": "isolated_visual_interface",
+      "as_of": 0,
+      "mode": "parallel_replica",
+      "snapshot_at": null
+    }
+  },
+  "model": {
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792"
+  },
+  "data": {
+    "root": "data/vision_preparation_v1",
+    "stage": "v1",
+    "manifest": {
+      "path": "v1/vision_manifest.json",
+      "sha256": "38f714bdddd1cf8cad97c8e38a224f1d5408d8fd5c44caf3e8885d7cd88de0a7"
+    },
+    "model_rows": {
+      "path": "v1/model_rows.jsonl",
+      "sha256": "929675495fe5a991484643f44287702d3f93e4e98563a5266be738ce961da5c2"
+    },
+    "verifier_cases": {
+      "path": "v1/verifier_cases.jsonl",
+      "sha256": "d6daf92e4215f28cb924510f2e104af5838e091b825d6e4fd50ee34cd1c4b9bb"
+    },
+    "verifier_scenes": {
+      "path": "v1/verifier_scenes.jsonl",
+      "sha256": "d3b2c13b83404f2ef637ba70a07d2008c5ce954166ec6e45debb5e5a14bfbfbe"
+    }
+  },
+  "limits": {
+    "max_rows": 2048,
+    "max_seconds": 1800,
+    "min_free_disk_bytes": 5368709120,
+    "max_export_bytes": 134217728,
+    "max_prompt_tokens": 256
+  },
+  "seed": 17,
+  "train_worlds": 8,
+  "dev_worlds": 8,
+  "per_world_cases": 1,
+  "train": {
+    "updates": 32,
+    "grad_accum": 1,
+    "lr_new": 0.0001,
+    "momentum": 0.95,
+    "ns_steps": 5,
+    "block_size": 2048,
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1800,
+    "optimizer": "muon8bit",
+    "repeats": 2,
+    "seed": 17,
+    "repeat_policy": "declared_epochs",
+    "schedule_version": "seeded_epoch_shuffle.v1"
+  },
+  "eval": {
+    "max_new_tokens": 8
+  },
+  "initial_checkpoint": {
+    "path": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v0_20261025/attempt02/extension",
+    "manifest_sha256": "4334dbf33e3fa43a32b2417c99fd064d64d94edcd8abbb66334862f1501d98ea",
+    "weights_sha256": "042a6fa354acb793c3fa4476d419ac0ae938ff3ceb853a201719fb6ea214599c"
+  },
+  "implementation_sha256": {
+    "src/replica_lab/vision_diagnostic.py": "da54d51ac60b017fb18ba1f412311ba2c4eb58e1a7f8107a26b648a37ac43e6d",
+    "scripts/run_vision_diagnostic.py": "90d56d0edd8064de6b6fa28882624d268f0fade4ca10ec74713c92c256ca2d6c",
+    "scripts/run_vision_qualification.py": "81cbdeb7ad30548ac6736d26d044d53cad33ce8c3135d17b1823f7007e80754a",
+    "scripts/score_vision_qualification.py": "8f62f57d4a4321e9a58c7116487a748c2aded0f1381b55199ad0fbe744fd503e",
+    "src/replica_lab/vision_qualification.py": "dd6948db2df66811925c755df7f79ebb7a6a6f23621272b947fedff10c57eacc",
+    "src/replica_lab/architecture/vision.py": "2618381544eaea95c31989281f5c941e1531ab6ccfd9fbf53a41e768b92b2978",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
+    "scripts/run_capacity_preflight.py": "76d130d70a8dd05fa4ed0ce24b347d30a5a16a6653356765b0717a6786d1b5d8",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/vision_overfit.py": "82fd62456d0939d0922319f11363ff832079a586a1f47785fae1d32400f47415",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0"
+  }
+}
