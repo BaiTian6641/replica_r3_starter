@@ -884,6 +884,7 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
             lr=float(train["lr_new"]))
     else:
         optimizer = ReplicaOptimizer(groups, "muon8bit")
+    route = optimizer_route(groups)
     trainable = freeze_for_v1(adapter)
     require({item["name"] for item in route} == set(trainable),
             "Optimizer route and trainable receipt differ")
@@ -1018,8 +1019,8 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
         "optimizer": "sgd", "lr": float(train["lr_new"]),
         "parameter_dtype": "float32",
         "groups": [{"group_name": "projector_sgd",
-                    "param_names": [item["name"] for group in groups
-                                    for item in group["param_names"]]}]})
+                    "param_names": [name for group in groups
+                                    for name in group["param_names"]]}]})
     adapter.eval()
     return {
         "trace": trace,
