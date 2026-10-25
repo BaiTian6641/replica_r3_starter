@@ -1,0 +1,15 @@
+W1025 14:05:45.907000 45833 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_diagnostic.py", line 191, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_diagnostic.py", line 187, in main
+    return run(args)
+           ^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_diagnostic.py", line 83, in run
+    verify_implementation_pins(protocol, ROOT)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 301, in verify_implementation_pins
+    require(relative in pins, f"Protocol must pin implementation: {relative}")
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 92, in require
+    raise QualificationError(message)
+replica_lab.vision_qualification.QualificationError: Protocol must pin implementation: scripts/run_vision_qualification.py

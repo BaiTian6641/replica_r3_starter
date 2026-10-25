@@ -1,0 +1,15 @@
+W1025 14:15:21.124000 49641 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_overfit.py", line 276, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_overfit.py", line 272, in main
+    return run(args)
+           ^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_overfit.py", line 103, in run
+    verify_implementation_pins(protocol, ROOT)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 298, in verify_implementation_pins
+    require(actual[relative] == _sha(expected, f"implementation_sha256[{relative}]"),
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_qualification.py", line 92, in require
+    raise QualificationError(message)
+replica_lab.vision_qualification.QualificationError: Implementation bytes changed: src/replica_lab/vision_overfit.py

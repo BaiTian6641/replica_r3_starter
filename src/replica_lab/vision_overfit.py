@@ -41,11 +41,16 @@ def validate_overfit_protocol(protocol):
             'Overfit grad_accum must be a positive integer')
     require(train['lr_new'] > 0 and type(train['lr_new']) in (int, float),
             'Overfit learning rate must be positive')
-    require(train['repeats'] == 1 and train['seed'] >= 0,
-            'Overfit probe uses one seeded pass')
+    require(type(train['repeats']) is int and 1 <= train['repeats'] <= 4,
+            'Overfit repeats stay bounded at four seeded epochs')
+    require(train['seed'] >= 0 and type(train['seed']) is int,
+            'Overfit seed must be a nonnegative integer')
     require(train['optimizer'] == 'muon8bit', 'Overfit keeps the declared optimizer route')
     require(protocol['eval']['max_new_tokens'] >= 2,
             'Overfit evaluation needs at least two generated tokens')
+    require('max_export_bytes' in protocol['limits']
+            and 'max_prompt_tokens' in protocol['limits'],
+            'Overfit limits must pin export and prompt budgets')
     require(isinstance(protocol['implementation_sha256'], dict)
             and bool(protocol['implementation_sha256']),
             'Overfit implementation pins are required')
@@ -85,6 +90,9 @@ def evaluate_cases(model, tokenizer, service, dataset, cases, *, scope, output,
     """Generate correct/wrong/no-image answers with the production session path."""
     from replica_lab.memory_system.ledger import RecordLedger
     from replica_lab.memory_system.session import MemorySession
+    from replica_lab.architecture.loading import encode_prompt
+    from replica_lab.architecture.contracts import TaskGraph
+    import torch
 
     ledger = RecordLedger(Path(output) / 'ledger.sqlite')
     session = MemorySession(model, tokenizer, ledger)

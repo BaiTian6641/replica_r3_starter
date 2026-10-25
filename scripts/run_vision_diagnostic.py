@@ -34,6 +34,10 @@ from replica_lab.vision_qualification import (  # noqa: E402
     load_verified_dataset, require, resolve_project_path, sha256_file,
     verify_implementation_pins,
 )
+from replica_lab.vision_overfit import (  # noqa: E402
+    OVERFIT_FORMAT, decide_overfit, evaluate_cases, overfit_training_rows,
+    summarize, validate_overfit_protocol,
+)
 
 
 def write_json(path, value):
@@ -58,7 +62,28 @@ def prepare(args):
         "implementation_sha256": {relative: sha256_file(ROOT / relative)
                                   for relative in DIAGNOSTIC_IMPLEMENTATION_FILES},
     }
-    workload = validate_diagnostic_protocol(protocol)
+    if args.stage == 'frozen_readout':
+        workload = validate_diagnostic_protocol(protocol)
+    else:
+        protocol.update({
+            'format': OVERFIT_FORMAT,
+            'train': {
+                'updates': args.updates, 'grad_accum': args.grad_accum,
+                'lr_new': args.lr, 'momentum': 0.95, 'ns_steps': 5,
+                'block_size': 2048, 'weight_decay': 0.01, 'max_grad_norm': 1.0,
+                'max_seconds': args.max_seconds, 'optimizer': 'muon8bit',
+                'repeats': 1, 'seed': args.seed, 'repeat_policy': 'once',
+                'schedule_version': 'seeded_epoch_shuffle.v1',
+            },
+            'eval': {'max_new_tokens': args.max_new_tokens},
+            'initial_checkpoint': {
+                'path': str(args.initial_checkpoint),
+                'manifest_sha256': sha256_file(args.initial_checkpoint / 'manifest.json'),
+                'weights_sha256': sha256_file(args.initial_checkpoint / 'extensions.safetensors'),
+            },
+        })
+        protocol.pop('decision', None)
+        workload = validate_overfit_protocol(protocol)
     protocol_path = args.protocol_out if args.protocol_out.is_absolute() \
         else ROOT / args.protocol_out
     protocol_path.parent.mkdir(parents=True, exist_ok=True)
@@ -79,6 +104,8 @@ def run(args):
 
     protocol_path = args.protocol if args.protocol.is_absolute() else ROOT / args.protocol
     protocol = json.loads(protocol_path.read_text())
+    if protocol['format'] == OVERFIT_FORMAT:
+        return run_overfit(args)
     workload = validate_diagnostic_protocol(protocol)
     verify_implementation_pins(protocol, ROOT)
     require(torch.backends.mps.is_available(), "MPS is unavailable; no CPU fallback")

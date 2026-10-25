@@ -1,0 +1,36 @@
+W1025 14:07:02.348000 46336 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  25%|██▍       | 94/381 [00:00<00:00, 850.91it/s]Loading weights:  50%|████▉     | 189/381 [00:00<00:00, 904.05it/s]Loading weights:  73%|███████▎  | 280/381 [00:00<00:00, 870.69it/s]Loading weights:  97%|█████████▋| 368/381 [00:00<00:00, 842.88it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 876.14it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/vision.py", line 1050, in load_pil_image_processor
+    processor = SiglipImageProcessorPil.from_pretrained(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2424, in __getattribute__
+    requires_backends(cls, cls._backends)
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2410, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+SiglipImageProcessorPil requires the PIL library but it was not found in your environment. You can install it with pip:
+`pip install pillow`. Please note that you may need to restart your runtime after installation.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_diagnostic.py", line 195, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_diagnostic.py", line 191, in main
+    return run(args)
+           ^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_diagnostic.py", line 138, in run
+    service = VisionFeatureService(
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/vision.py", line 1303, in __init__
+    self._processor = load_pil_image_processor(self.source)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/vision.py", line 1053, in load_pil_image_processor
+    raise VisionSourceError(
+replica_lab.architecture.vision.VisionSourceError: Official SiglipImageProcessorPil could not load offline: ImportError: 
+SiglipImageProcessorPil requires the PIL library but it was not found in your environment. You can install it with pip:
+`pip install pillow`. Please note that you may need to restart your runtime after installation.
+
