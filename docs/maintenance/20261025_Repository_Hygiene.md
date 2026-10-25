@@ -80,3 +80,26 @@ forced additions of ignored artifacts, staged versus working file sizes,
 full-index scans and staged symbolic-link targets. The expanded guard passes
 all 4,752 tracked files after the two local links are untracked.
 Native model execution is outside this check.
+
+## Verify a relocated checkout
+
+A clean export at `d163909` passed 111 focused tests, then exposed a separate
+visual-data audit defect: the stored catalog/registry locators contained the
+original absolute checkout path. The follow-up makes new allowlists use relative
+paths and permits historical absolute locators only when both share one checkout
+prefix and retain the configured relative source paths. Source hashes, admission
+fields and every other allowlist value still have to match recomputation.
+Existing assets, manifests and historical reports are not rewritten.
+
+After cloning or exporting, audit the committed fixtures into a fresh local
+report path:
+
+```bash
+.venv/bin/python scripts/prepare_visual_data.py --audit-only \
+  --report reports/local/visual-data-audit.json
+```
+
+The focused visual-data suite passes 19 tests, including relocated checkout
+audit/regeneration and rejection of changed source paths, hashes, mixed checkout
+roots and acquisition flags. This qualifies fixture portability, not native
+visual model behavior or training admission.

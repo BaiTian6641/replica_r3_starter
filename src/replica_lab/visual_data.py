@@ -560,6 +560,10 @@ def validate_config(config: Mapping[str, Any]) -> dict[str, Any]:
     _require(isinstance(external.get("catalog"), str)
              and isinstance(external.get("runtime_registry"), str),
              "external catalog and runtime registry paths are required")
+    for name in ("catalog", "runtime_registry"):
+        path = Path(external[name])
+        _require(bool(path.parts) and not path.is_absolute() and ".." not in path.parts,
+                 f"external {name} must be a repository-relative path")
     return dict(config)
 
 
@@ -948,7 +952,8 @@ def _file_sha256(path: Path) -> str:
     return _sha256(Path(path).read_bytes())
 
 
-def build_external_allowlist(catalog_path: Path, registry_path: Path) -> dict[str, Any]:
+def build_external_allowlist(catalog_path: Path, registry_path: Path, *,
+                             root: Path | None = None) -> dict[str, Any]:
     """Collapse nothing: every intake stage is reported and left unadmitted."""
     catalog = json.loads(Path(catalog_path).read_text(encoding="utf-8"))
     registry = json.loads(Path(registry_path).read_text(encoding="utf-8"))
@@ -1006,9 +1011,11 @@ def build_external_allowlist(catalog_path: Path, registry_path: Path) -> dict[st
     return {
         "format": ALLOWLIST_FORMAT,
         "reviewed_on": catalog.get("reviewed_on"),
-        "catalog": {"path": str(catalog_path), "sha256": _file_sha256(catalog_path)},
+        "catalog": {"path": str(catalog_path.relative_to(root) if root is not None else catalog_path),
+                    "sha256": _file_sha256(catalog_path)},
         "runtime_registry": {
-            "path": str(registry_path), "sha256": _file_sha256(registry_path),
+            "path": str(registry_path.relative_to(root) if root is not None else registry_path),
+            "sha256": _file_sha256(registry_path),
             "entries": len(registry.get("entries", [])),
             "status": registry.get("status"),
             "role": "existing experiment-admission interface; not overridden here",
@@ -1038,6 +1045,33 @@ def build_external_allowlist(catalog_path: Path, registry_path: Path) -> dict[st
         },
         "entries": entries,
     }
+
+
+def _portable_allowlist(value: Mapping[str, Any], external: Mapping[str, Any]) -> dict[str, Any]:
+    """Compare source identity across clones without rewriting old provenance.
+
+    Legacy absolute locators may differ only by a common checkout prefix. Every
+    source hash, intake field and entry is still compared with local recomputation.
+    Never open a file at a stored locator; the declared root supplies the inputs.
+    """
+    result = dict(value)
+    legacy_roots = set()
+    for name in ("catalog", "runtime_registry"):
+        expected = Path(external[name])
+        record = value.get(name)
+        _require(isinstance(record, dict) and isinstance(record.get("path"), str),
+                 f"Allowlist {name} lacks a source path")
+        stored = Path(record["path"])
+        if stored.is_absolute():
+            _require(".." not in stored.parts
+                     and stored.parts[-len(expected.parts):] == expected.parts,
+                     f"Allowlist {name} path differs from configured source")
+            legacy_roots.add(stored.parents[len(expected.parts) - 1])
+        else:
+            _require(stored == expected, f"Allowlist {name} path differs from configured source")
+        result[name] = {**record, "path": str(expected)}
+    _require(len(legacy_roots) <= 1, "Allowlist source checkout roots differ")
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -1576,9 +1610,9 @@ def audit_visual_dataset(config: Mapping[str, Any], *, root: Path,
     stages = {stage: _audit_stage(output, stage, config) for stage in ("v0", "v1")}
     temporal = _audit_temporal(output, config)
     allowlist = build_external_allowlist(root / config["external"]["catalog"],
-                                         root / config["external"]["runtime_registry"])
+                                         root / config["external"]["runtime_registry"], root=root)
     stored_allowlist = _load_json(output / "external_component_allowlist.json")
-    _require(stored_allowlist == json.loads(json.dumps(allowlist)),
+    _require(_portable_allowlist(stored_allowlist, config["external"]) == allowlist,
              "Stored external allowlist differs from recomputation")
     _require(stored_allowlist["counts"]["assets_acquired"] == 0,
              "External assets were acquired by a preparation profile that forbids them")
@@ -1636,8 +1670,13 @@ def generate_visual_dataset(config: Mapping[str, Any], *, root: Path,
     root, output = Path(root), Path(output)
     config_fp = _config_fingerprint(config)
     allowlist = build_external_allowlist(root / config["external"]["catalog"],
-                                         root / config["external"]["runtime_registry"])
-    write_exact(output / "external_component_allowlist.json", _json_bytes(allowlist))
+                                         root / config["external"]["runtime_registry"], root=root)
+    allowlist_path = output / "external_component_allowlist.json"
+    if allowlist_path.exists():
+        _require(_portable_allowlist(_load_json(allowlist_path), config["external"]) == allowlist,
+                 "Stored external allowlist differs from recomputation")
+    else:
+        write_exact(allowlist_path, _json_bytes(allowlist))
     built_stages = {"v0": _construct_v0(config), "v1": _construct_v1(config)}
     stage_summaries = {}
     for stage, built in built_stages.items():

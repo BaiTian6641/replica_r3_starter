@@ -58,6 +58,14 @@ absolute/escaping/local-artifact symlinks. The focused guard suite passes
 **74 tests in 5.86 s** and all **4,752 tracked files** pass the full-index guard.
 Old commits retain only the small symlink texts; no model bytes were tracked.
 
+Stage 4 committed as `d163909`. Its clean export passes **111 focused tests**,
+but the full visual fixture audit exposed absolute checkout paths in the stored
+allowlist. Stage 5 makes new locators relative and validates historical locators
+across relocations without changing data, source hashes or admission fields.
+`tests/test_visual_data.py` passes **19 tests in 0.50 s**, including five new
+relocation/tampering regressions; the original 1,220-image audit still passes.
+All existing generated assets and provenance files remain byte-identical.
+
 ## Current evidence and limits
 
 - The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192

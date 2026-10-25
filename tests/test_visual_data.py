@@ -275,6 +275,54 @@ def test_external_allowlist_separates_every_stage_without_acquisition(prepared):
     assert allowlist["catalog"]["sha256"] == catalog_hash
 
 
+def test_dataset_audits_and_regenerates_after_checkout_relocation(dataset, tmp_path):
+    config, output = dataset
+    # Reproduce the historical format, with both locators rooted at the old clone.
+    path = output / "external_component_allowlist.json"
+    allowlist = read_json(path)
+    for name in ("catalog", "runtime_registry"):
+        allowlist[name]["path"] = str(ROOT / config["external"][name])
+    write_json(path, allowlist)
+    original = {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()}
+    clone = tmp_path / "other-clone"
+    for name in ("catalog", "runtime_registry"):
+        relative = config["external"][name]
+        (clone / relative).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, clone / relative)
+    assert audit_visual_dataset(config, root=clone, output=output)["status"] == "passed"
+    generate_visual_dataset(config, root=clone, output=output)
+    assert original == {p.relative_to(output): p.read_bytes() for p in output.rglob("*") if p.is_file()}
+    fresh = tmp_path / "fresh"
+    generate_visual_dataset(config, root=clone, output=fresh)
+    portable = read_json(fresh / "external_component_allowlist.json")
+    assert portable["catalog"]["path"] == config["external"]["catalog"]
+    assert portable["runtime_registry"]["path"] == config["external"]["runtime_registry"]
+
+
+@pytest.mark.parametrize("mutation", ["wrong_path", "different_roots", "wrong_hash", "acquired"])
+def test_relocation_does_not_allow_source_or_admission_changes(dataset, mutation):
+    config, output = dataset
+    path = output / "external_component_allowlist.json"
+    allowlist = read_json(path)
+    for name in ("catalog", "runtime_registry"):
+        allowlist[name]["path"] = str(ROOT / config["external"][name])
+    if mutation == "wrong_path":
+        allowlist["catalog"]["path"] = str(ROOT / "docs/unrelated.json")
+    elif mutation == "different_roots":
+        allowlist["catalog"]["path"] = str(Path("/other-clone") / config["external"]["catalog"])
+    elif mutation == "wrong_hash":
+        allowlist["catalog"]["sha256"] = "0" * 64
+    else:
+        allowlist["counts"]["assets_acquired"] = 1
+    write_json(path, allowlist)
+    before = path.read_bytes()
+    with pytest.raises(VisualDataError, match="[Aa]llowlist"):
+        audit(config, output)
+    with pytest.raises(VisualDataError, match="[Aa]llowlist"):
+        generate_visual_dataset(config, root=ROOT, output=output)
+    assert path.read_bytes() == before
+
+
 def test_config_rejects_external_acquisition_and_tiny_v1_worlds():
     config = small_config()
     config["external"]["acquire_assets"] = True
