@@ -1,0 +1,228 @@
+{
+  "format": "replica.vision_qualification_protocol.v1",
+  "stage": "v1",
+  "root": ".",
+  "source_parent_commit": "cb1bded91393b2c1dcfe9edd5a6cf8534b0e807f",
+  "purpose": "One bounded projector-only alignment pilot after accepted isolated V0; no full D2, language adapters, memory or RSI claim.",
+  "model": {
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792"
+  },
+  "vision": {
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "encoder_width": 768,
+    "image_size": 224,
+    "patch_size": 16,
+    "max_visual_tokens": 196,
+    "projector_hidden": 4096,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "compute_dtype": "float32"
+  },
+  "vision_digest": "71209159fe9c26a44be4a84e3d630d3f69f27588049868edcb955a1f5b5747fe",
+  "vision_source": {
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1",
+    "scope": {
+      "subject_id": "owned-v1-alignment",
+      "branch_id": "projector-run01",
+      "purpose": "projector_alignment_qualification",
+      "as_of": 0,
+      "mode": "parallel_replica",
+      "snapshot_at": null
+    }
+  },
+  "data": {
+    "root": "data/vision_preparation_v1",
+    "stage": "v1",
+    "manifest": {
+      "path": "v1/vision_manifest.json",
+      "sha256": "38f714bdddd1cf8cad97c8e38a224f1d5408d8fd5c44caf3e8885d7cd88de0a7"
+    },
+    "model_rows": {
+      "path": "v1/model_rows.jsonl",
+      "sha256": "929675495fe5a991484643f44287702d3f93e4e98563a5266be738ce961da5c2"
+    },
+    "verifier_cases": {
+      "path": "v1/verifier_cases.jsonl",
+      "sha256": "d6daf92e4215f28cb924510f2e104af5838e091b825d6e4fd50ee34cd1c4b9bb"
+    },
+    "verifier_scenes": {
+      "path": "v1/verifier_scenes.jsonl",
+      "sha256": "d3b2c13b83404f2ef637ba70a07d2008c5ce954166ec6e45debb5e5a14bfbfbe"
+    }
+  },
+  "limits": {
+    "max_prompt_tokens": 256,
+    "max_new_tokens": 8,
+    "max_rows": 4096,
+    "max_seconds": 3600,
+    "max_updates": 128,
+    "max_repeats": 1,
+    "max_eval_cases": 64,
+    "max_export_bytes": 134217728,
+    "min_free_disk_bytes": 5368709120,
+    "max_cache_bytes": 8388608
+  },
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_free_admission": true,
+    "wall_time_semantics": "End-of-run acceptance ceiling plus fixed generation/update bounds; sampled memory watchdog remains authoritative."
+  },
+  "implementation_sha256": {
+    "src/replica_lab/vision_diagnostic.py": "da54d51ac60b017fb18ba1f412311ba2c4eb58e1a7f8107a26b648a37ac43e6d",
+    "scripts/run_vision_diagnostic.py": "90d56d0edd8064de6b6fa28882624d268f0fade4ca10ec74713c92c256ca2d6c",
+    "scripts/run_vision_qualification.py": "a4f14481c05db8e11b163658c0b15f25e0851a448e51376e36458b71057c4fb3",
+    "scripts/score_vision_qualification.py": "273987f48fb6002c7a1f501da6061a9b12670ba35687439a35657e9e899baa85",
+    "src/replica_lab/vision_qualification.py": "2937f75bd339506ad056f81551117bbddf78055e737b95c0a95fa13e9552ee93",
+    "src/replica_lab/architecture/vision.py": "c83a57b3511a9ea6c9c5e8d50a0215e3f141d41e2a13a77b76b9c4a1242827f5",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
+    "scripts/run_capacity_preflight.py": "ced3f50dcf67229c101d3f6584733c97bca63a7dd17419f9a84d5993c4b049a9",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/vision_overfit.py": "07026eb76132571a28ddb5493ca1ab8287a5585c5387653fdbe49091ce5dc419",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0"
+  },
+  "trainable_contract": {
+    "scope": "vision_projector_only",
+    "parameter_count": 11542016,
+    "tensors": {
+      "vision_projector.0.weight": [
+        768
+      ],
+      "vision_projector.0.bias": [
+        768
+      ],
+      "vision_projector.1.weight": [
+        4096,
+        768
+      ],
+      "vision_projector.1.bias": [
+        4096
+      ],
+      "vision_projector.3.weight": [
+        2048,
+        4096
+      ],
+      "vision_projector.3.bias": [
+        2048
+      ]
+    },
+    "dtype": "float32",
+    "optimizer_updates": 128
+  },
+  "parent_protocol_sha256": "044cebb9b1eafe8a529eb42b04e98217a4b8b755fba4d465ba815ebec410a401",
+  "change": "Host-side split metadata lookup repair only; first attempt failed before model allocation. Data, initial checkpoint, seeds, cases, 128-update schedule, optimizer, resource policy and numeric quality gates remain unchanged.",
+  "dataset_counts": {
+    "eligible_rows": 2048,
+    "admitted_training_rows": 512,
+    "verified_training_assets": 256,
+    "independent_training_worlds": 64,
+    "independent_evaluation_worlds": 32,
+    "evaluation_cases": 64,
+    "source_family_count": 1,
+    "retention_cases": 32,
+    "retention_domains": 7,
+    "external_assets_acquired": 0
+  },
+  "v1": {
+    "run_id": "minicpm5_projector_wide4096_20261025_run01",
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "prerequisites": {
+      "v0_protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+      "v0_score_report": {
+        "path": "runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json",
+        "sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443"
+      },
+      "data_admission": {
+        "path": "data/vision_alignment_v1_20261025/intake02/admission.json",
+        "sha256": "8b0157cf1f268042dc479d05e34cdbdb468743fb771e9b36e21162034869b7c5"
+      },
+      "require_accepted": true
+    },
+    "initial_checkpoint": null,
+    "train": {
+      "seed": 17,
+      "updates": 128,
+      "repeats": 1,
+      "grad_accum": 4,
+      "lr_new": 0.0001,
+      "momentum": 0.95,
+      "ns_steps": 5,
+      "block_size": 2048,
+      "weight_decay": 0.01,
+      "max_grad_norm": 1.0,
+      "max_seconds": 1800,
+      "optimizer": "muon8bit",
+      "schedule_version": "seeded_epoch_shuffle.v1",
+      "repeat_policy": "once"
+    },
+    "eval": {
+      "splits": [
+        "dev"
+      ],
+      "max_cases": 64,
+      "seed": 17,
+      "max_new_tokens": 8,
+      "required_controls": [
+        "correct",
+        "wrong",
+        "shuffled",
+        "noimage",
+        "captiononly",
+        "ocrtextonly"
+      ]
+    },
+    "controls": {
+      "wrong_source": "different_family",
+      "shuffled_source": "deterministic_derangement",
+      "text_context_template": "Text evidence from the declared control:\n{context}\n\n{question}",
+      "captiononly_information_bound": "oracle_upper_bound",
+      "ocrtextonly_information_bound": "independent_verified_empty_text"
+    },
+    "quality": {
+      "retention_baseline": "initial_checkpoint_same_prompts.v1",
+      "gates": {
+        "min_correct_accuracy": 0.65,
+        "min_correct_margin_wrong": 0.2,
+        "min_correct_margin_shuffled": 0.2,
+        "min_correct_margin_noimage": 0.2,
+        "min_correct_margin_captiononly": -0.35,
+        "min_correct_margin_ocrtextonly": 0.2,
+        "min_unique_families": 32,
+        "max_unknown_rate": 0.15,
+        "min_text_retention_accuracy": 0.75,
+        "max_text_retention_drop": 0.0
+      }
+    },
+    "retention": {
+      "prompts": {
+        "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+        "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+      },
+      "labels": {
+        "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+        "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+      },
+      "splits": [
+        "dev"
+      ],
+      "max_cases": 32
+    },
+    "numeric_scope": "Evaluation is 64 cases from 32 independent synthetic dev world groups, one owned procedural source family. Caption metadata is an explicit oracle upper bound, not ordinary sensing. Gates stay fixed after this declaration."
+  }
+}

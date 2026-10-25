@@ -629,18 +629,23 @@ def verify_training(run, report, dataset, admission, protocol, tokenizer):
 
 
 def verify_v1_extension(run, report, protocol, training):
-    checkpoint = protocol["v1"]["initial_checkpoint"]
-    initial = resolve_project_path(protocol, checkpoint["path"])
-    require(sha256_file(initial / "manifest.json")
-            == checkpoint["manifest_sha256"],
-            "Initial checkpoint receipt changed")
-    require(sha256_file(initial / "extensions.safetensors")
-            == checkpoint["weights_sha256"],
-            "Initial checkpoint weights changed")
-    initial_receipt = load_extension_receipt(initial,
-                                             vision_pins=protocol["vision"])
-    require(initial_receipt["weights_sha256"] == checkpoint["weights_sha256"],
-            "Initial checkpoint receipt differs")
+    checkpoint = protocol["v1"].get("initial_checkpoint")
+    if checkpoint is None:
+        initial = Path(run) / "initial_extension"
+        initial_receipt = load_extension_receipt(initial,
+                                                 vision_pins=protocol["vision"])
+    else:
+        initial = resolve_project_path(protocol, checkpoint["path"])
+        require(sha256_file(initial / "manifest.json")
+                == checkpoint["manifest_sha256"],
+                "Initial checkpoint receipt changed")
+        require(sha256_file(initial / "extensions.safetensors")
+                == checkpoint["weights_sha256"],
+                "Initial checkpoint weights changed")
+        initial_receipt = load_extension_receipt(initial,
+                                                 vision_pins=protocol["vision"])
+        require(initial_receipt["weights_sha256"] == checkpoint["weights_sha256"],
+                "Initial checkpoint receipt differs")
     final = verify_extension(run, {"final_extension": report["final_extension"]},
                              protocol, relative="final_extension")
     lineage = compare_extension_tensors(initial, Path(run) / "final_extension")

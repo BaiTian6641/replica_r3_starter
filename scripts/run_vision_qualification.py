@@ -845,6 +845,99 @@ def execute_restart(args, protocol, protocol_sha, dataset, source, spec,
     return report
 
 
+def execute_v1_restart(args, protocol, protocol_sha, dataset, source, spec,
+                       manifest_path):
+    """Reload a completed V1 extension in a fresh process and re-evaluate bitwise."""
+    import torch
+    from replica_lab.architecture.loading import load_local_mps
+    prior = Path(args.restart_run)
+    prior_report, prior_sha = require_completed_run(prior, protocol, protocol_sha)
+    require(prior_report.get("stage") == "v1", "Restart source is not a V1 run")
+    require(prior_report.get("checks", {}).get("strict_extension_export") is True,
+            "Restart source did not export a strict extension")
+    prior_extension = prior / "final_extension"
+    require(prior_extension.is_dir(), "Restart source extension is missing")
+    prior_receipt = json.loads((prior_extension / "manifest.json").read_text())
+    require(sha256_file(prior_extension / "extensions.safetensors")
+            == prior_receipt["weights_sha256"],
+            "Restart source extension bytes changed")
+
+    adapter, tokenizer, lock = load_local_mps(
+        args.model_path, args.model_lock, profiler=args.profiler, vision=spec)
+    adapter.load_extension(prior_extension)
+    for _, parameter in adapter.named_parameters():
+        parameter.requires_grad_(False)
+    adapter.eval()
+    scope = protocol_scope(protocol)
+    ledger = empty_ledger(args.output)
+    session = make_session(adapter, tokenizer, ledger)
+    service = feature_service(protocol, args.device)
+    output = Path(args.output)
+    train_splits = [dataset.case(row["case_id"])["split"] for row in dataset.model_rows
+                    if dataset.case(row["case_id"])["split"] == "train"]
+    train_splits = sorted(set(train_splits))
+    admission = verify_admission(
+        protocol, dataset, train_splits=train_splits,
+        eval_splits=protocol["v1"]["eval"]["splits"])
+    evaluation = evaluate_v1(adapter, session, tokenizer, protocol, service,
+                             dataset, admission, scope, output)
+    retention = evaluate_retention(session, tokenizer, protocol, admission,
+                                   scope, output)
+    prior_eval = [json.loads(line) for line in
+                  (prior / "v1" / "eval_generations.jsonl").read_text().splitlines()
+                  if line.strip()]
+    new_eval = [json.loads(line) for line in
+                (output / "v1" / "eval_generations.jsonl").read_text().splitlines()
+                if line.strip()]
+    require(prior_eval == new_eval, "Fresh-process V1 evaluation generations differ")
+    prior_ret = [json.loads(line) for line in
+                 (prior / "v1" / "retention_generations.jsonl").read_text().splitlines()
+                 if line.strip()]
+    new_ret = [json.loads(line) for line in
+               (output / "v1" / "retention_generations.jsonl").read_text().splitlines()
+               if line.strip()]
+    require(prior_ret == new_ret, "Fresh-process V1 retention generations differ")
+    require(adapter._original_identity == adapter.parameter_stamp(original_only=True),
+            "Restart changed the sealed native identity")
+    require(ledger_record_count(output / "ledger.sqlite") == 0,
+            "Restart ledger is not empty")
+    return {
+        "format": "replica.vision_qualification_restart.v1",
+        "stage": "v1", "status": "completed",
+        "protocol_sha256": protocol_sha,
+        "prior_run_report_path": str(prior),
+        "prior_run_report_sha256": prior_sha,
+        "prior_extension_weights_sha256": prior_receipt["weights_sha256"],
+        "loaded_extension": {
+            "weights_sha256": prior_receipt["weights_sha256"],
+            "manifest_sha256": sha256_file(prior_extension / "manifest.json"),
+            "tensor_names": sorted(
+                name for names in prior_receipt["components"].values()
+                for name in names),
+        },
+        "zero_updates": True,
+        "implementation_sha256": verify_implementation_pins(protocol, ROOT),
+        "costs": {
+            "zero_updates": True,
+            "generated_tokens": sum(row["generated_tokens"] for row in new_eval),
+            "vision_cache": service.cache_audit(),
+            "downloads": 0,
+        },
+        "checks": {
+            "tokens_equal": prior_eval == new_eval,
+            "retention_tokens_equal": prior_ret == new_ret,
+            "zero_updates": True,
+            "extension_unchanged": True,
+            "ledger_empty": True,
+        },
+        "artifacts": artifact_hashes(output, [
+            "v1/eval_generations.jsonl",
+            "v1/retention_generations.jsonl",
+        ]),
+    }
+
+
+
 def freeze_for_v1(adapter):
     adapter.set_regime("modules_only")
     trainable = []
@@ -1229,18 +1322,23 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
         args.model_path, args.model_lock, profiler=args.profiler, vision=spec)
     require(adapter.manifest.vision.digest == spec.digest,
             "V1 loaded manifest vision differs")
-    checkpoint = stage_protocol["v1"]["initial_checkpoint"]
-    initial_path = resolve_project_path(stage_protocol, checkpoint["path"])
-    require(sha256_file(initial_path / "manifest.json")
-            == checkpoint["manifest_sha256"],
-            "V1 initial checkpoint manifest differs from its pin")
-    require(sha256_file(initial_path / "extensions.safetensors")
-            == checkpoint["weights_sha256"],
-            "V1 initial checkpoint weights differ from their pin")
-    initial_receipt = json.loads((initial_path / "manifest.json").read_text())
-    require(initial_receipt["format"] == "replica.minicpm5.extensions.v4",
-            "V1 initial checkpoint is not a strict v4 vision extension")
-    adapter.load_extension(initial_path)
+    checkpoint = stage_protocol["v1"].get("initial_checkpoint")
+    if checkpoint is None:
+        initial_path = Path(args.output) / "initial_extension"
+        initial_receipt = write_extension(adapter, initial_path, stage_protocol,
+                                          label="v1_initial_fresh")
+    else:
+        initial_path = resolve_project_path(stage_protocol, checkpoint["path"])
+        require(sha256_file(initial_path / "manifest.json")
+                == checkpoint["manifest_sha256"],
+                "V1 initial checkpoint manifest differs from its pin")
+        require(sha256_file(initial_path / "extensions.safetensors")
+                == checkpoint["weights_sha256"],
+                "V1 initial checkpoint weights differ from their pin")
+        initial_receipt = json.loads((initial_path / "manifest.json").read_text())
+        require(initial_receipt["format"] == "replica.minicpm5.extensions.v4",
+                "V1 initial checkpoint is not a strict v4 vision extension")
+        adapter.load_extension(initial_path)
     require(adapter.manifest.vision.digest == spec.digest,
             "V1 reloaded extension vision differs")
     output = Path(args.output)
@@ -1393,8 +1491,6 @@ def main():
     protocol_sha = sha256_file(args.protocol)
     protocol = json.loads(args.protocol.read_text(encoding="utf-8"))
     validate_protocol(protocol)
-    if args.restart_run is not None and protocol["stage"] != "v0":
-        parser.error("--restart-run is a V0 fresh-process parity check")
     output = ensure_fresh_directory(args.output)
     free = shutil.disk_usage(ROOT).free
     if free < protocol["limits"]["min_free_disk_bytes"]:
@@ -1434,8 +1530,11 @@ def main():
             profiler.start()
             native_started = time.monotonic()
             if restart:
-                result = execute_restart(args, protocol, protocol_sha, dataset,
-                                         source, spec, manifest_path)
+                result = (execute_v1_restart(args, protocol, protocol_sha, dataset,
+                                             source, spec, manifest_path)
+                          if protocol["stage"] == "v1"
+                          else execute_restart(args, protocol, protocol_sha, dataset,
+                                               source, spec, manifest_path))
             elif protocol["stage"] == "v0":
                 result = execute_v0(args, protocol, protocol_sha, dataset,
                                     source, spec, manifest_path)

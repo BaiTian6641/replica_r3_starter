@@ -408,12 +408,13 @@ def _validate_v1(v1: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
             "V1 must require an accepted V0 score report; bypass is not supported")
     _validate_pin(prerequisites["data_admission"],
                   "v1.prerequisites.data_admission")
-    checkpoint = v1["initial_checkpoint"]
-    _subset_keys(checkpoint, ("path", "manifest_sha256", "weights_sha256"),
-                 "v1.initial_checkpoint")
-    _text(checkpoint["path"], "v1.initial_checkpoint.path")
-    _sha(checkpoint["manifest_sha256"], "v1.initial_checkpoint.manifest_sha256")
-    _sha(checkpoint["weights_sha256"], "v1.initial_checkpoint.weights_sha256")
+    checkpoint = v1.get("initial_checkpoint")
+    if checkpoint is not None:
+        _subset_keys(checkpoint, ("path", "manifest_sha256", "weights_sha256"),
+                     "v1.initial_checkpoint")
+        _text(checkpoint["path"], "v1.initial_checkpoint.path")
+        _sha(checkpoint["manifest_sha256"], "v1.initial_checkpoint.manifest_sha256")
+        _sha(checkpoint["weights_sha256"], "v1.initial_checkpoint.weights_sha256")
     train = v1["train"]
     _subset_keys(train, ("seed", "updates", "repeats", "grad_accum", "lr_new",
                          "momentum", "ns_steps", "block_size", "weight_decay",
@@ -1263,11 +1264,12 @@ def verify_v0_prerequisite(protocol: Mapping[str, Any]) -> tuple[dict[str, Any],
     require(report.get("model_revision") == protocol["model"]["revision"]
             and report.get("model_lock_sha256") == protocol["model"]["lock_sha256"],
             "Accepted V0 uses another sealed text source")
-    checkpoint = protocol["v1"]["initial_checkpoint"]
-    require(report.get("extension", {}).get("manifest_sha256")
-            == checkpoint["manifest_sha256"]
-            and report["extension"]["weights_sha256"] == checkpoint["weights_sha256"],
-            "V1 initial checkpoint is not the independently accepted V0 extension")
+    checkpoint = protocol["v1"].get("initial_checkpoint")
+    if checkpoint is not None:
+        require(report.get("extension", {}).get("manifest_sha256")
+                == checkpoint["manifest_sha256"]
+                and report["extension"]["weights_sha256"] == checkpoint["weights_sha256"],
+                "V1 initial checkpoint is not the independently accepted V0 extension")
     return report, digest
 
 
