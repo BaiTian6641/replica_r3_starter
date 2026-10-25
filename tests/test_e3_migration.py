@@ -142,22 +142,6 @@ def _reload(destination):
     return adapter.load_extension(destination)
 
 
-def test_real_parent_artifact_receipt_shape_is_v1_migration_compatible():
-    """Structure-only check; loading the real model is out of scope for tests."""
-    receipt = json.loads(Path('runs/e1_e2_native_attempt02_20261023/selected_extension/manifest.json')
-                         .read_text())
-    assert receipt['format'] == 'replica.minicpm5.extensions.v1'
-    assert set(receipt) == {'format', 'manifest', 'manifest_digest', 'regime',
-                            'weights_sha256', 'parameters', 'base_saved', 'notes'}
-    assert 'core' not in receipt['manifest']
-    assert set(receipt['manifest']) == {'source_revision', 'source_seal_digest',
-                                        'tokenizer_digest', 'native_config_digest',
-                                        'native_abi_digest', 'ports', 'format_version',
-                                        'training_scope', 'cached_generation_supported'}
-    assert receipt['base_saved'] is False
-    assert len(receipt['weights_sha256']) == 64
-    # Real-artifact loading needs the sealed 2.5B source; the parent verifies the
-    # actual v1 adoption in the native qualification run.
 
 
 def test_v2_missing_keys_and_component_map_mismatch_are_rejected(tmp_path):

@@ -1,0 +1,51 @@
+{
+  "format": "replica.vision_source_export.v1",
+  "status": "failed_nonportable_incidental_test",
+  "code_commit": "5a537dff7da01b0b9912881a0ba13ff544583751",
+  "source_archive_sha256": "48edc7ea94587df35cd81641ac783ed3a873eb8aed47a9f147eab66e2b4bf253",
+  "protocol_path": "configs/minicpm5_vision_v0_qualification_v1.json",
+  "protocol_sha256": "781f5eef48a239bc9aaed69c3b3515894fb326ac715f460379fe85a241ca8ac7",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-vision/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml",
+    "/Users/flare/replica_r3_starter/reports/vision_v0_20261025/clean_export_tests.xml"
+  ],
+  "returncode": 1,
+  "pytest_summary": {
+    "passed": 1523,
+    "failed": 1,
+    "passed_subtests": 21,
+    "warnings": 1,
+    "seconds": 167.18
+  },
+  "junit": "reports/vision_v0_20261025/clean_export_tests.xml",
+  "junit_sha256": "fc2a40992b07d15a78d9bf4c4360b832249ef0722da7b8643d581fdf5eaa6057",
+  "junit_suites": [
+    {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "1",
+      "skipped": "0",
+      "tests": "1545",
+      "time": "166.929",
+      "timestamp": "2026-10-25T01:24:14.877090-05:00",
+      "hostname": "FlaresMacStudio.ts.net lan"
+    }
+  ],
+  "failure": "test_real_parent_artifact_receipt_shape_is_v1_migration_compatible reads ignored machine-local runs/.../manifest.json",
+  "disposition": "Remove the structure-only receipt assertion, not re-pin it or fabricate an ignored artifact. Six actual migration/strictness tests pass after removal.",
+  "native_execution": false,
+  "tracked_export_smokes": {
+    "visual_data_audit": "passed",
+    "vision_source_offline_reuse": "passed",
+    "native_runner_help": "passed",
+    "independent_scorer_help": "passed",
+    "spark_source_cli_help": "passed"
+  },
+  "inputs": "APFS clones of sealed MiniCPM5 and SigLIP source inputs; original environments/source payloads unchanged; baseline local model lock copied byte-for-byte"
+}
