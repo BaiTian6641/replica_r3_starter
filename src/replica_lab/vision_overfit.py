@@ -35,14 +35,14 @@ def validate_overfit_protocol(protocol):
     require(protocol['train_worlds'] <= 16 and protocol['dev_worlds'] <= 16,
             'Overfit probe stays a tiny diagnostic cohort')
     train = protocol['train']
-    require(type(train['updates']) is int and 1 <= train['updates'] <= 32,
-            'Overfit updates stay bounded')
+    require(type(train['updates']) is int and 1 <= train['updates'] <= 128,
+            'Overfit updates stay bounded to the tiny-cohort 128-update ceiling')
     require(train['grad_accum'] >= 1 and type(train['grad_accum']) is int,
             'Overfit grad_accum must be a positive integer')
     require(train['lr_new'] > 0 and type(train['lr_new']) in (int, float),
             'Overfit learning rate must be positive')
-    require(type(train['repeats']) is int and 1 <= train['repeats'] <= 4,
-            'Overfit repeats stay bounded at four seeded epochs')
+    require(type(train['repeats']) is int and 1 <= train['repeats'] <= 16,
+            'Overfit repeats stay bounded at sixteen seeded epochs')
     require(train['seed'] >= 0 and type(train['seed']) is int,
             'Overfit seed must be a nonnegative integer')
     require(train['optimizer'] in ('muon8bit', 'sgd'),

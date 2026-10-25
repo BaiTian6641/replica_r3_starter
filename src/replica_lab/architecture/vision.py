@@ -1281,11 +1281,13 @@ class VisionFeatureService:
 
     def __init__(self, source_path: str | os.PathLike,
                  source_manifest_path: str | os.PathLike, *,
-                 device: str = "mps", max_cache_bytes: int = 8 * 1024**2):
+                 device: str = "mps", max_cache_bytes: int = 8 * 1024**2,
+                 projector_hidden: int | None = None):
         self.source = load_vision_source(source_manifest_path)
         if Path(source_path).resolve() != self.source.root.resolve():
             raise VisionSourceError("source_path and source_manifest_path disagree")
-        self._spec = vision_spec_from_source(self.source)
+        self._spec = (vision_spec_from_source(self.source) if projector_hidden is None
+                      else vision_spec_from_source(self.source, projector_hidden=projector_hidden))
         if device != "mps":
             raise VisionSourceError("The frozen encoder runs only on the declared MPS device")
         os.environ.setdefault("HF_HUB_OFFLINE", "1")

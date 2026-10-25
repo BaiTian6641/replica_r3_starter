@@ -122,12 +122,13 @@ def run(args):
     manifest_path = resolve_project_path(protocol, protocol["vision_source"]["manifest"]["path"])
     require(sha256_file(manifest_path) == protocol["vision_source"]["manifest"]["sha256"],
             "Vision source manifest bytes changed")
-    checkpoint = protocol["initial_checkpoint"]
-    checkpoint_path = Path(checkpoint["path"])
-    require(sha256_file(checkpoint_path / "manifest.json") == checkpoint["manifest_sha256"],
-            "Initial checkpoint manifest bytes changed")
-    require(sha256_file(checkpoint_path / "extensions.safetensors") == checkpoint["weights_sha256"],
-            "Initial checkpoint weights changed")
+    checkpoint = protocol.get('initial_checkpoint')
+    checkpoint_path = None if checkpoint is None else Path(checkpoint['path'])
+    if checkpoint_path is not None:
+        require(sha256_file(checkpoint_path / 'manifest.json') == checkpoint['manifest_sha256'],
+                'Initial checkpoint manifest bytes changed')
+        require(sha256_file(checkpoint_path / 'extensions.safetensors') == checkpoint['weights_sha256'],
+                'Initial checkpoint weights changed')
     output = args.output if args.output.is_absolute() else ROOT / args.output
     if output.exists() and any(output.iterdir()):
         raise RuntimeError("Use a fresh overfit output path")
@@ -149,9 +150,13 @@ def run(args):
             adapter, tokenizer, lock = load_local_mps(
                 args.model_path, args.model_lock, profiler=profiler,
                 vision=VisionSpec(**protocol["vision"]))
-            adapter.load_extension(checkpoint_path)
+            if checkpoint_path is not None:
+                adapter.load_extension(checkpoint_path)
             scope = v1_runner.protocol_scope(protocol)
-            service = VisionFeatureService(source, manifest_path, device="mps")
+            service = VisionFeatureService(source, manifest_path, device="mps",
+                                           projector_hidden=protocol["vision"]["projector_hidden"])
+            require(service.spec.digest == adapter.manifest.vision.digest,
+                    "Feature-service and adapter vision producer digests differ")
             train_cases = select_cases(dataset, "train",
                                        limit=protocol["train_worlds"],
                                        per_world=protocol["per_world_cases"])
