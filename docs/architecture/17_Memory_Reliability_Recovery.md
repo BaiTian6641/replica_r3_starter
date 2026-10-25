@@ -30,6 +30,13 @@ below are retained; they describe the pre-repair code, not newly accepted behavi
   requires the original ordered source history; `semantics='current_view'` fetches
   an authoritative eligible view using independent scope. Both invalidate source
   publication bindings. Refresh with `bind_source(reference, scope=caller_scope)`.
+- Raw pages additionally carry ordered page-to-record dependencies with exact
+  record/source hashes and supersession. `bind_source` rejects revoked, missing,
+  changed or unknown dependencies before and after reload. Omitted `records`
+  means unknown provenance and cannot be authorized or saved; only explicit
+  `records=()` declares a deliberately opaque observation. Save/reload parity
+  pairs every `(world, fact, layer)` and rejects duplicate/missing rows. See
+  [verification repairs](../experiments/20261025_Verification_Repairs.md).
 - New snapshots carry `persistent_manifest.json` alongside the unchanged depth
   tensor format. Legacy snapshots require explicit `legacy_representation` and
   load read-only; `migrate_legacy` re-encodes observations and records parent hashes.

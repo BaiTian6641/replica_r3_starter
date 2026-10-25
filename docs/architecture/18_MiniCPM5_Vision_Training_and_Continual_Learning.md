@@ -148,6 +148,16 @@ passes engineering and reload but is independently rejected: correct image
 21/64, wrong 12/64, shuffled 15/64, no-image 22/64, oracle caption 60/64 and
 empty OCR 15/64, with text retention unchanged at 22/32. V2 remains unadmitted.
 
+The [balanced image-dependence diagnostic](../experiments/20261025_Vision_Dependence_Results.md)
+now supports incremental frozen-feature information on paired procedural dev and
+untouched final holdouts: primary 71/120 and 75/120 versus question-only 36/120
+and shuffled 50/120 and 46/120, with positive world-clustered lower bounds.
+Spatial leads the result; this is not uniform five-task or real-image competence
+and does not reverse either V1 rejection. Before another training arm, localize
+memory failure on matched episodes and use the admitted 30-root external caption
+corpus plus a separate untouched procedural audit split. Any curriculum must
+still show fresh-world visual gains, controls, abstention, retention and reload.
+
 
 For V1, use eligible image-caption/grounding pairs and response-only supervised
 loss. For V2, use visual questions, instruction following, spatial relations,
