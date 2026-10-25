@@ -310,6 +310,7 @@ def main():
                 parser.error("--layers must be comma-separated integers")
             manifest = prepare_one_write(
                 output, seed=args.seed, world_count=args.worlds, layers=layers,
+                facts_per_world=args.facts,
                 model_path=args.model_path, model_lock=args.model_lock,
                 writer_extension=args.writer_extension)
         else:

@@ -61,7 +61,7 @@ def test_one_write_worlds_are_seeded_single_fact_and_label_free():
         validate_one_write_worlds(duplicated)
     extra = copy.deepcopy(first)
     extra[0]['facts'].append(dict(extra[0]['facts'][0]))
-    with pytest.raises(ValueError, match='exactly one fact'):
+    with pytest.raises(ValueError, match='Duplicate one-write fact'):
         validate_one_write_worlds(extra)
     with pytest.raises(ValueError, match='nonempty'):
         validate_one_write_worlds([])
@@ -196,3 +196,53 @@ def test_prepare_and_admit_bind_exact_one_write_pins(tmp_path):
         admit_one_write_probe(prepared, write_receipt=False)
     protocol_path.write_bytes(protocol_bytes)
     assert admit_one_write_probe(prepared, write_receipt=False)['status'] == 'admitted'
+
+
+def test_interference_two_fact_worlds_read_every_fact_from_final_state(tmp_path):
+    model = tiny_adapter(fast_memory=SPEC).eval()
+    report = run_one_write_diagnostic(
+        model, Tokenizer(), protocol(facts_per_world=2, mode='interference'),
+        output_dir=tmp_path / 'interference', ledger_dir=tmp_path / 'ledger',
+        device='cpu')
+    rows = report.pop('readouts')
+    assert report['mode'] == 'interference'
+    assert report['counts']['facts'] == 4
+    assert report['workload']['planned_rows'] == len(rows) == 64
+    assert {row['against'] for row in rows} == {
+        'per_depth', 'shared_mean', 'cross_depth', 'zero_state'}
+    assert len(report['codebooks']) == 8
+    assert report['gates']['save_reload_parity']['status'] == 'pass'
+    assert report['gates']['frozen_weights']['status'] == 'pass'
+    assert report['optimizer_updates'] == 0
+    scored = score_one_write(rows, report['codebooks'],
+                             mechanical={'frozen': report['frozen']})
+    assert scored['summary'] == report['summary']
+    assert report['decision'] in {
+        'one_write_storage_ok', 'fail_writer_or_gate_normalization',
+        'fail_depth_reduction_interference'}
+
+
+def test_interference_three_fact_workload_and_preparation(tmp_path):
+    model_root = tmp_path / 'source'
+    model_root.mkdir()
+    (model_root / 'config.json').write_text('{}')
+    lock = tmp_path / 'lock.json'
+    lock.write_text(json.dumps({
+        'revision': 'f97400052a43d642bbc6e9975e2397e3ae6a6b52',
+        'snapshot_files_sha256': {'config.json': 'a' * 64}}))
+    prepared = tmp_path / 'interference_prep'
+    manifest = prepare_one_write(prepared, seed=9, world_count=1, layers=(0, 2),
+                                 facts_per_world=3, model_path=model_root,
+                                 model_lock=lock)
+    assert manifest['facts_per_world'] == 3
+    assert manifest['planned_workload']['planned_rows'] == 48
+    receipt = admit_one_write_probe(prepared)
+    assert receipt['status'] == 'admitted'
+    protocol_value = json.loads((prepared / 'protocol.json').read_text())
+    assert protocol_value['mode'] == 'interference'
+
+
+def test_one_write_workload_scales_with_fact_count():
+    assert one_write_workload(world_count=2, layers=[0, 2])['planned_rows'] == 32
+    assert one_write_workload(world_count=2, layers=[0, 2],
+                              facts_per_world=3)['planned_rows'] == 96

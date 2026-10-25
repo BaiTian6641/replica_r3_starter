@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from dataclasses import replace
 import time
 
 import torch
@@ -67,25 +68,31 @@ def _freeze(model):
         parameter.requires_grad_(False)
 
 
-def generate_one_write_worlds(*, seed=20261025, world_count=8):
-    """Deterministic single-fact worlds with globally disjoint keys and values."""
+def generate_one_write_worlds(*, seed=20261025, world_count=8, facts_per_world=1):
+    """Deterministic worlds with globally disjoint opaque keys and values."""
     _require(type(seed) is int and seed >= 0, 'Seed must be a nonnegative integer')
     _require(type(world_count) is int
              and 1 <= world_count <= DEFAULT_LIMITS['max_worlds'],
              'World count exceeds the diagnostic limit')
+    _require(type(facts_per_world) is int and facts_per_world >= 1,
+             'Each world requires at least one observed fact')
     used_keys, used_values, worlds = set(), set(), []
     for index in range(world_count):
         material = f'{seed}:onewrite:{index}'
         world_id = f'onewrite-{_opaque_token("w", material)}'
-        entity = _fresh_token('ent', f'{material}:entity', used_keys)
-        attribute = _fresh_token('attr', f'{material}:attribute', used_keys)
-        value = _fresh_token('val', f'{material}:value', used_values)
+        facts = []
+        for fact_index in range(facts_per_world):
+            fact_material = f'{material}:fact:{fact_index}'
+            entity = _fresh_token('ent', f'{fact_material}:entity', used_keys)
+            attribute = _fresh_token('attr', f'{fact_material}:attribute', used_keys)
+            value = _fresh_token('val', f'{fact_material}:value', used_values)
+            facts.append({'fact_id': f'{world_id}:fact:{fact_index}', 'entity': entity,
+                          'attribute': attribute, 'value': value,
+                          'source_world_id': world_id})
         worlds.append({
             'world_id': world_id, 'family_id': f'onewrite-family-{index}',
-            'facts': [{'fact_id': f'{world_id}:fact', 'entity': entity,
-                       'attribute': attribute, 'value': value,
-                       'source_world_id': world_id}],
-            'distractors': [], 'correction': None, 'revocation_fact_id': None,
+            'facts': facts, 'distractors': [], 'correction': None,
+            'revocation_fact_id': None,
         })
     return worlds
 
@@ -105,40 +112,45 @@ def validate_one_write_worlds(worlds):
                  and world['revocation_fact_id'] is None,
                  'One-write worlds carry no distractors/correction/revocation')
         facts = world['facts']
-        _require(isinstance(facts, list) and len(facts) == 1,
-                 'Each one-write world requires exactly one fact')
-        fact = facts[0]
-        _require(isinstance(fact, dict) and set(fact) == {
-            'fact_id', 'entity', 'attribute', 'value', 'source_world_id'},
-            'One-write fact fields differ')
-        _require(fact['fact_id'] not in fact_ids, 'Duplicate one-write fact')
-        fact_ids.add(fact['fact_id'])
-        key = (fact['entity'], fact['attribute'])
-        _require(key not in keys, 'One-write addresses must be disjoint')
-        keys.add(key)
-        _require(fact['value'] not in values, 'One-write values must be disjoint')
-        values.add(fact['value'])
+        _require(isinstance(facts, list) and facts,
+                 'Each world requires at least one observed fact')
+        for fact in facts:
+            _require(isinstance(fact, dict) and set(fact) == {
+                'fact_id', 'entity', 'attribute', 'value', 'source_world_id'},
+                'One-write fact fields differ')
+            _require(fact['fact_id'] not in fact_ids, 'Duplicate one-write fact')
+            fact_ids.add(fact['fact_id'])
+            key = (fact['entity'], fact['attribute'])
+            _require(key not in keys, 'One-write addresses must be disjoint')
+            keys.add(key)
+            _require(fact['value'] not in values, 'One-write values must be disjoint')
+            values.add(fact['value'])
     return True
 
 
-def one_write_record(world):
-    """Render the single immutable source record for one world."""
-    fact = world['facts'][0]
-    return MemoryRecord(
-        record_id=fact['fact_id'], subject_id=SUBJECT_ID, branch_id=world['world_id'],
-        text=fact_source_text({name: fact[name]
-                               for name in ('entity', 'attribute', 'value')}),
-        observed_at=1, event_at=1, purpose=PURPOSE, kind='source_fact',
-        source_id=f"{world['world_id']}:source:0", authenticity='verified_source')
+def one_write_records(world):
+    """Render the world's immutable source records in declared order."""
+    records = []
+    for index, fact in enumerate(world['facts']):
+        records.append(MemoryRecord(
+            record_id=fact['fact_id'], subject_id=SUBJECT_ID,
+            branch_id=world['world_id'],
+            text=fact_source_text({name: fact[name]
+                                   for name in ('entity', 'attribute', 'value')}),
+            observed_at=1, event_at=index + 1, purpose=PURPOSE, kind='source_fact',
+            source_id=f"{world['world_id']}:source:{index}",
+            authenticity='verified_source'))
+    return records
 
 
-def one_write_workload(*, world_count, layers):
+def one_write_workload(*, world_count, layers, facts_per_world=1):
     _require(len(set(layers)) == len(layers) and len(layers) >= 2,
              'One-write diagnosis needs at least two distinct depth layers')
-    rows_per_world = len(ONE_WRITE_READ_PATHS) * len(layers) * 2
+    rows_per_world = len(ONE_WRITE_READ_PATHS) * len(layers) * 2 * facts_per_world
     return {
         'world_count': world_count,
         'layers': list(layers),
+        'facts_per_world': facts_per_world,
         'evaluations_per_state': 2,
         'read_paths': list(ONE_WRITE_READ_PATHS),
         'rows_per_world': rows_per_world,
@@ -175,16 +187,22 @@ def run_one_write_diagnostic(model, tokenizer, protocol, *, output_dir,
     _require(protocol.get('format') == ONE_WRITE_FORMAT,
              'One-write diagnostic requires its versioned protocol format')
     supplied = worlds if worlds is not None else protocol.get('worlds')
+    facts_per_world = protocol.get('facts_per_world', 1)
     worlds = supplied if supplied is not None else generate_one_write_worlds(
-        seed=protocol['seed'], world_count=protocol['world_count'])
+        seed=protocol['seed'], world_count=protocol['world_count'],
+        facts_per_world=facts_per_world)
     validate_one_write_worlds(worlds)
     _require(len(worlds) == protocol['world_count'],
              'Protocol world count differs from supplied one-write worlds')
     layers = list(protocol['layers'])
+    facts_per_world = protocol.get('facts_per_world', 1)
+    _require(all(len(world['facts']) == facts_per_world for world in worlds),
+             'Supplied worlds do not match the declared fact count')
     available = tuple(model.ports.injection_layers)
     _require(all(layer in available for layer in layers),
              f'Declared layers {layers} are not injection layers {available}')
-    planned = one_write_workload(world_count=len(worlds), layers=layers)
+    planned = one_write_workload(world_count=len(worlds), layers=layers,
+                                 facts_per_world=facts_per_world)
     _require(planned['planned_rows'] <= protocol['limits']['max_queries'],
              'Scheduled one-write workload exceeds max_queries')
     output_dir = Path(output_dir)
@@ -210,18 +228,18 @@ def run_one_write_diagnostic(model, tokenizer, protocol, *, output_dir,
     with torch.no_grad():
         for world in worlds:
             world_id = world['world_id']
-            fact = world['facts'][0]
-            record = one_write_record(world)
+            records = one_write_records(world)
             ledger = RecordLedger(ledger_dir / f'{world_id}.sqlite')
             reference = ExactMemoryReference(ledger)
             try:
-                _require(reference.admit((record,)) == 1,
-                         'One-write source admission must accept exactly one record')
+                _require(reference.admit(records) == len(records),
+                         'One-write source admission must accept every record')
                 fast_scope = FastMemoryScope(SUBJECT_ID, world_id, PURPOSE, MODE, 0)
                 memory = PersistentFastMemory(
                     model, tokenizer, fast_scope, training=False,
                     representation=FACT_REPRESENTATION)
-                memory.append_record(record)
+                for record in records:
+                    memory.append_record(record)
                 scope = _scope(world, 1)
                 binding = memory.bind_source(reference, scope=scope)
                 image = images_dir / world_id
@@ -234,76 +252,99 @@ def run_one_write_diagnostic(model, tokenizer, protocol, *, output_dir,
                     source_scope=scope)
                 primitive = memory.primitive
                 zero = primitive.initial_state(1, device=memory.device)
-                writes = {layer: observed_binding(model, tokenizer, fact, layer=layer)
-                          for layer in layers}
-                proposals = {layer: primitive.update_shared_chunk(zero, (writes[layer],))
-                             for layer in layers}
-                shared = primitive.reduce_shared_chunk(
-                    zero, {layer: (writes[layer],) for layer in layers})
+                proposals = {layer: zero for layer in layers}
+                shared = zero
+                fact_writes, fact_entries, fact_cosines = {}, {}, {}
+                for fact in world['facts']:
+                    fact_id = fact['fact_id']
+                    writes = {layer: observed_binding(model, tokenizer, fact,
+                                                      layer=layer)
+                              for layer in layers}
+                    fact_writes[fact_id] = writes
+                    for layer in layers:
+                        proposals[layer] = primitive.update_shared_chunk(
+                            proposals[layer], (replace(
+                                writes[layer],
+                                chunk_index=proposals[layer].chunk_index),))
+                    shared = primitive.reduce_shared_chunk(
+                        shared, {layer: (replace(
+                            writes[layer], chunk_index=shared.chunk_index),)
+                            for layer in layers})
+                    entries = {}
+                    for layer, write in writes.items():
+                        value_vector = write.values[0, 0].detach().cpu()
+                        key_tensor = write.keys[0, 0].detach().cpu()
+                        entries[str(layer)] = {
+                            'value_vector': value_vector.tolist(),
+                            'value_sha256': _sha_text(json.dumps(
+                                value_vector.tolist(), allow_nan=False)),
+                            'value_norm': float(torch.linalg.vector_norm(
+                                value_vector.float())),
+                            'key_sha256': _sha_text(json.dumps(
+                                key_tensor.tolist(), allow_nan=False)),
+                            'key_norm': float(torch.linalg.vector_norm(key_tensor.float())),
+                            'gate_mean': float(write.write_gate.float().mean()),
+                            'erase_mean': float(write.erase.float().mean()),
+                            'decay_mean': float(write.decay.float().mean()),
+                        }
+                    fact_entries[fact_id] = entries
+                    key_cosines, value_cosines = [], []
+                    for left_index, left in enumerate(layers):
+                        for right in layers[left_index + 1:]:
+                            key_cosines.append(_cosine_heads(
+                                writes[left].keys[0, 0].cpu(),
+                                writes[right].keys[0, 0].cpu()))
+                            value_cosines.append(_cosine_heads(
+                                writes[left].values[0, 0].cpu(),
+                                writes[right].values[0, 0].cpu()))
+                    fact_cosines[fact_id] = (key_cosines, value_cosines)
+                for fact in world['facts']:
+                    fact_id = fact['fact_id']
+                    writes = fact_writes[fact_id]
+                    entries = fact_entries[fact_id]
+                    queries = {layer: writes[layer].keys for layer in layers}
+                    shared_before = {layer: _read_weights(shared.weights, queries[layer])
+                                     for layer in layers}
+                    shared_after = {layer: _read_weights(loaded.read().weights,
+                                                         queries[layer])
+                                    for layer in layers}
+                    depth_states = {layer: _read_weights(proposals[layer].weights,
+                                                         queries[layer])
+                                    for layer in layers}
+                    cross_states = {layer: _read_weights(
+                        proposals[other_layer[layer]].weights, queries[layer])
+                        for layer in layers}
+                    zero_states = {layer: _read_weights(zero.weights, queries[layer])
+                                   for layer in layers}
+                    key_cosines, value_cosines = fact_cosines[fact_id]
+                    for phase, shared_reads in (('before_save', shared_before),
+                                                ('after_save', shared_after)):
+                        for layer in layers:
+                            codebook_key = f'{world_id}/{fact_id}/layer-{layer}'
+                            entry = entries[str(layer)]
+                            for against, readout in (
+                                    ('per_depth', depth_states[layer]),
+                                    ('shared_mean', shared_reads[layer]),
+                                    ('cross_depth', cross_states[layer]),
+                                    ('zero_state', zero_states[layer])):
+                                rows.append(_row(world_id, layer, against, phase,
+                                                 readout, entry, codebook_key))
+                    for layer in layers:
+                        codebooks[f'{world_id}/{fact_id}/layer-{layer}'] = {
+                            'format': 'replica.memory_one_write_probe.codebook.v1',
+                            'world_id': world_id, 'fact_id': fact_id,
+                            'layers': {str(layer): entries[str(layer)]},
+                            'key_cross_cosine': (sum(key_cosines) / len(key_cosines)
+                                                 if key_cosines else None),
+                            'value_cross_cosine': (sum(value_cosines) / len(value_cosines)
+                                                   if value_cosines else None),
+                            'source_binding': binding,
+                            'image': _display_path(image),
+                            'state_sha256': _sha_text(json.dumps(
+                                shared.weights.detach().cpu().numpy().tobytes().hex())),
+                        }
                 _require(torch.equal(memory.read().weights, shared.weights),
                          'Production shared reduction differs from the declared mean')
-                entries = {}
-                for layer, write in writes.items():
-                    value_vector = write.values[0, 0].detach().cpu()
-                    key_tensor = write.keys[0, 0].detach().cpu()
-                    entries[str(layer)] = {
-                        'value_vector': value_vector.tolist(),
-                        'value_sha256': _sha_text(json.dumps(
-                            value_vector.tolist(), allow_nan=False)),
-                        'value_norm': float(torch.linalg.vector_norm(value_vector.float())),
-                        'key_sha256': _sha_text(json.dumps(
-                            key_tensor.tolist(), allow_nan=False)),
-                        'key_norm': float(torch.linalg.vector_norm(key_tensor.float())),
-                        'gate_mean': float(write.write_gate.float().mean()),
-                        'erase_mean': float(write.erase.float().mean()),
-                        'decay_mean': float(write.decay.float().mean()),
-                    }
-                key_cosines, value_cosines = [], []
-                for left_index, left in enumerate(layers):
-                    for right in layers[left_index + 1:]:
-                        key_cosines.append(_cosine_heads(
-                            writes[left].keys[0, 0].cpu(), writes[right].keys[0, 0].cpu()))
-                        value_cosines.append(_cosine_heads(
-                            writes[left].values[0, 0].cpu(),
-                            writes[right].values[0, 0].cpu()))
-                queries = {layer: writes[layer].keys for layer in layers}
-                shared_before = {layer: _read_weights(shared.weights, queries[layer])
-                                 for layer in layers}
-                shared_after = {layer: _read_weights(loaded.read().weights, queries[layer])
-                                for layer in layers}
-                depth_states = {layer: _read_weights(proposals[layer].weights, queries[layer])
-                                for layer in layers}
-                cross_states = {layer: _read_weights(proposals[other_layer[layer]].weights,
-                                                     queries[layer])
-                                for layer in layers}
-                zero_states = {layer: _read_weights(zero.weights, queries[layer])
-                               for layer in layers}
-                for phase, shared_reads in (('before_save', shared_before),
-                                            ('after_save', shared_after)):
-                    for layer in layers:
-                        codebook_key = f'{world_id}/layer-{layer}'
-                        entry = entries[str(layer)]
-                        for against, readout in (
-                                ('per_depth', depth_states[layer]),
-                                ('shared_mean', shared_reads[layer]),
-                                ('cross_depth', cross_states[layer]),
-                                ('zero_state', zero_states[layer])):
-                            rows.append(_row(world_id, layer, against, phase,
-                                             readout, entry, codebook_key))
-                for layer in layers:
-                    codebooks[f'{world_id}/layer-{layer}'] = {
-                        'format': 'replica.memory_one_write_probe.codebook.v1',
-                        'world_id': world_id, 'fact_id': fact['fact_id'],
-                        'layers': {str(layer): entries[str(layer)]},
-                        'key_cross_cosine': (sum(key_cosines) / len(key_cosines)
-                                             if key_cosines else None),
-                        'value_cross_cosine': (sum(value_cosines) / len(value_cosines)
-                                               if value_cosines else None),
-                        'source_binding': binding,
-                        'image': _display_path(image),
-                        'state_sha256': _sha_text(json.dumps(
-                            shared.weights.detach().cpu().numpy().tobytes().hex())),
-                    }
                 _require(torch.equal(memory.read().weights, loaded.read().weights),
                          'One-write save/load changed the production state')
             finally:
@@ -327,14 +368,14 @@ def run_one_write_diagnostic(model, tokenizer, protocol, *, output_dir,
     elapsed = time.perf_counter() - started
     return {
         'format': ONE_WRITE_RUN_FORMAT,
-        'mode': 'onewrite',
+        'mode': protocol.get('mode', 'onewrite'),
         'device': device,
         'seed': protocol['seed'],
         'layer': None,
         'layers': layers,
         'representation': FACT_REPRESENTATION,
         'counts': {
-            'worlds': len(worlds), 'rows': len(rows),
+            'worlds': len(worlds), 'facts': sum(len(world['facts']) for world in worlds),
             'evaluated_rows': len(rows), 'unique_cases': len(rows) // 2,
             'before_save_rows': sum(1 for row in rows if row['phase'] == 'before_save'),
             'after_save_rows': sum(1 for row in rows if row['phase'] == 'after_save'),
@@ -520,6 +561,7 @@ def _layer_mean(codebooks, field):
 
 
 def prepare_one_write(output, *, seed=20261025, world_count=8, layers=(13, 27),
+                      facts_per_world=1,
                       model_path=PROJECT_ROOT / 'checkpoints/minicpm5_source',
                       model_lock=PROJECT_ROOT / 'configs/minicpm5_sealed_lock.local.json',
                       writer_extension=None):
@@ -530,8 +572,10 @@ def prepare_one_write(output, *, seed=20261025, world_count=8, layers=(13, 27),
     layers = list(layers)
     _require(all(type(layer) is int and layer >= 0 for layer in layers),
              'Layers must be nonnegative integers')
-    worlds = generate_one_write_worlds(seed=seed, world_count=world_count)
-    planned = one_write_workload(world_count=world_count, layers=layers)
+    worlds = generate_one_write_worlds(seed=seed, world_count=world_count,
+                                       facts_per_world=facts_per_world)
+    planned = one_write_workload(world_count=world_count, layers=layers,
+                                 facts_per_world=facts_per_world)
     _require(planned['planned_rows'] <= DEFAULT_LIMITS['max_queries'],
              'Scheduled one-write workload exceeds max_queries')
     output.mkdir(parents=True, exist_ok=True)
@@ -542,8 +586,10 @@ def prepare_one_write(output, *, seed=20261025, world_count=8, layers=(13, 27),
     extension = _extension_pins(writer_extension) if writer_extension is not None else None
     implementation = _implementation_sha256()
     protocol = {
-        'format': ONE_WRITE_FORMAT, 'mode': 'onewrite',
+        'format': ONE_WRITE_FORMAT,
+        'mode': 'onewrite' if facts_per_world == 1 else 'interference',
         'seed': seed, 'world_count': world_count, 'layers': layers,
+        'facts_per_world': facts_per_world,
         'layer': None, 'representation': FACT_REPRESENTATION,
         'native_reader': False,
         'thresholds': dict(ONE_WRITE_THRESHOLDS),
@@ -555,7 +601,7 @@ def prepare_one_write(output, *, seed=20261025, world_count=8, layers=(13, 27),
         'source': source, 'writer_extension': extension,
         'data': {'path': 'data.json', 'sha256': _sha_file(data_path),
                  'format': ONE_WRITE_WORLD_FORMAT, 'seed': seed,
-                 'world_count': world_count},
+                 'world_count': world_count, 'facts_per_world': facts_per_world},
         'implementation_sha256': implementation,
     }
     protocol_path = output / 'protocol.json'
@@ -563,7 +609,8 @@ def prepare_one_write(output, *, seed=20261025, world_count=8, layers=(13, 27),
     manifest = {
         'format': ONE_WRITE_PREPARED_FORMAT, 'created_at_utc': _utc_now(),
         'native_computation': False, 'seed': seed, 'world_count': world_count,
-        'layers': layers, 'data_sha256': _sha_file(data_path),
+        'layers': layers, 'facts_per_world': facts_per_world,
+        'data_sha256': _sha_file(data_path),
         'protocol_sha256': _sha_file(protocol_path),
         'planned_workload': planned, 'source': source,
         'writer_extension': extension, 'implementation_sha256': implementation,
@@ -597,10 +644,12 @@ def verify_one_write_prepared(prepared):
     worlds = data.get('worlds')
     validate_one_write_worlds(worlds)
     _require(worlds == generate_one_write_worlds(
-        seed=protocol['seed'], world_count=protocol['world_count']),
+        seed=protocol['seed'], world_count=protocol['world_count'],
+        facts_per_world=protocol['facts_per_world']),
         'Prepared one-write worlds differ from the seeded generator')
     planned = one_write_workload(world_count=protocol['world_count'],
-                                 layers=protocol['layers'])
+                                 layers=protocol['layers'],
+                                 facts_per_world=protocol['facts_per_world'])
     _require(protocol.get('planned_workload') == planned
              and manifest.get('planned_workload') == planned,
              'Prepared one-write workload differs from the exact plan')

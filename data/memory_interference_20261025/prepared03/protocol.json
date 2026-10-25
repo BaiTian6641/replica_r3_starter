@@ -1,0 +1,117 @@
+{
+  "data": {
+    "facts_per_world": 3,
+    "format": "replica.memory_one_write_probe.worlds.v1",
+    "path": "data.json",
+    "seed": 2026102506,
+    "sha256": "9fba405159e2e41f6eec4c1942600d5208c77f7efd07ed3af21581faf2188895",
+    "world_count": 4
+  },
+  "engine": {
+    "depth_mode": "shared",
+    "depth_writers": true,
+    "heads": 4,
+    "key_size": 64,
+    "update_rule": "sgdn2",
+    "value_size": 64
+  },
+  "facts_per_world": 3,
+  "format": "replica.memory_one_write_probe.protocol.v1",
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "63d4fa0be29e8bdf8c0013edc7304f449f09bc0ab8167430743008509ed63ee8",
+    "scripts/run_memory_storage_probe.py": "1838e132f2ff633972118976d48911d20a9bea7ed1340eccbba1a8174b3a7f04",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/memory_diagnosis.py": "a1dcd58416982a7893aba3dfe4ede22dce83153b87e63e24eaf071758c048de4",
+    "src/replica_lab/memory_one_write.py": "594e3b2c255e3b751704dc5f11c1812d2bcfa5d7f342188caf8975cddd972eb4",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/runtime/exact_memory.py": "22d94a0e08195df8b7f9a7e5f005543807a8a0b21373cc688d2e62b6220c2bf1",
+    "src/replica_lab/runtime/fact_memory.py": "5254c5f4e5aaa63743d145e845ac66ef5fad41a54b98f2869fa4fcabfc53186b",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/runtime/memory_representation.py": "6f8d24607ceafd74918dc21747e0a6151b5d301e1df9638c86e1ffc7b73dfda1",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "af44dbbd7e8d991fca52742dd4175a90b14cc4ddb9fb701fc12f4a7c217fdab0"
+  },
+  "layer": null,
+  "layers": [
+    13,
+    27
+  ],
+  "limits": {
+    "max_distractors_per_world": 64,
+    "max_facts_per_world": 32,
+    "max_queries": 20000,
+    "max_worlds": 64
+  },
+  "mode": "interference",
+  "native_reader": false,
+  "planned_workload": {
+    "evaluations_per_state": 2,
+    "facts_per_world": 3,
+    "layers": [
+      13,
+      27
+    ],
+    "planned_cases": 96,
+    "planned_rows": 192,
+    "read_paths": [
+      "per_depth",
+      "shared_mean",
+      "cross_depth",
+      "zero_state"
+    ],
+    "rows_per_world": 48,
+    "world_count": 4
+  },
+  "representation": "fact_binding_key_value.v1",
+  "seed": 2026102506,
+  "source": {
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "model_path": "checkpoints/minicpm5_source",
+    "required_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "snapshot_file_count": 9,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08"
+  },
+  "thresholds": {
+    "one_write_parity_atol": 1e-06,
+    "one_write_recovery_floor": 0.6,
+    "one_write_reduction_floor": 0.6,
+    "one_write_zero_max_abs_cosine": 0.1
+  },
+  "world_count": 4,
+  "writer_extension": {
+    "components": [
+      "fast_depth_write_encoders",
+      "fast_ports",
+      "memory_ports",
+      "record_writer",
+      "reranker",
+      "sense_ports"
+    ],
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest_digest": "9d8de79a6c3bcb5cfb1b9f71ad1c288731c462ae8d1df93ea931d4c90b540f60",
+    "manifest_sha256": "337e6856246b3e553e112f72f369643f811e09760a10ad28aa8f73b1c12b8c95",
+    "path": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49"
+  }
+}

@@ -34,11 +34,7 @@ def main(argv=None):
     assert sha(args.run / 'readouts.jsonl') == report['readouts_sha256']
     assert sha(args.run / 'codebooks.json') == report['codebooks_sha256']
     assert len(rows) == protocol['planned_workload']['planned_rows']
-    mechanical = {'frozen': {
-        'optimizer_updates': report['optimizer_updates'],
-        'parameters_updated': report['parameters_updated'],
-        'parameter_versions_equal': report['frozen']['parameter_versions_equal'],
-        'requires_grad_all_false': report['frozen']['requires_grad_all_false']}}
+    mechanical = {'frozen': dict(report['frozen'])}
     scored = score_one_write(rows, codebooks,
                              thresholds=protocol['thresholds'], mechanical=mechanical)
     manifests = [path for path in (args.run / 'images').rglob('persistent_manifest.json')]
