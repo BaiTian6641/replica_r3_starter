@@ -1,10 +1,10 @@
 # Verification and memory reliability recovery
 
-**Implementation update, 25 October 2026.** R1–R3 are implemented and the
-integrated repair set passes 140 deterministic/software tests. Clean committed
-source export remains the final admission check before isolated V0. The v5
-writer experiment remains complete and rejected; no new native memory training
-was needed. Spark/data preparation is host-only and independent.
+**Implementation update, 25 October 2026.** R1–R4 passed at `757ace1`: 140
+integrated tests, a fresh-process representation replay smoke and a tracked export
+of 1,372 tests +21 subtests in 166.68 s. Isolated V0 is now the next eligible
+package. The v5 writer remains rejected; no native memory retraining was needed.
+Spark/data preparation stays host-only and independent.
 
 Use the [loop prompt](16_Loop_Agent_Instructions.md),
 [integrated design](19_Integrated_Memory_Learning_and_RSI_Design.md),

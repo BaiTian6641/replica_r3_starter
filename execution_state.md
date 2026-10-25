@@ -1,11 +1,11 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — R1–R3 repair source verified, clean-export admission next.**
+**Current implementation — R1–R4 passed at `757ace1`; isolated V0 is next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
-versioned representation-preserving rebuild are implemented; 140 integrated
-software tests pass. No native memory rerun occurred. The [v5 experiment](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md)
-and [canonical verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json)
-remain rejected. Isolated V0 follows the reproducible repair source gate.
+versioned representation-preserving rebuild pass 140 integrated tests and a fresh
+process replay smoke. The tracked source export passes **1,372 tests +21 subtests
+in 166.68 s**. No native memory rerun occurred; the v5 candidate remains rejected.
+See [repair qualification](reports/memory_contract_repairs_20261025/qualification.json).
 
 ## Current evidence and limits
 
@@ -43,17 +43,12 @@ and restart is 1,751.69 seconds.
 
 ## Current blocker and next action
 
-Repair caller-bound context scope/query/canonical routing, exact unique ordered
-training-update/case schedules and representation-preserving rebuild first.
-[Document 17](docs/architecture/17_Memory_Reliability_Recovery.md) records the
-reproductions and exit tests. The direct changed-span, source-package and original
-route-count fixes are complete; these remaining defects are narrower.
-
-Then implement isolated MiniCPM5 V0 with memory/core/identity disabled. The v5
-repair's measured rejection satisfies the earlier package-completion prerequisite;
-it does not satisfy learned-memory quality. Continue fresh storage/read-separation
-probes independently and use copy/pointer controls only when observed values are
-recoverable. Do not repeat blind writer/reader training on the exposed set.
+R1–R4 are implemented and verified; [document 17](docs/architecture/17_Memory_Reliability_Recovery.md)
+records the new APIs and the historical reproductions. Next implement isolated
+MiniCPM5 V0 with memory/core/identity disabled, using one sealed pretrained patch
+encoder and a new projector. Native V0 is not yet qualified. The v5 rejection
+satisfies package completion but not learned-memory quality. Continue fresh
+storage/read separation independently; do not repeat blind writer/reader training.
 
 Prepare official Spark FP8/BF16 sources/backend compatibility and eligible datasets
 now. Native Spark work follows stable reusable interfaces and its own gates; it
@@ -63,26 +58,23 @@ need not wait for RSI success and does not block MiniCPM5. See the
 [data curriculum](docs/08_Dataset_Acquisition_and_Curriculum.md) and
 [revised loop prompt](docs/architecture/16_Loop_Agent_Instructions.md).
 
-Independent review checks: 49 focused tests in 9.39 s, 27/27 implementation pins,
-byte-identical v4 generator/manifest, CPU scorer parity over 1,920 rows and 11
-failed gates, actual candidate delta, 32 snapshots and seven recorded restart
-answers. The full suite/native jobs were not rerun by the review. This design
-update modifies documentation/descriptive metadata only; fixes are still planned.
-It collected 22 pinned dataset metadata/card records, 12 additional source links
-and official Spark FP8/BF16 metadata/configs, not weights or dataset assets.
+The previous review's 49 focused tests, 27 pins and saved-answer rescoring remain
+separate historical review evidence. New repair execution is the 140-test focused
+set, fresh-process software smoke and 1,372-test clean export above. Spark source
+and owned visual-data preparation now have executable artifacts; their native and
+training qualifications remain separate.
 
-Reproduce the final independent verdict (fresh verdict output path):
+Verify the current repair interfaces without a native rerun:
 
 ```bash
-.venv/bin/python scripts/score_memory_reliability.py \
-  --protocol configs/memory_reliability_v5_scorer_fix_eval02.json \
-  --run runs/memory_reliability_v5_scorer_fix_eval02 \
-  --guard reports/memory_reliability_v5_scorer_fix_eval02.guard.json \
-  --restart-run runs/memory_reliability_v5_scorer_fix_restart01 \
-  --restart-guard reports/memory_reliability_v5_scorer_fix_restart01.guard.json \
-  --evaluation-only \
-  --output reports/memory_reliability_v5_scorer_fix_eval02/verdict_review.json
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider \
+  tests/test_exact_context_consumer.py tests/test_training_schedule_audit.py \
+  tests/test_persistent_representation.py tests/test_exact_memory.py \
+  tests/test_memory_reliability.py tests/test_fact_memory.py
 ```
+
+The historical v5 scorer must run from its recorded source revision/pins; current
+code intentionally does not impersonate that old protocol. No old pins were reset.
 
 Preserve all rejected candidates, raw reports and the untracked protected
 `src/replica_lab/runtime_pilot.py` unchanged.
