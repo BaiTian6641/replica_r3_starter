@@ -1172,6 +1172,7 @@ def generation_row(session, tokenizer, *, control, case_id, dataset, question,
 
 def evaluate_v1(adapter, session, tokenizer, protocol, service, dataset,
                 admission, scope, output):
+    (Path(output) / "v1").mkdir(parents=True, exist_ok=True)
     evaluation = protocol["v1"]["eval"]
     controls = evaluation["required_controls"]
     maximum = protocol["limits"]["max_prompt_tokens"]
@@ -1256,6 +1257,7 @@ def evaluate_v1(adapter, session, tokenizer, protocol, service, dataset,
 
 
 def evaluate_retention(session, tokenizer, protocol, admission, scope, output, *, baseline=False):
+    (Path(output) / "v1").mkdir(parents=True, exist_ok=True)
     retention = protocol["v1"]["retention"]
     maximum = protocol["limits"]["max_prompt_tokens"]
     generation_limit = protocol["v1"]["eval"]["max_new_tokens"]
