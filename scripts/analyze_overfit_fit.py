@@ -39,6 +39,7 @@ def main(argv=None):
     parser.add_argument("--model-lock", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--max-new-tokens", type=int, default=4)
+    parser.add_argument("--device", choices=("mps",), default="mps")
     args = parser.parse_args(argv)
     import torch
     from replica_lab.architecture.contracts import VisionSpec

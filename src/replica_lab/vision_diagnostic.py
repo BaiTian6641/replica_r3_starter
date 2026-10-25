@@ -32,6 +32,8 @@ FEATURE_SETS = ('image_only', 'question_only', 'combined')
 DIAGNOSTIC_IMPLEMENTATION_FILES = (
     'src/replica_lab/vision_diagnostic.py',
     'scripts/run_vision_diagnostic.py',
+    'scripts/run_vision_qualification.py',
+    'scripts/score_vision_qualification.py',
     'src/replica_lab/vision_qualification.py',
     'src/replica_lab/architecture/vision.py',
     'src/replica_lab/architecture/loading.py',
@@ -41,6 +43,7 @@ DIAGNOSTIC_IMPLEMENTATION_FILES = (
     'src/replica_lab/memory_system/ledger.py',
     'scripts/run_capacity_preflight.py',
     'src/replica_lab/capacity_guard.py',
+    'src/replica_lab/vision_overfit.py',
     'src/replica_lab/profiling.py',
 )
 DEFAULT_DECISION = {'min_above_chance': 0.1, 'min_combined_gain': 0.05}

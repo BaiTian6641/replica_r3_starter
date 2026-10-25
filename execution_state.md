@@ -231,6 +231,71 @@ The original rejected v5 writer hash `ff339867...c11f49` stays frozen.
 declares zero updates and the unchanged exclusive fallback-off 50 GiB guard.
 No stored-observation vector recovery is useful language memory by itself.
 
+
+## Integrity, reproducibility and new diagnostic evidence — 25 October 2026
+
+**Persistent rebinding repaired.** `bind_source()` now proves consumed lineage
+against the exact authoritative view: record-backed events must match an eligible
+record byte-for-byte or be superseded originals whose eligible correction was
+consumed later; unbacked observations must not repeat revoked source text; every
+eligible correction in the view must already be reflected. Reference-bound load
+re-runs the same check. Revoke→rebind is refused for both representations;
+verified current-view rebuild restores eligible lineage and persistence. New
+`tests/test_persistent_rebinding.py` covers direct rebind, append-clear,
+correction/supersession, unaffected records, scope changes, offline inspection,
+load-then-rebind and failed rebuilds. Full suite: **1,587 tests +21 subtests**
+(**1,604** after one-write/interference additions).
+
+**Reproducibility.** V0, V1 and the memory-diagnostic verdicts were reproduced
+from pinned-commit worktrees with cloned ignored inputs: V0 accepted identically,
+V1 rejected identically, memory rescore matched identically. Only absolute
+worktree paths and timestamps differ (`reports/reproducibility_replay_20261025.json`).
+Artifact-dependent tests now declare inputs with provisioning commands instead of
+silent skips (`tests/conftest.py`, docs/maintenance/20261025_Test_Provisioning.md).
+Spark offline preparation now retains the pinned tokenizer/vocab/merges payloads
+(29,432,928 bytes) in `data/cache/spark_sources`, with a header-bundle writer and
+byte-identical offline reproduction; 26 unit tests pass.
+
+**One-write storage discriminator (native, zero updates).** Eight single-fact
+worlds, exact observed key, per-depth/shared/cross/zero read paths, before/after
+save-reload. Per-depth mean cosine **0.929**, shared **0.923**, zero exactly 0,
+save/reload bitwise exact. Independent CPU rescore matched with 8 authenticated
+state images. Two-fact and three-fact interference runs also recover
+(**0.877** and **0.853**). **Earlier multi-fact rejection is not a basic write
+failure**: storage works incrementally; addressing/selection and correction
+semantics are the remaining failure class, not a missing write path.
+
+**Vision information probe (native, zero updates).** 96 frozen-encoder cases
+(24 train + 24 dev worlds). Combined frozen-feature linear readout reaches
+**0.4167 dev accuracy** (chance 0.0833, majority 0.1667), question-only 0.4375,
+image-only 0.1875, shuffled-image 0.375. Verdict:
+`frozen_features_support_readout` — connector/training is the bottleneck, not
+an encoder lacking linear signal.
+
+**Tiny-set overfit diagnostic (projector-only).** At 16 updates and at 32 updates
+(two/four epochs over eight train worlds), train-fit is **0/8 on every control**,
+and fresh dev is also 0/8. This is a training/supervision failure, not useful
+overfitting. Generated text is garbage tokens, not answers. Next discriminator:
+`scripts/analyze_overfit_fit.py` compares teacher-forced response loss and
+response-token argmax with greedy decoding to separate learning failure from
+decoding failure. V2/LoRA remains unadmitted.
+
+**Retention protocol.** `component_nonregression.v1` separates baseline
+capability eligibility (`baseline_capability_ineligible`) from component
+nonregression (drop and token parity); legacy combined gate is unchanged for
+historical protocols. The frozen 22/32 baseline stays ineligible for the
+absolute 75% floor; the completed V1 experiment is not rewritten.
+
+**External datasets.** Eight-entry tranche audited from the 34-source catalogue:
+four reserved evaluation sources, GQA/VSR blocked on missing immutable pins,
+LLaVA-Instruct blocked on the COCO family reserved for VQAv2 evaluation. Zero
+external assets acquired or admitted. Terms, derivative-family reservations and
+counts are recorded in `reports/external_intake_20261025/audit.json`.
+
+**Spark backend.** transformers 5.20.2 lacks `spark2_5`, compressed-tensors is
+absent, and MPS cannot allocate float8_e4m3fn tensors. FP8 storage/compute is
+therefore unqualified here; silent dequantization would not count as FP8
+qualification (`reports/spark_qualification_20261025/backend_audit.json`).
 ## Frozen native storage diagnosis — useful storage not accepted
 
 Native probe01 completes **552 physical evaluations /276 unique after-load
