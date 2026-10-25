@@ -1,0 +1,12 @@
+{
+  "format": "replica.vision_qualification_score_failure.v1",
+  "status": "failed",
+  "stage": "v0",
+  "protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+  "run_report_path": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v0_20261025/attempt02",
+  "run_report_sha256": "7e5d8f72166de79ef05272bffe4ede457ec43aff797a5e09c017dafd5b026313",
+  "error_type": "KeyError",
+  "error": "'rows'",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/scripts/score_vision_qualification.py\", line 886, in main\n    score = score_v0(args, protocol, protocol_sha, dataset, tokenizer,\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/score_vision_qualification.py\", line 493, in score_v0\n    restart = verify_restart(args, run, report, run_report_sha,\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/score_vision_qualification.py\", line 392, in verify_restart\n    primary = {row[\"condition\"]: row for row in probes[\"rows\"]}\n                                                ~~~~~~^^^^^^^^\nKeyError: 'rows'\n",
+  "scored_at_utc": "2026-10-25T06:52:14.119299+00:00"
+}

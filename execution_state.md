@@ -77,6 +77,34 @@ rejection and cache eviction.
 contains these live-producer guards. V2 was committed but never run. V3 retains
 the original data, seed, cases, limits, numerical gates and zero-update scope.
 
+## Native V0 attempt02 and fresh-process restart01
+
+Both complete under protocol v3 with fallback disabled. Six FP32 projector
+tensors receive finite gradients through the frozen decoder; base and encoder
+gradients are absent. No optimizer is instantiated and no tensor is updated.
+All runner checks pass. Correct/wrong/no-image generation produces 24 tokens.
+First-token logit contrasts are 5.459615 and 16.943596; these prove influence,
+not perception. The exported v4 extension has 49 tensors and no base copy.
+
+The fresh process loads that exact extension with zero updates and reproduces
+all three token sequences and logits bitwise (maximum difference 0). Primary
+and restart profile times are 9.934 s and 8.379 s; both sampled driver peaks are
+11,815,763,968 bytes. The primary guard records zero swap growth and 76% minimum
+host-free. These are mechanical interface results, not useful visual grounding.
+
+The initial CPU score deferred only for missing restart. After restart, the
+original scorer failed with `KeyError: rows`: its consumer expected raw rows
+from a summary. A scorer-only repair now reads the already-authenticated report
+rows and publishes an actual report-file locator. A strict replay cannot change
+native code, data or gates; it pins both native report hashes and changes only
+the independent scorer. Its **22 provenance/audit tests pass in 2.18 s**.
+
+[Scoring replay](configs/minicpm5_vision_v0_scoring_replay_v1.json)
+(`23f696b3fff05d8e7b4d02a44ecee4145ebb9b2430a6b4bb27618af342ada25e`)
+is retrospective to the completed native executions and committed before CPU
+replay, not a new pre-run native protocol. The failed scorer attempt is kept.
+Final independent acceptance remains pending; no V1 training rows are admitted.
+
 
 
 ## Repository maintenance — 25 October 2026

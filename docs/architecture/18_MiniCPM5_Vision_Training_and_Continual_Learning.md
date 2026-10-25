@@ -6,7 +6,8 @@ through `VisionFeatureService`, the native adapter, frames and `MemorySession`.
 Eighty-two focused tests pass; an actual CPU smoke loads the sealed source,
 tokenizes the response and runs its official PIL processor on a pinned asset.
 See [V0 CPU admission](../../reports/vision_v0_20261025/cpu_admission.json).
-Native inference/backward/restart qualification is still pending.
+Native MPS inference, backward and fresh-process reload passed their raw checks;
+the independent scorer's final CPU acceptance is pending a pinned audit repair.
 
 **Plan revision: 25 October 2026, following the review of `7c7018e`.**
 The following sections define the staged implementation and experiment policy.

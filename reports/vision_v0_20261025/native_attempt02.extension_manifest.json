@@ -1,0 +1,127 @@
+{
+  "format": "replica.minicpm5.extensions.v4",
+  "manifest": {
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08",
+    "tokenizer_digest": "ec3bf8fa9d9778f35e2d450d7301f5ddc0e6994e7a14785b2e021605109e801f",
+    "native_config_digest": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "native_abi_digest": "6740542f5ca0679dae3877e682c4fea0bd0d6c25e84143773a53281ad28279e6",
+    "ports": {
+      "injection_layers": [
+        13,
+        27
+      ],
+      "observer_layer": 41,
+      "source_layer": 13,
+      "memory_width": 256,
+      "slots_per_unit": 4,
+      "max_units": 16,
+      "source_tokens": 128,
+      "heads": 4
+    },
+    "format_version": 1,
+    "training_scope": "visual_prefix_text",
+    "cached_generation_supported": false,
+    "vision": {
+      "encoder_repo": "google/siglip2-base-patch16-224",
+      "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+      "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+      "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+      "encoder_width": 768,
+      "image_size": 224,
+      "patch_size": 16,
+      "max_visual_tokens": 196,
+      "projector_hidden": 2048,
+      "feature_version": "siglip_patch_last_hidden.v1",
+      "compute_dtype": "float32"
+    }
+  },
+  "manifest_digest": "4d2d40a0aabf09e3f03fc452873768da115669d920562b07f40351c1a5ff008d",
+  "regime": "modules_only",
+  "weights_sha256": "042a6fa354acb793c3fa4476d419ac0ae938ff3ceb853a201719fb6ea214599c",
+  "parameters": {
+    "regime": "modules_only",
+    "original": {
+      "tensors": 381,
+      "parameters": 2516756480,
+      "trainable": 0,
+      "names": []
+    },
+    "new": {
+      "tensors": 49,
+      "parameters": 10651650,
+      "trainable": 5772800,
+      "names": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.weight",
+        "vision_projector.1.bias",
+        "vision_projector.3.weight",
+        "vision_projector.3.bias"
+      ]
+    }
+  },
+  "base_saved": false,
+  "notes": "Weights only; no optimizer/RNG training-resume state. Reload against validated local sealed source.",
+  "components": {
+    "record_writer": [
+      "record_writer.encoder.slot_queries",
+      "record_writer.encoder.input_norm.weight",
+      "record_writer.encoder.input_norm.bias",
+      "record_writer.encoder.input_projection.weight",
+      "record_writer.encoder.attention.in_proj_weight",
+      "record_writer.encoder.attention.in_proj_bias",
+      "record_writer.encoder.attention.out_proj.weight",
+      "record_writer.encoder.attention.out_proj.bias",
+      "record_writer.encoder.output_norm.weight",
+      "record_writer.encoder.output_norm.bias"
+    ],
+    "memory_ports": [
+      "memory_ports.13.gate_logit",
+      "memory_ports.13.query_norm.weight",
+      "memory_ports.13.query_norm.bias",
+      "memory_ports.13.memory_norm.weight",
+      "memory_ports.13.memory_norm.bias",
+      "memory_ports.13.query_projection.weight",
+      "memory_ports.13.key_projection.weight",
+      "memory_ports.13.value_projection.weight",
+      "memory_ports.13.output_projection.weight",
+      "memory_ports.27.gate_logit",
+      "memory_ports.27.query_norm.weight",
+      "memory_ports.27.query_norm.bias",
+      "memory_ports.27.memory_norm.weight",
+      "memory_ports.27.memory_norm.bias",
+      "memory_ports.27.query_projection.weight",
+      "memory_ports.27.key_projection.weight",
+      "memory_ports.27.value_projection.weight",
+      "memory_ports.27.output_projection.weight"
+    ],
+    "sense_ports": [
+      "sense_ports.13.input_norm.weight",
+      "sense_ports.13.input_norm.bias",
+      "sense_ports.13.projection.weight",
+      "sense_ports.27.input_norm.weight",
+      "sense_ports.27.input_norm.bias",
+      "sense_ports.27.projection.weight",
+      "sense_ports.41.input_norm.weight",
+      "sense_ports.41.input_norm.bias",
+      "sense_ports.41.projection.weight"
+    ],
+    "reranker": [
+      "reranker.query_norm.weight",
+      "reranker.query_norm.bias",
+      "reranker.record_norm.weight",
+      "reranker.record_norm.bias",
+      "reranker.query_projection.weight",
+      "reranker.record_projection.weight"
+    ],
+    "vision_projector": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ]
+  }
+}

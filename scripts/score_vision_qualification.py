@@ -55,6 +55,52 @@ def read_jsonl(path):
     return rows
 
 
+def verify_scoring_source(args, protocol, *, root=ROOT):
+    """Bind a declared post-native scorer repair without changing native gates."""
+    replay_path = getattr(args, "scoring_replay", None)
+    if replay_path is None:
+        pins = verify_implementation_pins({**protocol, "root": str(Path(root).resolve())}, root)
+        return {"mode": "native_pinned_scorer", "implementation_sha256": pins}
+    require(protocol["stage"] == "v0" and args.restart is not None,
+            "Scoring replay requires a completed V0 primary and restart")
+    replay = json.loads(Path(replay_path).read_text(encoding="utf-8"))
+    fields = {"format", "evaluation_only", "retrospective_to_native",
+              "native_protocol_sha256", "native_run_report_sha256",
+              "native_restart_report_sha256", "native_code_commit",
+              "implementation_overlay", "implementation_sha256"}
+    require(isinstance(replay, dict) and set(replay) == fields,
+            "Scoring replay fields differ; data/gate overrides are forbidden")
+    require(replay["format"] == "replica.vision_scoring_replay.v1"
+            and replay["evaluation_only"] is True
+            and replay["retrospective_to_native"] is True,
+            "Scoring replay must explicitly declare its post-native audit-only scope")
+    commit = replay["native_code_commit"]
+    require(isinstance(commit, str) and len(commit) == 40
+            and all(char in "0123456789abcdef" for char in commit),
+            "Scoring replay native code commit is not an immutable pin")
+    for name, path in (
+            ("native_protocol_sha256", args.protocol),
+            ("native_run_report_sha256", Path(args.run) / "run_report.json"),
+            ("native_restart_report_sha256", Path(args.restart) / "restart_report.json")):
+        require(sha256_file(path) == replay[name],
+                f"Scoring replay parent bytes differ: {name}")
+    original = protocol["implementation_sha256"]
+    replacement = replay["implementation_sha256"]
+    require(isinstance(replacement, dict) and set(replacement) == set(original),
+            "Scoring replay implementation inventory differs")
+    changed = {name for name in original if original[name] != replacement[name]}
+    require(changed == {"scripts/score_vision_qualification.py"},
+            "Scoring replay may replace only the independent scorer")
+    pins = verify_implementation_pins(
+        {**protocol, "root": str(Path(root).resolve()),
+         "implementation_sha256": replacement}, root)
+    return {"mode": "post_native_scoring_replay",
+            "replay_sha256": sha256_file(replay_path),
+            "native_protocol_sha256": replay["native_protocol_sha256"],
+            "native_code_commit": replay["native_code_commit"],
+            "implementation_sha256": pins}
+
+
 def artifact_bindings(run, report, protocol):
     artifacts = report.get("artifacts")
     require(isinstance(artifacts, dict) and bool(artifacts),
@@ -389,7 +435,7 @@ def verify_restart(args, run, report, run_report_sha, tokenizer, protocol,
             == extension["weights_sha256"],
             "Restart loaded the wrong extension")
     conditions = {item["condition"]: item for item in restart_report["conditions"]}
-    primary = {row["condition"]: row for row in probes["rows"]}
+    primary = {row["condition"]: row for row in report["probes"]["rows"]}
     require(set(conditions) == set(primary),
             "Restart conditions differ from primary probes")
     from safetensors.torch import load_file
@@ -508,8 +554,12 @@ def score_v0(args, protocol, protocol_sha, dataset, tokenizer, run, report,
         "blocks_dependents": ([] if engineering["engineering_pass"]
                               else ["V1", "V2", "V3_learned_visual_memory"]),
         "protocol_sha256": protocol_sha,
-        "run_report_path": str(Path(run).resolve()),
+        "run_report_path": str((Path(run) / "run_report.json").resolve()),
         "run_report_sha256": run_report_sha,
+        "vision_spec_digest": protocol["vision_digest"],
+        "vision_source_manifest_sha256": protocol["vision_source"]["manifest"]["sha256"],
+        "model_revision": protocol["model"]["revision"],
+        "model_lock_sha256": protocol["model"]["lock_sha256"],
         "checks": engineering["checks"],
         "parity": parity,
         "probes": {"conditions": probes["conditions"],
@@ -831,7 +881,7 @@ def score_v1(args, protocol, protocol_sha, dataset, tokenizer, run, report,
         "quality_claim": ("Bounded procedural/projector alignment pilot only; "
                           "not broad perception or deployment evidence"),
         "protocol_sha256": protocol_sha,
-        "run_report_path": str(Path(run).resolve()),
+        "run_report_path": str((Path(run) / "run_report.json").resolve()),
         "run_report_sha256": run_report_sha,
         "v0_score_report_sha256": v0_digest,
         "admission_sha256": protocol["v1"]["prerequisites"]["data_admission"]["sha256"],
@@ -870,13 +920,15 @@ def main():
     parser.add_argument("--model-lock", type=Path, required=True)
     parser.add_argument("--restart", "--restart-run", dest="restart", type=Path,
                         help="Fresh-process V0 restart directory scored with its primary")
+    parser.add_argument("--scoring-replay", type=Path,
+                        help="Hash-pinned post-native scorer-only repair; never changes native gates")
     args = parser.parse_args()
     ensure_fresh_directory(args.output)
     protocol_sha = sha256_file(args.protocol)
     protocol = json.loads(args.protocol.read_text(encoding="utf-8"))
     validate_protocol(protocol)
     require(args.run.is_dir(), "Run directory is missing")
-    verify_implementation_pins(protocol, ROOT)
+    scoring_source = verify_scoring_source(args, protocol)
     dataset = load_verified_dataset(protocol)
     report, run_report_sha = require_completed_run(args.run, protocol,
                                                    protocol_sha)
@@ -889,6 +941,7 @@ def main():
             score = score_v1(args, protocol, protocol_sha, dataset, tokenizer,
                              args.run, report, run_report_sha)
         score["accepted"] = bool(score["accepted"])
+        score["scoring_source"] = scoring_source
         dump(args.output / "score_report.json", score)
         print(json.dumps({"accepted": score["accepted"],
                           "stage": score["stage"],
@@ -901,7 +954,7 @@ def main():
             "status": "failed",
             "stage": protocol["stage"],
             "protocol_sha256": protocol_sha,
-            "run_report_path": str(Path(args.run).resolve()),
+            "run_report_path": str((Path(args.run) / "run_report.json").resolve()),
             "run_report_sha256": run_report_sha,
             "error_type": type(error).__name__,
             "error": str(error),

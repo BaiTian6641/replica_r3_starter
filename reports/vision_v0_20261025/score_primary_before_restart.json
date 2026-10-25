@@ -1,0 +1,127 @@
+{
+  "format": "replica.vision_qualification_score.v1",
+  "stage": "v0",
+  "status": "completed",
+  "accepted": false,
+  "engineering_pass": false,
+  "engineering_failures": [
+    "fresh_process_restart"
+  ],
+  "quality_pass": null,
+  "quality_claim": "V0 is an interface qualification; no broad-perception claim",
+  "blocks_dependents": [
+    "V1",
+    "V2",
+    "V3_learned_visual_memory"
+  ],
+  "protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+  "run_report_path": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v0_20261025/attempt02",
+  "run_report_sha256": "7e5d8f72166de79ef05272bffe4ede457ec43aff797a5e09c017dafd5b026313",
+  "checks": {
+    "base_frozen": true,
+    "bounded_generation": true,
+    "correct_wrong_noimage_logit_use": true,
+    "correct_wrong_noimage_pinned": true,
+    "data_verified": true,
+    "decoder_input_gradient": true,
+    "empty_ledger": true,
+    "encoder_reference_frozen": true,
+    "extension_base_absent": true,
+    "fresh_process_restart": false,
+    "implementation_match": true,
+    "nonprojector_gradients_absent": true,
+    "projector_gradients": true,
+    "projector_only_trainable": true,
+    "projector_update_ownership": true,
+    "response_only_labels": true,
+    "runner_self_checks": true,
+    "strict_extension_export": true,
+    "text_only_native_parity": true
+  },
+  "parity": {
+    "maximum_absolute_difference": 0.0,
+    "atol": 0.0,
+    "prompt_tokens": 22
+  },
+  "probes": {
+    "conditions": [
+      "correct",
+      "noimage",
+      "wrong"
+    ],
+    "logit_max_differences": {
+      "correct_vs_wrong": 5.4596147537231445,
+      "correct_vs_noimage": 16.94359588623047
+    },
+    "decoded_diagnostic_only": {
+      "correct": "</think>\n</think>\n</think>\n</think>",
+      "wrong": "</think>\n</think>\n</think>\n</think>",
+      "noimage": "I can't see any images or shapes"
+    }
+  },
+  "gradient": {
+    "projector_parameters": [
+      "vision_projector.0.bias",
+      "vision_projector.0.weight",
+      "vision_projector.1.bias",
+      "vision_projector.1.weight",
+      "vision_projector.3.bias",
+      "vision_projector.3.weight"
+    ],
+    "loss": 10.809962272644043,
+    "response_only": true,
+    "projector_gradients": true,
+    "decoder_input_gradient": true,
+    "nonprojector_gradients_absent": true,
+    "update_ownership": true,
+    "update_changed": []
+  },
+  "frozen": {
+    "base_stamp_sha256": "8045e96950e3f4c6de3ea0c4062a68370f7d87181c7cda5be8121bf769892dcb",
+    "projector_trainable": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "encoder_spec_digest": "2eab38384f18de90e8f8d463a0080bd24a2b49eb58ac1d1df3cfd58dd63b2b0e",
+    "encoder": {
+      "tensor_count": 208,
+      "parameter_elements": 92884224,
+      "trainable_names": [],
+      "gradient_names": [],
+      "parameter_stamp_unchanged": true,
+      "dtypes": [
+        "torch.float32"
+      ],
+      "devices": [
+        "mps:0"
+      ],
+      "encoder_producer": "ab60a1103f7fdde0b11a0cb28a5efd40e0abb450f6f33f04b87e869d63fa645a"
+    }
+  },
+  "extension": {
+    "weights_sha256": "042a6fa354acb793c3fa4476d419ac0ae938ff3ceb853a201719fb6ea214599c",
+    "manifest_sha256": "4334dbf33e3fa43a32b2417c99fd064d64d94edcd8abbb66334862f1501d98ea",
+    "format": "replica.minicpm5.extensions.v4",
+    "tensor_count": 49
+  },
+  "restart": null,
+  "artifacts": {
+    "probes/v0_generations.jsonl": "a7d7a5523ed0a23705f192d4b1df9d3b4685f3ef3500a87db075d825bf0d7f81",
+    "probes/gradient.json": "b6b9a9acc860a8c2ddf3d708e9407d4a105182565c571b622dc4b48b26198c3d",
+    "probes/frozen.json": "36c987e6bbb12c2cf5db644de7c95580b068e1532a48f220d6613742b65203b1",
+    "probes/parity_base.safetensors": "00bf5b3bf53144938ce4c20abec75f376d4a81ce6242afbc3fa0643bc98a9ea8",
+    "probes/parity_adapter.safetensors": "00bf5b3bf53144938ce4c20abec75f376d4a81ce6242afbc3fa0643bc98a9ea8",
+    "probes/logits/correct.safetensors": "09319fd2381f8726f1e045c2149e5a3a32c86461f5062d4427e64b4db3852a0a",
+    "probes/logits/wrong.safetensors": "fe40e9108f18ba8a394910c0cfa0f00ef253564e3cae5c534a95c83e34b71df5",
+    "probes/logits/noimage.safetensors": "efd652aa6af7988348927bc5958224a4f759152d687b77bfd3efb5bbdd3976dc",
+    "extension/manifest.json": "4334dbf33e3fa43a32b2417c99fd064d64d94edcd8abbb66334862f1501d98ea",
+    "extension/extensions.safetensors": "042a6fa354acb793c3fa4476d419ac0ae938ff3ceb853a201719fb6ea214599c",
+    "profile_samples.jsonl": "33ca0ebebb05323fb1a9da9a7460149db13d765a5f0ff745e2681e6b5802a8a5",
+    "profile_summary.json": "e8583493e0efdda15e7bc273d71130ba8ff9f45fb5345fa418f9ddb3a1199cc6"
+  },
+  "scored_at_utc": "2026-10-25T06:49:39.162026+00:00"
+}

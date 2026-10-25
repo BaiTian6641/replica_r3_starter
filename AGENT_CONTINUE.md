@@ -1,11 +1,12 @@
 # Coding-agent continuation instruction
 
-**Current priority — qualify the implemented isolated MiniCPM5 V0 interface.**
-R1–R4 remain verified at `757ace1` (140 integrated tests and a tracked export
-with 1,372 tests plus 21 subtests). V0 passes its CPU contracts. Native attempt01
-failed before encoder inference on a constructor field; its raw failure is kept.
-Use corrected `configs/minicpm5_vision_v0_qualification_v3.json` under the guard.
-Memory, core and identity stay disabled. Spark remains host-only and unqualified.
+**Current priority — finish independent V0 scoring, then gated projector-only V1.**
+R1–R4 remain verified at `757ace1`. Native V0 attempt02 and restart01 passed
+under protocol v3: six projector gradients, no weight updates, bitwise restart
+logits, empty memory and unchanged guards. The first restart scorer failed on
+a missing summary field. Use `configs/minicpm5_vision_v0_scoring_replay_v1.json`
+for its explicit post-native CPU repair; do not repeat native work for this.
+No perception quality or V1 admission follows until independent acceptance.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context
