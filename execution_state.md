@@ -65,6 +65,18 @@ changes only this code pin; data, seeds, cases, gates, limits and zero-update sc
 remain fixed. Native passing-after verification and fresh-process reload are
 still required; V1 remains unadmitted.
 
+Before retrying, a new consumer regression reproduced stale cache acceptance
+after an encoder position buffer changed. Live producer stamps now cover both
+parameters and buffers. The failing-before XML and the subsequent wording-only
+test failure are retained; the obsolete message assertion was deleted, not
+re-pinned. **25 feature/runner tests pass in 2.45 s**, including buffer mutation
+rejection and cache eviction.
+
+[Protocol v3](configs/minicpm5_vision_v0_qualification_v3.json)
+(`7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a`)
+contains these live-producer guards. V2 was committed but never run. V3 retains
+the original data, seed, cases, limits, numerical gates and zero-update scope.
+
 
 
 ## Repository maintenance — 25 October 2026

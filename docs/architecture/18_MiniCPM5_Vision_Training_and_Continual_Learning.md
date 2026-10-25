@@ -88,7 +88,7 @@ bypass check when all added branches/adapters are disabled. After instruction
 tuning, evaluate text retention independently; do not assert bitwise equality
 to the original base while trained language adapters remain enabled.
 
-The executable [V0 protocol](../../configs/minicpm5_vision_v0_qualification_v2.json)
+The executable [V0 protocol](../../configs/minicpm5_vision_v0_qualification_v3.json)
 pins 83 implementation/environment files and the source/data artifacts. It selects
 backward-only qualification: six FP32 projector tensors / 5,772,800 parameters,
 zero optimizer updates, empty memory and disabled core/identity/ports. The

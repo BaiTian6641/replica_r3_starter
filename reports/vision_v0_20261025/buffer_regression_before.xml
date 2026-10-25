@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.969" timestamp="2026-10-25T01:40:56.951824-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_vision_features" name="test_encoder_position_buffer_mutation_rejects_cached_observation" time="0.005"><failure message="Failed: DID NOT RAISE VisionSourceError">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-513/test_encoder_position_buffer_m0')
+
+    def test_encoder_position_buffer_mutation_rejects_cached_observation(tmp_path):
+        class BufferedEncoder(FakeEncoder):
+            def __init__(self):
+                super().__init__()
+                self.register_buffer('position_ids', torch.arange(self.patches))
+    
+            def forward(self, pixel_values):
+                output = super().forward(pixel_values)
+                output.last_hidden_state += self.position_ids.reshape(1, -1, 1)
+                return output
+    
+        image = tmp_path / 'position-bound-observation.bin'
+        image.write_bytes(b'owned-observed-pixels')
+        encoder = BufferedEncoder()
+        service = _service(encoder=encoder)
+        service._parameter_stamps = service._stamps()
+        args = dict(source_id='s', task_id='t', scope=_scope(), observed_at=1, source_epoch=0)
+        service.observe(image, **args)
+        encoder.position_ids.add_(1)
+&gt;       with pytest.raises(VisionSourceError, match='encoder.*changed'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE VisionSourceError
+
+tests/test_vision_features.py:533: Failed</failure></testcase></testsuite></testsuites>

@@ -1396,9 +1396,15 @@ class VisionFeatureService:
     def _stamps(self) -> tuple:
         if self._encoder is None or not hasattr(self._encoder, "parameters"):
             return ()
-        return tuple((id(parameter), parameter._version, parameter.data_ptr(),
-                      bool(parameter.requires_grad), str(parameter.dtype))
-                     for parameter in self._encoder.parameters())
+        parameters = (self._encoder.named_parameters()
+                      if hasattr(self._encoder, "named_parameters")
+                      else enumerate(self._encoder.parameters()))
+        buffers = (self._encoder.named_buffers()
+                   if hasattr(self._encoder, "named_buffers") else ())
+        return tuple((kind, str(name), id(value), value._version, value.data_ptr(),
+                      tuple(value.shape), bool(value.requires_grad), str(value.dtype))
+                     for kind, values in (("parameter", parameters), ("buffer", buffers))
+                     for name, value in values)
 
     def _assert_source_unchanged(self) -> None:
         if self._processor is not None and self._processor_stamp is not None:
@@ -1417,9 +1423,9 @@ class VisionFeatureService:
         if self._parameter_stamps is not None:
             current = self._stamps()
             if current != self._parameter_stamps:
-                self._cache.invalidate("encoder_parameters_mutated")
+                self._cache.invalidate("encoder_tensors_mutated")
                 raise VisionSourceError(
-                    "Frozen encoder parameters changed; refusing to serve cached features")
+                    "Frozen encoder parameters or buffers changed; refusing cached features")
 
     def _pixels(self, image_path: Path):
         if getattr(self, "_image_reader", None) is not None:

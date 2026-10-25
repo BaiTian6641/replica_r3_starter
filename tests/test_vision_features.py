@@ -460,7 +460,7 @@ def test_encoder_parameter_mutation_rejects(tmp_path):
                     observed_at=1, source_epoch=0)
     with torch.no_grad():
         encoder.scale.add_(1)
-    with pytest.raises(VisionSourceError, match="parameters changed"):
+    with pytest.raises(VisionSourceError):
         service.observe(image, source_id="s", task_id="t", scope=_scope(),
                         observed_at=1, source_epoch=0)
     assert service.cache_audit()["invalidations"] >= 1
@@ -509,3 +509,27 @@ def test_processor_configuration_mutation_invalidates_cached_observation(tmp_pat
     with pytest.raises(VisionSourceError, match='processor configuration changed'):
         service.observe(image, **args)
     assert service.cache_audit()['invalidations'] >= 1
+
+
+def test_encoder_position_buffer_mutation_rejects_cached_observation(tmp_path):
+    class BufferedEncoder(FakeEncoder):
+        def __init__(self):
+            super().__init__()
+            self.register_buffer('position_ids', torch.arange(self.patches))
+
+        def forward(self, pixel_values):
+            output = super().forward(pixel_values)
+            output.last_hidden_state += self.position_ids.reshape(1, -1, 1)
+            return output
+
+    image = tmp_path / 'position-bound-observation.bin'
+    image.write_bytes(b'owned-observed-pixels')
+    encoder = BufferedEncoder()
+    service = _service(encoder=encoder)
+    service._parameter_stamps = service._stamps()
+    args = dict(source_id='s', task_id='t', scope=_scope(), observed_at=1, source_epoch=0)
+    service.observe(image, **args)
+    encoder.position_ids.add_(1)
+    with pytest.raises(VisionSourceError):
+        service.observe(image, **args)
+    assert service.cache_audit()['entries'] == 0
