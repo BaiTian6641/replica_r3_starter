@@ -1,0 +1,155 @@
+{
+  "format": "replica.external_caption_intake_config.v1",
+  "intake_id": "external_caption_tranche_20261025",
+  "created_on": "2026-10-25",
+  "dataset": {
+    "id": "liuhaotian/LLaVA-Pretrain",
+    "family": "laion_cc_sbu_root_image",
+    "source_url": "https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain",
+    "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+    "split": "train",
+    "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+    "card": {
+      "path": "README.md",
+      "size": 2681,
+      "sha256": "2c0409a377737d7d9aa37c5f72abcf6e6303c6b9b682922527314f7aec5342f4"
+    },
+    "files": {
+      "annotation": {
+        "path": "blip_laion_cc_sbu_558k.json",
+        "size": 180506011,
+        "sha256": "fe0a999808f30dba5067297a1283d0937a0f519101298ad639d178d8564dfcd6"
+      },
+      "metadata": {
+        "path": "blip_laion_cc_sbu_558k_meta.json",
+        "size": 147365298,
+        "sha256": "b83a45928ea612555b630245d7f7dc8d92f477332a146c4eb66b760dafd6e8ba"
+      },
+      "images": {
+        "path": "images.zip",
+        "size": 27356108382,
+        "sha256": "05459d8cb059bd32322b1c466c1cbd4568b09b1ce1db748425b7977236912660"
+      }
+    },
+    "composition_note": "General LAION/CC/SBU web-image subset; includes product photography and some graphic/illustrative images. Captions are raw upstream alt-text. Admission verifies provenance, terms, decode, uniqueness and split/label separation, not semantic caption-image agreement."
+  },
+  "terms": {
+    "license_expression": "other (research-use-only filtered image bundle; permissive caption text with attribution)",
+    "permitted_use": "internal_research",
+    "research_use_only": true,
+    "redistribution": "prohibited",
+    "commercial_use": false,
+    "reviewed_on": "2026-10-25",
+    "reviewed_by": "replica-lab external intake",
+    "evidence": [
+      {
+        "kind": "pinned_dataset_card",
+        "path": "README.md",
+        "sha256": "2c0409a377737d7d9aa37c5f72abcf6e6303c6b9b682922527314f7aec5342f4"
+      },
+      {
+        "kind": "pinned_metadata_api_record",
+        "path": "https://huggingface.co/api/datasets/liuhaotian/LLaVA-Pretrain",
+        "sha256": "31a7ee6066112860debf3dc05a4aeb1d72ed79b8d306a1028b9ef1ec1d94a94c"
+      }
+    ],
+    "components": [
+      {
+        "name": "LAION/CC/SBU filtered image subset (images.zip)",
+        "terms": "Card states the re-hosted images are provided for research reproduction only, must comply with the LAION/CC/SBU licence, should not be used for any other purpose, and may be withdrawn on request of the original owners.",
+        "redistributable": false,
+        "used": "image"
+      },
+      {
+        "name": "CC-3M caption text",
+        "terms": "Card states the dataset may be freely used for any purpose with acknowledgement of Google LLC as the data source; provided AS IS without warranty.",
+        "redistributable": true,
+        "used": "gold_caption_text_if_raw_cc3m"
+      },
+      {
+        "name": "Caption text as shipped in the annotation answer field",
+        "terms": "The pinned card declares the raw CC-3M caption as the default answer, but the sampled answer text is textually identical to metadata.blip_caption, so a BLIP-synthetic origin cannot be excluded. CC-3M text is freely usable with acknowledgement of Google LLC; if the text is BLIP-generated, the card requires compliance with the BLIP licence and attribution. Both acknowledgements are recorded.",
+        "redistributable": false,
+        "used": "gold_caption_text_possibly_cc3m_or_blip",
+        "provenance_note": "Per-row origin is not distinguishable from the pinned artifacts; the ambiguity is recorded in every row instead of being guessed."
+      },
+      {
+        "name": "LLaVA-Pretrain instruction wrappers",
+        "terms": "Generated prompt templates from the pinned annotation file; underlying image and caption terms govern the admitted content.",
+        "redistributable": false,
+        "used": "observation_prompt"
+      }
+    ],
+    "acknowledgements": [
+      "Google LLC (CC-3M)",
+      "LAION/CC/SBU",
+      "Salesforce BLIP",
+      "LLaVA (liuhaotian)"
+    ],
+    "reserved_family_avoidance": {
+      "reserved": [
+        "coco_root_image"
+      ],
+      "selected_family": "laion_cc_sbu_root_image",
+      "note": "The audit reserved coco_root_image for evaluation and blocked LLaVA-Instruct-150K because it derives from that family. LLaVA-Pretrain is the declared V1 alignment candidate and draws from the LAION/CC/SBU filtered subset instead."
+    }
+  },
+  "sampling": {
+    "seed": 20261025,
+    "order": "ascending sha256('<seed>:<upstream_id>') over the first 3000 pinned upstream rows",
+    "window_rows": 3000,
+    "window_bytes": 2097152,
+    "max_window_bytes": 8388608,
+    "target_roots": 30,
+    "split_quotas": {
+      "train": 15,
+      "development": 7,
+      "final_eval_untouched": 8
+    }
+  },
+  "preprocessing": {
+    "version": "external-caption-normalization-v1",
+    "prompt_normalization": "collapse_whitespace_remove_image_token",
+    "caption_normalization": "collapse_whitespace_strip_image_token",
+    "min_caption_chars": 3,
+    "max_caption_chars": 300,
+    "image": {
+      "formats": [
+        "JPEG",
+        "PNG",
+        "WEBP"
+      ],
+      "min_dimension": 64,
+      "max_dimension": 8192,
+      "max_bytes": 8388608,
+      "require_extension_match": false
+    }
+  },
+  "admission": {
+    "forbidden_url_patterns": [
+      "(?<![a-z])coco(?![a-z])",
+      "cocodataset",
+      "mscoco",
+      "ms-coco",
+      "train2017",
+      "val2017",
+      "visual[._-]genome",
+      "\\bgqa\\b",
+      "\\bvsr\\b",
+      "vqav2",
+      "visualqa"
+    ],
+    "max_central_directory_bytes": 67108864,
+    "max_acquired_bytes": 104857600,
+    "campaign_disk_ceiling_bytes": 26843545600
+  },
+  "outputs": {
+    "data_root": "data/external_caption_tranche_20261025_v2",
+    "report": "reports/external_caption_tranche_20261025/intake_report_v2.json",
+    "raw_dir": "raw",
+    "corpus": "corpus.jsonl",
+    "rejections": "rejections.jsonl",
+    "manifest": "manifest.json",
+    "manifests_dir": "manifests"
+  }
+}

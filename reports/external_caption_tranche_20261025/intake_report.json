@@ -1,0 +1,156 @@
+{
+  "acquired_bytes": 61174504,
+  "artifacts": {
+    "corpus": {
+      "path": "corpus.jsonl",
+      "rows": 30,
+      "sha256": "e3646d999e3eba3f092df9bd50f14a34e6da544e3fdc751d13059a3383fe2bf1"
+    },
+    "manifests": {
+      "development": {
+        "path": "manifests/development.json",
+        "rows": 7,
+        "seal_sha256": null,
+        "sealed": false,
+        "sha256": "52b5c063c6ba4cba67dd263cb7f1cce7d0322c542fc2527385de3e5162801132"
+      },
+      "final_eval_untouched": {
+        "path": "manifests/final_eval_untouched.json",
+        "rows": 8,
+        "seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d",
+        "sealed": true,
+        "sha256": "0ea0d9d1902b1e5ca499a54795198871e094bd4b987e5865d07a51dc86b84f6f"
+      },
+      "train": {
+        "path": "manifests/train.json",
+        "rows": 15,
+        "seal_sha256": null,
+        "sealed": false,
+        "sha256": "80ae65f0c02d0f75d50f74f0a46cff6441361ec5c953e481820b44104befe0bb"
+      }
+    },
+    "rejections": {
+      "path": "rejections.jsonl",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "budget_bytes": 104857600,
+  "claim": "Corpus preparation only; no model training or capability claim.",
+  "config": {
+    "path": "configs/external_caption_tranche_v1.json",
+    "sha256": "bbf77c3afb54f9b7688c7ab7cf9d507cb82f6634921aecb361996f0840235d6b"
+  },
+  "counts": {
+    "admitted_root_assets": 30,
+    "admitted_rows": 30,
+    "inspected_assets": 30,
+    "metadata_candidates": 3000,
+    "metadata_rows": 3000,
+    "normalized_rows": 30,
+    "rejected_rows": 0,
+    "rejection_reasons": {},
+    "roles": {
+      "development": {
+        "root_groups": 7,
+        "rows": 7
+      },
+      "final_eval_untouched": {
+        "root_groups": 8,
+        "rows": 8
+      },
+      "train": {
+        "root_groups": 15,
+        "rows": 15
+      }
+    },
+    "window_rows": 3000
+  },
+  "dataset": {
+    "composition_note": "General LAION/CC/SBU web-image subset; includes product photography and some graphic/illustrative images. Captions are raw upstream alt-text. Admission verifies provenance, terms, decode, uniqueness and split/label separation, not semantic caption-image agreement.",
+    "family": "laion_cc_sbu_root_image",
+    "id": "liuhaotian/LLaVA-Pretrain",
+    "revision": "70f9d1e5e1a697fe35830875cfc7de1dd590d727",
+    "shard": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)",
+    "split": "train"
+  },
+  "exclusions": {
+    "admitted_assets": 30,
+    "candidates_beyond_quota": 2970,
+    "downloaded_assets": 30,
+    "metadata_candidates": 3000,
+    "rejected": {
+      "content": 0,
+      "ledger": {
+        "path": "rejections.jsonl",
+        "rows": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": 0,
+      "reasons": {},
+      "rows": 0
+    },
+    "rows_outside_window": {
+      "inspected": false,
+      "reason": "bounded deterministic window over the pinned upstream array; outside rows were never downloaded and are not claimed as quality rejections"
+    },
+    "window": {
+      "bytes": 2097152,
+      "rows": 3000,
+      "scope": "blip_laion_cc_sbu_558k.json#rows[0:3000] (bounded window of the single pretrain split; images.zip members for admitted roots)"
+    }
+  },
+  "format": "replica.external_caption_intake_report.v1",
+  "inspection": {
+    "assets": 30,
+    "decode_verified": 30,
+    "decoders": {
+      "pillow-12.0.0": 30
+    },
+    "formats": {
+      "JPEG": 30
+    },
+    "image_bytes": 1496105,
+    "structural_verified": 30
+  },
+  "intake_id": "external_caption_tranche_20261025",
+  "leakage": {
+    "caption_hashes_disjoint": true,
+    "eval_vs_non_eval_caption_overlap": 0,
+    "eval_vs_non_eval_image_overlap": 0,
+    "image_hashes_disjoint": true,
+    "label_separation_verified": true,
+    "observation_caption_leakage_cross_split": 0,
+    "root_groups_disjoint": true,
+    "row_ids_unique": true
+  },
+  "manifest": "/Users/flare/replica_r3_starter/data/external_caption_tranche_20261025/manifest.json",
+  "manifest_sha256": "d06cbcf5e36e96b9d6d271f336e6c8f7e59917b64d6071f56221b1a65373026e",
+  "reserved_family_check": {
+    "admitted_asset_matches": 0,
+    "patterns": [
+      "(?<![a-z])coco(?![a-z])",
+      "cocodataset",
+      "mscoco",
+      "ms-coco",
+      "train2017",
+      "val2017",
+      "visual[._-]genome",
+      "\\bgqa\\b",
+      "\\bvsr\\b",
+      "vqav2",
+      "visualqa"
+    ],
+    "reserved_families": [
+      "coco_root_image"
+    ]
+  },
+  "status": "admitted",
+  "terms": {
+    "commercial_use": false,
+    "permitted_use": "internal_research",
+    "redistribution": "prohibited",
+    "research_use_only": true,
+    "reviewed_on": "2026-10-25"
+  }
+}
