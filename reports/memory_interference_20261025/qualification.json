@@ -1,0 +1,57 @@
+{
+  "format": "replica.memory_interference_qualification.v1",
+  "disposition": "incremental_storage_recovers_through_three_facts",
+  "protocols": {
+    "two_facts": "data/memory_interference_20261025/prepared02b/protocol.json",
+    "three_facts": "data/memory_interference_20261025/prepared03b/protocol.json"
+  },
+  "writer_weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+  "writer_disposition": "rejected_v5_preserved_unchanged",
+  "runs": {
+    "two_facts": {
+      "path": "runs/memory_interference_20261025/native02b",
+      "protocol_sha256": "319e956c3cc234c96dbfa606e7084d91166b59f36bbf0c88622e5bd2ae5d1822",
+      "seed": 2026102505,
+      "worlds": 4,
+      "facts_per_world": 2,
+      "evaluated_rows": 128,
+      "unique_after_save_cases": 64,
+      "per_depth_mean_cosine": 0.8765588216483593,
+      "shared_mean_cosine": 0.8772764094173908,
+      "cross_depth_mean_cosine": -0.0351529058534652,
+      "zero_max_abs_cosine": 0.0,
+      "save_reload_max_abs_difference": 0.0,
+      "decision": "one_write_storage_ok",
+      "guard_elapsed_seconds": 12.705577041953802,
+      "peak_driver_bytes": 10746478592,
+      "independent_rescore": "matched",
+      "minimum_observed_free_percent": 77.0
+    },
+    "three_facts": {
+      "path": "runs/memory_interference_20261025/native03b",
+      "protocol_sha256": "041a872f35c75d3fd7d89ef6730fd9a92b00c4882a1dea13a2d5e459cd6f0373",
+      "seed": 2026102506,
+      "worlds": 4,
+      "facts_per_world": 3,
+      "evaluated_rows": 192,
+      "unique_after_save_cases": 96,
+      "per_depth_mean_cosine": 0.8528999214371046,
+      "shared_mean_cosine": 0.8551250547170639,
+      "cross_depth_mean_cosine": -0.03269715358813604,
+      "zero_max_abs_cosine": 0.0,
+      "save_reload_max_abs_difference": 0.0,
+      "decision": "one_write_storage_ok",
+      "guard_elapsed_seconds": 14.281372332945466,
+      "peak_driver_bytes": 11815763968,
+      "independent_rescore": "matched",
+      "minimum_observed_free_percent": 78.0
+    }
+  },
+  "state_images_authenticated_per_run": 4,
+  "optimizer_updates": 0,
+  "parameters_updated": [],
+  "interpretation": "One fact, two facts and three facts all recover under the exact observed key with no updates. Earlier multi-fact rejection is therefore not a basic write failure; the remaining failure class is addressing/selection among many candidates plus correction/revocation semantics, not an absent write path.",
+  "scope_limit": "Observed-key storage recovery only; no useful memory, addressing or native readout claim.",
+  "failed_attempt_preserved": "reports/memory_interference_20261025/native02.guard.json and native02.guard.child.log (counts contract defect fixed before rerun).",
+  "next_action": "Use the corrected one-write/interference evidence to target addressing and correction semantics rather than another blind writer arm."
+}

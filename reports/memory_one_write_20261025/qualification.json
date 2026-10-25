@@ -1,0 +1,52 @@
+{
+  "format": "replica.memory_one_write_qualification.v1",
+  "disposition": "one_write_storage_ok_observed_key_only",
+  "protocol_sha256": "b0b9b39086eaa6826d6d35835e57a6c58d16054fb9460efb8065bdc3c6bc402d",
+  "data_sha256": "1a0d865d15044cfde84229d165fa75768a6153e7dd5ed91134e051e0c027c1be",
+  "writer_weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+  "writer_disposition": "rejected_v5_preserved_unchanged",
+  "seed": 2026102504,
+  "worlds": 8,
+  "layers": [13, 27],
+  "evaluated_rows": 128,
+  "unique_after_save_cases": 64,
+  "read_paths": ["per_depth", "shared_mean", "cross_depth", "zero_state"],
+  "metrics": {
+    "per_depth_mean_cosine": 0.9292726404964924,
+    "shared_mean_cosine": 0.9233233332633972,
+    "cross_depth_mean_cosine": -0.00015672482550144196,
+    "zero_max_abs_cosine": 0.0,
+    "save_reload_max_abs_difference": 0.0,
+    "key_norm_mean": 1.1983911767601967,
+    "value_norm_mean": 8.4353868663311,
+    "gate_mean": 0.4953000843524933,
+    "erase_mean": 0.47198474407196045,
+    "decay_mean": 0.5063316002488136,
+    "key_cross_cosine_mean": -0.010042631183750927,
+    "value_cross_cosine_mean": -0.14697223249822855
+  },
+  "gates": {
+    "per_depth_recovery": "pass",
+    "shared_reduction": "pass",
+    "zero_state": "pass",
+    "save_reload_parity": "pass",
+    "frozen_weights": "pass"
+  },
+  "independent_rescore": {
+    "status": "matched",
+    "file": "reports/memory_one_write_20261025/native01.independent_score_v2.json",
+    "state_images_authenticated": 8
+  },
+  "optimizer_updates": 0,
+  "parameters_updated": [],
+  "guard": {
+    "elapsed_seconds": 16.628193499986082,
+    "peak_driver_bytes": 10746462208,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 89.0,
+    "stop_reason": null
+  },
+  "scope_limit": "Observed-key vector recovery only. No addressing, native language readout, useful-memory or capability claim.",
+  "next_action": "Incrementally increase interference before any addressing or reader training."
+}
