@@ -1,0 +1,77 @@
+{
+  "format": "replica.memory_storage_native_execution_admission.v1",
+  "scope": "zero_update_diagnostic_only",
+  "source_code_commit": "f62138423c7f65e4688ce587adbb0b1f41f0b07e",
+  "protocol_path": "data/memory_storage_probe_20261025/prepared01/protocol.json",
+  "protocol_sha256": "f4dd63df2b7abe06e2f91777c1420787d8f9aac7f64543f483b73e007bc5c83c",
+  "data_sha256": "579917456164252b203315005f40421f47e207b55f747a4ea373f99828dbc3e1",
+  "prepared_manifest_sha256": "acb385aab988cc5ca4f6356bd16ed9205a0dea3fd494b843ec05392c6a0c649c",
+  "admission_sha256": "7fbad5548df83e5d0000bb1622d655537f753a89802fc9689a79dc01b613c649",
+  "writer_weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+  "writer_disposition": "rejected_v5_preserved; no re-training or promotion",
+  "hypothesis": "Separate committed-storage recoverability under observed write keys from canonical/native addressing and downstream readout on fresh opaque observed values.",
+  "worlds": 4,
+  "primary_facts_per_world": 3,
+  "independent_world_distractors_per_world": 2,
+  "planned_evaluated_rows": 552,
+  "unique_after_reload_cases": 276,
+  "workload": {
+    "correction_index": 0,
+    "distractors_per_world": 2,
+    "evaluations_per_state": 2,
+    "facts_per_world": 3,
+    "native_reader": true,
+    "per_stage": {
+      "corrected": {
+        "control_rows": 4,
+        "live_entries": 5,
+        "rows_per_evaluation": 24,
+        "target_rows": 20,
+        "unsupported_rows": 0
+      },
+      "current_view": {
+        "control_rows": 5,
+        "live_entries": 4,
+        "rows_per_evaluation": 21,
+        "target_rows": 16,
+        "unsupported_rows": 0
+      },
+      "initial": {
+        "control_rows": 4,
+        "live_entries": 5,
+        "rows_per_evaluation": 24,
+        "target_rows": 20,
+        "unsupported_rows": 0
+      }
+    },
+    "planned_control_cases": 52,
+    "planned_control_rows": 104,
+    "planned_diagnostic_cases": 276,
+    "planned_target_cases": 224,
+    "planned_target_rows": 448,
+    "planned_unsupported_cases": 0,
+    "planned_unsupported_rows": 0,
+    "revocation_index": 1,
+    "rows_per_world": 138,
+    "states": 12,
+    "total_planned_rows": 552,
+    "world_count": 4
+  },
+  "optimizer_updates": 0,
+  "neural_weight_changes_allowed": 0,
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_admission": true
+  },
+  "guard_code_sha256": "06697d674e8425d063b24d8c63699c880b0fd1c35ebf063d7737897d950c00c3",
+  "run_output": "runs/memory_storage_probe_20261025/native01",
+  "guard_report": "reports/memory_storage_probe_20261025/native01.guard.json",
+  "no_evaluation_answers_written": true,
+  "pointer_copy_comparator": "not constructed before diagnostic recovery gate",
+  "quality_scope": "Vector recoverability/control diagnosis, not useful language factual recall or accepted neural memory."
+}

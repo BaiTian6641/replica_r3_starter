@@ -219,6 +219,18 @@ authenticate target roles from source codebooks. The 29 probe/guard checks pass.
 One actual tiny CPU smoke is mechanical only. The next native package is a
 zero-weight-update probe of the rejected writer, not another blind training arm.
 
+The [prepared native probe](data/memory_storage_probe_20261025/prepared01/protocol.json)
+pins code `f621384`, fresh data
+`579917456164252b203315005f40421f47e207b55f747a4ea373f99828dbc3e1`,
+and protocol
+`f4dd63df2b7abe06e2f91777c1420787d8f9aac7f64543f483b73e007bc5c83c`.
+Four worlds contain three primary facts plus two independent-world distractors
+each. The exact bound is 552 evaluated rows /276 unique after-load cases.
+The original rejected v5 writer hash `ff339867...c11f49` stays frozen.
+[Execution admission](reports/memory_storage_probe_20261025/native_admission.json)
+declares zero updates and the unchanged exclusive fallback-off 50 GiB guard.
+No stored-observation vector recovery is useful language memory by itself.
+
 
 
 ## Repository maintenance — 25 October 2026

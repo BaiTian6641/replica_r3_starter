@@ -1,0 +1,107 @@
+{
+  "created_at_utc": "2026-10-25T08:13:29.940483+00:00",
+  "data_sha256": "579917456164252b203315005f40421f47e207b55f747a4ea373f99828dbc3e1",
+  "format": "replica.memory_storage_probe.prepared.v1",
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "06697d674e8425d063b24d8c63699c880b0fd1c35ebf063d7737897d950c00c3",
+    "scripts/run_memory_storage_probe.py": "97259b7c06ba973f0e76f9610913230f940ac7e458ae7a9cfc1d648c6e047796",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/memory_diagnosis.py": "ff50fa95f979627c6af4141f5a3bee76fd6f28a2dc7bbde347f9b313005505fb",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "4318760e6bac10cadb3395c9276d7cc57ba716f5fbbeae34f2e42311defb0021",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/runtime/exact_memory.py": "22d94a0e08195df8b7f9a7e5f005543807a8a0b21373cc688d2e62b6220c2bf1",
+    "src/replica_lab/runtime/fact_memory.py": "5254c5f4e5aaa63743d145e845ac66ef5fad41a54b98f2869fa4fcabfc53186b",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/runtime/memory_representation.py": "6f8d24607ceafd74918dc21747e0a6151b5d301e1df9638c86e1ffc7b73dfda1",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "4861c5a6d281882e8b89ade918a80ee2116f1fd60a079b0617ca5f9ff32abbed"
+  },
+  "native_computation": false,
+  "planned_workload": {
+    "correction_index": 0,
+    "distractors_per_world": 2,
+    "evaluations_per_state": 2,
+    "facts_per_world": 3,
+    "native_reader": true,
+    "per_stage": {
+      "corrected": {
+        "control_rows": 4,
+        "live_entries": 5,
+        "rows_per_evaluation": 24,
+        "target_rows": 20,
+        "unsupported_rows": 0
+      },
+      "current_view": {
+        "control_rows": 5,
+        "live_entries": 4,
+        "rows_per_evaluation": 21,
+        "target_rows": 16,
+        "unsupported_rows": 0
+      },
+      "initial": {
+        "control_rows": 4,
+        "live_entries": 5,
+        "rows_per_evaluation": 24,
+        "target_rows": 20,
+        "unsupported_rows": 0
+      }
+    },
+    "planned_control_cases": 52,
+    "planned_control_rows": 104,
+    "planned_diagnostic_cases": 276,
+    "planned_target_cases": 224,
+    "planned_target_rows": 448,
+    "planned_unsupported_cases": 0,
+    "planned_unsupported_rows": 0,
+    "revocation_index": 1,
+    "rows_per_world": 138,
+    "states": 12,
+    "total_planned_rows": 552,
+    "world_count": 4
+  },
+  "protocol_sha256": "f4dd63df2b7abe06e2f91777c1420787d8f9aac7f64543f483b73e007bc5c83c",
+  "seed": 2026102503,
+  "source": {
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "model_path": "checkpoints/minicpm5_source",
+    "required_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "snapshot_file_count": 9,
+    "snapshot_files_sha256": {
+      ".cache/huggingface/trees/f97400052a43d642bbc6e9975e2397e3ae6a6b52.json": "004ef8eb0e15db7cf93468625897b24a7c322e6a1f22ae288dd66f4875f1ef7b",
+      "chat_template.jinja": "bc1f78ef8a86b6bdf64a056cf89dd0ac506db4f198ab363d85168e2500ab44dd",
+      "config.json": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+      "generation_config.json": "9ac4f32e5f32358697a9f438a3ea89ef80e6ba786c72c49e932f9f21c122fdb1",
+      "model-00000-of-00001.safetensors": "14fb8e7f0a18d53d1f239773758bf581cee7e456a4523a54622c3a245b64402c",
+      "model.safetensors.index.json": "6d839cd76e8395de548a0e6cc310386f66d1ecbb2c75d198a8dfd3d70892b756",
+      "special_tokens_map.json": "82d96d7a9e6ced037f12394b7ea6a5b02e6ca87e0d11edaa8d60d9be857ce7db",
+      "tokenizer.json": "3e065a558a034185fe299917b398685c1facd0169a9eea1e629eb30c171fed81",
+      "tokenizer_config.json": "e9b1064649e771d7a8e15637c68b2d2749724877ba3648bd74a4ece31c26303b"
+    },
+    "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "source_seal_digest": "ab84fe74a517ebb851f2fa39485371e5669520332f7f05cada4790a649598c08"
+  },
+  "world_count": 4,
+  "writer_extension": {
+    "components": [
+      "fast_depth_write_encoders",
+      "fast_ports",
+      "memory_ports",
+      "record_writer",
+      "reranker",
+      "sense_ports"
+    ],
+    "format": "replica.minicpm5.extensions.v2",
+    "manifest_digest": "9d8de79a6c3bcb5cfb1b9f71ad1c288731c462ae8d1df93ea931d4c90b540f60",
+    "manifest_sha256": "337e6856246b3e553e112f72f369643f811e09760a10ad28aa8f73b1c12b8c95",
+    "path": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49"
+  }
+}
