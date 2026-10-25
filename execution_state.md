@@ -1,11 +1,39 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — R1–R4 passed at `757ace1`; isolated V0 is next.**
+**Current implementation — R1–R4 passed at `757ace1`; V0 awaits native qualification.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
 in 166.68 s**. No native memory rerun occurred; the v5 candidate remains rejected.
 See [repair qualification](reports/memory_contract_repairs_20261025/qualification.json).
+
+## Isolated V0 source and native preregistration — 25 October 2026
+
+The production adapter/session/frame path now supports one source-owned image,
+196 frozen spatial patches and a new width-2048 projector. Response-only labels,
+input gradients through the frozen decoder, task isolation, producer/cache
+invalidation and strict extension reload pass **82 focused tests in 3.91 s**.
+The runner helpers also execute real tiny-decoder backward and Muon updates on
+CPU fixtures; these are software checks, not pretrained vision qualification.
+
+An actual [CPU admission](reports/vision_v0_20261025/cpu_admission.json) ran the
+official processor on a pinned owned image and loaded the native tokenizer.
+Selected encoder: SigLIP2 base 224/16 revision
+`75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2`, Apache-2.0. Acquired checkpoint
+source is 1,500,804,926 bytes including unused text-tower tensors; only its
+92,884,224-parameter vision component will execute. Processor interpolation is
+official PIL code 2 (bilinear), not bicubic. Both explicit metadata corrections
+preserve their parent manifests and change no source payload bytes.
+
+[Executable V0 protocol](configs/minicpm5_vision_v0_qualification_v1.json):
+`781f5eef48a239bc9aaed69c3b3515894fb326ac715f460379fe85a241ca8ac7`.
+It pins 83 implementation/environment files, sealed baseline/source/data hashes,
+six projector tensors / 5,772,800 parameters and **zero optimizer updates**.
+Native generation/backward and fresh-process export/reload are still unrun.
+No V1 training rows are admitted. The Pillow-only overlay preserves `.venv`;
+the native guard remains 50 GiB, fallback=0, one worker, 512 MiB sustained swap
+growth and 15% host-free over three samples. The v5 candidate remains rejected.
+
 
 ## Repository maintenance — 25 October 2026
 

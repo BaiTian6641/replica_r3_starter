@@ -13,7 +13,7 @@ from safetensors.torch import load_file, save_file
 from .ledger import EligibilityScope, RecordLedger
 from .index import RetrievalIndex, DenseRecordVector
 from ..architecture.contracts import (CopyRead, EvidencePin, MemoryRead, PendingWrite,
-                                     RequestContext, SourceSpan, TaskGraph, fingerprint)
+                                     RequestContext, SourceSpan, TaskGraph, VisualInput, fingerprint)
 
 
 @dataclass(frozen=True)
@@ -202,7 +202,20 @@ class MemorySession:
                 previous_core=None, core_impl='recurrent',
                 enabled_inputs=('sense','memory','task'), enabled_branches=None,
                 train_core=False, task_digest=None, revision=None, fast_state=None,
-                identity=None, identity_enabled=True, pattern=None):
+                identity=None, identity_enabled=True, pattern=None, visual=None):
+        if visual is not None:
+            if not isinstance(visual, VisualInput):
+                raise TypeError('Observed patches must use the VisualInput contract')
+            if (core_impl != 'none' or enabled_ports is None or tuple(enabled_ports)
+                    or enabled_branches is not None and tuple(enabled_branches) != ('memory',)
+                    or identity is not None or fast_state is not None or pattern is not None
+                    or train_core or train_sense):
+                raise ValueError('V0 visual requests require isolated memory/core/identity-disabled execution')
+            if ((visual.task_id, visual.subject_id, visual.branch_id, visual.purpose) != (
+                    task.task_id, scope.subject_id, scope.branch_id, scope.purpose)
+                    or visual.source_epoch != self.ledger.epoch or visual.observed_at > scope.cutoff):
+                raise PermissionError('Visual input belongs to another task, scope, epoch or future observation')
+            visual.assert_immutable()
         if core_impl not in {'recurrent', 'feedforward', 'none'}:
             raise ValueError("core_impl must be 'recurrent', 'feedforward' or 'none'")
         if core_impl == 'none':
@@ -218,6 +231,8 @@ class MemorySession:
             enabled_branches = branches
         selection = selection or self.index.retrieve(query, **asdict(scope), limit=self.adapter.ports.max_units)
         self.index.verify_selection(selection, expected_scope=scope)
+        if visual is not None and selection.records:
+            raise ValueError('Isolated V0 cannot consume record-memory evidence')
         pin = pin_selection(selection)
         self._prune_cache(pin)
         context = torch.enable_grad() if training else torch.no_grad()
@@ -226,7 +241,7 @@ class MemorySession:
             # workspace readers must receive the action loss; otherwise it is
             # built under no_grad to avoid a second native graph.
             with (torch.enable_grad() if training and (train_sense or train_core) else torch.no_grad()):
-                sense = self.adapter.sense(prompt_ids, prompt_mask)
+                sense = self.adapter.sense(prompt_ids, prompt_mask, visual=visual)
             spans = self.spans(selection.records)
             writer_hash = self._writer_hash() if not training and self.cache_dir else 'training-no-slot-cache'
             encoded = [self._latent(s, pin, training, writer_hash) for s in spans]

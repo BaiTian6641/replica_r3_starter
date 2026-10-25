@@ -19,7 +19,7 @@ from transformers.models.llama import modeling_llama
 
 from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
                         FastMemoryRead, IdentityRead, InjectFrame, MemoryRead,
-                        PatternRead, PortSpec, RequestContext, SenseFrame, fingerprint)
+                        PatternRead, PortSpec, RequestContext, SenseFrame, VisualInput, fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
@@ -68,6 +68,13 @@ class MiniCPM5Adapter(nn.Module):
             self.pattern_port = PatternAccessPort(
                 h, orders=spec.orders, heads=spec.heads, table_rows=spec.table_rows,
                 width=spec.width, sparse=spec.sparse)
+        self.vision_projector = None
+        if manifest.vision is not None:
+            manifest.vision.validate()
+            spec = manifest.vision
+            self.vision_projector = nn.Sequential(
+                nn.LayerNorm(spec.encoder_width), nn.Linear(spec.encoder_width, spec.projector_hidden),
+                nn.GELU(), nn.Linear(spec.projector_hidden, h))
         if manifest.copy is not None:
             self.copy_head = (RecordPointerHead(h) if manifest.copy.mode == 'pointer'
                               else RecordCopyHead(h))
@@ -138,7 +145,14 @@ class MiniCPM5Adapter(nn.Module):
         return fingerprint({'features':self.producer_key(),'writer':[(n,id(p),p._version,str(p.dtype),str(p.device),p.data_ptr()) for n,p in self.record_writer.named_parameters()]})
 
     def sense_producer_key(self):
-        return fingerprint({'features':self.producer_key(),'sense':[(n,id(p),p._version,str(p.dtype),str(p.device),p.data_ptr()) for n,p in self.sense_ports.named_parameters()]})
+        vision = ([(name, id(parameter), parameter._version, str(parameter.dtype),
+                    str(parameter.device), parameter.data_ptr())
+                   for name, parameter in self.vision_projector.named_parameters()]
+                  if self.vision_projector is not None else None)
+        return fingerprint({'features': self.producer_key(), 'vision': vision,
+                            'sense': [(name, id(parameter), parameter._version, str(parameter.dtype),
+                                       str(parameter.device), parameter.data_ptr())
+                                      for name, parameter in self.sense_ports.named_parameters()]})
 
     def _core_component_stamp(self):
         stamp = {'features':self.producer_key()}
@@ -351,6 +365,8 @@ class MiniCPM5Adapter(nn.Module):
             prefixes += ['pattern_port']
         if self.copy_head is not None:
             prefixes += ['copy_head']
+        if self.vision_projector is not None:
+            prefixes += ['vision_projector']
         for prefix in prefixes:
             yield from ((f'{prefix}.{n}', p) for n, p in getattr(self, prefix).named_parameters())
 
@@ -372,6 +388,8 @@ class MiniCPM5Adapter(nn.Module):
             prefixes += ['copy_head']
         if self.pattern_port is not None:
             prefixes += ['pattern_port']
+        if self.vision_projector is not None:
+            prefixes += ['vision_projector']
         return {prefix: [f'{prefix}.{n}' for n, _ in getattr(self, prefix).named_parameters()]
                 for prefix in prefixes}
 
@@ -420,9 +438,35 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Binary masks with a known token in every row required')
         return valid.bool()
 
-    def _native(self, ids, valid, *, frame=None, stop_layer=None, capture=False):
+    def _check_visual(self, visual):
+        if not isinstance(visual, VisualInput) or self.manifest.vision is None or self.vision_projector is None:
+            raise ValueError('Visual input requires a declared pinned vision interface')
+        visual.assert_immutable()
+        spec = self.manifest.vision
+        expected_grid = (spec.image_size // spec.patch_size,) * 2
+        parameter = next(self.vision_projector.parameters())
+        if (visual.producer != spec.digest or visual.grid != expected_grid
+                or visual.features.shape[-1] != spec.encoder_width
+                or visual.features.shape[1] > spec.max_visual_tokens
+                or visual.features.device != parameter.device or visual.features.dtype != parameter.dtype):
+            raise ValueError('Visual producer, spatial layout, budget, dtype or device differs')
+
+    def project_visual(self, visual):
+        self._check_visual(visual)
+        return self.vision_projector(visual.features).masked_fill(~visual.valid.unsqueeze(-1), 0)
+
+    def _native(self, ids, valid, *, frame=None, stop_layer=None, capture=False, visual=None):
         valid = self._inputs(ids, valid)
+        if frame is not None:
+            if visual is not None and visual is not frame.sense.visual:
+                raise ValueError('Action cannot replace its pinned visual input')
+            visual = frame.sense.visual
         hidden = self.base.model.embed_tokens(ids)
+        if visual is not None:
+            hidden = torch.cat((self.project_visual(visual), hidden), dim=1)
+            valid = torch.cat((visual.valid, valid), dim=1)
+            if hidden.shape[1] > self.base.config.max_position_embeddings:
+                raise ValueError('Fused visual/text prefix exceeds native position budget')
         # Match native generation's left-padding convention; no cache is reused.
         positions = valid.long().cumsum(-1) - 1
         positions = positions.masked_fill(~valid, 1)
@@ -470,10 +514,11 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Chunk source records before encoding; no implicit truncation')
         return self._native(input_ids, valid, stop_layer=self.ports.source_layer)[0]
 
-    def sense(self, prompt_ids, prompt_mask):
-        # E1 exposes these summaries; the learned recurrent core is E3.
-        _, summaries = self._native(prompt_ids, prompt_mask, capture=True)
-        return SenseFrame(tuple(summaries), prompt_ids.clone(), prompt_mask.bool().clone(), self.sense_producer_key())
+    def sense(self, prompt_ids, prompt_mask, *, visual=None):
+        # Only observed patches and the known text prefix enter sensing.
+        _, summaries = self._native(prompt_ids, prompt_mask, capture=True, visual=visual)
+        return SenseFrame(tuple(summaries), prompt_ids.clone(), prompt_mask.bool().clone(),
+                          self.sense_producer_key(), visual)
 
     def make_frame(self, decision_id, evidence, memory: MemoryRead, sense: SenseFrame,
                    enabled_ports=None, core: CoreState | None = None,
@@ -546,6 +591,18 @@ class MiniCPM5Adapter(nn.Module):
             default_branches.append('pattern')
         branches = tuple(default_branches) if enabled_branches is None \
             else tuple(enabled_branches)
+        if sense.visual is not None:
+            self._check_visual(sense.visual)
+            visual = sense.visual
+            cutoff = (min(evidence.as_of, evidence.snapshot_at)
+                      if evidence.mode == 'source_snapshot' else evidence.as_of)
+            if (enabled or branches != ('memory',) or core is not None or fast is not None
+                    or copy is not None or pattern is not None or memory.spans):
+                raise ValueError('V0 visual frames require all memory/core/identity injections disabled')
+            if ((visual.subject_id, visual.branch_id, visual.purpose) != (
+                    evidence.subject_id, evidence.branch_id, evidence.purpose)
+                    or visual.source_epoch != evidence.epoch or visual.observed_at > cutoff):
+                raise PermissionError('Visual source scope, epoch or causal cutoff differs from evidence')
         if 'workspace' in branches and core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
         if 'fast' in branches and fast is None:
@@ -594,6 +651,10 @@ class MiniCPM5Adapter(nn.Module):
             if logits_to_keep != 0:
                 raise ValueError('Training requires all response logits')
         hidden, _ = self._native(input_ids, mask, frame=frame)
+        # Visual tokens condition the decoder but never enter response logits
+        # or labels. Text-aligned logits preserve existing training consumers.
+        if frame.sense.visual is not None:
+            hidden = hidden[:, frame.sense.visual.features.shape[1]:]
         logits = self.base.lm_head(hidden[:, -logits_to_keep:] if logits_to_keep else hidden)
         if (frame.copy is not None and frame.branch_enabled('copy')
                 and self.copy_head is not None and frame.copy.token_ids.shape[1] > 0
@@ -672,7 +733,9 @@ class MiniCPM5Adapter(nn.Module):
         path.mkdir(parents=True, exist_ok=False)
         weights = {n: p.detach().cpu().contiguous() for n, p in self.new_named_parameters()}
         save_file(weights, str(path / 'extensions.safetensors'))
-        if self.identity_reader is not None:
+        if self.vision_projector is not None:
+            fmt = 'replica.minicpm5.extensions.v4'
+        elif self.identity_reader is not None:
             fmt = 'replica.minicpm5.extensions.v3'
         elif (self.core is not None or self.fast_ports is not None or self.copy_head is not None
               or self.pattern_port is not None):
@@ -698,7 +761,9 @@ class MiniCPM5Adapter(nn.Module):
         path = Path(directory)
         receipt = json.loads((path/'manifest.json').read_text())
         fmt = receipt.get('format')
-        if fmt in ('replica.minicpm5.extensions.v2', 'replica.minicpm5.extensions.v3'):
+        if self.manifest.vision is not None and fmt != 'replica.minicpm5.extensions.v4':
+            raise ValueError('Vision reload requires matching v4 source; parent transfer needs a declared migration')
+        if fmt in ('replica.minicpm5.extensions.v2', 'replica.minicpm5.extensions.v3', 'replica.minicpm5.extensions.v4'):
             if set(receipt) != {'format','manifest','manifest_digest','regime','weights_sha256',
                                 'parameters','base_saved','notes','components'}:
                 raise ValueError('Incompatible or changed extension manifest/bytes')

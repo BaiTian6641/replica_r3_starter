@@ -1,0 +1,101 @@
+{
+  "format": "replica.vision_encoder_source.v1",
+  "source_id": "google/siglip2-base-patch16-224@75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "repo_id": "google/siglip2-base-patch16-224",
+  "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "output_directory": "checkpoints/siglip2_base_patch16_224_source",
+  "manifest_name": "source_manifest.json",
+  "acquisition": {
+    "max_bytes": 2147483648,
+    "chunk_bytes": 8388608,
+    "network_allowed_by_default": true,
+    "remote_code_executed": false,
+    "full_model_loaded": false,
+    "processor_cpu_forward": false,
+    "encoder_execution": false,
+    "mps_execution": false,
+    "weights_downloaded": true,
+    "note": "The acquired official safetensors file contains both vision and unused text-tower tensors. Only its vision component may be loaded by the V0 service; the acquisition tool runs no model or processor forward."
+  },
+  "license": {
+    "spdx": "Apache-2.0",
+    "card_license": "apache-2.0",
+    "card_field": "license: apache-2.0",
+    "terms_path": "README.md",
+    "commercial_use": true,
+    "redistribution": true,
+    "terms_url": "https://huggingface.co/google/siglip2-base-patch16-224/blob/75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2/README.md"
+  },
+  "files": [
+    {
+      "path": "config.json",
+      "role": "model_config",
+      "bytes": 253,
+      "sha256": "fe8b5fe6d5734360678fd71c11c21e1ea3364bd8598d34295d9206335973ffd7"
+    },
+    {
+      "path": "preprocessor_config.json",
+      "role": "processor_config",
+      "bytes": 394,
+      "sha256": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc"
+    },
+    {
+      "path": "README.md",
+      "role": "model_card_terms",
+      "bytes": 3375,
+      "sha256": "39ac3705d62af9ffa1a14675b8ccb220a75f2d81acd530e564a3b1e3dfe418d8"
+    },
+    {
+      "path": "model.safetensors",
+      "role": "vision_encoder_weights",
+      "bytes": 1500800904,
+      "sha256": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b"
+    }
+  ],
+  "model": {
+    "architecture": "SiglipVisionModel",
+    "model_type": "siglip_vision_model",
+    "base_model_prefix": "vision_model",
+    "hidden_size": 768,
+    "intermediate_size": 3072,
+    "num_hidden_layers": 12,
+    "num_attention_heads": 12,
+    "num_channels": 3,
+    "image_size": 224,
+    "patch_size": 16,
+    "max_visual_tokens": 196,
+    "hidden_act": "gelu_pytorch_tanh",
+    "layer_norm_eps": 1e-06,
+    "feature": "last_hidden_state",
+    "spatial_patches": true,
+    "compute_dtype": "float32",
+    "attn_implementation": "eager",
+    "feature_head": "unused",
+    "feature_version": "siglip_patch_last_hidden.v1"
+  },
+  "processor": {
+    "image_processor_type": "SiglipImageProcessor",
+    "processor_class": "SiglipProcessor",
+    "image_processor_api": "transformers.models.siglip.image_processing_pil_siglip.SiglipImageProcessorPil",
+    "backend": "pil",
+    "runtime_requirement": "Pillow==12.0.0",
+    "image_size": 224,
+    "resample": "bilinear",
+    "resample_code": 2,
+    "rescale_factor": 0.00392156862745098,
+    "image_mean": [0.5, 0.5, 0.5],
+    "image_std": [0.5, 0.5, 0.5],
+    "do_resize": true,
+    "do_rescale": true,
+    "do_normalize": true,
+    "do_convert_rgb": true
+  },
+  "framework": {
+    "python": ">=3.12",
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "safetensors": "0.8.0",
+    "numpy": "2.5.4",
+    "runtime_requirement": "Pillow==12.0.0"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "bytes_downloaded": 0,
+  "cap_bytes": 2147483648,
+  "completed_at": "2026-10-25T06:13:42.502320+00:00",
+  "config_path": "/Users/flare/replica_r3_starter/configs/vision_encoder_source_v1.json",
+  "config_sha256": "733e5166d43c8dc5a1246b8d58ab4b470533c02400d4ff4175689ffb0b24a879",
+  "encoder_execution": false,
+  "file_actions": [],
+  "files": [
+    {
+      "bytes": 253,
+      "path": "config.json",
+      "role": "model_config",
+      "sha256": "fe8b5fe6d5734360678fd71c11c21e1ea3364bd8598d34295d9206335973ffd7"
+    },
+    {
+      "bytes": 394,
+      "path": "preprocessor_config.json",
+      "role": "processor_config",
+      "sha256": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc"
+    },
+    {
+      "bytes": 3375,
+      "path": "README.md",
+      "role": "model_card_terms",
+      "sha256": "39ac3705d62af9ffa1a14675b8ccb220a75f2d81acd530e564a3b1e3dfe418d8"
+    },
+    {
+      "bytes": 1500800904,
+      "path": "model.safetensors",
+      "role": "vision_encoder_weights",
+      "sha256": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b"
+    }
+  ],
+  "format": "replica.vision_source_acquisition_report.v1",
+  "framework": {
+    "numpy": "2.5.4",
+    "python": ">=3.12",
+    "runtime_requirement": "Pillow==12.0.0",
+    "safetensors": "0.8.0",
+    "torch": "2.14.1",
+    "transformers": "5.20.2"
+  },
+  "fresh_remote_metadata": null,
+  "full_model_loaded": false,
+  "git_staged": false,
+  "license": {
+    "card_field": "license: apache-2.0",
+    "card_license": "apache-2.0",
+    "commercial_use": true,
+    "redistribution": true,
+    "spdx": "Apache-2.0",
+    "terms_path": "README.md",
+    "terms_url": "https://huggingface.co/google/siglip2-base-patch16-224/blob/75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2/README.md"
+  },
+  "manifest_path": "/Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+  "manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+  "mps_execution": false,
+  "native_execution": false,
+  "network_used": false,
+  "output": "/Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source",
+  "processor": {
+    "backend": "pil",
+    "do_convert_rgb": true,
+    "do_normalize": true,
+    "do_rescale": true,
+    "do_resize": true,
+    "image_mean": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "image_processor_api": "transformers.models.siglip.image_processing_pil_siglip.SiglipImageProcessorPil",
+    "image_processor_type": "SiglipImageProcessor",
+    "image_size": 224,
+    "image_std": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "processor_class": "SiglipProcessor",
+    "resample": "bilinear",
+    "resample_code": 2,
+    "rescale_factor": 0.00392156862745098,
+    "runtime_requirement": "Pillow==12.0.0"
+  },
+  "processor_cpu_forward": false,
+  "remote_code_executed": false,
+  "repo_id": "google/siglip2-base-patch16-224",
+  "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "seal_digest": "ee6274db57b3b590c3b1abf99c849afc349374d9abd9ae693e720b8634065e1d",
+  "source_id": "google/siglip2-base-patch16-224@75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "status": "reused_sealed_source",
+  "tensor_inventory": {
+    "other_tensor_count": 2,
+    "other_tensor_names": [
+      "logit_bias",
+      "logit_scale"
+    ],
+    "projector_tensor_count": 0,
+    "required_shapes": {
+      "vision_model.embeddings.patch_embedding.weight": [
+        768,
+        3,
+        16,
+        16
+      ],
+      "vision_model.embeddings.position_embedding.weight": [
+        196,
+        768
+      ],
+      "vision_model.post_layernorm.bias": [
+        768
+      ],
+      "vision_model.post_layernorm.weight": [
+        768
+      ]
+    },
+    "tensor_count": 408,
+    "text_tensor_count": 198,
+    "vision_layer_count": 12,
+    "vision_parameter_elements": 92884224,
+    "vision_tensor_count": 208
+  },
+  "total_source_bytes": 1500804926,
+  "vision_config": {
+    "hidden_act": "gelu_pytorch_tanh",
+    "hidden_size": 768,
+    "image_size": 224,
+    "intermediate_size": 3072,
+    "layer_norm_eps": 1e-06,
+    "model_type": "siglip_vision_model",
+    "num_attention_heads": 12,
+    "num_channels": 3,
+    "num_hidden_layers": 12,
+    "patch_size": 16
+  },
+  "weights_downloaded": true,
+  "within_cap": true
+}

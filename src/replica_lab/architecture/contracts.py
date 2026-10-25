@@ -392,11 +392,115 @@ class MemoryRead:
 
 
 @dataclass(frozen=True)
+class VisionSpec:
+    """One pinned frozen patch encoder and a new model-specific projector."""
+    encoder_repo: str
+    encoder_revision: str
+    encoder_source_digest: str
+    processor_digest: str
+    encoder_width: int = 768
+    image_size: int = 224
+    patch_size: int = 16
+    max_visual_tokens: int = 196
+    projector_hidden: int = 2048
+    feature_version: str = 'siglip_patch_last_hidden.v1'
+    compute_dtype: str = 'float32'
+
+    def validate(self):
+        if not isinstance(self.encoder_repo, str) or not self.encoder_repo or '/' not in self.encoder_repo:
+            raise ValueError('Pinned vision encoder repository required')
+        for name, length in (('encoder_revision', 40), ('encoder_source_digest', 64),
+                             ('processor_digest', 64)):
+            value = getattr(self, name)
+            if (not isinstance(value, str) or len(value) != length
+                    or any(char not in '0123456789abcdef' for char in value)):
+                raise ValueError(f'VisionSpec.{name} requires an immutable digest')
+        for name in ('encoder_width', 'image_size', 'patch_size', 'max_visual_tokens', 'projector_hidden'):
+            if type(getattr(self, name)) is not int or getattr(self, name) < 1:
+                raise ValueError(f'VisionSpec.{name} must be a positive integer')
+        if (self.image_size % self.patch_size or self.max_visual_tokens > 1024
+                or (self.image_size // self.patch_size) ** 2 > self.max_visual_tokens):
+            raise ValueError('Bounded fixed spatial patch layout required')
+        if self.feature_version != 'siglip_patch_last_hidden.v1' or self.compute_dtype != 'float32':
+            raise ValueError('Unsupported visual feature or computation version')
+
+    @property
+    def digest(self):
+        return fingerprint(asdict(self))
+
+
+@dataclass(frozen=True)
+class VisualInput:
+    """Observed, detached spatial patches owned by one task and source scope."""
+    features: torch.Tensor
+    valid: torch.Tensor
+    producer: str
+    encoder_producer: str
+    image_sha256: str
+    source_id: str
+    task_id: str
+    subject_id: str
+    branch_id: str
+    purpose: str
+    observed_at: int
+    source_epoch: int
+    original_size: tuple[int, int]
+    crop: tuple[int, int, int, int]
+    grid: tuple[int, int]
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        for name in ('original_size', 'crop', 'grid'):
+            object.__setattr__(self, name, tuple(getattr(self, name)))
+        if (self.features.ndim != 3 or self.features.shape[0] != 1 or self.features.shape[1] < 1
+                or not self.features.is_floating_point() or self.features.requires_grad
+                or not bool(torch.isfinite(self.features).all())):
+            raise ValueError('Visual features must be detached finite [1, patches, width]')
+        if (self.valid.shape != self.features.shape[:2] or self.valid.dtype != torch.bool
+                or self.valid.device != self.features.device or not bool(self.valid.any())):
+            raise ValueError('Visual patch mask must be matching nonempty boolean state')
+        for name in ('producer', 'encoder_producer', 'image_sha256'):
+            value = getattr(self, name)
+            if (not isinstance(value, str) or len(value) != 64
+                    or any(char not in '0123456789abcdef' for char in value)):
+                raise ValueError(f'VisualInput.{name} must be a SHA256')
+        for name in ('source_id', 'task_id', 'subject_id', 'branch_id', 'purpose'):
+            if not isinstance(getattr(self, name), str) or not getattr(self, name).strip():
+                raise ValueError(f'VisualInput.{name} is required')
+        for name in ('observed_at', 'source_epoch'):
+            if type(getattr(self, name)) is not int or getattr(self, name) < 0:
+                raise ValueError(f'VisualInput.{name} must be a nonnegative integer')
+        if (len(self.original_size) != 2 or any(type(value) is not int or value < 1 for value in self.original_size)
+                or len(self.crop) != 4 or any(type(value) is not int for value in self.crop)
+                or not 0 <= self.crop[0] < self.crop[2] <= self.original_size[0]
+                or not 0 <= self.crop[1] < self.crop[3] <= self.original_size[1]
+                or len(self.grid) != 2 or any(type(value) is not int or value < 1 for value in self.grid)
+                or self.grid[0] * self.grid[1] != self.features.shape[1]):
+            raise ValueError('Visual crop, dimensions or spatial patch layout differs')
+        object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(value) for value in self.tensors()))
+
+    def tensors(self):
+        return self.features, self.valid
+
+    @property
+    def cache_key(self):
+        return fingerprint({name: getattr(self, name) for name in (
+            'producer', 'encoder_producer', 'image_sha256', 'source_id', 'task_id',
+            'subject_id', 'branch_id', 'purpose', 'observed_at', 'source_epoch',
+            'original_size', 'crop', 'grid')})
+
+    def assert_immutable(self):
+        if self.features.requires_grad or self._tensor_stamps != tuple(tensor_stamp(value) for value in self.tensors()):
+            raise RuntimeError('VisualInput changed; build a new pinned decision')
+
+
+@dataclass(frozen=True)
 class SenseFrame:
     summaries: tuple[tuple[int, torch.Tensor], ...]
     prompt_ids: torch.Tensor
     prompt_mask: torch.Tensor
     producer: str
+    visual: VisualInput | None = None
 
 
 @dataclass(frozen=True)
@@ -484,17 +588,17 @@ class ComponentManifest:
     copy: CopySpec | None = None
     identity: IdentitySpec | None = None
     pattern: PatternSpec | None = None
+    vision: VisionSpec | None = None
 
     def shared_dict(self):
         """Manifest fields that identify the parent, excluding additive state."""
         return {key: value for key, value in self.to_dict().items()
-                if key not in ('core', 'fast_memory', 'copy', 'identity', 'pattern')}
+                if key not in ('core', 'fast_memory', 'copy', 'identity', 'pattern', 'vision')}
 
     def to_dict(self):
-        # A core-less manifest must keep the exact E1/E2 shape and digest so the
-        # selected parent extension remains byte-compatible with its receipt.
+        # Absent additive components preserve the exact parent manifest digest.
         value = asdict(self)
-        for name in ('core', 'fast_memory', 'copy', 'identity', 'pattern'):
+        for name in ('core', 'fast_memory', 'copy', 'identity', 'pattern', 'vision'):
             if value.get(name) is None:
                 value.pop(name, None)
         if self.fast_memory is not None:
@@ -535,6 +639,8 @@ class DecisionFrame:
                  self.sense.prompt_mask, *(x for _, x in self.sense.summaries))
         if self.core is not None:
             owned = (*owned, *self.core.tensors())
+        if self.sense.visual is not None:
+            owned = (*owned, *self.sense.visual.tensors())
         if self.fast is not None:
             owned = (*owned, *self.fast.tensors())
         if self.copy is not None:
@@ -558,6 +664,8 @@ class DecisionFrame:
             self.core.assert_immutable()
         if self.fast is not None:
             self.fast.assert_immutable()
+        if self.sense.visual is not None:
+            self.sense.visual.assert_immutable()
         if self.copy is not None:
             self.copy.assert_immutable()
         object.__setattr__(self, '_tensor_stamps', tuple(tensor_stamp(t) for t in self.tensors()))

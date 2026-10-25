@@ -67,6 +67,7 @@ def main():
                                                  "run_e2_capacity.py", "run_e2_diagnostic.py", "run_e4_fast_read.py",
                                                  "run_m2_dynamic.py",
                                                  "run_memory_reliability.py",
+                                                 "run_vision_qualification.py",
                                                  "run_m3_restart.py",
                                                  "eval_m3_retention.py",
                                                  "run_m4_pattern.py",

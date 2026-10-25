@@ -1,16 +1,18 @@
 # MiniCPM5 vision training, visual memory and bounded improvement
 
 **Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
-The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
-next and remains natively unqualified. Reuse the recorded 140 integrated tests
-and 1,372-test +21-subtest source-export result in
-[repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
-native work. The dated design and historical results below retain their scope.
+The repair prerequisites are satisfied. The isolated visual prefix is implemented
+through `VisionFeatureService`, the native adapter, frames and `MemorySession`.
+Eighty-two focused tests pass; an actual CPU smoke loads the sealed source,
+tokenizes the response and runs its official PIL processor on a pinned asset.
+See [V0 CPU admission](../../reports/vision_v0_20261025/cpu_admission.json).
+Native inference/backward/restart qualification is still pending.
 
 **Plan revision: 25 October 2026, following the review of `7c7018e`.**
-This is a proposed implementation and experiment plan. No visual adapter,
-visual training result, accepted neural memory or RSI result is established by
-this document. MiniCPM5 remains the baseline. The active order is remaining
+The following sections define the staged implementation and experiment policy.
+The V0 software interface exists; no native visual qualification, trained
+perception, accepted neural memory or RSI result is established yet.
+MiniCPM5 remains the baseline. The active order is completed
 verification/rebuild repairs → isolated MiniCPM5 V0 → visual fine-tuning → qualified visual memory → bounded RSI. Spark FP8/BF16
 metadata/backend preparation and dataset curation proceed independently now.
 Use [recovery gates](17_Memory_Reliability_Recovery.md)
@@ -33,7 +35,7 @@ plans admits a dataset or launches training automatically.
 | Role | Decision |
 |---|---|
 | Primary text and vision-retrofit baseline | Sealed MiniCPM5-2B; add a separately trained visual interface |
-| Initial visual encoder | Evaluate one pinned pretrained encoder, for example a small SigLIP 2 variant; size/processor/backend are not yet selected or qualified |
+| Initial visual encoder | Selected `google/siglip2-base-patch16-224@75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2`; Apache-2.0, official PIL processor, 196 spatial patches; MPS qualification pending |
 | Pretrained multimodal reference or teacher | MiniCPM-V-4.7-1B, only after its separate native adapter/processor qualification |
 | Text and vision challenger | Official Spark-X2.6-4B-FP8 adaptation base with independent official BF16 control; preparation now, native qualification later |
 | Larger optional reference | MiniCPM-V-4.7-35B-A3B, separately qualified and costed; not a local full-training assumption |
@@ -63,10 +65,12 @@ filename in the prompt is not the intended visual input. A small MLP connector
 is the first alignment hypothesis; resamplers, aggressive compression, dynamic
 resolution, video and cross-attention insertions are later separate comparisons.
 
-The current `MiniCPM5Adapter._inputs/_native` consumes integer token IDs and
-embeds them directly. `MemorySession.prepare`, `SenseFrame`, `DecisionFrame`,
-training and generation bind the known text prefix. Extend those production
-contracts rather than introducing an unconnected demonstration model.
+`MiniCPM5Adapter._native` now fuses projected spatial patches before the existing
+text embeddings, with joint masks/positions and text-aligned response logits.
+`MemorySession.prepare`, `SenseFrame`, `DecisionFrame`, training and generation
+bind one immutable task/source/crop/layout-owned `VisualInput`. Decoder parameters
+are frozen without disabling its input-gradient path. The CPU patch cache is
+producer-bound; request-owned features transfer to the decoder device.
 
 | Boundary | Required change and evidence |
 |---|---|
@@ -83,6 +87,20 @@ Native text-only parity is an interface qualification before training, and a
 bypass check when all added branches/adapters are disabled. After instruction
 tuning, evaluate text retention independently; do not assert bitwise equality
 to the original base while trained language adapters remain enabled.
+
+The executable [V0 protocol](../../configs/minicpm5_vision_v0_qualification_v1.json)
+pins 83 implementation/environment files and the source/data artifacts. It selects
+backward-only qualification: six FP32 projector tensors / 5,772,800 parameters,
+zero optimizer updates, empty memory and disabled core/identity/ports. The
+1,500,804,926-byte official source includes unused text-tower tensors; runtime
+loads only the 92,884,224-parameter vision component. Source metadata corrections
+retain their parents and change no weight or processor payload bytes.
+
+`.venv-vision` adds only locked Pillow 12.0.0 while reusing the intact sealed
+baseline environment. Native work must retain the exclusive worker, fallback=0
+and the 50 GiB / 512 MiB swap-growth / 15%-free, three-sample guard. V0 compares
+correct/wrong/no-image first-token logits, exact text bypass and a fresh-process
+strict extension reload. It establishes no perception-quality result.
 
 ## 3. Staged fine-tuning
 

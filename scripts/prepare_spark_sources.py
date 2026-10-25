@@ -15,8 +15,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "src"))
 
 from replica_lab.spark_preparation import (  # noqa: E402
     DEFAULT_PLAN, FetchRefused, PreparationError, load_plan, run_preparation,

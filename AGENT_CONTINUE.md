@@ -1,10 +1,11 @@
 # Coding-agent continuation instruction
 
-**Current priority — R1–R4 are verified; implement isolated MiniCPM5 V0.**
-Repair commit `757ace1` passes 140 integrated tests, fresh-process history replay
-and a tracked export of 1,372 tests +21 subtests in 166.68 s. Keep all memory,
-core and identity injections disabled for V0. Spark source/header and owned
-visual-data preparation is host-only; no Spark native execution is qualified.
+**Current priority — qualify the implemented isolated MiniCPM5 V0 interface.**
+R1–R4 remain verified at `757ace1` (140 integrated tests and a 1,372-test
++21-subtest tracked export). V0 now passes 82 focused software checks and an
+actual official-processor CPU smoke; native inference/backward/restart is pending.
+Use `configs/minicpm5_vision_v0_qualification_v1.json` under the unchanged guard.
+Memory, core and identity stay disabled. Spark remains host-only and unqualified.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context
