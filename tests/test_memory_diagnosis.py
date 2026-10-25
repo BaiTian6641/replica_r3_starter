@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+from conftest import require_local_artifacts
 
 from architecture_helpers import tiny_adapter
 from replica_lab.architecture.contracts import FastMemorySpec
@@ -188,6 +189,8 @@ def collections_are_same(world, index):
     return world['family_id'] == f'family-{index:02d}'
 
 
+@require_local_artifacts("checkpoints/minicpm5_source", "configs/minicpm5_sealed_lock.local.json")
+@pytest.mark.integration
 def test_prepare_and_admit_bind_exact_source_data_and_protocol_pins(tmp_path):
     prepared = tmp_path / 'prepared'
     manifest = prepare_probe(

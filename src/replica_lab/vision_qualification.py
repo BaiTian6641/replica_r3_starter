@@ -483,6 +483,9 @@ def _validate_v1(v1: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
     _subset_keys(quality, ("gates", "retention_baseline"), "v1.quality")
     require(quality["retention_baseline"] == "initial_checkpoint_same_prompts.v1",
             "V1 text baseline must be measured before updates on the pinned prompts")
+    if "retention_policy" in quality:
+        require(quality["retention_policy"] == "component_nonregression.v1",
+                "Unknown V1 retention policy")
     gates = quality["gates"]
     require(isinstance(gates, dict) and set(gates) == set(GATE_NAMES),
             f"v1.quality.gates must declare exactly {sorted(GATE_NAMES)}")
@@ -1565,9 +1568,23 @@ def score_retention(prompt_rows: Sequence[Mapping[str, Any]],
 
 def apply_quality_gates(scores: Mapping[str, Any], retention: Mapping[str, Any],
                         gates: Mapping[str, Any],
-                        *, retention_baseline_accuracy: float | None = None
+                        *, retention_baseline_accuracy: float | None = None,
+                        retention_policy: str | None = None,
+                        text_tokens_unchanged: bool | None = None
                         ) -> dict[str, Any]:
-    """Predeclared numeric quality gates. Engineering can pass while quality fails."""
+    """Predeclared numeric quality gates. Engineering can pass while quality fails.
+
+    ``retention_policy='component_nonregression.v1'`` separates two questions
+    that the legacy gate conflated: whether the frozen baseline is capable
+    enough (``min_text_retention_accuracy`` applied to the *baseline*) and
+    whether this component changed text behaviour (drop and token parity).
+    A projector-only arm that reproduces text exactly can still be ineligible
+    when the baseline itself is below the declared capability floor; that is
+    reported as ``baseline_capability_ineligible`` instead of blaming the
+    unchanged model.
+    """
+    require(retention_policy in (None, "component_nonregression.v1"),
+            "Unknown retention policy")
     controls = scores["controls"]
     paired = scores["paired"]
     correct = controls.get("correct", {})
@@ -1593,16 +1610,39 @@ def apply_quality_gates(scores: Mapping[str, Any], retention: Mapping[str, Any],
         margin = paired.get(control, {}).get("correct_margin")
         if margin is None or margin < gates[gate]:
             failures.append(gate)
-    if retention["accuracy"] is None or retention["accuracy"] < gates["min_text_retention_accuracy"]:
-        failures.append("min_text_retention_accuracy")
-    if retention_baseline_accuracy is None:
-        failures.append("retention_baseline_unavailable")
+    baseline_eligible = (None if retention_baseline_accuracy is None
+                         else float(retention_baseline_accuracy)
+                         >= gates["min_text_retention_accuracy"])
+    if retention_policy == "component_nonregression.v1":
+        if retention["accuracy"] is None:
+            failures.append("retention_unavailable")
+        if baseline_eligible is None:
+            failures.append("retention_baseline_unavailable")
+        elif not baseline_eligible:
+            failures.append("baseline_capability_ineligible")
+        if text_tokens_unchanged is not True:
+            failures.append("text_tokens_changed")
+        if retention_baseline_accuracy is None:
+            failures.append("retention_baseline_unavailable")
+        else:
+            drop = float(retention_baseline_accuracy) - float(retention["accuracy"])
+            if drop > gates["max_text_retention_drop"]:
+                failures.append("max_text_retention_drop")
+        failures = list(dict.fromkeys(failures))
     else:
-        drop = float(retention_baseline_accuracy) - float(retention["accuracy"])
-        if drop > gates["max_text_retention_drop"]:
-            failures.append("max_text_retention_drop")
+        if retention["accuracy"] is None or retention["accuracy"] < gates["min_text_retention_accuracy"]:
+            failures.append("min_text_retention_accuracy")
+        if retention_baseline_accuracy is None:
+            failures.append("retention_baseline_unavailable")
+        else:
+            drop = float(retention_baseline_accuracy) - float(retention["accuracy"])
+            if drop > gates["max_text_retention_drop"]:
+                failures.append("max_text_retention_drop")
     return {"quality_pass": not failures, "failures": failures,
             "values": {**values, "retention_baseline_accuracy": retention_baseline_accuracy,
+                       "baseline_eligible": baseline_eligible,
+                       "text_tokens_unchanged": text_tokens_unchanged,
+                       "retention_policy": retention_policy,
                        "retention_drop": (None if retention_baseline_accuracy is None
                                           or retention["accuracy"] is None
                                           else float(retention_baseline_accuracy)

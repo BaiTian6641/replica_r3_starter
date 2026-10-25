@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="5" time="0.053" timestamp="2026-10-25T13:46:54.139101-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_dataset_intake" name="test_real_tranche_reserves_eval_and_reports_stage_counts" time="0.001"><failure message="AssertionError: assert {'AI4Math/Mat...ngmemeval-v2'} == {'HuggingFace...ngmemeval-v2'}&#10;  &#10;  Extra items in the left set:&#10;  'AI4Math/MathVista'&#10;  Extra items in the right set:&#10;  'HuggingFaceM4/MathVista'&#10;  &#10;  Full diff:&#10;    {&#10;  -     'HuggingFaceM4/MathVista',&#10;  +     'AI4Math/MathVista',&#10;        'HuggingFaceM4/VQAv2',&#10;        'MMMU/MMMU',&#10;        'xiaowu0162/longmemeval-v2',&#10;    }">def test_real_tranche_reserves_eval_and_reports_stage_counts():
+        record = build_tranche(json.loads(CATALOG.read_text()))
+        stages = record["stage_counts"]
+        assert stages["catalogued"] &gt;= 34 and stages["metadata_pinned"] &gt;= 22
+        assert stages["acquired"] == 0 and stages["admitted"] == 0
+        assert stages["tranche_entries"] == len(SELECTIONS)
+&gt;       assert set(record["reserved_eval_ids"]) == {
+            "HuggingFaceM4/VQAv2", "HuggingFaceM4/MathVista", "MMMU/MMMU",
+            "xiaowu0162/longmemeval-v2"}
+E       AssertionError: assert {'AI4Math/Mat...ngmemeval-v2'} == {'HuggingFace...ngmemeval-v2'}
+E         
+E         Extra items in the left set:
+E         'AI4Math/MathVista'
+E         Extra items in the right set:
+E         'HuggingFaceM4/MathVista'
+E         
+E         Full diff:
+E           {
+E         -     'HuggingFaceM4/MathVista',
+E         +     'AI4Math/MathVista',
+E               'HuggingFaceM4/VQAv2',
+E               'MMMU/MMMU',
+E               'xiaowu0162/longmemeval-v2',
+E           }
+
+tests/test_dataset_intake.py:36: AssertionError</failure></testcase><testcase classname="tests.test_dataset_intake" name="test_missing_terms_or_pins_fail_closed" time="0.000" /><testcase classname="tests.test_dataset_intake" name="test_family_reserved_for_eval_blocks_training_derivatives" time="0.000" /><testcase classname="tests.test_dataset_intake" name="test_pre_admitted_or_duplicate_catalogue_entries_are_rejected" time="0.000" /><testcase classname="tests.test_dataset_intake" name="test_audit_records_catalog_and_tranche_hashes" time="0.002" /></testsuite></testsuites>

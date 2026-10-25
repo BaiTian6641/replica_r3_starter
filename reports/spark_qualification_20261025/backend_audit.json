@@ -1,0 +1,46 @@
+{
+  "format": "replica.spark_backend_audit.v1",
+  "recorded_at_utc": "2026-10-25T18:50:00Z",
+  "scope": "CPU-only introspection of the isolated baseline environment and the offline preparation bundle; no weight payload loaded, no remote code executed, no Spark native work.",
+  "environment": {
+    "python": "3.12.14",
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "mps_device_count": 1
+  },
+  "official_sources": {
+    "fp8": {"repo": "XHToken/Spark-X2.6-4B-FP8", "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+            "storage": "fp8_compressed_tensors", "manifest": "reports/spark_repair_20261025/run_02_provisioning_manifest.json"},
+    "bf16_control": {"repo": "XHToken/Spark-X2.6-4B", "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+                     "storage": "bf16"}
+  },
+  "precision_facts": {
+    "fp8_weight_storage": "F8_E4M3 compressed-tensors float-quantized, channel-wise static weights",
+    "fp8_activation_compute": "dynamic symmetric per-token F8_E4M3 as declared by the official config",
+    "trainable_parameter_precision": "unqualified; any new connector/LoRA must stay FP32/BF16 as declared per run",
+    "muon_int8_momentum": "optimizer state only; does not enable FP8 weight training"
+  },
+  "blockers": [
+    "transformers 5.20.2 does not register model_type 'spark2_5'; the pinned config declares auto_map, so loading requires trust_remote_code with the retained, audited configuration_spark.py/modeling_spark.py.",
+    "compressed_tensors is not installed in the isolated baseline; FP8 checkpoint loading cannot be validated or performed.",
+    "MPS cannot allocate torch.float8_e4m3fn tensors (RuntimeError: Undefined type Float8_e4m3fn); native FP8 storage/compute on this backend is unsupported by the current stack.",
+    "No dedicated Spark2_5 adapter exists; dimension-dependent connector/port work is unstarted."
+  ],
+  "stage_status": {
+    "a_load_inference": "blocked_by_backend_and_remote_code; would require explicit dequantization, which must not be labelled FP8 qualification",
+    "b_gradients_into_new_module": "blocked_by_stage_a",
+    "c_one_bounded_update": "blocked_by_stage_a",
+    "d_export_reload": "blocked_by_stage_a",
+    "e_matched_fp8_bf16_comparison": "blocked_by_stage_a"
+  },
+  "allowed_next_work": [
+    "Keep the completed offline bundle (tokenizer payloads, headers, configs, audited Python) and provision it with scripts/prepare_spark_sources.py.",
+    "Author the dedicated Spark2_5 adapter contract and port dimensions from the pinned config without loading weights.",
+    "If an FP8-capable backend becomes available, re-run this audit there; otherwise record dequantized inference as a separate, clearly labelled BF16/FP32 path and never as FP8 training."
+  ],
+  "native_execution": false,
+  "weights_downloaded": false,
+  "remote_code_executed": false,
+  "baseline_unchanged": true,
+  "capability_claim": "none"
+}

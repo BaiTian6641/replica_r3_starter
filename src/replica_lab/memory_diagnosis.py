@@ -92,6 +92,7 @@ _IMPLEMENTATION_PATHS = (
     'src/replica_lab/profiling.py',
     'src/replica_lab/contracts.py',
     'src/replica_lab/memory_system/index.py',
+    'src/replica_lab/memory_one_write.py',
 )
 
 
@@ -2063,6 +2064,9 @@ def _verify_prepared(prepared):
     protocol_path = prepared / 'protocol.json'
     manifest = json.loads(manifest_path.read_text())
     protocol = json.loads(protocol_path.read_text())
+    if protocol.get('format') == 'replica.memory_one_write_probe.protocol.v1':
+        from .memory_one_write import verify_one_write_prepared
+        return verify_one_write_prepared(prepared)
     data = json.loads(data_path.read_text())
     if manifest.get('format') != PREPARED_FORMAT:
         raise ValueError('Prepared manifest format differs')

@@ -1,0 +1,55 @@
+"""Shared test conventions: artifact-dependent integration tests never skip silently.
+
+Self-contained unit tests build synthetic fixtures and always run. Tests that
+need ignored local acquisitions (sealed model source, local lock, vision
+overlay, external caches) declare them through :func:`require_local_artifacts`
+so a missing input produces one explicit skip whose reason names the exact
+provisioning command, never a silent pass or an obscure failure.
+"""
+from __future__ import annotations
+
+import importlib.util
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+PROVISIONING = {
+    "checkpoints/minicpm5_source": "scripts/pin_model.py (sealed MiniCPM5-2B acquisition; ignored local payload)",
+    "configs/minicpm5_sealed_lock.local.json": "scripts/seal_snapshot.py over the sealed local source snapshot",
+    "PIL": "python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt",
+    "checkpoints/siglip2_base_patch16_224_source": "scripts/prepare_vision_encoder.py --offline",
+    "data/cache/spark_sources/run_02": "scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json "
+                                       "--output data/cache/spark_sources/run_02 --export-header-bundle",
+}
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "integration: requires ignored local artifacts; skipped with provisioning "
+        "instructions when they are absent (see docs/maintenance/20261025_Test_Provisioning.md)",
+    )
+
+
+def _absent(name: str) -> bool:
+    if "/" in name:
+        return not (ROOT / name).exists()
+    return importlib.util.find_spec(name) is None
+
+
+def provisioning_reason(*requirements: str) -> tuple[bool, str]:
+    """Return (missing, reason) naming every absent artifact and its provisioning."""
+    missing = [name for name in requirements if _absent(name)]
+    if not missing:
+        return False, "all required local artifacts present"
+    how = "; ".join(f"{name}: {PROVISIONING.get(name, 'not documented — add it to tests/conftest.py')}"
+                    for name in missing)
+    return True, f"missing local artifact(s) — provision first: {how}"
+
+
+def require_local_artifacts(*requirements: str):
+    """Explicit skip-with-instructions for artifact-dependent integration tests."""
+    missing, reason = provisioning_reason(*requirements)
+    return pytest.mark.skipif(missing, reason=reason)

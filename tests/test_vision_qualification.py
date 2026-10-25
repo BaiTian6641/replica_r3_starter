@@ -492,6 +492,69 @@ def test_scorer_reconstructs_answers_counts_unknowns_and_families(tmp_path):
     assert all(row["family"] in {"v0-family-004", "v0-family-009"} for row in rows)
 
 
+def test_retention_policy_separates_baseline_capability_from_nonregression(tmp_path):
+    copy_stage(tmp_path, "v0")
+    protocol = base_protocol(tmp_path, "v0")
+    dataset = vq.load_verified_dataset(protocol)
+    case_ids = ["v0-f004-root-color", "v0-f009-root-color"]
+    controls = list(vq.CONTROLS)
+    generations = []
+    for control in controls:
+        for case_id in case_ids:
+            generated = dataset.label(case_id) if control == "correct" else "wrong"
+            generations.append({"control": control, "case_id": case_id,
+                                "generated_text": generated})
+    scores = vq.score_controls(dataset, generations, controls=controls)
+    gates = dict(protocol["v1"]["quality"]["gates"])
+    gates["min_correct_accuracy"] = 0.5
+    gates["min_correct_margin_wrong"] = 0.0
+    gates["min_correct_margin_shuffled"] = 0.0
+    gates["min_correct_margin_noimage"] = 0.0
+    gates["min_correct_margin_captiononly"] = 0.0
+    gates["min_correct_margin_ocrtextonly"] = 0.0
+    gates["min_unique_families"] = 2
+    gates["max_unknown_rate"] = 1.0
+    gates["min_text_retention_accuracy"] = 0.75
+    gates["max_text_retention_drop"] = 0.0
+    retention = {"accuracy": 22 / 32, "cases": 32, "correct": 22, "unknown": 0,
+                 "unknown_rate": 0.0, "unique_families": 32, "rows": []}
+    # The projector-only arm reproduces text exactly, but the frozen baseline is
+    # itself below the declared capability floor.
+    ineligible = vq.apply_quality_gates(
+        scores, retention, gates, retention_baseline_accuracy=22 / 32,
+        retention_policy="component_nonregression.v1", text_tokens_unchanged=True)
+    assert ineligible["quality_pass"] is False
+    assert "baseline_capability_ineligible" in ineligible["failures"]
+    assert "min_text_retention_accuracy" not in ineligible["failures"]
+    assert ineligible["values"]["baseline_eligible"] is False
+    assert ineligible["values"]["text_tokens_unchanged"] is True
+
+    eligible = vq.apply_quality_gates(
+        scores, retention, gates, retention_baseline_accuracy=0.9,
+        retention_policy="component_nonregression.v1", text_tokens_unchanged=True)
+    assert eligible["quality_pass"] is False
+    assert eligible["values"]["baseline_eligible"] is True
+    assert "baseline_capability_ineligible" not in eligible["failures"]
+    assert "max_text_retention_drop" in eligible["failures"]
+
+    passing_retention = dict(retention, accuracy=0.9, correct=29)
+    passed = vq.apply_quality_gates(
+        scores, passing_retention, gates, retention_baseline_accuracy=0.9,
+        retention_policy="component_nonregression.v1", text_tokens_unchanged=True)
+    assert passed["quality_pass"] is True
+
+    changed_tokens = vq.apply_quality_gates(
+        scores, retention, gates, retention_baseline_accuracy=0.9,
+        retention_policy="component_nonregression.v1", text_tokens_unchanged=False)
+    assert "text_tokens_changed" in changed_tokens["failures"]
+
+    # Legacy protocols keep the original combined gate.
+    legacy = vq.apply_quality_gates(
+        scores, retention, gates, retention_baseline_accuracy=0.9)
+    assert "min_text_retention_accuracy" in legacy["failures"]
+    assert "baseline_capability_ineligible" not in legacy["failures"]
+
+
 def test_quality_can_reject_while_engineering_passes(tmp_path):
     copy_stage(tmp_path, "v0")
     protocol = base_protocol(tmp_path, "v0")

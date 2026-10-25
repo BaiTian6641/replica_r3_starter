@@ -14,6 +14,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from conftest import require_local_artifacts
 import torch
 
 from replica_lab.architecture.contracts import VisionSpec, VisualInput
@@ -468,8 +469,8 @@ def test_encoder_parameter_mutation_rejects(tmp_path):
 
 
 
+@require_local_artifacts("PIL")
 def test_processor_backend_is_official_pil_when_overlay_present(sealed_source):
-    pytest.importorskip("PIL")
     processor = load_pil_image_processor(sealed_source)
     assert type(processor).__name__ == "SiglipImageProcessorPil"
     assert type(processor).__module__.endswith("image_processing_pil_siglip")

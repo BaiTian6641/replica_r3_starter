@@ -43,6 +43,12 @@ from replica_lab.memory_diagnosis import (  # noqa: E402
     run_diagnostic,
     verify_prepared,
 )
+from replica_lab.memory_one_write import (  # noqa: E402
+    admit_one_write_probe,
+    one_write_workload,
+    prepare_one_write,
+    run_one_write_diagnostic,
+)
 
 
 def sha(path):
@@ -128,7 +134,8 @@ def run_native(args, parser):
     manifest_path = prepared / "manifest.json"
     protocol = json.loads(protocol_path.read_text())
     data = json.loads(data_path.read_text())
-    workload = planned_workload(protocol)
+    one_write = protocol.get("format") == "replica.memory_one_write_probe.protocol.v1"
+    workload = protocol["planned_workload"] if one_write else planned_workload(protocol)
     admission, admission_sha256 = require_admission(prepared)
     if args.device != "mps":
         raise ValueError("Native storage probe requires --device mps")
@@ -209,10 +216,16 @@ def run_native(args, parser):
                 "writer_extension": extension_receipt,
             }
             report["implementation_sha256"] = protocol["implementation_sha256"]
-            result = run_diagnostic(
-                model, tokenizer, protocol, output_dir=output,
-                ledger_dir=output / "ledger", worlds=data["worlds"],
-                device="mps", writer_extension_receipt=extension_receipt)
+            if one_write:
+                result = run_one_write_diagnostic(
+                    model, tokenizer, protocol, output_dir=output,
+                    ledger_dir=output / "ledger", worlds=data["worlds"],
+                    device="mps", writer_extension_receipt=extension_receipt)
+            else:
+                result = run_diagnostic(
+                    model, tokenizer, protocol, output_dir=output,
+                    ledger_dir=output / "ledger", worlds=data["worlds"],
+                    device="mps", writer_extension_receipt=extension_receipt)
             rows = result.pop("readouts")
             result["status"] = "completed"
             result["started_at_utc"] = report["started_at_utc"]
@@ -235,7 +248,8 @@ def run_native(args, parser):
                 "decision": result["decision"],
                 "failed_gates": result["failed_gates"],
                 "evaluated_rows": result["counts"]["evaluated_rows"],
-                "diagnostic_cases": result["counts"]["diagnostic_cases"],
+                "diagnostic_cases": result["counts"].get(
+                    "diagnostic_cases", result["counts"].get("unique_cases")),
                 "report": str(output / "run_report.json"),
                 "readouts": str(output / "readouts.jsonl"),
             }, sort_keys=True))
@@ -260,8 +274,12 @@ def main():
 
     prepare = subparsers.add_parser("prepare", help="write exact pins and opaque worlds")
     prepare.add_argument("--output", type=Path, required=True)
+    prepare.add_argument("--mode", choices=("storage", "onewrite"), default="storage",
+                         help="onewrite = one fact/one write storage discriminator")
     prepare.add_argument("--seed", type=int, default=DEFAULT_SEED)
     prepare.add_argument("--worlds", type=int, default=DEFAULT_WORLD_COUNT)
+    prepare.add_argument("--layers", default="13,27",
+                         help="comma-separated injection layers for --mode onewrite")
     prepare.add_argument("--facts", type=int, default=DEFAULT_FACTS_PER_WORLD)
     prepare.add_argument("--distractors", type=int, default=DEFAULT_DISTRACTORS_PER_WORLD)
     prepare.add_argument("--correction-index", type=int, default=DEFAULT_CORRECTION_INDEX)
@@ -285,18 +303,34 @@ def main():
     args = parser.parse_args()
     if args.command == "prepare":
         output = fresh_output(args.output, parser, "prepare")
-        manifest = prepare_probe(
-            output, seed=args.seed, world_count=args.worlds,
-            facts_per_world=args.facts, distractors_per_world=args.distractors,
-            correction_index=args.correction_index,
-            revocation_index=args.revocation_index, layer=args.layer,
-            model_path=args.model_path, model_lock=args.model_lock,
-            writer_extension=args.writer_extension)
+        if args.mode == "onewrite":
+            try:
+                layers = tuple(int(part) for part in args.layers.split(",") if part.strip())
+            except ValueError:
+                parser.error("--layers must be comma-separated integers")
+            manifest = prepare_one_write(
+                output, seed=args.seed, world_count=args.worlds, layers=layers,
+                model_path=args.model_path, model_lock=args.model_lock,
+                writer_extension=args.writer_extension)
+        else:
+            manifest = prepare_probe(
+                output, seed=args.seed, world_count=args.worlds,
+                facts_per_world=args.facts, distractors_per_world=args.distractors,
+                correction_index=args.correction_index,
+                revocation_index=args.revocation_index, layer=args.layer,
+                model_path=args.model_path, model_lock=args.model_lock,
+                writer_extension=args.writer_extension)
         print(json.dumps(manifest, indent=2, sort_keys=True))
         return 0
     if args.command == "admit":
+        prepared = args.prepared.resolve()
+        protocol = json.loads((prepared / "protocol.json").read_text()) \
+            if (prepared / "protocol.json").is_file() else {}
+        admit = (admit_one_write_probe
+                 if protocol.get("format") == "replica.memory_one_write_probe.protocol.v1"
+                 else admit_probe)
         try:
-            receipt = admit_probe(args.prepared.resolve())
+            receipt = admit(prepared)
         except Exception as error:
             print(json.dumps({"status": "rejected", "error_type": type(error).__name__,
                               "error": str(error)}, sort_keys=True), file=sys.stderr)

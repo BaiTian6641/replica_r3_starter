@@ -737,11 +737,15 @@ def verify_v1_evaluation(run, report, protocol, dataset, admission, tokenizer):
     scores = score_controls(dataset, scored, controls=controls)
     retention = verify_v1_retention(run, report, protocol, admission, tokenizer)
     baseline = verify_v1_retention(run, report, protocol, admission, tokenizer, baseline=True)
-    require(retention["tokens_by_case"] == baseline["tokens_by_case"],
-            "Projector-only V1 changed native text-only generation")
+    tokens_unchanged = retention["tokens_by_case"] == baseline["tokens_by_case"]
+    policy = protocol["v1"]["quality"].get("retention_policy")
+    if policy is None:
+        require(tokens_unchanged,
+                "Projector-only V1 changed native text-only generation")
     quality = apply_quality_gates(
         scores, retention, protocol["v1"]["quality"]["gates"],
-        retention_baseline_accuracy=baseline["accuracy"])
+        retention_baseline_accuracy=baseline["accuracy"],
+        retention_policy=policy, text_tokens_unchanged=tokens_unchanged)
     return {"scores": scores, "retention": retention, "baseline_retention": baseline,
             "quality": quality, "eval_generations_sha256": evaluation["eval_generations_sha256"],
             "case_ids": case_ids, "controls": controls}

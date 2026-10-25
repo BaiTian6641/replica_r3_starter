@@ -1,0 +1,48 @@
+{
+  "format": "replica.memory_one_write_execution_admission.v1",
+  "scope": "zero_update_one_fact_one_write_diagnostic",
+  "source_code_commit": "10d8c9b50375051c3d135e6cdf15667fb0a6275c",
+  "prepared": {
+    "protocol_sha256": "b0b9b39086eaa6826d6d35835e57a6c58d16054fb9460efb8065bdc3c6bc402d",
+    "data_sha256": "1a0d865d15044cfde84229d165fa75768a6153e7dd5ed91134e051e0c027c1be",
+    "manifest_sha256": "58d4df4de6f0fbfb56654d6aadcc3317295682bd1f53b6a5780387eae2452cd0",
+    "admission_sha256": "c44252c41e7940ec89891125f15be3eb097af8fa4228f37f6488f479cd51e3c9"
+  },
+  "writer_weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+  "writer_disposition": "rejected_v5_preserved_unchanged",
+  "hypothesis": "With one observed fact and one write under the exact observed key, per-depth proposal reads recover the written value while the shared-depth convex mean may not; a zero state must read zero and ideal value vectors define the metric upper bound.",
+  "decision_rules": {
+    "per_depth_recovery_floor": 0.6,
+    "shared_reduction_floor": 0.6,
+    "zero_max_abs_cosine": 0.1,
+    "save_reload_parity_atol": 1e-06,
+    "mapping": [
+      "frozen failure",
+      "read-path leakage",
+      "writer/gate/normalization",
+      "depth-reduction interference",
+      "save/reload parity",
+      "one write recovers"
+    ]
+  },
+  "worlds": 8,
+  "layers": [
+    13,
+    27
+  ],
+  "planned_rows": 128,
+  "optimizer_updates": 0,
+  "parameters_updated": [],
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3
+  },
+  "run_output": "runs/memory_one_write_20261025/native01",
+  "guard_report": "reports/memory_one_write_20261025/native01.guard.json",
+  "no_evaluation_answers_written": true,
+  "quality_scope": "Observed-key vector recovery only; no useful language memory, addressing or native readout claim"
+}
