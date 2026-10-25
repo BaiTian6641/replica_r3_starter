@@ -1,0 +1,53 @@
+{
+  "format": "replica.vision_source_export.v1",
+  "status": "accepted_for_bounded_v0_interface_qualification",
+  "code_commit": "baf33470b359c1fb541b88f33e7d68ddd3899cee",
+  "source_archive_sha256": "bd015ce8a309e795ed7dd3e4dde0b8e46fce2f760a42da43a7bd59bb54bfc89d",
+  "protocol_path": "configs/minicpm5_vision_v0_qualification_v1.json",
+  "protocol_sha256": "781f5eef48a239bc9aaed69c3b3515894fb326ac715f460379fe85a241ca8ac7",
+  "fresh_export_tests": {
+    "passed": 88,
+    "failed": 0,
+    "seconds": 4.19,
+    "junit": "reports/vision_v0_20261025/clean_export_attempt02_tests.xml",
+    "junit_sha256": "5574b768adc19015fe65062cbd0d731a479605a6c10232997d1e5c9b7a1b838f"
+  },
+  "reuse": {
+    "prior_export_commit": "5a537dff7da01b0b9912881a0ba13ff544583751",
+    "passed_unchanged_tests": 1523,
+    "passed_subtests": 21,
+    "initial_failure_preserved": "reports/vision_v0_20261025/clean_export_attempt01_failed.json",
+    "change": "Only the nonportable structure-only receipt test was deleted. The 83 implementation/environment pins are byte-identical. This is not a second full-suite run."
+  },
+  "builders": {
+    "visual_data_audit": "passed_in_fresh_export",
+    "vision_source_offline_reuse": "passed_in_fresh_export",
+    "runner_and_scorer_imports": "passed_in_initial_export_with_identical_implementation_pins"
+  },
+  "cpu_admission": "reports/vision_v0_20261025/cpu_admission.json",
+  "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+  "vision_source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+  "vision_digest": "2eab38384f18de90e8f8d463a0080bd24a2b49eb58ac1d1df3cfd58dd63b2b0e",
+  "data_pins": {
+    "manifest": "7196a7ed46a570cf42891090db3f07acb8138ac8e24a68e3d4868121c01216ef",
+    "model_rows": "daa4c48094d1695d85fe00f36c63a3f803202866ff115a3f1548944fbe728f2f",
+    "verifier_cases": "ed7f8d6d7ebd2c9ba4c371a7124ec2084d741b1a1a8c45816d51cf163f3f2b3e",
+    "verifier_scenes": "c3db8b2222bf456198e27d0bf7f9979c79140a6abf9bf580aa0ede55ae2fb3ee"
+  },
+  "native_disposition": "Unrun. This admission permits only interface inference/backward/restart, not V1 training or capability promotion.",
+  "expected_guard_report": "reports/vision_v0_20261025/native_attempt01.guard.json",
+  "native_output": "runs/minicpm5_vision_v0_20261025/attempt01",
+  "optimizer_updates": 0,
+  "admitted_training_rows": 0,
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_free_admission": true,
+    "wall_time_semantics": "End-of-run acceptance ceiling plus fixed generation/update bounds; sampled memory watchdog remains authoritative."
+  }
+}

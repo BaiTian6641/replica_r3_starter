@@ -40,7 +40,11 @@ ignored machine-local E1/E2 receipt. Its raw log and JUnit remain in the
 [failed-export record](reports/vision_v0_20261025/clean_export_attempt01_failed.json).
 That incidental test is removed, not re-pinned; six actual migration/strictness
 tests pass in 2.28 s. All 83 runtime/environment implementation pins are unchanged.
-Fresh tracked validation remains required before native launch.
+Fresh tracked export `baf3347` then passes **88 tests in 4.19 s**, the full
+visual-data audit and sealed-source offline reuse. The unchanged prior passing
+checks are reused, not presented as a second full-suite execution. The
+[source admission](reports/vision_v0_20261025/source_qualification.json) permits
+only bounded V0 inference/backward/restart under the preregistered protocol.
 
 
 ## Repository maintenance — 25 October 2026
