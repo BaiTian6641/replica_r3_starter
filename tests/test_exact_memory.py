@@ -84,6 +84,14 @@ def test_stale_views_duplicates_conflicts_scope_and_metadata_are_checked(tmp_pat
         case = cases(episode, 'initial')[0]
         old = ref.select(case['query'], scope(episode))
         assert ref.verify_context(old)
+        with pytest.raises(ValueError, match='query'):
+            ref.verify_context(old, query='a different authorized query')
+        substituted = replace(old.records[0], text='substituted source text')
+        with pytest.raises(ValueError, match='substituted|ineligible'):
+            ref.verify_context(replace(old, records=(substituted,)))
+        altered_span = replace(old.spans[0], text='altered span')
+        with pytest.raises(ValueError, match='offsets|text|hash'):
+            ref.verify_context(replace(old, spans=(altered_span,)))
         # Audit-only metadata cannot enter the query/evidence gate.
         changed_metadata = dict(case, split='train', case_role='audit', kind='general', expected_answer='wrong')
         assert ref.select(changed_metadata['query'], scope(episode)).metadata() == old.metadata()
@@ -239,15 +247,21 @@ def test_runner_gate_exact_arms_and_metadata_invariant_tokens(tmp_path):
     memory = run.initialize(model, Tokenizer(), episode, reference=reference)
     case = cases(episode, 'initial')[0]
     context = reference.select(case['query'], run.case_scope(case))
-    first = run.infer(session, case, memory.read(), evidence=context, exact_mode=True)
+    first = run.infer(session, case, memory.read(), evidence=context, exact_mode=True, reference=reference)
     changed = dict(case, split='train', case_role='audit', kind='general', expected_answer='wrong')
-    second = run.infer(session, changed, memory.read(), evidence=context, exact_mode=True)
+    second = run.infer(session, changed, memory.read(), evidence=context, exact_mode=True, reference=reference)
     assert first['token_ids'] == second['token_ids']
     assert first['gate'] == second['gate'] == 'relevant'
-    selective = run.infer(session, case, memory.read(), evidence=context, selective=True, exact_mode=True)
+    assert first['route'] == 'fast' and first['state_use'] == 'fast' and first['memory_active']
+    selective = run.infer(session, case, memory.read(), evidence=context, selective=True,
+                          exact_mode=True, reference=reference)
     assert selective['state_digest'] is None and selective['gate'] == 'relevant'
     general = next(q for q in cases(episode, 'corrected') if q['kind'] == 'general')
     off = reference.select(general['query'], run.case_scope(general))
+    off_selective = run.infer(session, general, memory.read(), evidence=off, selective=True,
+                              exact_mode=True, reference=reference)
+    assert off_selective['route'] == 'disabled' and off_selective['state_use'] == 'none'
+    assert not off_selective['memory_active']
     args = run.request_args(session, general, memory.read(), evidence=off, exact_mode=True)
     disabled = run.request_args(session, general, exact_mode=True)
     assert args['fast_state'] is None
@@ -297,6 +311,10 @@ def test_reader_only_training_scope_and_frozen_writer_gradients(tmp_path):
     assert set(probe['new']['nonzero']) == expected
     assert not any(name.startswith('fast_depth_write_encoders.') for name in probe['new']['present'])
     assert not probe['original']['present']
+    from replica_lab.reliability_scoring import validate_training_routes
+    route_audit = validate_training_routes(report, build_episodes(), protocol)
+    assert route_audit['examples'] == 96
+    assert route_audit['backward_calls'] == route_audit['memory_active_examples']
     ledger.close()
 
 

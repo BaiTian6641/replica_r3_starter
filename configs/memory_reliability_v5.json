@@ -1,0 +1,266 @@
+{
+  "format": "replica.memory_reliability.protocol.v5",
+  "protocol_path": "configs/memory_reliability_v5.json",
+  "declared_at_utc": "2026-10-25T02:43:05.916139+00:00",
+  "git_base_commit": "29786d23fcca884ada23e1ad6c2fb8758ef48bc9",
+  "git_protocol_commit": "pending-pre-run-commit",
+  "commit_limitation": "This protocol and all implementation pins must be committed before native launch; the exact pre-run commit is recorded in the execution handoff.",
+  "purpose": "Test one diagnosed writer-representation repair: explicit observed-fact key/value binding with writer-only D1 training, while readers, gates, routing and the sealed backbone remain fixed.",
+  "hypothesis": "The rejected reader-only arm left delayed associations unusable. Separating observed entity+attribute keys from value-only values may make associations query-readable without changing the state engine or reader. A negative result rejects this representation and preserves the parent.",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "source_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+  "parent_extension": "runs/m3_depth_shared_attempt02/selected_extension",
+  "parent_weights_sha256": "29267d2201562996fcf573f9349c06cd55392ecc2afc8976fa699729cdfa1b64",
+  "parent_run_report": "runs/m3_depth_shared_attempt02/run_report.json",
+  "parent_run_report_sha256": "b40aeb536dcdc589a8cc337a3efd5172010267e46f19c0e811d00442512eeebe",
+  "parent_role": "M3 shared ownership reference with failed retention, not an accepted general-memory baseline. M3 repair, M4 and rejected v1 candidates are not parents or defaults.",
+  "prerequisite_evidence": {
+    "exact_reference_verdict": "reports/memory_exact_reference_attempt06/verdict_final.json",
+    "reference_decision": "accept_reference",
+    "reader_only_verdict": "reports/memory_reliability_v2_attempt03/verdict_final_v2.json",
+    "reader_only_decision": "reject",
+    "binding_diagnostic": "reports/memory_binding_diagnostic_20261024.json",
+    "binding_diagnostic_sha256": "85caa0746aa50821ba7aa3c3b7f935287632b59c6efe0e02e9ccd7049e2146eb",
+    "focused_contracts": 46,
+    "scope": "Exact-reference and software integrity prerequisites are passing; prior learned reader-only quality remains rejected. Binding diagnostic is tiny CPU mechanism evidence only, not native quality evidence."
+  },
+  "dataset": {
+    "path": "data/memory_reliability_v4/episodes.json",
+    "sha256": "20830f5f43f36edfd5cc256119a90546cf4843b90a61abb83889550a2de47173",
+    "manifest_sha256": "78fdbcfd7acb6af6eef2b0bc0d0da42b9db64f83a40b2b49829f7fbd6f0d876d",
+    "seed": 20261026,
+    "train_episodes": 16,
+    "dev_episodes": 8,
+    "heldout_episodes": 8,
+    "train_cases": 192,
+    "evaluation_cases": 192,
+    "families": {
+      "train": 8,
+      "dev": 4,
+      "heldout": 4
+    },
+    "require_novel_values": true,
+    "general_oracle": "general_v2",
+    "min_unique_general": 16,
+    "unique_general_questions": 16,
+    "scope": "Fresh disjoint counterfactual families with both variants, four query forms, independent distractors, absent facts, heldout-only observed values, and 16 unique evaluation retention questions across arithmetic, factual, abbreviation and relational prompts."
+  },
+  "exact_reference": {
+    "enabled": true,
+    "record_granularity": "One immutable fact line per record; correction supersedes only the changed fact.",
+    "state_ownership": "RecordLedger is authoritative; fast state is derived from observations and source-view-bound images.",
+    "recovery": "Atomic image publication, transaction-fault rollback, stale-view rejection and permitted-source rebuild; not a power-loss or neural-unlearning claim."
+  },
+  "evidence_gate": {
+    "enabled": true,
+    "rule": "Eligible structured fact must cover query content and an entity-like term. Conflict, absent evidence and unstructured lookalike text disable fast memory.",
+    "forbidden_inputs": [
+      "case_role",
+      "split",
+      "kind",
+      "expected_answer",
+      "gold",
+      "audit_labels"
+    ],
+    "disabled_behavior": "Exact frozen-base inference with enabled_ports=() and no record/fast injection."
+  },
+  "fast_memory": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true,
+    "max_tokens_per_chunk": 256,
+    "max_image_bytes": 1048576
+  },
+  "primary_fast_arm": "fast",
+  "reference_arm": "selective_context",
+  "evaluation_arms": {
+    "parent": [
+      "fast",
+      "disabled"
+    ],
+    "candidate": [
+      "fast",
+      "ungated",
+      "disabled",
+      "shuffled",
+      "last_chunk",
+      "full_context",
+      "selective_context",
+      "adversarial"
+    ]
+  },
+  "evaluation": {
+    "adversarial_observation": "The launch code for project Alder is teal.",
+    "metadata_invariance": "Changing split, role, kind or expected-answer metadata must not change route or generated tokens.",
+    "chronology": "Each evaluation episode writes six observed structured facts/distractors once, answers five initial queries, saves/reloads without source reencoding, appends one correction, then answers changed/unaffected/unknown/general queries.",
+    "correction_scope": "Latest-value append diagnostic; not deletion, revocation or neural unlearning.",
+    "controls": "Parent and candidate use the same fact-binding representation; disabled is exact frozen-base inference; shuffled is the same-family counterfactual state; last-chunk uses only the final page facts or correction; full-context supplies all observed facts; selective_context supplies authenticated exact records; adversarial is declared unstructured raw text.",
+    "generation": {
+      "max_new_tokens": 6,
+      "greedy": true,
+      "max_prompt_tokens": 256
+    },
+    "restart": "One guarded fresh process reloads the exact candidate and first heldout corrected image, reproduces all seven corrected-stage answers and verifies source binding and seven-entry lineage."
+  },
+  "training": {
+    "regime": "modules_only",
+    "trainable_prefixes": [
+      "fast_depth_write_encoders."
+    ],
+    "expected_trainable_tensors": [
+      "fast_depth_write_encoders.13.input_norm.weight",
+      "fast_depth_write_encoders.13.input_norm.bias",
+      "fast_depth_write_encoders.13.key_projection.weight",
+      "fast_depth_write_encoders.13.value_projection.weight",
+      "fast_depth_write_encoders.13.erase_projection.weight",
+      "fast_depth_write_encoders.13.write_projection.weight",
+      "fast_depth_write_encoders.13.forget_projection.weight",
+      "fast_depth_write_encoders.27.input_norm.weight",
+      "fast_depth_write_encoders.27.input_norm.bias",
+      "fast_depth_write_encoders.27.key_projection.weight",
+      "fast_depth_write_encoders.27.value_projection.weight",
+      "fast_depth_write_encoders.27.erase_projection.weight",
+      "fast_depth_write_encoders.27.write_projection.weight",
+      "fast_depth_write_encoders.27.forget_projection.weight"
+    ],
+    "frozen": [
+      "original",
+      "record_writer",
+      "memory_ports",
+      "fast_ports",
+      "fast_ports.gate_logit",
+      "sense_ports",
+      "reranker",
+      "core",
+      "ff_core",
+      "workspace_ports",
+      "task_head",
+      "identity_reader",
+      "copy_head",
+      "pattern_port"
+    ],
+    "optimizer": "muon8bit",
+    "optimizer_semantics": "Int8 Muon momentum with FP32 parameters/gradients; auxiliary FP32 AdamW for nonmatrix parameters. No BF16-residency or FP8-training claim.",
+    "lr": 0.001,
+    "base_lr": 0.0,
+    "weight_decay": 0.0,
+    "updates": 48,
+    "examples_per_update": 4,
+    "seed": 20261026,
+    "preservation_kl_weight": 0.0,
+    "max_grad_norm": 1.0,
+    "schedule": "Seeded shuffle of round-robin query positions across all 16 fresh training worlds, one visit to each of 192 cases. Evaluation labels never train or select settings.",
+    "objective": "Response-only teacher-forced CE on gate-on cases through the fact-binding writer. No general preservation KL is used: unknown/general cases are gate-off and have no differentiable fast path. Fixed evidence gating, disabled-token parity and diverse general retention checks preserve unrelated answers.",
+    "gradient_probe_updates": [
+      1,
+      2
+    ],
+    "no_quality_retuning": true,
+    "expected_trainable_parameters": 5251072,
+    "require_route_audit": true,
+    "require_gradient_probe": true,
+    "expected_route_counts": {
+      "fast": 128,
+      "disabled": 64
+    }
+  },
+  "acceptance": {
+    "fact_correct_changed_unaffected_min_each_split": 0.75,
+    "unknown_min_each_split": 0.75,
+    "delayed_strictly_above_disabled_shuffled_last_chunk": true,
+    "general_no_drop_vs_disabled_and_parent_fast": true,
+    "no_correct_to_wrong_kinds": [
+      "fact",
+      "changed",
+      "unaffected",
+      "unknown",
+      "general"
+    ],
+    "reference_all_cases_correct": true,
+    "reference_no_correct_to_wrong": true,
+    "gate_off_disabled_parity": true,
+    "persistent_authenticated_scope_lineage_counters": true,
+    "fresh_process_multiqueury_token_state_parity": true,
+    "failed_gate": "Reject candidate and preserve parent; do not promote or advance neural RSI.",
+    "reference_full_context_non_regression": true,
+    "route_accounting": "Require 192 scheduled cases, 128 actual fast-route backward calls and 64 gate-off cases; update-level gradients only, no per-example gradient attribution."
+  },
+  "budget": {
+    "native_training_jobs": 1,
+    "native_restart_jobs": 1,
+    "model_loads_per_job": 1,
+    "extension_reloads_per_job": 1,
+    "max_wall_seconds": 900,
+    "restart_max_wall_seconds": 90,
+    "max_generated_answers": 1920,
+    "max_generated_tokens": 11520,
+    "restart_max_generated_answers": 7,
+    "restart_max_generated_tokens": 42,
+    "max_prompt_tokens": 256,
+    "max_target_tokens": 8,
+    "max_source_tokens": 256,
+    "max_action_tokens": 264,
+    "optimizer_updates": 48,
+    "gradient_examples": 192,
+    "checkpoints": 1,
+    "depth_images": 32,
+    "expected_extension_mib": 47
+  },
+  "limits": {
+    "driver_gib": 50,
+    "driver_bytes": 53687091200,
+    "swap_growth_mib": 512,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "native_jobs": 1,
+    "cpu_fallback": false
+  },
+  "stop_conditions": [
+    "capacity or host-pressure guard",
+    "nonfinite loss/gradient/state",
+    "backward-only probe finds no declared trainable gradient",
+    "hash/provenance/scope/source-view mismatch",
+    "token/time/update/artifact bound",
+    "missing or stale MPS telemetry"
+  ],
+  "publication": "None. One isolated writer-only candidate and one guarded restart; parent, selected defaults, source seals and rejected candidates are unchanged. Passing only qualifies this small diagnostic, not deployment or RSI.",
+  "implementation_sha256": {
+    "scripts/run_memory_reliability.py": "c3b1e68d83715dc4fa3183658365c9bea8c4b60461d3ced73aa88109d7b95e04",
+    "scripts/score_memory_reliability.py": "f8d8a9bc60bd2ffbf546af86b82dad1852663123835ecea1245d7caf218e741e",
+    "scripts/make_memory_reliability_v4_data.py": "5ede7e4c3079e5a303fd046afea9554cc002cfe7b75ff117f9fe72f8fe7763b8",
+    "scripts/run_capacity_preflight.py": "846c2945b0e7d00f28d8a2ae2c9f3d22e5735b8924ede21c768f47ed387548a7",
+    "src/replica_lab/answer_audit.py": "7b28cca017d1277c7056c970a1b7e6921fe431837ba1812e7fdc4bca8bcd6511",
+    "src/replica_lab/memory_reliability.py": "96fcc8d0d397f6479f51f4a149f54a0c3159cc8af31fa3e9b0782bca2a9db5fa",
+    "src/replica_lab/reliability_scoring.py": "1c3fd0e59543de9f2bf4f8b42798a99f5865fed2388e4c9a00ee8e63dcb64bae",
+    "src/replica_lab/runtime/exact_memory.py": "f01593d182ee34decb580f12dda698d865050fcc9eb190770be67a7d27f1e3cb",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "9e145d9367ff335e1b15e98b189428c7027c0fad2626e5db126fef8d7b3e57b5",
+    "src/replica_lab/runtime/fact_memory.py": "5254c5f4e5aaa63743d145e845ac66ef5fad41a54b98f2869fa4fcabfc53186b",
+    "src/replica_lab/runtime/fast_memory.py": "bd09eb21349df3810aa0aa9bff2fe719acaa81b9dabf9c6668385edfeeaa8aef",
+    "src/replica_lab/architecture/contracts.py": "a799eec448b1e21c59f873be8647df162658f8d2caf468d33358466de169565f",
+    "src/replica_lab/architecture/loading.py": "6b4b6242a8dfa0f323c2dd90a78c7a8db5766a73d8e93a90a5f6df461d6ee753",
+    "src/replica_lab/architecture/minicpm5.py": "9846ab401bb710fd8ef5c5bebce9d8385054d6d38c50c9ab28e607833d8fe573",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/memory_system/session.py": "3359f318077b0ec1a08f87d3ff93c4fb24c53be7c8d193c5f3b5ea94376e415b",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "tests/test_exact_memory.py": "c4e8da6fceabb4dd851dd8826a6ec69b13f72d73b4cc82e99d7d9695614d6d6e",
+    "tests/test_memory_reliability.py": "17e36a082f2b56da0ecdb47c1d22f386566242ff466b4cb27179fee79c7da012",
+    "tests/test_memory_reliability_v2.py": "9a4e4a6050ce69125055764225e2eb689bd7deaf17d26e473ae7aa63e044b55e",
+    "tests/test_memory_reliability_v4.py": "404316df65a698c4c1f0f892252eb74dd7437c61af849e81ef3e9d216f69fe72",
+    "tests/test_fact_memory.py": "a56bd14cbec5c83fa51b206823d9ea4caa1546654a116f968bb2c418ec96b631"
+  },
+  "implementation_overlay": "New v5 arm only: fact-level key/value writer representation, writer-only D1 scope, explicit route/backward accounting, non-regression reference acceptance, and fresh diverse retention data. Historical protocols and verdicts are unchanged.",
+  "writer_representation": "fact_binding_key_value",
+  "reference_mode": "non_regression",
+  "state_lineage": {
+    "initial_cursor": 6,
+    "corrected_cursor": 7,
+    "meaning": "Six observed structured facts/distractors, then one correction; exact ledger admission remains seven records per episode."
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "format": "replica.memory_binding.diagnostic.v1",
+  "date_utc": "2026-10-24",
+  "prior_native_evidence": {
+    "path": "reports/memory_reliability_v2_attempt03/verdict_final_v2.json",
+    "decision": "reject",
+    "failed_checks": [
+      "dev_fact_reliable",
+      "dev_changed_reliable",
+      "dev_unaffected_reliable",
+      "dev_delayed_above_controls",
+      "heldout_fact_reliable",
+      "heldout_changed_reliable",
+      "heldout_unaffected_reliable",
+      "heldout_delayed_above_controls",
+      "reference_full_context_parity"
+    ],
+    "candidate_fast": {
+      "dev": {"fact": 0.0, "changed": 0.0, "unaffected": 0.0, "unknown": 1.0, "general": 1.0},
+      "heldout": {"fact": 0.0, "changed": 0.0, "unaffected": 0.0, "unknown": 1.0, "general": 1.0}
+    },
+    "selective_context": {
+      "dev": {"fact": 1.0, "changed": 1.0, "unaffected": 1.0, "unknown": 1.0, "general": 1.0},
+      "heldout": {"fact": 1.0, "changed": 1.0, "unaffected": 1.0, "unknown": 1.0, "general": 1.0}
+    },
+    "interpretation": "Reader-only training did not recover delayed fact association; exact selective context remained correct. This localizes the next falsifiable hypothesis to writer representation, without proving the cause."
+  },
+  "mechanism_scope": "Offline tiny native fixture; CPU contract/diagnostic only, not MiniCPM quality evidence.",
+  "mechanism": {
+    "0": {
+      "scope": "observed_fact_representation_only",
+      "labels_used": false,
+      "parameters_updated": false,
+      "layer": 0,
+      "key_change_norm": 0.45887988805770874,
+      "value_change_norm": 0.7156388759613037,
+      "value_invariant_under_key_change": true,
+      "key_invariant_under_value_change": true,
+      "write_shape": [1, 1, 2, 4],
+      "hypothesis": "Explicit entity+attribute keys and value-only values may repair association storage; reader and gate remain fixed."
+    },
+    "2": {
+      "scope": "observed_fact_representation_only",
+      "labels_used": false,
+      "parameters_updated": false,
+      "layer": 2,
+      "key_change_norm": 0.6161597967147827,
+      "value_change_norm": 0.5511465668678284,
+      "value_invariant_under_key_change": true,
+      "key_invariant_under_value_change": true,
+      "write_shape": [1, 1, 2, 4],
+      "hypothesis": "Explicit entity+attribute keys and value-only values may repair association storage; reader and gate remain fixed."
+    }
+  },
+  "repair_hypothesis": {
+    "writer_representation": "fact_binding_key_value",
+    "change": "Encode observed entity+attribute as keys and observed value as values, one pooled write per fact; retain the unchanged SGDN-2 engine.",
+    "trainable": "fast_depth_write_encoders only",
+    "frozen": "fast_ports readers, gate scalars, exact routing, record/core branches and sealed original backbone",
+    "not_a_claim": "The diagnostic does not establish delayed-recall improvement or calibrated capability."
+  }
+}

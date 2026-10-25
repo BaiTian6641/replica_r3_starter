@@ -15,8 +15,8 @@ os.environ['TRANSFORMERS_OFFLINE'] = '1'
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from replica_lab.answer_audit import audit_rows
-from replica_lab.memory_reliability import audit_dataset, cases
-from replica_lab.reliability_scoring import metrics_and_checks, regression_inventory, family_metrics
+from replica_lab.reliability_scoring import (metrics_and_checks, regression_inventory, family_metrics,
+                                             validate_training_routes)
 
 
 def sha(path):
@@ -60,7 +60,7 @@ def audit_changed_tensors(parent_path, candidate_path, expected_names):
             raise ValueError('Parent/candidate tensor shape or dtype differs')
     changed = {name for name in parent if not torch.equal(parent[name], candidate[name])}
     if changed != set(expected_names):
-        raise ValueError('Changed tensors differ from declared reader-only scope')
+        raise ValueError('Changed tensors differ from declared trainable scope')
     return {'changed_tensors': sorted(changed),
             'unchanged_tensor_count': len(parent) - len(changed)}
 
@@ -70,6 +70,9 @@ def audit_images(run, report, episodes, producer, protocol=None):
     config = FastMemoryConfig(heads=4, key_size=64, value_size=64, update_rule='sgdn2',
                               max_tokens_per_chunk=256, max_image_bytes=1048576)
     evaluation = [e for e in episodes if e['split'] != 'train']
+    representation = (protocol or {}).get('writer_representation', 'raw_pages')
+    if representation not in {'raw_pages', 'fact_binding_key_value'}:
+        raise ValueError('Unknown writer representation in image audit')
     transitions = report['transitions']
     if (len(transitions) != len(evaluation)
             or {t['episode_id'] for t in transitions} != {e['episode_id'] for e in evaluation}):
@@ -78,8 +81,13 @@ def audit_images(run, report, episodes, producer, protocol=None):
         eid = episode['episode_id']
         transition = next(t for t in transitions if t['episode_id'] == eid)
         scope = FastMemoryScope('memory_reliability', eid, 'reliability', 'parallel_replica', 0)
-        expected = [(f'{eid}:source:{i}', hashlib.sha256(text.encode()).hexdigest())
-                    for i, text in enumerate(episode['observations'])]
+        if representation == 'fact_binding_key_value':
+            from replica_lab.runtime.fact_memory import fact_source_text
+            expected = [(f'{eid}:fact:{i}', hashlib.sha256(fact_source_text(fact).encode()).hexdigest())
+                        for i, fact in enumerate(episode['facts'] + episode['distractors'])]
+        else:
+            expected = [(f'{eid}:source:{i}', hashlib.sha256(text.encode()).hexdigest())
+                        for i, text in enumerate(episode['observations'])]
         for stage, directory, digest_key in [('initial', 'before', 'initial_digest'), ('corrected', 'corrected', 'corrected_digest')]:
             if stage == 'corrected':
                 expected.append((f'{eid}:correction', hashlib.sha256(episode['correction_observation'].encode()).hexdigest()))
@@ -178,8 +186,14 @@ def main():
             raise ValueError(f'Implementation changed: {name}')
     if sha(ROOT/protocol['dataset']['path']) != protocol['dataset']['sha256']:
         raise ValueError('Dataset bytes changed')
+    manifest_sha256 = protocol['dataset'].get('manifest_sha256')
+    if manifest_sha256 is not None and sha((ROOT/protocol['dataset']['path']).with_name('manifest.json')) != manifest_sha256:
+        raise ValueError('Dataset manifest changed')
     episodes = json.loads((ROOT/protocol['dataset']['path']).read_text())
-    dataset_audit = audit_dataset(episodes, require_novel_values=protocol['dataset'].get('require_novel_values', False))
+    dataset_audit = audit_dataset(
+        episodes, require_novel_values=protocol['dataset'].get('require_novel_values', False),
+        general_oracle=protocol['dataset'].get('general_oracle'),
+        min_unique_general=protocol['dataset'].get('min_unique_general', 0))
     lock_path = ROOT / 'configs/minicpm5_sealed_lock.local.json'
     if sha(lock_path) != protocol['source_lock_sha256']:
         raise ValueError('Source lock changed')
@@ -192,11 +206,18 @@ def main():
     decode = lambda ids: tokenizer.decode(ids, skip_special_tokens=True)
     report_path = args.run / 'run_report.json'
     report = json.loads(report_path.read_text())
+    training_routes = None
     if bool(report.get('evaluation_only', False)) != args.evaluation_only:
         raise ValueError('Scorer evaluation-only mode differs from run report')
     if (report['status'] != 'completed' or report['protocol_sha256'] != sha(args.protocol)
             or report['implementation_sha256'] != protocol['implementation_sha256'] or report['source_lock'] != lock):
         raise ValueError('Run provenance differs from protocol')
+    expected_representation = protocol.get('writer_representation', 'raw_pages')
+    if report.get('writer_representation', 'raw_pages') != expected_representation:
+        raise ValueError('Run writer representation differs from protocol')
+    if (protocol['dataset'].get('general_oracle') is not None
+            and report.get('dataset_audit') != dataset_audit):
+        raise ValueError('Cached dataset audit differs from independent audit')
     expected_tensors = set(protocol['training'].get('expected_trainable_tensors', ()))
     if not args.evaluation_only:
         training = report['training']
@@ -214,16 +235,21 @@ def main():
                 or (expected_tensors and set(audit['new']['names']) != expected_tensors)
                 or training.get('trainable_prefixes') not in (None, list(prefixes))):
             raise ValueError('Training ownership differs from declared D1 scope')
+        expected_parameters = protocol['training'].get('expected_trainable_parameters')
+        if expected_parameters is not None and audit['new']['trainable'] != expected_parameters:
+            raise ValueError('Trainable parameter count differs from protocol')
         probe = training['updates'][1]['gradients']
         if probe['original']['present'] or probe['new']['nonfinite']:
             raise ValueError('Fast-memory gradient ownership failed')
         if expected_tensors:
             if (set(probe['new']['nonzero']) != expected_tensors
-                    or any(name.startswith('fast_depth_write_encoders.') for name in probe['new']['present'])):
-                raise ValueError('Declared reader gradients differ from frozen-writer scope')
+                    or set(probe['new']['present']) - expected_tensors):
+                raise ValueError('Declared trainable gradients differ from frozen scope')
         elif (not any(n.startswith('fast_depth_write_encoders.') for n in probe['new']['nonzero'])
               or not any(n.startswith('fast_ports.') for n in probe['new']['nonzero'])):
             raise ValueError('Fast-memory gradient ownership failed')
+        if protocol['training'].get('require_route_audit', False) or 'cases' in training:
+            training_routes = validate_training_routes(report, episodes, protocol)
     else:
         if report['optimizer_updates'] != 0 or report['checkpoints_saved'] != 0:
             raise ValueError('Evaluation-only report contains training or checkpoint updates')
@@ -284,7 +310,7 @@ def main():
               'metrics': metrics, 'checks': checks,
               'regressions': regressions, 'families': families,
               'failed_checks': [name for name, value in checks.items() if not value],
-              'checkpoint_changes': checkpoint_changes,
+              'checkpoint_changes': checkpoint_changes, 'training_routes': training_routes,
               'reference_decision': reference_decision, 'candidate_decision': decision,
               'evaluation_only': args.evaluation_only,
               'scope': 'Small exposed synthetic diagnostic; no RSI or broad memory claim'}

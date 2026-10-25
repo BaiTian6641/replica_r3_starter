@@ -37,9 +37,26 @@ def case_scope(case):
                             case['as_of'], 'parallel_replica', None)
 
 
-def request_args(session, case, read=None, full=False, evidence=None, selective=False, exact_mode=False):
+def route_metadata(read=None, evidence=None, *, selective=False, full=False):
+    """Describe the actual consumer route; never infer it from loss or scores."""
+    if selective:
+        if evidence is not None and evidence.enabled:
+            return {'route': 'exact_context', 'state_use': 'exact_context', 'memory_active': False}
+        return {'route': 'disabled', 'state_use': 'none', 'memory_active': False}
+    if full:
+        return {'route': 'full_context', 'state_use': 'full_context', 'memory_active': False}
+    if evidence is not None and not evidence.enabled:
+        read = None
+    active = read is not None
+    return {'route': 'fast' if active else 'disabled',
+            'state_use': 'fast' if active else 'none', 'memory_active': active}
+
+def request_args(session, case, read=None, full=False, evidence=None, selective=False, exact_mode=False,
+                 reference=None):
     from replica_lab.architecture.loading import encode_prompt
     from replica_lab.architecture.contracts import TaskGraph
+    if evidence is not None and reference is not None:
+        reference.verify_context(evidence, query=case['query'])
     if selective:
         if evidence is None:
             raise ValueError('Selective exact context requires an evidence selection')
@@ -62,14 +79,16 @@ def request_args(session, case, read=None, full=False, evidence=None, selective=
                 enabled_ports=enabled_ports, enabled_branches=branches)
 
 
-def infer(session, case, read=None, full=False, evidence=None, selective=False, exact_mode=False):
-    arguments = request_args(session, case, read, full, evidence, selective, exact_mode)
+def infer(session, case, read=None, full=False, evidence=None, selective=False, exact_mode=False,
+          reference=None):
+    arguments = request_args(session, case, read, full, evidence, selective, exact_mode, reference)
     request = session.prepare(**arguments)
     try:
         generated = session.generate(request, max_new_tokens=6)
         ids = generated[0, arguments['prompt_ids'].shape[1]:].tolist()
         answer = session.tokenizer.decode(ids, skip_special_tokens=True).strip()
-        row = {k: case[k] for k in ('case_id', 'split', 'episode_id', 'stage', 'kind')} | {
+        route = route_metadata(read, evidence, selective=selective, full=full)
+        row = {k: case[k] for k in ('case_id', 'split', 'episode_id', 'stage', 'kind')} | route | {
             'answer': answer, 'expected': case['expected_answer'],
             'correct': answer.casefold() == case['expected_answer'].casefold(),
             'token_ids': ids, 'generated_tokens': len(ids), 'prompt_tokens': arguments['prompt_ids'].shape[1],
@@ -81,26 +100,67 @@ def infer(session, case, read=None, full=False, evidence=None, selective=False, 
         request.release()
 
 
-def initialize(model, tokenizer, episode, training=False, reference=None):
+
+def _validate_writer_representation(value):
+    if value not in {'raw_pages', 'fact_binding_key_value'}:
+        raise ValueError('Unknown writer representation')
+    return value
+
+
+def _append_source(memory, event_id, text, representation, *, fact=None, correction=False):
+    if _validate_writer_representation(representation) == 'raw_pages':
+        memory.append(event_id, text)
+    else:
+        if fact is None:
+            raise ValueError('Structured fact required by fact-binding writer')
+        memory.append_fact(event_id, fact, correction=correction)
+
+
+def _append_last_source(memory, episode, stage, representation):
+    if representation == 'raw_pages':
+        memory.append('last_only', episode['observations'][-1] if stage == 'initial'
+                      else episode['correction_observation'])
+        return
+    from replica_lab.runtime.fact_memory import fact_source_text
+    if stage == 'corrected':
+        memory.append_fact('last_only', episode['correction'], correction=True)
+        return
+    lines = set(episode['observations'][-1].splitlines())
+    facts = [fact for fact in episode['facts'] + episode['distractors']
+             if fact_source_text(fact) in lines]
+    if not facts:
+        raise ValueError('Last source page has no structured facts')
+    for index, fact in enumerate(facts):
+        memory.append_fact(f'last_only:{index}', fact)
+
+def initialize(model, tokenizer, episode, training=False, reference=None,
+               writer_representation='raw_pages'):
     from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
+    _validate_writer_representation(writer_representation)
     if reference is not None:
         reference.admit_episode(episode)
     memory = PersistentFastMemory(model, tokenizer, memory_scope(episode), training=training)
-    for index, observation in enumerate(episode['observations']):
-        memory.append(f"{episode['episode_id']}:source:{index}", observation)
+    if writer_representation == 'fact_binding_key_value':
+        for index, fact in enumerate(episode['facts'] + episode['distractors']):
+            memory.append_fact(f"{episode['episode_id']}:fact:{index}", fact)
+    else:
+        for index, observation in enumerate(episode['observations']):
+            memory.append(f"{episode['episode_id']}:source:{index}", observation)
     return memory
 
 
 def evaluate(session, episodes, arms, output=None, check=lambda: None,
-             reference=None, gate=False, adversarial_text=None):
+             reference=None, gate=False, adversarial_text=None, writer_representation='raw_pages'):
     from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
     from replica_lab.runtime.exact_memory import episode_records
     rows, transitions = [], []
     for episode in episodes:
-        memory = initialize(session.adapter, session.tokenizer, episode, reference=reference)
+        memory = initialize(session.adapter, session.tokenizer, episode, reference=reference,
+                            writer_representation=writer_representation)
         # Same family counterfactual gives identical queries and different facts.
         other = next(e for e in episodes if e['family_id'] == episode['family_id'] and e['variant'] != episode['variant'])
-        shuffled = initialize(session.adapter, session.tokenizer, other)
+        shuffled = initialize(session.adapter, session.tokenizer, other,
+                              writer_representation=writer_representation)
         adversarial = None
         if adversarial_text is not None:
             adversarial = PersistentFastMemory(session.adapter, session.tokenizer, memory_scope(episode))
@@ -123,8 +183,12 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                         raise ValueError('Reload changed initial state')
                 if reference is not None:
                     reference.correct_episode(episode)
-                memory.append(f"{episode['episode_id']}:correction", episode['correction_observation'])
-                shuffled.append(f"{other['episode_id']}:correction", other['correction_observation'])
+                _append_source(memory, f"{episode['episode_id']}:correction",
+                               episode['correction_observation'], writer_representation,
+                               fact=episode['correction'], correction=True)
+                _append_source(shuffled, f"{other['episode_id']}:correction",
+                               other['correction_observation'], writer_representation,
+                               fact=other['correction'], correction=True)
                 if output is not None:
                     after = output / episode['episode_id'] / 'corrected'
                     if reference is not None:
@@ -142,7 +206,7 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                                                                   if correction_record is not None else None)})
             read, wrong = memory.read(), shuffled.read()
             last = PersistentFastMemory(session.adapter, session.tokenizer, memory_scope(episode))
-            last.append('last_only', episode['observations'][-1] if stage == 'initial' else episode['correction_observation'])
+            _append_last_source(last, episode, stage, writer_representation)
             for case in cases(episode, stage):
                 evidence = reference.select(case['query'], case_scope(case)) if reference is not None else None
                 for arm in arms:
@@ -158,7 +222,7 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                             row_evidence = None
                     row = infer(session, case, selected, full=arm == 'full_context',
                                 evidence=row_evidence, selective=selective,
-                                exact_mode=reference is not None)
+                                exact_mode=reference is not None, reference=reference)
                     rows.append(dict(row, arm=arm)); check()
     return rows, transitions
 
@@ -173,6 +237,8 @@ def train_candidate(session, episodes, protocol, report, check):
         from replica_lab.runtime.exact_memory import ExactMemoryReference
         reference = ExactMemoryReference(session.ledger)
     gate = protocol.get('evidence_gate', {}).get('enabled', False)
+    writer_representation = _validate_writer_representation(
+        protocol.get('writer_representation', 'raw_pages'))
     prefixes = tuple(protocol['training'].get('trainable_prefixes',
                                             ('fast_depth_write_encoders.', 'fast_ports.')))
     flags = {name: p.requires_grad for name, p in model.new_named_parameters()}
@@ -187,23 +253,30 @@ def train_candidate(session, episodes, protocol, report, check):
     count = protocol['training']['examples_per_update']
     if protocol['training']['updates'] * count != len(schedule):
         raise ValueError('Pilot must traverse every training case exactly once')
-    report['training'] = {'updates': [], 'optimizer_initial': optimizer.audit(), 'case_ids': [],
+    report['training'] = {'updates': [], 'optimizer_initial': optimizer.audit(), 'case_ids': [], 'cases': [],
                           'parameter_audit': model.parameter_audit(),
                           'trainable_prefixes': list(prefixes), 'evidence_gate': gate}
     model.train()
     for update in range(protocol['training']['updates']):
         optimizer.zero_grad(set_to_none=True)
         losses, kls = [], []
-        gate_off = 0
+        update_cases = []
+        backward_calls = 0
         for episode, case in schedule[update*count:(update+1)*count]:
-            memory = initialize(model, tokenizer, episode, training=True, reference=reference)
+            memory = initialize(model, tokenizer, episode, training=True, reference=reference,
+                                writer_representation=writer_representation)
             if case['stage'] == 'corrected':
                 if reference is not None:
                     reference.correct_episode(episode)
-                memory.append(f"{episode['episode_id']}:correction", episode['correction_observation'])
+                _append_source(memory, f"{episode['episode_id']}:correction",
+                               episode['correction_observation'], writer_representation,
+                               fact=episode['correction'], correction=True)
             evidence = reference.select(case['query'], case_scope(case)) if gate else None
-            arguments = request_args(session, case, memory.read(), evidence=evidence,
-                                     exact_mode=reference is not None)
+            fast_read = memory.read()
+            route = route_metadata(fast_read, evidence)
+            route.update(case_id=case['case_id'], update=update + 1, backward_called=False)
+            arguments = request_args(session, case, fast_read, evidence=evidence,
+                                     exact_mode=reference is not None, reference=reference)
             prefix = arguments['prompt_ids']
             target = tokenizer(case['expected_answer'], add_special_tokens=False)['input_ids'] + [tokenizer.eos_token_id]
             if len(target) > 8:
@@ -212,7 +285,8 @@ def train_candidate(session, episodes, protocol, report, check):
             labels = ids.clone(); labels[:, :prefix.shape[1]] = -100
             teacher = None
             if case['kind'] == 'general':
-                teacher_args = request_args(session, case, exact_mode=reference is not None)
+                teacher_args = request_args(session, case, exact_mode=reference is not None,
+                                            reference=reference)
                 with torch.no_grad(), session.training_request(**teacher_args) as request:
                     out = session.forward(request, ids, labels=labels)
                     teacher = out.logits[:, prefix.shape[1]-1:-1].detach().softmax(-1)
@@ -228,22 +302,42 @@ def train_candidate(session, episodes, protocol, report, check):
                     raise FloatingPointError('Nonfinite loss')
                 losses.append(float(loss.detach())); kls.append(float(kd.detach()))
                 if not loss.requires_grad:
-                    if evidence is None or evidence.enabled:
-                        raise RuntimeError('A gate-on training example has no differentiable path')
-                    gate_off += 1
+                    if route['route'] != 'disabled':
+                        raise RuntimeError('A memory-route training example has no differentiable path')
                 else:
                     session.backward(request, loss / count)
+                    route['backward_called'] = True
+                    backward_calls += 1
             report['training']['case_ids'].append(case['case_id'])
+            report['training']['cases'].append(route)
+            update_cases.append(route)
             del memory, out, loss, kd, teacher
             check()
         gradient = model.gradient_audit() if update in (0, 1) else None
         torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], 1.0, error_if_nonfinite=True)
         optimizer.step(); optimizer.zero_grad(set_to_none=True)
         report['optimizer_updates'] += 1
-        report['training']['updates'].append({'update': update+1, 'mean_loss': sum(losses)/count,
-                                              'mean_preservation_kl': sum(kls)/count, 'gradients': gradient,
-                                              'gate_off_examples': gate_off})
+        route_counts = {name: sum(item['route'] == name for item in update_cases)
+                        for name in sorted({item['route'] for item in update_cases})}
+        report['training']['updates'].append({
+            'update': update+1, 'mean_loss': sum(losses)/count,
+            'mean_preservation_kl': sum(kls)/count, 'gradients': gradient,
+            'gradient_participation': ({'scope': 'accumulated_update', 'audit': gradient}
+                                       if gradient is not None else None),
+            'scheduled_examples': len(update_cases),
+            'memory_active_examples': sum(item['memory_active'] for item in update_cases),
+            'backward_calls': backward_calls,
+            'gate_off_examples': sum(item['route'] == 'disabled' for item in update_cases),
+            'gate_on_examples': sum(item['route'] == 'fast' for item in update_cases),
+            'route_counts': route_counts})
         print(json.dumps({'phase': 'training', 'update': update+1, 'mean_loss': sum(losses)/count}), flush=True)
+        if protocol['training'].get('require_gradient_probe', False) and update == 1:
+            expected = set(protocol['training'].get('expected_trainable_tensors', ()))
+            if not expected:
+                expected = {name for name, parameter in model.new_named_parameters()
+                            if parameter.requires_grad}
+            if not set(gradient['new']['nonzero']) & expected:
+                raise RuntimeError('Backward-only gradient probe found no declared trainable gradient')
     report['training']['optimizer_final'] = optimizer.audit()
     del optimizer
     for name, p in model.new_named_parameters():
@@ -272,8 +366,13 @@ def execute(args, profiler, report):
     path = ROOT / protocol['dataset']['path']
     if sha(path) != protocol['dataset']['sha256']:
         raise ValueError('Dataset changed')
+    manifest_sha256 = protocol['dataset'].get('manifest_sha256')
+    if manifest_sha256 is not None and sha(path.with_name('manifest.json')) != manifest_sha256:
+        raise ValueError('Dataset manifest changed')
     episodes = json.loads(path.read_text()); report['dataset_audit'] = audit_dataset(
-        episodes, require_novel_values=protocol['dataset'].get('require_novel_values', False))
+        episodes, require_novel_values=protocol['dataset'].get('require_novel_values', False),
+        general_oracle=protocol['dataset'].get('general_oracle'),
+        min_unique_general=protocol['dataset'].get('min_unique_general', 0))
     report['implementation_sha256'] = protocol['implementation_sha256']
     started = time.monotonic()
     def check():
@@ -290,10 +389,14 @@ def execute(args, profiler, report):
     if protocol.get('exact_reference', {}).get('enabled', False):
         from replica_lab.runtime.exact_memory import ExactMemoryReference
         reference = ExactMemoryReference(ledger)
+    writer_representation = _validate_writer_representation(
+        protocol.get('writer_representation', 'raw_pages'))
+    report['writer_representation'] = writer_representation
     evaluation_options = {
         'reference': reference,
         'gate': protocol.get('evidence_gate', {}).get('enabled', False),
-        'adversarial_text': protocol.get('evaluation', {}).get('adversarial_observation')}
+        'adversarial_text': protocol.get('evaluation', {}).get('adversarial_observation'),
+        'writer_representation': writer_representation}
     parent_arms = tuple(protocol.get('evaluation_arms', {}).get('parent', ('fast', 'disabled')))
     candidate_arms = tuple(protocol.get('evaluation_arms', {}).get(
         'candidate', ('fast', 'disabled', 'shuffled', 'last_chunk', 'full_context')))
@@ -304,6 +407,8 @@ def execute(args, profiler, report):
             previous = json.loads(previous_path.read_text())
             if previous['status'] != 'completed' or previous['protocol_sha256'] != sha(args.protocol):
                 raise ValueError('Restart evidence does not match protocol')
+            if previous.get('writer_representation', 'raw_pages') != writer_representation:
+                raise ValueError('Restart writer representation differs')
             candidate_path = (ROOT / protocol['candidate_extension'] if protocol.get('evaluation_only', False)
                               else args.restart_run / 'candidate_extension')
             receipt = model.load_extension(candidate_path)
@@ -323,13 +428,13 @@ def execute(args, profiler, report):
             for q in cases(episode, 'corrected'):
                 evidence = reference.select(q['query'], case_scope(q)) if evaluation_options['gate'] else None
                 report['answers'].append(infer(session, q, memory.read(), evidence=evidence,
-                                               exact_mode=reference is not None)); check()
+                                               exact_mode=reference is not None, reference=reference)); check()
             reference_rows = {r['case_id']: r for r in previous['candidate']
                               if r['arm'] == protocol.get('primary_fast_arm', 'fast')}
             report['checks'] = {
                 'state_equal': memory.read().state_digest == transition['corrected_digest'],
                 'tokens_equal': all(r['token_ids'] == reference_rows[r['case_id']]['token_ids'] for r in report['answers']),
-                'lineage_count': len(memory.lineage) == 3,
+                'lineage_count': len(memory.lineage) == protocol.get('state_lineage', {}).get('corrected_cursor', 3),
                 'source_view_equal': (memory.source_binding is not None
                                       and memory.source_binding['view_digest'] == source_view_digest
                                       if reference is not None else True)}

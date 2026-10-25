@@ -63,6 +63,27 @@ class PersistentFastMemory:
         # Any successful append invalidates the previous current-view binding.
         self.source_binding = None
 
+    def append_fact(self, event_id, fact, *, correction=False):
+        """Append one observed structured fact using explicit key/value writes."""
+        from .fact_memory import encode_fact_binding, fact_source_text
+        self._check_producer()
+        if self.state.chunk_index >= self.config.max_chunks:
+            raise ValueError('Persistent chunk quota exceeded')
+        if not isinstance(event_id, str) or not event_id or event_id in {x[0] for x in self.lineage}:
+            raise ValueError('Observation event IDs must be fresh')
+        text = fact_source_text(fact, correction=correction)
+        ids = self.tokenizer(text, add_special_tokens=False)['input_ids']
+        if not ids or len(ids) > self.config.max_tokens_per_chunk:
+            raise ValueError('Fact observation must fit without silent truncation')
+        with torch.set_grad_enabled(self.training):
+            proposals = {layer: (replace(encode_fact_binding(
+                self.model, self.tokenizer, fact, layer=layer),
+                chunk_index=self.state.chunk_index),)
+                         for layer in self.model.ports.injection_layers}
+            self.state = self.primitive.reduce_shared_chunk(self.state, proposals)
+        self.lineage.append((event_id, hashlib.sha256(text.encode()).hexdigest()))
+        self.source_binding = None
+
     def rebuild(self, records):
         """Replace derived state only from an explicitly supplied current view.
 

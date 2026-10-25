@@ -24,7 +24,7 @@ def parse_host_readings(swap_text: str, pressure_text: str) -> dict:
 
 @dataclass(frozen=True)
 class CapacityPolicy:
-    driver_limit_bytes: int = 40 * 1024**3
+    driver_limit_bytes: int = 50 * 1024**3
     swap_growth_limit_bytes: int = 512 * 1024**2
     minimum_free_percent: float = 15.0
     sustained_host_samples: int = 3

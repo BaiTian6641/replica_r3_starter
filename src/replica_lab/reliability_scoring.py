@@ -27,6 +27,88 @@ def _gate_contexts(episodes):
     finally:
         reference.close()
 
+def _training_gate_contexts(episodes):
+    from .memory_system import RecordLedger
+    from .runtime.exact_memory import ExactMemoryReference
+    reference = ExactMemoryReference(RecordLedger(':memory:'))
+    try:
+        for episode in episodes:
+            if episode['split'] == 'train':
+                reference.admit_episode(episode)
+                reference.correct_episode(episode)
+        return {case['case_id']: reference.select(case['query'], _case_scope(case))
+                for episode in episodes if episode['split'] == 'train'
+                for stage in ('initial', 'corrected') for case in cases(episode, stage)}
+    finally:
+        reference.close()
+
+
+def validate_training_routes(report, episodes, protocol):
+    """Replay route/state/backward accounting from dataset and declared gate.
+
+    Gradient audits are update-level accumulated evidence only; this function
+    deliberately makes no per-example gradient-attribution claim.
+    """
+    training = report['training']
+    rows = training.get('cases')
+    if not isinstance(rows, list):
+        raise ValueError('Per-example training route records are required')
+    expected = {case['case_id']: case for episode in episodes if episode['split'] == 'train'
+                for stage in ('initial', 'corrected') for case in cases(episode, stage)}
+    if len(rows) != len(expected) or {row.get('case_id') for row in rows} != set(expected):
+        raise ValueError('Training route inventory differs from scheduled cases')
+    gated = (protocol.get('evidence_gate', {}).get('enabled', False)
+             and protocol.get('exact_reference', {}).get('enabled', False))
+    contexts = _training_gate_contexts(episodes) if gated else {}
+    expected_routes = {}
+    for case_id, case in expected.items():
+        expected_routes[case_id] = ('fast' if not gated or contexts[case_id].enabled else 'disabled')
+    totals = {'fast': 0, 'disabled': 0}
+    for row in rows:
+        if not isinstance(row.get('update'), int) or not 1 <= row['update'] <= protocol['training']['updates']:
+            raise ValueError('Invalid training route update index')
+        if (row.get('route') not in {'fast', 'disabled'}
+                or row.get('state_use') not in {'fast', 'none'}
+                or type(row.get('memory_active')) is not bool
+                or type(row.get('backward_called')) is not bool):
+            raise ValueError('Malformed training route record')
+        route = expected_routes[row['case_id']]
+        if row['route'] != route:
+            raise ValueError('Training route differs from independently reconstructed gate')
+        if row['state_use'] != ('fast' if route == 'fast' else 'none'):
+            raise ValueError('Training state-use flag differs from route')
+        if row['memory_active'] != (route == 'fast'):
+            raise ValueError('Training memory-active flag differs from route')
+        if row['backward_called'] != (route == 'fast'):
+            raise ValueError('Backward-call accounting differs from differentiable route')
+        totals[route] += 1
+    for update in training['updates']:
+        index = update.get('update')
+        scheduled = [row for row in rows if row['update'] == index]
+        counts = {route: sum(row['route'] == route for row in scheduled) for route in ('fast', 'disabled')}
+        counts = {route: count for route, count in counts.items() if count}
+        if (update.get('scheduled_examples') != len(scheduled)
+                or update.get('memory_active_examples') != counts.get('fast', 0)
+                or update.get('backward_calls') != sum(row['backward_called'] for row in scheduled)
+                or update.get('gate_off_examples') != counts.get('disabled', 0)
+                or update.get('gate_on_examples') != counts.get('fast', 0)
+                or update.get('route_counts') != counts):
+            raise ValueError('Per-update route counters differ from per-example records')
+        participation = update.get('gradient_participation')
+        if index in (1, 2):
+            if (not isinstance(participation, dict)
+                    or participation.get('scope') != 'accumulated_update'
+                    or participation.get('audit') != update.get('gradients')):
+                raise ValueError('Update-level gradient participation audit is missing')
+    expected_counts = protocol['training'].get('expected_route_counts')
+    if expected_counts is not None and totals != expected_counts:
+        raise ValueError('Training route totals differ from protocol declaration')
+    return {'examples': len(rows), 'route_counts': totals,
+            'memory_active_examples': totals['fast'],
+            'backward_calls': sum(row['backward_called'] for row in rows),
+            'updates_checked': len(training['updates']),
+            'gradient_attribution': 'update_level_accumulated_only'}
+
 
 def regression_inventory(report, episodes, decode, primary='fast'):
     """List each parent-disabled-correct to candidate-primary-wrong case."""
@@ -125,9 +207,13 @@ def metrics_and_checks(report, episodes, decode, protocol=None):
         verified['parent']['disabled'][cid]['token_ids'] == verified['candidate']['disabled'][cid]['token_ids']
         for cid in expected)
     transitions = report['transitions']
+    lineage = protocol.get('state_lineage', {})
+    initial_cursor = lineage.get('initial_cursor', 2)
+    corrected_cursor = lineage.get('corrected_cursor', 3)
     checks['persistent_correction_lineage'] = (
         len(transitions) == sum(e['split'] != 'train' for e in episodes)
-        and all(t['lineage_prefix_preserved'] and t['initial_cursor'] == 2 and t['corrected_cursor'] == 3
+        and all(t['lineage_prefix_preserved'] and t['initial_cursor'] == initial_cursor
+                and t['corrected_cursor'] == corrected_cursor
                 and t['reloaded_before_append'] and not t['source_reencoded_on_reload']
                 and t['initial_digest'] != t['corrected_digest'] for t in transitions))
     if protocol.get('exact_reference', {}).get('enabled', False):
@@ -160,8 +246,14 @@ def metrics_and_checks(report, episodes, decode, protocol=None):
         reference_regressions = [cid for cid in expected
                                  if full_rows[cid]['correct'] and not reference_rows[cid]['correct']]
         checks['reference_all_cases_correct'] = all(row['correct'] for row in reference_rows.values())
-        checks['reference_full_context_parity'] = all(
-            reference_rows[cid]['correct'] == full_rows[cid]['correct'] for cid in expected)
+        reference_mode = protocol.get('reference_mode', 'parity')
+        if reference_mode not in {'parity', 'non_regression'}:
+            raise ValueError('Unknown reference acceptance mode')
+        if reference_mode == 'parity':
+            checks['reference_full_context_parity'] = all(
+                reference_rows[cid]['correct'] == full_rows[cid]['correct'] for cid in expected)
+        else:
+            checks['reference_full_context_non_regression'] = not reference_regressions
         checks['reference_no_correct_to_wrong'] = not reference_regressions
         checks['reference_off_disabled_parity'] = all(
             row['token_ids'] == verified['candidate']['disabled'][cid]['token_ids']

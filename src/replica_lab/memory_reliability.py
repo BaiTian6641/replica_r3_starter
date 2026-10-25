@@ -12,6 +12,51 @@ GENERAL = {'train': [('What is 2 plus 3?', '5'), ('What is 8 minus 2?', '6')],
            'dev': [('What is 3 plus 4?', '7'), ('What is 9 minus 5?', '4')],
            'heldout': [('What is 7 plus 8?', '15'), ('What is 9 minus 3?', '6')]}
 
+# Prospective retention pool: arithmetic, factual, abbreviation and relational
+# questions. It is opt-in so historical datasets and verdicts stay unchanged.
+GENERAL_V2 = {
+    'train': [('What is 12 plus 7?', '19'), ('What is 15 minus 4?', '11'),
+              ('What color is cobalt?', 'blue'), ('What is the capital of France?', 'Paris'),
+              ('What does HTTP stand for?', 'Hypertext Transfer Protocol'),
+              ('What is 6 times 3?', '18'), ('What is the opposite of hot?', 'cold'),
+              ('How many days are in a week?', '7')],
+    'dev': [('What is 11 plus 6?', '17'), ('What is 14 minus 5?', '9'),
+            ('What color is saffron?', 'yellow'), ('What is the capital of Japan?', 'Tokyo'),
+            ('What does CPU stand for?', 'central processing unit'),
+            ('What is 5 times 4?', '20'), ('What is the opposite of cold?', 'hot'),
+            ('How many hours are in a day?', '24')],
+    'heldout': [('What is 13 plus 8?', '21'), ('What is 16 minus 7?', '9'),
+                ('What color is violet?', 'purple'), ('What is the capital of Canada?', 'Ottawa'),
+                ('What does RAM stand for?', 'random access memory'),
+                ('What is 7 times 2?', '14'), ('What is the opposite of light?', 'dark'),
+                ('How many minutes are in an hour?', '60')],
+}
+
+
+def _general_selection(split, family, oracle=None):
+    custom = oracle is not None
+    if isinstance(oracle, str):
+        if oracle != 'general_v2':
+            raise ValueError('Unknown general-question oracle')
+        oracle = GENERAL_V2
+    pools = GENERAL if oracle is None else oracle
+    if split not in pools:
+        raise ValueError('Missing general-question split')
+    pool = [tuple(item) for item in pools[split]]
+    if len(pool) < 2 or any(len(item) != 2 or not all(isinstance(x, str) and x.strip() for x in item)
+                            for item in pool):
+        raise ValueError('General-question pool must contain nonempty query/answer pairs')
+    if len({item[0] for item in pool}) != len(pool):
+        raise ValueError('Duplicate general-question text')
+    if not custom:
+        return pool
+    try:
+        index = int(family)
+    except (TypeError, ValueError) as exc:
+        raise ValueError('Custom general pools require numeric family indices') from exc
+    start = (index * 2) % len(pool)
+    return [pool[start], pool[(start + 1) % len(pool)]]
+
 
 def render_fact_query(entity, attribute, form=0):
     templates = (
@@ -25,7 +70,7 @@ def render_fact_query(entity, attribute, form=0):
 
 
 def build_episodes(seed=20261024, family_plan=None, values_by_split=None, query_forms=False,
-                   distractor_values_by_split=None):
+                   distractor_values_by_split=None, general_by_split=None):
     rng = random.Random(seed)
     episodes = []
     if family_plan is None:
@@ -65,7 +110,7 @@ def build_episodes(seed=20261024, family_plan=None, values_by_split=None, query_
                     unknown['query_form'] = unknown_form
                 questions.append(unknown)
                 general = [{'query_id': f'g{i}', 'query': text, 'expected_answer': answer, 'kind': 'general'}
-                           for i, (text, answer) in enumerate(GENERAL[split])]
+                           for i, (text, answer) in enumerate(_general_selection(split, family, general_by_split))]
                 episodes.append({'episode_id': eid, 'family_id': f'family_{family}', 'split': split,
                                  'variant': variant, 'facts': facts, 'distractors': distractors,
                                  'observations': pages, 'correction': changed,
@@ -97,10 +142,12 @@ def cases(episode, stage):
                        'observations': episode['observations'] + ([episode['correction_observation']] if stage == 'corrected' else [])})
     return result
 
-
-def audit_dataset(episodes, require_novel_values=False):
+def audit_dataset(episodes, require_novel_values=False, general_oracle=None, min_unique_general=0):
     if len({e['episode_id'] for e in episodes}) != len(episodes):
         raise ValueError('Duplicate episode')
+    if type(min_unique_general) is not int or min_unique_general < 0:
+        raise ValueError('Minimum unique general-question count must be nonnegative')
+    general_queries = defaultdict(set)
     families, answers, variants = defaultdict(set), defaultdict(list), defaultdict(list)
     query_texts = defaultdict(set)
     last_correct = first_correct = total = 0
@@ -139,8 +186,13 @@ def audit_dataset(episodes, require_novel_values=False):
                 raise ValueError('Query text or absent-fact oracle differs')
         for q in e['questions'] + e['general_questions']:
             query_texts[(e['family_id'], q['query_id'])].add(q['query'])
-        if [(q['query'], q['expected_answer']) for q in e['general_questions']] != GENERAL[e['split']]:
+        if any(q.get('kind') != 'general' for q in e['general_questions']):
+            raise ValueError('General-question kind differs')
+        expected_general = _general_selection(
+            e['split'], e['family_id'].rsplit('_', 1)[-1], general_oracle)
+        if [(q['query'], q['expected_answer']) for q in e['general_questions']] != expected_general:
             raise ValueError('General-answer oracle differs')
+        general_queries[e['split']].update(q['query'] for q in e['general_questions'])
         for q in cases(e, 'initial'):
             if q['kind'] != 'fact':
                 continue
@@ -166,10 +218,16 @@ def audit_dataset(episodes, require_novel_values=False):
                         for f in e['facts'] + e['distractors'] + [e['correction']]}
         if heldout_values & prior_values:
             raise ValueError('Heldout values overlap training or development values')
+    unique_general_by_split = {split: len(general_queries[split]) for split in ('train', 'dev', 'heldout')}
+    unique_general = len(general_queries['dev'] | general_queries['heldout'])
+    if unique_general < min_unique_general:
+        raise ValueError('Insufficient unique evaluation general questions')
     return {'episodes': len(episodes), 'families': len(families), 'fact_queries': total,
             'first_line_accuracy': first_correct / total, 'last_line_accuracy': last_correct / total,
             'query_only_best_accuracy': query_only, 'counterfactual_pairs': len(answers),
             'family_splits_disjoint': True, 'rendered_oracle_verified': True,
+            'unique_general_questions': unique_general,
+            'unique_general_questions_by_split': unique_general_by_split,
             'split_episodes': dict(Counter(e['split'] for e in episodes)),
             'split_families': {split: len({e['family_id'] for e in episodes if e['split'] == split})
                                for split in ('train', 'dev', 'heldout')},

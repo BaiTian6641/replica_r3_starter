@@ -1,11 +1,11 @@
 """Durable exact-record reference and query/evidence coverage gating.
-
 The RecordLedger remains the source of truth. Fast tensors are derived state,
 never a second authoritative store. Query routing uses only query text and
 eligible record text; split, case role, expected answers and audit labels are
 not accepted by this module.
 """
 from __future__ import annotations
+import hashlib
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -179,15 +179,56 @@ class ExactMemoryReference:
         return ExactContext(selection, tuple(unique), tuple(spans), status, reason,
                             _digest(scope, selection.epoch, selection.records), duplicates)
 
-    def verify_context(self, context):
+    def verify_context(self, context, *, query=None):
+        """Authenticate the exact payload, not only its retrieval receipt."""
         if not isinstance(context, ExactContext):
             raise TypeError('Expected ExactContext')
+        if query is not None and context.selection.query != query:
+            raise ValueError('Exact context query differs from the consumer query')
+        if not isinstance(context.selection.query, str) or not context.selection.query.strip():
+            raise ValueError('Exact context query is empty')
         self.index.verify_selection(context.selection,
                                     expected_scope=context.selection.scope)
         expected = _digest(context.selection.scope, context.selection.epoch,
                            context.selection.records)
         if expected != context.view_digest:
             raise ValueError('Exact context view digest differs')
+        if context.status not in {'relevant', 'no_evidence', 'conflict'}:
+            raise ValueError('Unknown exact-context status')
+        if not isinstance(context.reason, str) or not context.reason.strip():
+            raise ValueError('Exact-context status reason is missing')
+        if context.status != 'relevant':
+            if context.records or context.spans:
+                raise ValueError('Disabled exact context carries consumed evidence')
+            return True
+        if not context.records or len(context.records) != len(context.spans):
+            raise ValueError('Relevant exact context requires one span per record')
+        if type(context.duplicates_removed) is not int or context.duplicates_removed < 0:
+            raise ValueError('Invalid exact-context duplicate count')
+        selected = {record.record_id: record for record in context.selection.records}
+        if len(selected) != len(context.selection.records):
+            raise ValueError('Duplicate selected record identifier')
+        consumed_ids = []
+        for record, span in zip(context.records, context.spans):
+            if record.record_id not in selected or record != selected[record.record_id]:
+                raise ValueError('Consumed record is substituted or ineligible')
+            if record.record_id in consumed_ids:
+                raise ValueError('Duplicate consumed record')
+            consumed_ids.append(record.record_id)
+            if span.record_id != record.record_id:
+                raise ValueError('Span and record identifiers differ')
+            if span.start != 0 or span.end != len(record.text) or span.text != record.text:
+                raise ValueError('Span offsets or text differ from the consumed record')
+            if span.record_hash != record.record_hash or span.source_hash != record.source_hash:
+                raise ValueError('Span provenance hash differs')
+            if span.span_hash != hashlib.sha256(span.text.encode()).hexdigest():
+                raise ValueError('Span content hash differs')
+            if span.epoch != context.selection.epoch:
+                raise ValueError('Span epoch differs from selection epoch')
+        if consumed_ids != [record.record_id for record in context.records]:
+            raise ValueError('Consumed record inventory differs')
+        if context.duplicates_removed > len(context.selection.records) - len(consumed_ids):
+            raise ValueError('Duplicate count exceeds selected inventory')
         return True
 
     @classmethod
