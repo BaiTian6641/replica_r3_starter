@@ -1,0 +1,56 @@
+{
+  "format": "replica.memory_contract_repairs.v1",
+  "parent_review_commit": "7c7018e",
+  "baseline_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "native_jobs": 0,
+  "policy": {
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3
+  },
+  "scope": [
+    "caller_bound_canonical_context",
+    "seeded_ordered_update_and_case_schedule",
+    "versioned_history_replay_and_current_view_rebuild",
+    "explicit_read_only_legacy_and_observation_reencode"
+  ],
+  "representations": [
+    "raw_observation.v1",
+    "fact_binding_key_value.v1"
+  ],
+  "historical_quality_decision": "reject_unchanged",
+  "implementation_sha256": {
+    "src/replica_lab/runtime/exact_memory.py": "22d94a0e08195df8b7f9a7e5f005543807a8a0b21373cc688d2e62b6220c2bf1",
+    "src/replica_lab/reliability_scoring.py": "2be2b34dbd0b13b2cb2bbd4c1706d2d8b7aca6f93060fce7d33be6ba138f4905",
+    "src/replica_lab/memory_reliability.py": "b43809dc96d9ac4b11f57f1cc3f722730a04f36c2062aebbc106a69047e9ce1a",
+    "src/replica_lab/runtime/persistent_fast_memory.py": "4861c5a6d281882e8b89ade918a80ee2116f1fd60a079b0617ca5f9ff32abbed",
+    "src/replica_lab/runtime/memory_representation.py": "6f8d24607ceafd74918dc21747e0a6151b5d301e1df9638c86e1ffc7b73dfda1",
+    "src/replica_lab/architecture/contracts.py": "ba9332776363f9482db354603f0d8f8a821148fc12f83f03e2d3782540a158d8",
+    "scripts/run_memory_reliability.py": "168129549acf9b49b85ee8c56fe1cc3774c3ec96738f50649badeac5051d713b",
+    "scripts/score_memory_reliability.py": "a1e4179009efbc7a39e839e7bb49713c8f8fdf7f4991f38252ab5c91c4ac2fb1",
+    "tests/test_exact_context_consumer.py": "0d439e1731bc78b6f183305f3f32adf1945e3fd52b640204c5e76e12b8648a39",
+    "tests/test_training_schedule_audit.py": "a3b889663671840b899bb336fd8a4e9cc6a06732d383eac1a39bb5d049d248d4",
+    "tests/test_persistent_representation.py": "cda185178fc060eeb472d2124eb667b277e77dc6c8ffe6ae8e7aa468f9c57d51",
+    "tests/test_exact_memory.py": "724c63a914d9bcfc084e5fb42b13581eec564356d44c9ab81df547b6aec28bf6",
+    "tests/test_memory_reliability.py": "a952ba076928a3765f9b2c2ac769c7180f080e2cefe6487a26c421ff8dbff289",
+    "tests/test_memory_reliability_v5.py": "9a2c19d2822b2629de916f7e75ec1232160cd1c3e23382a855aceb3d63e27359",
+    "tests/test_fact_memory.py": "05b55ffc177f1cfef94ccb589eb292278410122df0478846b6d94df51d500af3"
+  },
+  "verification": {
+    "integrated_tests_passed": 140,
+    "seconds": 27.59,
+    "historical_v5_schedule": {
+      "updates": 48,
+      "cases": 192,
+      "fast": 128,
+      "disabled": 64,
+      "backward_calls": 192,
+      "disabled_backward_calls": 64
+    },
+    "full_suite": "historical 1311 +21 subtests; not re-executed for this package yet",
+    "fresh_process_smoke": "reports/memory_contract_repairs_20261025/smoke.json",
+    "fresh_process_smoke_sha256": "7e3cb13a24d424d0f6397c3a9d25d0a95177c216676b068aafaa2ddad7aa1e27"
+  },
+  "source_export": "must validate after source commit; no native vision admission before that gate"
+}

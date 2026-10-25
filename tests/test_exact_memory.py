@@ -11,7 +11,8 @@ from architecture_helpers import tiny_adapter
 from replica_lab.architecture.contracts import FastMemorySpec
 from replica_lab.memory_reliability import build_episodes, cases
 from replica_lab.memory_system import EligibilityScope, MemoryRecord, RecordLedger
-from replica_lab.runtime.exact_memory import ExactMemoryReference, episode_records
+from replica_lab.runtime.exact_memory import (EXACT_SELECTION_LIMIT, EXACT_SELECTION_POLICY,
+                                              ExactMemoryReference, episode_records)
 from replica_lab.runtime.fast_memory import FastMemoryScope
 from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
 
@@ -83,15 +84,17 @@ def test_stale_views_duplicates_conflicts_scope_and_metadata_are_checked(tmp_pat
     try:
         case = cases(episode, 'initial')[0]
         old = ref.select(case['query'], scope(episode))
-        assert ref.verify_context(old)
+        consumer = dict(expected_scope=scope(episode), query=case['query'],
+                        policy=EXACT_SELECTION_POLICY, limit=EXACT_SELECTION_LIMIT)
+        assert ref.verify_context(old, **consumer)
         with pytest.raises(ValueError, match='query'):
-            ref.verify_context(old, query='a different authorized query')
+            ref.verify_context(old, **dict(consumer, query='a different authorized query'))
         substituted = replace(old.records[0], text='substituted source text')
         with pytest.raises(ValueError, match='substituted|ineligible'):
-            ref.verify_context(replace(old, records=(substituted,)))
+            ref.verify_context(replace(old, records=(substituted,)), **consumer)
         altered_span = replace(old.spans[0], text='altered span')
         with pytest.raises(ValueError, match='offsets|text|hash'):
-            ref.verify_context(replace(old, spans=(altered_span,)))
+            ref.verify_context(replace(old, spans=(altered_span,)), **consumer)
         # Audit-only metadata cannot enter the query/evidence gate.
         changed_metadata = dict(case, split='train', case_role='audit', kind='general', expected_answer='wrong')
         assert ref.select(changed_metadata['query'], scope(episode)).metadata() == old.metadata()
@@ -107,7 +110,7 @@ def test_stale_views_duplicates_conflicts_scope_and_metadata_are_checked(tmp_pat
         conflict = ref.select(case['query'], scope(episode))
         assert conflict.status == 'conflict' and not conflict.enabled and conflict.text == ''
         with pytest.raises(ValueError, match='stale'):
-            ref.verify_context(old)
+            ref.verify_context(old, **consumer)
         wrong = ref.select(case['query'], replace(scope(episode), branch_id='other'))
         assert not wrong.enabled
     finally:
@@ -158,7 +161,10 @@ def test_revocation_invalidates_descendants_and_permitted_rebuild(tmp_path):
                              authorized_branch=episode['episode_id'])
         assert set(removed) == {correction.supersedes, correction.record_id}
         with pytest.raises(ValueError, match='stale'):
-            ref.verify_context(old)
+            ref.verify_context(
+                old, expected_scope=scope(episode, 'corrected'),
+                query=cases(episode, 'corrected')[0]['query'],
+                policy=EXACT_SELECTION_POLICY, limit=EXACT_SELECTION_LIMIT)
         changed = next(q for q in cases(episode, 'corrected') if q['kind'] == 'changed')
         assert not ref.select(changed['query'], scope(episode, 'corrected')).enabled
         unaffected = next(q for q in cases(episode, 'corrected') if q['kind'] == 'unaffected')
@@ -182,19 +188,21 @@ def test_atomic_source_bound_image_and_stale_view_rejection(tmp_path, monkeypatc
     memory = PersistentFastMemory(model, Tokenizer(), scope_fast)
     memory.append('page0', episode['observations'][0])
     memory.append('page1', episode['observations'][1])
-    memory.bind_source(ref.view(scope(episode)))
+    memory.bind_source(ref, scope=scope(episode))
     target = tmp_path / 'image'
     metadata = memory.save(target, require_source_binding=True)
     assert metadata['source_binding']['epoch'] == ref.ledger.epoch
     loaded = PersistentFastMemory.load(
         target, model, Tokenizer(), scope_fast,
         expected_view_digest=ref.view(scope(episode)).digest,
-        require_source_binding=True)
+        require_source_binding=True, source_reference=ref, source_scope=scope(episode))
     assert loaded.read().state_digest == memory.read().state_digest
     ref.correct_episode(episode)
     with pytest.raises(ValueError, match='stale'):
         PersistentFastMemory.load(target, model, Tokenizer(), scope_fast,
-                                  expected_view_digest=ref.view(scope(episode)).digest)
+                                  expected_view_digest=ref.view(scope(episode)).digest,
+                                  source_reference=ref, source_scope=scope(episode))
+    memory.bind_source(ref, scope=scope(episode))
     # A failed image write never publishes a final or temporary directory.
     import replica_lab.runtime.persistent_fast_memory as module
     def interrupted(*args, **kwargs):
@@ -214,16 +222,19 @@ def test_rebuild_replaces_derived_state_and_requires_new_source_binding(tmp_path
     scope_fast = replace(FAST_SCOPE, branch_id=episode['episode_id'])
     memory = PersistentFastMemory(model, Tokenizer(), scope_fast)
     memory.append('old', 'old page')
-    memory.bind_source(type('View', (), {'ledger_id': 'old', 'epoch': 0, 'digest': '0' * 64})())
-    memory.rebuild(initial)
+    ref = reference(tmp_path, episode)
+    memory.bind_source(ref, scope=scope(episode))
+    memory.rebuild(semantics='current_view', reference=ref, source_scope=scope(episode))
     assert memory.source_binding is None
-    assert [item[0] for item in memory.lineage] == [r.record_id for r in initial]
+    current = ref.view(scope(episode)).records
+    assert [item[0] for item in memory.lineage] == [r.record_id for r in current]
     fresh = PersistentFastMemory(model, Tokenizer(), scope_fast)
-    for record in initial:
+    for record in current:
         fresh.append(record.record_id, record.text)
     assert memory.read().state_digest == fresh.read().state_digest
     with pytest.raises(ValueError, match='Source-bound'):
         memory.save(tmp_path / 'unbound', require_source_binding=True)
+    ref.close()
 
 
 def _runner():
@@ -262,7 +273,8 @@ def test_runner_gate_exact_arms_and_metadata_invariant_tokens(tmp_path):
                               exact_mode=True, reference=reference)
     assert off_selective['route'] == 'disabled' and off_selective['state_use'] == 'none'
     assert not off_selective['memory_active']
-    args = run.request_args(session, general, memory.read(), evidence=off, exact_mode=True)
+    args = run.request_args(session, general, memory.read(), evidence=off, exact_mode=True,
+                            reference=reference)
     disabled = run.request_args(session, general, exact_mode=True)
     assert args['fast_state'] is None
     assert args['enabled_ports'] == ()
@@ -302,6 +314,7 @@ def test_reader_only_training_scope_and_frozen_writer_gradients(tmp_path):
         'exact_reference': {'enabled': True}, 'evidence_gate': {'enabled': True},
         'training': {'lr': .001, 'seed': 20261024, 'examples_per_update': 4,
                      'updates': 24, 'preservation_kl_weight': 1.0,
+                     'schedule_version': 'round_robin_seeded_shuffle.v1', 'repeat_policy': 'once',
                      'trainable_prefixes': prefixes}}
     report = {'optimizer_updates': 0}
     run.train_candidate(session, build_episodes(), protocol, report, lambda: None)
@@ -323,7 +336,7 @@ def test_append_invalidates_existing_source_binding(tmp_path):
     ref = reference(tmp_path, episode)
     model = tiny_adapter(fast_memory=SPEC).eval()
     memory = PersistentFastMemory(model, Tokenizer(), replace(FAST_SCOPE, branch_id=episode['episode_id']))
-    memory.bind_source(ref.view(scope(episode)))
+    memory.bind_source(ref, scope=scope(episode))
     memory.append('new-page', episode['observations'][0])
     assert memory.source_binding is None
     with pytest.raises(ValueError, match='Source-bound'):

@@ -142,6 +142,50 @@ def cases(episode, stage):
                        'observations': episode['observations'] + ([episode['correction_observation']] if stage == 'corrected' else [])})
     return result
 
+
+TRAINING_SCHEDULE_VERSION = 'round_robin_seeded_shuffle.v1'
+TRAINING_REPORT_FORMAT = 'replica.memory_reliability.training.v2'
+HISTORICAL_TRAINING_PROTOCOLS = frozenset(
+    f'replica.memory_reliability.protocol.v{version}' for version in range(1, 6))
+
+
+def training_schedule_contract(protocol):
+    """Resolve only explicitly supported schedules, including recorded v1–v5."""
+    config = protocol['training']
+    historical = protocol.get('format') in HISTORICAL_TRAINING_PROTOCOLS
+    version = config.get('schedule_version')
+    repeat = config.get('repeat_policy')
+    if historical:
+        version = TRAINING_SCHEDULE_VERSION if version is None else version
+        repeat = 'once' if repeat is None else repeat
+    if version != TRAINING_SCHEDULE_VERSION or repeat != 'once':
+        raise ValueError('Unsupported or undeclared training schedule/repeat policy')
+    for name in ('updates', 'examples_per_update'):
+        if type(config.get(name)) is not int or config[name] < 1:
+            raise ValueError(f'Training {name} must be a positive integer')
+    if type(config.get('seed')) is not int:
+        raise ValueError('Training seed must be an integer, excluding booleans')
+    return version, repeat
+
+
+def training_schedule(episodes, protocol):
+    """Reconstruct the declared one-visit round-robin, then seeded shuffle."""
+    training_schedule_contract(protocol)
+    worlds = [(episode, cases(episode, 'initial') + cases(episode, 'corrected'))
+              for episode in episodes if episode['split'] == 'train']
+    if not worlds or any(len(questions) != 12 for _, questions in worlds):
+        raise ValueError('Declared memory schedule requires twelve cases per training world')
+    schedule = [(episode, questions[index]) for index in range(12)
+                for episode, questions in worlds]
+    if len({case['case_id'] for _, case in schedule}) != len(schedule):
+        raise ValueError('Training schedule has duplicate case IDs')
+    config = protocol['training']
+    if config['updates'] * config['examples_per_update'] != len(schedule):
+        raise ValueError('Declared once-only schedule and update budget differ')
+    random.Random(config['seed']).shuffle(schedule)
+    return tuple(schedule)
+
+
 def audit_dataset(episodes, require_novel_values=False, general_oracle=None, min_unique_general=0):
     if len({e['episode_id'] for e in episodes}) != len(episodes):
         raise ValueError('Duplicate episode')

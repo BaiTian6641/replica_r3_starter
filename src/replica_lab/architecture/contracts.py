@@ -289,6 +289,7 @@ class FastMemoryRead:
     producer: str
     state_digest: str
     private_weights: Mapping[int, torch.Tensor] | None = None
+    encoding_identity: str | None = None
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
     def __post_init__(self):
@@ -300,6 +301,10 @@ class FastMemoryRead:
             raise ValueError('fast-memory producer identity required')
         if not isinstance(self.state_digest, str) or not self.state_digest:
             raise ValueError('fast-memory state digest required')
+        if self.encoding_identity is not None and (
+                not isinstance(self.encoding_identity, str) or len(self.encoding_identity) != 64
+                or any(char not in '0123456789abcdef' for char in self.encoding_identity)):
+            raise ValueError('fast-memory encoding identity must be a SHA256')
         if self.private_weights is not None:
             if not isinstance(self.private_weights, Mapping) or not self.private_weights:
                 raise ValueError('private fast weights must be a nonempty layer mapping')
@@ -318,6 +323,12 @@ class FastMemoryRead:
         private = tuple(sorted((layer, tensor_stamp(weights))
                                for layer, weights in (self.private_weights or {}).items()))
         object.__setattr__(self, '_tensor_stamps', (tensor_stamp(self.weights), private))
+
+    @property
+    def cache_key(self):
+        """Never merge states produced by different persistent encodings."""
+        return fingerprint({'producer': self.producer, 'encoding': self.encoding_identity,
+                            'state': self.state_digest})
 
     def for_layer(self, layer: int) -> torch.Tensor:
         if self.private_weights is not None:

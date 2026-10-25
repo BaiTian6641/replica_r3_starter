@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
-import random
 from pathlib import Path
 import sys
 import time
@@ -18,8 +17,11 @@ for key in ('HF_HUB_OFFLINE', 'TRANSFORMERS_OFFLINE', 'HF_DATASETS_OFFLINE'):
 os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '0'
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
-from replica_lab.memory_reliability import TEMPLATE, cases, audit_dataset
+from replica_lab.memory_reliability import (TEMPLATE, TRAINING_REPORT_FORMAT, cases, audit_dataset,
+                                           training_schedule, training_schedule_contract)
 from replica_lab.reliability_scoring import metrics_and_checks, regression_inventory, family_metrics
+from replica_lab.runtime.exact_memory import EXACT_SELECTION_LIMIT, EXACT_SELECTION_POLICY
+from replica_lab.runtime.memory_representation import FACT_REPRESENTATION, RAW_REPRESENTATION
 
 
 def sha(path):
@@ -52,11 +54,16 @@ def route_metadata(read=None, evidence=None, *, selective=False, full=False):
             'state_use': 'fast' if active else 'none', 'memory_active': active}
 
 def request_args(session, case, read=None, full=False, evidence=None, selective=False, exact_mode=False,
-                 reference=None):
+                 reference=None, *, evidence_policy=EXACT_SELECTION_POLICY,
+                 evidence_limit=EXACT_SELECTION_LIMIT):
     from replica_lab.architecture.loading import encode_prompt
     from replica_lab.architecture.contracts import TaskGraph
-    if evidence is not None and reference is not None:
-        reference.verify_context(evidence, query=case['query'])
+    if evidence is not None:
+        if reference is None:
+            raise ValueError('Exact evidence requires its authoritative reference')
+        reference.verify_context(
+            evidence, expected_scope=case_scope(case), query=case['query'],
+            policy=evidence_policy, limit=evidence_limit)
     if selective:
         if evidence is None:
             raise ValueError('Selective exact context requires an evidence selection')
@@ -102,13 +109,13 @@ def infer(session, case, read=None, full=False, evidence=None, selective=False, 
 
 
 def _validate_writer_representation(value):
-    if value not in {'raw_pages', 'fact_binding_key_value'}:
+    if value not in {RAW_REPRESENTATION, FACT_REPRESENTATION}:
         raise ValueError('Unknown writer representation')
     return value
 
 
 def _append_source(memory, event_id, text, representation, *, fact=None, correction=False):
-    if _validate_writer_representation(representation) == 'raw_pages':
+    if _validate_writer_representation(representation) == RAW_REPRESENTATION:
         memory.append(event_id, text)
     else:
         if fact is None:
@@ -117,7 +124,7 @@ def _append_source(memory, event_id, text, representation, *, fact=None, correct
 
 
 def _append_last_source(memory, episode, stage, representation):
-    if representation == 'raw_pages':
+    if representation == RAW_REPRESENTATION:
         memory.append('last_only', episode['observations'][-1] if stage == 'initial'
                       else episode['correction_observation'])
         return
@@ -134,13 +141,14 @@ def _append_last_source(memory, episode, stage, representation):
         memory.append_fact(f'last_only:{index}', fact)
 
 def initialize(model, tokenizer, episode, training=False, reference=None,
-               writer_representation='raw_pages'):
+               writer_representation=RAW_REPRESENTATION):
     from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
     _validate_writer_representation(writer_representation)
     if reference is not None:
         reference.admit_episode(episode)
-    memory = PersistentFastMemory(model, tokenizer, memory_scope(episode), training=training)
-    if writer_representation == 'fact_binding_key_value':
+    memory = PersistentFastMemory(model, tokenizer, memory_scope(episode), training=training,
+                                  representation=writer_representation)
+    if writer_representation == FACT_REPRESENTATION:
         for index, fact in enumerate(episode['facts'] + episode['distractors']):
             memory.append_fact(f"{episode['episode_id']}:fact:{index}", fact)
     else:
@@ -150,7 +158,7 @@ def initialize(model, tokenizer, episode, training=False, reference=None,
 
 
 def evaluate(session, episodes, arms, output=None, check=lambda: None,
-             reference=None, gate=False, adversarial_text=None, writer_representation='raw_pages'):
+             reference=None, gate=False, adversarial_text=None, writer_representation=RAW_REPRESENTATION):
     from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
     from replica_lab.runtime.exact_memory import episode_records
     rows, transitions = [], []
@@ -172,13 +180,13 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                 if output is not None:
                     before = output / episode['episode_id'] / 'before'
                     if reference is not None:
-                        initial_view = reference.view(case_scope(cases(episode, 'initial')[0]))
-                        memory.bind_source(initial_view)
+                        memory.bind_source(reference, scope=case_scope(cases(episode, 'initial')[0]))
                     metadata = memory.save(before, require_source_binding=reference is not None)
                     memory = PersistentFastMemory.load(
                         before, session.adapter, session.tokenizer, memory_scope(episode),
                         expected_view_digest=(metadata.get('source_binding') or {}).get('view_digest'),
-                        require_source_binding=reference is not None)
+                        require_source_binding=reference is not None, representation=writer_representation,
+                        source_reference=reference, source_scope=case_scope(cases(episode, 'initial')[0]))
                     if memory.read().state_digest != initial:
                         raise ValueError('Reload changed initial state')
                 if reference is not None:
@@ -192,8 +200,7 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                 if output is not None:
                     after = output / episode['episode_id'] / 'corrected'
                     if reference is not None:
-                        corrected_view = reference.view(case_scope(cases(episode, 'corrected')[0]))
-                        memory.bind_source(corrected_view)
+                        memory.bind_source(reference, scope=case_scope(cases(episode, 'corrected')[0]))
                     corrected = memory.save(after, require_source_binding=reference is not None)
                     transitions.append({'episode_id': episode['episode_id'], 'initial_digest': initial,
                                         'corrected_digest': memory.read().state_digest, 'image': str(after),
@@ -205,7 +212,8 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                                         'correction_supersedes': (correction_record.supersedes
                                                                   if correction_record is not None else None)})
             read, wrong = memory.read(), shuffled.read()
-            last = PersistentFastMemory(session.adapter, session.tokenizer, memory_scope(episode))
+            last = PersistentFastMemory(session.adapter, session.tokenizer, memory_scope(episode),
+                                        representation=writer_representation)
             _append_last_source(last, episode, stage, writer_representation)
             for case in cases(episode, stage):
                 evidence = reference.select(case['query'], case_scope(case)) if reference is not None else None
@@ -238,7 +246,7 @@ def train_candidate(session, episodes, protocol, report, check):
         reference = ExactMemoryReference(session.ledger)
     gate = protocol.get('evidence_gate', {}).get('enabled', False)
     writer_representation = _validate_writer_representation(
-        protocol.get('writer_representation', 'raw_pages'))
+        protocol.get('writer_representation', RAW_REPRESENTATION))
     prefixes = tuple(protocol['training'].get('trainable_prefixes',
                                             ('fast_depth_write_encoders.', 'fast_ports.')))
     flags = {name: p.requires_grad for name, p in model.new_named_parameters()}
@@ -246,15 +254,13 @@ def train_candidate(session, episodes, protocol, report, check):
         p.requires_grad_(name.startswith(prefixes))
     optimizer = build_optimizer(model, 'muon8bit', lr_base=0.0, lr_new=protocol['training']['lr'],
                                 lr_muon_base=0.0, lr_muon_new=protocol['training']['lr'], weight_decay=0.0)
-    train = [e for e in episodes if e['split'] == 'train']
-    per_episode = [(e, cases(e, 'initial') + cases(e, 'corrected')) for e in train]
-    schedule = [(e, qs[i]) for i in range(12) for e, qs in per_episode]
-    random.Random(protocol['training']['seed']).shuffle(schedule)
+    schedule = training_schedule(episodes, protocol)
+    schedule_version, repeat_policy = training_schedule_contract(protocol)
     count = protocol['training']['examples_per_update']
-    if protocol['training']['updates'] * count != len(schedule):
-        raise ValueError('Pilot must traverse every training case exactly once')
-    report['training'] = {'updates': [], 'optimizer_initial': optimizer.audit(), 'case_ids': [], 'cases': [],
-                          'parameter_audit': model.parameter_audit(),
+    probes = set(protocol['training'].get('gradient_probe_updates', (1, 2)))
+    report['training'] = {'format': TRAINING_REPORT_FORMAT, 'schedule_version': schedule_version,
+                          'repeat_policy': repeat_policy, 'updates': [], 'optimizer_initial': optimizer.audit(),
+                          'case_ids': [], 'cases': [], 'parameter_audit': model.parameter_audit(),
                           'trainable_prefixes': list(prefixes), 'evidence_gate': gate}
     model.train()
     for update in range(protocol['training']['updates']):
@@ -313,7 +319,7 @@ def train_candidate(session, episodes, protocol, report, check):
             update_cases.append(route)
             del memory, out, loss, kd, teacher
             check()
-        gradient = model.gradient_audit() if update in (0, 1) else None
+        gradient = model.gradient_audit() if update + 1 in probes else None
         torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], 1.0, error_if_nonfinite=True)
         optimizer.step(); optimizer.zero_grad(set_to_none=True)
         report['optimizer_updates'] += 1
@@ -383,14 +389,14 @@ def execute(args, profiler, report):
     model, tokenizer, lock = load_local_mps(args.model_path, args.model_lock, profiler=profiler,
         fast_memory=FastMemorySpec(heads=4, key_size=64, value_size=64, update_rule='sgdn2', depth_mode='shared', depth_writers=True))
     report['source_lock'] = lock
-    ledger = RecordLedger(args.output / 'ledger.sqlite')
+    ledger = RecordLedger((args.restart_run if args.restart_run else args.output) / 'ledger.sqlite')
     session = MemorySession(model, tokenizer, ledger, max_candidate_units=64)
     reference = None
     if protocol.get('exact_reference', {}).get('enabled', False):
         from replica_lab.runtime.exact_memory import ExactMemoryReference
         reference = ExactMemoryReference(ledger)
     writer_representation = _validate_writer_representation(
-        protocol.get('writer_representation', 'raw_pages'))
+        protocol.get('writer_representation', RAW_REPRESENTATION))
     report['writer_representation'] = writer_representation
     evaluation_options = {
         'reference': reference,
@@ -407,7 +413,7 @@ def execute(args, profiler, report):
             previous = json.loads(previous_path.read_text())
             if previous['status'] != 'completed' or previous['protocol_sha256'] != sha(args.protocol):
                 raise ValueError('Restart evidence does not match protocol')
-            if previous.get('writer_representation', 'raw_pages') != writer_representation:
+            if previous.get('writer_representation', RAW_REPRESENTATION) != writer_representation:
                 raise ValueError('Restart writer representation differs')
             candidate_path = (ROOT / protocol['candidate_extension'] if protocol.get('evaluation_only', False)
                               else args.restart_run / 'candidate_extension')
@@ -420,7 +426,8 @@ def execute(args, profiler, report):
             memory = PersistentFastMemory.load(
                 Path(transition['image']), model, tokenizer, memory_scope(episode),
                 expected_view_digest=source_view_digest,
-                require_source_binding=reference is not None)
+                require_source_binding=reference is not None, representation=writer_representation,
+                source_reference=reference, source_scope=case_scope(cases(episode, 'corrected')[0]))
             if reference is not None:
                 reference.admit_episode(episode)
                 reference.correct_episode(episode)

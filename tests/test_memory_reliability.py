@@ -171,8 +171,8 @@ def test_persistent_rejects_truncation_and_chunk_exhaustion():
     memory = PersistentFastMemory(model, LongTokenizer(), SCOPE)
     with pytest.raises(ValueError, match='truncation'):
         memory.append('a', 'long')
-    memory.tokenizer = Tokenizer()
-    memory.config = replace(memory.config, max_chunks=1)
+    memory = PersistentFastMemory(model, Tokenizer(), SCOPE,
+                                  config=replace(memory.config, max_chunks=1))
     memory.append('a', 'one')
     with pytest.raises(ValueError, match='quota'):
         memory.append('b', 'two')
@@ -190,7 +190,9 @@ def test_cpu_training_generation_and_checkpoint_producer_smoke(tmp_path):
     session = MemorySession(model, tokenizer, ledger, max_candidate_units=4)
     episodes = build_episodes()
     try:
-        protocol = {'training': {'lr': .001, 'seed': 20261024, 'examples_per_update': 4, 'updates': 24, 'preservation_kl_weight': 1.0}}
+        protocol = {'training': {'lr': .001, 'seed': 20261024, 'examples_per_update': 4,
+                                 'updates': 24, 'preservation_kl_weight': 1.0,
+                                 'schedule_version': 'round_robin_seeded_shuffle.v1', 'repeat_policy': 'once'}}
         report = {'optimizer_updates': 0}
         run.train_candidate(session, episodes, protocol, report, lambda: None)
         assert report['optimizer_updates'] == 24

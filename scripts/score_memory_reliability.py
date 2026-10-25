@@ -70,13 +70,14 @@ def audit_changed_tensors(parent_path, candidate_path, expected_names):
             'unchanged_tensor_count': len(parent) - len(changed)}
 
 
-def audit_images(run, report, episodes, producer, protocol=None):
+def audit_images(run, report, episodes, producer, protocol=None, tokenizer=None):
     from replica_lab.runtime.fast_memory import FastMemoryConfig, FastMemoryScope, load_fast_depth_image
+    from replica_lab.runtime.memory_representation import FACT_REPRESENTATION, RAW_REPRESENTATION
     config = FastMemoryConfig(heads=4, key_size=64, value_size=64, update_rule='sgdn2',
                               max_tokens_per_chunk=256, max_image_bytes=1048576)
     evaluation = [e for e in episodes if e['split'] != 'train']
     representation = (protocol or {}).get('writer_representation', 'raw_pages')
-    if representation not in {'raw_pages', 'fact_binding_key_value'}:
+    if representation not in {'raw_pages', 'fact_binding_key_value', RAW_REPRESENTATION, FACT_REPRESENTATION}:
         raise ValueError('Unknown writer representation in image audit')
     transitions = report['transitions']
     if (len(transitions) != len(evaluation)
@@ -86,7 +87,7 @@ def audit_images(run, report, episodes, producer, protocol=None):
         eid = episode['episode_id']
         transition = next(t for t in transitions if t['episode_id'] == eid)
         scope = FastMemoryScope('memory_reliability', eid, 'reliability', 'parallel_replica', 0)
-        if representation == 'fact_binding_key_value':
+        if representation in {'fact_binding_key_value', FACT_REPRESENTATION}:
             from replica_lab.runtime.fact_memory import fact_source_text
             expected = [(f'{eid}:fact:{i}', hashlib.sha256(fact_source_text(fact).encode()).hexdigest())
                         for i, fact in enumerate(episode['facts'] + episode['distractors'])]
@@ -99,7 +100,31 @@ def audit_images(run, report, episodes, producer, protocol=None):
             path = run / 'images' / eid / directory
             if stage == 'corrected' and Path(transition['image']).resolve() != path.resolve():
                 raise ValueError('Unexpected persisted image path')
-            read, metadata = load_fast_depth_image(path, config=config, scope=scope, producer=producer, device='cpu')
+            image_producer = producer
+            if representation in {RAW_REPRESENTATION, FACT_REPRESENTATION}:
+                from replica_lab.architecture.contracts import fingerprint
+                from replica_lab.architecture.minicpm5 import MiniCPM5Adapter
+                from replica_lab.architecture.ports import SGDN2WriteEncoder
+                from replica_lab.runtime.memory_representation import encoding_dependencies_from_types, encoding_producer
+                from replica_lab.runtime.persistent_fast_memory import read_persistent_manifest
+                if tokenizer is None:
+                    raise ValueError('Versioned persistent audit requires the sealed tokenizer')
+                persistent = read_persistent_manifest(path)
+                lock = json.loads((ROOT / 'configs/minicpm5_sealed_lock.local.json').read_text())
+                tokenizer_digest = fingerprint({key: value for key, value in lock['snapshot_files_sha256'].items()
+                                                if key.startswith(('tokenizer', 'special_tokens', 'chat_template'))})
+                dependencies = encoding_dependencies_from_types(
+                    MiniCPM5Adapter, SGDN2WriteEncoder, tokenizer, tokenizer_digest, representation)
+                image_producer = encoding_producer(producer, representation, dependencies, config)
+                if (persistent['producer'] != image_producer or persistent['model_version'] != producer
+                        or persistent['representation'] != representation
+                        or persistent['dependencies'] != dependencies
+                        or persistent['engine_config'] != config.to_dict()
+                        or [(event['event_id'], event['source_hash']) for event in persistent['events']] != expected):
+                    raise ValueError('Persistent image representation, dependencies or events differ')
+            elif (path / 'persistent_manifest.json').exists():
+                raise ValueError('Historical protocol cannot silently reinterpret a versioned persistent image')
+            read, metadata = load_fast_depth_image(path, config=config, scope=scope, producer=image_producer, device='cpu')
             digest = hashlib.sha256(read.weights.float().numpy().tobytes()).hexdigest()
             if (metadata['lineage'] != [list(item) for item in expected]
                     or not metadata['cursor'] == metadata['chunk_index'] == metadata['update_count'] == len(expected)
@@ -271,7 +296,7 @@ def main():
     metrics, checks = metrics_and_checks(report, episodes, decode, protocol)
     regressions = regression_inventory(report, episodes, decode, protocol.get('primary_fast_arm', 'fast'))
     families = family_metrics(report, episodes, decode)
-    images = audit_images(args.run, report, episodes, producer, protocol)
+    images = audit_images(args.run, report, episodes, producer, protocol, tokenizer=tokenizer)
     if images['images_authenticated'] != protocol['budget']['depth_images']:
         raise ValueError('Depth-image count differs from declared budget')
     guard = audit_guard(args.guard, protocol, args.run)

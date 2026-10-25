@@ -5,7 +5,6 @@ eligible record text; split, case role, expected answers and audit labels are
 not accepted by this module.
 """
 from __future__ import annotations
-import hashlib
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -14,6 +13,9 @@ import re
 from ..architecture.contracts import fingerprint
 from ..memory_system import (EligibilityScope, ExactSpan, MemoryRecord,
                              RecordLedger, RetrievalIndex, RetrievalSelection)
+
+EXACT_SELECTION_POLICY = 'structured-lexical-coverage.v1'
+EXACT_SELECTION_LIMIT = 64
 
 
 _STOPWORDS = frozenset({
@@ -62,6 +64,8 @@ class ExactContext:
     status: str
     reason: str
     view_digest: str
+    selection_policy: str
+    selection_limit: int
     duplicates_removed: int = 0
 
     @property
@@ -82,8 +86,9 @@ class ExactContext:
                 'gate_ledger_id': self.selection.ledger_id,
                 'gate_epoch': self.selection.epoch,
                 'gate_view_digest': self.view_digest,
-                'gate_duplicates_removed': self.duplicates_removed}
-
+                'gate_duplicates_removed': self.duplicates_removed,
+                'gate_selection_policy': self.selection_policy,
+                'gate_selection_limit': self.selection_limit}
 
 class ExactMemoryReference:
     """Authorized exact records, current views and selective context."""
@@ -128,7 +133,13 @@ class ExactMemoryReference:
         return SourceView(snapshot.ledger_id, snapshot.epoch, scope, snapshot.records,
                           _digest(scope, snapshot.epoch, snapshot.records))
 
-    def select(self, query, scope, *, limit=64):
+    def select(self, query, scope, *, policy=EXACT_SELECTION_POLICY, limit=EXACT_SELECTION_LIMIT):
+        if policy != EXACT_SELECTION_POLICY:
+            raise ValueError('Unsupported exact-context selection policy')
+        if not isinstance(scope, EligibilityScope):
+            raise TypeError('Expected an independently derived EligibilityScope')
+        if type(limit) is not int or not 1 <= limit <= 4096:
+            raise ValueError('Exact-context limit must be an integer in 1..4096')
         if not isinstance(query, str) or not query.strip():
             raise ValueError('Evidence gate requires a nonempty query')
         selection = self.index.retrieve(query, **asdict(scope), limit=limit)
@@ -176,59 +187,41 @@ class ExactMemoryReference:
                 spans.append(self.ledger.fetch_exact(
                     record.record_id, **asdict(scope), start=0, end=len(record.text),
                     expected_hash=record.record_hash, expected_epoch=selection.epoch))
-        return ExactContext(selection, tuple(unique), tuple(spans), status, reason,
-                            _digest(scope, selection.epoch, selection.records), duplicates)
+        return ExactContext(
+            selection, tuple(unique), tuple(spans), status, reason,
+            _digest(scope, selection.epoch, selection.records), policy, limit, duplicates)
 
-    def verify_context(self, context, *, query=None):
-        """Authenticate the exact payload, not only its retrieval receipt."""
+    def verify_context(self, context, *, expected_scope, query, policy, limit):
+        """Authenticate the canonical payload against the consumer's contract.
+
+        All expectations come from the caller, never the supplied context.
+        Rebuilding the canonical selection authenticates abstention/conflicts as
+        well as every consumed record, ordering, span and source dependency.
+        """
         if not isinstance(context, ExactContext):
             raise TypeError('Expected ExactContext')
-        if query is not None and context.selection.query != query:
+        if not isinstance(expected_scope, EligibilityScope):
+            raise TypeError('Expected an independently derived EligibilityScope')
+        if context.selection.query != query:
             raise ValueError('Exact context query differs from the consumer query')
-        if not isinstance(context.selection.query, str) or not context.selection.query.strip():
-            raise ValueError('Exact context query is empty')
-        self.index.verify_selection(context.selection,
-                                    expected_scope=context.selection.scope)
-        expected = _digest(context.selection.scope, context.selection.epoch,
-                           context.selection.records)
-        if expected != context.view_digest:
+        if (type(context.selection_limit) is not int
+                or context.selection_policy != policy or context.selection_limit != limit):
+            raise ValueError('Exact context policy or limit differs from the consumer contract')
+        self.index.verify_selection(context.selection, expected_scope=expected_scope)
+        canonical = self.select(query, expected_scope, policy=policy, limit=limit)
+        if context.selection != canonical.selection:
+            raise ValueError('Exact context selection differs from canonical query/policy/limit')
+        if context.status != canonical.status or context.reason != canonical.reason:
+            raise ValueError('Exact context status or reason differs from the canonical route')
+        if context.records != canonical.records:
+            raise ValueError('Consumed record inventory/order is substituted or ineligible')
+        if context.spans != canonical.spans:
+            raise ValueError('Consumed span offsets, text, hashes or epoch differ from canonical sources')
+        if context.view_digest != canonical.view_digest:
             raise ValueError('Exact context view digest differs')
-        if context.status not in {'relevant', 'no_evidence', 'conflict'}:
-            raise ValueError('Unknown exact-context status')
-        if not isinstance(context.reason, str) or not context.reason.strip():
-            raise ValueError('Exact-context status reason is missing')
-        if context.status != 'relevant':
-            if context.records or context.spans:
-                raise ValueError('Disabled exact context carries consumed evidence')
-            return True
-        if not context.records or len(context.records) != len(context.spans):
-            raise ValueError('Relevant exact context requires one span per record')
-        if type(context.duplicates_removed) is not int or context.duplicates_removed < 0:
-            raise ValueError('Invalid exact-context duplicate count')
-        selected = {record.record_id: record for record in context.selection.records}
-        if len(selected) != len(context.selection.records):
-            raise ValueError('Duplicate selected record identifier')
-        consumed_ids = []
-        for record, span in zip(context.records, context.spans):
-            if record.record_id not in selected or record != selected[record.record_id]:
-                raise ValueError('Consumed record is substituted or ineligible')
-            if record.record_id in consumed_ids:
-                raise ValueError('Duplicate consumed record')
-            consumed_ids.append(record.record_id)
-            if span.record_id != record.record_id:
-                raise ValueError('Span and record identifiers differ')
-            if span.start != 0 or span.end != len(record.text) or span.text != record.text:
-                raise ValueError('Span offsets or text differ from the consumed record')
-            if span.record_hash != record.record_hash or span.source_hash != record.source_hash:
-                raise ValueError('Span provenance hash differs')
-            if span.span_hash != hashlib.sha256(span.text.encode()).hexdigest():
-                raise ValueError('Span content hash differs')
-            if span.epoch != context.selection.epoch:
-                raise ValueError('Span epoch differs from selection epoch')
-        if consumed_ids != [record.record_id for record in context.records]:
-            raise ValueError('Consumed record inventory differs')
-        if context.duplicates_removed > len(context.selection.records) - len(consumed_ids):
-            raise ValueError('Duplicate count exceeds selected inventory')
+        if (type(context.duplicates_removed) is not int
+                or context.duplicates_removed != canonical.duplicates_removed):
+            raise ValueError('Exact context duplicate count differs from canonical inventory')
         return True
 
     @classmethod

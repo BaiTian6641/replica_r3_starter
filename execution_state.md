@@ -1,10 +1,11 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current work — v5 fact-binding writer repair completed and rejected.** Evidence
-through `36c3c0a`; see the [experiment record](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md)
-and [canonical independent verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
-The candidate is not selected or published. Learned-memory quality remains open;
-engineering reproducibility, authenticated persistence and restart are passing.
+**Current implementation — R1–R3 repair source verified, clean-export admission next.**
+Caller-bound canonical context verification, exact seeded schedule audits and
+versioned representation-preserving rebuild are implemented; 140 integrated
+software tests pass. No native memory rerun occurred. The [v5 experiment](docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md)
+and [canonical verdict](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json)
+remain rejected. Isolated V0 follows the reproducible repair source gate.
 
 ## Current evidence and limits
 
@@ -42,12 +43,33 @@ and restart is 1,751.69 seconds.
 
 ## Current blocker and next action
 
-The blocker is learned association/readout, not wiring. Do not add updates,
-switch writer/reader recipes or tune against the exposed set. Next implement a
-fresh **storage/read-separation probe**; compare explicit copy/pointer only when
-observed values are recoverable, under a new committed protocol. Isolated vision
-may proceed separately with memory/core/identity disabled; it cannot qualify
-this failed memory path or integrated RSI. Spark remains later work.
+Repair caller-bound context scope/query/canonical routing, exact unique ordered
+training-update/case schedules and representation-preserving rebuild first.
+[Document 17](docs/architecture/17_Memory_Reliability_Recovery.md) records the
+reproductions and exit tests. The direct changed-span, source-package and original
+route-count fixes are complete; these remaining defects are narrower.
+
+Then implement isolated MiniCPM5 V0 with memory/core/identity disabled. The v5
+repair's measured rejection satisfies the earlier package-completion prerequisite;
+it does not satisfy learned-memory quality. Continue fresh storage/read-separation
+probes independently and use copy/pointer controls only when observed values are
+recoverable. Do not repeat blind writer/reader training on the exposed set.
+
+Prepare official Spark FP8/BF16 sources/backend compatibility and eligible datasets
+now. Native Spark work follows stable reusable interfaces and its own gates; it
+need not wait for RSI success and does not block MiniCPM5. See the
+[integrated design](docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
+[Spark plan](docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md),
+[data curriculum](docs/08_Dataset_Acquisition_and_Curriculum.md) and
+[revised loop prompt](docs/architecture/16_Loop_Agent_Instructions.md).
+
+Independent review checks: 49 focused tests in 9.39 s, 27/27 implementation pins,
+byte-identical v4 generator/manifest, CPU scorer parity over 1,920 rows and 11
+failed gates, actual candidate delta, 32 snapshots and seven recorded restart
+answers. The full suite/native jobs were not rerun by the review. This design
+update modifies documentation/descriptive metadata only; fixes are still planned.
+It collected 22 pinned dataset metadata/card records, 12 additional source links
+and official Spark FP8/BF16 metadata/configs, not weights or dataset assets.
 
 Reproduce the final independent verdict (fresh verdict output path):
 
@@ -64,6 +86,23 @@ Reproduce the final independent verdict (fresh verdict output path):
 
 Preserve all rejected candidates, raw reports and the untracked protected
 `src/replica_lab/runtime_pilot.py` unchanged.
+
+## Documentation and source preparation — 25 October 2026
+
+The current design update adds integrated memory/learning/vision/RSI ownership,
+official Spark FP8 plus independent BF16 qualification, and a 34-source dataset
+curriculum with 22 immutable metadata/card pins and two proposed internal corpora.
+It revises the loop prompt, runbook, entry points and descriptive status registry.
+Remaining R1–R3 code fixes are planned, not implemented; no weights, dataset
+assets, native runs or new training are produced by this update. The 50 GiB
+native policy and historical source/protocol/result files remain unchanged.
+
+Validation covered local Markdown targets, balanced code fences, the three
+changed/new JSON records, source counts/pins and preservation of rejection and
+resource-policy fields. `git diff --check` passed. No runtime suite was rerun for
+these documentation/descriptive metadata edits; review test counts above retain
+their original scope. The workspace already contained unrelated changes, which
+were preserved; no Git commit or staging was performed.
 
 ## Previous review and documentation handoff — 24 October 2026
 

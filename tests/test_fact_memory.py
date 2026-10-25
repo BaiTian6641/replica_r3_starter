@@ -10,6 +10,7 @@ from replica_lab.runtime.fact_memory import (binding_diagnostic, encode_fact_bin
                                               fact_source_text, validate_fact)
 from replica_lab.runtime.fast_memory import FastMemoryScope
 from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
+from replica_lab.runtime.memory_representation import FACT_REPRESENTATION
 
 SPEC = FastMemorySpec(heads=2, key_size=4, value_size=4, update_rule='sgdn2',
                       depth_mode='shared', depth_writers=True)
@@ -57,7 +58,7 @@ def test_fact_binding_preserves_writer_gradients():
 
 def test_persistent_fact_append_uses_canonical_observed_lineage():
     model = tiny_adapter(fast_memory=SPEC).eval()
-    memory = PersistentFastMemory(model, Tokenizer(), SCOPE)
+    memory = PersistentFastMemory(model, Tokenizer(), SCOPE, representation=FACT_REPRESENTATION)
     episode = build_episodes()[0]
     fact = episode['facts'][0]
     correction = episode['correction']
@@ -97,7 +98,7 @@ def test_runner_fact_representation_tracks_lineage_and_controls(tmp_path):
     rows, transitions = run.evaluate(
         session, pair, ('fast', 'disabled', 'last_chunk', 'full_context', 'selective_context'),
         tmp_path / 'images', reference=reference, gate=True,
-        writer_representation='fact_binding_key_value')
+        writer_representation=FACT_REPRESENTATION)
     assert len(rows) == 2 * 12 * 5
     assert all(t['initial_cursor'] == 6 and t['corrected_cursor'] == 7 for t in transitions)
     assert all(t['lineage_prefix_preserved'] for t in transitions)
