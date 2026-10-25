@@ -1,0 +1,185 @@
+{
+  "format": "replica.sparkx_consolidation.analytical_costs.v1",
+  "kind": "partial_inventory_not_runtime_measurement_or_total_training_budget",
+  "units": {
+    "MiB": 1048576,
+    "GiB": 1073741824,
+    "MAC": "one multiply-accumulate; not one FLOP"
+  },
+  "models": {
+    "minicpm5": {
+      "hidden_size": 2048,
+      "intermediate_size": 6144,
+      "layers": 42,
+      "vocabulary": 130560,
+      "tied_base_tables": false,
+      "unique_base_parameters": 2516756480,
+      "base_payload_bf16_gib": 4.687824249267578,
+      "base_payload_fp32_gib": 9.375648498535156,
+      "base_embedding_and_head_unique_parameters": 534773760,
+      "active_row_examples": [
+        {
+          "slots": 32,
+          "one_shared_bf16_bank_mib": 0.125,
+          "two_bf16_buffers_mib": 0.25,
+          "extra_head_macs_per_position": 65536,
+          "extra_head_arithmetic_percent": 0.024509803921568627
+        },
+        {
+          "slots": 256,
+          "one_shared_bf16_bank_mib": 1.0,
+          "two_bf16_buffers_mib": 2.0,
+          "extra_head_macs_per_position": 524288,
+          "extra_head_arithmetic_percent": 0.19607843137254902
+        },
+        {
+          "slots": 512,
+          "one_shared_bf16_bank_mib": 2.0,
+          "two_bf16_buffers_mib": 4.0,
+          "extra_head_macs_per_position": 1048576,
+          "extra_head_arithmetic_percent": 0.39215686274509803
+        },
+        {
+          "slots": 1024,
+          "one_shared_bf16_bank_mib": 4.0,
+          "two_bf16_buffers_mib": 8.0,
+          "extra_head_macs_per_position": 2097152,
+          "extra_head_arithmetic_percent": 0.7843137254901961
+        }
+      ],
+      "phrase_encoder": {
+        "width": 256,
+        "depth": 2,
+        "example_base_tokens": 8,
+        "matrix_parameters": 2621440,
+        "bf16_matrix_weights_mib": 5.0,
+        "fp32_weights_grad_two_adam_moments_mib": 40.0,
+        "matrix_macs_per_phrase": 17367040,
+        "matrix_macs_16_new_phrases": 277872640,
+        "matrix_macs_256_new_phrases": 4445962240
+      },
+      "two_down_projection_lora": {
+        "rank": 8,
+        "parameters": 131072,
+        "bf16_weights_mib": 0.25,
+        "fp32_weights_grad_two_adam_moments_mib": 2.0
+      },
+      "episodic_payload": {
+        "entries": 1024,
+        "key_width": 128,
+        "value_width": 256,
+        "bf16_keys_values_mib": 0.75,
+        "fp32_keys_values_mib": 1.5,
+        "metadata_and_surfaces_included": false,
+        "lexical_values_share_this_capacity": true
+      },
+      "vision_projector_example_parameters": 5772800,
+      "dvagen_static_clone_counterexample": {
+        "extra_parameters_if_two_full_tables_cloned": 534773760,
+        "extra_bf16_weight_mib": 1020.0,
+        "fp32_weights_grad_two_adam_moments_gib": 7.96875,
+        "source_inspection_not_execution": true,
+        "proposed_implementation_clones_these_tables": false
+      }
+    },
+    "sparkx": {
+      "hidden_size": 2560,
+      "intermediate_size": 10240,
+      "layers": 36,
+      "vocabulary": 131072,
+      "tied_base_tables": true,
+      "unique_base_parameters": 4112079360,
+      "base_payload_bf16_gib": 7.659344673156738,
+      "base_payload_fp32_gib": 15.318689346313477,
+      "base_embedding_and_head_unique_parameters": 335544320,
+      "active_row_examples": [
+        {
+          "slots": 32,
+          "one_shared_bf16_bank_mib": 0.15625,
+          "two_bf16_buffers_mib": 0.3125,
+          "extra_head_macs_per_position": 81920,
+          "extra_head_arithmetic_percent": 0.0244140625
+        },
+        {
+          "slots": 256,
+          "one_shared_bf16_bank_mib": 1.25,
+          "two_bf16_buffers_mib": 2.5,
+          "extra_head_macs_per_position": 655360,
+          "extra_head_arithmetic_percent": 0.1953125
+        },
+        {
+          "slots": 512,
+          "one_shared_bf16_bank_mib": 2.5,
+          "two_bf16_buffers_mib": 5.0,
+          "extra_head_macs_per_position": 1310720,
+          "extra_head_arithmetic_percent": 0.390625
+        },
+        {
+          "slots": 1024,
+          "one_shared_bf16_bank_mib": 5.0,
+          "two_bf16_buffers_mib": 10.0,
+          "extra_head_macs_per_position": 2621440,
+          "extra_head_arithmetic_percent": 0.78125
+        }
+      ],
+      "phrase_encoder": {
+        "width": 256,
+        "depth": 2,
+        "example_base_tokens": 8,
+        "matrix_parameters": 2883584,
+        "bf16_matrix_weights_mib": 5.5,
+        "fp32_weights_grad_two_adam_moments_mib": 44.0,
+        "matrix_macs_per_phrase": 18546688,
+        "matrix_macs_16_new_phrases": 296747008,
+        "matrix_macs_256_new_phrases": 4747952128
+      },
+      "two_down_projection_lora": {
+        "rank": 8,
+        "parameters": 204800,
+        "bf16_weights_mib": 0.390625,
+        "fp32_weights_grad_two_adam_moments_mib": 3.125
+      },
+      "episodic_payload": {
+        "entries": 4096,
+        "key_width": 128,
+        "value_width": 256,
+        "bf16_keys_values_mib": 3.0,
+        "fp32_keys_values_mib": 6.0,
+        "metadata_and_surfaces_included": false,
+        "lexical_values_share_this_capacity": true
+      },
+      "vision_projector_example_parameters": 6821888,
+      "dvagen_static_clone_counterexample": {
+        "extra_parameters_if_two_full_tables_cloned": 671088640,
+        "extra_bf16_weight_mib": 1280.0,
+        "fp32_weights_grad_two_adam_moments_gib": 10.0,
+        "source_inspection_not_execution": true,
+        "proposed_implementation_clones_these_tables": false
+      }
+    }
+  },
+  "default_core_parameters": 1066243,
+  "default_core_workspace_bf16_kib": 4.0,
+  "frozen_vision_encoder": {
+    "parameters_from_local_v0_report": 92884224,
+    "bf16_weight_mib": 177.16259765625,
+    "fp32_weight_mib": 354.3251953125,
+    "qualified_v0_compute_dtype": "float32"
+  },
+  "formulas": {
+    "encoder_matrices": "2*d*w + depth*12*w*w",
+    "phrase_macs": "L*d*w + depth*(12*L*w*w + 2*L*L*w) + w*d",
+    "two_lora_down_projections": "2*r*(d+ff)",
+    "fp32_adam_payload": "16 bytes/parameter: weight, gradient, two moments; no extra master copy",
+    "bridge": "LayerNorm(768) + Linear(768,2048,bias) + Linear(2048,d,bias)"
+  },
+  "exclusions": [
+    "Encoder norms/biases and new selector, writer, reader and learning-policy parameters",
+    "Full logits, KV, attention/saved activations, gradients through the frozen backbone",
+    "Optimizer workspaces, master copies if used, allocator/transient buffers",
+    "Surface bytes, provenance, revision history, bounded replay and storage I/O",
+    "Optional static-pattern tables, fast-memory ports, temporal module/resampler",
+    "Repeated per-session active vocab banks and visual encodings",
+    "Any latency, quality or total-training-memory inference from these payloads"
+  ]
+}

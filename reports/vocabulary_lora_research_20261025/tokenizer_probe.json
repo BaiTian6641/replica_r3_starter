@@ -1,0 +1,736 @@
+{
+  "kind": "illustrative_tokenizer_only_probe_not_model_quality_or_speed_benchmark",
+  "reviewed_on": "2026-10-25",
+  "tokenizers_version": "0.23.3",
+  "source_url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/tokenizer.json",
+  "source_sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+  "source_bytes": 10115786,
+  "vocabulary": {
+    "model_entries": 131072,
+    "all_entries": 131072,
+    "max_id": 131071,
+    "ids_contiguous": true,
+    "special_added_entries": 91,
+    "reserved_named_entries": 89
+  },
+  "normalizer": {
+    "type": "Sequence",
+    "normalizers": []
+  },
+  "pre_tokenizer": {
+    "type": "Sequence",
+    "pretokenizers": [
+      {
+        "type": "Split",
+        "pattern": {
+          "Regex": "\\p{N}{1,3}"
+        },
+        "behavior": "Isolated",
+        "invert": false
+      },
+      {
+        "type": "Split",
+        "pattern": {
+          "Regex": "[一-龥぀-ゟ゠-ヿ]+"
+        },
+        "behavior": "Isolated",
+        "invert": false
+      },
+      {
+        "type": "Split",
+        "pattern": {
+          "Regex": "[!\"#$%&'()*+,\\-./:;<=>?@\\[\\\\\\]^_`{|}~][A-Za-z]+|[^\r\n\\p{L}\\p{P}\\p{S}]?[\\p{L}\\p{M}]+| ?[\\p{P}\\p{S}]+|[\r\n]|\\s+(?!\\S)|\\s+"
+        },
+        "behavior": "Isolated",
+        "invert": false
+      },
+      {
+        "type": "Digits",
+        "individual_digits": true
+      },
+      {
+        "type": "ByteLevel",
+        "add_prefix_space": false,
+        "trim_offsets": true,
+        "use_regex": false
+      }
+    ]
+  },
+  "baseline_examples": [
+    {
+      "text": "A blue cup is beside the red cup.",
+      "utf8_bytes": 33,
+      "token_count": 9,
+      "ids": [
+        46,
+        11031,
+        11561,
+        390,
+        24742,
+        275,
+        5035,
+        11561,
+        27
+      ],
+      "pieces": [
+        "A",
+        "Ġblue",
+        "Ġcup",
+        "Ġis",
+        "Ġbeside",
+        "Ġthe",
+        "Ġred",
+        "Ġcup",
+        "."
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "The object is called a veltraxon.",
+      "utf8_bytes": 33,
+      "token_count": 10,
+      "ids": [
+        1046,
+        5137,
+        390,
+        4848,
+        259,
+        7059,
+        625,
+        3517,
+        263,
+        27
+      ],
+      "pieces": [
+        "The",
+        "Ġobject",
+        "Ġis",
+        "Ġcalled",
+        "Ġa",
+        "Ġvel",
+        "tr",
+        "ax",
+        "on",
+        "."
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "The object is called a veltraxon. The veltraxon moved behind the box.",
+      "utf8_bytes": 69,
+      "token_count": 20,
+      "ids": [
+        1046,
+        5137,
+        390,
+        4848,
+        259,
+        7059,
+        625,
+        3517,
+        263,
+        27,
+        614,
+        7059,
+        625,
+        3517,
+        263,
+        10362,
+        6858,
+        275,
+        7774,
+        27
+      ],
+      "pieces": [
+        "The",
+        "Ġobject",
+        "Ġis",
+        "Ġcalled",
+        "Ġa",
+        "Ġvel",
+        "tr",
+        "ax",
+        "on",
+        ".",
+        "ĠThe",
+        "Ġvel",
+        "tr",
+        "ax",
+        "on",
+        "Ġmoved",
+        "Ġbehind",
+        "Ġthe",
+        "Ġbox",
+        "."
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "MemT-1.0 and DynamicEngram",
+      "utf8_bytes": 26,
+      "token_count": 10,
+      "ids": [
+        39429,
+        65,
+        26,
+        30,
+        27,
+        29,
+        317,
+        64947,
+        13392,
+        6565
+      ],
+      "pieces": [
+        "Mem",
+        "T",
+        "-",
+        "1",
+        ".",
+        "0",
+        "Ġand",
+        "ĠDynamic",
+        "Eng",
+        "ram"
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "q_k_v_proj",
+      "utf8_bytes": 10,
+      "token_count": 5,
+      "ids": [
+        94,
+        23111,
+        8884,
+        8782,
+        87
+      ],
+      "pieces": [
+        "q",
+        "_k",
+        "_v",
+        "_pro",
+        "j"
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "000129004287",
+      "utf8_bytes": 12,
+      "token_count": 12,
+      "ids": [
+        29,
+        29,
+        29,
+        30,
+        31,
+        38,
+        29,
+        29,
+        33,
+        31,
+        37,
+        36
+      ],
+      "pieces": [
+        "0",
+        "0",
+        "0",
+        "1",
+        "2",
+        "9",
+        "0",
+        "0",
+        "4",
+        "2",
+        "8",
+        "7"
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "Héloïse",
+      "utf8_bytes": 9,
+      "token_count": 4,
+      "ids": [
+        53,
+        596,
+        1204,
+        130520
+      ],
+      "pieces": [
+        "H",
+        "Ã©",
+        "lo",
+        "Ã¯se"
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "naïve café",
+      "utf8_bytes": 12,
+      "token_count": 4,
+      "ids": [
+        1325,
+        9339,
+        377,
+        85187
+      ],
+      "pieces": [
+        "na",
+        "Ã¯",
+        "ve",
+        "ĠcafÃ©"
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "红色杯子在蓝色杯子后面。",
+      "utf8_bytes": 36,
+      "token_count": 7,
+      "ids": [
+        15343,
+        76925,
+        397,
+        29579,
+        76925,
+        18013,
+        302
+      ],
+      "pieces": [
+        "çº¢èī²",
+        "æĿ¯åŃĲ",
+        "åľ¨",
+        "èĵĿèī²",
+        "æĿ¯åŃĲ",
+        "åĲİéĿ¢",
+        "ãĢĤ"
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "A red car turns left, then stops.",
+      "utf8_bytes": 33,
+      "token_count": 9,
+      "ids": [
+        46,
+        5035,
+        2350,
+        18877,
+        3887,
+        25,
+        1959,
+        33976,
+        27
+      ],
+      "pieces": [
+        "A",
+        "Ġred",
+        "Ġcar",
+        "Ġturns",
+        "Ġleft",
+        ",",
+        "Ġthen",
+        "Ġstops",
+        "."
+      ],
+      "roundtrip": true
+    },
+    {
+      "text": "xqzv_7281_R",
+      "utf8_bytes": 11,
+      "token_count": 9,
+      "ids": [
+        101,
+        94,
+        13289,
+        76,
+        36,
+        31,
+        37,
+        30,
+        12308
+      ],
+      "pieces": [
+        "x",
+        "q",
+        "zv",
+        "_",
+        "7",
+        "2",
+        "8",
+        "1",
+        "_R"
+      ],
+      "roundtrip": true
+    }
+  ],
+  "temporary_in_memory_addition_trials": [
+    {
+      "spelling": " veltraxon",
+      "single_word": false,
+      "added_rows": 1,
+      "new_id": 131072,
+      "old_id_mapping_preserved": true,
+      "cases": [
+        {
+          "text": "The object is called a veltraxon. The veltraxon moved behind the box.",
+          "utf8_bytes": 69,
+          "token_count": 14,
+          "ids": [
+            1046,
+            5137,
+            390,
+            4848,
+            259,
+            131072,
+            27,
+            614,
+            131072,
+            10362,
+            6858,
+            275,
+            7774,
+            27
+          ],
+          "pieces": [
+            "The",
+            "Ġobject",
+            "Ġis",
+            "Ġcalled",
+            "Ġa",
+            " veltraxon",
+            ".",
+            "ĠThe",
+            " veltraxon",
+            "Ġmoved",
+            "Ġbehind",
+            "Ġthe",
+            "Ġbox",
+            "."
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": "veltraxon",
+          "utf8_bytes": 9,
+          "token_count": 4,
+          "ids": [
+            1297,
+            625,
+            3517,
+            263
+          ],
+          "pieces": [
+            "vel",
+            "tr",
+            "ax",
+            "on"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": " veltraxon",
+          "utf8_bytes": 10,
+          "token_count": 1,
+          "ids": [
+            131072
+          ],
+          "pieces": [
+            " veltraxon"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": " veltraxonic",
+          "utf8_bytes": 12,
+          "token_count": 2,
+          "ids": [
+            131072,
+            318
+          ],
+          "pieces": [
+            " veltraxon",
+            "ic"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": "superveltraxon",
+          "utf8_bytes": 14,
+          "token_count": 6,
+          "ids": [
+            13704,
+            1081,
+            311,
+            625,
+            3517,
+            263
+          ],
+          "pieces": [
+            "sup",
+            "erv",
+            "el",
+            "tr",
+            "ax",
+            "on"
+          ],
+          "roundtrip": true
+        }
+      ]
+    },
+    {
+      "spelling": " veltraxon",
+      "single_word": true,
+      "added_rows": 1,
+      "new_id": 131072,
+      "old_id_mapping_preserved": true,
+      "cases": [
+        {
+          "text": "The object is called a veltraxon. The veltraxon moved behind the box.",
+          "utf8_bytes": 69,
+          "token_count": 20,
+          "ids": [
+            1046,
+            5137,
+            390,
+            4848,
+            259,
+            7059,
+            625,
+            3517,
+            263,
+            27,
+            614,
+            7059,
+            625,
+            3517,
+            263,
+            10362,
+            6858,
+            275,
+            7774,
+            27
+          ],
+          "pieces": [
+            "The",
+            "Ġobject",
+            "Ġis",
+            "Ġcalled",
+            "Ġa",
+            "Ġvel",
+            "tr",
+            "ax",
+            "on",
+            ".",
+            "ĠThe",
+            "Ġvel",
+            "tr",
+            "ax",
+            "on",
+            "Ġmoved",
+            "Ġbehind",
+            "Ġthe",
+            "Ġbox",
+            "."
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": "veltraxon",
+          "utf8_bytes": 9,
+          "token_count": 4,
+          "ids": [
+            1297,
+            625,
+            3517,
+            263
+          ],
+          "pieces": [
+            "vel",
+            "tr",
+            "ax",
+            "on"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": " veltraxon",
+          "utf8_bytes": 10,
+          "token_count": 1,
+          "ids": [
+            131072
+          ],
+          "pieces": [
+            " veltraxon"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": " veltraxonic",
+          "utf8_bytes": 12,
+          "token_count": 4,
+          "ids": [
+            7059,
+            625,
+            3517,
+            7785
+          ],
+          "pieces": [
+            "Ġvel",
+            "tr",
+            "ax",
+            "onic"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": "superveltraxon",
+          "utf8_bytes": 14,
+          "token_count": 6,
+          "ids": [
+            13704,
+            1081,
+            311,
+            625,
+            3517,
+            263
+          ],
+          "pieces": [
+            "sup",
+            "erv",
+            "el",
+            "tr",
+            "ax",
+            "on"
+          ],
+          "roundtrip": true
+        }
+      ]
+    },
+    {
+      "spelling": "veltraxon",
+      "single_word": true,
+      "added_rows": 1,
+      "new_id": 131072,
+      "old_id_mapping_preserved": true,
+      "cases": [
+        {
+          "text": "The object is called a veltraxon. The veltraxon moved behind the box.",
+          "utf8_bytes": 69,
+          "token_count": 16,
+          "ids": [
+            1046,
+            5137,
+            390,
+            4848,
+            259,
+            220,
+            131072,
+            27,
+            614,
+            220,
+            131072,
+            10362,
+            6858,
+            275,
+            7774,
+            27
+          ],
+          "pieces": [
+            "The",
+            "Ġobject",
+            "Ġis",
+            "Ġcalled",
+            "Ġa",
+            "Ġ",
+            "veltraxon",
+            ".",
+            "ĠThe",
+            "Ġ",
+            "veltraxon",
+            "Ġmoved",
+            "Ġbehind",
+            "Ġthe",
+            "Ġbox",
+            "."
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": "veltraxon",
+          "utf8_bytes": 9,
+          "token_count": 1,
+          "ids": [
+            131072
+          ],
+          "pieces": [
+            "veltraxon"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": " veltraxon",
+          "utf8_bytes": 10,
+          "token_count": 2,
+          "ids": [
+            220,
+            131072
+          ],
+          "pieces": [
+            "Ġ",
+            "veltraxon"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": " veltraxonic",
+          "utf8_bytes": 12,
+          "token_count": 4,
+          "ids": [
+            7059,
+            625,
+            3517,
+            7785
+          ],
+          "pieces": [
+            "Ġvel",
+            "tr",
+            "ax",
+            "onic"
+          ],
+          "roundtrip": true
+        },
+        {
+          "text": "superveltraxon",
+          "utf8_bytes": 14,
+          "token_count": 6,
+          "ids": [
+            13704,
+            1081,
+            311,
+            625,
+            3517,
+            263
+          ],
+          "pieces": [
+            "sup",
+            "erv",
+            "el",
+            "tr",
+            "ax",
+            "on"
+          ],
+          "roundtrip": true
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Eleven authored examples, selected for illustration; not a representative corpus",
+    "No training, embeddings, model inference, timing or quality measurement",
+    "No production tokenizer or repository source tokenizer was modified",
+    "Preserving old IDs does not preserve all segmentation or generation probabilities"
+  ]
+}

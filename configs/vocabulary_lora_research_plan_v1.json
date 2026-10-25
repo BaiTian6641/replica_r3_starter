@@ -1,0 +1,457 @@
+{
+  "schema": "replica.vocabulary_lora_research_plan.v1",
+  "reviewed_on": "2026-10-25",
+  "status": "research_proposal_not_executable_configuration",
+  "architecture_implemented_by_this_review": false,
+  "model_training_performed": false,
+  "inherits": [
+    "configs/sparkx_2_6_4b_research_plan_v1.json",
+    "configs/dynamic_engram_research_plan_v1.json"
+  ],
+  "scope": {
+    "backbone": "Spark-X2.6 4B-class backbone plus additional native modules",
+    "native_target": true,
+    "semantic_selection": "Learned model readers, writers and controller",
+    "runtime_role": "Numerical execution, deterministic resource/scope masks, persistence and evaluation",
+    "personality_specification": "pending_user_file",
+    "evidence_boundary": "Tokenization probe and analytical budgets only; no new model capability result"
+  },
+  "lexical_memory": {
+    "reuse_dynamic_engram_slots": true,
+    "shared_slot_budget": 4096,
+    "initial_output_vocabulary": "unchanged_base_ids",
+    "record_fields": [
+      "original_utf8",
+      "base_token_ids",
+      "tokenizer_digest",
+      "concept_or_event_id",
+      "context_features",
+      "owner_scope",
+      "source_provenance",
+      "confidence",
+      "observation_time",
+      "representation_version"
+    ],
+    "native_selection_required": true,
+    "host_selected_candidate_heads_are_diagnostics": true,
+    "span_output_requires_autoregressive_state_update": true,
+    "metadata_bytes_measured_separately": true
+  },
+  "vocabulary_extension": {
+    "base_vocab_size": 131072,
+    "hidden_size": 2560,
+    "tie_input_output": true,
+    "first_new_id": 131072,
+    "pilot_rows": 256,
+    "first_cap_rows": 1024,
+    "separate_capacity_study_rows": 2048,
+    "immutable_original_ids": true,
+    "reserved_id_reuse": false,
+    "online_id_recycling": false,
+    "implementation": "Frozen E0 and small trainable Eplus with split input lookup and split tied output projection",
+    "initialization_controls": [
+      "mean_base_row",
+      "trained_piece_composition"
+    ],
+    "inactive_rows_masked_from_generation": true,
+    "commit_boundary": "Atomic versioned checkpoint/state transition",
+    "promotion_features": [
+      "verified_use",
+      "future_frequency",
+      "fragmentation",
+      "boundary_stability",
+      "semantic_ambiguity",
+      "measured_compute_savings",
+      "retention_cost"
+    ],
+    "cache_identity": [
+      "base_revision",
+      "tokenizer_digest",
+      "embedding_version",
+      "adapter_version",
+      "memory_generation",
+      "merge_plan_if_used"
+    ],
+    "online_id_recycling_scope": "Permanent tokenizer IDs only; distinct versioned ephemeral slots may be reused"
+  },
+  "adaptation": {
+    "initial_base_weights_frozen": true,
+    "baseline_ranks": [
+      8,
+      16
+    ],
+    "first_backbone_target": "mlp.down_proj",
+    "first_backbone_layers_zero_based": [
+      11,
+      23
+    ],
+    "direct_native_port_training_control": true,
+    "broader_control_layers_zero_based": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31
+    ],
+    "broader_control_targets": [
+      "self_attn.q_k_v_proj",
+      "self_attn.out_proj",
+      "mlp.gate_proj",
+      "mlp.up_proj",
+      "mlp.down_proj"
+    ],
+    "initial_methods": [
+      "vanilla_lora",
+      "rslora_scaling_control",
+      "lora_fa"
+    ],
+    "optional_optimizer_control": {
+      "method": "lora_plus",
+      "b_to_a_lr_ratios": [
+        1,
+        4,
+        16
+      ]
+    },
+    "second_wave": [
+      "eva",
+      "care_lora",
+      "matryoshka_lora",
+      "dora"
+    ],
+    "offline_or_separate_branches": [
+      "pissa",
+      "corda_plus_plus",
+      "lora_one",
+      "loract",
+      "qlora",
+      "loftq",
+      "tiny_lora",
+      "boost_lora",
+      "llmbo",
+      "activated_lora"
+    ],
+    "maximum_active_skill_adapters_initially": 2,
+    "per_fact_adapter_creation": false,
+    "learning_rate_search": {
+      "equal_trial_budget_per_compared_method": true,
+      "maximum_validation_trials_per_method_per_scope": 6,
+      "screen_small_batches_before_three_seed_confirmation": true,
+      "method_specific_rates": true,
+      "final_test_used_for_tuning": false,
+      "charge_initialization_compile_validation_and_failed_trials": true
+    },
+    "scale_initialization_and_base_identity_in_export": true,
+    "input_gradients_required_for_joint_modules": true
+  },
+  "controller": {
+    "initially_supervised_with_fixed_numeric_update_rule": true,
+    "actions": [
+      "ignore",
+      "write_or_correct_memory",
+      "refresh_lexical_working_set",
+      "schedule_skill_batch",
+      "propose_token",
+      "choose_adapter_rank_later"
+    ],
+    "fast_updates": "Native bounded core, episodic and fast-weight state",
+    "slow_updates": "Verified batches for skills, rows and later learning-policy parameters",
+    "appraisal": "Bounded modulation of attention, replay and compute; separate from factual confidence",
+    "recursive_improvement_control": "Frozen learning policy with identical evolving knowledge, observations, update count and compute"
+  },
+  "hardware": {
+    "initial_device": "64 GiB M2 Ultra MPS",
+    "model_owning_workers": 1,
+    "silent_cpu_fallback": false,
+    "driver_memory_stop_gib": 50,
+    "sustained_swap_growth_stop_mib": 512,
+    "minimum_free_physical_memory_percent": 15,
+    "future_cuda_device_qualified_separately": true,
+    "official_fp8_is_not_qlora": true,
+    "native_backward_qualification_required": true
+  },
+  "stages": [
+    {
+      "id": "VL0",
+      "name": "Compatibility and fragmentation inventory",
+      "depends_on": [],
+      "gates": [
+        "G_IDENTITY",
+        "G_HARDWARE"
+      ]
+    },
+    {
+      "id": "VL1",
+      "name": "Native lexical memory",
+      "depends_on": [
+        "VL0"
+      ],
+      "external_prerequisites": [
+        "Dynamic Engram DE2 recall admission"
+      ],
+      "gates": [
+        "G_LEXICAL",
+        "G_CORRECTION",
+        "G_RETENTION"
+      ]
+    },
+    {
+      "id": "VL1S",
+      "name": "Swappable native lexical vocabulary",
+      "depends_on": [
+        "VL1"
+      ],
+      "optional": true,
+      "gates": [
+        "G_SLOT_IDENTITY",
+        "G_SWAP_RETENTION",
+        "G_SWAP_EFFICIENCY",
+        "G_GRADIENT",
+        "G_LEXICAL",
+        "G_RETENTION",
+        "G_HARDWARE"
+      ]
+    },
+    {
+      "id": "VL2",
+      "name": "Narrow adapter baseline and FA",
+      "depends_on": [
+        "VL0"
+      ],
+      "gates": [
+        "G_GRADIENT",
+        "G_RETENTION",
+        "G_HARDWARE"
+      ]
+    },
+    {
+      "id": "VL3",
+      "name": "Bounded tied vocabulary pilot",
+      "depends_on": [
+        "VL0",
+        "VL1"
+      ],
+      "optional": true,
+      "gates": [
+        "G_IDENTITY",
+        "G_VOCAB_EFFICIENCY",
+        "G_LEXICAL",
+        "G_RETENTION"
+      ]
+    },
+    {
+      "id": "VL4",
+      "name": "Joint lexical visual and skill learning",
+      "depends_on": [
+        "VL1",
+        "VL2"
+      ],
+      "external_prerequisites": [
+        "Dynamic Engram DE5 visual grounding"
+      ],
+      "gates": [
+        "G_GROUNDING",
+        "G_LEXICAL",
+        "G_CORRECTION",
+        "G_RETENTION"
+      ],
+      "conditional_prerequisites": {
+        "if_swappable_vocabulary_enabled": "VL1S"
+      }
+    },
+    {
+      "id": "VL5",
+      "name": "Input-only dynamic tokenization",
+      "depends_on": [
+        "VL0"
+      ],
+      "optional": true,
+      "gates": [
+        "G_IDENTITY",
+        "G_VOCAB_EFFICIENCY",
+        "G_RETENTION",
+        "G_HARDWARE"
+      ]
+    },
+    {
+      "id": "VL6",
+      "name": "Advanced adapter comparisons",
+      "depends_on": [
+        "VL2"
+      ],
+      "optional": true,
+      "gates": [
+        "G_GRADIENT",
+        "G_RETENTION",
+        "G_HARDWARE"
+      ]
+    },
+    {
+      "id": "VL7",
+      "name": "Repeated learning and policy improvement",
+      "depends_on": [
+        "VL4"
+      ],
+      "gates": [
+        "G_LEARNING_POLICY",
+        "G_RETENTION",
+        "G_HARDWARE"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "G_IDENTITY",
+      "criterion": "All old IDs and controls preserved; disabled parity and exact compatible reload pass"
+    },
+    {
+      "id": "G_LEXICAL",
+      "exact_spelling_min_percent": 90,
+      "heldout_meaning_min_percent": 85
+    },
+    {
+      "id": "G_CORRECTION",
+      "corrected_bindings_min_percent": 90,
+      "unrelated_binding_drop_max_percentage_points": 2
+    },
+    {
+      "id": "G_VOCAB_EFFICIENCY",
+      "eligible_subset_token_reduction_min_percent": 10,
+      "amortized_wall_time_benefit_min_percent": 5,
+      "workload_horizon_predeclared": true
+    },
+    {
+      "id": "G_RETENTION",
+      "overall_drop_max_percentage_points": 2,
+      "paired_confidence_intervals_required": true,
+      "task_family_breakdown_required": true,
+      "unresolved_critical_family_regression_rejects": true
+    },
+    {
+      "id": "G_GROUNDING",
+      "heldout_identity_relation_event_min_percent": 85,
+      "controls": [
+        "shuffled_vision",
+        "no_vision"
+      ]
+    },
+    {
+      "id": "G_GRADIENT",
+      "criterion": "Finite intended gradients; exact-path numerical agreement; report approximation error and downstream effect for approximate methods"
+    },
+    {
+      "id": "G_HARDWARE",
+      "criterion": "Inherited resource bounds pass without silent fallback; full update and validation costs recorded"
+    },
+    {
+      "id": "G_LEARNING_POLICY",
+      "cycles": 10,
+      "criterion": "Positive paired confidence interval over frozen-policy control on new tasks at matched compute, with retention passing"
+    },
+    {
+      "id": "G_SLOT_IDENTITY",
+      "criterion": "Permutation consistency within qualified numerical tolerance; zero stale identities in swap, batch, pending-input and restart tests; fallback on absent/full pinned sets"
+    },
+    {
+      "id": "G_SWAP_RETENTION",
+      "reactivation_accuracy_drop_max_percentage_points": 2,
+      "resident_control_required": true,
+      "absolute_lexical_gates_still_required": true
+    },
+    {
+      "id": "G_SWAP_EFFICIENCY",
+      "amortized_wall_time_benefit_min_percent": 5,
+      "claim_scope": "Required to claim efficiency, not to claim useful bounded lexical functionality",
+      "costs_include": [
+        "selection",
+        "fresh_encoding",
+        "cold_starts",
+        "cache_misses",
+        "swaps",
+        "persistence",
+        "validation"
+      ]
+    }
+  ],
+  "evaluation": {
+    "minimum_seeds_or_independent_world_splits": 3,
+    "proposed_novel_lexical_bindings": 200,
+    "proposed_correction_cases": 50,
+    "proposed_visual_cases": 200,
+    "minimum_unrelated_retention_questions": 1000,
+    "word_family_object_and_rule_holdouts": true,
+    "compare_bytes_and_answers_per_second": true,
+    "cross_tokenizer_token_perplexity_comparison": false,
+    "cold_and_warm_cache_profiles": true,
+    "reset_memory_adapter_and_tokenizer_separately": true,
+    "datasets_assembled_by_this_review": false
+  },
+  "swappable_dynamic_vocabulary": {
+    "status": "proposed_native_architecture_branch",
+    "initial_slots": 256,
+    "capacity_study_slots": [
+      512,
+      1024
+    ],
+    "full_base_vocabulary_retained": true,
+    "physical_slot_reuse": true,
+    "permanent_token_id_reassignment": false,
+    "temporary_namespace_start": "base_vocab_size + permanent_extension_rows",
+    "initial_mapping_lifetime": "One generation",
+    "later_refresh_boundary": "Explicit segment boundary",
+    "maximum_fresh_phrase_encodings_per_refresh": 16,
+    "native_selector_required": true,
+    "external_oracle_candidates_count_as_diagnostic_only": true,
+    "row_source": "Derived from shared trained phrase encoder; optional compact lexical-state conditioning later",
+    "row_is_independently_optimized_slot_parameter": false,
+    "stable_reference_fields": [
+      "stream_id",
+      "slot_index",
+      "slot_generation",
+      "lexeme_id",
+      "surface_revision",
+      "encoder_revision",
+      "lexical_state_revision"
+    ],
+    "pin_for": [
+      "pending_sampled_input",
+      "active_beams",
+      "backward_or_recomputation_graph"
+    ],
+    "fallback_on_full_pinned_or_absent_candidates": "Original base tokens",
+    "decoding_controls": [
+      "copy_with_base_token_feedback",
+      "trained_atomic_phrase_feedback"
+    ],
+    "atomic_position_rule": "One model position per base token or atomic phrase; separate byte spans and event timestamps",
+    "kv_reuse_condition": "Unchanged realized prefix embeddings, positions, backbone and relevant state; no replay through a rebound slot map",
+    "replay_and_restart": "Versioned stable references and compatible representation state; raw-text retokenization is not exact state parity",
+    "learning_lives_in": [
+      "shared_encoder_parameters",
+      "persistent_lexical_or_concept_state",
+      "optional_shared_skill_adapter"
+    ],
+    "optimizer_state_key": "Persistent parameter or lexical identity, never a reused slot number",
+    "initial_encoder_budget": {
+      "width": 256,
+      "layers": 2,
+      "mlp_ratio": 4,
+      "new_embedding_table": false,
+      "quality_established": false
+    },
+    "bank_policy": "Reuse the existing 4096-entry Engram budget where possible; swapping does not expand persistent capacity",
+    "allocation_scope": "Row payloads are per distinct active vocabulary; account for batch multiplicity and double buffering",
+    "training_controls": [
+      "slot_permutation",
+      "random_slot_reassignment",
+      "hard_prefix_suffix_negatives",
+      "token_only_examples",
+      "causal_candidate_availability",
+      "heldout_phrases"
+    ],
+    "followup_document": "docs/research/vocabulary_lora_20261025/05_Swappable_Dynamic_Vocabulary.md"
+  }
+}

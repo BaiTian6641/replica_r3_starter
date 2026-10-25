@@ -1,0 +1,587 @@
+{
+  "format": "replica.sparkx_consolidated_architecture_plan.v2",
+  "date_local": "2026-10-25",
+  "timezone": "America/Chicago",
+  "status": "proposal_not_execution_protocol",
+  "canonical_document": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+  "supersedes_design_recommendations": [
+    "configs/sparkx_2_6_4b_research_plan_v1.json",
+    "configs/dynamic_engram_research_plan_v1.json",
+    "configs/vocabulary_lora_research_plan_v1.json"
+  ],
+  "training_authorized_by_this_plan": false,
+  "runtime_implemented_by_this_review": false,
+  "user_constraints": {
+    "four_billion_scope": "backbone_only",
+    "hops_means": "HOPE / Nested Learning",
+    "native_semantic_decisions": true,
+    "mini_cpm_validation_first": true,
+    "personality_description": "pending"
+  },
+  "models": {
+    "minicpm5": {
+      "repo_id": "openbmb/MiniCPM5-2B",
+      "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "hidden_size": 2048,
+      "intermediate_size": 6144,
+      "layers": 42,
+      "vocab_size": 130560,
+      "tied_base_embeddings": false,
+      "ports_zero_indexed": [
+        13,
+        27
+      ],
+      "unique_parameters": 2516756480
+    },
+    "sparkx": {
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "hidden_size": 2560,
+      "intermediate_size": 10240,
+      "layers": 36,
+      "vocab_size": 131072,
+      "tied_base_embeddings": true,
+      "ports_zero_indexed": [
+        11,
+        23
+      ],
+      "unique_parameters": 4112079360
+    }
+  },
+  "minimal_modules": {
+    "bank": {
+      "smoke_entries": 128,
+      "minicpm_entries": 1024,
+      "spark_entries": 4096,
+      "key_width": 128,
+      "value_width": 256,
+      "persistent_capacity_bounded": true,
+      "native_writer": true,
+      "native_selector": true,
+      "initial_training_unroll_segments": [
+        1,
+        4
+      ],
+      "gradient_boundary": "retain_writer_to_later_query_gradient_inside_unroll_detach_between_worlds"
+    },
+    "vocab": {
+      "base_ids_immutable": true,
+      "active_slots": 256,
+      "smoke_slots": 32,
+      "later_slots": [
+        512,
+        1024
+      ],
+      "initial_map_lifetime": "one_generation",
+      "later_swap_boundary": "segment",
+      "max_fresh_encodings_per_refresh": 16,
+      "encoder_width": 256,
+      "encoder_layers": 2,
+      "encoder_mlp_ratio": 4,
+      "dynamic_input_output_rows_shared": true,
+      "clone_base_tables": false,
+      "base_head_preserved": true,
+      "slot_optimizer_state_allowed": false,
+      "feedback_controls": [
+        "atomic",
+        "copy_with_base_token_feedback"
+      ],
+      "initial_decoding": "greedy_batch_one"
+    },
+    "learning": {
+      "initial_method": "vanilla_LoRA",
+      "rank": 8,
+      "secondary_rank": 16,
+      "targets": "down_projection_at_two_declared_ports",
+      "learning_rate_development_grid": [
+        1e-05,
+        0.0001,
+        0.0005
+      ],
+      "first_efficiency_control": "LoRA_FA_with_optimizer_correction",
+      "verified_feedback_only": true,
+      "online_steps_per_teaching_event_cap": 4,
+      "training_microbatch": 1,
+      "positions_per_microbatch_including_replay_cap": 256,
+      "online_phrase_encoder_frozen_initially": true,
+      "online_core_policy_frozen_initially": true
+    },
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "heads": 4,
+      "default_steps": 2,
+      "step_controls": [
+        0,
+        1,
+        2
+      ],
+      "ffn_hidden": 1024,
+      "task_features": 24,
+      "matched_feedforward_control": true,
+      "detached_audit_heads_preserved": true,
+      "distinct_end_to_end_training_path_required": true
+    }
+  },
+  "vision": {
+    "repo_id": "google/siglip2-base-patch16-224",
+    "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_parameters_observed": 92884224,
+    "encoder_frozen_initially": true,
+    "qualified_compute_dtype": "float32",
+    "initial_patch_control": 196,
+    "later_resampler_tokens": 64,
+    "video_initial_frames": 4,
+    "later_video_tokens_per_frame": [
+      32,
+      64
+    ],
+    "teacher_candidate": "V-JEPA 2.1",
+    "teacher_required_at_deployment": false
+  },
+  "optional_modules": [
+    "static_pattern_Engram",
+    "linear_or_SGDN2_fast_memory",
+    "nonlinear_Titans_inspired_memory",
+    "HOPE_inspired_multi_rate_updates",
+    "learned_learning_policy",
+    "functional_appraisal",
+    "generated_adapter"
+  ],
+  "state_contract": {
+    "lexical_ref": [
+      "stream_id",
+      "slot_index",
+      "slot_generation",
+      "lexeme_uid",
+      "surface_revision",
+      "encoder_revision",
+      "lexical_state_revision"
+    ],
+    "persistent_record": [
+      "record_uid",
+      "scope",
+      "source_reference",
+      "observation_order",
+      "event_time",
+      "validity_interval",
+      "revision",
+      "key",
+      "value"
+    ],
+    "checkpoint_bindings": [
+      "backbone_revision",
+      "tokenizer_digest",
+      "normalization_version",
+      "writer_version",
+      "reader_version",
+      "phrase_encoder_version",
+      "adapter_version",
+      "optimizer_identity",
+      "state_schema_version",
+      "vision_producer",
+      "scope"
+    ],
+    "restart_modes": [
+      "compatible_KV_and_immutable_atomic_prefix",
+      "rebuild_identical_atomic_inputs_and_states"
+    ],
+    "raw_text_base_retokenization_is_exact_restart": false,
+    "all_slots_pinned_behavior": "base_token_fallback",
+    "metadata_surface_replay_history_byte_caps_required_before_execution": true
+  },
+  "factorial": {
+    "factors": [
+      "M",
+      "V",
+      "L"
+    ],
+    "arms": [
+      {
+        "id": "000",
+        "M": false,
+        "V": false,
+        "L": false
+      },
+      {
+        "id": "001",
+        "M": false,
+        "V": false,
+        "L": true
+      },
+      {
+        "id": "010",
+        "M": false,
+        "V": true,
+        "L": false
+      },
+      {
+        "id": "011",
+        "M": false,
+        "V": true,
+        "L": true
+      },
+      {
+        "id": "100",
+        "M": true,
+        "V": false,
+        "L": false
+      },
+      {
+        "id": "101",
+        "M": true,
+        "V": false,
+        "L": true
+      },
+      {
+        "id": "110",
+        "M": true,
+        "V": true,
+        "L": false
+      },
+      {
+        "id": "111",
+        "M": true,
+        "V": true,
+        "L": true
+      }
+    ],
+    "shared_information": "causal_observations_and_surface_only_lexical_catalog_without_semantic_answers",
+    "shared_initialization": "same_offline_trained_extensions_for_intervention_analysis",
+    "separate_fair_baselines": "independently_train_principal_baselines_with_matched_offline_data_and_tuning",
+    "controls": [
+      "empty_memory",
+      "shuffled_memory",
+      "stale_memory",
+      "wrong_scope_memory",
+      "fixed_slots",
+      "swapped_slots",
+      "copy_base_feedback",
+      "no_update",
+      "fake_update",
+      "full_context_diagnostic",
+      "exact_record_diagnostic",
+      "wrong_image",
+      "no_image"
+    ],
+    "oracle_controls_eligible_for_native_acceptance": false,
+    "M_off_surface_keys": "spelling_only_no_contextual_semantic_values"
+  },
+  "data": {
+    "training_tuning_final_world_families_disjoint": true,
+    "verifier_truth_not_model_input": true,
+    "future_answer_candidate_selection_forbidden": true,
+    "phases": [
+      "pretest",
+      "observe",
+      "commit_and_drop_source_context_and_KV",
+      "vocab_churn",
+      "correct",
+      "verified_learning",
+      "unseen_composition_transfer",
+      "delayed_retention",
+      "fresh_process_restart"
+    ],
+    "vocab_churn_entries_formula": "2*K+32",
+    "main_churn_entries": 544,
+    "semantic_overflow_separate": true,
+    "retention_delays_events": [
+      1,
+      10,
+      100
+    ],
+    "parameter_only_transfer_probe": "clear_semantic_memory_and_source_context_keep_adapter_compare_matched_frozen_adapter",
+    "secondary_benchmarks": [
+      "LongMemEval_v1_paper_v2",
+      "CLEVR",
+      "Perception_Test_video_tasks"
+    ],
+    "LongMemEval_V2": "optional_scope_and_cost_review_before_admission"
+  },
+  "study_budget": {
+    "screen_training_seeds": 2,
+    "screen_worlds_per_seed_per_arm": 32,
+    "screen_long_churn_worlds_per_seed_minimum": 8,
+    "normal_world_event_cap": 128,
+    "long_churn_exception_minimum_lexical_introductions": 544,
+    "initial_offline_fit_base_token_equivalent_exposure_cap": 2000000,
+    "screen_device_hours_per_arm_cap": 4,
+    "confirmation_initial_training_seeds": 3,
+    "confirmation_initial_worlds_per_seed": 128,
+    "confirmation_max_worlds_per_seed": 1024,
+    "confirmation_sample_size_frozen_before_final_labels": true,
+    "power_selection_data": "development_only",
+    "budget_expiration_result": "incomplete",
+    "insufficient_interval_precision_result": "inconclusive"
+  },
+  "statistics": {
+    "unit": "independent_world_cluster_and_training_seed",
+    "paired": true,
+    "confidence": 0.95,
+    "question_level_iid_forbidden": true,
+    "primary_contrast_adjustment": "simultaneous_intervals_or_Holm",
+    "report_per_seed_and_family": true,
+    "require_positive_three_way_interaction": false
+  },
+  "gates": [
+    {
+      "id": "G0",
+      "name": "mechanics",
+      "zero_observed_contract_violations": true,
+      "disabled_path_parity_tolerance_predeclared": true
+    },
+    {
+      "id": "G1",
+      "name": "native_memory",
+      "delayed_and_correction_point_accuracy_min": 0.9,
+      "adjusted_paired_lower_bound_vs_empty_and_shuffled_gt": 0.0,
+      "native_writer_reader_required": true
+    },
+    {
+      "id": "G2",
+      "name": "lexical_reliability",
+      "zero_surface_identity_mismatches": true,
+      "quality_difference_lower_bound_min": -0.02,
+      "eviction_reactivation_and_permutation_required": true
+    },
+    {
+      "id": "G3",
+      "name": "learning",
+      "transfer_point_gain_min": 0.05,
+      "adjusted_lower_bound_vs_no_update_and_fake_update_gt": 0.0,
+      "demonstration_recall_insufficient": true
+    },
+    {
+      "id": "G4",
+      "name": "retention",
+      "unaffected_and_general_quality_difference_lower_bound_min": -0.02
+    },
+    {
+      "id": "G5",
+      "name": "joint_utility",
+      "requires": [
+        "G1",
+        "G2",
+        "G3",
+        "G4"
+      ],
+      "M_ablation_harms_recall": true,
+      "L_ablation_harms_transfer": true,
+      "V_ablation_cost_utility_required": true
+    },
+    {
+      "id": "G6",
+      "name": "cost",
+      "phrase_heavy_point_latency_reduction_min": 0.1,
+      "paired_interval_supports_improvement": true,
+      "general_text_warm_p95_increase_max": 0.1,
+      "full_lifecycle_cost_accounting": true
+    },
+    {
+      "id": "G7",
+      "name": "grounded_vision",
+      "spatial_and_temporal_point_gain_min": 0.05,
+      "adjusted_lower_bound_vs_wrong_and_no_image_gt": 0.0,
+      "requires": [
+        "G4"
+      ],
+      "joint_churn_and_correction_required": true
+    },
+    {
+      "id": "G8",
+      "name": "improved_learning_policy",
+      "future_task_point_gain_min": 0.05,
+      "adjusted_lower_bound_vs_frozen_policy_gt": 0.0,
+      "equal_observations_initial_knowledge_update_count_and_budget": true,
+      "open_ended_RSI_claim": false
+    }
+  ],
+  "stages": [
+    {
+      "id": "P0",
+      "name": "contracts_and_audit",
+      "depends_on": [],
+      "optional": false,
+      "gates": [
+        "G0"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P1",
+      "name": "native_memory_diagnosis",
+      "depends_on": [
+        "P0"
+      ],
+      "optional": false,
+      "gates": [
+        "G0",
+        "G1",
+        "G4"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P2",
+      "name": "phrase_learning_and_swaps",
+      "depends_on": [
+        "P0"
+      ],
+      "optional": false,
+      "gates": [
+        "G0",
+        "G2"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P3",
+      "name": "verified_learning",
+      "depends_on": [
+        "P0"
+      ],
+      "optional": false,
+      "gates": [
+        "G0",
+        "G3",
+        "G4"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P4",
+      "name": "joint_factorial",
+      "depends_on": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "optional": false,
+      "gates": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P5",
+      "name": "vision_and_workspace",
+      "depends_on": [
+        "P4"
+      ],
+      "optional": false,
+      "gates": [
+        "G0",
+        "G4",
+        "G7"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P6",
+      "name": "fast_memory_and_multi_rate",
+      "depends_on": [
+        "P4"
+      ],
+      "optional": true,
+      "gates": [
+        "G0",
+        "G4",
+        "G6"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P7",
+      "name": "native_learning_policy",
+      "depends_on": [
+        "P4",
+        "P5"
+      ],
+      "optional": true,
+      "gates": [
+        "G0",
+        "G4",
+        "G8"
+      ],
+      "status": "not_executed_by_this_review"
+    },
+    {
+      "id": "P8",
+      "name": "Spark_full_architecture_transfer",
+      "depends_on": [
+        "P4",
+        "P5"
+      ],
+      "optional": false,
+      "gates": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7"
+      ],
+      "status": "not_executed_by_this_review"
+    }
+  ],
+  "resource_policy": {
+    "platform": "M2_Ultra_64_GiB",
+    "exclusive_MPS_worker": true,
+    "driver_ceiling_bytes": 53687091200,
+    "sustained_swap_growth_ceiling_bytes": 536870912,
+    "host_free_percent_minimum": 15,
+    "silent_CPU_fallback": false,
+    "future_CUDA_qualification_separate": true
+  },
+  "evidence_classification": [
+    "published_not_reproduced",
+    "source_inspected_not_executed",
+    "local_preserved_result_not_rerun",
+    "proposed_unvalidated"
+  ],
+  "execution_admission_required": [
+    "exact_frozen_source_and_protocol",
+    "qualified_dtype_and_gradient_path",
+    "bounded_replay_surface_and_metadata_bytes",
+    "untouched_holdout_and_independent_verifier",
+    "exclusive_device_and_budget",
+    "no_competing_runtime_mutation"
+  ],
+  "evidence_basis": {
+    "native_memory": [
+      "memt",
+      "engram",
+      "titans",
+      "hope"
+    ],
+    "atomic_vocabulary": [
+      "swap_dva",
+      "swap_dvagen",
+      "dynamic"
+    ],
+    "vision": [
+      "con_siglip2",
+      "con_vjepa21"
+    ],
+    "learning": [
+      "lrmatters",
+      "lorafa",
+      "care",
+      "matryoshka",
+      "seal"
+    ],
+    "functional_appraisal": [
+      "backpropamine",
+      "appraisal"
+    ],
+    "joint_combination": []
+  }
+}

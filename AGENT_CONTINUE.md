@@ -1,19 +1,25 @@
 # Coding-agent continuation instruction
 
-**Current priority — fresh-world vision error/readout diagnosis; no further blind V1 tuning.**
-R1–R4 are repaired; V0 is accepted interface-only; both projector-only V1 arms
-are rejected. The 128-update 4096-wide tiny overfit arm fits 8/8 training worlds
-but scores 0/8 on fresh dev correct, wrong and no-image controls. The full
-4096-wide V1 arm passes engineering and zero-update fresh-process bitwise reload,
-but independent scoring gives correct image 21/64, wrong 12/64, shuffled 15/64,
-no-image 22/64, oracle caption 60/64 and empty OCR 15/64. Text retention stays
-bitwise unchanged at 22/32, below the absolute floor. See
-[wide V1 results](docs/experiments/20261025_MiniCPM5_Vision_V1_Wide_Results.md).
-The final suite passes 1,615 tests +21 subtests; independent evidence review
-finds no integrity discrepancies.
-Keep V2/LoRA and learned V3/neural RSI unadmitted; preserve v5 and both V1
-rejections, exact-source engineering controls, Spark backend blockers and the
-50 GiB guard.
+**Current priority — run the fresh balanced image-dependence diagnostic after verification repairs.**
+All four reported verification defects are fixed. Raw-page rebinding requires
+explicit record dependencies and fails closed on unknown provenance or contained
+revocation. Memory parity now checks every fact and rejects duplicate/missing
+rows; immutable one-/two-/three-fact outcomes still pass with zero difference.
+The old frozen-feature conclusion replays as `inconclusive_visual_contribution`.
+Bounded-RSI units are self-contained; the verification set passes 147 tests with
+two explicit integration skips from a clean export. See
+[verification repairs](docs/experiments/20261025_Verification_Repairs.md).
+Both V1 arms remain rejected: wide V1 is 21/64 correct-image versus 22/64
+no-image, despite engineering and fresh-reload success. The next native package
+is the paired balanced vision diagnostic; matched-episode memory localization
+follows. Keep V2/LoRA and learned V3/neural RSI unadmitted.
+
+External intake now admits 30 inspected LLaVA-Pretrain roots/rows (15 train,
+7 development, 8 sealed final evaluation) with terms, hashes, split lineage and
+deterministic rebuild evidence. Spark2_5 preparation contracts cover geometry,
+tokenizer/template, precision admission and extension inventory; native FP8
+remains blocked and no Spark training is qualified. Preserve the 50 GiB guard,
+one native worker, swap/memory limits, v5 rejection and uncommitted research work.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

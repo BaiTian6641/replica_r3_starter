@@ -1,0 +1,553 @@
+{
+  "schema": "replica.vocabulary_lora_research_review.v1",
+  "reviewed_on": "2026-10-25",
+  "status": "research_and_design_complete_not_implementation",
+  "scope": "Dynamic vocabulary, native lexical learning and efficient LoRA for Spark, extending the MiniCPM/Dynamic Engram plan",
+  "counts": {
+    "distinct_arxiv_papers": 24,
+    "vocabulary_papers": 6,
+    "adaptation_papers": 18,
+    "related_publication_versions": 1,
+    "official_code_or_documentation_snapshots": 8,
+    "official_tokenizer_snapshots": 1
+  },
+  "reading_method": "Full HTML texts retrieved; selected methods, implementation details and relevant experiments examined. This is a targeted survey, not a systematic review or a claim to have read every appendix.",
+  "paper_downloads_in_repository": false,
+  "source_reproducibility": "Manifest retains public URLs, version IDs, reading scope, byte counts and SHA-256. Raw downloads reside in temporary research storage and are not required for local artifact validation. Canonical version URLs identify versions seen in the downloaded HTML; requested URLs are preserved separately.",
+  "primary_sources": [
+    {
+      "name": "dynamic",
+      "url": "https://arxiv.org/html/2411.18553",
+      "sha256": "29b18c700333659da58055b9438d931730212f6b9b884115efcc824817e12768",
+      "bytes": 532242,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Methods, decoder prefix/scoring setup, generation extension and quality limitations",
+      "raw_snapshot_hash_checked": true,
+      "title": "Retrofitting Large Language Models with Dynamic Tokenization",
+      "arxiv_version": "2411.18553v3",
+      "version_url": "https://arxiv.org/html/2411.18553v3"
+    },
+    {
+      "name": "zett",
+      "url": "https://arxiv.org/html/2405.07883",
+      "sha256": "2fe7b51bbb103e64b6c5db75f65abea4aa3791aa53a8f772887a5b983486a7a1",
+      "bytes": 535846,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Hypernetwork, warm-up, sampled tokenizers and transfer evaluation",
+      "raw_snapshot_hash_checked": true,
+      "title": "Zero-Shot Tokenizer Transfer",
+      "arxiv_version": "2405.07883v2",
+      "version_url": "https://arxiv.org/html/2405.07883v2"
+    },
+    {
+      "name": "vocabdiet",
+      "url": "https://arxiv.org/html/2510.17001",
+      "sha256": "3852f181a21f21c7ba2b937f45f817afb5ad87db746db2808ac76e016a44406e",
+      "bytes": 409038,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Retrofit procedure, filtering, transformation and LoRA parameter scope, reported tradeoffs",
+      "raw_snapshot_hash_checked": true,
+      "title": "Vocab Diet: Reshaping the Vocabulary of LLMs via Vector Arithmetic",
+      "arxiv_version": "2510.17001v2",
+      "version_url": "https://arxiv.org/html/2510.17001v2"
+    },
+    {
+      "name": "bolmo",
+      "url": "https://arxiv.org/html/2512.15586",
+      "sha256": "c66de4cf5cb31fc97e95edce9e9a6e2a0a0371447d1f813f7b9c20d06685d675",
+      "bytes": 830993,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Architecture, two-stage conversion and training/compute setup",
+      "raw_snapshot_hash_checked": true,
+      "title": "Bolmo: Byteifying the Next Generation of Language Models",
+      "arxiv_version": "2512.15586v2",
+      "version_url": "https://arxiv.org/html/2512.15586v2"
+    },
+    {
+      "name": "hnet",
+      "url": "https://arxiv.org/html/2507.07955",
+      "sha256": "e918a695230b7a44194c06343f9f627c5d996e04c2236b43ff325c1cef69232a",
+      "bytes": 564655,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Architecture overview, dynamic chunking and routing/smoothing objectives",
+      "raw_snapshot_hash_checked": true,
+      "title": "Dynamic Chunking for End-to-End Hierarchical Sequence Modeling",
+      "arxiv_version": "2507.07955v2",
+      "version_url": "https://arxiv.org/html/2507.07955v2"
+    },
+    {
+      "name": "blt",
+      "url": "https://arxiv.org/html/2412.09871",
+      "sha256": "fc5c366060499360661baac0b916b381112eb35cd72f6045be5e9dd17a9de2db",
+      "bytes": 379908,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Patching, local encoder/decoder, entropy model and evaluation setup",
+      "raw_snapshot_hash_checked": true,
+      "title": "Byte Latent Transformer: Patches Scale Better Than Tokens",
+      "arxiv_version": "2412.09871v1",
+      "version_url": "https://arxiv.org/html/2412.09871v1"
+    },
+    {
+      "name": "lorafa",
+      "url": "https://arxiv.org/html/2308.03303",
+      "sha256": "3fb7f58c87238f2c7f82d90451f772e38d993b8342ce735b8e65c4892da8ceb3",
+      "bytes": 565735,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Frozen projection algorithm, correction and activation-memory analysis",
+      "raw_snapshot_hash_checked": true,
+      "title": "LoRA-FA: Memory-efficient Low-rank Adaptation for Large Language Models Fine-tuning",
+      "arxiv_version": "2308.03303v3",
+      "version_url": "https://arxiv.org/html/2308.03303v3"
+    },
+    {
+      "name": "rslora",
+      "url": "https://arxiv.org/html/2312.03732",
+      "sha256": "a4b1375b2e54398afe2ca35e230b4850d301f1a6531c776c101e0d8dafaadf90",
+      "bytes": 154483,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Scaling theory and rank experiments",
+      "raw_snapshot_hash_checked": true,
+      "title": "A Rank Stabilization Scaling Factor for Fine-Tuning with LoRA",
+      "arxiv_version": "2312.03732v1",
+      "version_url": "https://arxiv.org/html/2312.03732v1"
+    },
+    {
+      "name": "loraplus",
+      "url": "https://arxiv.org/html/2402.12354",
+      "sha256": "172ec6ae0056b1fb498b778fb537256955110464471daa082913068d34bf5fe0",
+      "bytes": 490287,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Scaling argument and practical learning-rate ratio discussion",
+      "raw_snapshot_hash_checked": true,
+      "title": "LoRA+: Efficient Low Rank Adaptation of Large Models",
+      "arxiv_version": "2402.12354v2",
+      "version_url": "https://arxiv.org/html/2402.12354v2"
+    },
+    {
+      "name": "pissa",
+      "url": "https://arxiv.org/html/2404.02948",
+      "sha256": "14e8eba82cf69f7b7d2f4e6e98807f4c9ca268872dae536cae5f170ea76bc777",
+      "bytes": 548869,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Principal-component decomposition and initialization",
+      "raw_snapshot_hash_checked": true,
+      "title": "PiSSA: Principal Singular Values and Singular Vectors Adaptation of Large Language Models",
+      "arxiv_version": "2404.02948v4",
+      "version_url": "https://arxiv.org/html/2404.02948v4"
+    },
+    {
+      "name": "dora",
+      "url": "https://arxiv.org/html/2402.09353",
+      "sha256": "4633a488c7a9fd574e1d5682a1cafd13bee0323a6acf5fc1fa97369aa54801fe",
+      "bytes": 338684,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Weight decomposition, gradient analysis and memory treatment",
+      "raw_snapshot_hash_checked": true,
+      "title": "DoRA: Weight-Decomposed Low-Rank Adaptation",
+      "arxiv_version": "2402.09353v6",
+      "version_url": "https://arxiv.org/html/2402.09353v6"
+    },
+    {
+      "name": "eva",
+      "url": "https://arxiv.org/html/2410.07170",
+      "sha256": "095111c11bdbacbfd2116783fcaa9ec2354ba993cd4fdf57a0dc5af89c7a385c",
+      "bytes": 1332505,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Activation initialization, incremental decomposition and rank allocation",
+      "raw_snapshot_hash_checked": true,
+      "title": "Parameter Efficient Fine-tuning via Explained Variance Adaptation",
+      "arxiv_version": "2410.07170v5",
+      "version_url": "https://arxiv.org/html/2410.07170v5"
+    },
+    {
+      "name": "cordaplus",
+      "url": "https://arxiv.org/html/2506.13187",
+      "sha256": "d345e80eba60cabd52d9c9558e9353550d8b884cd8045bbd23b9ed6c5d0fe8eb",
+      "bytes": 466335,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Context covariance, decomposition, rank allocation and preservation mode",
+      "raw_snapshot_hash_checked": true,
+      "title": "Dynamic Context-oriented Decomposition for Task-aware Low-rank Adaptation with Less Forgetting and Faster Convergence",
+      "arxiv_version": "2506.13187v1",
+      "version_url": "https://arxiv.org/html/2506.13187v1"
+    },
+    {
+      "name": "loraone",
+      "url": "https://arxiv.org/html/2502.01235",
+      "sha256": "18f3cf8b53c8034281cd502d3c31669465fd4a292939b23c0044b25691741e4a",
+      "bytes": 2378913,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Practical full-gradient initialization and main AdamW algorithm",
+      "raw_snapshot_hash_checked": true,
+      "title": "LoRA-One: One-Step Full Gradient Could Suffice for Fine-Tuning Large Language Models, Provably and Efficiently",
+      "arxiv_version": "2502.01235v3",
+      "version_url": "https://arxiv.org/html/2502.01235v3"
+    },
+    {
+      "name": "matryoshka",
+      "url": "https://arxiv.org/html/2605.07850",
+      "sha256": "63ef9e625fc11932f6b7e053d0704ede23f55580ac3ea531c8ee29e5bee5699d",
+      "bytes": 451041,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Diagonal weighting construction and evaluation with selected rank",
+      "raw_snapshot_hash_checked": true,
+      "title": "MatryoshkaLora: Learning Accurate Hierarchical Low-Rank Representations for LLM Fine-Tuning",
+      "arxiv_version": "2605.07850v1",
+      "version_url": "https://arxiv.org/html/2605.07850v1"
+    },
+    {
+      "name": "care",
+      "url": "https://arxiv.org/html/2607.11940",
+      "sha256": "8c0c155a0969023c093b6d1fb960e8bad465100fed47478a1fca7acb381faa2a",
+      "bytes": 555630,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Compressed reconstruction, first-order gradient derivation and memory tradeoffs",
+      "raw_snapshot_hash_checked": true,
+      "title": "CARE-LoRA: Compressed Activation REconstruction for Memory-Efficient LoRA",
+      "arxiv_version": "2607.11940v1",
+      "version_url": "https://arxiv.org/html/2607.11940v1"
+    },
+    {
+      "name": "loract",
+      "url": "https://arxiv.org/html/2509.23472",
+      "sha256": "aac1abb7dc985b52c8485f4aad559d49080c66bff7b3ea4e7a24d4306c705595",
+      "bytes": 365638,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Activation compression and reconstructed backward computation",
+      "raw_snapshot_hash_checked": true,
+      "title": "Memory-Efficient Fine-Tuning via Low-Rank Activation Compression",
+      "arxiv_version": "2509.23472v1",
+      "version_url": "https://arxiv.org/html/2509.23472v1"
+    },
+    {
+      "name": "alora",
+      "url": "https://arxiv.org/html/2504.12397",
+      "sha256": "cb6559e54acbb739609f9cb35678d99da8ef4b7a2fee66e6691d8f48edd4247c",
+      "bytes": 318615,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Activation boundary and prefix/suffix cache compatibility",
+      "raw_snapshot_hash_checked": true,
+      "title": "Activated LoRA: Fine-tuned LLMs for Intrinsics",
+      "arxiv_version": "2504.12397v5",
+      "version_url": "https://arxiv.org/html/2504.12397v5"
+    },
+    {
+      "name": "lrmatters",
+      "url": "https://arxiv.org/html/2602.04998",
+      "sha256": "493c8f587748608b6b77aa2adf72c50f743048fff35875dd761004369bfd9edd",
+      "bytes": 1358376,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Experimental design, learning-rate searches and principal comparisons",
+      "raw_snapshot_hash_checked": true,
+      "title": "Learning Rate Matters: Vanilla LoRA May Suffice for LLM Fine-tuning",
+      "arxiv_version": "2602.04998v2",
+      "version_url": "https://arxiv.org/html/2602.04998v2"
+    },
+    {
+      "name": "qlora",
+      "url": "https://arxiv.org/html/2305.14314",
+      "sha256": "ea313f663ee3621296afd102148e6dc48ff787b5aa3f8e54b67d437f7f9eb492",
+      "bytes": 305910,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "NF4, double quantization, paging and finetuning setup",
+      "raw_snapshot_hash_checked": true,
+      "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
+      "arxiv_version": "2305.14314v1",
+      "version_url": "https://arxiv.org/html/2305.14314v1"
+    },
+    {
+      "name": "loftq",
+      "url": "https://arxiv.org/html/2310.08659",
+      "sha256": "b5115530a609ea6687e88c2a279b7c5ad336b65db64e7c4d5858eab87259eb75",
+      "bytes": 338438,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Joint initialization objective and alternating quantization/SVD algorithm",
+      "raw_snapshot_hash_checked": true,
+      "title": "LoftQ: LoRA-Fine-Tuning-Aware Quantization for Large Language Models",
+      "arxiv_version": "2310.08659v4",
+      "version_url": "https://arxiv.org/html/2310.08659v4"
+    },
+    {
+      "name": "tinylora",
+      "url": "https://arxiv.org/html/2602.04118",
+      "sha256": "357920318eefca85648da8e50f5812e77e8956cb069cee8ffa3dc43c32ebde51",
+      "bytes": 187689,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Projected updates, shared coefficients and supervised/RL comparison",
+      "raw_snapshot_hash_checked": true,
+      "title": "Learning to Reason in 13 Parameters",
+      "arxiv_version": "2602.04118v1",
+      "version_url": "https://arxiv.org/html/2602.04118v1"
+    },
+    {
+      "name": "llmbo",
+      "url": "https://arxiv.org/html/2610.18504",
+      "sha256": "54f000432f287204d5cf32e31314f4e5362fe1806bf1823d1f911d2417725b90",
+      "bytes": 4226706,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Low-dimensional Bayesian optimization, evaluation procedure and setup",
+      "raw_snapshot_hash_checked": true,
+      "title": "How Low Can You Go: Fine-Tuning LLMs with Bayesian Optimization (LlMBO)",
+      "arxiv_version": "2610.18504v1",
+      "version_url": "https://arxiv.org/html/2610.18504v1"
+    },
+    {
+      "name": "boostlora",
+      "url": "https://arxiv.org/html/2604.27308",
+      "sha256": "93df0a28f30fd8f592d15532bc0a066baadce659f9913c4c05f78453048d33f7",
+      "bytes": 293118,
+      "kind": "research_paper",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Sequential boosting, changing update subspaces and merge strategy",
+      "raw_snapshot_hash_checked": true,
+      "title": "BoostLoRA: Growing Effective Rank by Boosting Adapters",
+      "arxiv_version": "2604.27308v1",
+      "version_url": "https://arxiv.org/html/2604.27308v1"
+    },
+    {
+      "name": "byteification_nature",
+      "url": "https://www.nature.com/articles/s41586-026-11111-4",
+      "sha256": "f8f473814fd0c7860e12ee1db205284409db8055481f9faf1501f4e939cf8799",
+      "bytes": 518259,
+      "kind": "related_publication",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Abstract, publication details and efficiency figure notes; preprint used for detailed conversion/training reading",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "peft_lorafa_py",
+      "url": "https://raw.githubusercontent.com/huggingface/peft/7d6315ae910bf62b6044a7ca917bccf5881f5e43/src/peft/optimizers/lorafa.py",
+      "sha256": "fdce42f5f86f7aef517189109fda0ccc4aa3173d315a3b0284b43cefee1ed495",
+      "bytes": 15215,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Optimizer update/correction and create_lorafa_optimizer",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "peft_src_peft_tuners_trainable_tokens_layer_py",
+      "url": "https://raw.githubusercontent.com/huggingface/peft/7d6315ae910bf62b6044a7ca917bccf5881f5e43/src/peft/tuners/trainable_tokens/layer.py",
+      "sha256": "7e80ea5f75380dc422ff820007f2978a334c21dd685d6da4dc9046028ce08ac7",
+      "bytes": 13039,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Selected rows, tied adapters, merged weights and embedding/linear forward",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "peft_docs_source_package_reference_lora_md",
+      "url": "https://raw.githubusercontent.com/huggingface/peft/7d6315ae910bf62b6044a7ca917bccf5881f5e43/docs/source/package_reference/lora.md",
+      "sha256": "fcd796dbc49b6ff252a8de3a87c02acb9c07e8f39d1ed5e773bd6d8602b74dcb",
+      "bytes": 75226,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Selected sections on FA, trainable tokens and activated LoRA",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "peft_docs_source_package_reference_trainable_tokens_md",
+      "url": "https://raw.githubusercontent.com/huggingface/peft/7d6315ae910bf62b6044a7ca917bccf5881f5e43/docs/source/package_reference/trainable_tokens.md",
+      "sha256": "26f59afa4979d72da45ba95a5d2ffb741fe1105bcf1606d6ad47782f300172ed",
+      "bytes": 3124,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Selected-token usage and tied-weight considerations",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "care_peft_src_peft_tuners_lora_layer_py",
+      "url": "https://raw.githubusercontent.com/fishandyu/CARE-LoRA/f60d5f3f70f80451e4a4851dcbb945e5b9e4d574/peft/src/peft/tuners/lora/layer.py",
+      "sha256": "e4a5e5a2906d7f5afff8f4cbfafe210e1cb19ccf74a2b1ca1a23a480ad3cc6fc",
+      "bytes": 105781,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Custom autograd forward/backward, FP32 reconstruction and saved-context data",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "matryoshka_adapters_matryoshka_py",
+      "url": "https://raw.githubusercontent.com/IST-DASLab/MatryoshkaLoRA/66dd4641d27d8891ab0737549a4d225c96abd1dd/adapters/matryoshka.py",
+      "sha256": "5c8a5082201ecc418537a3bfc3e2b7981e36610233101ebba3e34a56286d2a29",
+      "bytes": 3439,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Complete small adapter implementation including training weights and evaluation prefix",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "dynamic_tokenizations_dynamic_bpe_py",
+      "url": "https://raw.githubusercontent.com/DariusFeher/dynamic-tokenization/6686e72f5daeda09445793a01b710ca58ec9ec47/tokenizations/dynamic_bpe.py",
+      "sha256": "186a9bc736b461b347771151126300238cedbc4b2ed9fcf6fab37eb5db738cd0",
+      "bytes": 18994,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Batch merge loop, pair selection and boundary helpers",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "dynamic_tokenizations_hypernet_cache_py",
+      "url": "https://raw.githubusercontent.com/DariusFeher/dynamic-tokenization/6686e72f5daeda09445793a01b710ca58ec9ec47/tokenizations/hypernet_cache.py",
+      "sha256": "91aa8c573aa6fead2e85e240a15c8e1b9df889d5b7e8b5fc5f2f0689faff3bbe",
+      "bytes": 4423,
+      "kind": "official_code_or_documentation",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Allocation, CUDA device assertion and bounded cache insertion/eviction",
+      "raw_snapshot_hash_checked": true
+    },
+    {
+      "name": "spark_tokenizer",
+      "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/tokenizer.json",
+      "sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+      "bytes": 10115786,
+      "kind": "official_model_metadata",
+      "accessed_on": "2026-10-25",
+      "reading_scope": "Complete JSON inventory; standard tokenizers library used for text-only illustrative probe",
+      "raw_snapshot_hash_checked": true
+    }
+  ],
+  "official_repositories": [
+    {
+      "repository": "https://github.com/huggingface/peft",
+      "revision": "7d6315ae910bf62b6044a7ca917bccf5881f5e43",
+      "commit_date": "2026-10-23T11:56:09Z"
+    },
+    {
+      "repository": "https://github.com/fishandyu/CARE-LoRA",
+      "revision": "f60d5f3f70f80451e4a4851dcbb945e5b9e4d574",
+      "commit_date": "2026-07-06T04:44:15Z"
+    },
+    {
+      "repository": "https://github.com/IST-DASLab/MatryoshkaLoRA",
+      "revision": "66dd4641d27d8891ab0737549a4d225c96abd1dd",
+      "commit_date": "2026-05-11T14:43:42Z"
+    },
+    {
+      "repository": "https://github.com/DariusFeher/dynamic-tokenization",
+      "revision": "6686e72f5daeda09445793a01b710ca58ec9ec47",
+      "commit_date": "2025-07-22T22:30:33Z"
+    }
+  ],
+  "failed_or_excluded_fetches": [
+    {
+      "name": "peft_lora_md",
+      "url": "https://raw.githubusercontent.com/huggingface/peft/7d6315ae910bf62b6044a7ca917bccf5881f5e43/docs/source/developer_guides/lora.md",
+      "error": "HTTP Error 404: Not Found",
+      "resolution": "Corrected official package_reference path retrieved and used"
+    }
+  ],
+  "other_downloads": "API metadata, duplicate canonical files and supplemental READMEs were not counted as additional reviewed papers or code evidence.",
+  "initial_repository_snapshot": {
+    "head": "7418b99040a921f1b43fae54c77c69e70ae68903",
+    "files": {
+      "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+      "src/replica_lab/architecture/contracts.py": "ffc96b8643838e08386d4b0b49a3709d3c9d7d0b43b93e2a343192d7ac59e987",
+      "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+      "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+      "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+      "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+      "src/replica_lab/runtime_pilot.py": "2433cb7296fda0cb306529a19429ff41fe0d43192720086dee572ec4a42970f9"
+    }
+  },
+  "completion_repository_snapshot": {
+    "head": "a0bd44b3f7777391ca5f20f10b7d46177882f355",
+    "files": {
+      "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+      "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+      "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+      "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+      "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/config.json": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+      "reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+      "src/replica_lab/runtime_pilot.py": "2433cb7296fda0cb306529a19429ff41fe0d43192720086dee572ec4a42970f9",
+      "configs/spark_source_preparation_v1.json": "3dc866eab5d29d689e2ad11a8ca0b83de06bc9b253f549c0e117cc2dd6aeeaae",
+      "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+      "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+      "docs/research/dynamic_engram_20261025/README.md": "35b7574ec1d156caf1d10a0506be8ee52fef13a075f54fa7dbf7eb5ad89d6cc1",
+      "docs/experiments/20261024_Memory_Reliability_Writer_Binding_Results.md": "3377939d80ae3d0cd74b67e37d6a25254c587951cdf45e7c52f804aeea852f07"
+    }
+  },
+  "concurrently_changed_reviewed_files": [
+    "src/replica_lab/architecture/contracts.py"
+  ],
+  "protected_runtime_hash_unchanged": true,
+  "environment_versions": {
+    "torch": "2.14.1",
+    "transformers": "5.20.2",
+    "tokenizers": "0.23.3",
+    "peft": null
+  },
+  "work_performed": [
+    "Public-source research and selected official-code reading",
+    "Read-only repository inspection",
+    "Text-only tokenizer inventory and three in-memory addition trials",
+    "Analytical parameter/storage calculations",
+    "Repository documents, proposal and artifact validation"
+  ],
+  "work_not_performed": [
+    "No model-weight download",
+    "No model execution or training",
+    "No PEFT install",
+    "No upstream code execution",
+    "No architecture or runtime changes",
+    "No new model quality/speed measurement",
+    "No rerun of the repository runtime test suite"
+  ],
+  "capability_boundary": "Earlier native memory quality remains a prerequisite. This follow-up does not advance MiniCPM, Spark, vision or recursive-learning admission.",
+  "deliverables": [
+    "docs/research/vocabulary_lora_20261025/README.md",
+    "docs/research/vocabulary_lora_20261025/01_Dynamic_Vocabulary_Research.md",
+    "docs/research/vocabulary_lora_20261025/02_Efficient_LoRA_Research.md",
+    "docs/research/vocabulary_lora_20261025/03_Integrated_Design_and_Experiments.md",
+    "docs/research/vocabulary_lora_20261025/04_Cost_and_Implementation.md",
+    "configs/vocabulary_lora_research_plan_v1.json",
+    "reports/vocabulary_lora_research_20261025/review.json",
+    "reports/vocabulary_lora_research_20261025/analytical_costs.json",
+    "reports/vocabulary_lora_research_20261025/tokenizer_probe.json",
+    "reports/vocabulary_lora_research_20261025/estimate_costs.py",
+    "reports/vocabulary_lora_research_20261025/probe_tokenizer.py",
+    "reports/vocabulary_lora_research_20261025/validate_report.py",
+    "reports/vocabulary_lora_research_20261025/validation.json",
+    "docs/research/vocabulary_lora_20261025/05_Swappable_Dynamic_Vocabulary.md",
+    "reports/vocabulary_lora_research_20261025/estimate_swappable_costs.py",
+    "reports/vocabulary_lora_research_20261025/swappable_costs.json",
+    "reports/vocabulary_lora_research_20261025/swappable_review.json"
+  ],
+  "environment_python": "repository .venv/bin/python",
+  "authored_paths": [
+    "docs/research/vocabulary_lora_20261025/",
+    "reports/vocabulary_lora_research_20261025/",
+    "configs/vocabulary_lora_research_plan_v1.json",
+    "docs/research/dynamic_engram_20261025/README.md"
+  ],
+  "concurrent_runtime_edits": "Existing/concurrent runtime and vision changes were preserved. Only authored_paths were changed by this research task.",
+  "followups": [
+    {
+      "subject": "Swappable dynamic vocabulary",
+      "review": "reports/vocabulary_lora_research_20261025/swappable_review.json",
+      "additional_papers": 4,
+      "original_source_counts_preserved": true
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # Spark-X2.6-4B: integrated vision, memory and continual learning
 
+**Canonical plan, 25 October:** use the [consolidated SparkX 2.6 architecture and MiniCPM5 validation plan](../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) for current design decisions and joint memory/vocabulary/learning experiments. This package and its validation remain a historical research snapshot.
+
 **Follow-up, 25 October:** the [Dynamic Engram research and design](../dynamic_engram_20261025/README.md) extends this plan with MemT, editable episodic memory, generated parameters, functional appraisal and a costed implementation roadmap. It reconciles the newer R1–R3 repair commit; the audit below retains its original historical scope.
 
 Research started **24 October 2026, America/Chicago**, with final working-tree reconciliation on **25 October**. Reviewed repository HEAD: `7c7018e367369bd5df9677785dd3c4df05862a7e`, branch `codex/d2-capacity-runtime-pilot`, including the existing working-tree changes. **Status: proposed research and implementation plan; no Spark weights, vision training or new model capabilities produced.**

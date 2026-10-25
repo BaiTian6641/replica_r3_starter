@@ -1,0 +1,217 @@
+{
+  "kind": "analytical_estimate_not_device_measurement",
+  "units": {
+    "MiB": "2^20 bytes",
+    "MAC": "one multiply-accumulate"
+  },
+  "spark": {
+    "hidden_size": 2560,
+    "vocab_size": 131072,
+    "num_hidden_layers": 36,
+    "tie_word_embeddings": true,
+    "base_tied_embedding_parameters": 335544320,
+    "base_tied_embedding_bf16_mib": 640.0,
+    "linear_input_output_shapes": {
+      "q_k_v_proj": [
+        2560,
+        6144
+      ],
+      "out_proj": [
+        4096,
+        2560
+      ],
+      "gate_proj": [
+        2560,
+        10240
+      ],
+      "up_proj": [
+        2560,
+        10240
+      ],
+      "down_proj": [
+        10240,
+        2560
+      ]
+    }
+  },
+  "vocabulary": [
+    {
+      "new_rows": 256,
+      "parameters": 655360,
+      "bf16_weights_mib": 1.25,
+      "fp32_weights_grad_two_adam_moments_mib": 10.0,
+      "extra_output_head_macs_per_position": 655360,
+      "extra_output_head_compute_percent": 0.1953125,
+      "mean_row_initial_old_distribution_kl_bound_nats": 0.0019512201312617493
+    },
+    {
+      "new_rows": 1024,
+      "parameters": 2621440,
+      "bf16_weights_mib": 5.0,
+      "fp32_weights_grad_two_adam_moments_mib": 40.0,
+      "extra_output_head_macs_per_position": 2621440,
+      "extra_output_head_compute_percent": 0.78125,
+      "mean_row_initial_old_distribution_kl_bound_nats": 0.007782140442054949
+    },
+    {
+      "new_rows": 2048,
+      "parameters": 5242880,
+      "bf16_weights_mib": 10.0,
+      "fp32_weights_grad_two_adam_moments_mib": 80.0,
+      "extra_output_head_macs_per_position": 5242880,
+      "extra_output_head_compute_percent": 1.5625,
+      "mean_row_initial_old_distribution_kl_bound_nats": 0.015504186535965254
+    }
+  ],
+  "lora": [
+    {
+      "scope": "two_square_residual_ports",
+      "rank": 8,
+      "a_parameters": 40960,
+      "b_parameters": 40960,
+      "total_parameters": 81920,
+      "bf16_all_adapter_weights_mib": 0.15625,
+      "fp32_weights_grad_two_adam_moments_mib": 1.25,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 0.625,
+      "fa_frozen_a_bf16_mib": 0.078125,
+      "unmerged_adapter_forward_macs_per_position": 81920
+    },
+    {
+      "scope": "two_backbone_down_projections",
+      "rank": 8,
+      "a_parameters": 163840,
+      "b_parameters": 40960,
+      "total_parameters": 204800,
+      "bf16_all_adapter_weights_mib": 0.390625,
+      "fp32_weights_grad_two_adam_moments_mib": 3.125,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 0.625,
+      "fa_frozen_a_bf16_mib": 0.3125,
+      "unmerged_adapter_forward_macs_per_position": 204800
+    },
+    {
+      "scope": "eight_blocks_five_projections",
+      "rank": 8,
+      "a_parameters": 1409024,
+      "b_parameters": 2031616,
+      "total_parameters": 3440640,
+      "bf16_all_adapter_weights_mib": 6.5625,
+      "fp32_weights_grad_two_adam_moments_mib": 52.5,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 31.0,
+      "fa_frozen_a_bf16_mib": 2.6875,
+      "unmerged_adapter_forward_macs_per_position": 3440640
+    },
+    {
+      "scope": "all_36_blocks_five_projections",
+      "rank": 8,
+      "a_parameters": 6340608,
+      "b_parameters": 9142272,
+      "total_parameters": 15482880,
+      "bf16_all_adapter_weights_mib": 29.53125,
+      "fp32_weights_grad_two_adam_moments_mib": 236.25,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 139.5,
+      "fa_frozen_a_bf16_mib": 12.09375,
+      "unmerged_adapter_forward_macs_per_position": 15482880
+    },
+    {
+      "scope": "two_square_residual_ports",
+      "rank": 16,
+      "a_parameters": 81920,
+      "b_parameters": 81920,
+      "total_parameters": 163840,
+      "bf16_all_adapter_weights_mib": 0.3125,
+      "fp32_weights_grad_two_adam_moments_mib": 2.5,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 1.25,
+      "fa_frozen_a_bf16_mib": 0.15625,
+      "unmerged_adapter_forward_macs_per_position": 163840
+    },
+    {
+      "scope": "two_backbone_down_projections",
+      "rank": 16,
+      "a_parameters": 327680,
+      "b_parameters": 81920,
+      "total_parameters": 409600,
+      "bf16_all_adapter_weights_mib": 0.78125,
+      "fp32_weights_grad_two_adam_moments_mib": 6.25,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 1.25,
+      "fa_frozen_a_bf16_mib": 0.625,
+      "unmerged_adapter_forward_macs_per_position": 409600
+    },
+    {
+      "scope": "eight_blocks_five_projections",
+      "rank": 16,
+      "a_parameters": 2818048,
+      "b_parameters": 4063232,
+      "total_parameters": 6881280,
+      "bf16_all_adapter_weights_mib": 13.125,
+      "fp32_weights_grad_two_adam_moments_mib": 105.0,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 62.0,
+      "fa_frozen_a_bf16_mib": 5.375,
+      "unmerged_adapter_forward_macs_per_position": 6881280
+    },
+    {
+      "scope": "all_36_blocks_five_projections",
+      "rank": 16,
+      "a_parameters": 12681216,
+      "b_parameters": 18284544,
+      "total_parameters": 30965760,
+      "bf16_all_adapter_weights_mib": 59.0625,
+      "fp32_weights_grad_two_adam_moments_mib": 472.5,
+      "fa_b_only_fp32_weights_grad_two_adam_moments_mib": 279.0,
+      "fa_frozen_a_bf16_mib": 24.1875,
+      "unmerged_adapter_forward_macs_per_position": 30965760
+    }
+  ],
+  "saved_activation_examples": [
+    {
+      "flattened_batch_positions": 1,
+      "input_width": 2560,
+      "rank": 16,
+      "vanilla_bf16_x_and_z_bytes": 5152,
+      "fa_bf16_z_bytes": 32,
+      "care_fp32_z_and_m_bytes": 163904,
+      "care_over_vanilla_saved_branch_payload_ratio": 31.81366459627329
+    },
+    {
+      "flattened_batch_positions": 32,
+      "input_width": 2560,
+      "rank": 16,
+      "vanilla_bf16_x_and_z_bytes": 164864,
+      "fa_bf16_z_bytes": 1024,
+      "care_fp32_z_and_m_bytes": 165888,
+      "care_over_vanilla_saved_branch_payload_ratio": 1.0062111801242235
+    },
+    {
+      "flattened_batch_positions": 256,
+      "input_width": 2560,
+      "rank": 16,
+      "vanilla_bf16_x_and_z_bytes": 1318912,
+      "fa_bf16_z_bytes": 8192,
+      "care_fp32_z_and_m_bytes": 180224,
+      "care_over_vanilla_saved_branch_payload_ratio": 0.13664596273291926
+    },
+    {
+      "flattened_batch_positions": 2048,
+      "input_width": 2560,
+      "rank": 16,
+      "vanilla_bf16_x_and_z_bytes": 10551296,
+      "fa_bf16_z_bytes": 65536,
+      "care_fp32_z_and_m_bytes": 294912,
+      "care_over_vanilla_saved_branch_payload_ratio": 0.027950310559006212
+    }
+  ],
+  "care_fp32_payload_break_even_positions_strictly_above": 32.20125786163522,
+  "fp32_covariance_mib": {
+    "2560": 25.0,
+    "4096": 64.0,
+    "10240": 400.0
+  },
+  "selected_16_alias_embeddings_bf16_kib": 80.0,
+  "exclusions": [
+    "Backbone, vision and existing memory weights except the separately listed embedding table",
+    "Attention/KV, other saved activations, full logits, temporary tensors, allocator overhead",
+    "CARE solve workspaces, other retained tensors and dtype conversions",
+    "FA preconditioner and optimizer implementation workspaces",
+    "Tokenizer strings, indices, provenance, replay, data loading and compilation",
+    "Wall time, device peak memory, power and quality are unmeasured"
+  ]
+}

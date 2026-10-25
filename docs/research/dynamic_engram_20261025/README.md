@@ -1,5 +1,7 @@
 # Dynamic Engram for Spark: native memory and learning
 
+**Canonical plan, 25 October:** use the [consolidated SparkX 2.6 architecture and MiniCPM5 validation plan](../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md) for current design decisions and joint memory/vocabulary/learning experiments. This package and its validation remain a historical research snapshot.
+
 Research and repository review: **25 October 2026**. This extends the [Spark-X2.6 plan](../sparkx_2_6_4b_20261024/README.md), using the current MiniCPM5 implementation and preserved experiment results. **Status: architecture proposal and experiment design. No architecture implementation, weight download or native training was performed in this review.**
 
 **Recommendation:** develop a model-native memory subsystem with three complementary paths: a stable pattern table, an editable episodic tensor bank, and compact adaptive fast weights. Couple these to the existing recurrent core through learned readers, writers and relevance gates. Add bounded adapter generation and slower consolidation only after useful recall and retention are demonstrated. Vision supplies object, region and event representations to the same subsystem. A small appraisal controller can modulate learning and attention, subject to a measured advantage over a neutral controller.
@@ -20,6 +22,8 @@ This is a plausible way to improve a small model's persistent knowledge, adaptat
 The compact numerical design has a **4.19M-parameter static table**, approximately **3.92 MiB of live mutable state payload**, and about **3.41M matrix parameters in two proposed factorized fast-memory ports**. These are separate accounting categories. The state estimate includes an optional generated adapter, but excludes model weights, indices, temporary tensors, replay, optimizer buffers and allocator overhead. It is not measured device usage. [Reproducible calculations](../../../reports/dynamic_engram_research_20261025/analytical_costs.json).
 
 The recommended order is diagnostic separation → native episodic memory → compact fast memory → grounded visual memory → persistent skill learning → learned learning policy. Static Engram optimization and appraisal are controlled branches, not prerequisites that delay reliable dynamic recall. The design deliberately keeps the architecture small enough to test each contribution independently.
+
+The follow-up [vocabulary adaptation and efficient LoRA research](../vocabulary_lora_20261025/README.md) develops native lexical learning, bounded token growth, adapter methods and Spark-specific cost estimates. It extends this proposal without changing its capability admission gates.
 
 The reconciled focused software check passed **99 tests in 25.60 seconds**, with one existing sparse-tensor warning. It covers SGDN-2, pattern, core, reliability and persistent-representation interfaces at repository commit `757ace1565c92f23bc418cc83286411832790e3f`. It does not test Spark execution or validate the proposed system. [JUnit](../../../reports/dynamic_engram_research_20261025/focused_tests.xml).
 

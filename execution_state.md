@@ -1,11 +1,31 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — R1–R4 repaired; V0 interface accepted; both V1 connector arms rejected; wide-arm engineering and fresh-process reload pass.**
+**Current implementation — four verification defects repaired; V0 interface accepted; both V1 connector arms rejected; balanced image-dependence diagnostic next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
 in 166.68 s**. No native memory rerun occurred; the v5 candidate remains rejected.
 See [repair qualification](reports/memory_contract_repairs_20261025/qualification.json).
+
+## Verification repairs — 25 October 2026
+
+The [verification repair report](docs/experiments/20261025_Verification_Repairs.md)
+closes all four reported defects. Raw pages now require explicit record
+dependencies or fail closed; omitted provenance cannot be rebound or saved.
+Contained-record revocation is rejected before and after reload. Save/reload
+parity pairs every `(world, fact, layer)` and rejects duplicate/missing rows;
+one-/two-/three-fact immutable replays still pass with 16/16/24 complete parity
+rows per path and zero difference. The old frozen-feature verdict replays as
+`inconclusive_visual_contribution`, not projector-bottleneck proof. Bounded-RSI
+unit tests use synthetic fixtures; only explicitly marked historical integration
+evidence requires provisioning.
+
+The complete verification-repair set passes **147 tests with two explicit
+integration skips in 35.86 s** from a clean `git archive` export. The bounded-RSI
+set alone passes 11 with one skip and 12/12 when provisioned. These are focused
+clean-export results, not capability claims or an artifact-free full-suite claim.
+The next native package is the fresh paired balanced image-dependence diagnostic;
+matched-episode memory localization follows.
 
 ## Isolated V0 source and native preregistration — 25 October 2026
 
@@ -309,10 +329,13 @@ semantics are the remaining failure class, not a missing write path.
 
 **Vision information probe (native, zero updates).** 96 frozen-encoder cases
 (24 train + 24 dev worlds). Combined frozen-feature linear readout reaches
-**0.4167 dev accuracy** (chance 0.0833, majority 0.1667), question-only 0.4375,
-image-only 0.1875, shuffled-image 0.375. Verdict:
-`frozen_features_support_readout` — connector/training is the bottleneck, not
-an encoder lacking linear signal.
+0.4167 dev accuracy (chance 0.0833, majority 0.1667), question-only 0.4375,
+image-only 0.1875, shuffled-image 0.375. Repaired decision replay now returns
+`inconclusive_visual_contribution`: combined features underperform question-only
+and do not show the declared incremental gain. The earlier
+`frozen_features_support_readout` interpretation and projector-bottleneck claim
+are superseded; raw measurements remain unchanged. See
+[conservative replay](reports/vision_diagnostic_20261025/conservative_replay.json).
 
 **Tiny-set overfit diagnostic (projector-only).** At 16 updates and at 32 updates
 (two/four epochs over eight train worlds), train-fit is **0/8 on every control**,
@@ -328,16 +351,27 @@ nonregression (drop and token parity); legacy combined gate is unchanged for
 historical protocols. The frozen 22/32 baseline stays ineligible for the
 absolute 75% floor; the completed V1 experiment is not rewritten.
 
-**External datasets.** Eight-entry tranche audited from the 34-source catalogue:
-four reserved evaluation sources, GQA/VSR blocked on missing immutable pins,
-LLaVA-Instruct blocked on the COCO family reserved for VQAv2 evaluation. Zero
-external assets acquired or admitted. Terms, derivative-family reservations and
-counts are recorded in `reports/external_intake_20261025/audit.json`.
+**External datasets.** The earlier eight-entry audit reserved four evaluation
+sources and blocked GQA/VSR/LLaVA-Instruct on pins or the COCO family. A bounded
+LLaVA-Pretrain tranche now admits **30 inspected root assets /30 normalized
+rows**: 15 train, 7 development and 8 sealed untouched evaluation. Acquisition is
+61,174,504 bytes; every admitted image is decoded and digest-verified, split and
+label/input leakage checks pass, and rebuild is deterministic. See
+[intake report](reports/external_caption_tranche_20261025/intake_report_v2.json).
+Use is internal research only; images are not redistributable. Caption origin is
+recorded as ambiguous between raw CC-3M and identical BLIP text, and no semantic
+caption–image agreement screen is claimed. The earlier audit remains preserved.
 
 **Spark backend.** transformers 5.20.2 lacks `spark2_5`, compressed-tensors is
 absent, and MPS cannot allocate float8_e4m3fn tensors. FP8 storage/compute is
 therefore unqualified here; silent dequantization would not count as FP8
 qualification (`reports/spark_qualification_20261025/backend_audit.json`).
+Dedicated `Spark2_5` preparation contracts now validate official geometry,
+layer schedules, tokenizer/template identity, extension-only inventories and
+explicit BF16/native-FP8/dequantized-derivative identities; 17 focused tests
+pass, and existing Spark preparation tests remain green. They do not execute
+weights or change the baseline. Load, inference, gradients, updates and native
+FP8 export/reload remain blocked by the audited backend.
 ## Frozen native storage diagnosis — useful storage not accepted
 
 Native probe01 completes **552 physical evaluations /276 unique after-load

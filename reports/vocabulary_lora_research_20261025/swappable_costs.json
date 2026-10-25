@@ -1,0 +1,55 @@
+{
+  "kind": "analytical_estimate_not_runtime_measurement",
+  "spark_hidden_size": 2560,
+  "base_vocabulary_preserved": 131072,
+  "active_rows": [
+    {
+      "slots": 256,
+      "tied_bf16_rows_mib": 1.25,
+      "two_full_row_buffers_mib": 2.5,
+      "extra_output_projection_macs_per_position": 655360,
+      "extra_output_head_arithmetic_percent": 0.1953125
+    },
+    {
+      "slots": 512,
+      "tied_bf16_rows_mib": 2.5,
+      "two_full_row_buffers_mib": 5.0,
+      "extra_output_projection_macs_per_position": 1310720,
+      "extra_output_head_arithmetic_percent": 0.390625
+    },
+    {
+      "slots": 1024,
+      "tied_bf16_rows_mib": 5.0,
+      "two_full_row_buffers_mib": 10.0,
+      "extra_output_projection_macs_per_position": 2621440,
+      "extra_output_head_arithmetic_percent": 0.78125
+    }
+  ],
+  "illustrative_shared_phrase_encoder": {
+    "width": 256,
+    "layers": 2,
+    "mlp_ratio": 4,
+    "matrix_parameters": 2883584,
+    "bf16_matrix_weights_mib": 5.5,
+    "fp32_weights_grad_two_adam_moments_mib": 44.0,
+    "example_phrase_base_tokens": 8,
+    "matrix_macs_per_example_phrase": 18546688,
+    "matrix_macs_for_16_fresh_phrases": 296747008,
+    "matrix_macs_for_256_fresh_phrases": 4747952128
+  },
+  "compact_bank_alternative": {
+    "entries": 4096,
+    "value_width": 256,
+    "key_width": 128,
+    "bf16_values_mib": 2.0,
+    "bf16_keys_mib": 1.0,
+    "reuse_existing_engram_storage_where_possible": true
+  },
+  "exclusions": [
+    "Norms, biases, positional/type parameters, selector and other small heads",
+    "Base model weights, attention/KV, full logits, saved activations and solve/allocator temporaries",
+    "Raw spelling, stable identity, provenance, historical revisions and other metadata",
+    "Replay, cache invalidation, encoding/selection wall time and persistence I/O",
+    "Quality of the proposed small encoder is unestablished"
+  ]
+}
