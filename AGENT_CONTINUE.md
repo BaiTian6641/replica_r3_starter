@@ -1,16 +1,16 @@
 # Coding-agent continuation instruction
 
-**Current priority — one-write/per-depth storage discriminator, not blind retuning.**
-R1–R4 are repaired; native V0 is accepted interface-only. V1 completed128 updates
-but rejects at18/64 correct-image vs20/64 wrong /22/64 no-image. Text22/32 is
-unchanged but below75%; no V2/LoRA or learned V3/neural RSI admission.
-The frozen native storage probe completes552 evaluations /276 unique cases:
-observed-key14/56 top1, native12/56; storage/addressing/correction/readout fail,
-while12 saved states and raw reload parity authenticate. No weight update.
-One-write shared-depth vs isolated-depth control is the next discriminator.
-Keep v5/V1 rejected, exact-source and sandbox procedure results engineering-only,
-and the same exclusive fallback-off50 GiB safeguards. Final clean export:
-1,572 tests +21 subtests in183.02 s; source/model pins and all raw failures retained.
+**Current priority — optimizer ablation after a confirmed vision learning failure.**
+R1–R4 are repaired; V0 accepted interface-only; measured V1 rejected. New
+one-write/interference diagnostics recover storage incrementally (0.929→0.877→0.853),
+so the earlier multi-fact failure is addressing/correction, not a basic write failure.
+Frozen vision features support a linear readout (combined dev0.4167 vs chance0.0833),
+but the tiny overfit cohort cannot fit its train worlds at16 or32 updates (0/8 on
+every control). Fit analysis confirms argmax is wrong on all8 (learning, not decoding);
+fresh-process extension reload is bitwise exact. A bounded SGD ablation now tests
+whether the Muon route/clip is the bottleneck before any connector change or V1 retry.
+Keep V2/LoRA and learned V3/neural RSI unadmitted; preserve v5 and V1 rejections,
+exact-source engineering controls, Spark backend blockers and the 50 GiB guard.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context
