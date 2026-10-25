@@ -5,6 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from conftest import require_local_artifacts
 
 from replica_lab.contracts import fingerprint
 from replica_lab.runtime.bounded_rsi import (
@@ -20,10 +21,6 @@ from replica_lab.runtime.procedures import RepairProcedure
 from replica_lab.runtime.tools import FixtureWorkspace
 
 ROOT = Path(__file__).resolve().parents[1]
-PERCEPTION_REPORT = (ROOT / 'runs' / 'minicpm5_vision_v0_20261025'
-                     / 'score_restart_replay01' / 'score_report.json')
-MEMORY_VERDICT = (ROOT / 'reports' / 'memory_reliability_v5_scorer_fix_eval02'
-                  / 'verdict_final.json')
 
 
 def policy(**changes) -> HostPolicy:
@@ -41,7 +38,9 @@ def policy(**changes) -> HostPolicy:
 
 
 def cycle(tmp_path, name='cycle', **changes) -> BoundedRsiCycle:
-    return BoundedRsiCycle(tmp_path / name, policy(**changes), evidence_root=ROOT)
+    evidence_root, pins = unit_evidence(tmp_path)
+    return BoundedRsiCycle(tmp_path / name, policy(**changes),
+                           evidence_root=evidence_root, neural_gate=NeuralGate(pins))
 
 
 def published_cycle(tmp_path, name):
@@ -61,6 +60,27 @@ def write_json(path: Path, value) -> str:
     raw = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode('utf-8')
     path.write_bytes(raw)
     return hashlib.sha256(raw).hexdigest()
+
+
+
+def unit_evidence(tmp_path):
+    """Self-contained neural-gate inputs; no native run artifacts are read."""
+    root = tmp_path / 'unit_evidence'
+    perception_sha = write_json(root / 'perception.json', {
+        'format': PERCEPTION_FORMAT, 'engineering_pass': True,
+        'quality_pass': None, 'accepted': False,
+        'quality_claim': 'synthetic interface-only fixture',
+        'model_revision': PINNED_MODEL_REVISION})
+    memory_sha = write_json(root / 'memory.json', {
+        'format': MEMORY_FORMAT, 'decision': 'reject', 'deployment': 'rejected',
+        'failed_checks': ['synthetic_memory_quality']})
+    pins = NeuralEvidencePins(
+        perception=EvidencePin('perception', 'perception.json',
+                               PERCEPTION_FORMAT, perception_sha),
+        memory=EvidencePin('memory', 'memory.json', MEMORY_FORMAT, memory_sha),
+        correction=DEFAULT_NEURAL_PINS.correction,
+        retention=DEFAULT_NEURAL_PINS.retention)
+    return root, pins
 
 
 def test_cycle_publishes_verified_procedure_rejects_and_rolls_back(tmp_path):
@@ -175,47 +195,53 @@ def test_cycle_publishes_verified_procedure_rejects_and_rolls_back(tmp_path):
 
 
 def test_forged_gate_evidence_fails_closed(tmp_path):
-    real_report = json.loads(PERCEPTION_REPORT.read_text())
-    real_digest = hashlib.sha256(PERCEPTION_REPORT.read_bytes()).hexdigest()
-
+    root, pins = unit_evidence(tmp_path)
+    real_report = json.loads((root / 'perception.json').read_text())
     forged = dict(real_report, quality_pass=True, accepted=True)
-    forged_path = tmp_path / 'forged_perception.json'
+    forged_path = root / 'forged_perception.json'
     write_json(forged_path, forged)
     perception_pin = EvidencePin('perception', 'forged_perception.json',
-                                 PERCEPTION_FORMAT, real_digest)
-    gate = NeuralGate(replace(DEFAULT_NEURAL_PINS, perception=perception_pin))
+                                 PERCEPTION_FORMAT, pins.perception.sha256)
+    gate = NeuralGate(replace(pins, perception=perception_pin))
     with pytest.raises(EvidenceIntegrityError, match='hash differs'):
-        gate.assess(tmp_path)
+        gate.assess(root)
 
-    verdict = json.loads(MEMORY_VERDICT.read_text())
-    real_verdict_digest = hashlib.sha256(MEMORY_VERDICT.read_bytes()).hexdigest()
+    verdict = json.loads((root / 'memory.json').read_text())
     forged_verdict = dict(verdict, decision='accept', deployment='published',
                           failed_checks=[])
-    forged_verdict_path = tmp_path / 'forged_memory.json'
+    forged_verdict_path = root / 'forged_memory.json'
     write_json(forged_verdict_path, forged_verdict)
     memory_pin = EvidencePin('memory', 'forged_memory.json', MEMORY_FORMAT,
-                             real_verdict_digest)
+                             pins.memory.sha256)
     gate = NeuralGate(replace(
-        DEFAULT_NEURAL_PINS,
-        perception=replace(DEFAULT_NEURAL_PINS.perception, sha256=None),
-        memory=memory_pin))
+        pins, perception=replace(pins.perception, sha256=None), memory=memory_pin))
     with pytest.raises(EvidenceIntegrityError, match='hash differs'):
-        gate.assess(tmp_path)
+        gate.assess(root)
 
     # Unpinned evidence is unusable even when a plausible file exists.
-    expected_correction = tmp_path / DEFAULT_NEURAL_PINS.correction.relative_path
+    expected_correction = root / pins.correction.relative_path
     write_json(expected_correction, {
         'format': NEURAL_EVIDENCE_FORMAT, 'decision': 'accept',
         'checks': {'corrected': True}})
     gate = NeuralGate(replace(
-        DEFAULT_NEURAL_PINS,
-        perception=replace(DEFAULT_NEURAL_PINS.perception, sha256=None),
-        memory=replace(DEFAULT_NEURAL_PINS.memory, sha256=None)))
-    assessment = gate.assess(tmp_path)
+        pins,
+        perception=replace(pins.perception, sha256=None),
+        memory=replace(pins.memory, sha256=None)))
+    assessment = gate.assess(root)
     assert assessment['decision'] == 'deferred'
     assert 'correction_evidence_not_pinned' in assessment['blockers']
     assert assessment['gates']['correction']['status'] == 'not_pinned'
     assert assessment['software_promoted'] is False
+
+
+@require_local_artifacts(
+    'runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json')
+@pytest.mark.integration
+def test_historical_native_evidence_remains_explicitly_provisioned():
+    assessment = NeuralGate().assess(ROOT)
+    assert assessment['decision'] == 'deferred'
+    assert 'perception_quality_not_established' in assessment['blockers']
+    assert 'learned_memory_rejected' in assessment['blockers']
 
 
 def test_candidate_claims_and_path_traversal_cannot_control_verdict(tmp_path):

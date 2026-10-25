@@ -22,6 +22,7 @@ PROVISIONING = {
     "checkpoints/siglip2_base_patch16_224_source": "scripts/prepare_vision_encoder.py --offline",
     "data/cache/spark_sources/run_02": "scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json "
                                        "--output data/cache/spark_sources/run_02 --export-header-bundle",
+    "runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json": "copy the immutable V0 score replay from the provisioned native-evidence workspace; historical integration only",
 }
 
 

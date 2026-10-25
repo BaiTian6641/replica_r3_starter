@@ -26,6 +26,7 @@ Current declarations and their provisioning:
 | `checkpoints/minicpm5_source` + `configs/minicpm5_sealed_lock.local.json` | sealed local MiniCPM5-2B acquisition (`scripts/pin_model.py`) and snapshot lock | `test_memory_diagnosis.py::test_prepare_and_admit_bind_exact_source_data_and_protocol_pins`, `test_capacity_fixtures.py::test_pinned_native_tokenizer_reaches_exact_capacity_lengths` |
 | `PIL` (Pillow 12.0.0 via `.venv-vision` overlay) | `python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt` | `test_vision_features.py::test_processor_backend_is_official_pil_when_overlay_present` |
 | `data/cache/spark_sources/run_02` | `scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json --output data/cache/spark_sources/run_02 --export-header-bundle` | offline Spark reproduction runs (not part of the unit suite) |
+| `runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json` | copy the immutable V0 score replay from the provisioned native-evidence workspace | `test_bounded_rsi.py::test_historical_native_evidence_remains_explicitly_provisioned` |
 
 ## Historical verdict replay (outside the unit suite)
 
