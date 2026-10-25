@@ -1,0 +1,22 @@
+{
+  "format": "replica.vision_admission_failure.v1",
+  "status": "rejected_before_publication",
+  "run_id": "minicpm5_projector_alignment_20261025_run01",
+  "published_admission": false,
+  "admitted_training_rows": 0,
+  "native_execution": false,
+  "optimizer_updates": 0,
+  "error_type": "QualificationError",
+  "error": "Retention answer leaks into its prompt: retention-arithmetic-07",
+  "cause": "The authored 144 /12 item echoed its answer12 as an operand. It was replaced by a non-degenerate division item156 /12; no validation was weakened.",
+  "raw_directory": "data/vision_alignment_v1_20261025/run01",
+  "raw_files": {
+    "training_rows.jsonl": "ea564c11391ee03bc81c909b49229a7494e01c81cf15a9396ef2180a950798ef",
+    "retention_labels.jsonl": "ee1a911a07228fe2b864a60e002a3deb79ea5344f3491791ce905f128be07b67",
+    "admission.pending.json": "3c53aaa1f11a0a77ba02c277250cdb60510d7a074681c15a3ad39abc57921984",
+    "retention_prompts.jsonl": "db9e7370ecb240ec12c9a3bfbbc5d84100a2263153da8793cc71c73da53c073b",
+    "text_contexts.jsonl": "5df88a8de929cfea6ecdcbf0ed239495512db1890876059c0cbed3c95c620258"
+  },
+  "source_limitation": "This CPU software/intake smoke used an uncommitted builder, not a committed pre-run training protocol. No model run or training admission occurred. Its raw sidecars remain unchanged.",
+  "accepted_replacement_directory": "data/vision_alignment_v1_20261025/intake02"
+}

@@ -1,0 +1,65 @@
+{
+  "format": "replica.vision_v0_qualification.v1",
+  "disposition": "accepted_interface_only",
+  "trained": false,
+  "quality_pass": null,
+  "learned_memory_accepted": false,
+  "integrated_rsi_accepted": false,
+  "native_code_commit": "a2bc82ef0b6efec2ae7915c310df3c94d8305f59",
+  "scorer_repair_commit": "81c96f8",
+  "native_protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+  "scoring_replay_sha256": "23f696b3fff05d8e7b4d02a44ecee4145ebb9b2430a6b4bb27618af342ada25e",
+  "score_report_sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443",
+  "source_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "vision_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+  "vision_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+  "vision_spec_digest": "2eab38384f18de90e8f8d463a0080bd24a2b49eb58ac1d1df3cfd58dd63b2b0e",
+  "data_pins": {
+    "manifest": "7196a7ed46a570cf42891090db3f07acb8138ac8e24a68e3d4868121c01216ef",
+    "model_rows": "daa4c48094d1695d85fe00f36c63a3f803202866ff115a3f1548944fbe728f2f",
+    "verifier_cases": "ed7f8d6d7ebd2c9ba4c371a7124ec2084d741b1a1a8c45816d51cf163f3f2b3e",
+    "verifier_scenes": "c3db8b2222bf456198e27d0bf7f9979c79140a6abf9bf580aa0ede55ae2fb3ee"
+  },
+  "trainable_tensors": 6,
+  "trainable_parameters": 5772800,
+  "gradient_owners": "vision_projector only; frozen-decoder input gradient nonzero; encoder/base gradients absent",
+  "optimizer_updates": 0,
+  "changed_tensors": 0,
+  "source_assets": 2,
+  "independent_world_groups": 2,
+  "owned_procedural_source_families": 1,
+  "controls": [
+    "correct",
+    "wrong",
+    "noimage"
+  ],
+  "generated_tokens_primary": 24,
+  "generated_tokens_restart": 24,
+  "restart": {
+    "conditions": 3,
+    "tokens_exact": true,
+    "logits_exact": true,
+    "max_absolute_difference": 0.0,
+    "reencoding": "V0 restart recomputes pinned image features; this is not persistent learned visual memory"
+  },
+  "resources": {
+    "primary_profile_seconds": 9.934277541935444,
+    "restart_profile_seconds": 8.379080709069967,
+    "sampled_peak_driver_bytes": 11815763968,
+    "primary_peak_rss_bytes": 3245408256,
+    "restart_peak_rss_bytes": 3349741568,
+    "swap_growth_bytes": 0,
+    "primary_minimum_host_free_percent": 76,
+    "cpu_fallback": false,
+    "guard_driver_limit_bytes": 53687091200
+  },
+  "failed_attempts": [
+    "native_attempt01.disposition.json",
+    "score_restart_attempt01_failed.json",
+    "clean_export_attempt01_failed.json",
+    "buffer_regression_before.xml",
+    "buffer_regression_after.xml"
+  ],
+  "v1_prerequisite_consumer_smoke": "passed against actual accepted score and actual immutable native report file; initial inline import failed on inherited PYTHONPATH and only that command was corrected with PYTHONPATH=src",
+  "next": "Preregister named eligible V1 rows, exact projector optimizer, native baseline retention and numeric image-control/regression gates before one bounded projector-only run; no V2 or learned V3/RSI promotion yet."
+}

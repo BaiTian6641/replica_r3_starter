@@ -31,12 +31,14 @@ from .contracts import canonical_json, fingerprint
 
 PROTOCOL_FORMAT = "replica.vision_qualification_protocol.v1"
 SCORE_FORMAT = "replica.vision_qualification_score.v1"
-ADMISSION_FORMAT = "replica.vision_training_admission.v1"
+ADMISSION_FORMAT = "replica.vision_training_admission.v2"
 TRAINING_ROWS_FORMAT = "replica.vision_training_rows.v1"
 TEXT_CONTEXTS_FORMAT = "replica.vision_text_contexts.v1"
 RETENTION_PROMPTS_FORMAT = "replica.vision_retention_prompts.v1"
 RETENTION_LABELS_FORMAT = "replica.vision_retention_labels.v1"
 EXTENSION_FORMAT = "replica.minicpm5.extensions.v4"
+VISION_TRAINING_SCHEDULE = "seeded_epoch_shuffle.v1"
+VISUAL_QUESTION_TEMPLATE = "Question: {question}\nReply briefly with the answer alone."
 MANIFEST_FORMAT = "replica.vision_manifest.v1"
 
 STAGES = ("v0", "v1")
@@ -290,7 +292,7 @@ def verify_implementation_pins(protocol: Mapping[str, Any], root: str | Path) ->
     require(isinstance(pins, dict) and bool(pins), "implementation_sha256 pins are required")
     actual = {}
     for relative, expected in pins.items():
-        path = resolve_project_path(protocol, relative)
+        path = resolve_relative(root, relative)
         require(path.is_file(), f"Pinned implementation file missing: {relative}")
         actual[relative] = sha256_file(path)
         require(actual[relative] == _sha(expected, f"implementation_sha256[{relative}]"),
@@ -391,8 +393,11 @@ def _validate_v0(v0: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
 
 
 def _validate_v1(v1: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
-    _subset_keys(v1, ("prerequisites", "initial_checkpoint", "train", "eval",
-                      "controls", "quality", "retention"), "v1")
+    _subset_keys(v1, ("run_id", "question_template", "prerequisites", "initial_checkpoint",
+                      "train", "eval", "controls", "quality", "retention"), "v1")
+    _text(v1["run_id"], "v1.run_id")
+    require(v1["question_template"] == VISUAL_QUESTION_TEMPLATE,
+            "V1 must use the pinned short-answer question template")
     prerequisites = v1["prerequisites"]
     _subset_keys(prerequisites, ("v0_protocol_sha256", "v0_score_report",
                                  "require_accepted", "data_admission"),
@@ -412,11 +417,19 @@ def _validate_v1(v1: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
     train = v1["train"]
     _subset_keys(train, ("seed", "updates", "repeats", "grad_accum", "lr_new",
                          "momentum", "ns_steps", "block_size", "weight_decay",
-                         "max_seconds", "optimizer"), "v1.train")
+                         "max_seconds", "optimizer", "schedule_version",
+                         "repeat_policy", "max_grad_norm"), "v1.train")
     _nonnegative_int(train["seed"], "v1.train.seed")
     _positive_int(train["updates"], "v1.train.updates")
     _positive_int(train["repeats"], "v1.train.repeats")
     _positive_int(train["grad_accum"], "v1.train.grad_accum")
+    require(train["schedule_version"] == VISION_TRAINING_SCHEDULE,
+            "Unknown visual training schedule")
+    require(train["repeat_policy"] in ("once", "declared_epochs")
+            and (train["repeat_policy"] != "once" or train["repeats"] == 1),
+            "Visual training repeat policy differs from declared repeats")
+    _number(train["max_grad_norm"], "v1.train.max_grad_norm", minimum=0.0)
+    require(0 < train["max_grad_norm"] <= 1000, "V1 gradient norm bound is invalid")
     require(train["optimizer"] == "muon8bit",
             "V1 projector optimizer must declare muon8bit plus FP32 AdamW routing")
     _number(train["lr_new"], "v1.train.lr_new", minimum=0.0)
@@ -467,9 +480,9 @@ def _validate_v1(v1: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
     require("{context}" in template and "{question}" in template,
             "Text-context template must use {context} and {question}")
     quality = v1["quality"]
-    _subset_keys(quality, ("gates", "retention_baseline_accuracy"), "v1.quality")
-    _number(quality["retention_baseline_accuracy"],
-            "v1.quality.retention_baseline_accuracy", minimum=0.0, maximum=1.0)
+    _subset_keys(quality, ("gates", "retention_baseline"), "v1.quality")
+    require(quality["retention_baseline"] == "initial_checkpoint_same_prompts.v1",
+            "V1 text baseline must be measured before updates on the pinned prompts")
     gates = quality["gates"]
     require(isinstance(gates, dict) and set(gates) == set(GATE_NAMES),
             f"v1.quality.gates must declare exactly {sorted(GATE_NAMES)}")
@@ -481,7 +494,7 @@ def _validate_v1(v1: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
         elif name == "min_text_retention_accuracy":
             _number(value, f"v1.quality.gates.{name}", minimum=0.0, maximum=1.0)
         elif name == "max_text_retention_drop":
-            _number(value, f"v1.quality.gates.{name}", minimum=-1.0, maximum=1.0)
+            _number(value, f"v1.quality.gates.{name}", minimum=0.0, maximum=1.0)
         else:
             _number(value, f"v1.quality.gates.{name}", minimum=-1.0, maximum=1.0)
     retention = v1["retention"]
@@ -834,9 +847,12 @@ def select_eval_cases(dataset: VisualDataset, evaluation: Mapping[str, Any]
     grouped: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
     for row in rows:
         grouped[dataset.case(row["case_id"])["group_id"]].append(row)
-    for items in grouped.values():
-        items.sort(key=lambda row: row["case_id"])
     families = sorted(grouped)
+    random.Random(evaluation["seed"]).shuffle(families)
+    for family, items in grouped.items():
+        items.sort(key=lambda row: row["case_id"])
+        random.Random(evaluation["seed"] * 1_000_003
+                      + int(sha256_text(family)[:16], 16)).shuffle(items)
     selected: list[Mapping[str, Any]] = []
     while len(selected) < evaluation["max_cases"]:
         progressed = False
@@ -919,6 +935,13 @@ def leakage_hits(text: str, answer: str) -> bool:
     return re.search(pattern, text.casefold()) is not None
 
 
+def visual_question(protocol: Mapping[str, Any], question: str) -> str:
+    """The same label-free short-answer prefix in training and every control."""
+    require(protocol["v1"]["question_template"] == VISUAL_QUESTION_TEMPLATE,
+            "Unpinned visual question template")
+    return VISUAL_QUESTION_TEMPLATE.format(question=question)
+
+
 # ---------------------------------------------------------------------------
 # Budget / schedule
 
@@ -927,6 +950,18 @@ def training_schedule(rows: Sequence[Mapping[str, Any]], train: Mapping[str, Any
                       ) -> list[list[Mapping[str, Any]]]:
     """Deterministic repeated shuffle; one list per optimizer update."""
     require(bool(rows), "Training rows are empty")
+    _subset_keys(train, ("seed", "repeats", "updates", "grad_accum",
+                         "schedule_version", "repeat_policy"), "training schedule")
+    for field in ("repeats", "updates", "grad_accum"):
+        _positive_int(train[field], f"train.{field}")
+    _nonnegative_int(train["seed"], "train.seed")
+    require(train["schedule_version"] == VISION_TRAINING_SCHEDULE,
+            "Unknown visual training schedule")
+    require(train["repeat_policy"] in ("once", "declared_epochs")
+            and (train["repeat_policy"] != "once" or train["repeats"] == 1),
+            "Visual training repeat policy differs from declared repeats")
+    identifiers = [_text(row["case_id"], "training case ID") for row in rows]
+    require(len(set(identifiers)) == len(identifiers), "Training source case IDs repeat")
     seed = train["seed"]
     repeats = train["repeats"]
     updates = train["updates"]
@@ -941,6 +976,74 @@ def training_schedule(rows: Sequence[Mapping[str, Any]], train: Mapping[str, Any
             f"Training schedule provides {len(schedule)} rows but {needed} are required")
     return [schedule[start:start + accumulation]
             for start in range(0, needed, accumulation)]
+
+
+def validate_training_trace(trace: Sequence[Mapping[str, Any]],
+                            examples: Sequence[Mapping[str, Any]],
+                            rows: Sequence[Mapping[str, Any]], train: Mapping[str, Any],
+                            tokenizer: Any, projector_names: Iterable[str]) -> None:
+    """Audit ordered updates, exact examples and real backward-invocation rows."""
+    schedule = training_schedule(rows, train)
+    require(len(trace) == len(schedule), "Training update inventory differs")
+    flattened = []
+    expected_names = set(projector_names)
+    example_fields = {"update", "case_id", "backward_called", "loss",
+                      "prompt_tokens", "response_tokens", "input_ids_sha256", "labels_sha256"}
+    for index, (summary, expected_rows) in enumerate(zip(trace, schedule), 1):
+        _positive_int(summary.get("update"), "training update index")
+        require(summary["update"] == index, "Training updates are missing, duplicated or reordered")
+        require(type(summary.get("seed")) is int and summary["seed"] == train["seed"],
+                "Training seed differs")
+        expected_repeat = ((index - 1) * train["grad_accum"]) // len(rows) + 1
+        require(type(summary.get("repeat")) is int and summary["repeat"] == expected_repeat,
+                "Training repeat accounting differs")
+        require(summary["case_ids"] == [row["case_id"] for row in expected_rows],
+                "Training schedule/case order differs from the declared seed")
+        group = summary.get("examples")
+        require(isinstance(group, list) and len(group) == len(expected_rows),
+                "Per-update example inventory differs")
+        require(summary["losses"] == [item["loss"] for item in group],
+                "Per-update losses differ from example rows")
+        prompts = responses = 0
+        for item, row in zip(group, expected_rows):
+            _exact_keys(item, example_fields, "training example")
+            require(type(item["update"]) is int and item["update"] == index
+                    and item["case_id"] == row["case_id"], "Training example membership differs")
+            require(item["backward_called"] is True, "Training example lacks an actual backward call")
+            _number(item["loss"], "training example loss", minimum=0.0)
+            rendered = tokenizer.apply_chat_template(
+                [{"role": "user", "content": row["prompt"]}], tokenize=False,
+                add_generation_prompt=True, enable_thinking=False)
+            prompt = tokenizer(rendered, add_special_tokens=False)["input_ids"]
+            response = tokenizer(row["response"], add_special_tokens=False)["input_ids"] + [
+                tokenizer.eos_token_id]
+            for key, count in (("prompt_tokens", len(prompt)), ("response_tokens", len(response))):
+                require(type(item[key]) is int and item[key] == count,
+                        f"Training example {key} differs from independent tokenization")
+            require(item["input_ids_sha256"] == sha256_json(prompt + response)
+                    and item["labels_sha256"] == sha256_json([-100] * len(prompt) + response),
+                    "Training example input or response-only labels differ")
+            prompts += len(prompt)
+            responses += len(response)
+        require(type(summary["backward_calls"]) is int
+                and summary["backward_calls"] == len(group), "Backward-call accumulation differs")
+        require(type(summary["prompt_tokens"]) is int and summary["prompt_tokens"] == prompts
+                and type(summary["response_tokens"]) is int
+                and summary["response_tokens"] == responses, "Accumulated token accounting differs")
+        _number(summary["loss"], "training update loss", minimum=0.0)
+        require(abs(summary["loss"] - sum(item["loss"] for item in group) / len(group)) <= 1e-6,
+                "Per-update mean loss differs from examples")
+        _number(summary["grad_norm"], "training accumulated gradient norm", minimum=0.0)
+        require(summary["max_grad_norm"] == train["max_grad_norm"],
+                "Training clipping policy differs")
+        names = summary["projector_gradient_names"]
+        require(len(names) == len(set(names)) and set(names) == expected_names
+                and summary["nonprojector_gradient_names"] == [], "Gradient ownership differs")
+        require(all(summary[field] is True for field in (
+            "response_only_labels", "decoder_autograd", "text_aligned_logits",
+            "base_parameter_stamp_unchanged")), "Training graph/label/frozen-state contract failed")
+        flattened.extend(group)
+    require(flattened == list(examples), "Raw example rows differ from the ordered update groups")
 
 
 def validate_budget(plan: Mapping[str, Any], limits: Mapping[str, Any]) -> None:
@@ -969,7 +1072,10 @@ def admission_document(protocol: Mapping[str, Any]) -> tuple[dict[str, Any], str
             "Unknown training admission format")
     require(document.get("admitted") is True,
             "Training admission must explicitly admit rows")
-    _positive_int(document.get("admitted_rows"), "admission.admitted_rows")
+    _positive_int(document.get("admitted_training_rows"), "admission.admitted_training_rows")
+    _positive_int(document.get("eligible_rows"), "admission.eligible_rows")
+    require(document.get("run_id") == protocol["v1"]["run_id"],
+            "Training admission belongs to another named run")
     data = document.get("data")
     require(isinstance(data, dict), "Admission lacks data hashes")
     return document, digest
@@ -989,6 +1095,9 @@ def verify_admission(protocol: Mapping[str, Any], dataset: VisualDataset,
                 f"Loaded {key} hash differs from protocol data pins")
     splits = document.get("splits")
     require(isinstance(splits, dict) and splits, "Admission lacks split inventory")
+    require(set(splits) == set(train_splits) | set(eval_splits)
+            and set(train_splits) == {"train"} and "train" not in eval_splits,
+            "Admission split roles differ; evaluation material is never training")
     for split in (*train_splits, *eval_splits):
         require(split in splits, f"Admission does not name split: {split}")
         entry = splits[split]
@@ -1006,9 +1115,9 @@ def verify_admission(protocol: Mapping[str, Any], dataset: VisualDataset,
         require(entry["row_ids_sha256"] == sha256_json(
             sorted(row["case_id"] for row in rows)),
             f"Admission row-ID hash differs: {split}")
-    require(document["admitted_rows"] == sum(
+    require(document["eligible_rows"] == sum(
         document["splits"][split]["model_row_count"] for split in document["splits"]),
-        "Admission admitted_rows differs from split counts")
+        "Admission eligible_rows differs from source split inventory")
 
     training_pin = document.get("training_rows")
     require(isinstance(training_pin, dict), "Admission must name training rows")
@@ -1021,6 +1130,8 @@ def verify_admission(protocol: Mapping[str, Any], dataset: VisualDataset,
             "Training-row count differs from admission")
     require(training_pin["rows_sha256"] == rows_sha256(training_rows),
             "Training-row hash differs from admission")
+    require(document["admitted_training_rows"] == len(training_rows),
+            "Admitted training count differs from the exact selected rows")
     seen: set[str] = set()
     for row in training_rows:
         _exact_keys(row, TRAINING_ROW_FIELDS, "training row")
@@ -1038,6 +1149,10 @@ def verify_admission(protocol: Mapping[str, Any], dataset: VisualDataset,
                 f"Training row family differs from its verified case: {case_id}")
         prompt = _text(row["prompt"], f"training row prompt: {case_id}")
         response = _text(row["response"], f"training row response: {case_id}")
+        require(prompt == visual_question(protocol, dataset.row(case_id)["question"]),
+                f"Training prompt differs from its verified question: {case_id}")
+        require(response == dataset.label(case_id),
+                f"Training response differs from independent verifier truth: {case_id}")
         require(not leakage_hits(prompt, response),
                 f"Training response leaks into its prompt: {case_id}")
         require(row["family"] == row["group_id"], f"Training family/group differ: {case_id}")
@@ -1138,6 +1253,18 @@ def verify_v0_prerequisite(protocol: Mapping[str, Any]) -> tuple[dict[str, Any],
     require(run_report.is_file(), "Scored V0 run report is missing")
     require(sha256_file(run_report) == report["run_report_sha256"],
             "Scored V0 run report bytes changed")
+    require(report.get("vision_spec_digest") == protocol["vision_digest"]
+            and report.get("vision_source_manifest_sha256")
+            == protocol["vision_source"]["manifest"]["sha256"],
+            "Accepted V0 uses another vision producer")
+    require(report.get("model_revision") == protocol["model"]["revision"]
+            and report.get("model_lock_sha256") == protocol["model"]["lock_sha256"],
+            "Accepted V0 uses another sealed text source")
+    checkpoint = protocol["v1"]["initial_checkpoint"]
+    require(report.get("extension", {}).get("manifest_sha256")
+            == checkpoint["manifest_sha256"]
+            and report["extension"]["weights_sha256"] == checkpoint["weights_sha256"],
+            "V1 initial checkpoint is not the independently accepted V0 extension")
     return report, digest
 
 

@@ -1,6 +1,6 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — R1–R4 passed at `757ace1`; V0 awaits native qualification.**
+**Current implementation — R1–R4 verified; isolated native V0 accepted; V1 preregistered.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -103,7 +103,49 @@ the independent scorer. Its **22 provenance/audit tests pass in 2.18 s**.
 (`23f696b3fff05d8e7b4d02a44ecee4145ebb9b2430a6b4bb27618af342ada25e`)
 is retrospective to the completed native executions and committed before CPU
 replay, not a new pre-run native protocol. The failed scorer attempt is kept.
-Final independent acceptance remains pending; no V1 training rows are admitted.
+The committed CPU replay independently accepts V0 (`accepted=true`,
+`engineering_pass=true`, `quality_pass=null`). The actual V1 prerequisite consumer
+also accepts its immutable native report-file locator. See
+[V0 qualification](reports/vision_v0_20261025/qualification.json). No perception
+quality, useful learned memory or integrated RSI claim follows.
+
+## Named projector-only V1 admission and preregistration
+
+[V1 protocol](configs/minicpm5_vision_v1_projector_alignment_v1.json)
+(`044cebb9b1eafe8a529eb42b04e98217a4b8b755fba4d465ba815ebec410a401`)
+declares one 128-update arm with four accumulated examples/update, 512 exact
+admitted rows, 256 verified image assets and 64 complete training worlds.
+Evaluation uses 64 cases from 32 disjoint dev worlds; all come from one owned
+procedural source family, not 32 independent external collections. Thirty-two
+protected text cases cover seven domains. External dataset assets acquired: zero.
+The eligible source inventory is 2,048 rows; evaluation rows are not training.
+
+Six FP32 projector tensors / 5,772,800 parameters are the only trainable scope.
+The two matrices use Muon int8 momentum, other tensors FP32 AdamW; weights and
+gradients remain FP32. Learning rate 1e-4, momentum .95, NS steps 5, block 2048,
+decay .01, accumulated norm clip 1.0, one seeded epoch and no adapters/LoRA.
+The encoder, sealed decoder, memory, core and identity remain frozen/disabled.
+
+The actual [CPU admission](reports/vision_v1_20261025/cpu_admission.json) verifies
+85 source/environment pins, accepted V0/checkpoint lineage, exact schedule and
+all token budgets: maximum training text+response 36, eval prompt 99, retention
+prompt 42 and response including EOS 2. Dataset logical bytes are 4,475,237,
+below the separate 25 GiB dataset ceiling; native RAM guard is unchanged.
+
+The new v2 admission separates eligible rows from admitted training rows, rejects
+rehashed wrong labels/questions, binds the named run and V0 producer/checkpoint,
+and keeps protected splits outside training. Text retention is measured on the
+initial checkpoint before updates and independently compared after; no guessed
+baseline accuracy is pinned. Correct/wrong/shuffled/no-image/caption-only/OCR-only
+controls share the same question template. Caption-only is an explicit oracle
+scene-description upper bound; OCR control is verified absence of rendered text.
+
+A real tiny-decoder six-control regression reproduced and fixed the no-image
+auditor lookup; failing/passing XML is retained. The integrated run reports
+118 passing checks and four failures in independent diagnostic slices; those
+four targeted mechanical failures then pass after correction. Unchanged passes
+are reused rather than described as a second suite execution. V1 native training
+is not yet run. V2 and learned V3/RSI remain gated, not implicitly admitted.
 
 
 

@@ -79,18 +79,29 @@ def test_v1_runner_accumulates_projector_only_gradients_and_declared_repeats(
         visual_session, tmp_path):
     model, session = visual_session
     dataset = PatchDataset(tmp_path)
-    train = dict(seed=31, updates=3, repeats=2, repeat_policy='seeded_epoch_shuffle',
+    train = dict(seed=31, updates=3, repeats=2, repeat_policy='declared_epochs',
+                 schedule_version='seeded_epoch_shuffle.v1', max_grad_norm=1.0,
                  grad_accum=2, lr_new=.0001, momentum=.95, ns_steps=3,
                  block_size=8, weight_decay=0.0, max_seconds=60)
     rows = [{'case_id': f'fixture-{index}', 'prompt': f'Inspect patch question {index}',
              'response': f'observation {index}'} for index in range(4)]
     protocol = {'vision_source': {'source_id': 'owned-patch-fixture'},
-                'limits': {'max_prompt_tokens': 32}, 'v1': {'train': train}}
+                'limits': {'max_prompt_tokens': 32, 'max_seconds': 60},
+                'v1': {'train': train, 'retention': {'max_cases': 1},
+                       'eval': {'max_new_tokens': 2}}}
     before = {name: value.detach().clone() for name, value in model.named_parameters()}
     (tmp_path / 'v1').mkdir()
+    retained = {'_retention_prompts': [
+        {'case_id': 'held-text', 'prompt': 'Compute a short text reply',
+         'family': 'independent-text', 'group_id': 'held-text', 'split': 'dev'}]}
+    baseline = runner.evaluate_retention(
+        session, session.tokenizer, protocol, retained, SCOPE, tmp_path, baseline=True)
     result = runner.train_projector(
         model, session, session.tokenizer, protocol, PatchObservations(), dataset,
         {'_training_rows': rows}, SCOPE, tmp_path)
+    after = runner.evaluate_retention(
+        session, session.tokenizer, protocol, retained, SCOPE, tmp_path)
+    assert baseline['rows'] == after['rows']
     expected = training_schedule(rows, train)
     assert [entry['case_ids'] for entry in result['trace']] == [
         [row['case_id'] for row in group] for group in expected]
@@ -98,6 +109,34 @@ def test_v1_runner_accumulates_projector_only_gradients_and_declared_repeats(
     assert all(entry['grad_norm'] > 0 and entry['nonprojector_gradient_names'] == []
                for entry in result['trace'])
     validate_optimizer_route(result['optimizer_route'], result['optimizer_audit'])
+    import copy
+    import json
+    from replica_lab.vision_qualification import validate_training_trace, QualificationError
+    raw = [json.loads(line) for line in (tmp_path / 'v1/training_examples.jsonl').read_text().splitlines()]
+    validate_training_trace(result['trace'], raw, rows, train, session.tokenizer,
+                            result['trainable_receipt'])
+    for mutation in ('duplicate_update', 'boolean_update', 'case_substitution',
+                     'missing_backward', 'token_total', 'labels_hash', 'repeat', 'missing_example'):
+        trace, examples = copy.deepcopy(result['trace']), copy.deepcopy(raw)
+        if mutation == 'duplicate_update':
+            trace[-1]['update'] = trace[0]['update']
+        elif mutation == 'boolean_update':
+            trace[0]['update'] = True
+        elif mutation == 'case_substitution':
+            trace[0]['case_ids'][0] = 'foreign-case'
+        elif mutation == 'missing_backward':
+            trace[0]['examples'][0]['backward_called'] = False
+        elif mutation == 'token_total':
+            trace[0]['prompt_tokens'] += 1
+        elif mutation == 'labels_hash':
+            trace[0]['examples'][0]['labels_sha256'] = '0' * 64
+        elif mutation == 'repeat':
+            trace[-1]['repeat'] = 1
+        else:
+            examples.pop()
+        with pytest.raises(QualificationError):
+            validate_training_trace(trace, examples, rows, train, session.tokenizer,
+                                    result['trainable_receipt'])
     changed = {name for name, value in model.named_parameters()
                if not torch.equal(value, before[name])}
     assert changed and all(name.startswith('vision_projector.') for name in changed)

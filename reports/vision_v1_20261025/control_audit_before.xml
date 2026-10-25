@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.623" timestamp="2026-10-25T02:32:07.789876-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_visual_evaluation_path" name="test_every_control_and_measured_retention_survive_independent_consumption" time="0.531"><failure message="KeyError: 'noimage'">visual_session = (MiniCPM5Adapter(
+  (base): LlamaForCausalLM(
+    (model): LlamaModel(
+      (embed_tokens): Embedding(64, 16, padding...eatures=16, out_features=16, bias=True)
+  )
+), &lt;replica_lab.memory_system.session.MemorySession object at 0x111362690&gt;)
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-521/test_every_control_and_measure0')
+
+    def test_every_control_and_measured_retention_survive_independent_consumption(visual_session, tmp_path):
+        model, session = visual_session
+        copy_stage(tmp_path, 'v1')
+        protocol = base_protocol(tmp_path, 'v1')
+        protocol['v1']['eval']['max_new_tokens'] = 2
+        dataset = vq.load_verified_dataset(protocol)
+        make_v1_admission_fixture(tmp_path, protocol, dataset)
+        admission = vq.verify_admission(protocol, dataset, train_splits=['train'], eval_splits=['dev'])
+        output = tmp_path / 'actual_tiny_run'
+        (output / 'v1').mkdir(parents=True)
+        baseline = runner.evaluate_retention(session, session.tokenizer, protocol, admission,
+                                             SCOPE, output, baseline=True)
+        evaluation = runner.evaluate_v1(model, session, session.tokenizer, protocol,
+                                        OwnedPatchObservations(), dataset, admission, SCOPE, output)
+        retained = runner.evaluate_retention(session, session.tokenizer, protocol, admission, SCOPE, output)
+        report = {'evaluation': {key: value for key, value in evaluation.items() if key != 'rows'},
+                  'baseline_retention': {key: value for key, value in baseline.items() if key != 'rows'},
+                  'retention': {key: value for key, value in retained.items() if key != 'rows'}}
+&gt;       verified = scorer.verify_v1_evaluation(output, report, protocol, dataset, admission,
+                                               session.tokenizer)
+
+tests/test_visual_evaluation_path.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+run = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-521/test_every_control_and_measure0/actual_tiny_run')
+report = {'evaluation': {'complete': True, 'cases': 4, 'controls': ['correct', 'wrong', 'shuffled', 'noimage', 'captiononly', '...tions.jsonl', 'retention_generations_sha256': 'd46a727b7a563ea1b1b4d8eff3ec213212dd9211f2affd20897405db669c226e', ...}}
+protocol = {'format': 'replica.vision_qualification_protocol.v1', 'template': False, 'stage': 'v1', 'root': '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-521/test_every_control_and_measure0', ...}
+dataset = VisualDataset(stage='v1', root=PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pyt...e091b825d6e4fd50ee34cd1c4b9bb', 'verifier_scenes': 'd3b2c13b83404f2ef637ba70a07d2008c5ce954166ec6e45debb5e5a14bfbfbe'})
+admission = {'format': 'replica.vision_training_admission.v2', 'stage': 'v1', 'admitted': True, 'run_id': 'owned-v1-fixture', ...}
+tokenizer = &lt;test_exact_memory.Tokenizer object at 0x1113629c0&gt;
+
+    def verify_v1_evaluation(run, report, protocol, dataset, admission, tokenizer):
+        evaluation = report.get("evaluation")
+        require(isinstance(evaluation, dict), "V1 report lacks evaluation evidence")
+        rows = read_jsonl(Path(run) / "v1" / "eval_generations.jsonl")
+        require(sha256_file(Path(run) / "v1" / "eval_generations.jsonl")
+                == evaluation["eval_generations_sha256"],
+                "Evaluation generations changed")
+        cases = select_eval_cases(dataset, protocol["v1"]["eval"])
+        case_ids = [row["case_id"] for row in cases]
+        require(evaluation["case_ids"] == case_ids,
+                "Reported evaluation cases differ from the declared selection")
+        require(evaluation["cases"] == len(case_ids),
+                "Reported evaluation case count differs")
+        assignment = assign_controls(dataset, case_ids)
+        require(evaluation["assignment"] == assignment,
+                "Control assignment differs from deterministic reconstruction")
+        controls = protocol["v1"]["eval"]["required_controls"]
+        require(set(evaluation["controls"]) == set(controls),
+                "Evaluation control inventory differs")
+        contexts = {(row["case_id"], row["kind"]): row
+                    for row in admission.get("_text_contexts", ())}
+        template = protocol["v1"]["controls"]["text_context_template"]
+        maximum = protocol["limits"]["max_prompt_tokens"]
+        max_new = protocol["v1"]["eval"]["max_new_tokens"]
+        scored = []
+        seen: set[tuple[str, str]] = set()
+        for row in rows:
+            forbidden_row_fields(row, "V1 evaluation row")
+            control, case_id = row["control"], row["case_id"]
+            require(control in controls, f"Undeclared evaluation control: {control}")
+            require(case_id in case_ids, f"Undeclared evaluation case: {case_id}")
+            require((control, case_id) not in seen,
+                    f"Duplicate evaluation row: {control}/{case_id}")
+            seen.add((control, case_id))
+            case = dataset.case(case_id)
+            require((row["family"], row["group_id"], row["split"])
+                    == (case["group_id"], case["group_id"], case["split"]),
+                    f"Evaluation row family/split differs: {control}/{case_id}")
+            if control in ("captiononly", "ocrtextonly"):
+                kind = TEXT_CONTROL_KIND[control]
+                context_row = contexts[(case_id, kind)]
+                text = build_text_context_prompt(
+                    visual_question(protocol, dataset.row(case_id)["question"]),
+                    context_row["text"], template)
+                expected_image = None
+                require(row["text_context_kind"] == kind,
+                        "Text-control kind differs")
+                require(row["text_sha256"] == context_row["text_sha256"],
+                        "Text-control context hash differs")
+                require(row["image_sha256"] is None and row["image_case_id"] is None,
+                        "Text-only control carries an image")
+            else:
+                image_case = (case_id if control == "correct"
+&gt;                             else assignment[control][case_id])
+                                   ^^^^^^^^^^^^^^^^^^^
+E               KeyError: 'noimage'
+
+scripts/score_vision_qualification.py:711: KeyError</failure></testcase></testsuite></testsuites>

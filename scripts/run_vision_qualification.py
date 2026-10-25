@@ -41,7 +41,7 @@ from replica_lab.vision_qualification import (  # noqa: E402
     sha256_bytes, sha256_file, sha256_json, sha256_text, training_schedule,
     validate_budget, validate_extension_inventory, validate_generation_trace,
     validate_protocol, verify_admission, verify_implementation_pins,
-    verify_v0_prerequisite,
+    verify_v0_prerequisite, visual_question,
 )
 
 
@@ -887,6 +887,7 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
         for name, parameter in adapter.named_parameters()
         if not name.startswith(("vision_projector.", "base."))}
     trace = []
+    all_examples = []
     completed = 0
     budget_stop = None
     started = time.monotonic()
@@ -898,6 +899,7 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
         optimizer.zero_grad(set_to_none=True)
         losses = []
         tokens = {"prompt": 0, "response": 0}
+        examples = []
         grad_names = set()
         for row in update_rows:
             visual = observe(service, dataset, image_case_id=row["case_id"],
@@ -944,6 +946,16 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
                         "Projector training loss is detached from autograd")
                 session.backward(request, loss / len(update_rows))
                 losses.append(float(loss.detach().cpu()))
+                example = {
+                    "update": update_index, "case_id": row["case_id"],
+                    "backward_called": True, "loss": losses[-1],
+                    "prompt_tokens": int(prompt.shape[1]), "response_tokens": len(response),
+                    "input_ids_sha256": sha256_json(input_ids[0].tolist()),
+                    "labels_sha256": sha256_json(labels[0].tolist()),
+                }
+                examples.append(example)
+                all_examples.append(example)
+                write_jsonl(Path(output) / "v1" / "training_examples.jsonl", all_examples)
             tokens["prompt"] += int(prompt.shape[1])
             tokens["response"] += len(response)
             for name, parameter in adapter.named_parameters():
@@ -956,13 +968,11 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
         projector_names = {"vision_projector." + name for name, _ in adapter.vision_projector.named_parameters()}
         require(grad_names == projector_names,
                 "V1 projector gradient inventory is incomplete")
-        norm = 0.0
         for name, parameter in adapter.vision_projector.named_parameters():
-            require(parameter.grad is not None
-                    and bool(torch.isfinite(parameter.grad).all()),
-                    f"V1 projector gradient missing/nonfinite: {name}")
-            norm += float(parameter.grad.detach().float().pow(2).sum().cpu())
-        norm = norm ** 0.5
+            require(parameter.grad is not None, f"V1 projector gradient missing: {name}")
+        norm = float(torch.nn.utils.clip_grad_norm_(
+            adapter.vision_projector.parameters(), train["max_grad_norm"],
+            error_if_nonfinite=True).detach().cpu())
         optimizer.step()
         optimizer.zero_grad(set_to_none=True)
         completed = update_index
@@ -974,6 +984,9 @@ def train_projector(adapter, session, tokenizer, protocol, service, dataset,
             "losses": losses,
             "loss": sum(losses) / len(losses),
             "grad_norm": norm,
+            "backward_calls": len(examples),
+            "examples": examples,
+            "max_grad_norm": train["max_grad_norm"],
             "response_only_labels": True,
             "decoder_autograd": True,
             "text_aligned_logits": True,
@@ -1019,7 +1032,7 @@ def generation_row(session, tokenizer, *, control, case_id, dataset, question,
                    text_context_kind=None, image_case_id=None):
     ids, mask, request = build_request(
         session, tokenizer, text=question, visual=visual, task_id=case_id,
-        scope=scope, device="mps", maximum=maximum)
+        scope=scope, device=session.device, maximum=maximum)
     try:
         token_ids = session.generate(request, max_new_tokens=generation_limit)
         prompt_len = int(request.frame.sense.prompt_ids.shape[1])
@@ -1068,7 +1081,7 @@ def evaluate_v1(adapter, session, tokenizer, protocol, service, dataset,
     deadline = protocol["limits"]["max_seconds"]
     complete = True
     for case_id in case_ids:
-        question = dataset.row(case_id)["question"]
+        question = visual_question(protocol, dataset.row(case_id)["question"])
         require(not leakage_hits(question, dataset.label(case_id)),
                 "Evaluation question leaks its verifier answer")
         visual_specs = {
@@ -1136,22 +1149,23 @@ def evaluate_v1(adapter, session, tokenizer, protocol, service, dataset,
                 Path(output) / "v1" / "eval_generations.jsonl")}
 
 
-def evaluate_retention(session, tokenizer, protocol, admission, scope, output):
+def evaluate_retention(session, tokenizer, protocol, admission, scope, output, *, baseline=False):
     retention = protocol["v1"]["retention"]
     maximum = protocol["limits"]["max_prompt_tokens"]
     generation_limit = protocol["v1"]["eval"]["max_new_tokens"]
     prompts = admission["_retention_prompts"][:retention["max_cases"]]
+    filename = "baseline_retention_generations.jsonl" if baseline else "retention_generations.jsonl"
+    path = Path(output) / "v1" / filename
     rows = []
     started = time.monotonic()
-    deadline = protocol["limits"]["max_seconds"]
     complete = True
     for row in prompts:
-        if time.monotonic() - started > deadline:
+        if time.monotonic() - started > protocol["limits"]["max_seconds"]:
             complete = False
             break
         ids, mask, request = build_request(
             session, tokenizer, text=row["prompt"], visual=None,
-            task_id=row["case_id"], scope=scope, device="mps", maximum=maximum)
+            task_id=row["case_id"], scope=scope, device=session.device, maximum=maximum)
         try:
             token_ids = session.generate(request, max_new_tokens=generation_limit)
             prompt_len = int(request.frame.sense.prompt_ids.shape[1])
@@ -1163,17 +1177,15 @@ def evaluate_retention(session, tokenizer, protocol, admission, scope, output):
             "group_id": row["group_id"], "split": row["split"],
             "prompt_ids": [int(value) for value in ids[0].tolist()],
             "prompt_sha256": sha256_json([int(value) for value in ids[0].tolist()]),
-            "generated_ids": generated,
-            "prompt_tokens": int(ids.shape[1]),
+            "generated_ids": generated, "prompt_tokens": int(ids.shape[1]),
             "generated_tokens": len(generated),
             "ended_by_eos": generated[-1] == tokenizer.eos_token_id,
         })
-        write_jsonl(Path(output) / "v1" / "retention_generations.jsonl", rows)
-    write_jsonl(Path(output) / "v1" / "retention_generations.jsonl", rows)
+        write_jsonl(path, rows)
+    write_jsonl(path, rows)
     return {"rows": rows, "complete": complete and len(rows) == len(prompts),
-            "cases": len(rows),
-            "retention_generations_sha256": sha256_file(
-                Path(output) / "v1" / "retention_generations.jsonl"),
+            "cases": len(rows), "generations_path": str(Path("v1") / filename),
+            "retention_generations_sha256": sha256_file(path),
             "wall_seconds": time.monotonic() - started}
 
 
@@ -1226,6 +1238,9 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
     session = make_session(adapter, tokenizer, ledger)
     service = feature_service(stage_protocol, args.device)
     encoder_audit_before = verify_encoder_frozen(service)
+    baseline_retention = evaluate_retention(
+        session, tokenizer, stage_protocol, admission, scope, output, baseline=True)
+    require(baseline_retention["complete"], "Initial text baseline did not complete")
     training = train_projector(adapter, session, tokenizer, stage_protocol,
                                service, dataset, admission, scope, output)
     write_jsonl(output / "v1" / "training_trace.jsonl", training["trace"])
@@ -1271,6 +1286,10 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
                     for name in lineage["changed"]),
         "evaluation_complete": evaluation["complete"],
         "retention_complete": retention["complete"],
+        "baseline_retention_complete": baseline_retention["complete"],
+        "text_only_tokens_unchanged": (
+            [(row["case_id"], row["generated_ids"]) for row in baseline_retention["rows"]]
+            == [(row["case_id"], row["generated_ids"]) for row in retention["rows"]]),
         "empty_ledger": True,
     }
     report = {
@@ -1291,6 +1310,8 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
                        if key != "rows"},
         "retention": {key: value for key, value in retention.items()
                       if key != "rows"},
+        "baseline_retention": {key: value for key, value in baseline_retention.items()
+                               if key != "rows"},
         "initial_checkpoint": checkpoint,
         "final_extension": final_extension,
         "extension_lineage": lineage,
@@ -1300,6 +1321,8 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
         "checks": checks,
         "artifacts": artifact_hashes(output, [
             "v1/training_trace.jsonl",
+            "v1/training_examples.jsonl",
+            "v1/baseline_retention_generations.jsonl",
             "v1/trainable_receipt.json",
             "v1/optimizer_route.json",
             "v1/optimizer_audit.json",
@@ -1314,6 +1337,8 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
             "training_wall_seconds": training["wall_seconds"],
             "evaluation_wall_seconds": evaluation["wall_seconds"],
             "retention_wall_seconds": retention["wall_seconds"],
+            "baseline_retention_wall_seconds": baseline_retention["wall_seconds"],
+            "training_backward_calls": sum(row["backward_calls"] for row in training["trace"]),
             "evaluation_prompt_tokens": sum(row["prompt_tokens"]
                                             for row in evaluation["rows"]),
             "evaluation_generated_tokens": sum(row["generated_tokens"]

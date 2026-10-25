@@ -1,12 +1,13 @@
 # Coding-agent continuation instruction
 
-**Current priority — finish independent V0 scoring, then gated projector-only V1.**
-R1–R4 remain verified at `757ace1`. Native V0 attempt02 and restart01 passed
-under protocol v3: six projector gradients, no weight updates, bitwise restart
-logits, empty memory and unchanged guards. The first restart scorer failed on
-a missing summary field. Use `configs/minicpm5_vision_v0_scoring_replay_v1.json`
-for its explicit post-native CPU repair; do not repeat native work for this.
-No perception quality or V1 admission follows until independent acceptance.
+**Current priority — run the preregistered projector-only V1 arm.**
+R1–R4 are verified; isolated native V0 is independently accepted as interface
+only. Its frozen decoder passes input gradients to six projector tensors;
+zero weights changed and fresh-process logits are bitwise equal. V0 is untrained.
+Use `configs/minicpm5_vision_v1_projector_alignment_v1.json`: 128 updates, 512
+verified training rows /64 worlds, 64 eval cases /32 disjoint worlds, six FP32
+projector tensors, frozen encoder/backbone and no memory/core/identity injections.
+Do not admit V2 or learned visual-memory/RSI until their quality prerequisites pass.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

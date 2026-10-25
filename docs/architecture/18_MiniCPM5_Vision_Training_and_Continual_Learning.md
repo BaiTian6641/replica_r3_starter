@@ -6,13 +6,14 @@ through `VisionFeatureService`, the native adapter, frames and `MemorySession`.
 Eighty-two focused tests pass; an actual CPU smoke loads the sealed source,
 tokenizes the response and runs its official PIL processor on a pinned asset.
 See [V0 CPU admission](../../reports/vision_v0_20261025/cpu_admission.json).
-Native MPS inference, backward and fresh-process reload passed their raw checks;
-the independent scorer's final CPU acceptance is pending a pinned audit repair.
+Native MPS inference, backward and fresh-process reload are independently accepted
+as interface-only. See [V0 qualification](../../reports/vision_v0_20261025/qualification.json);
+the projector is untrained and this establishes no useful visual perception.
 
 **Plan revision: 25 October 2026, following the review of `7c7018e`.**
 The following sections define the staged implementation and experiment policy.
-The V0 software interface exists; no native visual qualification, trained
-perception, accepted neural memory or RSI result is established yet.
+The V0 native interface is qualified; trained perception, accepted neural memory
+and integrated RSI remain separate unpassed gates.
 MiniCPM5 remains the baseline. The active order is completed
 verification/rebuild repairs → isolated MiniCPM5 V0 → visual fine-tuning → qualified visual memory → bounded RSI. Spark FP8/BF16
 metadata/backend preparation and dataset curation proceed independently now.
@@ -117,6 +118,18 @@ prototype can precede selected-system deployment qualification.
 | V2: visual instructions and reasoning | Projector plus an explicitly named small language adapter/LoRA scope if justified; encoder initially frozen | V1 demonstrates usable perception; grounding, OCR/relations, missing evidence and text retention pass declared numeric gates |
 | V3: visual persistent memory | Visual writer/readers; accepted visual producer initially frozen | V2 and the chosen memory path are qualified; image removal, multiple later queries, correction, unaffected-fact retention and fresh-process continuation demonstrate useful memory |
 | V4: bounded visual RSI | One isolated, named candidate scope at a time | Reliable perception/memory and independent evaluators exist; verified practice improves unseen later tasks without unacceptable retention loss |
+
+The first [V1 protocol](../../configs/minicpm5_vision_v1_projector_alignment_v1.json)
+is a projector-only 128-update, 512-example arm over 64 complete owned worlds.
+Sixty-four evaluation cases span 32 disjoint worlds from the same procedural
+source family; they are not broad photographic/source-family coverage. All
+six controls and numeric accuracy/control-margin/retention gates are pinned.
+The initial text baseline is measured before training on the same 32 protected
+prompts, then compared independently after updates. Source/data/code pins and
+actual token bounds are in [CPU admission](../../reports/vision_v1_20261025/cpu_admission.json).
+Caption-only receives oracle scene metadata explicitly; it is not ordinary
+training/sensing input. V1 remains unrun at this preregistration.
+
 
 For V1, use eligible image-caption/grounding pairs and response-only supervised
 loss. For V2, use visual questions, instruction following, spatial relations,

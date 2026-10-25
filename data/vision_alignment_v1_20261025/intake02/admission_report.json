@@ -1,0 +1,86 @@
+{
+  "format": "replica.vision_admission_report.v1",
+  "run_id": "minicpm5_projector_alignment_20261025_run01",
+  "admission": {
+    "path": "data/vision_alignment_v1_20261025/intake02/admission.json",
+    "sha256": "8b0157cf1f268042dc479d05e34cdbdb468743fb771e9b36e21162034869b7c5"
+  },
+  "data": {
+    "root": "/Users/flare/replica_r3_starter/data/vision_preparation_v1",
+    "stage": "v1",
+    "manifest": {
+      "path": "v1/vision_manifest.json",
+      "sha256": "38f714bdddd1cf8cad97c8e38a224f1d5408d8fd5c44caf3e8885d7cd88de0a7"
+    },
+    "model_rows": {
+      "path": "v1/model_rows.jsonl",
+      "sha256": "929675495fe5a991484643f44287702d3f93e4e98563a5266be738ce961da5c2"
+    },
+    "verifier_cases": {
+      "path": "v1/verifier_cases.jsonl",
+      "sha256": "d6daf92e4215f28cb924510f2e104af5838e091b825d6e4fd50ee34cd1c4b9bb"
+    },
+    "verifier_scenes": {
+      "path": "v1/verifier_scenes.jsonl",
+      "sha256": "d3b2c13b83404f2ef637ba70a07d2008c5ce954166ec6e45debb5e5a14bfbfbe"
+    }
+  },
+  "training_rows": {
+    "path": "data/vision_alignment_v1_20261025/intake02/training_rows.jsonl",
+    "sha256": "ea564c11391ee03bc81c909b49229a7494e01c81cf15a9396ef2180a950798ef",
+    "format": "replica.vision_training_rows.v1",
+    "rows_sha256": "ea564c11391ee03bc81c909b49229a7494e01c81cf15a9396ef2180a950798ef",
+    "count": 512
+  },
+  "text_contexts": {
+    "path": "data/vision_alignment_v1_20261025/intake02/text_contexts.jsonl",
+    "sha256": "5df88a8de929cfea6ecdcbf0ed239495512db1890876059c0cbed3c95c620258",
+    "format": "replica.vision_text_contexts.v1",
+    "rows_sha256": "5df88a8de929cfea6ecdcbf0ed239495512db1890876059c0cbed3c95c620258"
+  },
+  "retention": {
+    "prompts": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+      "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+    },
+    "labels": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+      "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+    },
+    "splits": [
+      "dev"
+    ],
+    "max_cases": 32
+  },
+  "v0_prerequisites": {
+    "v0_protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+    "v0_score_report": {
+      "path": "runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json",
+      "sha256": "090c5e9f9e6ee08423efe42b761b528875a00d61e4c243bc649ff6157a229443"
+    },
+    "data_admission": {
+      "path": "data/vision_alignment_v1_20261025/intake02/admission.json",
+      "sha256": "8b0157cf1f268042dc479d05e34cdbdb468743fb771e9b36e21162034869b7c5"
+    }
+  },
+  "initial_checkpoint": {
+    "path": "/Users/flare/replica_r3_starter/runs/minicpm5_vision_v0_20261025/attempt02/extension",
+    "manifest_sha256": "4334dbf33e3fa43a32b2417c99fd064d64d94edcd8abbb66334862f1501d98ea",
+    "weights_sha256": "042a6fa354acb793c3fa4476d419ac0ae938ff3ceb853a201719fb6ea214599c"
+  },
+  "eligible_rows": 2048,
+  "admitted_training_rows": 512,
+  "verified_training_assets": 256,
+  "independent_training_worlds": 64,
+  "independent_evaluation_worlds": 32,
+  "evaluation_cases": 64,
+  "source_family_count": 1,
+  "retention_cases": 32,
+  "retention_domains": 7,
+  "logical_dataset_bytes": 4475237,
+  "dataset_disk_ceiling_bytes": 26843545600,
+  "external_assets_acquired": 0,
+  "native_execution": false,
+  "optimizer_updates": 0,
+  "preparation_manifests_changed": false
+}

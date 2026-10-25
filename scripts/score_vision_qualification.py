@@ -35,7 +35,7 @@ from replica_lab.vision_qualification import (  # noqa: E402
     summarize_engineering, training_schedule, validate_extension_inventory,
     validate_generation_trace, validate_optimizer_route,
     validate_protocol, validate_restart_report, verify_admission,
-    verify_implementation_pins, verify_v0_prerequisite,
+    verify_implementation_pins, verify_v0_prerequisite, validate_training_trace, visual_question,
 )
 
 
@@ -585,13 +585,12 @@ def verify_training(run, report, dataset, admission, protocol, tokenizer):
     trace_rows = read_jsonl(Path(run) / "v1" / "training_trace.jsonl")
     require(trace_rows == training["trace"],
             "Training trace file differs from the report")
-    require(training["completed_updates"] == protocol["v1"]["train"]["updates"],
+    require(type(training["completed_updates"]) is int
+            and training["completed_updates"] == protocol["v1"]["train"]["updates"],
             "Declared projector updates did not complete")
     require(training["budget_stop"] is None, "V1 stopped on a training budget")
     require(len(trace_rows) == protocol["v1"]["train"]["updates"],
             "Training trace row count differs from the declared updates")
-    schedule = training_schedule(admission["_training_rows"],
-                                 protocol["v1"]["train"])
     trainable_file = json.loads(
         (Path(run) / "v1" / "trainable_receipt.json").read_text(encoding="utf-8"))
     route_file = json.loads(
@@ -619,37 +618,9 @@ def verify_training(run, report, dataset, admission, protocol, tokenizer):
             "V1 changed the sealed base identity")
     require(training["optimizer_audit"]["optimizer"] == "muon8bit",
             "V1 optimizer name differs")
-    for index, row in enumerate(trace_rows):
-        require(row["update"] == index + 1, "Training trace updates are not sequential")
-        _subset = ("case_ids", "losses", "loss", "grad_norm", "response_only_labels",
-                   "decoder_autograd", "text_aligned_logits",
-                   "projector_gradient_names", "nonprojector_gradient_names",
-                   "base_parameter_stamp_unchanged")
-        require(all(key in row for key in _subset),
-                "Training trace row lacks declared evidence")
-        expected_cases = [item["case_id"] for item in schedule[index]]
-        require(row["case_ids"] == expected_cases,
-                "Training schedule/case order differs from the declared seed")
-        require(len(row["losses"]) == len(expected_cases),
-                "Training loss count differs from gradient accumulation")
-        require(all(isinstance(value, (int, float)) and value == value
-                    and abs(value) != float("inf") for value in row["losses"]),
-                "Training losses are missing/nonfinite")
-        require(row["response_only_labels"] is True,
-                "Training labels were not response-only")
-        require(row["decoder_autograd"] is True,
-                "Decoder autograd was disabled during projector training")
-        require(row["text_aligned_logits"] is True,
-                "Training logits were not text-aligned")
-        require(row["nonprojector_gradient_names"] == [],
-                "Non-projector gradients occurred during training")
-        require(set(row["projector_gradient_names"]) == route_names,
-                "Projector gradient inventory differs from the optimizer route")
-        require(row["base_parameter_stamp_unchanged"] is True,
-                "A training update changed the sealed base")
-        require(isinstance(row["grad_norm"], (int, float))
-                and row["grad_norm"] >= 0 and row["grad_norm"] == row["grad_norm"],
-                "Training gradient norm is invalid")
+    example_rows = read_jsonl(Path(run) / "v1" / "training_examples.jsonl")
+    validate_training_trace(trace_rows, example_rows, admission["_training_rows"],
+                            protocol["v1"]["train"], tokenizer, route_names)
     require(trainable_file["nonprojector_gradients"] == [],
             "Trainable receipt reports non-projector gradients")
     return {"trace": trace_rows, "trainable": trainable_file["trainable"],
@@ -726,7 +697,8 @@ def verify_v1_evaluation(run, report, protocol, dataset, admission, tokenizer):
             kind = TEXT_CONTROL_KIND[control]
             context_row = contexts[(case_id, kind)]
             text = build_text_context_prompt(
-                dataset.row(case_id)["question"], context_row["text"], template)
+                visual_question(protocol, dataset.row(case_id)["question"]),
+                context_row["text"], template)
             expected_image = None
             require(row["text_context_kind"] == kind,
                     "Text-control kind differs")
@@ -735,11 +707,9 @@ def verify_v1_evaluation(run, report, protocol, dataset, admission, tokenizer):
             require(row["image_sha256"] is None and row["image_case_id"] is None,
                     "Text-only control carries an image")
         else:
-            image_case = (case_id if control == "correct"
-                          else assignment[control][case_id])
-            if control == "noimage":
-                image_case = None
-            text = dataset.row(case_id)["question"]
+            image_case = (None if control == "noimage" else case_id
+                          if control == "correct" else assignment[control][case_id])
+            text = visual_question(protocol, dataset.row(case_id)["question"])
             expected_image = (None if image_case is None
                               else dataset.asset_for_case(image_case)["sha256"])
             require(row["image_case_id"] == image_case,
@@ -766,44 +736,44 @@ def verify_v1_evaluation(run, report, protocol, dataset, admission, tokenizer):
     require(evaluation["complete"] is True, "Evaluation did not complete")
     scores = score_controls(dataset, scored, controls=controls)
     retention = verify_v1_retention(run, report, protocol, admission, tokenizer)
+    baseline = verify_v1_retention(run, report, protocol, admission, tokenizer, baseline=True)
+    require(retention["tokens_by_case"] == baseline["tokens_by_case"],
+            "Projector-only V1 changed native text-only generation")
     quality = apply_quality_gates(
         scores, retention, protocol["v1"]["quality"]["gates"],
-        retention_baseline_accuracy=protocol["v1"]["quality"][
-            "retention_baseline_accuracy"])
-    return {"scores": scores, "retention": retention, "quality": quality,
-            "eval_generations_sha256": evaluation["eval_generations_sha256"],
+        retention_baseline_accuracy=baseline["accuracy"])
+    return {"scores": scores, "retention": retention, "baseline_retention": baseline,
+            "quality": quality, "eval_generations_sha256": evaluation["eval_generations_sha256"],
             "case_ids": case_ids, "controls": controls}
 
 
-def verify_v1_retention(run, report, protocol, admission, tokenizer):
-    retention = report.get("retention")
-    require(isinstance(retention, dict), "V1 report lacks retention evidence")
-    rows = read_jsonl(Path(run) / "v1" / "retention_generations.jsonl")
-    require(sha256_file(Path(run) / "v1" / "retention_generations.jsonl")
-            == retention["retention_generations_sha256"],
+def verify_v1_retention(run, report, protocol, admission, tokenizer, *, baseline=False):
+    key = "baseline_retention" if baseline else "retention"
+    retention = report.get(key)
+    require(isinstance(retention, dict), "V1 report lacks actual text retention evidence")
+    filename = "baseline_retention_generations.jsonl" if baseline else "retention_generations.jsonl"
+    path = Path(run) / "v1" / filename
+    rows = read_jsonl(path)
+    require(sha256_file(path) == retention["retention_generations_sha256"],
             "Retention generations changed")
-    prompts = admission["_retention_prompts"][
-        :protocol["v1"]["retention"]["max_cases"]]
+    prompts = admission["_retention_prompts"][:protocol["v1"]["retention"]["max_cases"]]
     require(len(rows) == len(prompts), "Retention generation count differs")
     maximum = protocol["limits"]["max_prompt_tokens"]
     max_new = protocol["v1"]["eval"]["max_new_tokens"]
-    scored = []
+    scored, tokens = [], {}
     for row, prompt in zip(rows, prompts):
-        require(row["case_id"] == prompt["case_id"],
-                "Retention generation order/case differs")
+        require(row["case_id"] == prompt["case_id"], "Retention generation order/case differs")
         expected = expected_prompt_ids(tokenizer, prompt["prompt"])
-        require(row["prompt_ids"] == expected,
-                "Retention prompt differs from independent tokenization")
-        require(row["prompt_sha256"] == sha256_json(expected),
-                "Retention prompt hash differs")
+        require(row["prompt_ids"] == expected, "Retention prompt differs from independent tokenization")
+        require(row["prompt_sha256"] == sha256_json(expected), "Retention prompt hash differs")
         require(len(expected) <= maximum, "Retention prompt exceeds budget")
-        require(1 <= len(row["generated_ids"]) <= max_new,
-                "Retention generation exceeds budget")
+        require(1 <= len(row["generated_ids"]) <= max_new, "Retention generation exceeds budget")
         scored.append({"case_id": row["case_id"],
                        "generated_text": decode_ids(tokenizer, row["generated_ids"])})
+        tokens[row["case_id"]] = row["generated_ids"]
     require(retention["complete"] is True, "Retention evaluation did not complete")
-    return score_retention(admission["_retention_prompts"],
-                           admission["_retention_labels"], scored)
+    result = score_retention(admission["_retention_prompts"], admission["_retention_labels"], scored)
+    return {**result, "tokens_by_case": tokens}
 
 
 def score_v1(args, protocol, protocol_sha, dataset, tokenizer, run, report,

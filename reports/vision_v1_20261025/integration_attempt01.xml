@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="122" time="10.276" timestamp="2026-10-25T02:37:11.386459-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_vision_qualification" name="test_prospective_template_cannot_admit_a_native_run" time="0.026" /><testcase classname="tests.test_vision_qualification" name="test_executable_protocol_rejects_missing_pins_and_unbounded_budget" time="0.027" /><testcase classname="tests.test_vision_qualification" name="test_implementation_pin_tamper_is_rejected" time="0.001" /><testcase classname="tests.test_vision_qualification" name="test_actual_v0_dataset_reconstructs_labels_and_rejects_tampering" time="0.130" /><testcase classname="tests.test_vision_qualification" name="test_wrong_and_shuffled_controls_are_deterministic_and_distinct" time="0.280" /><testcase classname="tests.test_vision_qualification" name="test_v1_admission_and_accepted_v0_are_hard_prerequisites" time="0.360" /><testcase classname="tests.test_vision_qualification" name="test_training_schedule_and_budget_are_deterministic_and_bounded" time="0.276" /><testcase classname="tests.test_vision_qualification" name="test_scorer_reconstructs_answers_counts_unknowns_and_families" time="0.048" /><testcase classname="tests.test_vision_qualification" name="test_quality_can_reject_while_engineering_passes" time="0.046" /><testcase classname="tests.test_vision_qualification" name="test_projector_optimizer_routes_2d_to_muon_and_1d_to_fp32_adamw" time="0.003" /><testcase classname="tests.test_vision_qualification" name="test_extension_inventory_and_only_projector_lineage" time="0.004" /><testcase classname="tests.test_vision_qualification" name="test_generation_logits_and_restart_compare_reject_tampering" time="0.003" /><testcase classname="tests.test_vision_qualification" name="test_prompt_leakage_and_unknown_normalisation" time="0.000" /><testcase classname="tests.test_vision_qualification" name="test_named_admission_rejects_rehashed_semantic_substitutions[label]" time="0.298" /><testcase classname="tests.test_vision_qualification" name="test_named_admission_rejects_rehashed_semantic_substitutions[prompt]" time="0.308" /><testcase classname="tests.test_vision_qualification" name="test_named_admission_rejects_rehashed_semantic_substitutions[named_run]" time="0.346" /><testcase classname="tests.test_vision_qualification" name="test_named_admission_rejects_rehashed_semantic_substitutions[count]" time="0.289" /><testcase classname="tests.test_vision_qualification" name="test_named_admission_rejects_rehashed_semantic_substitutions[legacy_format]" time="0.283" /><testcase classname="tests.test_vision_qualification" name="test_v1_cannot_substitute_an_unqualified_initial_projector" time="0.305" /><testcase classname="tests.test_vision_qualification" name="test_protected_retention_inputs_do_not_echo_verifier_answers" time="0.003" /><testcase classname="tests.test_visual_runner_paths" name="test_v0_runner_backward_lease_and_optional_update_preserve_frozen_tensors[False]" time="0.019" /><testcase classname="tests.test_visual_runner_paths" name="test_v0_runner_backward_lease_and_optional_update_preserve_frozen_tensors[True]" time="0.016" /><testcase classname="tests.test_visual_runner_paths" name="test_v1_runner_accumulates_projector_only_gradients_and_declared_repeats" time="0.066" /><testcase classname="tests.test_visual_runner_paths" name="test_capture_releases_visual_request_after_generation_or_failure[0]" time="0.008" /><testcase classname="tests.test_visual_runner_paths" name="test_capture_releases_visual_request_after_generation_or_failure[1]" time="0.011" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_authenticates_repaired_source_and_both_native_parents" time="0.003" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_rejects_changed_parent_artifacts[protocol]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_rejects_changed_parent_artifacts[run]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_rejects_changed_parent_artifacts[restart]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_cannot_replace_native_runner_or_override_gates[runner]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_cannot_replace_native_runner_or_override_gates[gates]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_requires_explicit_immutable_audit_scope[evaluation_only-False]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_requires_explicit_immutable_audit_scope[retrospective_to_native-False]" time="0.002" /><testcase classname="tests.test_visual_scoring_replay" name="test_scorer_replay_requires_explicit_immutable_audit_scope[native_code_commit-unversioned]" time="0.002" /><testcase classname="tests.test_visual_evaluation_path" name="test_every_control_and_measured_retention_survive_independent_consumption" time="0.514" /><testcase classname="tests.test_vision_features" name="test_sealed_source_round_trip" time="0.007" /><testcase classname="tests.test_vision_features" name="test_source_rejects_extra_file" time="0.007" /><testcase classname="tests.test_vision_features" name="test_source_rejects_byte_mutation" time="0.007" /><testcase classname="tests.test_vision_features" name="test_source_rejects_seal_digest_mutation" time="0.007" /><testcase classname="tests.test_vision_features" name="test_manifest_rejects_over_cap_inventory" time="0.007" /><testcase classname="tests.test_vision_features" name="test_source_rejects_bad_card_license" time="0.009" /><testcase classname="tests.test_vision_features" name="test_cache_clone_and_hit_accounting" time="0.000" /><testcase classname="tests.test_vision_features" name="test_cache_rejects_oversize_and_evicts_lru" time="0.000" /><testcase classname="tests.test_vision_features" name="test_cache_detects_mutation_and_invalidates" time="0.000" /><testcase classname="tests.test_vision_features" name="test_observe_binds_owner_layout_and_detaches" time="0.002" /><testcase classname="tests.test_vision_features" name="test_cache_hit_returns_independent_request_tensors" time="0.002" /><testcase classname="tests.test_vision_features" name="test_scope_task_and_crop_change_cache_key" time="0.003" /><testcase classname="tests.test_vision_features" name="test_service_rejects_invalid_scope_time_and_crop" time="0.001" /><testcase classname="tests.test_vision_features" name="test_cache_budget_skips_storage_but_serves" time="0.001" /><testcase classname="tests.test_vision_features" name="test_manifest_mutation_rejects_and_invalidates" time="0.002" /><testcase classname="tests.test_vision_features" name="test_encoder_parameter_mutation_rejects" time="0.001" /><testcase classname="tests.test_vision_features" name="test_processor_backend_is_official_pil_when_overlay_present" time="0.007" /><testcase classname="tests.test_vision_features" name="test_load_vision_source_is_regular_file_only" time="0.001" /><testcase classname="tests.test_vision_features" name="test_processor_configuration_mutation_invalidates_cached_observation" time="0.001" /><testcase classname="tests.test_vision_features" name="test_encoder_position_buffer_mutation_rejects_cached_observation" time="0.001" /><testcase classname="tests.test_visual_adapter" name="test_fused_masks_positions_and_text_bypass_match_native[False-False]" time="0.010" /><testcase classname="tests.test_visual_adapter" name="test_fused_masks_positions_and_text_bypass_match_native[False-True]" time="0.010" /><testcase classname="tests.test_visual_adapter" name="test_fused_masks_positions_and_text_bypass_match_native[True-False]" time="0.010" /><testcase classname="tests.test_visual_adapter" name="test_fused_masks_positions_and_text_bypass_match_native[True-True]" time="0.010" /><testcase classname="tests.test_visual_adapter" name="test_projector_receives_decoder_input_gradient_with_frozen_original[False]" time="0.012" /><testcase classname="tests.test_visual_adapter" name="test_projector_receives_decoder_input_gradient_with_frozen_original[True]" time="0.016" /><testcase classname="tests.test_visual_adapter" name="test_visual_scope_task_epoch_and_future_information_rejected[task_id-other-task]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_scope_task_epoch_and_future_information_rejected[subject_id-other-subject]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_scope_task_epoch_and_future_information_rejected[branch_id-foreign]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_scope_task_epoch_and_future_information_rejected[purpose-foreign]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_scope_task_epoch_and_future_information_rejected[source_epoch-1]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_scope_task_epoch_and_future_information_rejected[observed_at-6]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_path_cannot_enable_cognitive_or_memory_injections[changes0]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_path_cannot_enable_cognitive_or_memory_injections[changes1]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_path_cannot_enable_cognitive_or_memory_injections[changes2]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_path_cannot_enable_cognitive_or_memory_injections[changes3]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_path_cannot_enable_cognitive_or_memory_injections[changes4]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_patches_and_projector_versions_are_request_owned" time="0.011" /><testcase classname="tests.test_visual_adapter" name="test_visual_sensing_changes_with_observation_but_not_teacher_suffix" time="0.010" /><testcase classname="tests.test_visual_adapter" name="test_visual_producer_layout_and_encoder_width_must_match_spec[change0]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_producer_layout_and_encoder_width_must_match_spec[change1]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_visual_producer_layout_and_encoder_width_must_match_spec[change2]" time="0.005" /><testcase classname="tests.test_visual_adapter" name="test_generation_and_strict_projector_extension_reload" time="0.032" /><testcase classname="tests.test_visual_adapter" name="test_visual_layout_copies_mutable_caller_metadata" time="0.000" /><testcase classname="tests.test_visual_adapter" name="test_encoder_feature_gradient_flag_cannot_change_behind_a_frame" time="0.009" /><testcase classname="tests.test_memory_diagnosis" name="test_world_generation_is_seeded_disjoint_and_label_free" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_prepare_and_admit_bind_exact_source_data_and_protocol_pins" time="0.006" /><testcase classname="tests.test_memory_diagnosis" name="test_native_reader_unavailable_is_reported_not_fabricated" time="0.000" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_rejects_poor_storage_before_any_reader_comparator" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_recomputes_passes_from_raw_readouts_and_keeps_v5_rejected" time="0.002" /><testcase classname="tests.test_memory_diagnosis" name="test_scoring_reports_missing_native_reader_without_promoting_memory" time="0.001" /><testcase classname="tests.test_memory_diagnosis" name="test_tiny_fixture_runs_frozen_diagnostic_with_controls_and_restart" time="1.288"><failure message="NameError: name 'stage' is not defined">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-523/test_tiny_fixture_runs_frozen_0')
+
+    def test_tiny_fixture_runs_frozen_diagnostic_with_controls_and_restart(tmp_path):
+        model = tiny_adapter(fast_memory=SPEC).eval()
+&gt;       result = run_diagnostic(
+            model, Tokenizer(), protocol(), output_dir=tmp_path / 'diagnosis',
+            ledger_dir=tmp_path / 'ledger', device='cpu')
+
+tests/test_memory_diagnosis.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model = MiniCPM5Adapter(
+  (base): LlamaForCausalLM(
+    (model): LlamaModel(
+      (embed_tokens): Embedding(64, 16, padding_...out_features=16, bias=False)
+      (output_projection): Linear(in_features=16, out_features=16, bias=False)
+    )
+  )
+)
+tokenizer = &lt;test_memory_diagnosis.Tokenizer object at 0x111e15070&gt;
+protocol = {'format': 'replica.memory_storage_probe.protocol.v1', 'seed': 731, 'world_count': 2, 'facts_per_world': 2, ...}
+output_dir = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-523/test_tiny_fixture_runs_frozen_0/diagnosis')
+ledger_dir = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-523/test_tiny_fixture_runs_frozen_0/ledger')
+worlds = [{'world_id': 'world-c416ccd20c', 'family_id': 'family-00', 'facts': [{'fact_id': 'world-c416ccd20c:fact:0', 'entity':...fcb5:distractor:0', 'entity': 'ent-8fcd235061', 'attribute': 'attr-270a783159', 'value': 'val-a4120205ec', ...}], ...}]
+device = 'cpu', writer_extension_receipt = None
+
+    def run_diagnostic(model, tokenizer, protocol, *, output_dir, ledger_dir=None,
+                       worlds=None, device='cpu', writer_extension_receipt=None):
+        """Run frozen storage/addressing/readout diagnosis and write raw artifacts."""
+        supplied_worlds = worlds if worlds is not None else protocol.get('worlds')
+        protocol = _merge_protocol(protocol)
+        if supplied_worlds is None:
+            worlds = generate_worlds(
+                seed=protocol['seed'], world_count=protocol['world_count'],
+                facts_per_world=protocol['facts_per_world'],
+                distractors_per_world=protocol['distractors_per_world'],
+                correction_index=protocol['correction_index'],
+                revocation_index=protocol['revocation_index'])
+        else:
+            worlds = supplied_worlds
+        validate_worlds(worlds)
+        if len(worlds) != protocol['world_count']:
+            raise ValueError('Protocol world count differs from supplied worlds')
+        layer = _resolve_layer(model, protocol)
+    
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        ledger_dir = Path(ledger_dir) if ledger_dir is not None else output_dir / 'ledger'
+        ledger_dir.mkdir(parents=True, exist_ok=True)
+        images_dir = output_dir / 'images'
+        images_dir.mkdir(parents=True, exist_ok=True)
+        if ((output_dir / 'readouts.jsonl').exists()
+                or (output_dir / 'codebooks.json').exists()):
+            raise FileExistsError('Diagnostic raw artifacts already exist')
+    
+        model.eval()
+        requires_grad_before = {name: parameter.requires_grad
+                                for name, parameter in model.named_parameters()}
+        _freeze(model)
+        versions_before = _parameter_versions(model)
+        started = time.perf_counter()
+        rss_start = _rss_bytes()
+        rows, codebooks, public_codebooks = [], {}, {}
+        summaries, transitions = [], []
+        engine_config = producer = model_producer = dependencies = None
+    
+        with torch.no_grad():
+            for world in worlds:
+                world_started = time.perf_counter()
+                ledger = RecordLedger(ledger_dir / f"{world['world_id']}.sqlite")
+                reference = ExactMemoryReference(ledger)
+                world_transition = {'world_id': world['world_id']}
+                try:
+                    initial_records, correction_record, origin_by_record = world_records(world)
+                    admitted = reference.admit(initial_records)
+                    if admitted != len(initial_records):
+                        raise ValueError('Source admission did not accept every initial record')
+                    fast_scope = _fast_scope(world, 0)
+                    memory = PersistentFastMemory(
+                        model, tokenizer, fast_scope, training=False,
+                        representation=FACT_REPRESENTATION)
+                    if engine_config is None:
+                        engine_config = memory.config.to_dict()
+                        producer = memory.producer
+                        model_producer = memory.model_producer
+                        dependencies = memory.dependencies
+                    for record in initial_records:
+                        memory.append_record(record)
+    
+                    initial_scope = _scope(world, 1)
+                    initial_binding = memory.bind_source(reference, scope=initial_scope)
+                    initial_image = images_dir / world['world_id'] / 'initial'
+                    initial_metadata = memory.save(initial_image, require_source_binding=True)
+    
+                    initial_codebook = _build_codebook(
+                        model, tokenizer, reference.view(initial_scope).records,
+                        world_id=world['world_id'], stage='initial', layer=layer,
+                        origin_by_record=origin_by_record,
+                        correction_record_id=correction_record.record_id)
+                    unknown = unknown_fact(world, seed=protocol['seed'])
+                    foreign = foreign_fact(worlds, world)
+                    initial_rows_before = _evaluate_state(
+                        memory, model, tokenizer, initial_codebook, stage='initial',
+                        world=world, layer=layer, native_reader=protocol['native_reader'],
+                        unknown=unknown, foreign=foreign, revoked_fact=None,
+                        thresholds=protocol['thresholds'])
+    
+                    loaded = PersistentFastMemory.load(
+                        initial_image, model, tokenizer, fast_scope,
+                        representation=FACT_REPRESENTATION,
+                        expected_view_digest=initial_binding['view_digest'],
+                        require_source_binding=True, source_reference=reference,
+                        source_scope=initial_scope)
+                    initial_signature = _state_signature(memory)
+                    loaded_signature = _state_signature(loaded)
+                    initial_rows = _evaluate_state(
+                        loaded, model, tokenizer, initial_codebook, stage='initial',
+                        world=world, layer=layer, native_reader=protocol['native_reader'],
+                        unknown=unknown, foreign=foreign, revoked_fact=None,
+                        thresholds=protocol['thresholds'])
+                    initial_restart = {
+                        'state_equal': initial_signature == loaded_signature,
+                        'readout_equal': _readout_signature(initial_rows_before) == _readout_signature(initial_rows),
+                        'image': _display_path(initial_image),
+                        'binding': initial_binding,
+                    }
+                    codebooks[initial_codebook['key']] = initial_codebook
+                    public_codebooks[initial_codebook['key']] = _public_codebook(initial_codebook)
+                    rows.extend(initial_rows)
+    
+                    # Correction: admit the source event, prove a stale image is
+                    # rejected, append the correction, then save/load a fresh state.
+                    corrected_admission = reference.admit((correction_record,))
+                    if corrected_admission != 1:
+                        raise ValueError('Correction admission did not accept exactly one record')
+                    stale_initial_rejected = _expect_stale_load(
+                        initial_image, model=model, tokenizer=tokenizer, fast_scope=fast_scope,
+                        binding=initial_binding, reference=reference, scope=initial_scope)
+                    memory = loaded
+                    memory.append_record(correction_record)
+                    corrected_scope = _scope(world, 2)
+                    corrected_binding = memory.bind_source(reference, scope=corrected_scope)
+                    corrected_image = images_dir / world['world_id'] / 'corrected'
+                    corrected_metadata = memory.save(corrected_image, require_source_binding=True)
+                    corrected_codebook = _build_codebook(
+                        model, tokenizer, reference.view(corrected_scope).records,
+                        world_id=world['world_id'], stage='corrected', layer=layer,
+                        origin_by_record=origin_by_record,
+                        correction_record_id=correction_record.record_id)
+                    superseded_entry_absent = (
+                        world['correction']['supersedes'] not in corrected_codebook['entries'])
+                    corrected_rows_before = _evaluate_state(
+                        memory, model, tokenizer, corrected_codebook, stage='corrected',
+                        world=world, layer=layer, native_reader=protocol['native_reader'],
+                        unknown=unknown, foreign=foreign, revoked_fact=None,
+                        thresholds=protocol['thresholds'])
+                    corrected_loaded = PersistentFastMemory.load(
+                        corrected_image, model, tokenizer, fast_scope,
+                        representation=FACT_REPRESENTATION,
+                        expected_view_digest=corrected_binding['view_digest'],
+                        require_source_binding=True, source_reference=reference,
+                        source_scope=corrected_scope)
+                    corrected_rows = _evaluate_state(
+                        corrected_loaded, model, tokenizer, corrected_codebook, stage='corrected',
+                        world=world, layer=layer, native_reader=protocol['native_reader'],
+                        unknown=unknown, foreign=foreign, revoked_fact=None,
+                        thresholds=protocol['thresholds'])
+                    corrected_restart = {
+                        'state_equal': _state_signature(memory) == _state_signature(corrected_loaded),
+                        'readout_equal': _readout_signature(corrected_rows_before) == _readout_signature(corrected_rows),
+                        'image': _display_path(corrected_image),
+                        'binding': corrected_binding,
+                    }
+                    codebooks[corrected_codebook['key']] = corrected_codebook
+                    public_codebooks[corrected_codebook['key']] = _public_codebook(corrected_codebook)
+                    rows.extend(corrected_rows)
+    
+                    # Revocation and an authoritative current-view rebuild.
+                    revoked_record = next(record for record in initial_records
+                                          if record.record_id == world['revocation_fact_id'])
+                    revoked = reference.revoke(
+                        revoked_record.record_id, authorized_subject=SUBJECT_ID,
+                        authorized_branch=world['world_id'])
+                    if not revoked:
+                        raise ValueError('Revocation did not change the ledger')
+                    stale_corrected_rejected = _expect_stale_load(
+                        corrected_image, model=model, tokenizer=tokenizer,
+                        fast_scope=fast_scope, binding=corrected_binding,
+                        reference=reference, scope=corrected_scope)
+                    current_scope = _scope(world, 3)
+                    memory = PersistentFastMemory(
+                        model, tokenizer, fast_scope, training=False,
+                        representation=FACT_REPRESENTATION)
+                    memory.rebuild(semantics='current_view', reference=reference,
+                                   source_scope=current_scope)
+                    current_binding = memory.bind_source(reference, scope=current_scope)
+                    current_image = images_dir / world['world_id'] / 'current_view'
+                    current_metadata = memory.save(current_image, require_source_binding=True)
+                    current_codebook = _build_codebook(
+                        model, tokenizer, reference.view(current_scope).records,
+                        world_id=world['world_id'], stage='current_view', layer=layer,
+                        origin_by_record=origin_by_record,
+                        correction_record_id=correction_record.record_id)
+                    revoked_entry_absent = (
+                        world['revocation_fact_id'] not in current_codebook['entries'])
+                    revoked_fact = next(fact for fact in world['facts']
+                                        if fact['fact_id'] == world['revocation_fact_id'])
+                    current_rows_before = _evaluate_state(
+                        memory, model, tokenizer, current_codebook, stage='current_view',
+                        world=world, layer=layer, native_reader=protocol['native_reader'],
+                        unknown=unknown, foreign=foreign, revoked_fact=revoked_fact,
+                        thresholds=protocol['thresholds'])
+                    current_loaded = PersistentFastMemory.load(
+                        current_image, model, tokenizer, fast_scope,
+                        representation=FACT_REPRESENTATION,
+                        expected_view_digest=current_binding['view_digest'],
+                        require_source_binding=True, source_reference=reference,
+                        source_scope=current_scope)
+                    current_rows = _evaluate_state(
+                        current_loaded, model, tokenizer, current_codebook, stage='current_view',
+                        world=world, layer=layer, native_reader=protocol['native_reader'],
+                        unknown=unknown, foreign=foreign, revoked_fact=revoked_fact,
+                        thresholds=protocol['thresholds'])
+                    current_restart = {
+                        'state_equal': _state_signature(memory) == _state_signature(current_loaded),
+                        'readout_equal': _readout_signature(current_rows_before) == _readout_signature(current_rows),
+                        'image': _display_path(current_image),
+                        'binding': current_binding,
+                    }
+                    codebooks[current_codebook['key']] = current_codebook
+                    public_codebooks[current_codebook['key']] = _public_codebook(current_codebook)
+                    rows.extend(current_rows)
+    
+                    world_transition.update({
+                        'initial': initial_restart,
+                        'corrected': corrected_restart,
+                        'current_view': current_restart,
+                        'stale_initial_rejected': stale_initial_rejected,
+                        'stale_corrected_rejected': stale_corrected_rejected,
+                        'superseded_entry_absent': superseded_entry_absent,
+                        'revoked_entry_absent': revoked_entry_absent,
+                        'source_records_admitted': admitted,
+                        'correction_records_admitted': corrected_admission,
+                        'revoked_record_id': revoked_record.record_id,
+                        'lineage_initial': len(initial_metadata['lineage']),
+                        'lineage_corrected': len(corrected_metadata['lineage']),
+                        'lineage_current_view': len(current_metadata['lineage']),
+                        'semantics': memory.semantics,
+                    })
+                    transitions.append(world_transition)
+                    summaries.append({
+                        'world_id': world['world_id'],
+                        'family_id': world['family_id'],
+                        'facts': len(world['facts']),
+                        'distractors': len(world['distractors']),
+                        'independent_world_distractors': len(world['distractors']),
+                        'independent_world_ids': sorted(
+                            {distractor['origin_world_id'] for distractor in world['distractors']}),
+                        'source_family_count': len(world['facts']),
+                        'correction_target': world['correction']['fact_id'],
+                        'revocation_target': world['revocation_fact_id'],
+&gt;                       'codebook_entries': {stage: len(cb['entries'])
+                                             ^^^^^
+                                             for cb in (initial_codebook, corrected_codebook,
+                                                        current_codebook)},
+                        'source_hashes': {
+                            stage: {entry_id: entry['source_hash']
+                                    for entry_id, entry in cb['entries'].items()}
+                            for stage, cb in (('initial', initial_codebook),
+                                              ('corrected', corrected_codebook),
+                                              ('current_view', current_codebook))},
+                        'queries': {stage: sum(1 for row in rows
+                                               if row['world_id'] == world['world_id']
+                                               and row['stage'] == stage)
+                                    for stage in ('initial', 'corrected', 'current_view')},
+                        'seconds': time.perf_counter() - world_started,
+                        'image_bytes': {
+                            stage: sum(path.stat().st_size for path in (images_dir / world['world_id'] / stage).rglob('*')
+                                       if path.is_file())
+                            for stage in ('initial', 'corrected', 'current_view')},
+                    })
+E                   NameError: name 'stage' is not defined
+
+src/replica_lab/memory_diagnosis.py:1457: NameError</failure></testcase><testcase classname="tests.test_visual_source_memory" name="test_exact_source_retrieval_is_separate_from_memory_only_recall" time="0.003" /><testcase classname="tests.test_visual_source_memory" name="test_restart_reuses_original_bytes_without_reencoding" time="0.003" /><testcase classname="tests.test_visual_source_memory" name="test_correction_changes_only_target_and_unaffected_reference_survives" time="0.003"><failure message="AttributeError: 'VisualSourceObservation' object has no attribute 'event_id'. Did you mean: 'event_at'?">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-523/test_correction_changes_only_t0')
+
+    def test_correction_changes_only_target_and_unaffected_reference_survives(tmp_path):
+        with visual.VisualSourceMemory(tmp_path / "ledger.sqlite",
+                                       tmp_path / "blobs") as store:
+            first_data, second_data = make_png(30), make_png(40)
+            layout = visual.SourceLayout("row", (0, 1))
+            first_receipt, first_identity = observe(
+                store, first_data, observation_id="obs-a", asset_id="asset-a",
+                family_id="family-a", observed_at=1, layout=layout)
+            _second_receipt, second_identity = observe(
+                store, second_data, observation_id="obs-b", asset_id="asset-b",
+                family_id="family-b", observed_at=1, layout=layout)
+            first_request = make_request(first_identity, "obs-a")
+            second_request = make_request(second_identity, "obs-b")
+    
+            epoch_before = store.epoch
+            first_evidence = store.retrieve(first_request, make_scope())
+            second_evidence = store.retrieve(second_request, make_scope())
+            first_reference = first_evidence.reference()
+            second_reference = second_evidence.reference()
+    
+            corrected_crop = (2, 2, 14, 10)
+&gt;           correction = store.correct(
+                "obs-a", correction_id="obs-a-correction", scope=make_scope(),
+                owner_id="owner-corrected", crop_box=corrected_crop,
+                layout=visual.SourceLayout("row", (0, 1, 2, 3)),
+                event_id="event-a-corrected", observed_at=2, event_at=2,
+                authorized_subject=SUBJECT, authorized_branch=visual.SOURCE_BRANCH,
+                source_authorized=True)
+
+tests/test_visual_source_memory.py:181: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;replica_lab.runtime.visual_source_memory.VisualSourceMemory object at 0x111e16720&gt;
+parent_observation_id = 'obs-a', correction_id = 'obs-a-correction'
+scope = EligibilityScope(subject_id='visual-source-subject', branch_id='source', purpose='exact_visual_source', as_of=20, mode='source_current', snapshot_at=None)
+owner_id = 'owner-corrected', crop_box = (2, 2, 14, 10)
+layout = SourceLayout(template='row', cell_indices=(0, 1, 2, 3))
+event_id = 'event-a-corrected', observed_at = 2, event_at = 2
+authorized_subject = 'visual-source-subject', authorized_branch = 'source'
+producer_id = None, image_bytes = None, source_authorized = True
+
+    def correct(self, parent_observation_id: str, *, correction_id: str,
+                scope: EligibilityScope, owner_id: str, crop_box: object,
+                layout: SourceLayout, event_id: str, observed_at: int,
+                event_at: int, authorized_subject: str, authorized_branch: str,
+                producer_id: str | None = None, image_bytes: bytes | None = None,
+                source_authorized: bool = False) -&gt; ObservationReceipt:
+        """Append a correction while preserving immutable source identity/bytes.
+    
+        If ``image_bytes`` is omitted the parent's retained original bytes are
+        reused without re-encoding. Supplied bytes must match the parent hash.
+        """
+        self._require_source_scope(scope)
+        self._authorize_write(scope.subject_id, scope.branch_id, authorized_subject,
+                              authorized_branch, source_authorized)
+        if not isinstance(layout, SourceLayout):
+            raise TypeError("correction layout must be a SourceLayout")
+        snapshot = self.ledger.snapshot(scope)
+        parent_observation, _record = self._select(
+            snapshot, parent_observation_id, require_current_scope=True)
+        if observed_at &lt;= parent_observation.observed_at:
+            raise ContractError("a correction must be observed after its parent")
+        if correction_id == parent_observation_id:
+            raise ContractError("a correction needs a distinct observation identity")
+&gt;       if event_id == parent_observation.event_id:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'VisualSourceObservation' object has no attribute 'event_id'. Did you mean: 'event_at'?
+
+src/replica_lab/runtime/visual_source_memory.py:710: AttributeError</failure></testcase><testcase classname="tests.test_visual_source_memory" name="test_stale_source_crop_owner_layout_and_changed_bytes_are_rejected" time="0.003" /><testcase classname="tests.test_visual_source_memory" name="test_revocation_invalidates_source_and_correction_descendants" time="0.003"><failure message="AttributeError: 'VisualSourceObservation' object has no attribute 'event_id'. Did you mean: 'event_at'?">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-523/test_revocation_invalidates_so0')
+
+    def test_revocation_invalidates_source_and_correction_descendants(tmp_path):
+        with visual.VisualSourceMemory(tmp_path / "ledger.sqlite",
+                                       tmp_path / "blobs") as store:
+            data = make_png(60)
+            layout = visual.SourceLayout("row")
+            _receipt, identity = observe(store, data, observed_at=1, layout=layout)
+            _other_receipt, other_identity = observe(
+                store, make_png(61), observation_id="obs-b", asset_id="asset-b",
+                family_id="family-b", observed_at=1, layout=layout)
+&gt;           store.correct(
+                "obs-a", correction_id="obs-a-correction", scope=make_scope(),
+                owner_id="owner-corrected", crop_box=(2, 2, 14, 10), layout=layout,
+                event_id="event-a-corrected", observed_at=2, event_at=2,
+                authorized_subject=SUBJECT, authorized_branch=visual.SOURCE_BRANCH,
+                source_authorized=True)
+
+tests/test_visual_source_memory.py:296: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;replica_lab.runtime.visual_source_memory.VisualSourceMemory object at 0x112041f10&gt;
+parent_observation_id = 'obs-a', correction_id = 'obs-a-correction'
+scope = EligibilityScope(subject_id='visual-source-subject', branch_id='source', purpose='exact_visual_source', as_of=20, mode='source_current', snapshot_at=None)
+owner_id = 'owner-corrected', crop_box = (2, 2, 14, 10)
+layout = SourceLayout(template='row', cell_indices=())
+event_id = 'event-a-corrected', observed_at = 2, event_at = 2
+authorized_subject = 'visual-source-subject', authorized_branch = 'source'
+producer_id = None, image_bytes = None, source_authorized = True
+
+    def correct(self, parent_observation_id: str, *, correction_id: str,
+                scope: EligibilityScope, owner_id: str, crop_box: object,
+                layout: SourceLayout, event_id: str, observed_at: int,
+                event_at: int, authorized_subject: str, authorized_branch: str,
+                producer_id: str | None = None, image_bytes: bytes | None = None,
+                source_authorized: bool = False) -&gt; ObservationReceipt:
+        """Append a correction while preserving immutable source identity/bytes.
+    
+        If ``image_bytes`` is omitted the parent's retained original bytes are
+        reused without re-encoding. Supplied bytes must match the parent hash.
+        """
+        self._require_source_scope(scope)
+        self._authorize_write(scope.subject_id, scope.branch_id, authorized_subject,
+                              authorized_branch, source_authorized)
+        if not isinstance(layout, SourceLayout):
+            raise TypeError("correction layout must be a SourceLayout")
+        snapshot = self.ledger.snapshot(scope)
+        parent_observation, _record = self._select(
+            snapshot, parent_observation_id, require_current_scope=True)
+        if observed_at &lt;= parent_observation.observed_at:
+            raise ContractError("a correction must be observed after its parent")
+        if correction_id == parent_observation_id:
+            raise ContractError("a correction needs a distinct observation identity")
+&gt;       if event_id == parent_observation.event_id:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'VisualSourceObservation' object has no attribute 'event_id'. Did you mean: 'event_at'?
+
+src/replica_lab/runtime/visual_source_memory.py:710: AttributeError</failure></testcase><testcase classname="tests.test_visual_source_memory" name="test_payload_whitelist_excludes_captions_labels_and_predictions" time="0.003" /><testcase classname="tests.test_visual_source_memory" name="test_inventory_counts_source_families_and_independent_worlds_separately" time="0.003"><failure message="AttributeError: 'VisualSourceObservation' object has no attribute 'event_id'. Did you mean: 'event_at'?">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-523/test_inventory_counts_source_f0')
+
+    def test_inventory_counts_source_families_and_independent_worlds_separately(tmp_path):
+        with visual.VisualSourceMemory(tmp_path / "ledger.sqlite",
+                                       tmp_path / "blobs") as store:
+            observe(store, make_png(80), observation_id="obs-1", asset_id="asset-1",
+                    family_id="family-a", independent_world_id="world-1",
+                    event_id="event-1")
+            observe(store, make_png(81), observation_id="obs-2", asset_id="asset-2",
+                    family_id="family-b", independent_world_id="world-1",
+                    event_id="event-2")
+            observe(store, make_png(82), observation_id="obs-3", asset_id="asset-3",
+                    family_id="family-c", independent_world_id="world-2",
+                    event_id="event-3")
+    
+            inventory = store.inventory(make_scope())
+            assert inventory.observation_ids == ("obs-1", "obs-2", "obs-3")
+            assert inventory.source_families == ("family-a", "family-b", "family-c")
+            assert inventory.independent_worlds == ("world-1", "world-2")
+            assert inventory.source_family_count == 3
+            assert inventory.independent_world_count == 2
+    
+            summary = inventory.summary()
+            assert summary["source_family_count"] == 3
+            assert summary["independent_world_count"] == 2
+            assert summary["source_family_observation_counts"] == {
+                "family-a": 1, "family-b": 1, "family-c": 1}
+            assert summary["independent_world_observation_counts"] == {
+                "world-1": 2, "world-2": 1}
+    
+&gt;           store.correct(
+                "obs-1", correction_id="obs-1-correction", scope=make_scope(),
+                owner_id="owner-corrected", crop_box=None,
+                layout=visual.SourceLayout("original"), event_id="event-1-corrected",
+                observed_at=2, event_at=2, authorized_subject=SUBJECT,
+                authorized_branch=visual.SOURCE_BRANCH, source_authorized=True)
+
+tests/test_visual_source_memory.py:452: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;replica_lab.runtime.visual_source_memory.VisualSourceMemory object at 0x111e16420&gt;
+parent_observation_id = 'obs-1', correction_id = 'obs-1-correction'
+scope = EligibilityScope(subject_id='visual-source-subject', branch_id='source', purpose='exact_visual_source', as_of=20, mode='source_current', snapshot_at=None)
+owner_id = 'owner-corrected', crop_box = None
+layout = SourceLayout(template='original', cell_indices=())
+event_id = 'event-1-corrected', observed_at = 2, event_at = 2
+authorized_subject = 'visual-source-subject', authorized_branch = 'source'
+producer_id = None, image_bytes = None, source_authorized = True
+
+    def correct(self, parent_observation_id: str, *, correction_id: str,
+                scope: EligibilityScope, owner_id: str, crop_box: object,
+                layout: SourceLayout, event_id: str, observed_at: int,
+                event_at: int, authorized_subject: str, authorized_branch: str,
+                producer_id: str | None = None, image_bytes: bytes | None = None,
+                source_authorized: bool = False) -&gt; ObservationReceipt:
+        """Append a correction while preserving immutable source identity/bytes.
+    
+        If ``image_bytes`` is omitted the parent's retained original bytes are
+        reused without re-encoding. Supplied bytes must match the parent hash.
+        """
+        self._require_source_scope(scope)
+        self._authorize_write(scope.subject_id, scope.branch_id, authorized_subject,
+                              authorized_branch, source_authorized)
+        if not isinstance(layout, SourceLayout):
+            raise TypeError("correction layout must be a SourceLayout")
+        snapshot = self.ledger.snapshot(scope)
+        parent_observation, _record = self._select(
+            snapshot, parent_observation_id, require_current_scope=True)
+        if observed_at &lt;= parent_observation.observed_at:
+            raise ContractError("a correction must be observed after its parent")
+        if correction_id == parent_observation_id:
+            raise ContractError("a correction needs a distinct observation identity")
+&gt;       if event_id == parent_observation.event_id:
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'VisualSourceObservation' object has no attribute 'event_id'. Did you mean: 'event_at'?
+
+src/replica_lab/runtime/visual_source_memory.py:710: AttributeError</failure></testcase><testcase classname="tests.test_bounded_rsi" name="test_cycle_publishes_verified_procedure_rejects_and_rolls_back" time="0.394" /><testcase classname="tests.test_bounded_rsi" name="test_forged_gate_evidence_fails_closed" time="0.003" /><testcase classname="tests.test_bounded_rsi" name="test_candidate_claims_and_path_traversal_cannot_control_verdict" time="0.361" /><testcase classname="tests.test_bounded_rsi" name="test_source_epoch_parent_and_identity_staleness_are_rejected" time="0.901" /><testcase classname="tests.test_bounded_rsi" name="test_replay_is_deterministic_across_isolated_roots" time="0.742" /><testcase classname="tests.test_bounded_rsi" name="test_complete_family_split_precedes_expansion" time="0.001" /><testcase classname="tests.test_bounded_rsi" name="test_host_resource_guard_cannot_be_raised_by_candidate" time="0.028" /><testcase classname="tests.test_bounded_rsi" name="test_neural_gate_never_promotes_from_software_checks" time="0.001" /><testcase classname="tests.test_capacity_guard" name="test_host_units_and_missing_readings" time="0.000" /><testcase classname="tests.test_capacity_guard" name="test_swap_requires_consecutive_growth_and_resets_after_recovery" time="0.000" /><testcase classname="tests.test_capacity_guard" name="test_host_pressure_and_driver_have_separate_thresholds" time="0.000" /><testcase classname="tests.test_capacity_guard" name="test_guard_rejects_invalid_telemetry_and_initial_pressure" time="0.000" /><testcase classname="tests.test_capacity_guard" name="test_watchdog_argument_binding_rejects_other_backend_and_duplicate_output" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_unavailable_host_telemetry_preserves_failure_and_never_launches" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_guard_interrupt_reaps_a_live_child" time="0.008" /><testcase classname="tests.test_capacity_guard" name="test_relative_output_is_bound_to_child_workspace" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_final_profile_write_at_child_exit_enforces_declared_driver_limit[None-42949672960-False]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_final_profile_write_at_child_exit_enforces_declared_driver_limit[None-53687091199-False]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_final_profile_write_at_child_exit_enforces_declared_driver_limit[None-53687091200-True]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_final_profile_write_at_child_exit_enforces_declared_driver_limit[40-42949672960-True]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_allowlisted_entry_point_binds_child_command_and_guard_environment[None]" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_allowlisted_entry_point_binds_child_command_and_guard_environment[train_text.py]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_allowlisted_entry_point_binds_child_command_and_guard_environment[qualify_architecture.py]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_allowlisted_entry_point_binds_child_command_and_guard_environment[run_replica_session.py]" time="0.003" /><testcase classname="tests.test_capacity_guard" name="test_arbitrary_entry_point_is_rejected_before_telemetry_or_child_launch[unknown.py]" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_arbitrary_entry_point_is_rejected_before_telemetry_or_child_launch[../qualify_architecture.py]" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_arbitrary_entry_point_is_rejected_before_telemetry_or_child_launch[/tmp/qualify_architecture.py]" time="0.002" /><testcase classname="tests.test_capacity_guard" name="test_arbitrary_entry_point_is_rejected_before_telemetry_or_child_launch[qualify_architecture.py; true]" time="0.002" /></testsuite></testsuites>

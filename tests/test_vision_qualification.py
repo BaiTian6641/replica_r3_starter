@@ -118,6 +118,8 @@ def base_protocol(root, stage):
         "update": {"enabled": True, "optimizer": "sgd", "lr": 0.001},
     }
     protocol["v1"] = {
+        "run_id": "owned-v1-fixture",
+        "question_template": vq.VISUAL_QUESTION_TEMPLATE,
         "prerequisites": {
             "v0_protocol_sha256": "d" * 64,
             "v0_score_report": {"path": "score.json", "sha256": "e" * 64},
@@ -129,7 +131,9 @@ def base_protocol(root, stage):
         "train": {"seed": 17, "updates": 4, "repeats": 1, "grad_accum": 1,
                   "lr_new": 1e-4, "momentum": 0.95, "ns_steps": 5,
                   "block_size": 2048, "weight_decay": 0.01,
-                  "max_seconds": 600, "optimizer": "muon8bit"},
+                  "max_seconds": 600, "optimizer": "muon8bit",
+                  "schedule_version": vq.VISION_TRAINING_SCHEDULE,
+                  "repeat_policy": "once", "max_grad_norm": 1.0},
         "eval": {"splits": ["dev"], "max_cases": 4, "seed": 17,
                  "max_new_tokens": 8,
                  "required_controls": list(vq.CONTROLS)},
@@ -150,7 +154,7 @@ def base_protocol(root, stage):
                 "min_text_retention_accuracy": 0.5,
                 "max_text_retention_drop": 0.2,
             },
-            "retention_baseline_accuracy": 1.0,
+            "retention_baseline": "initial_checkpoint_same_prompts.v1",
         },
         "retention": {
             "prompts": {"path": "retention_prompts.jsonl", "sha256": "3" * 64},
@@ -182,7 +186,7 @@ def make_v1_admission_fixture(tmp_path, protocol, dataset):
             continue
         asset = dataset.assets[case["asset_id"]]
         training_rows.append({
-            "case_id": row["case_id"], "prompt": row["question"],
+            "case_id": row["case_id"], "prompt": vq.visual_question(protocol, row["question"]),
             "response": answer, "image": asset["path"],
             "image_sha256": asset["sha256"], "family": case["group_id"],
             "group_id": case["group_id"], "split": case["split"]})
@@ -228,7 +232,9 @@ def make_v1_admission_fixture(tmp_path, protocol, dataset):
         "format": vq.ADMISSION_FORMAT,
         "stage": "v1",
         "admitted": True,
-        "admitted_rows": sum(item["model_row_count"] for item in splits.values()),
+        "run_id": protocol["v1"]["run_id"],
+        "eligible_rows": sum(item["model_row_count"] for item in splits.values()),
+        "admitted_training_rows": len(training_rows),
         "data": {key: protocol["data"][key]["sha256"]
                  for key in ("manifest", "model_rows", "verifier_cases",
                              "verifier_scenes")},
@@ -254,6 +260,12 @@ def make_v1_admission_fixture(tmp_path, protocol, dataset):
         "engineering_pass": True, "protocol_sha256": "d" * 64,
         "run_report_path": str(run_report_path),
         "run_report_sha256": file_sha(run_report_path),
+        "vision_spec_digest": protocol["vision_digest"],
+        "vision_source_manifest_sha256": protocol["vision_source"]["manifest"]["sha256"],
+        "model_revision": protocol["model"]["revision"],
+        "model_lock_sha256": protocol["model"]["lock_sha256"],
+        "extension": {"manifest_sha256": protocol["v1"]["initial_checkpoint"]["manifest_sha256"],
+                      "weights_sha256": protocol["v1"]["initial_checkpoint"]["weights_sha256"]},
     }
     score_path = tmp_path / "score.json"
     write_json(score_path, score_report)
@@ -445,8 +457,8 @@ def test_training_schedule_and_budget_are_deterministic_and_bounded(tmp_path):
     plan["updates"] = 99
     with pytest.raises(vq.QualificationError, match="max_updates"):
         vq.validate_budget(plan, protocol["limits"])
-    exhausted = {"seed": 1, "updates": 2, "repeats": 1, "grad_accum": 1}
-    with pytest.raises(vq.QualificationError, match="schedule provides"):
+    exhausted = {**protocol["v1"]["train"], "seed": 1, "updates": 2}
+    with pytest.raises(vq.QualificationError):
         vq.training_schedule(rows[:1], exhausted)
 
 
@@ -653,3 +665,45 @@ def test_prompt_leakage_and_unknown_normalisation():
     assert vq.is_unknown("")
     assert not vq.is_unknown("blue")
     assert vq.normalise_answer("  YES. ") == "yes"
+
+
+@pytest.mark.parametrize("mutation", ["label", "prompt", "named_run", "count", "legacy_format"])
+def test_named_admission_rejects_rehashed_semantic_substitutions(tmp_path, mutation):
+    copy_stage(tmp_path, "v1")
+    protocol = base_protocol(tmp_path, "v1")
+    dataset = vq.load_verified_dataset(protocol)
+    admission, rows, _, _, _ = make_v1_admission_fixture(tmp_path, protocol, dataset)
+    if mutation in ("label", "prompt"):
+        rows[0]["response" if mutation == "label" else "prompt"] = "unverified substitution"
+        path = Path(admission["training_rows"]["path"])
+        write_jsonl(path, rows)
+        admission["training_rows"].update(sha256=file_sha(path), rows_sha256=vq.rows_sha256(rows))
+    elif mutation == "named_run":
+        admission["run_id"] = "foreign-run"
+    elif mutation == "count":
+        admission["admitted_training_rows"] = admission["eligible_rows"]
+    else:
+        admission["format"] = "replica.vision_training_admission.v1"
+    path = Path(protocol["v1"]["prerequisites"]["data_admission"]["path"])
+    write_json(path, admission)
+    protocol["v1"]["prerequisites"]["data_admission"]["sha256"] = file_sha(path)
+    with pytest.raises(vq.QualificationError):
+        vq.verify_admission(protocol, dataset, train_splits=["train"], eval_splits=["dev"])
+
+
+def test_v1_cannot_substitute_an_unqualified_initial_projector(tmp_path):
+    copy_stage(tmp_path, "v1")
+    protocol = base_protocol(tmp_path, "v1")
+    dataset = vq.load_verified_dataset(protocol)
+    make_v1_admission_fixture(tmp_path, protocol, dataset)
+    protocol["v1"]["initial_checkpoint"]["weights_sha256"] = "0" * 64
+    with pytest.raises(vq.QualificationError):
+        vq.verify_v0_prerequisite(protocol)
+
+
+def test_protected_retention_inputs_do_not_echo_verifier_answers():
+    from replica_lab.vision_admission import retention_cases
+    prompts, labels = retention_cases()
+    by_id = {row["case_id"]: row["answer"] for row in labels}
+    assert all(not vq.leakage_hits(row["prompt"], by_id[row["case_id"]]) for row in prompts)
+    assert set(by_id) == {row["case_id"] for row in prompts}
