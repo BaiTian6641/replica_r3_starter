@@ -1,6 +1,6 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — four verification defects repaired; V0 interface accepted; both V1 connector arms rejected; balanced image-dependence diagnostic next.**
+**Current implementation — verification defects repaired; balanced image dependence supported on procedural holdouts; both V1 connector arms rejected; matched-memory localization next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -26,6 +26,26 @@ set alone passes 11 with one skip and 12/12 when provisioned. These are focused
 clean-export results, not capability claims or an artifact-free full-suite claim.
 The next native package is the fresh paired balanced image-dependence diagnostic;
 matched-episode memory localization follows.
+
+## Balanced image-dependence diagnostic — supported on procedural holdouts
+
+The [balanced diagnostic results](docs/experiments/20261025_Vision_Dependence_Results.md)
+use 180 worlds /360 paired images with split-specific target and distractor pools,
+same-question shuffling and world-clustered uncertainty. The native MPS run and
+one-shot finalizer complete with zero updates; independent review finds no
+material discrepancies.
+
+| Split | Primary | Question-only | Shuffled primary | Gain over question-only [95% CI] | Gain over shuffled [95% CI] |
+|---|---:|---:|---:|---:|---:|
+| Dev | 71/120 = 59.17% | 36/120 = 30.00% | 50/120 = 41.67% | 29.17 pp [21.67, 36.67] | 17.50 pp [8.33, 25.83] |
+| Final | 75/120 = 62.50% | 36/120 = 30.00% | 46/120 = 38.33% | 32.50 pp [25.83, 38.35] | 24.17 pp [14.17, 35.00] |
+
+The aggregate gate passes, led by spatial accuracy 24/24 on both splits. It does
+not establish per-task competence or real-image perception. Count-total cues
+remain on 12/72 rows, pair-twin donors occur, and lexical diversity is limited.
+Peak sampled driver is 11,815,763,968 bytes with zero swap growth and 76%
+minimum free. The full suite passes **1,706 tests +21 subtests in 207.54 s**.
+Next run matched-episode memory localization before any new projector arm.
 
 ## Isolated V0 source and native preregistration — 25 October 2026
 

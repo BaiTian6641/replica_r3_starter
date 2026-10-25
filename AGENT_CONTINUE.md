@@ -1,24 +1,28 @@
 # Coding-agent continuation instruction
 
-**Current priority — run the fresh balanced image-dependence diagnostic after verification repairs.**
-All four reported verification defects are fixed. Raw-page rebinding requires
-explicit record dependencies and fails closed on unknown provenance or contained
-revocation. Memory parity now checks every fact and rejects duplicate/missing
-rows; immutable one-/two-/three-fact outcomes still pass with zero difference.
+**Current priority — localize memory failure on matched episodes before another projector arm.**
+All four verification defects are fixed. Raw-page rebinding requires explicit
+record dependencies and fails closed on unknown provenance or contained
+revocation. Memory parity checks every fact and rejects duplicate/missing rows.
 The old frozen-feature conclusion replays as `inconclusive_visual_contribution`.
-Bounded-RSI units are self-contained; the verification set passes 147 tests with
-two explicit integration skips from a clean export. See
+Bounded-RSI units are self-contained. See
 [verification repairs](docs/experiments/20261025_Verification_Repairs.md).
-Both V1 arms remain rejected: wide V1 is 21/64 correct-image versus 22/64
-no-image, despite engineering and fresh-reload success. The next native package
-is the paired balanced vision diagnostic; matched-episode memory localization
-follows. Keep V2/LoRA and learned V3/neural RSI unadmitted.
 
-External intake now admits 30 inspected LLaVA-Pretrain roots/rows (15 train,
-7 development, 8 sealed final evaluation) with terms, hashes, split lineage and
-deterministic rebuild evidence. Spark2_5 preparation contracts cover geometry,
-tokenizer/template, precision admission and extension inventory; native FP8
-remains blocked and no Spark training is qualified. Preserve the 50 GiB guard,
+The new balanced diagnostic now supports narrow procedural image dependence on
+dev and the untouched final: primary 71/120 and 75/120 versus question-only
+36/120 on both, and shuffled 50/120 and 46/120. Both gains exceed 5 points with
+positive world-clustered lower bounds. Spatial leads at 24/24; this is not
+uniform five-task or real-image competence. See
+[balanced results](docs/experiments/20261025_Vision_Dependence_Results.md).
+Both V1 arms remain rejected: wide V1 is 21/64 correct-image versus 22/64
+no-image. The full suite passes 1,706 tests +21 subtests.
+
+External intake admits 30 inspected LLaVA-Pretrain roots/rows (15 train,
+7 development, 8 sealed final evaluation). Spark2_5 preparation contracts cover
+geometry, tokenizer/template, precision admission and extension inventory;
+native FP8 remains blocked. Next run the matched-memory diagnostic, then decide
+the staged projector curriculum from diagnostic and corpus evidence. Keep
+V2/LoRA and learned V3/neural RSI unadmitted. Preserve the 50 GiB guard,
 one native worker, swap/memory limits, v5 rejection and uncommitted research work.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,

@@ -1,0 +1,96 @@
+{
+  "format": "replica.vision_dependence.qualification.v2",
+  "status": "completed",
+  "engineering_pass": true,
+  "diagnostic_supported": true,
+  "verdict": "image_dependence_supported_by_primary_readout",
+  "capability_claim": "Narrow procedural image dependence only; not uniform five-task competence, real-image perception, or a training/projector claim",
+  "protocol_sha256": "944a2a98c64f3360c8a4b2f68255e99c21adefd31f2e315bd0dddd8b1488d3f9",
+  "data_manifest_sha256": "712a34f8ca3c809ba79dc7bcb78a3c56fe088eb8da26794d5c9f10f7ea9c5195",
+  "primary_readout": "question_conditioned_region",
+  "workload": {
+    "worlds": 180,
+    "pairs": 180,
+    "images": 360,
+    "rows_per_split": 120,
+    "observations": 360,
+    "encoder_passes": 360,
+    "question_encodes": 360,
+    "optimizer_updates": 0,
+    "updated_parameters": []
+  },
+  "metrics": {
+    "dev": {
+      "primary_accuracy": 0.5916666666666667,
+      "primary_correct": 71,
+      "question_only_accuracy": 0.3,
+      "shuffled_primary_accuracy": 0.4166666666666667,
+      "primary_shuffled_correct": 50,
+      "gain_over_question_only": {"point": 0.2916666666666667, "lower": 0.21666666666666667, "upper": 0.36666666666666664},
+      "gain_over_shuffled_image": {"point": 0.175, "lower": 0.08333333333333333, "upper": 0.25833333333333336},
+      "primary_per_task": {"color": 0.625, "count": 0.4166666666666667, "presence": 0.5833333333333334, "shape": 0.3333333333333333, "spatial": 1.0},
+      "other_readouts": {"pooled_image": 0.125, "pooled_image_question": 0.3333333333333333, "region_image": 0.19166666666666668, "region_image_question": 0.325}
+    },
+    "final": {
+      "primary_accuracy": 0.625,
+      "primary_correct": 75,
+      "question_only_accuracy": 0.3,
+      "shuffled_primary_accuracy": 0.38333333333333336,
+      "primary_shuffled_correct": 46,
+      "gain_over_question_only": {"point": 0.325, "lower": 0.25833333333333336, "upper": 0.38354166666666556},
+      "gain_over_shuffled_image": {"point": 0.24166666666666667, "lower": 0.14166666666666666, "upper": 0.35},
+      "primary_per_task": {"color": 0.625, "count": 0.5, "presence": 0.5, "shape": 0.5, "spatial": 1.0},
+      "other_readouts": {"pooled_image": 0.125, "pooled_image_question": 0.25, "region_image": 0.23333333333333334, "region_image_question": 0.25}
+    },
+    "uncertainty": {"cluster": "world", "clusters": 60, "resamples": 2000, "confidence": 0.95},
+    "decision_thresholds": {"min_gain": 0.05, "strict_lower_bound": true}
+  },
+  "controls": {
+    "same_question_donor_rows_per_split": 120,
+    "cross_task_donors": 0,
+    "fixed_points": 0,
+    "dev_pair_twin_donors": 4,
+    "final_pair_twin_donors": 12,
+    "count_total_cue_rows": 12,
+    "count_total_cue_note": "Totals 3 and 8 remain uniquely label-determining on 12/72 count rows; the original complete mapping is removed"
+  },
+  "evidence": {
+    "dev_run_report": "runs/vision_dependence_20261025/dev01/run_report.json",
+    "dev_report": "runs/vision_dependence_20261025/dev01/dev_report.json",
+    "dev_report_sha256": "dbc3192961edfb4c767ba7cc1587e6433f57ad7c13364bac60af6e21c88f1acc",
+    "final_report": "runs/vision_dependence_20261025/final01/final_report.json",
+    "final_report_sha256": "8321fd0e13c25ce5449ca3eff84a932ad5c3eb8d0ecd319f4913bfaed741b4f2",
+    "features_sha256": "c56ff01980784d860725495b13307356191ea9ba998772cf6fd2db0524011b44",
+    "features_index_sha256": "e901104b3c39d3f2679f77ffb78eced3633f333ce3f3d30ba8230a5a879c344f",
+    "final_receipt": "runs/vision_dependence_20261025/final01/finalize_receipt.json",
+    "repeat_finalization": "refused_exit_1",
+    "independent_review": "reports/vision_dependence_20261025/independent_review.md"
+  },
+  "resources": {
+    "native_elapsed_seconds": 28.62042058305815,
+    "guard_elapsed_seconds": 31.657069792039692,
+    "peak_driver_bytes": 11815763968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76.0,
+    "feature_bytes": 8574224,
+    "dev_artifact_storage": "8.5 MiB",
+    "final_artifact_storage": "112 KiB",
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "exclusive_mps_worker": true,
+    "fallback_disabled": true
+  },
+  "verification": {
+    "focused_tests": {"passed": 60, "failed": 0},
+    "full_suite": {"passed": 1706, "skipped": 1, "subtests_passed": 21, "seconds": 207.54, "report": "reports/verification_repairs_20261025/full_suite_final_vision_dependence.xml"},
+    "independent_pre_native_blockers_resolved": true,
+    "independent_outcome_discrepancies": 0
+  },
+  "limitations": [
+    "Aggregate support is spatial-led (24/24 on both splits), not independently established for every task",
+    "Question-only is a weak global comparator; same-primary shuffled comparison is the cleaner evidence",
+    "Same-question shuffle includes pair-twin donors and is not strictly cross-world",
+    "Eight questions per split limit lexical diversity; 12/24 strings also occur in V1",
+    "Owned procedural scenes only; no real-image or broad perception claim"
+  ]
+}
