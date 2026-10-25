@@ -37,7 +37,7 @@ HARD_MAX_HEADER_BYTES = 32 * 1024 * 1024
 HARD_MAX_ASSET_BYTES = 64 * 1024 * 1024
 HARD_MAX_TOTAL_FETCH_BYTES = 512 * 1024 * 1024
 HARD_MAX_API_BYTES = 8 * 1024 * 1024
-HARD_MAX_PER_FILE_RETAIN_BYTES = 8 * 1024 * 1024
+HARD_MAX_PER_FILE_RETAIN_BYTES = 16 * 1024 * 1024
 
 DTYPE_BYTES = {
     "BOOL": 1, "U8": 1, "I8": 1, "F8_E4M3": 1, "F8_E5M2": 1,
@@ -1469,6 +1469,39 @@ def load_header_bundle(path: str | os.PathLike, plan: Mapping,
     if set(result) != set(expected):
         raise PreparationError("header bundle must cover both official sources")
     return result
+
+def export_header_bundle(run_output: str | os.PathLike, plan: Mapping,
+                         bundle_path: str | os.PathLike | None = None) -> Path:
+    """Author a header bundle from one completed run's verified sidecars.
+
+    Offline reproduction (`--header-bundle` + `--assets-from` + `--offline`)
+    needs a bundle JSON; this writes it from the run's own header files so a
+    completed capture can provision every later offline rerun without network.
+    """
+    run_output = Path(run_output)
+    bundle_path = Path(bundle_path) if bundle_path is not None else run_output / "header_bundle.json"
+    payload = {"schema": HEADER_BUNDLE_SCHEMA, "sources": []}
+    for source in plan["sources"]:
+        shards = []
+        for weight in source["weight_files"]:
+            filename = weight["filename"]
+            relative = Path("headers") / source["role"] / f"{filename}.header"
+            raw = (run_output / relative).read_bytes()
+            shards.append({
+                "filename": filename,
+                "total_bytes": weight["bytes"],
+                "source_url": _source_url(source, filename),
+                "header_file": str(relative),
+                "header_sha256": sha256_bytes(raw),
+                "header_bytes": len(raw),
+            })
+        payload["sources"].append({"role": source["role"], "repo_id": source["repo_id"],
+                                   "revision": source["revision"], "shards": shards})
+    body = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
+    if bundle_path.exists():
+        raise PreparationError(f"header bundle already exists: {bundle_path}")
+    bundle_path.write_bytes(body)
+    return bundle_path
 
 
 # ---------------------------------------------------------------------------

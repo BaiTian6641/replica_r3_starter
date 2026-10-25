@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 
 import pytest
@@ -15,9 +16,9 @@ import pytest
 from replica_lab.spark_preparation import (
     HEADER_BUNDLE_SCHEMA, PLAN_SCHEMA, SCHEMA, BoundedHttpTransport,
     FetchRefused, PlanError, PreparationError, audit_python_source,
-    load_header_bundle, load_manifest, parse_safetensors_header,
-    run_preparation, validate_plan, validate_spark_inventory,
-    _validate_index,
+    export_header_bundle, load_header_bundle, load_manifest,
+    parse_safetensors_header, run_preparation, validate_plan,
+    validate_spark_inventory, _validate_index,
 )
 
 OFFICIAL_TOPOLOGY = {
@@ -657,3 +658,78 @@ def test_local_header_bundle_rejects_tampered_sidecar(tmp_path):
     sidecar.write_bytes(sidecar.read_bytes() + b" ")
     with pytest.raises(PreparationError, match="local header SHA256 differs"):
         load_header_bundle(bundle_path, validate_plan(plan), max_header_bytes=1024 * 1024)
+
+
+def test_retained_tokenizer_payloads_round_trip_and_tamper_is_refused(tmp_path):
+    plan, headers = make_plan()
+    payload = b'{"model":{"vocab":{"a":0}}}'
+    capture = tmp_path / "capture"
+    bundle = write_capture(capture, plan, headers)
+    for source in plan["sources"]:
+        source["assets"].append({
+            "filename": "tokenizer.json", "required": True, "retain": True,
+            "expected_bytes": len(payload),
+            "expected_sha256": hashlib.sha256(payload).hexdigest()})
+        _write(capture / "assets" / source["role"] / "tokenizer.json", payload)
+    validated = validate_plan(plan)
+    output = tmp_path / "run_payload"
+    run_preparation(validated, output, header_bundle=bundle, assets_from=capture / "assets",
+                    offline=True, free_bytes=10**12, now="2026-10-25T00:00:00+00:00")
+    for source in plan["sources"]:
+        retained = output / "assets" / source["role"] / "tokenizer.json"
+        assert retained.read_bytes() == payload
+
+    # A retained offline input that differs from its pinned digest must fail
+    # clearly instead of being silently accepted.
+    for source in plan["sources"]:
+        (capture / "assets" / source["role"] / "tokenizer.json").write_bytes(b"tampered")
+    with pytest.raises(FetchRefused, match="sha256_mismatch|size_mismatch"):
+        run_preparation(validated, tmp_path / "run_tampered", header_bundle=bundle,
+                        assets_from=capture / "assets", offline=True, free_bytes=10**12)
+
+    (capture / "assets" / plan["sources"][0]["role"] / "tokenizer.json").unlink()
+    with pytest.raises(PreparationError, match="local asset is missing"):
+        run_preparation(validated, tmp_path / "run_missing", header_bundle=bundle,
+                        assets_from=capture / "assets", offline=True, free_bytes=10**12)
+
+
+def test_retained_per_file_ceiling_admits_pinned_tokenizer_bytes():
+    from replica_lab.spark_preparation import HARD_MAX_PER_FILE_RETAIN_BYTES
+    assert HARD_MAX_PER_FILE_RETAIN_BYTES >= 10_115_786  # pinned tokenizer.json size
+    plan = json.loads((Path(__file__).resolve().parents[1]
+                       / "configs/spark_source_preparation_v2.json").read_text())
+    for source in plan["sources"]:
+        retained = {asset["filename"]: asset for asset in source["assets"]
+                    if asset["filename"] in ("tokenizer.json", "vocab.json", "merges.txt")}
+        assert set(retained) == {"tokenizer.json", "vocab.json", "merges.txt"}
+        for asset in retained.values():
+            assert asset["retain"] is True and asset["expected_bytes"] <= HARD_MAX_PER_FILE_RETAIN_BYTES
+            assert len(asset["expected_sha256"]) == 64
+
+
+def test_exported_header_bundle_provisions_offline_rerun(tmp_path):
+    plan, headers = make_plan()
+    capture = tmp_path / "capture"
+    bundle = write_capture(capture, plan, headers)
+    first = tmp_path / "run_first"
+    run_preparation(validate_plan(json.loads(json.dumps(plan))), first,
+                    header_bundle=bundle, assets_from=capture / "assets",
+                    offline=True, free_bytes=10**12, now="2026-10-25T00:00:00+00:00")
+    exported = export_header_bundle(first, validate_plan(json.loads(json.dumps(plan))))
+    assert exported == first / "header_bundle.json"
+    assert json.loads(exported.read_text())["schema"] == HEADER_BUNDLE_SCHEMA
+
+    # The exported bundle provisions a second offline rerun with zero network
+    # and byte-identical retained assets.
+    second = tmp_path / "run_second"
+    run_preparation(validate_plan(json.loads(json.dumps(plan))), second,
+                    header_bundle=exported, assets_from=first / "assets",
+                    offline=True, free_bytes=10**12, now="2026-10-25T00:00:00+00:00")
+    for source in plan["sources"]:
+        for filename in os.listdir(first / "assets" / source["role"]):
+            assert ((first / "assets" / source["role"] / filename).read_bytes()
+                    == (second / "assets" / source["role"] / filename).read_bytes())
+
+    # Exporting over an existing bundle must refuse rather than rewrite it.
+    with pytest.raises(PreparationError, match="already exists"):
+        export_header_bundle(first, validate_plan(json.loads(json.dumps(plan))))

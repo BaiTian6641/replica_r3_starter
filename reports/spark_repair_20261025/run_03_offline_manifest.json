@@ -1,0 +1,2298 @@
+{
+  "adapter_abi": {
+    "api": {
+      "export": "export_candidate(path) -> base identity + trainable tensor index; reload_candidate(path) verifies both",
+      "forward_hidden": "forward_hidden(input_ids, ...) -> final hidden states for a new projector",
+      "forward_text": "forward_text(input_ids, attention_mask=None, position_ids=None, past_key_values=None, use_cache=False) -> logits",
+      "generate": "generate_text(messages, thinking='none'|'low'|'high', max_new_tokens, generation_kwargs) -> text, token_ids, reasoning_token_count",
+      "memory_ports": "enable_memory_ports([11, 23]) -> candidate only; 11/23 are hypotheses to test, not accepted positions",
+      "new_projector": "attach_projector(in_dim, out_dim=2560, zero_init_output=True) -> module handle",
+      "reset_cache": "reset_cache() -> None",
+      "snapshot_cache": "snapshot_cache() -> opaque session-owned state (must be functional and bounded)"
+    },
+    "construction": {
+      "device_policy": "explicit device/dtype; refuse MPS if the precision path is unavailable",
+      "input": "sealed local snapshot + preparation manifest digest",
+      "loader": "transformers AutoConfig/AutoModelForCausalLM with trust_remote_code from the sealed local source only; remote code is audited by hash and never fetched at load",
+      "validation": [
+        "repo/revision/config SHA256",
+        "storage mode and quantization config SHA256",
+        "shard digests",
+        "36-layer Spark2_5 inventory and tied lm_head"
+      ]
+    },
+    "invariants": [
+      "original checkpoint bytes are never rewritten by candidate export",
+      "no_grad is never placed around the frozen decoder when new modules require input gradients",
+      "every forward records storage mode and rejects an implicit dequantized fallback",
+      "sliding/full layer types come from config, not from an assumed alternating Llama pattern",
+      "ports are disabled for native parity; enabling them is an experimental identity change",
+      "cache behavior is measured; the upstream DynamicCache does not implement sliding eviction",
+      "generation uses the pinned chat template and reports actual reasoning tokens"
+    ],
+    "name": "Spark2_5Adapter",
+    "non_goals": [
+      "native execution in this preparation task",
+      "an adapter that pretends to load Spark before backend qualification",
+      "reusing MiniCPM5 width-2048 connectors or serialized fast states"
+    ],
+    "purpose": "A dedicated adapter for the custom spark2_5 architecture, including frozen-base input-gradient paths and later new modules. It is not a Llama or MiniCPM5 adapter.",
+    "status": "design_only_not_implemented"
+  },
+  "architecture_review": {
+    "adapter_hazards": [
+      "spark2_5 is a custom auto_map architecture; a Llama or MiniCPM5 adapter cannot load it",
+      "the model hard-codes model.embedding, model.layers[i], model.norm; inject through a wrapper, not by editing upstream files",
+      "DynamicCache sharing and absent sliding eviction change memory-growth assumptions",
+      "no lm_head tensor is serialized; tying must be verified after load",
+      "the residual stream is float32 while layer compute follows each linear dtype; mixed-precision bookkeeping is required",
+      "gradient checkpointing re-enters a layer without past_key_values; cache use must be disabled during training"
+    ],
+    "backend_dependencies": {
+      "apple_mps": "not mentioned by upstream; MPS FP8 kernel support is unproven",
+      "attention_kernels": "none imported; the custom code uses eager matmul (no flash_attn/causal_conv1d/triton)",
+      "compressed_tensors": "0.16.0 for float-quantized loading; required for the FP8 source",
+      "python": ">=3.12 per repository; exact upstream interpreter not qualified",
+      "safetensors": "required to read checkpoint storage",
+      "torch": "required; exact wheel/version not pinned by the checkpoint",
+      "transformers": "4.57.x semantics required (FP8 config serialized 4.57.6, BF16 4.57.1); isolated from the project's locked MiniCPM5 environment"
+    },
+    "classes": [
+      [
+        "Spark2_5Attention",
+        [
+          "nn.Module"
+        ]
+      ],
+      [
+        "Spark2_5Config",
+        [
+          "PretrainedConfig"
+        ]
+      ],
+      [
+        "Spark2_5DecoderLayer",
+        [
+          "nn.Module"
+        ]
+      ],
+      [
+        "Spark2_5ForCausalLM",
+        [
+          "Spark2_5PreTrainedModel",
+          "GenerationMixin"
+        ]
+      ],
+      [
+        "Spark2_5MLP",
+        [
+          "nn.Module"
+        ]
+      ],
+      [
+        "Spark2_5Model",
+        [
+          "Spark2_5PreTrainedModel"
+        ]
+      ],
+      [
+        "Spark2_5PreTrainedModel",
+        [
+          "PreTrainedModel"
+        ]
+      ],
+      [
+        "Spark2_5RMSNorm",
+        [
+          "nn.Module"
+        ]
+      ]
+    ],
+    "code_identical_across_sources": true,
+    "decoder": {
+      "attention": "custom Spark2_5Attention, fused q_k_v_proj, eager matmul attention",
+      "attention_schedule": "three sliding_attention blocks then one full_attention block, repeated nine times",
+      "cache": {
+        "implementation": "transformers.cache_utils.DynamicCache",
+        "note": "sliding layers receive a sliding causal mask, but DynamicCache does not evict old keys/values; do not claim constant-memory sliding cache",
+        "per_layer_indexed": true,
+        "sliding_eviction": false
+      },
+      "head_dim": 256,
+      "headwise_output_gate": {
+        "activation": "sigmoid (config gate_attn_act_mode)",
+        "enabled": true,
+        "gate_projection": "self_attn.g_proj",
+        "location": "after attention-weighted values, before out_proj",
+        "quantized_in_fp8": false,
+        "shape_per_layer": [
+          16,
+          2560
+        ]
+      },
+      "hidden_size": 2560,
+      "intermediate_size": 10240,
+      "kv_heads": 4,
+      "kv_repeat": 4,
+      "layers": 36,
+      "logits": "F.linear with model.embedding.weight when tie_word_embeddings",
+      "mlp": "gelu(gate_proj(x)) * up_proj(x) -> down_proj",
+      "norm": "Spark2_5RMSNorm computes in float32, multiplies float32 weight, casts back",
+      "query_heads": 16,
+      "residual_stream": "inputs_embeds.float(); each layer casts to its MLP gate_proj weight dtype",
+      "rope": {
+        "full_attention": {
+          "partial_rotary_factor": 0.25,
+          "rope_theta": 5000000
+        },
+        "positions": "cache_position (absolute sequence positions)",
+        "sliding_attention": {
+          "partial_rotary_factor": 1.0,
+          "rope_theta": 10000
+        }
+      },
+      "sliding_window": 512
+    },
+    "generation": {
+      "custom_generate_override": false,
+      "mixin": "transformers GenerationMixin",
+      "reasoning_delimiters": [
+        "<think>",
+        "</think>"
+      ],
+      "template_defaults_thinking": true,
+      "template_requires_messages": true,
+      "thinking_modes": {
+        "high": {
+          "apply_chat_template": {
+            "enable_thinking": true,
+            "reasoning_effort": "high"
+          }
+        },
+        "low": {
+          "apply_chat_template": {
+            "enable_thinking": true,
+            "reasoning_effort": "low"
+          }
+        },
+        "none": {
+          "apply_chat_template": {
+            "enable_thinking": false
+          }
+        }
+      },
+      "token_budget": "caller-supplied; generation_config max_tokens is not a qualification"
+    },
+    "import_time_calls": [
+      "ALL_LAYERNORM_LAYERS.append",
+      "logging.get_logger"
+    ],
+    "import_time_side_effects": "registration/logging only (logging.get_logger, ALL_LAYERNORM_LAYERS.append)",
+    "imports": [
+      "configuration_spark",
+      "math",
+      "torch",
+      "torch.nn.functional",
+      "transformers",
+      "transformers.activations",
+      "transformers.cache_utils",
+      "transformers.generation",
+      "transformers.masking_utils",
+      "transformers.modeling_outputs",
+      "transformers.modeling_utils",
+      "transformers.processing_utils",
+      "transformers.pytorch_utils",
+      "transformers.utils"
+    ],
+    "process_or_network_imports": [],
+    "remote_code_executed": false
+  },
+  "capability_matrix": [
+    {
+      "capability": "forward_inference",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Blocked pending a backend that supports compressed-tensors storage on the selected device. No local BF16 execution either."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Unqualified. Requires an isolated transformers 4.57.x + compressed-tensors environment and a supported FP8 kernel path. Upstream provides no MPS evidence."
+      }
+    },
+    {
+      "capability": "input_gradients",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Proposed. BF16 eager attention should support input gradients; must be demonstrated, not inferred."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Unknown. Compressed-tensors linear layers may propagate input gradients, but MPS FP8 activation-quantization autograd is unproven."
+      }
+    },
+    {
+      "capability": "parameter_gradients_frozen_base",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Proposed for the BF16 control under the same frozen-base contract."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Not applicable while the quantized base is frozen. The trainable projector must still receive input gradients; no_grad around the decoder contradicts that path."
+      }
+    },
+    {
+      "capability": "native_parameter_updates",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Proposed experiment only after a measured update/reload qualification on the control."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Deferred. FP8 training kernels, master-copy policy, scaling and optimizer support are absent locally."
+      }
+    },
+    {
+      "capability": "optimizer_membership",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Same new-module policy; base membership differs by experiment."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Frozen base has no optimizer state. New projector/LoRA parameters use a declared optimizer; Muon int8 momentum is limited to audited eligible groups."
+      }
+    },
+    {
+      "capability": "export_reload",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Proposed. Persist BF16 base identity plus the same new-module schema; reject a cross-precision reload."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Proposed. Persist the original FP8 storage identity plus new trainable tensors; reload in a fresh process without changing format."
+      }
+    },
+    {
+      "capability": "kv_cache_long_context",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Same structural caveat with BF16 storage and a larger byte footprint."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Unqualified. DynamicCache does not evict sliding-window keys; the 512-token window is a mask, not a bounded cache. Configured 1,048,576 positions are not a measured capacity."
+      }
+    },
+    {
+      "capability": "mlx_inference_reference",
+      "measured": false,
+      "official_bf16": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Not applicable to BF16 training evidence."
+      },
+      "official_fp8": {
+        "evidence": "static source/config/header inspection only",
+        "status": "Not admitted. Spark-MLX-LLM is a separate implementation and must be pinned and qualified; it is not PyTorch/MPS training evidence."
+      }
+    }
+  ],
+  "environment": {
+    "declared": {
+      "compressed_tensors": "0.16.0",
+      "isolation": "dedicated Spark environment; never upgrade the MiniCPM5 lock",
+      "mps_fp8_claim": "none",
+      "transformers": "4.57.x only; serialized 4.57.6 (FP8) and 4.57.1 (BF16)"
+    },
+    "forbidden": [
+      "installing Spark packages into the active MiniCPM5 environment",
+      "CPU fallback while labelling a run native",
+      "auto-dequantization used to make an FP8 run appear supported"
+    ],
+    "isolation_required": true,
+    "mps_fp8_support": "unknown; no native MPS FP8 training claim is made",
+    "reason": "the pinned source serializes transformers 4.57.x and compressed-tensors 0.16.0; the locked MiniCPM5 environment must not be upgraded to satisfy a quickstart",
+    "required": {
+      "attention_backend": "eager matmul (upstream code imports none)",
+      "compressed_tensors": "0.16.0",
+      "python": "3.12-compatible isolated environment",
+      "safetensors": "required",
+      "torch": "exact wheel version to be pinned during S1; no local FP8 kernel claim",
+      "transformers": "4.57.x (FP8 4.57.6 / BF16 4.57.1 serialized; compatibility not guaranteed)"
+    }
+  },
+  "fetch_policy": {
+    "bytes_fetched": 0,
+    "max_asset_bytes": 16777216,
+    "max_header_bytes": 8388608,
+    "min_free_bytes": 1073741824,
+    "native_execution": false,
+    "network_requests": 0,
+    "offline": true,
+    "refuses_full_body_on_range_request": true,
+    "remote_code_executed": false,
+    "total_fetch_limit_bytes": 67108864,
+    "weights_downloaded": false
+  },
+  "generated_at": "2026-10-25T18:30:19+00:00",
+  "identity": {
+    "distinct_revisions": true,
+    "distinct_weight_digests": true,
+    "independent_repositories": true,
+    "shared_asset_bytes": [
+      {
+        "filename": "LICENSE",
+        "sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36"
+      },
+      {
+        "filename": "chat_template.jinja",
+        "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929"
+      },
+      {
+        "filename": "generation_config.json",
+        "sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c"
+      },
+      {
+        "filename": "tokenizer_config.json",
+        "sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd"
+      },
+      {
+        "filename": "special_tokens_map.json",
+        "sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5"
+      },
+      {
+        "filename": "configuration_spark.py",
+        "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722"
+      },
+      {
+        "filename": "modeling_spark.py",
+        "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+      },
+      {
+        "filename": "tokenizer.json",
+        "sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c"
+      },
+      {
+        "filename": "vocab.json",
+        "sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1"
+      },
+      {
+        "filename": "merges.txt",
+        "sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36"
+      }
+    ],
+    "statement": "The FP8 and BF16 artifacts are separate official Hub repositories at separate immutable revisions with different weight storage. The FP8 card names the BF16 release as parent, so they are related releases, not bitwise-equivalent controls; neither is a dequantized substitute for the other."
+  },
+  "manifest_fingerprint": "31a48782c140ec5d6907ea1b5d76e026e3ca2698a363aa85dd6db3b3bc7d34de",
+  "precision_semantics": {
+    "bf16_checkpoint_storage": {
+      "activation": "not quantized by the checkpoint",
+      "kv_cache": "not quantized",
+      "method": "plain safetensors",
+      "weight": "BF16",
+      "zero_points": "not present"
+    },
+    "fp8_checkpoint_storage": {
+      "activation": "dynamic symmetric per-token F8_E4M3, observer-free at runtime",
+      "kv_cache": "not quantized",
+      "method": "compressed-tensors 0.16.0 float-quantized",
+      "quantized_modules": [
+        "self_attn.q_k_v_proj",
+        "self_attn.out_proj",
+        "mlp.gate_proj",
+        "mlp.up_proj",
+        "mlp.down_proj"
+      ],
+      "top_level_dtype_note": "config dtype=bfloat16 describes remaining tensors, not the F8_E4M3 weights",
+      "unquantized_modules": [
+        "self_attn.g_proj",
+        "lm_head (tied, not serialized)",
+        "embedding",
+        "RMSNorm weights"
+      ],
+      "weight": "static symmetric channel-wise F8_E4M3 with BF16 scale [out_channels, 1]",
+      "zero_points": "none"
+    },
+    "no_silent_dequantization": "A dequantized FP8 derivative must be a new artifact with its own hash and identifier; it must never be loaded under the official FP8 or BF16 identity, and it does not restore precision lost during quantization.",
+    "separation_of_precision_concepts": {
+      "checkpoint_storage": "what bytes are on disk",
+      "forward_backward_compute": "what kernels actually execute; not established by storage format",
+      "optimizer_state": "separate from both; Muon int8 momentum does not make weights or gradients FP8"
+    }
+  },
+  "provenance": {
+    "note": "Header records hash the raw safetensors header; weight payloads were never downloaded.",
+    "records": [
+      {
+        "bytes": 4510,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "config.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/config.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/config.json",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/config.json"
+      },
+      {
+        "bytes": 11338,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "LICENSE",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/LICENSE",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/LICENSE",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/LICENSE"
+      },
+      {
+        "bytes": 14122,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "README.md",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/README.md",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/README.md",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "570208eb4a1c3022a58bc277325f5b29f393b55fc3096d373893038cbe27b0f0",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/README.md"
+      },
+      {
+        "bytes": 5717,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "chat_template.jinja",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/chat_template.jinja",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/chat_template.jinja",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/chat_template.jinja"
+      },
+      {
+        "bytes": 281,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "generation_config.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/generation_config.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/generation_config.json",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/generation_config.json"
+      },
+      {
+        "bytes": 5841,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "tokenizer_config.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/tokenizer_config.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/tokenizer_config.json",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/tokenizer_config.json"
+      },
+      {
+        "bytes": 156,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "special_tokens_map.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/special_tokens_map.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/special_tokens_map.json",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/special_tokens_map.json"
+      },
+      {
+        "bytes": 4329,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "configuration_spark.py",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/configuration_spark.py",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/configuration_spark.py",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/configuration_spark.py"
+      },
+      {
+        "bytes": 19418,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "modeling_spark.py",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/modeling_spark.py",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/modeling_spark.py",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/modeling_spark.py"
+      },
+      {
+        "bytes": 10115786,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "tokenizer.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/tokenizer.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/tokenizer.json",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/tokenizer.json"
+      },
+      {
+        "bytes": 3032795,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "vocab.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/vocab.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/vocab.json",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/vocab.json"
+      },
+      {
+        "bytes": 1567883,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "merges.txt",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/merges.txt",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_fp8_adaptation_base/merges.txt",
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/merges.txt"
+      },
+      {
+        "bundle_sha256": "7acdcbd6ee7f678e92a6f25fb7ff1e8fe840737832ce70bd28c23e4caef9eea4",
+        "bytes": 55424,
+        "filename": "model.safetensors",
+        "http_status": null,
+        "kind": "safetensors_header",
+        "network": false,
+        "outcome": "local_header",
+        "retained": true,
+        "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+        "sha256": "18d82da0cb0276bfc3e1d3fc9655d7f0c71ffbd021bd5da5c2261f7fd416840a",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/model.safetensors"
+      },
+      {
+        "bytes": 2035,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "config.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/config.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/config.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/config.json"
+      },
+      {
+        "bytes": 11338,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "LICENSE",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/LICENSE",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/LICENSE",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/LICENSE"
+      },
+      {
+        "bytes": 14127,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "README.md",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/README.md",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/README.md",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "c483630bf7e9c22a6583d127d74ecf0e3270aea0c358e770ac5b5f4dbb82bf39",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/README.md"
+      },
+      {
+        "bytes": 5717,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "chat_template.jinja",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/chat_template.jinja",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/chat_template.jinja",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/chat_template.jinja"
+      },
+      {
+        "bytes": 281,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "generation_config.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/generation_config.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/generation_config.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/generation_config.json"
+      },
+      {
+        "bytes": 5841,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "tokenizer_config.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/tokenizer_config.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/tokenizer_config.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/tokenizer_config.json"
+      },
+      {
+        "bytes": 156,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "special_tokens_map.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/special_tokens_map.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/special_tokens_map.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/special_tokens_map.json"
+      },
+      {
+        "bytes": 4329,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "configuration_spark.py",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/configuration_spark.py",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/configuration_spark.py",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/configuration_spark.py"
+      },
+      {
+        "bytes": 19418,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "modeling_spark.py",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/modeling_spark.py",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/modeling_spark.py",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/modeling_spark.py"
+      },
+      {
+        "bytes": 24133,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "model.safetensors.index.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/model.safetensors.index.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/model.safetensors.index.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "77a11d49b279b5e44fcb1f2453f71a8023237f93992fe5275d842e149d896edd",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model.safetensors.index.json"
+      },
+      {
+        "bytes": 10115786,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "tokenizer.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/tokenizer.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/tokenizer.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/tokenizer.json"
+      },
+      {
+        "bytes": 3032795,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "vocab.json",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/vocab.json",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/vocab.json",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/vocab.json"
+      },
+      {
+        "bytes": 1567883,
+        "content_length": null,
+        "content_range": null,
+        "etag": null,
+        "filename": "merges.txt",
+        "http_status": null,
+        "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/merges.txt",
+        "network": false,
+        "outcome": "local_asset",
+        "retained": true,
+        "retained_path": "assets/official_bf16_control/merges.txt",
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/merges.txt"
+      },
+      {
+        "bundle_sha256": "7acdcbd6ee7f678e92a6f25fb7ff1e8fe840737832ce70bd28c23e4caef9eea4",
+        "bytes": 6032,
+        "filename": "model-00001-of-00005.safetensors",
+        "http_status": null,
+        "kind": "safetensors_header",
+        "network": false,
+        "outcome": "local_header",
+        "retained": true,
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "0463306856da80ba462c3d7819f3a641d66318ff68c5507a8f8a374b94a2e589",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model-00001-of-00005.safetensors"
+      },
+      {
+        "bundle_sha256": "7acdcbd6ee7f678e92a6f25fb7ff1e8fe840737832ce70bd28c23e4caef9eea4",
+        "bytes": 8576,
+        "filename": "model-00002-of-00005.safetensors",
+        "http_status": null,
+        "kind": "safetensors_header",
+        "network": false,
+        "outcome": "local_header",
+        "retained": true,
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "c81713994971dfc9eb3eb51b1e09f402342a71c189d729851cec313ca2ed44d0",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model-00002-of-00005.safetensors"
+      },
+      {
+        "bundle_sha256": "7acdcbd6ee7f678e92a6f25fb7ff1e8fe840737832ce70bd28c23e4caef9eea4",
+        "bytes": 9072,
+        "filename": "model-00003-of-00005.safetensors",
+        "http_status": null,
+        "kind": "safetensors_header",
+        "network": false,
+        "outcome": "local_header",
+        "retained": true,
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "d4a74ace373171c350a23278b2520ba3681e25d7c1e24c6876edb9dc7041f2b9",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model-00003-of-00005.safetensors"
+      },
+      {
+        "bundle_sha256": "7acdcbd6ee7f678e92a6f25fb7ff1e8fe840737832ce70bd28c23e4caef9eea4",
+        "bytes": 8600,
+        "filename": "model-00004-of-00005.safetensors",
+        "http_status": null,
+        "kind": "safetensors_header",
+        "network": false,
+        "outcome": "local_header",
+        "retained": true,
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "b8a902c2f65ea28963a84681705830b3d714af7091718783464c3af1b6921f2c",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model-00004-of-00005.safetensors"
+      },
+      {
+        "bundle_sha256": "7acdcbd6ee7f678e92a6f25fb7ff1e8fe840737832ce70bd28c23e4caef9eea4",
+        "bytes": 1368,
+        "filename": "model-00005-of-00005.safetensors",
+        "http_status": null,
+        "kind": "safetensors_header",
+        "network": false,
+        "outcome": "local_header",
+        "retained": true,
+        "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "sha256": "a63468027cc1dd6f895bfdc758e3e0095a45fd97298c92f86f41576699decc10",
+        "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model-00005-of-00005.safetensors"
+      }
+    ],
+    "schema": "replica.spark_fetch_provenance.v1"
+  },
+  "qualification_protocol": {
+    "dequantized_derivative_branch": {
+      "prohibited": "never substitute this branch under the official FP8 identity",
+      "requirements": [
+        "new artifact identifier",
+        "new SHA256 per shard",
+        "explicit dequantization script and scale provenance",
+        "separate activation semantics disclosure",
+        "independent comparison against the official BF16 control"
+      ],
+      "status": "not created"
+    },
+    "export_reload": {
+      "artifact": "new trainable tensors plus base identity (repo, revision, storage, shard digests, quantization config hash)",
+      "checks": [
+        "reload with the same precision semantics and no automatic format conversion",
+        "logits/tokens compared under a preregistered tolerance",
+        "mismatched base digest or storage format is rejected",
+        "optimizer state reload is separately checked when persisted"
+      ],
+      "fresh_process": true
+    },
+    "input_gradient_probe": {
+      "checks": [
+        "decoder is not wrapped in no_grad and a gradient reaches the projector input",
+        "all new-module gradients are finite; at least one is nonzero after the first step",
+        "original weight bytes and parameter versions are unchanged",
+        "activation quantization remains enabled in the FP8 path; a dequantized fallback aborts the probe",
+        "sliding and full blocks both appear in the traced path"
+      ],
+      "failure_action": "record the unsupported kernel/backend and retain preparation status",
+      "setup": "freeze all original parameters; attach one new projector to hidden width 2560 with zero-initialized output projection"
+    },
+    "matched_inference": {
+      "budgets": {
+        "greedy": true,
+        "max_new_tokens": [
+          512,
+          2048
+        ]
+      },
+      "comparison": "paired per prompt; preregister task-accuracy tolerance, abstention and length budgets. Never demand bitwise equality across precision schemes.",
+      "long_context": "measure a small prefix budget first; do not extrapolate to 1,048,576 configured positions",
+      "prompts": "source-independent frozen prompt set shared with MiniCPM5 preparation",
+      "report": [
+        "exact token IDs",
+        "decoded text",
+        "reasoning-token count",
+        "stop reason",
+        "peak device bytes",
+        "latency"
+      ],
+      "sources": {
+        "bf16": "XHToken/Spark-X2.6-4B@66e3ae7bee54e0a523d692cb8ef841f35409807b",
+        "fp8": "XHToken/Spark-X2.6-4B-FP8@0318d6f6ab070c7b5b43052db571489b2508006c"
+      },
+      "thinking_modes": [
+        "none",
+        "low",
+        "high"
+      ]
+    },
+    "preconditions": [
+      "isolated environment; never upgrade the locked MiniCPM5 environment",
+      "revision/digest validation against this manifest before load",
+      "one exclusive native worker; no CPU fallback and no silent dequantization",
+      "no claim of MPS FP8 training until every stage below has measured evidence"
+    ],
+    "single_update": {
+      "acceptance": "finite loss and gradients, named parameter delta, base digest unchanged, no NaN/Inf",
+      "non_claim": "a successful update is not evidence of FP8 weight training",
+      "optimizer": "AdamW float32 master for new parameters; no Muon on the frozen FP8 base",
+      "scope": "one declared new module group only",
+      "seed": "fixed and recorded"
+    },
+    "status": "prospective_not_executed"
+  },
+  "reviewed_on": "2026-10-25",
+  "schema": "replica.spark_source_preparation.v1",
+  "scope": "Bounded metadata, text-asset and safetensors-header acquisition for the official Spark-X2.6 FP8 adaptation base and its independent BF16 control. No weight payload, remote Python execution or native model run.",
+  "sources": [
+    {
+      "assets": [
+        {
+          "bytes": 4510,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "config.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/config.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/config.json",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/config.json"
+        },
+        {
+          "bytes": 11338,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "LICENSE",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/LICENSE",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/LICENSE",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/LICENSE"
+        },
+        {
+          "bytes": 14122,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "README.md",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/README.md",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/README.md",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "570208eb4a1c3022a58bc277325f5b29f393b55fc3096d373893038cbe27b0f0",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/README.md"
+        },
+        {
+          "bytes": 5717,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "chat_template.jinja",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/chat_template.jinja",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/chat_template.jinja",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/chat_template.jinja"
+        },
+        {
+          "bytes": 281,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "generation_config.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/generation_config.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/generation_config.json",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/generation_config.json"
+        },
+        {
+          "bytes": 5841,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "tokenizer_config.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/tokenizer_config.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/tokenizer_config.json",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/tokenizer_config.json"
+        },
+        {
+          "bytes": 156,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "special_tokens_map.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/special_tokens_map.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/special_tokens_map.json",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/special_tokens_map.json"
+        },
+        {
+          "bytes": 4329,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "configuration_spark.py",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/configuration_spark.py",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/configuration_spark.py",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/configuration_spark.py"
+        },
+        {
+          "bytes": 19418,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "modeling_spark.py",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/modeling_spark.py",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/modeling_spark.py",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/modeling_spark.py"
+        },
+        {
+          "bytes": 10115786,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "tokenizer.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/tokenizer.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/tokenizer.json",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/tokenizer.json"
+        },
+        {
+          "bytes": 3032795,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "vocab.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/vocab.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/vocab.json",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/vocab.json"
+        },
+        {
+          "bytes": 1567883,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "merges.txt",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_fp8_adaptation_base/merges.txt",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_fp8_adaptation_base/merges.txt",
+          "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+          "sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8/resolve/0318d6f6ab070c7b5b43052db571489b2508006c/merges.txt"
+        }
+      ],
+      "code_audit": {
+        "executed": false,
+        "files": [
+          {
+            "classes": [
+              {
+                "bases": [
+                  "PretrainedConfig"
+                ],
+                "methods": [
+                  "__init__",
+                  "get_rope_theta",
+                  "get_partial_rotary_factor"
+                ],
+                "name": "Spark2_5Config"
+              }
+            ],
+            "executed": false,
+            "filename": "configuration_spark.py",
+            "imports": [
+              "transformers"
+            ],
+            "imports_process_or_network": [],
+            "module_executes_code_on_import": false,
+            "module_functions": [],
+            "risky_symbols": [],
+            "root_modules": [
+              "transformers"
+            ],
+            "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+            "top_level_calls": []
+          },
+          {
+            "classes": [
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward",
+                  "extra_repr"
+                ],
+                "name": "Spark2_5RMSNorm"
+              },
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward"
+                ],
+                "name": "Spark2_5MLP"
+              },
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward"
+                ],
+                "name": "Spark2_5Attention"
+              },
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward"
+                ],
+                "name": "Spark2_5DecoderLayer"
+              },
+              {
+                "bases": [
+                  "PreTrainedModel"
+                ],
+                "methods": [
+                  "_init_weights"
+                ],
+                "name": "Spark2_5PreTrainedModel"
+              },
+              {
+                "bases": [
+                  "Spark2_5PreTrainedModel"
+                ],
+                "methods": [
+                  "__init__",
+                  "get_input_embeddings",
+                  "set_input_embeddings",
+                  "forward"
+                ],
+                "name": "Spark2_5Model"
+              },
+              {
+                "bases": [
+                  "Spark2_5PreTrainedModel",
+                  "GenerationMixin"
+                ],
+                "methods": [
+                  "__init__",
+                  "get_input_embeddings",
+                  "set_input_embeddings",
+                  "get_output_embeddings",
+                  "set_output_embeddings",
+                  "set_decoder",
+                  "get_decoder",
+                  "forward"
+                ],
+                "name": "Spark2_5ForCausalLM"
+              }
+            ],
+            "executed": false,
+            "filename": "modeling_spark.py",
+            "imports": [
+              "configuration_spark",
+              "math",
+              "torch",
+              "torch.nn.functional",
+              "transformers.activations",
+              "transformers.cache_utils",
+              "transformers.generation",
+              "transformers.masking_utils",
+              "transformers.modeling_outputs",
+              "transformers.modeling_utils",
+              "transformers.processing_utils",
+              "transformers.pytorch_utils",
+              "transformers.utils"
+            ],
+            "imports_process_or_network": [],
+            "module_executes_code_on_import": true,
+            "module_functions": [
+              "apply_rotary_pos_emb",
+              "compute_rope_cos_sin",
+              "eager_attention_forward",
+              "repeat_kv",
+              "rotate_half"
+            ],
+            "risky_symbols": [],
+            "root_modules": [
+              "configuration_spark",
+              "math",
+              "torch",
+              "transformers"
+            ],
+            "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+            "top_level_calls": [
+              "logging.get_logger",
+              "ALL_LAYERNORM_LAYERS.append"
+            ]
+          }
+        ],
+        "shared_with_other_source": [
+          {
+            "filename": "configuration_spark.py",
+            "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722"
+          },
+          {
+            "filename": "modeling_spark.py",
+            "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+          }
+        ]
+      },
+      "config_observed": {
+        "architectures": [
+          "Spark2_5ForCausalLM"
+        ],
+        "attention_heads": 16,
+        "bos_token_id": 0,
+        "eos_token_id": 1,
+        "gate_attn_act_mode": "sigmoid",
+        "head_dim": 256,
+        "headwise_attn_output_gate": true,
+        "hidden_size": 2560,
+        "initializer_range": 0.01976,
+        "intermediate_size": 10240,
+        "kv_heads": 4,
+        "layer_types": [
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention"
+        ],
+        "max_position_embeddings": 1048576,
+        "model_type": "spark2_5",
+        "num_hidden_layers": 36,
+        "pad_token_id": 2,
+        "quantization": {
+          "format": "float-quantized",
+          "group_count": 1,
+          "ignore": [
+            "lm_head",
+            "model.layers.0.self_attn.g_proj",
+            "model.layers.1.self_attn.g_proj",
+            "model.layers.10.self_attn.g_proj",
+            "model.layers.11.self_attn.g_proj",
+            "model.layers.12.self_attn.g_proj",
+            "model.layers.13.self_attn.g_proj",
+            "model.layers.14.self_attn.g_proj",
+            "model.layers.15.self_attn.g_proj",
+            "model.layers.16.self_attn.g_proj",
+            "model.layers.17.self_attn.g_proj",
+            "model.layers.18.self_attn.g_proj",
+            "model.layers.19.self_attn.g_proj",
+            "model.layers.2.self_attn.g_proj",
+            "model.layers.20.self_attn.g_proj",
+            "model.layers.21.self_attn.g_proj",
+            "model.layers.22.self_attn.g_proj",
+            "model.layers.23.self_attn.g_proj",
+            "model.layers.24.self_attn.g_proj",
+            "model.layers.25.self_attn.g_proj",
+            "model.layers.26.self_attn.g_proj",
+            "model.layers.27.self_attn.g_proj",
+            "model.layers.28.self_attn.g_proj",
+            "model.layers.29.self_attn.g_proj",
+            "model.layers.3.self_attn.g_proj",
+            "model.layers.30.self_attn.g_proj",
+            "model.layers.31.self_attn.g_proj",
+            "model.layers.32.self_attn.g_proj",
+            "model.layers.33.self_attn.g_proj",
+            "model.layers.34.self_attn.g_proj",
+            "model.layers.35.self_attn.g_proj",
+            "model.layers.4.self_attn.g_proj",
+            "model.layers.5.self_attn.g_proj",
+            "model.layers.6.self_attn.g_proj",
+            "model.layers.7.self_attn.g_proj",
+            "model.layers.8.self_attn.g_proj",
+            "model.layers.9.self_attn.g_proj"
+          ],
+          "input_activations": {
+            "dynamic": true,
+            "num_bits": 8,
+            "strategy": "token",
+            "symmetric": true
+          },
+          "kv_cache_scheme": null,
+          "quant_method": "compressed-tensors",
+          "targets": [
+            "re:.*self_attn.q_k_v_proj$",
+            "re:.*self_attn.out_proj$",
+            "re:.*mlp.(gate_proj|up_proj|gate_up_proj|down_proj)$"
+          ],
+          "version": "0.16.0",
+          "weights": {
+            "dynamic": false,
+            "num_bits": 8,
+            "observer": "mse",
+            "strategy": "channel",
+            "symmetric": true
+          }
+        },
+        "rms_norm_eps": 1e-06,
+        "rope_parameters": {
+          "full_attention": {
+            "partial_rotary_factor": 0.25,
+            "rope_theta": 5000000
+          },
+          "sliding_attention": {
+            "partial_rotary_factor": 1.0,
+            "rope_theta": 10000
+          }
+        },
+        "sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+        "sliding_window": 512,
+        "tie_word_embeddings": true,
+        "transformers_version": "4.57.6",
+        "vocab_size": 131072
+      },
+      "hub_metadata": {
+        "card_license": null,
+        "cross_check": {
+          "available": false
+        },
+        "last_modified": null,
+        "note": "Hub parameter counts are metadata; agreement with headers is checked explicitly.",
+        "reported_safetensors": null
+      },
+      "license_asset": "LICENSE",
+      "license_claim": "apache-2.0",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "role": "official_fp8_adaptation_base",
+      "safetensors_headers": [
+        {
+          "filename": "model.safetensors",
+          "header_bytes": 55424,
+          "header_sha256": "18d82da0cb0276bfc3e1d3fc9655d7f0c71ffbd021bd5da5c2261f7fd416840a",
+          "payload_bytes": 4451570688,
+          "tensor_count": 470,
+          "total_bytes": 4451626120
+        }
+      ],
+      "source_url": "https://huggingface.co/XHToken/Spark-X2.6-4B-FP8",
+      "storage": "fp8_compressed_tensors",
+      "tensor_index": {
+        "path": "headers/official_fp8_adaptation_base/tensor_index.json",
+        "sha256": "ca2757aadaa1c9eb8cfa296b0651b4612004d0d063279bcb435d89b5d1f4ac9f",
+        "tensor_count": 470
+      },
+      "tensor_inventory": {
+        "dtype_totals": {
+          "BF16": {
+            "bytes": 676697088,
+            "elements": 338348544,
+            "tensors": 290
+          },
+          "F8_E4M3": {
+            "bytes": 3774873600,
+            "elements": 3774873600,
+            "tensors": 180
+          }
+        },
+        "file_bytes": 4451626120,
+        "layer_count": 36,
+        "parameter_elements_excluding_scales": 4112079360,
+        "parameter_elements_including_scales": 4113222144,
+        "payload_bytes": 4451570688,
+        "quantized_suffixes": [
+          "mlp.down_proj.weight",
+          "mlp.gate_proj.weight",
+          "mlp.up_proj.weight",
+          "self_attn.out_proj.weight",
+          "self_attn.q_k_v_proj.weight"
+        ],
+        "quantized_weight_elements": 3774873600,
+        "scale_elements": 1142784,
+        "scale_tensor_count": 180,
+        "shard_count": 1,
+        "shards": [
+          {
+            "filename": "model.safetensors",
+            "header_bytes": 55424,
+            "header_sha256": "18d82da0cb0276bfc3e1d3fc9655d7f0c71ffbd021bd5da5c2261f7fd416840a",
+            "payload_bytes": 4451570688,
+            "tensor_count": 470,
+            "total_bytes": 4451626120
+          }
+        ],
+        "tensor_count": 470,
+        "tied_storage": {
+          "basis": [
+            "config.tie_word_embeddings=true",
+            "modeling_spark.py _tied_weights_keys=['lm_head.weight']",
+            "F.linear(hidden_states, self.model.embedding.weight)"
+          ],
+          "lm_head_alias": "model.embedding.weight",
+          "lm_head_serialized": false
+        },
+        "unquantized_elements": 337205760,
+        "zero_point_tensor_count": 0
+      },
+      "tokenizer_observed": {
+        "add_bos_token": false,
+        "add_eos_token": false,
+        "chat_template": {
+          "default_thinking": "enabled (enable_thinking defaults true)",
+          "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+          "supports_enable_thinking": true,
+          "supports_reasoning_effort_high_low": true,
+          "thinking_delimiters": [
+            "<think>",
+            "</think>"
+          ]
+        },
+        "embedded_chat_template_sha256": "93d6aa906ec72365efcab3c0109dba83148bdc9bec7c55848623d17483693eda",
+        "generation_defaults": {
+          "bos_token_id": 0,
+          "do_sample": true,
+          "eos_token_id": 1,
+          "max_tokens": 1048576,
+          "pad_token_id": 2,
+          "repetition_penalty": 1.0,
+          "temperature": 1.0,
+          "top_k": -1,
+          "top_p": 0.95,
+          "transformers_version": "4.57.1"
+        },
+        "model_max_length": 131072,
+        "tokenizer_class": "PreTrainedTokenizerFast"
+      },
+      "weight_files": [
+        {
+          "bytes": 4451626120,
+          "evidence": "Hub LFS metadata only; payload never downloaded",
+          "filename": "model.safetensors",
+          "hub_lfs_sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9",
+          "locally_verified": false
+        }
+      ],
+      "weight_index": null
+    },
+    {
+      "assets": [
+        {
+          "bytes": 2035,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "config.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/config.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/config.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/config.json"
+        },
+        {
+          "bytes": 11338,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "LICENSE",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/LICENSE",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/LICENSE",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/LICENSE"
+        },
+        {
+          "bytes": 14127,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "README.md",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/README.md",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/README.md",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "c483630bf7e9c22a6583d127d74ecf0e3270aea0c358e770ac5b5f4dbb82bf39",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/README.md"
+        },
+        {
+          "bytes": 5717,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "chat_template.jinja",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/chat_template.jinja",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/chat_template.jinja",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/chat_template.jinja"
+        },
+        {
+          "bytes": 281,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "generation_config.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/generation_config.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/generation_config.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/generation_config.json"
+        },
+        {
+          "bytes": 5841,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "tokenizer_config.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/tokenizer_config.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/tokenizer_config.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/tokenizer_config.json"
+        },
+        {
+          "bytes": 156,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "special_tokens_map.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/special_tokens_map.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/special_tokens_map.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/special_tokens_map.json"
+        },
+        {
+          "bytes": 4329,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "configuration_spark.py",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/configuration_spark.py",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/configuration_spark.py",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/configuration_spark.py"
+        },
+        {
+          "bytes": 19418,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "modeling_spark.py",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/modeling_spark.py",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/modeling_spark.py",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/modeling_spark.py"
+        },
+        {
+          "bytes": 24133,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "model.safetensors.index.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/model.safetensors.index.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/model.safetensors.index.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "77a11d49b279b5e44fcb1f2453f71a8023237f93992fe5275d842e149d896edd",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/model.safetensors.index.json"
+        },
+        {
+          "bytes": 10115786,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "tokenizer.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/tokenizer.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/tokenizer.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/tokenizer.json"
+        },
+        {
+          "bytes": 3032795,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "vocab.json",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/vocab.json",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/vocab.json",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/vocab.json"
+        },
+        {
+          "bytes": 1567883,
+          "content_length": null,
+          "content_range": null,
+          "etag": null,
+          "filename": "merges.txt",
+          "http_status": null,
+          "local_path": "data/cache/spark_sources/run_02/assets/official_bf16_control/merges.txt",
+          "network": false,
+          "outcome": "local_asset",
+          "retained": true,
+          "retained_path": "assets/official_bf16_control/merges.txt",
+          "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+          "sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+          "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/merges.txt"
+        }
+      ],
+      "code_audit": {
+        "executed": false,
+        "files": [
+          {
+            "classes": [
+              {
+                "bases": [
+                  "PretrainedConfig"
+                ],
+                "methods": [
+                  "__init__",
+                  "get_rope_theta",
+                  "get_partial_rotary_factor"
+                ],
+                "name": "Spark2_5Config"
+              }
+            ],
+            "executed": false,
+            "filename": "configuration_spark.py",
+            "imports": [
+              "transformers"
+            ],
+            "imports_process_or_network": [],
+            "module_executes_code_on_import": false,
+            "module_functions": [],
+            "risky_symbols": [],
+            "root_modules": [
+              "transformers"
+            ],
+            "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+            "top_level_calls": []
+          },
+          {
+            "classes": [
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward",
+                  "extra_repr"
+                ],
+                "name": "Spark2_5RMSNorm"
+              },
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward"
+                ],
+                "name": "Spark2_5MLP"
+              },
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward"
+                ],
+                "name": "Spark2_5Attention"
+              },
+              {
+                "bases": [
+                  "nn.Module"
+                ],
+                "methods": [
+                  "__init__",
+                  "forward"
+                ],
+                "name": "Spark2_5DecoderLayer"
+              },
+              {
+                "bases": [
+                  "PreTrainedModel"
+                ],
+                "methods": [
+                  "_init_weights"
+                ],
+                "name": "Spark2_5PreTrainedModel"
+              },
+              {
+                "bases": [
+                  "Spark2_5PreTrainedModel"
+                ],
+                "methods": [
+                  "__init__",
+                  "get_input_embeddings",
+                  "set_input_embeddings",
+                  "forward"
+                ],
+                "name": "Spark2_5Model"
+              },
+              {
+                "bases": [
+                  "Spark2_5PreTrainedModel",
+                  "GenerationMixin"
+                ],
+                "methods": [
+                  "__init__",
+                  "get_input_embeddings",
+                  "set_input_embeddings",
+                  "get_output_embeddings",
+                  "set_output_embeddings",
+                  "set_decoder",
+                  "get_decoder",
+                  "forward"
+                ],
+                "name": "Spark2_5ForCausalLM"
+              }
+            ],
+            "executed": false,
+            "filename": "modeling_spark.py",
+            "imports": [
+              "configuration_spark",
+              "math",
+              "torch",
+              "torch.nn.functional",
+              "transformers.activations",
+              "transformers.cache_utils",
+              "transformers.generation",
+              "transformers.masking_utils",
+              "transformers.modeling_outputs",
+              "transformers.modeling_utils",
+              "transformers.processing_utils",
+              "transformers.pytorch_utils",
+              "transformers.utils"
+            ],
+            "imports_process_or_network": [],
+            "module_executes_code_on_import": true,
+            "module_functions": [
+              "apply_rotary_pos_emb",
+              "compute_rope_cos_sin",
+              "eager_attention_forward",
+              "repeat_kv",
+              "rotate_half"
+            ],
+            "risky_symbols": [],
+            "root_modules": [
+              "configuration_spark",
+              "math",
+              "torch",
+              "transformers"
+            ],
+            "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+            "top_level_calls": [
+              "logging.get_logger",
+              "ALL_LAYERNORM_LAYERS.append"
+            ]
+          }
+        ],
+        "shared_with_other_source": [
+          {
+            "filename": "configuration_spark.py",
+            "sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722"
+          },
+          {
+            "filename": "modeling_spark.py",
+            "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+          }
+        ]
+      },
+      "config_observed": {
+        "architectures": [
+          "Spark2_5ForCausalLM"
+        ],
+        "attention_heads": 16,
+        "bos_token_id": 0,
+        "eos_token_id": 1,
+        "gate_attn_act_mode": "sigmoid",
+        "head_dim": 256,
+        "headwise_attn_output_gate": true,
+        "hidden_size": 2560,
+        "initializer_range": 0.01976,
+        "intermediate_size": 10240,
+        "kv_heads": 4,
+        "layer_types": [
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "sliding_attention",
+          "full_attention"
+        ],
+        "max_position_embeddings": 1048576,
+        "model_type": "spark2_5",
+        "num_hidden_layers": 36,
+        "pad_token_id": 2,
+        "quantization": null,
+        "rms_norm_eps": 1e-06,
+        "rope_parameters": {
+          "full_attention": {
+            "partial_rotary_factor": 0.25,
+            "rope_theta": 5000000
+          },
+          "sliding_attention": {
+            "partial_rotary_factor": 1.0,
+            "rope_theta": 10000
+          }
+        },
+        "sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+        "sliding_window": 512,
+        "tie_word_embeddings": true,
+        "transformers_version": "4.57.1",
+        "vocab_size": 131072
+      },
+      "hub_metadata": {
+        "card_license": null,
+        "cross_check": {
+          "available": false
+        },
+        "last_modified": null,
+        "note": "Hub parameter counts are metadata; agreement with headers is checked explicitly.",
+        "reported_safetensors": null
+      },
+      "license_asset": "LICENSE",
+      "license_claim": "apache-2.0",
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "role": "official_bf16_control",
+      "safetensors_headers": [
+        {
+          "filename": "model-00001-of-00005.safetensors",
+          "header_bytes": 6032,
+          "header_sha256": "0463306856da80ba462c3d7819f3a641d66318ff68c5507a8f8a374b94a2e589",
+          "payload_bytes": 1982443520,
+          "tensor_count": 52,
+          "total_bytes": 1982449560
+        },
+        {
+          "filename": "model-00002-of-00005.safetensors",
+          "header_bytes": 8576,
+          "header_sha256": "c81713994971dfc9eb3eb51b1e09f402342a71c189d729851cec313ca2ed44d0",
+          "payload_bytes": 1993123840,
+          "tensor_count": 74,
+          "total_bytes": 1993132424
+        },
+        {
+          "filename": "model-00003-of-00005.safetensors",
+          "header_bytes": 9072,
+          "header_sha256": "d4a74ace373171c350a23278b2520ba3681e25d7c1e24c6876edb9dc7041f2b9",
+          "payload_bytes": 1993216000,
+          "tensor_count": 78,
+          "total_bytes": 1993225080
+        },
+        {
+          "filename": "model-00004-of-00005.safetensors",
+          "header_bytes": 8600,
+          "header_sha256": "b8a902c2f65ea28963a84681705830b3d714af7091718783464c3af1b6921f2c",
+          "payload_bytes": 1993123840,
+          "tensor_count": 74,
+          "total_bytes": 1993132448
+        },
+        {
+          "filename": "model-00005-of-00005.safetensors",
+          "header_bytes": 1368,
+          "header_sha256": "a63468027cc1dd6f895bfdc758e3e0095a45fd97298c92f86f41576699decc10",
+          "payload_bytes": 262251520,
+          "tensor_count": 12,
+          "total_bytes": 262252896
+        }
+      ],
+      "source_url": "https://huggingface.co/XHToken/Spark-X2.6-4B",
+      "storage": "bf16",
+      "tensor_index": {
+        "path": "headers/official_bf16_control/tensor_index.json",
+        "sha256": "05fa1b80b4888f319b2c42233b95ce43b5c1783ed335e830667298a1da91e590",
+        "tensor_count": 290
+      },
+      "tensor_inventory": {
+        "dtype_totals": {
+          "BF16": {
+            "bytes": 8224158720,
+            "elements": 4112079360,
+            "tensors": 290
+          }
+        },
+        "file_bytes": 8224192408,
+        "layer_count": 36,
+        "parameter_elements_excluding_scales": 4112079360,
+        "parameter_elements_including_scales": 4112079360,
+        "payload_bytes": 8224158720,
+        "quantized_suffixes": [],
+        "quantized_weight_elements": 3774873600,
+        "scale_elements": 0,
+        "scale_tensor_count": 0,
+        "shard_count": 5,
+        "shards": [
+          {
+            "filename": "model-00001-of-00005.safetensors",
+            "header_bytes": 6032,
+            "header_sha256": "0463306856da80ba462c3d7819f3a641d66318ff68c5507a8f8a374b94a2e589",
+            "payload_bytes": 1982443520,
+            "tensor_count": 52,
+            "total_bytes": 1982449560
+          },
+          {
+            "filename": "model-00002-of-00005.safetensors",
+            "header_bytes": 8576,
+            "header_sha256": "c81713994971dfc9eb3eb51b1e09f402342a71c189d729851cec313ca2ed44d0",
+            "payload_bytes": 1993123840,
+            "tensor_count": 74,
+            "total_bytes": 1993132424
+          },
+          {
+            "filename": "model-00003-of-00005.safetensors",
+            "header_bytes": 9072,
+            "header_sha256": "d4a74ace373171c350a23278b2520ba3681e25d7c1e24c6876edb9dc7041f2b9",
+            "payload_bytes": 1993216000,
+            "tensor_count": 78,
+            "total_bytes": 1993225080
+          },
+          {
+            "filename": "model-00004-of-00005.safetensors",
+            "header_bytes": 8600,
+            "header_sha256": "b8a902c2f65ea28963a84681705830b3d714af7091718783464c3af1b6921f2c",
+            "payload_bytes": 1993123840,
+            "tensor_count": 74,
+            "total_bytes": 1993132448
+          },
+          {
+            "filename": "model-00005-of-00005.safetensors",
+            "header_bytes": 1368,
+            "header_sha256": "a63468027cc1dd6f895bfdc758e3e0095a45fd97298c92f86f41576699decc10",
+            "payload_bytes": 262251520,
+            "tensor_count": 12,
+            "total_bytes": 262252896
+          }
+        ],
+        "tensor_count": 290,
+        "tied_storage": {
+          "basis": [
+            "config.tie_word_embeddings=true",
+            "modeling_spark.py _tied_weights_keys=['lm_head.weight']",
+            "F.linear(hidden_states, self.model.embedding.weight)"
+          ],
+          "lm_head_alias": "model.embedding.weight",
+          "lm_head_serialized": false
+        },
+        "unquantized_elements": 337205760,
+        "zero_point_tensor_count": 0
+      },
+      "tokenizer_observed": {
+        "add_bos_token": false,
+        "add_eos_token": false,
+        "chat_template": {
+          "default_thinking": "enabled (enable_thinking defaults true)",
+          "sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929",
+          "supports_enable_thinking": true,
+          "supports_reasoning_effort_high_low": true,
+          "thinking_delimiters": [
+            "<think>",
+            "</think>"
+          ]
+        },
+        "embedded_chat_template_sha256": "93d6aa906ec72365efcab3c0109dba83148bdc9bec7c55848623d17483693eda",
+        "generation_defaults": {
+          "bos_token_id": 0,
+          "do_sample": true,
+          "eos_token_id": 1,
+          "max_tokens": 1048576,
+          "pad_token_id": 2,
+          "repetition_penalty": 1.0,
+          "temperature": 1.0,
+          "top_k": -1,
+          "top_p": 0.95,
+          "transformers_version": "4.57.1"
+        },
+        "model_max_length": 131072,
+        "tokenizer_class": "PreTrainedTokenizerFast"
+      },
+      "weight_files": [
+        {
+          "bytes": 1982449560,
+          "evidence": "Hub LFS metadata only; payload never downloaded",
+          "filename": "model-00001-of-00005.safetensors",
+          "hub_lfs_sha256": "9ba8a59a47ce4197d5c749c76c04272e0b4b880747b31b9167a82d8757e90665",
+          "locally_verified": false
+        },
+        {
+          "bytes": 1993132424,
+          "evidence": "Hub LFS metadata only; payload never downloaded",
+          "filename": "model-00002-of-00005.safetensors",
+          "hub_lfs_sha256": "f0cad973670dda858a177d62a1845f9ec3c3e2a7a1cdbd34f98ab6789fbd452d",
+          "locally_verified": false
+        },
+        {
+          "bytes": 1993225080,
+          "evidence": "Hub LFS metadata only; payload never downloaded",
+          "filename": "model-00003-of-00005.safetensors",
+          "hub_lfs_sha256": "479c8aecd24d1d4c6c2243541b36acc6a84df4c0706a7ccaacda748eac46b8e8",
+          "locally_verified": false
+        },
+        {
+          "bytes": 1993132448,
+          "evidence": "Hub LFS metadata only; payload never downloaded",
+          "filename": "model-00004-of-00005.safetensors",
+          "hub_lfs_sha256": "766cd843c58676b0be533b465368a76f574f36bea074f4d16f7e37d910423d08",
+          "locally_verified": false
+        },
+        {
+          "bytes": 262252896,
+          "evidence": "Hub LFS metadata only; payload never downloaded",
+          "filename": "model-00005-of-00005.safetensors",
+          "hub_lfs_sha256": "e2cb22cc6aa1dccdc30042170841058a1a8cffb7e9eb57356c86ae14fc4ca0e3",
+          "locally_verified": false
+        }
+      ],
+      "weight_index": {
+        "filename": "model.safetensors.index.json",
+        "metadata": {
+          "total_parameters": 4112079360,
+          "total_size": 8224158720
+        },
+        "retained_path": "metadata/official_bf16_control_index_inventory.json",
+        "sha256": "77a11d49b279b5e44fcb1f2453f71a8023237f93992fe5275d842e149d896edd",
+        "shard_fingerprints": {
+          "model-00001-of-00005.safetensors": "0463306856da80ba462c3d7819f3a641d66318ff68c5507a8f8a374b94a2e589",
+          "model-00002-of-00005.safetensors": "c81713994971dfc9eb3eb51b1e09f402342a71c189d729851cec313ca2ed44d0",
+          "model-00003-of-00005.safetensors": "d4a74ace373171c350a23278b2520ba3681e25d7c1e24c6876edb9dc7041f2b9",
+          "model-00004-of-00005.safetensors": "b8a902c2f65ea28963a84681705830b3d714af7091718783464c3af1b6921f2c",
+          "model-00005-of-00005.safetensors": "a63468027cc1dd6f895bfdc758e3e0095a45fd97298c92f86f41576699decc10"
+        },
+        "tensor_count": 290
+      }
+    }
+  ],
+  "status": "preparation_only_unqualified",
+  "unresolved": [
+    "No native forward/backward, optimizer step or reload has been executed for either source.",
+    "MPS support for compressed-tensors F8_E4M3 storage and dynamic token activation quantization is unmeasured.",
+    "Exact torch/transformers wheels that load both sources without silent conversions are not pinned.",
+    "The upstream GitHub implementation and Spark-MLX-LLM revisions are not pinned in this task.",
+    "Configured maximum positions (1,048,576) are not a measured context-capacity result.",
+    "License review records the declared Apache-2.0 claim; it is not a legal opinion about weights or training use.",
+    "Training-data and evaluation-corpus licenses for Spark adaptation are not resolved by this source manifest.",
+    "The FP8 card names the BF16 release as parent; weight-level equivalence and quality deltas are not measured here."
+  ]
+}

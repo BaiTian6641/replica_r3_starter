@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from replica_lab.spark_preparation import (  # noqa: E402
-    DEFAULT_PLAN, FetchRefused, PreparationError, load_plan, run_preparation,
+    DEFAULT_PLAN, FetchRefused, PreparationError, export_header_bundle, load_plan,
+    run_preparation,
 )
 
 
@@ -34,6 +35,8 @@ def parse_args(argv=None):
                         help="directory with <role>/<filename> captured text assets")
     parser.add_argument("--offline", action="store_true",
                         help="perform no network requests; requires both capture inputs")
+    parser.add_argument("--export-header-bundle", action="store_true",
+                        help="after success, author header_bundle.json from this run's sidecars")
     parser.add_argument("--quiet", action="store_true", help="suppress the summary")
     return parser.parse_args(argv)
 
@@ -48,6 +51,10 @@ def main(argv=None) -> int:
             assets_from=args.assets_from,
             offline=args.offline,
         )
+        if args.export_header_bundle:
+            bundle = export_header_bundle(args.output, plan)
+            if not args.quiet:
+                print(json.dumps({"header_bundle": str(bundle)}))
         manifest = json.loads(manifest_path.read_text())
     except FetchRefused as error:
         print(json.dumps({"status": "refused", **error.evidence()}, indent=2),

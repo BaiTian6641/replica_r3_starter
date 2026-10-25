@@ -1,0 +1,32 @@
+{
+  "format": "replica.spark_offline_bundle_repair.v1",
+  "recorded_at_utc": "2026-10-25T18:31:00Z",
+  "defect": "The v1 plan pinned tokenizer.json (10,115,786 B), vocab.json (3,032,795 B) and merges.txt (1,567,883 B) with retain=false, so the captured bundle hashed and discarded them; offline reproduction could never supply the tokenizer payloads a later Spark adapter needs.",
+  "changes": [
+    "configs/spark_source_preparation_v2.json: retain=true for those six pinned payloads (three per official source); all sha256/byte pins unchanged from v1.",
+    "HARD_MAX_PER_FILE_RETAIN_BYTES raised 8 MiB -> 16 MiB, aligned with the plan max_asset_bytes bound, so the pinned fast-tokenizer payload is retainable; every retained asset is still hash- and size-verified.",
+    "export_header_bundle(): authors header_bundle.json from a completed run's verified sidecars; scripts/prepare_spark_sources.py --export-header-bundle exposes it. Offline reruns are now provisionable from one completed run."
+  ],
+  "provisioning_run": {
+    "output": "data/cache/spark_sources/run_02 (gitignored local cache)",
+    "plan": "configs/spark_source_preparation_v2.json",
+    "network": "39 bounded requests, 29,708,060 bytes fetched, weights never downloaded, remote code never executed",
+    "retained_payload_bytes": 29432928,
+    "retained_payloads": ["tokenizer.json", "vocab.json", "merges.txt"] ,
+    "retained_per_role": {"official_fp8_adaptation_base": 12, "official_bf16_control": 13},
+    "manifest": "reports/spark_repair_20261025/run_02_provisioning_manifest.json",
+    "manifest_fingerprint": "5ab2280d8af68e63b8c390ba9d73cc9f3f47ca27486ca164cf0ab1c479777533"
+  },
+  "offline_reproduction": {
+    "output": "data/cache/spark_sources/run_03_offline",
+    "command": "scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json --output data/cache/spark_sources/run_03_offline --header-bundle data/cache/spark_sources/run_02/header_bundle.json --assets-from data/cache/spark_sources/run_02/assets --offline",
+    "network_requests": 0,
+    "bytes_fetched": 0,
+    "verification": "All six tokenizer/vocab/merges payloads byte-identical between run_02 and run_03 and sha256-matched to the plan pins.",
+    "manifest": "reports/spark_repair_20261025/run_03_offline_manifest.json",
+    "manifest_fingerprint": "31a48782c140ec5d6907ea1b5d76e026e3ca2698a363aa85dd6db3b3bc7d34de"
+  },
+  "fingerprint_difference_cause": "manifest_fingerprint covers generated_at, fetch_policy and provenance records, which legitimately differ between the online provisioning run and the offline reproduction (network flags, etags, record provenance). Asset digests and inventories are identical.",
+  "unit_tests": {"passed": 26, "seconds": 6.03, "evidence": "reports/spark_repair_20261025/unit_tests.xml"},
+  "limits": "Preparation only. No Spark native execution, adapter qualification, weight download or FP8 training claim; large payloads stay in the gitignored data/cache external cache."
+}
