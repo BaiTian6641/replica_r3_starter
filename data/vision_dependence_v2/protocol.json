@@ -1,0 +1,311 @@
+{
+  "config_sha256": "2be999770da4e8ee43ca6a0f745eeaec9fc9489d7f4b4ec1a1f5165f2aaa75ea",
+  "data": {
+    "combinations_disjoint": true,
+    "combinations_sha256": "fa60f95142371a1263efb0232dff1a15c5fd2ca786dae8e4cf8967f77011a83c",
+    "counts": {
+      "asset_bytes": 114837,
+      "assets": 360,
+      "images_per_pair": 2,
+      "model_rows": 360,
+      "model_rows_per_asset": 1,
+      "pairs": 180,
+      "pairs_per_world": 1,
+      "split_assets": {
+        "dev": 120,
+        "final": 120,
+        "train": 120
+      },
+      "split_model_rows": {
+        "dev": 120,
+        "final": 120,
+        "train": 120
+      },
+      "split_pairs": {
+        "dev": 60,
+        "final": 60,
+        "train": 60
+      },
+      "split_worlds": {
+        "dev": 60,
+        "final": 60,
+        "train": 60
+      },
+      "task_histogram": {
+        "color": 72,
+        "count": 72,
+        "presence": 72,
+        "shape": 72,
+        "spatial": 72
+      },
+      "verifier_cases": 360,
+      "verifier_scenes": 360,
+      "worlds": 180,
+      "worlds_by_task_split": {
+        "color": {
+          "dev": 12,
+          "final": 12,
+          "train": 12
+        },
+        "count": {
+          "dev": 12,
+          "final": 12,
+          "train": 12
+        },
+        "presence": {
+          "dev": 12,
+          "final": 12,
+          "train": 12
+        },
+        "shape": {
+          "dev": 12,
+          "final": 12,
+          "train": 12
+        },
+        "spatial": {
+          "dev": 12,
+          "final": 12,
+          "train": 12
+        }
+      },
+      "worlds_per_pair": 1
+    },
+    "label_coverage": {
+      "color": {
+        "dev": [
+          "blue",
+          "green",
+          "purple",
+          "yellow"
+        ],
+        "final": [
+          "green",
+          "orange",
+          "purple",
+          "yellow"
+        ],
+        "train": [
+          "blue",
+          "green",
+          "orange",
+          "purple",
+          "red",
+          "yellow"
+        ]
+      },
+      "count": {
+        "dev": [
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "final": [
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "train": [
+          "2",
+          "3",
+          "4",
+          "5"
+        ]
+      },
+      "presence": {
+        "dev": [
+          "no",
+          "yes"
+        ],
+        "final": [
+          "no",
+          "yes"
+        ],
+        "train": [
+          "no",
+          "yes"
+        ]
+      },
+      "shape": {
+        "dev": [
+          "rectangle",
+          "square",
+          "triangle"
+        ],
+        "final": [
+          "rectangle",
+          "square"
+        ],
+        "train": [
+          "circle",
+          "rectangle",
+          "square",
+          "triangle"
+        ]
+      },
+      "spatial": {
+        "dev": [
+          "no",
+          "yes"
+        ],
+        "final": [
+          "no",
+          "yes"
+        ],
+        "train": [
+          "no",
+          "yes"
+        ]
+      }
+    },
+    "manifest": {
+      "path": "manifest.json",
+      "sha256": "712a34f8ca3c809ba79dc7bcb78a3c56fe088eb8da26794d5c9f10f7ea9c5195"
+    },
+    "model_rows": {
+      "path": "model_rows.jsonl",
+      "sha256": "d102d2bbb98a56d11fe2e9a90a32b51ac7f99b4a26dc20c261d0b97f2a865e23"
+    },
+    "root": "data/vision_dependence_v2",
+    "verifier_cases": {
+      "path": "verifier_cases.jsonl",
+      "sha256": "12cca8bb920d58f3544d2234b2cc278637e0ceb1c09f50f1a401c7073d27a361"
+    },
+    "verifier_pairs": {
+      "path": "verifier_pairs.jsonl",
+      "sha256": "863d39048d300a58017a517cebe8349829bf505bf55fab9500a45aa119712a1a"
+    },
+    "verifier_scenes": {
+      "path": "verifier_scenes.jsonl",
+      "sha256": "1f17b0602c38063ab9ce37c3e5eb21d2a02d9fc494c7529da5bebb1fa628f210"
+    }
+  },
+  "final_holdout_policy": "scored_once_after_exact_dev_report_hash",
+  "format": "replica.vision_dependence.protocol.v2",
+  "implementation_sha256": {
+    "scripts/prepare_vision_dependence.py": "db60dc46abd57169cd9dfebb1c5ffa62ed79688c4604a9195cdb1b61cd3b7c97",
+    "scripts/run_capacity_preflight.py": "b60e86ef9c55a79a182b94eeb084c93e63ec2f7bd92642737a9374590b6bb283",
+    "scripts/run_vision_dependence.py": "e3ff8e6d883eec01da1d0ac80a5e8a5ac6f2f2b6694db58b4fba8a8f0bdbcbb9",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/vision.py": "c83a57b3511a9ea6c9c5e8d50a0215e3f141d41e2a13a77b76b9c4a1242827f5",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/vision_dependence.py": "1399eb0b69d1d8baa82207496efea9aec6d6851766055c35894b802626c3e30a",
+    "src/replica_lab/vision_qualification.py": "0958f87d789631938f47c1800c649d482bd8af59958ec9a1c503461e5c958439",
+    "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397"
+  },
+  "limits": {
+    "max_assets": 512,
+    "max_bootstrap_resamples": 2000,
+    "max_encoder_passes": 400,
+    "max_feature_bytes": 268435456,
+    "max_observations": 400,
+    "max_question_encodes": 400,
+    "max_rows": 512,
+    "max_seconds": 3600,
+    "max_updates": 0,
+    "min_free_disk_bytes": 5368709120
+  },
+  "model": {
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "purpose": "Zero-update paired image-dependence diagnostic over frozen SigLIP2 patches and MiniCPM5 question states; dev and final holdout evidence, no perception or training claim.",
+  "readout": {
+    "bootstrap": {
+      "cluster": "world",
+      "confidence": 0.95,
+      "resamples": 2000
+    },
+    "comparators": [
+      "question_only",
+      "pooled_image",
+      "pooled_image_question",
+      "region_image",
+      "region_image_question"
+    ],
+    "decision": {
+      "min_gain": 0.05,
+      "min_lower_bound": 0.0,
+      "strict_lower_bound": true
+    },
+    "primary": "question_conditioned_region",
+    "region_grid": [
+      2,
+      2
+    ],
+    "ridge_penalty": 1.0,
+    "shuffle": {
+      "policy": "deterministic_derangement_within_split",
+      "seed_offset": 7919
+    }
+  },
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "zero_updates": true
+  },
+  "root": ".",
+  "seed": 20261026,
+  "splits": [
+    "train",
+    "dev",
+    "final"
+  ],
+  "stage": "v2",
+  "stop_conditions": [
+    "Stop before native execution if the protocol, dataset, model lock or implementation pins differ.",
+    "Stop if free disk falls below 5 GiB or the declared 50 GiB MPS driver guard trips.",
+    "Stop if any model parameter would be updated; this diagnostic performs zero updates.",
+    "Stop before scoring the final holdout until the exact dev report hash is supplied.",
+    "Stop after one final evaluation; refuse every subsequent finalize attempt."
+  ],
+  "tasks": [
+    "count",
+    "presence",
+    "color",
+    "shape",
+    "spatial"
+  ],
+  "version": "replica.vision_dependence.v2",
+  "vision": {
+    "compute_dtype": "float32",
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "encoder_width": 768,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "image_size": 224,
+    "max_visual_tokens": 196,
+    "patch_size": 16,
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "projector_hidden": 2048
+  },
+  "vision_digest": "2eab38384f18de90e8f8d463a0080bd24a2b49eb58ac1d1df3cfd58dd63b2b0e",
+  "vision_source": {
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "scope": {
+      "as_of": 0,
+      "branch_id": "isolated-v0",
+      "mode": "parallel_replica",
+      "purpose": "isolated_visual_interface",
+      "snapshot_at": null,
+      "subject_id": "owned-v0-interface"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1"
+  },
+  "zero_updates": true
+}

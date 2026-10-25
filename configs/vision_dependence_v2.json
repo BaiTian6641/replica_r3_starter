@@ -1,0 +1,70 @@
+{
+  "format": "replica.vision_dependence_config.v2",
+  "version": "replica.vision_dependence.v2",
+  "seed": 20261026,
+  "data_root": "data/vision_dependence_v2",
+  "renderer": {
+    "version": "procedural_png_v1",
+    "width": 128,
+    "height": 96,
+    "image_format": "png_rgb8",
+    "standard_library_only": true
+  },
+  "splits": ["train", "dev", "final"],
+  "tasks": ["count", "presence", "color", "shape", "spatial"],
+  "worlds_per_task": 12,
+  "count_labels": ["2", "3", "4", "5"],
+  "readout": {
+    "ridge_penalty": 1.0,
+    "primary": "question_conditioned_region",
+    "comparators": [
+      "question_only",
+      "pooled_image",
+      "pooled_image_question",
+      "region_image",
+      "region_image_question"
+    ],
+    "region_grid": [2, 2],
+    "bootstrap": {
+      "resamples": 2000,
+      "confidence": 0.95,
+      "cluster": "world"
+    },
+    "decision": {
+      "min_gain": 0.05,
+      "min_lower_bound": 0.0,
+      "strict_lower_bound": true
+    },
+    "shuffle": {
+      "policy": "deterministic_derangement_within_split",
+      "seed_offset": 7919
+    }
+  },
+  "limits": {
+    "max_observations": 400,
+    "max_encoder_passes": 400,
+    "max_question_encodes": 400,
+    "max_rows": 512,
+    "max_assets": 512,
+    "max_seconds": 3600,
+    "min_free_disk_bytes": 5368709120,
+    "max_feature_bytes": 268435456,
+    "max_bootstrap_resamples": 2000,
+    "max_updates": 0
+  },
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "zero_updates": true,
+    "device": "mps",
+    "downloads": 0
+  },
+  "stop_conditions": [
+    "Stop before native execution if the protocol, dataset, model lock or implementation pins differ.",
+    "Stop if free disk falls below 5 GiB or the declared 50 GiB MPS driver guard trips.",
+    "Stop if any model parameter would be updated; this diagnostic performs zero updates.",
+    "Stop before scoring the final holdout until the exact dev report hash is supplied.",
+    "Stop after one final evaluation; refuse every subsequent finalize attempt."
+  ]
+}
