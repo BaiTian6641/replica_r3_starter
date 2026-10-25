@@ -15,10 +15,17 @@ import sys
 
 MAX_BLOB_BYTES = 50 * 1024 * 1024
 LOCAL_ROOTS = {"checkpoints", "models", "runs", "private", ".venv", ".cache",
-               ".hf_cache", ".uv-cache"}
+               ".hf_cache", ".uv-cache", ".lfs", "lfs", "artifacts", "logs",
+               ".agents", ".codex"}
+GENERATED_DIRECTORIES = {"venv", ".tox", ".nox", "__pycache__", ".pytest_cache",
+                         ".mypy_cache", ".ruff_cache", ".hypothesis",
+                         ".ipynb_checkpoints", "htmlcov", "build", "dist", ".host_tmp",
+                         ".cache", ".hf_cache", ".uv-cache"}
 WEIGHT_SUFFIXES = {".safetensors", ".pt", ".pth", ".ckpt", ".gguf", ".ggml",
                    ".onnx", ".mlmodel", ".weights", ".h5", ".hdf5", ".npy",
-                   ".npz", ".arrow", ".parquet"}
+                   ".npz", ".arrow", ".parquet", ".pkl", ".pickle", ".joblib",
+                   ".tflite", ".engine", ".ort"}
+ARCHIVE_SUFFIXES = (".zip", ".tar", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz", ".7z", ".zst")
 
 
 def git(*arguments, input=None):
@@ -32,8 +39,26 @@ def artifact_reason(name):
     if (parts and (parts[0] in LOCAL_ROOTS
                    or parts[0].startswith(".venv"))):
         return "local artifact directory"
-    if parts[:2] in {("data", "raw"), ("data", "processed")}:
+    if parts[:2] in {("data", name) for name in ("raw", "processed", "downloads", "external", "cache")}:
         return "local dataset directory"
+    if parts[:2] in {("reports", "local"), ("reports", "tmp")}:
+        return "ad hoc local report directory"
+    if (any(part in GENERATED_DIRECTORIES or part.startswith(".venv")
+            or part.endswith(".egg-info") for part in parts[:-1])):
+        return "generated environment, cache or build directory"
+    if parts == ("src", "replica_lab", "runtime_pilot.py"):
+        return "protected local pilot draft"
+    basename = path.name.casefold()
+    if basename != ".env.example" and (basename == ".env" or basename.startswith(".env.")):
+        return "local environment or credential file"
+    if (basename in {".ds_store", "thumbs.db", ".coverage", "coverage.xml"}
+            or basename.startswith(".coverage.")
+            or basename.endswith((".pyc", ".pyo", ".pyd", ".swp", ".swo", "~"))):
+        return "generated cache, coverage or editor file"
+    if path.suffix.lower().startswith(".sqlite"):
+        return "local database"
+    if basename.endswith(ARCHIVE_SUFFIXES):
+        return "bulk archive or backup"
     if (path.suffix.lower() in WEIGHT_SUFFIXES
             or any(p.lower().endswith((".mlpackage", ".mlmodelc")) for p in path.parts)
             or any(fnmatch.fnmatch(path.name.lower(), p) for p in

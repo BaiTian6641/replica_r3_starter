@@ -33,6 +33,37 @@ def test_source_and_reports_remain_shareable(repo):
     assert report["status"] == "passed" and report["checked_files"] == 2
 
 
+@pytest.mark.parametrize("name", [
+    "reports/failed_run/guard.child.log", "reports/failed_run/guard.host.jsonl",
+    "reports/validation.xml", "data/vision_preparation_v1/v0/assets/fixture.png",
+    "diagrams/architecture.pdf", ".env.example", "configs/source_lock.local.json",
+])
+def test_evidence_fixtures_and_example_environment_remain_shareable(repo, name):
+    stage(repo, name, b"shareable fixture")
+    assert GUARD.audit_index()["status"] == "passed"
+
+
+@pytest.mark.parametrize("name", [
+    "src/replica_lab/runtime_pilot.py", "fixtures/e3_mixed/cases/case/.host_tmp/cache.json",
+    "src/pkg/__pycache__/module.pyc", "nested/.pytest_cache/v/cache/nodeids",
+    "nested/.venv-test/lib/file.py", "nested/project.egg-info/PKG-INFO",
+    "data/downloads/source.jsonl", "data/external/source.jsonl", "data/cache/index.json",
+    "artifacts/large.json", ".lfs/objects/123", "lfs/objects/456",
+    "reports/local/debug.log", "reports/tmp/result.json", "logs/debug.log",
+    ".env", "config/.env.production", ".coverage", "coverage.xml",
+    "nested/experiment.sqlite-wal", "backup.tar.gz", "dataset.zip",
+    "model.pkl", "model.engine", "notes.md.swp", "notes.md~",
+    ".agents/session.json", ".codex/state.json", ".hypothesis/examples/cache",
+    ".nox/py312/config.json", "venv/bin/python", "htmlcov/index.html",
+])
+def test_ignored_scratch_and_payloads_cannot_be_force_added(repo, name):
+    result = subprocess.run(["git", "check-ignore", "--no-index", "--", name], capture_output=True)
+    assert result.returncode == 0
+    stage(repo, name, b"local fixture", force=True)
+    assert GUARD.audit_index()["status"] == "failed"
+    assert (repo / name).read_bytes() == b"local fixture"
+
+
 @pytest.mark.parametrize("name", ["checkpoints/source/config.json", "runs/old/result.txt",
     "models/model.json", "outside/weight.safetensors", "outside/model.pth",
     "outside/pytorch_model-00001.bin", "outside/example.mlpackage/Data/file.bin",

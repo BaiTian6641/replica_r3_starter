@@ -5,6 +5,17 @@
 /private/
 /data/raw/
 /data/processed/
+/data/downloads/
+/data/external/
+/data/cache/
+
+# Local payload stores (including exported LFS objects), never source artifacts.
+/.lfs/
+/lfs/
+/artifacts/
+
+# Preserved unfinished pilot; explicitly opt in before versioning this draft.
+/src/replica_lab/runtime_pilot.py
 
 # Model weights, optimizer/runtime state, compiled inference and binary datasets.
 *.safetensors
@@ -28,20 +39,50 @@ training_args.bin
 *.npz
 *.arrow
 *.parquet
+*.pkl
+*.pickle
+*.joblib
+*.tflite
+*.engine
+*.ort
+
+# Bulk downloads and packaged backups. Keep small source fixtures unpacked.
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tar.xz
+*.7z
+*.zst
 
 # Environments, caches and generated package output.
 .venv*/
 .cache/
 .hf_cache/
 .uv-cache/
+venv/
+.tox/
+.nox/
 __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
+.ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
 build/
 dist/
+
+# Ad hoc output only. reports/ contains required experiment evidence: keep it.
+/logs/
+/reports/local/
+/reports/tmp/
 
 # Local databases and credentials. Keep the sample environment file shareable.
 *.sqlite*
@@ -49,6 +90,12 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+/.agents/
+/.codex/
 
 # E3 fixture host scratch (created by FixtureWorkspace).
-fixtures/e3/cases/*/.host_tmp/
+.host_tmp/

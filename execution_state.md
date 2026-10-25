@@ -7,6 +7,28 @@ process replay smoke. The tracked source export passes **1,372 tests +21 subtest
 in 166.68 s**. No native memory rerun occurred; the v5 candidate remains rejected.
 See [repair qualification](reports/memory_contract_repairs_20261025/qualification.json).
 
+## Repository maintenance — 25 October 2026
+
+The user authorized focused local commits for the accumulated work and future
+completed packages. Starting HEAD: `3f1433b`, branch
+`codex/d2-capacity-runtime-pilot`. Follow the
+[tracking and commit policy](docs/maintenance/20261025_Repository_Hygiene.md).
+
+The first package expands ignore rules and the index guard for local data,
+payload archives, LFS object stores, caches, credentials, fixture scratch and
+the protected pilot. Historical raw reports and small synthetic fixtures remain
+versioned. The initial index has 3,391 files; all 5,649 stored blobs are below
+50 MiB, with an 8,148,167-byte maximum. No payload untracking or history rewrite
+is needed. Git LFS is unavailable; model payloads remain wholly local.
+
+Validation: `.venv/bin/python -m pytest tests/test_git_artifacts.py -q
+-p no:cacheprovider` passes **65 tests in 10.59 s**;
+`python3 scripts/check_git_artifacts.py --scope tracked` and
+`git diff --check` pass. Subsequent commits record stable existing evidence,
+documentation and preparation packages separately. Concurrent V0 implementation
+is excluded until its owner completes its qualification. No native work is
+launched by this maintenance.
+
 ## Current evidence and limits
 
 - The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192
