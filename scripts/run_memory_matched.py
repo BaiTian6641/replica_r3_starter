@@ -15,6 +15,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import time
 import traceback
 
 for key in ('HF_HUB_OFFLINE', 'TRANSFORMERS_OFFLINE', 'HF_DATASETS_OFFLINE'):
@@ -27,6 +28,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 from replica_lab.memory_matched import (  # noqa: E402
     ADMISSION_FORMAT,
     PROTOCOL_FORMAT,
+    enforce_elapsed_deadline,
     run_matched_diagnostic,
     verify_matched_prepared,
 )
@@ -150,6 +152,13 @@ def run_native(args, parser):
     if source['source_revision'] != source['required_revision']:
         raise ValueError('Protocol source revision is not the sealed revision')
     extension_path = checked_extension(args, protocol)
+    budget = protocol.get('budget')
+    if not isinstance(budget, dict):
+        raise ValueError('Protocol carries no declared wall-clock budget')
+    max_wall_seconds = budget.get('max_wall_seconds')
+    if type(max_wall_seconds) is not int or max_wall_seconds <= 0:
+        raise ValueError('Protocol wall-clock budget must be a positive integer')
+    started_monotonic = time.monotonic()
 
     report = {
         'format': 'replica.memory_matched.run.v1',
@@ -158,6 +167,7 @@ def run_native(args, parser):
         'native': True, 'device': 'mps', 'fallback_disabled': True,
         'guard_required': 'REPLICA_CAPACITY_GUARD=1',
         'optimizer_updates': 0, 'checkpoints_saved': 0, 'downloads': 0,
+        'budget': budget,
         'prepared': {
             'path': str(prepared),
             'protocol_sha256': sha(protocol_path),
@@ -202,6 +212,13 @@ def run_native(args, parser):
                 model, tokenizer, protocol, output_dir=output,
                 ledger_dir=output / 'ledger', episodes=data['episodes'],
                 device='mps', writer_extension_receipt=extension_receipt)
+            elapsed_seconds = enforce_elapsed_deadline(
+                started_monotonic, max_wall_seconds,
+                label='native matched diagnostic')
+            result['budget'] = budget
+            result['deadline_seconds'] = max_wall_seconds
+            result['elapsed_seconds'] = elapsed_seconds
+            result['deadline_ok'] = True
             result['status'] = 'completed'
             result['started_at_utc'] = report['started_at_utc']
             result['finished_at_utc'] = datetime.now(timezone.utc).isoformat()
@@ -239,6 +256,8 @@ def run_native(args, parser):
     except BaseException as error:
         failure = dict(report, status='failed',
                        finished_at_utc=datetime.now(timezone.utc).isoformat(),
+                       elapsed_seconds=time.monotonic() - started_monotonic,
+                       deadline_seconds=max_wall_seconds,
                        error_type=type(error).__name__, error=str(error),
                        traceback=traceback.format_exc(),
                        profile=profiler.stop())

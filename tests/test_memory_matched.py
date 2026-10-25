@@ -26,6 +26,7 @@ from replica_lab.memory_matched import (
     admit_matched_prepared,
     derive_matched_labels,
     derive_state_labels,
+    enforce_elapsed_deadline,
     episode_states,
     generate_matched_episodes,
     matched_inventory,
@@ -53,6 +54,8 @@ def _protocol(**overrides):
         'families_per_split': FAMILY_PLAN, 'complexities': list(SMALL),
         'variants': 2, 'thresholds': {}, 'limits': {},
         'generation': {'max_new_tokens': 6, 'max_prompt_tokens': 256},
+        'budget': {'max_wall_seconds': 900, 'optimizer_updates': 0,
+                   'native_training_jobs': 0},
         'zero_updates': True,
     }
     value.update(overrides)
@@ -250,6 +253,29 @@ def test_tiny_run_preserves_episode_identity_and_mechanics(tmp_path):
     assert memory_prompts == removed_prompts
     assert {row['arm'] for row in answers} == {
         'memory', 'exact_source', 'full_context', 'context_removed'}
+    # Cross-world controls for every readout stage use a foreign, non-local fact.
+    episodes_by_id = {episode['episode_id']: episode for episode in episodes}
+    fact_index = {fact['record_id']: (episode, fact)
+                  for episode in episodes for fact in episode['facts']}
+    cross_world_stages = set()
+    for row in readouts:
+        if row['case_id'] != 'control:cross_world':
+            continue
+        cross_world_stages.add(row['stage'])
+        assert row['status'] == 'ok' and row['context_source_ids']
+        source = fact_index[row['context_source_ids'][0]]
+        owner = episodes_by_id[row['episode_id']]
+        assert source[0]['family_id'] != owner['family_id']
+        local_keys = {(fact['entity'], fact['attribute'])
+                      for fact in owner['facts'] + owner['distractors']}
+        local_keys.update((correction['entity'], correction['attribute'])
+                          for correction in owner['corrections'])
+        assert (source[1]['entity'], source[1]['attribute']) not in local_keys
+        assert row['context_source_ids'][0] not in codebooks[
+            row['codebook_key']]['entries']
+    assert cross_world_stages == {1, 2, 3}
+    assert report['resource']['deadline_seconds'] == 900
+    assert report['resource']['deadline_ok'] is True
     assert report['decision'] in {
         'stage1_storage_upper_bound_failed', 'stage2_addressing_failed',
         'stage3_value_discrimination_failed',
@@ -330,16 +356,18 @@ def _synthetic_codebook_record():
     }
 
 
-def _synthetic_row(case_id, readout, *, query_id=None, stage=3, arm=None):
+def _synthetic_row(case_id, readout, *, query_id=None, stage=3, arm=None,
+                   episode_id='e1', owner_entry_id=None):
     arm = arm or ('query_value' if not case_id.startswith('control:')
                   else 'control')
     return {
         'format': 'replica.memory_matched.readout.v1', 'stage': stage,
-        'episode_id': 'e1', 'world_id': 'w1', 'state': 'corrected',
+        'episode_id': episode_id, 'world_id': 'w1', 'state': 'corrected',
         'cutoff': 2, 'case_id': case_id, 'query_id': query_id,
-        'arm': arm, 'codebook_key': 'e1/corrected', 'layer': 0,
+        'arm': arm, 'codebook_key': f'{episode_id}/corrected', 'layer': 0,
         'observation_sha256': 'obs', 'query_text_sha256': 'query',
-        'readout_space': 'value', 'owner_entry_id': None, 'status': 'ok',
+        'readout_space': 'value', 'owner_entry_id': owner_entry_id,
+        'status': 'ok',
         'unavailable_reason': None,
         'readout': readout, 'readout_sha256': _sha_json(readout),
         'readout_norm': (sum(value * value for head in readout for value in head)
@@ -518,8 +546,12 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
     assert (output / 'labels.json').is_file()
     assert (output / 'protocol.json').is_file()
     labels = json.loads((output / 'labels.json').read_text())
+    protocol = json.loads((output / 'protocol.json').read_text())
     assert labels['format'] == LABELS_FORMAT
     assert labels['evaluation_only'] is True
+    assert protocol['budget']['max_wall_seconds'] == 900
+    assert protocol['budget'] == manifest['budget']
+    assert 'declared monotonic wall-clock deadline' in protocol['stop_conditions']
     receipt = admit_matched_prepared(output)
     assert receipt['status'] == 'admitted'
     assert receipt['checks']['seeded_episode_regeneration'] is True
@@ -539,40 +571,270 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
     assert verify_matched_prepared(output)['status'] == 'admitted'
 
 
-def test_default_frozen_answerer_is_wired_on_cpu(tmp_path):
+def test_default_frozen_answerer_enables_fast_port_for_memory_only(tmp_path):
+    from unittest.mock import patch as mock_patch
+
     from replica_lab.architecture.loading import encode_prompt
     from replica_lab.memory_matched import (
         MATCHED_TEMPLATE, _build_memory, _default_answerer_factory,
         _ledger_for_state, _state_scope,
     )
+    from replica_lab.memory_system.session import MemorySession
     from replica_lab.runtime.exact_memory import ExactMemoryReference
 
     episodes = generate_matched_episodes(complexities=SMALL)
     episode = episodes[0]
     state = episode_states(episode)[0]
+    layer = 0
     model = tiny_adapter(fast_memory=SPEC).eval()
     before = tuple((name, parameter._version)
                    for name, parameter in model.named_parameters())
     memory = _build_memory(model, Tokenizer(), episode, state)
     ledger = _ledger_for_state(episode, state, tmp_path)
     reference = ExactMemoryReference(ledger)
+    captured, port_calls = [], []
+    original_prepare = MemorySession.prepare
+
+    def spy(session, **kwargs):
+        request = original_prepare(session, **kwargs)
+        frame = request.frame
+        captured.append({
+            'ports': tuple(frame.enabled_ports),
+            'branches': tuple(frame.enabled_branches),
+            'fast': frame.fast is not None,
+            'fast_digest': (frame.fast.state_digest
+                            if frame.fast is not None else None),
+        })
+        return request
+
+    handle = model.fast_ports[str(layer)].register_forward_pre_hook(
+        lambda module, args, kwargs: port_calls.append(bool(kwargs.get('enabled'))),
+        with_kwargs=True)
     try:
         scope = _state_scope(episode, state)
         answerer = _default_answerer_factory(
-            model, Tokenizer(), {'generation': {'max_new_tokens': 2}})(ledger)
+            model, Tokenizer(),
+            {'layer': layer, 'generation': {'max_new_tokens': 2}})(ledger)
         query = episode['queries'][0]
         prompt = MATCHED_TEMPLATE.replace('{query}', query['text']).replace(
             '{observation}', '')
         ids = encode_prompt(Tokenizer(), prompt, 'cpu')
-        for fast_state in (memory.read(), None):
+        with mock_patch.object(MemorySession, 'prepare', new=spy):
             text, tokens = answerer(
                 prompt_ids=ids, prompt_mask=torch.ones_like(ids),
-                query=query['text'], scope=scope, fast_state=fast_state)
+                query=query['text'], scope=scope, fast_state=memory.read())
             assert 0 < len(tokens) <= 2
-            assert text == Tokenizer().decode(tokens, skip_special_tokens=True).strip()
+            assert text == Tokenizer().decode(
+                tokens, skip_special_tokens=True).strip()
+            memory_port_calls = list(port_calls)
+            port_calls.clear()
+            text, tokens = answerer(
+                prompt_ids=ids, prompt_mask=torch.ones_like(ids),
+                query=query['text'], scope=scope, fast_state=None)
+            assert 0 < len(tokens) <= 2
+            assert text == Tokenizer().decode(
+                tokens, skip_special_tokens=True).strip()
     finally:
+        handle.remove()
         reference.close()
         ledger.close()
+    memory_frame, removed_frame = captured
+    assert memory_frame['ports'] == (layer,)
+    assert memory_frame['branches'] == ('fast',)
+    assert memory_frame['fast'] is True and memory_frame['fast_digest']
+    assert True in memory_port_calls, (
+        'memory fast-state port must be numerically enabled')
+    assert removed_frame['ports'] == ()
+    assert 'fast' not in removed_frame['branches']
+    assert removed_frame['fast'] is False
+    assert True not in port_calls
     after = tuple((name, parameter._version)
                   for name, parameter in model.named_parameters())
     assert before == after
+
+
+def test_outside_fact_excludes_counterfactual_and_local_matches():
+    from replica_lab.memory_matched import _outside_fact
+
+    episodes = generate_matched_episodes()
+    sibling_pair = [episodes[0], episodes[1]]
+    assert sibling_pair[0]['family_id'] == sibling_pair[1]['family_id']
+    with pytest.raises(ValueError, match='No independent foreign fact'):
+        _outside_fact(sibling_pair, sibling_pair[0])
+
+    for episode in episodes:
+        outside = _outside_fact(episodes, episode)
+        owner = next(item for item in episodes
+                     if item['world_id'] == outside['source_world_id'])
+        assert owner['family_id'] != episode['family_id']
+        local_keys = {(fact['entity'], fact['attribute'])
+                      for fact in episode['facts'] + episode['distractors']}
+        local_keys.update((correction['entity'], correction['attribute'])
+                          for correction in episode['corrections'])
+        local_values = {fact['value']
+                        for fact in episode['facts'] + episode['distractors']}
+        local_values.update(correction['value']
+                            for correction in episode['corrections'])
+        assert (outside['entity'], outside['attribute']) not in local_keys
+        assert outside['value'] not in local_values
+
+
+def test_interference_requires_both_near_miss_types():
+    episodes = generate_matched_episodes()
+    validate_matched_episodes(episodes)
+    interference = [episode for episode in episodes
+                    if episode['complexity'] == 'interference']
+    assert interference
+    for episode in interference:
+        target = next(fact for fact in episode['facts']
+                      if fact['record_id'] == episode['corrections'][0]['fact_id'])
+        same_attribute = [item for item in episode['distractors']
+                          if item['attribute'] == target['attribute']
+                          and item['entity'] != target['entity']]
+        same_entity = [item for item in episode['distractors']
+                       if item['entity'] == target['entity']
+                       and item['attribute'] != target['attribute']]
+        assert same_attribute and same_entity
+        assert (same_attribute[0]['origin_world_id']
+                != same_entity[0]['origin_world_id'])
+
+    corrupted = deepcopy(interference[0])
+    target = next(fact for fact in corrupted['facts']
+                  if fact['record_id'] == corrupted['corrections'][0]['fact_id'])
+    near_entity = next(item for item in corrupted['distractors']
+                       if item['entity'] == target['entity']
+                       and item['attribute'] != target['attribute'])
+    near_entity['entity'] = 'ent-unobserved-corruption'
+    with pytest.raises(ValueError, match='same-attribute and same-entity'):
+        validate_matched_episodes([corrupted] + [
+            episode for episode in episodes
+            if episode['episode_id'] != corrupted['episode_id']])
+
+
+def test_control_rates_aggregate_every_row_and_are_order_independent():
+    episodes = ['e1', 'e2', 'e3']
+    labels = {episode_id: {'corrected': dict(
+        _synthetic_labels(), episode_id=episode_id)} for episode_id in episodes}
+    codebooks = {}
+    for episode_id in episodes:
+        book = _synthetic_codebook_record()
+        book['episode_id'] = episode_id
+        book['world_id'] = 'w1'
+        codebooks[f'{episode_id}/corrected'] = book
+
+    def row(episode_id, case_id, readout, **kwargs):
+        return _synthetic_row(case_id, readout, episode_id=episode_id, **kwargs)
+
+    rows = [
+        row('e1', 'control:zero', [[0.0, 0.0]]),
+        row('e1', 'control:wrong_key', [[1.0, 0.0]], owner_entry_id='a'),
+        row('e1', 'control:superseded_probe', [[1.0, 0.0]], query_id='qf'),
+        row('e2', 'control:zero', [[0.0, 1.0]]),
+        row('e2', 'control:wrong_key', [[0.0, 1.0]], owner_entry_id='a'),
+        row('e2', 'control:superseded_probe', [[0.0, 1.0]], query_id='qf'),
+        row('e3', 'control:zero', [[0.0, 0.0]]),
+        row('e3', 'control:wrong_key', [[1.0, 0.0]], owner_entry_id='a'),
+        row('e3', 'control:superseded_probe', [[1.0, 0.0]], query_id='qf'),
+    ]
+
+    def inventory(items):
+        return [(3, item['episode_id'], 'corrected', item['case_id'], item['arm'])
+                for item in items]
+
+    forward = score_matched(
+        rows, [], codebooks, labels, mechanical=_synthetic_mechanical(),
+        inventory=inventory(rows))
+    reversed_score = score_matched(
+        list(reversed(rows)), [], codebooks, labels,
+        mechanical=_synthetic_mechanical(), inventory=inventory(rows))
+    metrics = forward['stages'][3]['metrics']
+    assert metrics['zero_false_recall_rate'] == pytest.approx(1 / 3)
+    assert metrics['wrong_key_owner_rate'] == pytest.approx(2 / 3)
+    assert metrics['superseded_probe_top1_rate'] == pytest.approx(2 / 3)
+    assert metrics['control_counts'] == {
+        'zero': 3, 'wrong_key': 3, 'superseded_probe': 3}
+    for key in ('zero_false_recall_rate', 'wrong_key_owner_rate',
+                'superseded_probe_top1_rate', 'control_counts'):
+        assert reversed_score['stages'][3]['metrics'][key] == metrics[key]
+
+
+def test_unknown_answer_rate_uses_the_same_normalized_answer():
+    labels = _synthetic_labels()
+    labels['targets'].pop('qg')
+    labels['unaffected_query_ids'] = []
+    labels['unknown_query_ids'] = ['qu1', 'qu2', 'qu3', 'qu4']
+    for index, query_id in enumerate(('qu1', 'qu2', 'qu3', 'qu4'), start=2):
+        labels['targets'][query_id] = {
+            'expected': 'unknown', 'kind': 'unknown', 'target_entry_id': None,
+            'target_role': 'unknown', 'target_source_family': 'none',
+            'query_form': index, 'query_text_sha256': 'query'}
+    labels_by_episode = {'e1': {'corrected': labels}}
+    codebooks = {'e1/corrected': _synthetic_codebook_record()}
+    answers = []
+    mapping = {'qf': 'v1', 'qu1': 'Unknown.', 'qu2': '"unknown"',
+               'qu3': 'unknown.', 'qu4': 'unknown value'}
+    for query_id, answer in mapping.items():
+        answers.append({
+            'format': 'replica.memory_matched.answer.v1', 'stage': 4,
+            'episode_id': 'e1', 'world_id': 'w1', 'state': 'corrected',
+            'cutoff': 2, 'query_id': query_id, 'query_form': 0,
+            'query_text_sha256': 'query', 'observation_sha256': 'obs',
+            'arm': 'memory', 'context_sha256': 'ctx', 'context_source_ids': [],
+            'prompt_sha256': 'p', 'prompt_tokens': 1, 'max_new_tokens': 6,
+            'token_ids': [1], 'generated_tokens': 1, 'answer': answer,
+            'answer_sha256': hashlib.sha256(answer.encode()).hexdigest(),
+            'status': 'ok',
+        })
+    score = score_matched(
+        [], answers, codebooks, labels_by_episode,
+        mechanical=_synthetic_mechanical(),
+        inventory=[(4, 'e1', 'corrected', row['query_id'], 'memory')
+                   for row in answers])
+    unknown = score['stages'][4]['metrics']['memory']['unknown']
+    assert unknown['n'] == 4
+    assert unknown['accuracy'] == pytest.approx(0.75)
+    assert unknown['false_answer_rate'] == pytest.approx(0.25)
+
+
+def test_declared_deadline_is_enforced():
+    assert enforce_elapsed_deadline(100.0, 900, now=999.999) == pytest.approx(
+        899.999)
+    assert enforce_elapsed_deadline(100.0, 900, now=1000.0) == pytest.approx(
+        900.0)
+    with pytest.raises(TimeoutError):
+        enforce_elapsed_deadline(100.0, 900, now=1000.001)
+    with pytest.raises(ValueError, match='negative'):
+        enforce_elapsed_deadline(100.0, 900, now=99.999)
+    with pytest.raises(ValueError, match='positive integer'):
+        enforce_elapsed_deadline(100.0, 0, now=101.0)
+
+
+def test_prepared02_audits_interference_and_declared_budget():
+    prepared = ROOT / 'data/memory_matched_20261025/prepared02'
+    if not (prepared / 'episodes.json').is_file():
+        pytest.skip('prepared02 is not provisioned; run scripts/prepare_memory_matched.py --admit')
+    data = json.loads((prepared / 'episodes.json').read_text())
+    protocol = json.loads((prepared / 'protocol.json').read_text())
+    manifest = json.loads((prepared / 'manifest.json').read_text())
+    audit = validate_matched_episodes(
+        data['episodes'], families_per_split=data['families_per_split'],
+        complexities=tuple(data['complexities']), variants=data['variants'])
+    assert audit == data['audit'] == manifest['audit']
+    assert protocol['budget']['max_wall_seconds'] == 900
+    assert protocol['budget'] == manifest['budget']
+    assert 'declared monotonic wall-clock deadline' in protocol['stop_conditions']
+    receipt = verify_matched_prepared(prepared)
+    assert receipt['status'] == 'admitted'
+    assert receipt['checks']['verifier_labels_regenerated'] is True
+    interference = [episode for episode in data['episodes']
+                    if episode['complexity'] == 'interference']
+    assert interference
+    for episode in interference:
+        target = next(fact for fact in episode['facts']
+                      if fact['record_id'] == episode['corrections'][0]['fact_id'])
+        assert any(item['attribute'] == target['attribute']
+                   and item['entity'] != target['entity']
+                   for item in episode['distractors'])
+        assert any(item['entity'] == target['entity']
+                   and item['attribute'] != target['attribute']
+                   for item in episode['distractors'])

@@ -1,0 +1,2813 @@
+{
+  "audit": {
+    "counterfactual_variants": 2,
+    "distractor_origins_same_split": true,
+    "episodes": 30,
+    "families": 15,
+    "heldout_values_absent_from_prior_splits": true,
+    "label_free_observed_inputs": true,
+    "per_split_complexity": {
+      "dev": {
+        "correction": 2,
+        "interference": 2,
+        "pair": 2,
+        "single": 2,
+        "triple": 2
+      },
+      "heldout": {
+        "correction": 2,
+        "interference": 2,
+        "pair": 2,
+        "single": 2,
+        "triple": 2
+      },
+      "train": {
+        "correction": 2,
+        "interference": 2,
+        "pair": 2,
+        "single": 2,
+        "triple": 2
+      }
+    },
+    "queries": 108,
+    "query_forms": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "splits": {
+      "dev": 10,
+      "heldout": 10,
+      "train": 10
+    },
+    "states": 42,
+    "values_globally_unique": true,
+    "worlds": 30
+  },
+  "complexities": [
+    "single",
+    "pair",
+    "triple",
+    "correction",
+    "interference"
+  ],
+  "episodes": [
+    {
+      "complexity": "single",
+      "corrections": [],
+      "distractors": [],
+      "episode_id": "epi-e-11f3409561",
+      "facts": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "record_id": "rec-b43d38f225",
+          "source_world_id": "world-w-11f3409561",
+          "value": "val-ccc7e6676b"
+        }
+      ],
+      "family_id": "family-f-a32f48970c",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-ccc7e6676b."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-fd7ddfee21"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-18acd3cc7b for project ent-2c10ff1595?"
+        },
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-de574bc6c8",
+          "form": 1,
+          "query_id": "unknown",
+          "text": "Tell me the attr-93180fb57a of project ent-de574bc6c8."
+        }
+      ],
+      "split": "train",
+      "variant": 0,
+      "world_id": "world-w-11f3409561"
+    },
+    {
+      "complexity": "single",
+      "corrections": [],
+      "distractors": [],
+      "episode_id": "epi-e-bd405c3ef8",
+      "facts": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "record_id": "rec-03f6ca2970",
+          "source_world_id": "world-w-bd405c3ef8",
+          "value": "val-7cca2b4544"
+        }
+      ],
+      "family_id": "family-f-a32f48970c",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-7cca2b4544."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-290da7ceb5"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-18acd3cc7b for project ent-2c10ff1595?"
+        },
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-de574bc6c8",
+          "form": 1,
+          "query_id": "unknown",
+          "text": "Tell me the attr-93180fb57a of project ent-de574bc6c8."
+        }
+      ],
+      "split": "train",
+      "variant": 1,
+      "world_id": "world-w-bd405c3ef8"
+    },
+    {
+      "complexity": "pair",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-b43d38f225",
+          "origin_world_id": "world-w-11f3409561",
+          "record_id": "rec-0ece2e8a48",
+          "value": "val-ccc7e6676b"
+        }
+      ],
+      "episode_id": "epi-e-4058a28a43",
+      "facts": [
+        {
+          "attribute": "attr-553d1a9d02",
+          "entity": "ent-870c353869",
+          "observed_at": 20260301,
+          "record_id": "rec-56d9a34dd9",
+          "source_world_id": "world-w-4058a28a43",
+          "value": "val-f739267162"
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-69381b48d3",
+          "observed_at": 20260301,
+          "record_id": "rec-cc6464fcab",
+          "source_world_id": "world-w-4058a28a43",
+          "value": "val-5f7f522d5f"
+        }
+      ],
+      "family_id": "family-f-432b1755a1",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-553d1a9d02 for project ent-870c353869 is val-f739267162.",
+            "The attr-d8c98e5a2d for project ent-69381b48d3 is val-5f7f522d5f.",
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-ccc7e6676b."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-c8030ae8e6"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-553d1a9d02",
+          "entity": "ent-870c353869",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-553d1a9d02 for project ent-870c353869?"
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-69381b48d3",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-d8c98e5a2d of project ent-69381b48d3."
+        },
+        {
+          "attribute": "attr-05d7fdc98b",
+          "entity": "ent-9fa3fcdeb0",
+          "form": 2,
+          "query_id": "unknown",
+          "text": "Project ent-9fa3fcdeb0: what is its attr-05d7fdc98b?"
+        }
+      ],
+      "split": "train",
+      "variant": 0,
+      "world_id": "world-w-4058a28a43"
+    },
+    {
+      "complexity": "pair",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-94b80cac78",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-8330593db4",
+          "origin_world_id": "world-w-d00baeadac",
+          "record_id": "rec-d97cd9be6a",
+          "value": "val-76c97dc811"
+        }
+      ],
+      "episode_id": "epi-e-638666e53f",
+      "facts": [
+        {
+          "attribute": "attr-553d1a9d02",
+          "entity": "ent-870c353869",
+          "observed_at": 20260301,
+          "record_id": "rec-a3b963f1d1",
+          "source_world_id": "world-w-638666e53f",
+          "value": "val-41ac9e2f04"
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-69381b48d3",
+          "observed_at": 20260301,
+          "record_id": "rec-c605812b79",
+          "source_world_id": "world-w-638666e53f",
+          "value": "val-b01ecb0348"
+        }
+      ],
+      "family_id": "family-f-432b1755a1",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-553d1a9d02 for project ent-870c353869 is val-41ac9e2f04.",
+            "The attr-d8c98e5a2d for project ent-69381b48d3 is val-b01ecb0348.",
+            "The attr-d012e15527 for project ent-94b80cac78 is val-76c97dc811."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-0f2d2c87b2"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-553d1a9d02",
+          "entity": "ent-870c353869",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-553d1a9d02 for project ent-870c353869?"
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-69381b48d3",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-d8c98e5a2d of project ent-69381b48d3."
+        },
+        {
+          "attribute": "attr-05d7fdc98b",
+          "entity": "ent-9fa3fcdeb0",
+          "form": 2,
+          "query_id": "unknown",
+          "text": "Project ent-9fa3fcdeb0: what is its attr-05d7fdc98b?"
+        }
+      ],
+      "split": "train",
+      "variant": 1,
+      "world_id": "world-w-638666e53f"
+    },
+    {
+      "complexity": "triple",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-69381b48d3",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-c605812b79",
+          "origin_world_id": "world-w-638666e53f",
+          "record_id": "rec-e8516f1f5c",
+          "value": "val-b01ecb0348"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-6ea724ebbb",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-1a0677d061",
+          "origin_world_id": "world-w-dedc6b92d6",
+          "record_id": "rec-20805fba6d",
+          "value": "val-b02d034511"
+        }
+      ],
+      "episode_id": "epi-e-760f491d4f",
+      "facts": [
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-8bf45cd9c8",
+          "observed_at": 20260301,
+          "record_id": "rec-e4390ff87b",
+          "source_world_id": "world-w-760f491d4f",
+          "value": "val-6578554669"
+        },
+        {
+          "attribute": "attr-6f820ee058",
+          "entity": "ent-870c353869",
+          "observed_at": 20260301,
+          "record_id": "rec-b4d4264f42",
+          "source_world_id": "world-w-760f491d4f",
+          "value": "val-7bf68f80d5"
+        },
+        {
+          "attribute": "attr-bf2485cdf1",
+          "entity": "ent-a780720956",
+          "observed_at": 20260301,
+          "record_id": "rec-0960ee991d",
+          "source_world_id": "world-w-760f491d4f",
+          "value": "val-f9cc73f513"
+        }
+      ],
+      "family_id": "family-f-d8c4dd398d",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-93180fb57a for project ent-8bf45cd9c8 is val-6578554669.",
+            "The attr-6f820ee058 for project ent-870c353869 is val-7bf68f80d5.",
+            "The attr-bf2485cdf1 for project ent-a780720956 is val-f9cc73f513.",
+            "The attr-d8c98e5a2d for project ent-69381b48d3 is val-b01ecb0348.",
+            "The attr-80cb6b00e0 for project ent-6ea724ebbb is val-b02d034511."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-d59f0a315e"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-8bf45cd9c8",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-93180fb57a for project ent-8bf45cd9c8?"
+        },
+        {
+          "attribute": "attr-6f820ee058",
+          "entity": "ent-870c353869",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-6f820ee058 of project ent-870c353869."
+        },
+        {
+          "attribute": "attr-bf2485cdf1",
+          "entity": "ent-a780720956",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-a780720956: what is its attr-bf2485cdf1?"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-2d47076287",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-80cb6b00e0 assigned to project ent-2d47076287."
+        }
+      ],
+      "split": "train",
+      "variant": 0,
+      "world_id": "world-w-760f491d4f"
+    },
+    {
+      "complexity": "triple",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-94b80cac78",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-93c3f305e7",
+          "origin_world_id": "world-w-fdecfdff26",
+          "record_id": "rec-3043663ca7",
+          "value": "val-66e5767cc3"
+        },
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-b43d38f225",
+          "origin_world_id": "world-w-11f3409561",
+          "record_id": "rec-b7af4a91ba",
+          "value": "val-ccc7e6676b"
+        }
+      ],
+      "episode_id": "epi-e-c062e57f7d",
+      "facts": [
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-8bf45cd9c8",
+          "observed_at": 20260301,
+          "record_id": "rec-6d158d411a",
+          "source_world_id": "world-w-c062e57f7d",
+          "value": "val-0f9ec6dc6d"
+        },
+        {
+          "attribute": "attr-6f820ee058",
+          "entity": "ent-870c353869",
+          "observed_at": 20260301,
+          "record_id": "rec-f2212b9717",
+          "source_world_id": "world-w-c062e57f7d",
+          "value": "val-8b2d9df3c3"
+        },
+        {
+          "attribute": "attr-bf2485cdf1",
+          "entity": "ent-a780720956",
+          "observed_at": 20260301,
+          "record_id": "rec-db8021b688",
+          "source_world_id": "world-w-c062e57f7d",
+          "value": "val-1bbd5e5291"
+        }
+      ],
+      "family_id": "family-f-d8c4dd398d",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-93180fb57a for project ent-8bf45cd9c8 is val-0f9ec6dc6d.",
+            "The attr-6f820ee058 for project ent-870c353869 is val-8b2d9df3c3.",
+            "The attr-bf2485cdf1 for project ent-a780720956 is val-1bbd5e5291.",
+            "The attr-d012e15527 for project ent-94b80cac78 is val-66e5767cc3.",
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-ccc7e6676b."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-1644941bd8"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-8bf45cd9c8",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-93180fb57a for project ent-8bf45cd9c8?"
+        },
+        {
+          "attribute": "attr-6f820ee058",
+          "entity": "ent-870c353869",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-6f820ee058 of project ent-870c353869."
+        },
+        {
+          "attribute": "attr-bf2485cdf1",
+          "entity": "ent-a780720956",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-a780720956: what is its attr-bf2485cdf1?"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-2d47076287",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-80cb6b00e0 assigned to project ent-2d47076287."
+        }
+      ],
+      "split": "train",
+      "variant": 1,
+      "world_id": "world-w-c062e57f7d"
+    },
+    {
+      "complexity": "correction",
+      "corrections": [
+        {
+          "attribute": "attr-2585432cd0",
+          "entity": "ent-33119406ce",
+          "fact_id": "rec-e1a80e22cc",
+          "observed_at": 20260401,
+          "record_id": "rec-63af273dd7",
+          "supersedes": "rec-e1a80e22cc",
+          "value": "val-967fa1aa4b"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-b43d38f225",
+          "origin_world_id": "world-w-11f3409561",
+          "record_id": "rec-4dbca51be6",
+          "value": "val-ccc7e6676b"
+        }
+      ],
+      "episode_id": "epi-e-d00baeadac",
+      "facts": [
+        {
+          "attribute": "attr-2585432cd0",
+          "entity": "ent-33119406ce",
+          "observed_at": 20260301,
+          "record_id": "rec-e1a80e22cc",
+          "source_world_id": "world-w-d00baeadac",
+          "value": "val-e9fd7fd191"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-94b80cac78",
+          "observed_at": 20260301,
+          "record_id": "rec-8330593db4",
+          "source_world_id": "world-w-d00baeadac",
+          "value": "val-76c97dc811"
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-f7eedac05e",
+          "observed_at": 20260301,
+          "record_id": "rec-d4eb97e575",
+          "source_world_id": "world-w-d00baeadac",
+          "value": "val-12bde1e494"
+        }
+      ],
+      "family_id": "family-f-460e6fab45",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-2585432cd0 for project ent-33119406ce is val-e9fd7fd191.",
+            "The attr-d012e15527 for project ent-94b80cac78 is val-76c97dc811.",
+            "The attr-d8c98e5a2d for project ent-f7eedac05e is val-12bde1e494.",
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-ccc7e6676b."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-1b4b01b19a"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-2585432cd0 for project ent-33119406ce is val-967fa1aa4b."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-8fcf4425c0"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-2585432cd0",
+          "entity": "ent-33119406ce",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-2585432cd0 for project ent-33119406ce?"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-94b80cac78",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-d012e15527 of project ent-94b80cac78."
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-f7eedac05e",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-f7eedac05e: what is its attr-d8c98e5a2d?"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-3f4c1787df",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-80cb6b00e0 assigned to project ent-3f4c1787df."
+        }
+      ],
+      "split": "train",
+      "variant": 0,
+      "world_id": "world-w-d00baeadac"
+    },
+    {
+      "complexity": "correction",
+      "corrections": [
+        {
+          "attribute": "attr-2585432cd0",
+          "entity": "ent-33119406ce",
+          "fact_id": "rec-fccb8024ed",
+          "observed_at": 20260401,
+          "record_id": "rec-f3cb6c4021",
+          "supersedes": "rec-fccb8024ed",
+          "value": "val-feccf92d06"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-b43d38f225",
+          "origin_world_id": "world-w-11f3409561",
+          "record_id": "rec-3405afdc6c",
+          "value": "val-ccc7e6676b"
+        }
+      ],
+      "episode_id": "epi-e-fdecfdff26",
+      "facts": [
+        {
+          "attribute": "attr-2585432cd0",
+          "entity": "ent-33119406ce",
+          "observed_at": 20260301,
+          "record_id": "rec-fccb8024ed",
+          "source_world_id": "world-w-fdecfdff26",
+          "value": "val-bc735e1fce"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-94b80cac78",
+          "observed_at": 20260301,
+          "record_id": "rec-93c3f305e7",
+          "source_world_id": "world-w-fdecfdff26",
+          "value": "val-66e5767cc3"
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-f7eedac05e",
+          "observed_at": 20260301,
+          "record_id": "rec-47644848e3",
+          "source_world_id": "world-w-fdecfdff26",
+          "value": "val-239213daf1"
+        }
+      ],
+      "family_id": "family-f-460e6fab45",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-2585432cd0 for project ent-33119406ce is val-bc735e1fce.",
+            "The attr-d012e15527 for project ent-94b80cac78 is val-66e5767cc3.",
+            "The attr-d8c98e5a2d for project ent-f7eedac05e is val-239213daf1.",
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-ccc7e6676b."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-ced8575f82"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-2585432cd0 for project ent-33119406ce is val-feccf92d06."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-c20409f467"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-2585432cd0",
+          "entity": "ent-33119406ce",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-2585432cd0 for project ent-33119406ce?"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-94b80cac78",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-d012e15527 of project ent-94b80cac78."
+        },
+        {
+          "attribute": "attr-d8c98e5a2d",
+          "entity": "ent-f7eedac05e",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-f7eedac05e: what is its attr-d8c98e5a2d?"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-3f4c1787df",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-80cb6b00e0 assigned to project ent-3f4c1787df."
+        }
+      ],
+      "split": "train",
+      "variant": 1,
+      "world_id": "world-w-fdecfdff26"
+    },
+    {
+      "complexity": "interference",
+      "corrections": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-8bf45cd9c8",
+          "fact_id": "rec-2e404ad9b3",
+          "observed_at": 20260401,
+          "record_id": "rec-b316810360",
+          "supersedes": "rec-2e404ad9b3",
+          "value": "val-999c18bbae"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-03f6ca2970",
+          "origin_world_id": "world-w-bd405c3ef8",
+          "record_id": "rec-63dd7c57ca",
+          "value": "val-7cca2b4544"
+        },
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-8bf45cd9c8",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-6d158d411a",
+          "origin_world_id": "world-w-c062e57f7d",
+          "record_id": "rec-27b276d01c",
+          "value": "val-0f9ec6dc6d"
+        }
+      ],
+      "episode_id": "epi-e-dedc6b92d6",
+      "facts": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-8bf45cd9c8",
+          "observed_at": 20260301,
+          "record_id": "rec-2e404ad9b3",
+          "source_world_id": "world-w-dedc6b92d6",
+          "value": "val-901c6ca879"
+        },
+        {
+          "attribute": "attr-4d16231492",
+          "entity": "ent-6ea724ebbb",
+          "observed_at": 20260301,
+          "record_id": "rec-f9f1c26be2",
+          "source_world_id": "world-w-dedc6b92d6",
+          "value": "val-3bcf2705e8"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-6ea724ebbb",
+          "observed_at": 20260301,
+          "record_id": "rec-1a0677d061",
+          "source_world_id": "world-w-dedc6b92d6",
+          "value": "val-b02d034511"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-6a113f49ec",
+          "observed_at": 20260301,
+          "record_id": "rec-d65262aeb3",
+          "source_world_id": "world-w-dedc6b92d6",
+          "value": "val-bff94279de"
+        }
+      ],
+      "family_id": "family-f-f5c1ff10c1",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-18acd3cc7b for project ent-8bf45cd9c8 is val-901c6ca879.",
+            "The attr-4d16231492 for project ent-6ea724ebbb is val-3bcf2705e8.",
+            "The attr-80cb6b00e0 for project ent-6ea724ebbb is val-b02d034511.",
+            "The attr-d012e15527 for project ent-6a113f49ec is val-bff94279de.",
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-7cca2b4544.",
+            "The attr-93180fb57a for project ent-8bf45cd9c8 is val-0f9ec6dc6d."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-0553a38d6a"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-18acd3cc7b for project ent-8bf45cd9c8 is val-999c18bbae."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-ee32842e5a"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-8bf45cd9c8",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-18acd3cc7b for project ent-8bf45cd9c8?"
+        },
+        {
+          "attribute": "attr-4d16231492",
+          "entity": "ent-6ea724ebbb",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-4d16231492 of project ent-6ea724ebbb."
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-6ea724ebbb",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-6ea724ebbb: what is its attr-80cb6b00e0?"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-6a113f49ec",
+          "form": 3,
+          "query_id": "q3",
+          "text": "Return the attr-d012e15527 assigned to project ent-6a113f49ec."
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-aa1462b076",
+          "form": 0,
+          "query_id": "unknown",
+          "text": "What is the attr-d012e15527 for project ent-aa1462b076?"
+        }
+      ],
+      "split": "train",
+      "variant": 0,
+      "world_id": "world-w-dedc6b92d6"
+    },
+    {
+      "complexity": "interference",
+      "corrections": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-8bf45cd9c8",
+          "fact_id": "rec-fbd9ae0723",
+          "observed_at": 20260401,
+          "record_id": "rec-12d4cd35c0",
+          "supersedes": "rec-fbd9ae0723",
+          "value": "val-516c198b35"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-2c10ff1595",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-b43d38f225",
+          "origin_world_id": "world-w-11f3409561",
+          "record_id": "rec-8bcb2d0d94",
+          "value": "val-ccc7e6676b"
+        },
+        {
+          "attribute": "attr-93180fb57a",
+          "entity": "ent-8bf45cd9c8",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-e4390ff87b",
+          "origin_world_id": "world-w-760f491d4f",
+          "record_id": "rec-0df1afe2f8",
+          "value": "val-6578554669"
+        }
+      ],
+      "episode_id": "epi-e-f5b2502ed9",
+      "facts": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-8bf45cd9c8",
+          "observed_at": 20260301,
+          "record_id": "rec-fbd9ae0723",
+          "source_world_id": "world-w-f5b2502ed9",
+          "value": "val-344090fe9b"
+        },
+        {
+          "attribute": "attr-4d16231492",
+          "entity": "ent-6ea724ebbb",
+          "observed_at": 20260301,
+          "record_id": "rec-ec6f376abb",
+          "source_world_id": "world-w-f5b2502ed9",
+          "value": "val-44f5fea725"
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-6ea724ebbb",
+          "observed_at": 20260301,
+          "record_id": "rec-cfab5066d3",
+          "source_world_id": "world-w-f5b2502ed9",
+          "value": "val-586651b1ed"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-6a113f49ec",
+          "observed_at": 20260301,
+          "record_id": "rec-a9e250678c",
+          "source_world_id": "world-w-f5b2502ed9",
+          "value": "val-8925b4791b"
+        }
+      ],
+      "family_id": "family-f-f5c1ff10c1",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-18acd3cc7b for project ent-8bf45cd9c8 is val-344090fe9b.",
+            "The attr-4d16231492 for project ent-6ea724ebbb is val-44f5fea725.",
+            "The attr-80cb6b00e0 for project ent-6ea724ebbb is val-586651b1ed.",
+            "The attr-d012e15527 for project ent-6a113f49ec is val-8925b4791b.",
+            "The attr-18acd3cc7b for project ent-2c10ff1595 is val-ccc7e6676b.",
+            "The attr-93180fb57a for project ent-8bf45cd9c8 is val-6578554669."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-9bff4902ca"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-18acd3cc7b for project ent-8bf45cd9c8 is val-516c198b35."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-3e1f166a06"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-18acd3cc7b",
+          "entity": "ent-8bf45cd9c8",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-18acd3cc7b for project ent-8bf45cd9c8?"
+        },
+        {
+          "attribute": "attr-4d16231492",
+          "entity": "ent-6ea724ebbb",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-4d16231492 of project ent-6ea724ebbb."
+        },
+        {
+          "attribute": "attr-80cb6b00e0",
+          "entity": "ent-6ea724ebbb",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-6ea724ebbb: what is its attr-80cb6b00e0?"
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-6a113f49ec",
+          "form": 3,
+          "query_id": "q3",
+          "text": "Return the attr-d012e15527 assigned to project ent-6a113f49ec."
+        },
+        {
+          "attribute": "attr-d012e15527",
+          "entity": "ent-aa1462b076",
+          "form": 0,
+          "query_id": "unknown",
+          "text": "What is the attr-d012e15527 for project ent-aa1462b076?"
+        }
+      ],
+      "split": "train",
+      "variant": 1,
+      "world_id": "world-w-f5b2502ed9"
+    },
+    {
+      "complexity": "single",
+      "corrections": [],
+      "distractors": [],
+      "episode_id": "epi-e-b4e30991db",
+      "facts": [
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "record_id": "rec-0be85ebfde",
+          "source_world_id": "world-w-b4e30991db",
+          "value": "val-2abb101c9a"
+        }
+      ],
+      "family_id": "family-f-fd45619490",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-28df822bd5 for project ent-fe36ea0698 is val-2abb101c9a."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-3931babe71"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-fe36ea0698",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-28df822bd5 for project ent-fe36ea0698?"
+        },
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-3be347e6a0",
+          "form": 1,
+          "query_id": "unknown",
+          "text": "Tell me the attr-82e9d0fbcf of project ent-3be347e6a0."
+        }
+      ],
+      "split": "dev",
+      "variant": 0,
+      "world_id": "world-w-b4e30991db"
+    },
+    {
+      "complexity": "single",
+      "corrections": [],
+      "distractors": [],
+      "episode_id": "epi-e-6cd43ffd64",
+      "facts": [
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "record_id": "rec-07eb8b2d39",
+          "source_world_id": "world-w-6cd43ffd64",
+          "value": "val-f4a0cbd0d1"
+        }
+      ],
+      "family_id": "family-f-fd45619490",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-28df822bd5 for project ent-fe36ea0698 is val-f4a0cbd0d1."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-7afaf80988"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-fe36ea0698",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-28df822bd5 for project ent-fe36ea0698?"
+        },
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-3be347e6a0",
+          "form": 1,
+          "query_id": "unknown",
+          "text": "Tell me the attr-82e9d0fbcf of project ent-3be347e6a0."
+        }
+      ],
+      "split": "dev",
+      "variant": 1,
+      "world_id": "world-w-6cd43ffd64"
+    },
+    {
+      "complexity": "pair",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-dff4d870fd",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-f22f26fd84",
+          "origin_world_id": "world-w-9ece440c35",
+          "record_id": "rec-ebf08976c3",
+          "value": "val-1b8abde12e"
+        }
+      ],
+      "episode_id": "epi-e-62f60f76e1",
+      "facts": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "record_id": "rec-5310f481ca",
+          "source_world_id": "world-w-62f60f76e1",
+          "value": "val-cc75188436"
+        },
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-303b092261",
+          "observed_at": 20260301,
+          "record_id": "rec-d4d51f3a9f",
+          "source_world_id": "world-w-62f60f76e1",
+          "value": "val-7b15918380"
+        }
+      ],
+      "family_id": "family-f-91ad10708e",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-a6e7c081d4 for project ent-fe36ea0698 is val-cc75188436.",
+            "The attr-82e9d0fbcf for project ent-303b092261 is val-7b15918380.",
+            "The attr-47622e81af for project ent-dff4d870fd is val-1b8abde12e."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-c4158e513f"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-fe36ea0698",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-a6e7c081d4 for project ent-fe36ea0698?"
+        },
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-303b092261",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-82e9d0fbcf of project ent-303b092261."
+        },
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-b112e0d395",
+          "form": 2,
+          "query_id": "unknown",
+          "text": "Project ent-b112e0d395: what is its attr-28df822bd5?"
+        }
+      ],
+      "split": "dev",
+      "variant": 0,
+      "world_id": "world-w-62f60f76e1"
+    },
+    {
+      "complexity": "pair",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-dff4d870fd",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-199d2b5090",
+          "origin_world_id": "world-w-509d78c539",
+          "record_id": "rec-b7d8e0c2a8",
+          "value": "val-9847e7be50"
+        }
+      ],
+      "episode_id": "epi-e-bb9a486fa9",
+      "facts": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "record_id": "rec-c789c6b4f8",
+          "source_world_id": "world-w-bb9a486fa9",
+          "value": "val-4d6dd9145c"
+        },
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-303b092261",
+          "observed_at": 20260301,
+          "record_id": "rec-c92485bd6e",
+          "source_world_id": "world-w-bb9a486fa9",
+          "value": "val-55cf850961"
+        }
+      ],
+      "family_id": "family-f-91ad10708e",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-a6e7c081d4 for project ent-fe36ea0698 is val-4d6dd9145c.",
+            "The attr-82e9d0fbcf for project ent-303b092261 is val-55cf850961.",
+            "The attr-47622e81af for project ent-dff4d870fd is val-9847e7be50."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-df02199d60"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-fe36ea0698",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-a6e7c081d4 for project ent-fe36ea0698?"
+        },
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-303b092261",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-82e9d0fbcf of project ent-303b092261."
+        },
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-b112e0d395",
+          "form": 2,
+          "query_id": "unknown",
+          "text": "Project ent-b112e0d395: what is its attr-28df822bd5?"
+        }
+      ],
+      "split": "dev",
+      "variant": 1,
+      "world_id": "world-w-bb9a486fa9"
+    },
+    {
+      "complexity": "triple",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-9ab68b317c",
+          "origin_world_id": "world-w-89b3b5e0ec",
+          "record_id": "rec-dea261d6fb",
+          "value": "val-daac6e83d0"
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-1ecb9a5c63",
+          "origin_world_id": "world-w-509d78c539",
+          "record_id": "rec-dd1d5ebd67",
+          "value": "val-d492ec884c"
+        }
+      ],
+      "episode_id": "epi-e-b3b7780db1",
+      "facts": [
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-e729b99055",
+          "observed_at": 20260301,
+          "record_id": "rec-7ecdcca383",
+          "source_world_id": "world-w-b3b7780db1",
+          "value": "val-9d60143734"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-7d789a3507",
+          "observed_at": 20260301,
+          "record_id": "rec-4351ffd64a",
+          "source_world_id": "world-w-b3b7780db1",
+          "value": "val-9d8ab602b4"
+        },
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-2274732c4e",
+          "observed_at": 20260301,
+          "record_id": "rec-746f1493a1",
+          "source_world_id": "world-w-b3b7780db1",
+          "value": "val-3f1a60b95f"
+        }
+      ],
+      "family_id": "family-f-3ef0a8e0a2",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-cd2ece4001 for project ent-e729b99055 is val-9d60143734.",
+            "The attr-47622e81af for project ent-7d789a3507 is val-9d8ab602b4.",
+            "The attr-28df822bd5 for project ent-2274732c4e is val-3f1a60b95f.",
+            "The attr-a6fd37668e for project ent-fe36ea0698 is val-daac6e83d0.",
+            "The attr-0b5032e966 for project ent-f57e033dff is val-d492ec884c."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-f112774bc7"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-e729b99055",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-cd2ece4001 for project ent-e729b99055?"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-7d789a3507",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-47622e81af of project ent-7d789a3507."
+        },
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-2274732c4e",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-2274732c4e: what is its attr-28df822bd5?"
+        },
+        {
+          "attribute": "attr-183ae68ca8",
+          "entity": "ent-900fcf308f",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-183ae68ca8 assigned to project ent-900fcf308f."
+        }
+      ],
+      "split": "dev",
+      "variant": 0,
+      "world_id": "world-w-b3b7780db1"
+    },
+    {
+      "complexity": "triple",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-843c90938d",
+          "origin_world_id": "world-w-89b3b5e0ec",
+          "record_id": "rec-019eeb1051",
+          "value": "val-2306b87236"
+        },
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-f063b4d39c",
+          "origin_world_id": "world-w-a9f724062d",
+          "record_id": "rec-800c0a5205",
+          "value": "val-3efb0f5bae"
+        }
+      ],
+      "episode_id": "epi-e-87e57a4dd7",
+      "facts": [
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-e729b99055",
+          "observed_at": 20260301,
+          "record_id": "rec-c428d9b489",
+          "source_world_id": "world-w-87e57a4dd7",
+          "value": "val-b1642d4107"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-7d789a3507",
+          "observed_at": 20260301,
+          "record_id": "rec-3b997d48e1",
+          "source_world_id": "world-w-87e57a4dd7",
+          "value": "val-e4d52442ca"
+        },
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-2274732c4e",
+          "observed_at": 20260301,
+          "record_id": "rec-08c4d2ad9f",
+          "source_world_id": "world-w-87e57a4dd7",
+          "value": "val-624195a617"
+        }
+      ],
+      "family_id": "family-f-3ef0a8e0a2",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-cd2ece4001 for project ent-e729b99055 is val-b1642d4107.",
+            "The attr-47622e81af for project ent-7d789a3507 is val-e4d52442ca.",
+            "The attr-28df822bd5 for project ent-2274732c4e is val-624195a617.",
+            "The attr-a6e7c081d4 for project ent-f57e033dff is val-2306b87236.",
+            "The attr-a6fd37668e for project ent-fe36ea0698 is val-3efb0f5bae."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-43342979ea"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-e729b99055",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-cd2ece4001 for project ent-e729b99055?"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-7d789a3507",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-47622e81af of project ent-7d789a3507."
+        },
+        {
+          "attribute": "attr-28df822bd5",
+          "entity": "ent-2274732c4e",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-2274732c4e: what is its attr-28df822bd5?"
+        },
+        {
+          "attribute": "attr-183ae68ca8",
+          "entity": "ent-900fcf308f",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-183ae68ca8 assigned to project ent-900fcf308f."
+        }
+      ],
+      "split": "dev",
+      "variant": 1,
+      "world_id": "world-w-87e57a4dd7"
+    },
+    {
+      "complexity": "correction",
+      "corrections": [
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "fact_id": "rec-1ecb9a5c63",
+          "observed_at": 20260401,
+          "record_id": "rec-4e50ae3cc9",
+          "supersedes": "rec-1ecb9a5c63",
+          "value": "val-a73f04c020"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-82e9d0fbcf",
+          "entity": "ent-303b092261",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-c92485bd6e",
+          "origin_world_id": "world-w-bb9a486fa9",
+          "record_id": "rec-a7608d97e9",
+          "value": "val-55cf850961"
+        }
+      ],
+      "episode_id": "epi-e-509d78c539",
+      "facts": [
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "record_id": "rec-1ecb9a5c63",
+          "source_world_id": "world-w-509d78c539",
+          "value": "val-d492ec884c"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-dff4d870fd",
+          "observed_at": 20260301,
+          "record_id": "rec-199d2b5090",
+          "source_world_id": "world-w-509d78c539",
+          "value": "val-9847e7be50"
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-c65084b10b",
+          "observed_at": 20260301,
+          "record_id": "rec-8f9ddb9217",
+          "source_world_id": "world-w-509d78c539",
+          "value": "val-e403335aa9"
+        }
+      ],
+      "family_id": "family-f-7a51a14b25",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-0b5032e966 for project ent-f57e033dff is val-d492ec884c.",
+            "The attr-47622e81af for project ent-dff4d870fd is val-9847e7be50.",
+            "The attr-cd2ece4001 for project ent-c65084b10b is val-e403335aa9.",
+            "The attr-82e9d0fbcf for project ent-303b092261 is val-55cf850961."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-2987fbd7e4"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-0b5032e966 for project ent-f57e033dff is val-a73f04c020."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-d652016b3d"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-0b5032e966 for project ent-f57e033dff?"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-dff4d870fd",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-47622e81af of project ent-dff4d870fd."
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-c65084b10b",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-c65084b10b: what is its attr-cd2ece4001?"
+        },
+        {
+          "attribute": "attr-183ae68ca8",
+          "entity": "ent-65dd51b2a4",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-183ae68ca8 assigned to project ent-65dd51b2a4."
+        }
+      ],
+      "split": "dev",
+      "variant": 0,
+      "world_id": "world-w-509d78c539"
+    },
+    {
+      "complexity": "correction",
+      "corrections": [
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "fact_id": "rec-b8e029a039",
+          "observed_at": 20260401,
+          "record_id": "rec-11565c9ed5",
+          "supersedes": "rec-b8e029a039",
+          "value": "val-353a146fad"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-f063b4d39c",
+          "origin_world_id": "world-w-a9f724062d",
+          "record_id": "rec-9fd092790d",
+          "value": "val-3efb0f5bae"
+        }
+      ],
+      "episode_id": "epi-e-9ece440c35",
+      "facts": [
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "record_id": "rec-b8e029a039",
+          "source_world_id": "world-w-9ece440c35",
+          "value": "val-c1f2b1ee12"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-dff4d870fd",
+          "observed_at": 20260301,
+          "record_id": "rec-f22f26fd84",
+          "source_world_id": "world-w-9ece440c35",
+          "value": "val-1b8abde12e"
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-c65084b10b",
+          "observed_at": 20260301,
+          "record_id": "rec-b9c5ed9dca",
+          "source_world_id": "world-w-9ece440c35",
+          "value": "val-4390533fb8"
+        }
+      ],
+      "family_id": "family-f-7a51a14b25",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-0b5032e966 for project ent-f57e033dff is val-c1f2b1ee12.",
+            "The attr-47622e81af for project ent-dff4d870fd is val-1b8abde12e.",
+            "The attr-cd2ece4001 for project ent-c65084b10b is val-4390533fb8.",
+            "The attr-a6fd37668e for project ent-fe36ea0698 is val-3efb0f5bae."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-ae961c129b"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-0b5032e966 for project ent-f57e033dff is val-353a146fad."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-d61be956f1"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-0b5032e966 for project ent-f57e033dff?"
+        },
+        {
+          "attribute": "attr-47622e81af",
+          "entity": "ent-dff4d870fd",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-47622e81af of project ent-dff4d870fd."
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-c65084b10b",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-c65084b10b: what is its attr-cd2ece4001?"
+        },
+        {
+          "attribute": "attr-183ae68ca8",
+          "entity": "ent-65dd51b2a4",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-183ae68ca8 assigned to project ent-65dd51b2a4."
+        }
+      ],
+      "split": "dev",
+      "variant": 1,
+      "world_id": "world-w-9ece440c35"
+    },
+    {
+      "complexity": "interference",
+      "corrections": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "fact_id": "rec-843c90938d",
+          "observed_at": 20260401,
+          "record_id": "rec-97e1162a88",
+          "supersedes": "rec-843c90938d",
+          "value": "val-7d3bf3a38d"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-c789c6b4f8",
+          "origin_world_id": "world-w-bb9a486fa9",
+          "record_id": "rec-17445e8912",
+          "value": "val-4d6dd9145c"
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-1ecb9a5c63",
+          "origin_world_id": "world-w-509d78c539",
+          "record_id": "rec-487b05dbdd",
+          "value": "val-d492ec884c"
+        }
+      ],
+      "episode_id": "epi-e-89b3b5e0ec",
+      "facts": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "record_id": "rec-843c90938d",
+          "source_world_id": "world-w-89b3b5e0ec",
+          "value": "val-2306b87236"
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-9caa4a1af1",
+          "observed_at": 20260301,
+          "record_id": "rec-729bd51378",
+          "source_world_id": "world-w-89b3b5e0ec",
+          "value": "val-4a0d47c1fc"
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-dff4d870fd",
+          "observed_at": 20260301,
+          "record_id": "rec-8dca38aa1e",
+          "source_world_id": "world-w-89b3b5e0ec",
+          "value": "val-905bdbec5e"
+        },
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "record_id": "rec-9ab68b317c",
+          "source_world_id": "world-w-89b3b5e0ec",
+          "value": "val-daac6e83d0"
+        }
+      ],
+      "family_id": "family-f-cf59497465",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-a6e7c081d4 for project ent-f57e033dff is val-2306b87236.",
+            "The attr-cd2ece4001 for project ent-9caa4a1af1 is val-4a0d47c1fc.",
+            "The attr-0b5032e966 for project ent-dff4d870fd is val-905bdbec5e.",
+            "The attr-a6fd37668e for project ent-fe36ea0698 is val-daac6e83d0.",
+            "The attr-a6e7c081d4 for project ent-fe36ea0698 is val-4d6dd9145c.",
+            "The attr-0b5032e966 for project ent-f57e033dff is val-d492ec884c."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-22c333ce35"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-a6e7c081d4 for project ent-f57e033dff is val-7d3bf3a38d."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-53d0a576de"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-a6e7c081d4 for project ent-f57e033dff?"
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-9caa4a1af1",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-cd2ece4001 of project ent-9caa4a1af1."
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-dff4d870fd",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-dff4d870fd: what is its attr-0b5032e966?"
+        },
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "form": 3,
+          "query_id": "q3",
+          "text": "Return the attr-a6fd37668e assigned to project ent-fe36ea0698."
+        },
+        {
+          "attribute": "attr-f2f6a49f43",
+          "entity": "ent-191ec5f8b8",
+          "form": 0,
+          "query_id": "unknown",
+          "text": "What is the attr-f2f6a49f43 for project ent-191ec5f8b8?"
+        }
+      ],
+      "split": "dev",
+      "variant": 0,
+      "world_id": "world-w-89b3b5e0ec"
+    },
+    {
+      "complexity": "interference",
+      "corrections": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "fact_id": "rec-02d09372a1",
+          "observed_at": 20260401,
+          "record_id": "rec-77dd3d207b",
+          "supersedes": "rec-02d09372a1",
+          "value": "val-3d56233553"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-c789c6b4f8",
+          "origin_world_id": "world-w-bb9a486fa9",
+          "record_id": "rec-744ebb8ed2",
+          "value": "val-4d6dd9145c"
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-b8e029a039",
+          "origin_world_id": "world-w-9ece440c35",
+          "record_id": "rec-e8164687a6",
+          "value": "val-c1f2b1ee12"
+        }
+      ],
+      "episode_id": "epi-e-a9f724062d",
+      "facts": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "observed_at": 20260301,
+          "record_id": "rec-02d09372a1",
+          "source_world_id": "world-w-a9f724062d",
+          "value": "val-aacc91ea99"
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-9caa4a1af1",
+          "observed_at": 20260301,
+          "record_id": "rec-f0a140dc18",
+          "source_world_id": "world-w-a9f724062d",
+          "value": "val-0c0924f37a"
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-dff4d870fd",
+          "observed_at": 20260301,
+          "record_id": "rec-0f5ed634a5",
+          "source_world_id": "world-w-a9f724062d",
+          "value": "val-64c17e07cc"
+        },
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "observed_at": 20260301,
+          "record_id": "rec-f063b4d39c",
+          "source_world_id": "world-w-a9f724062d",
+          "value": "val-3efb0f5bae"
+        }
+      ],
+      "family_id": "family-f-cf59497465",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-a6e7c081d4 for project ent-f57e033dff is val-aacc91ea99.",
+            "The attr-cd2ece4001 for project ent-9caa4a1af1 is val-0c0924f37a.",
+            "The attr-0b5032e966 for project ent-dff4d870fd is val-64c17e07cc.",
+            "The attr-a6fd37668e for project ent-fe36ea0698 is val-3efb0f5bae.",
+            "The attr-a6e7c081d4 for project ent-fe36ea0698 is val-4d6dd9145c.",
+            "The attr-0b5032e966 for project ent-f57e033dff is val-c1f2b1ee12."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-3d3cd3b0ed"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-a6e7c081d4 for project ent-f57e033dff is val-3d56233553."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-914ccae0e8"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-a6e7c081d4",
+          "entity": "ent-f57e033dff",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-a6e7c081d4 for project ent-f57e033dff?"
+        },
+        {
+          "attribute": "attr-cd2ece4001",
+          "entity": "ent-9caa4a1af1",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-cd2ece4001 of project ent-9caa4a1af1."
+        },
+        {
+          "attribute": "attr-0b5032e966",
+          "entity": "ent-dff4d870fd",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-dff4d870fd: what is its attr-0b5032e966?"
+        },
+        {
+          "attribute": "attr-a6fd37668e",
+          "entity": "ent-fe36ea0698",
+          "form": 3,
+          "query_id": "q3",
+          "text": "Return the attr-a6fd37668e assigned to project ent-fe36ea0698."
+        },
+        {
+          "attribute": "attr-f2f6a49f43",
+          "entity": "ent-191ec5f8b8",
+          "form": 0,
+          "query_id": "unknown",
+          "text": "What is the attr-f2f6a49f43 for project ent-191ec5f8b8?"
+        }
+      ],
+      "split": "dev",
+      "variant": 1,
+      "world_id": "world-w-a9f724062d"
+    },
+    {
+      "complexity": "single",
+      "corrections": [],
+      "distractors": [],
+      "episode_id": "epi-e-386acdefde",
+      "facts": [
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "record_id": "rec-cd45500cae",
+          "source_world_id": "world-w-386acdefde",
+          "value": "val-ae69ea2778"
+        }
+      ],
+      "family_id": "family-f-df89a8663d",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-6d10913db3 for project ent-ab99383211 is val-ae69ea2778."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-13df9140cb"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-6d10913db3 for project ent-ab99383211?"
+        },
+        {
+          "attribute": "attr-544f5c9089",
+          "entity": "ent-66f6a1e25a",
+          "form": 1,
+          "query_id": "unknown",
+          "text": "Tell me the attr-544f5c9089 of project ent-66f6a1e25a."
+        }
+      ],
+      "split": "heldout",
+      "variant": 0,
+      "world_id": "world-w-386acdefde"
+    },
+    {
+      "complexity": "single",
+      "corrections": [],
+      "distractors": [],
+      "episode_id": "epi-e-bd2fe97e3e",
+      "facts": [
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "record_id": "rec-9a8f54a45f",
+          "source_world_id": "world-w-bd2fe97e3e",
+          "value": "val-fc5a9c29ed"
+        }
+      ],
+      "family_id": "family-f-df89a8663d",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-6d10913db3 for project ent-ab99383211 is val-fc5a9c29ed."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-9cd87f195a"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-6d10913db3 for project ent-ab99383211?"
+        },
+        {
+          "attribute": "attr-544f5c9089",
+          "entity": "ent-66f6a1e25a",
+          "form": 1,
+          "query_id": "unknown",
+          "text": "Tell me the attr-544f5c9089 of project ent-66f6a1e25a."
+        }
+      ],
+      "split": "heldout",
+      "variant": 1,
+      "world_id": "world-w-bd2fe97e3e"
+    },
+    {
+      "complexity": "pair",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-bca1e8355d",
+          "origin_world_id": "world-w-abc958e7fc",
+          "record_id": "rec-ea101e5078",
+          "value": "val-b18ad3316b"
+        }
+      ],
+      "episode_id": "epi-e-ac09a46d05",
+      "facts": [
+        {
+          "attribute": "attr-d919783cbf",
+          "entity": "ent-d5e119391c",
+          "observed_at": 20260301,
+          "record_id": "rec-5cbdb5d9c1",
+          "source_world_id": "world-w-ac09a46d05",
+          "value": "val-2fed2ad779"
+        },
+        {
+          "attribute": "attr-cb2ac7349f",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "record_id": "rec-d0b13038b5",
+          "source_world_id": "world-w-ac09a46d05",
+          "value": "val-e287162da5"
+        }
+      ],
+      "family_id": "family-f-1b15fb95d0",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-d919783cbf for project ent-d5e119391c is val-2fed2ad779.",
+            "The attr-cb2ac7349f for project ent-b0f33f6e68 is val-e287162da5.",
+            "The attr-cc925af32c for project ent-89f027272f is val-b18ad3316b."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-bf3047034d"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-d919783cbf",
+          "entity": "ent-d5e119391c",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-d919783cbf for project ent-d5e119391c?"
+        },
+        {
+          "attribute": "attr-cb2ac7349f",
+          "entity": "ent-b0f33f6e68",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-cb2ac7349f of project ent-b0f33f6e68."
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-3b4e1734bb",
+          "form": 2,
+          "query_id": "unknown",
+          "text": "Project ent-3b4e1734bb: what is its attr-6d10913db3?"
+        }
+      ],
+      "split": "heldout",
+      "variant": 0,
+      "world_id": "world-w-ac09a46d05"
+    },
+    {
+      "complexity": "pair",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-5d5897a1f4",
+          "origin_world_id": "world-w-08cd40e4ec",
+          "record_id": "rec-e211809738",
+          "value": "val-e93f9fd488"
+        }
+      ],
+      "episode_id": "epi-e-d1fed9a6e5",
+      "facts": [
+        {
+          "attribute": "attr-d919783cbf",
+          "entity": "ent-d5e119391c",
+          "observed_at": 20260301,
+          "record_id": "rec-e32ed86baa",
+          "source_world_id": "world-w-d1fed9a6e5",
+          "value": "val-d87fd38090"
+        },
+        {
+          "attribute": "attr-cb2ac7349f",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "record_id": "rec-24aca73702",
+          "source_world_id": "world-w-d1fed9a6e5",
+          "value": "val-080b054912"
+        }
+      ],
+      "family_id": "family-f-1b15fb95d0",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-d919783cbf for project ent-d5e119391c is val-d87fd38090.",
+            "The attr-cb2ac7349f for project ent-b0f33f6e68 is val-080b054912.",
+            "The attr-167e098d65 for project ent-ab99383211 is val-e93f9fd488."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-3a6ea2eec4"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-d919783cbf",
+          "entity": "ent-d5e119391c",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-d919783cbf for project ent-d5e119391c?"
+        },
+        {
+          "attribute": "attr-cb2ac7349f",
+          "entity": "ent-b0f33f6e68",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-cb2ac7349f of project ent-b0f33f6e68."
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-3b4e1734bb",
+          "form": 2,
+          "query_id": "unknown",
+          "text": "Project ent-3b4e1734bb: what is its attr-6d10913db3?"
+        }
+      ],
+      "split": "heldout",
+      "variant": 1,
+      "world_id": "world-w-d1fed9a6e5"
+    },
+    {
+      "complexity": "triple",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-90106fdce4",
+          "entity": "ent-c419663f34",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-4e01661227",
+          "origin_world_id": "world-w-782bcb3cbe",
+          "record_id": "rec-7a15487ffb",
+          "value": "val-807d9c1362"
+        },
+        {
+          "attribute": "attr-81ff8b00ec",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-c4f1c9da93",
+          "origin_world_id": "world-w-08cd40e4ec",
+          "record_id": "rec-2bacfc2ebf",
+          "value": "val-12847b8efd"
+        }
+      ],
+      "episode_id": "epi-e-38bb1d22f4",
+      "facts": [
+        {
+          "attribute": "attr-d3ad9c77f9",
+          "entity": "ent-d12294e386",
+          "observed_at": 20260301,
+          "record_id": "rec-644971b4ee",
+          "source_world_id": "world-w-38bb1d22f4",
+          "value": "val-e206ebca9c"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-768e6bf1c5",
+          "observed_at": 20260301,
+          "record_id": "rec-96bab45242",
+          "source_world_id": "world-w-38bb1d22f4",
+          "value": "val-369cc20e0d"
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-5284d20249",
+          "observed_at": 20260301,
+          "record_id": "rec-daa00ab585",
+          "source_world_id": "world-w-38bb1d22f4",
+          "value": "val-f105bf4953"
+        }
+      ],
+      "family_id": "family-f-fefb97907f",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-d3ad9c77f9 for project ent-d12294e386 is val-e206ebca9c.",
+            "The attr-167e098d65 for project ent-768e6bf1c5 is val-369cc20e0d.",
+            "The attr-6d10913db3 for project ent-5284d20249 is val-f105bf4953.",
+            "The attr-90106fdce4 for project ent-c419663f34 is val-807d9c1362.",
+            "The attr-81ff8b00ec for project ent-b0f33f6e68 is val-12847b8efd."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-826ae806d1"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-d3ad9c77f9",
+          "entity": "ent-d12294e386",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-d3ad9c77f9 for project ent-d12294e386?"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-768e6bf1c5",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-167e098d65 of project ent-768e6bf1c5."
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-5284d20249",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-5284d20249: what is its attr-6d10913db3?"
+        },
+        {
+          "attribute": "attr-6a5c9a6bdc",
+          "entity": "ent-9e98b95b67",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-6a5c9a6bdc assigned to project ent-9e98b95b67."
+        }
+      ],
+      "split": "heldout",
+      "variant": 0,
+      "world_id": "world-w-38bb1d22f4"
+    },
+    {
+      "complexity": "triple",
+      "corrections": [],
+      "distractors": [
+        {
+          "attribute": "attr-81ff8b00ec",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-c4f1c9da93",
+          "origin_world_id": "world-w-08cd40e4ec",
+          "record_id": "rec-87b3c6a2c9",
+          "value": "val-12847b8efd"
+        },
+        {
+          "attribute": "attr-cb2ac7349f",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-24aca73702",
+          "origin_world_id": "world-w-d1fed9a6e5",
+          "record_id": "rec-b8d50d2bb8",
+          "value": "val-080b054912"
+        }
+      ],
+      "episode_id": "epi-e-8add83500c",
+      "facts": [
+        {
+          "attribute": "attr-d3ad9c77f9",
+          "entity": "ent-d12294e386",
+          "observed_at": 20260301,
+          "record_id": "rec-3337afaf82",
+          "source_world_id": "world-w-8add83500c",
+          "value": "val-6001850cad"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-768e6bf1c5",
+          "observed_at": 20260301,
+          "record_id": "rec-ebb8ded116",
+          "source_world_id": "world-w-8add83500c",
+          "value": "val-3dc8bcead2"
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-5284d20249",
+          "observed_at": 20260301,
+          "record_id": "rec-4a8df1655c",
+          "source_world_id": "world-w-8add83500c",
+          "value": "val-d930e9152c"
+        }
+      ],
+      "family_id": "family-f-fefb97907f",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-d3ad9c77f9 for project ent-d12294e386 is val-6001850cad.",
+            "The attr-167e098d65 for project ent-768e6bf1c5 is val-3dc8bcead2.",
+            "The attr-6d10913db3 for project ent-5284d20249 is val-d930e9152c.",
+            "The attr-81ff8b00ec for project ent-b0f33f6e68 is val-12847b8efd.",
+            "The attr-cb2ac7349f for project ent-b0f33f6e68 is val-080b054912."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-8bc1c971d9"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-d3ad9c77f9",
+          "entity": "ent-d12294e386",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-d3ad9c77f9 for project ent-d12294e386?"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-768e6bf1c5",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-167e098d65 of project ent-768e6bf1c5."
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-5284d20249",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-5284d20249: what is its attr-6d10913db3?"
+        },
+        {
+          "attribute": "attr-6a5c9a6bdc",
+          "entity": "ent-9e98b95b67",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-6a5c9a6bdc assigned to project ent-9e98b95b67."
+        }
+      ],
+      "split": "heldout",
+      "variant": 1,
+      "world_id": "world-w-8add83500c"
+    },
+    {
+      "complexity": "correction",
+      "corrections": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "fact_id": "rec-bca1e8355d",
+          "observed_at": 20260401,
+          "record_id": "rec-134091add6",
+          "supersedes": "rec-bca1e8355d",
+          "value": "val-ca3eab1e78"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-d919783cbf",
+          "entity": "ent-d5e119391c",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-e32ed86baa",
+          "origin_world_id": "world-w-d1fed9a6e5",
+          "record_id": "rec-aa742b4d9e",
+          "value": "val-d87fd38090"
+        }
+      ],
+      "episode_id": "epi-e-abc958e7fc",
+      "facts": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "observed_at": 20260301,
+          "record_id": "rec-bca1e8355d",
+          "source_world_id": "world-w-abc958e7fc",
+          "value": "val-b18ad3316b"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-89f027272f",
+          "observed_at": 20260301,
+          "record_id": "rec-ee6865e90e",
+          "source_world_id": "world-w-abc958e7fc",
+          "value": "val-bacc694f44"
+        },
+        {
+          "attribute": "attr-90106fdce4",
+          "entity": "ent-c419663f34",
+          "observed_at": 20260301,
+          "record_id": "rec-f031f10ed9",
+          "source_world_id": "world-w-abc958e7fc",
+          "value": "val-60a16ce098"
+        }
+      ],
+      "family_id": "family-f-87495cff0f",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-cc925af32c for project ent-89f027272f is val-b18ad3316b.",
+            "The attr-167e098d65 for project ent-89f027272f is val-bacc694f44.",
+            "The attr-90106fdce4 for project ent-c419663f34 is val-60a16ce098.",
+            "The attr-d919783cbf for project ent-d5e119391c is val-d87fd38090."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-f4499b8b0b"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-cc925af32c for project ent-89f027272f is val-ca3eab1e78."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-b176be339f"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-cc925af32c for project ent-89f027272f?"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-89f027272f",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-167e098d65 of project ent-89f027272f."
+        },
+        {
+          "attribute": "attr-90106fdce4",
+          "entity": "ent-c419663f34",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-c419663f34: what is its attr-90106fdce4?"
+        },
+        {
+          "attribute": "attr-6a5c9a6bdc",
+          "entity": "ent-8f20e970a0",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-6a5c9a6bdc assigned to project ent-8f20e970a0."
+        }
+      ],
+      "split": "heldout",
+      "variant": 0,
+      "world_id": "world-w-abc958e7fc"
+    },
+    {
+      "complexity": "correction",
+      "corrections": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "fact_id": "rec-be84c77d4b",
+          "observed_at": 20260401,
+          "record_id": "rec-d2317537c7",
+          "supersedes": "rec-be84c77d4b",
+          "value": "val-df7efa728b"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-cd45500cae",
+          "origin_world_id": "world-w-386acdefde",
+          "record_id": "rec-6ececc7607",
+          "value": "val-ae69ea2778"
+        }
+      ],
+      "episode_id": "epi-e-782bcb3cbe",
+      "facts": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "observed_at": 20260301,
+          "record_id": "rec-be84c77d4b",
+          "source_world_id": "world-w-782bcb3cbe",
+          "value": "val-2aad8e9db1"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-89f027272f",
+          "observed_at": 20260301,
+          "record_id": "rec-3fc70b959e",
+          "source_world_id": "world-w-782bcb3cbe",
+          "value": "val-9847107c50"
+        },
+        {
+          "attribute": "attr-90106fdce4",
+          "entity": "ent-c419663f34",
+          "observed_at": 20260301,
+          "record_id": "rec-4e01661227",
+          "source_world_id": "world-w-782bcb3cbe",
+          "value": "val-807d9c1362"
+        }
+      ],
+      "family_id": "family-f-87495cff0f",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-cc925af32c for project ent-89f027272f is val-2aad8e9db1.",
+            "The attr-167e098d65 for project ent-89f027272f is val-9847107c50.",
+            "The attr-90106fdce4 for project ent-c419663f34 is val-807d9c1362.",
+            "The attr-6d10913db3 for project ent-ab99383211 is val-ae69ea2778."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-c073fcb6fa"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-cc925af32c for project ent-89f027272f is val-df7efa728b."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-0540dfbbd3"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-cc925af32c",
+          "entity": "ent-89f027272f",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-cc925af32c for project ent-89f027272f?"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-89f027272f",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-167e098d65 of project ent-89f027272f."
+        },
+        {
+          "attribute": "attr-90106fdce4",
+          "entity": "ent-c419663f34",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-c419663f34: what is its attr-90106fdce4?"
+        },
+        {
+          "attribute": "attr-6a5c9a6bdc",
+          "entity": "ent-8f20e970a0",
+          "form": 3,
+          "query_id": "unknown",
+          "text": "Return the attr-6a5c9a6bdc assigned to project ent-8f20e970a0."
+        }
+      ],
+      "split": "heldout",
+      "variant": 1,
+      "world_id": "world-w-782bcb3cbe"
+    },
+    {
+      "complexity": "interference",
+      "corrections": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "fact_id": "rec-5d5897a1f4",
+          "observed_at": 20260401,
+          "record_id": "rec-98958fa986",
+          "supersedes": "rec-5d5897a1f4",
+          "value": "val-f38b4a4cdf"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-768e6bf1c5",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-ebb8ded116",
+          "origin_world_id": "world-w-8add83500c",
+          "record_id": "rec-6f887587d1",
+          "value": "val-3dc8bcead2"
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-cd45500cae",
+          "origin_world_id": "world-w-386acdefde",
+          "record_id": "rec-1672f6857f",
+          "value": "val-ae69ea2778"
+        }
+      ],
+      "episode_id": "epi-e-08cd40e4ec",
+      "facts": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "record_id": "rec-5d5897a1f4",
+          "source_world_id": "world-w-08cd40e4ec",
+          "value": "val-e93f9fd488"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-8d659353e4",
+          "observed_at": 20260301,
+          "record_id": "rec-68e4daa75d",
+          "source_world_id": "world-w-08cd40e4ec",
+          "value": "val-08aa602bdb"
+        },
+        {
+          "attribute": "attr-81ff8b00ec",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "record_id": "rec-c4f1c9da93",
+          "source_world_id": "world-w-08cd40e4ec",
+          "value": "val-12847b8efd"
+        },
+        {
+          "attribute": "attr-6a280522e0",
+          "entity": "ent-8d659353e4",
+          "observed_at": 20260301,
+          "record_id": "rec-23a05dbd5e",
+          "source_world_id": "world-w-08cd40e4ec",
+          "value": "val-fe8b1f1aa0"
+        }
+      ],
+      "family_id": "family-f-7481a4838a",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-167e098d65 for project ent-ab99383211 is val-e93f9fd488.",
+            "The attr-167e098d65 for project ent-8d659353e4 is val-08aa602bdb.",
+            "The attr-81ff8b00ec for project ent-b0f33f6e68 is val-12847b8efd.",
+            "The attr-6a280522e0 for project ent-8d659353e4 is val-fe8b1f1aa0.",
+            "The attr-167e098d65 for project ent-768e6bf1c5 is val-3dc8bcead2.",
+            "The attr-6d10913db3 for project ent-ab99383211 is val-ae69ea2778."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-40a5446325"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-167e098d65 for project ent-ab99383211 is val-f38b4a4cdf."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-13658faf63"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-167e098d65 for project ent-ab99383211?"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-8d659353e4",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-167e098d65 of project ent-8d659353e4."
+        },
+        {
+          "attribute": "attr-81ff8b00ec",
+          "entity": "ent-b0f33f6e68",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-b0f33f6e68: what is its attr-81ff8b00ec?"
+        },
+        {
+          "attribute": "attr-6a280522e0",
+          "entity": "ent-8d659353e4",
+          "form": 3,
+          "query_id": "q3",
+          "text": "Return the attr-6a280522e0 assigned to project ent-8d659353e4."
+        },
+        {
+          "attribute": "attr-8631d7254d",
+          "entity": "ent-7021ac32fd",
+          "form": 0,
+          "query_id": "unknown",
+          "text": "What is the attr-8631d7254d for project ent-7021ac32fd?"
+        }
+      ],
+      "split": "heldout",
+      "variant": 0,
+      "world_id": "world-w-08cd40e4ec"
+    },
+    {
+      "complexity": "interference",
+      "corrections": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "fact_id": "rec-c0e51bc40a",
+          "observed_at": 20260401,
+          "record_id": "rec-54d7b38676",
+          "supersedes": "rec-c0e51bc40a",
+          "value": "val-b130ef0c7e"
+        }
+      ],
+      "distractors": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-768e6bf1c5",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-96bab45242",
+          "origin_world_id": "world-w-38bb1d22f4",
+          "record_id": "rec-7f3ffc3838",
+          "value": "val-369cc20e0d"
+        },
+        {
+          "attribute": "attr-6d10913db3",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "origin_record_id": "rec-9a8f54a45f",
+          "origin_world_id": "world-w-bd2fe97e3e",
+          "record_id": "rec-18d2183c0b",
+          "value": "val-fc5a9c29ed"
+        }
+      ],
+      "episode_id": "epi-e-82ab7b9a12",
+      "facts": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "observed_at": 20260301,
+          "record_id": "rec-c0e51bc40a",
+          "source_world_id": "world-w-82ab7b9a12",
+          "value": "val-52cee4462e"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-8d659353e4",
+          "observed_at": 20260301,
+          "record_id": "rec-4dc5b8e01e",
+          "source_world_id": "world-w-82ab7b9a12",
+          "value": "val-7f9e198da5"
+        },
+        {
+          "attribute": "attr-81ff8b00ec",
+          "entity": "ent-b0f33f6e68",
+          "observed_at": 20260301,
+          "record_id": "rec-7fb53a360c",
+          "source_world_id": "world-w-82ab7b9a12",
+          "value": "val-3985422596"
+        },
+        {
+          "attribute": "attr-6a280522e0",
+          "entity": "ent-8d659353e4",
+          "observed_at": 20260301,
+          "record_id": "rec-7ef849dbce",
+          "source_world_id": "world-w-82ab7b9a12",
+          "value": "val-826e5a866b"
+        }
+      ],
+      "family_id": "family-f-7481a4838a",
+      "observations": [
+        {
+          "date": "2026-03-01",
+          "lines": [
+            "The attr-167e098d65 for project ent-ab99383211 is val-52cee4462e.",
+            "The attr-167e098d65 for project ent-8d659353e4 is val-7f9e198da5.",
+            "The attr-81ff8b00ec for project ent-b0f33f6e68 is val-3985422596.",
+            "The attr-6a280522e0 for project ent-8d659353e4 is val-826e5a866b.",
+            "The attr-167e098d65 for project ent-768e6bf1c5 is val-369cc20e0d.",
+            "The attr-6d10913db3 for project ent-ab99383211 is val-fc5a9c29ed."
+          ],
+          "observed_at": 20260301,
+          "page_id": "page-p-699588978b"
+        },
+        {
+          "date": "2026-04-01",
+          "lines": [
+            "Update: the attr-167e098d65 for project ent-ab99383211 is val-b130ef0c7e."
+          ],
+          "observed_at": 20260401,
+          "page_id": "page-p-2576b547d8"
+        }
+      ],
+      "queries": [
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-ab99383211",
+          "form": 0,
+          "query_id": "q0",
+          "text": "What is the attr-167e098d65 for project ent-ab99383211?"
+        },
+        {
+          "attribute": "attr-167e098d65",
+          "entity": "ent-8d659353e4",
+          "form": 1,
+          "query_id": "q1",
+          "text": "Tell me the attr-167e098d65 of project ent-8d659353e4."
+        },
+        {
+          "attribute": "attr-81ff8b00ec",
+          "entity": "ent-b0f33f6e68",
+          "form": 2,
+          "query_id": "q2",
+          "text": "Project ent-b0f33f6e68: what is its attr-81ff8b00ec?"
+        },
+        {
+          "attribute": "attr-6a280522e0",
+          "entity": "ent-8d659353e4",
+          "form": 3,
+          "query_id": "q3",
+          "text": "Return the attr-6a280522e0 assigned to project ent-8d659353e4."
+        },
+        {
+          "attribute": "attr-8631d7254d",
+          "entity": "ent-7021ac32fd",
+          "form": 0,
+          "query_id": "unknown",
+          "text": "What is the attr-8631d7254d for project ent-7021ac32fd?"
+        }
+      ],
+      "split": "heldout",
+      "variant": 1,
+      "world_id": "world-w-82ab7b9a12"
+    }
+  ],
+  "families_per_split": {
+    "dev": 1,
+    "heldout": 1,
+    "train": 1
+  },
+  "format": "replica.memory_matched.episodes.v1",
+  "seed": 20261026,
+  "variants": 2
+}

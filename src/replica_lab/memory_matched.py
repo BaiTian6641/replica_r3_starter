@@ -34,10 +34,10 @@ from __future__ import annotations
 from dataclasses import asdict
 import hashlib
 import json
-import math
 from pathlib import Path
 import random
 import statistics
+import time
 
 import torch
 
@@ -261,6 +261,25 @@ def _normalize_answer(text):
     return value.casefold()
 
 
+def enforce_elapsed_deadline(started_monotonic, max_wall_seconds, *,
+                             now=None, label='matched diagnostic'):
+    """Enforce one declared monotonic wall-clock budget.
+
+    ``now`` is an explicit test seam; production callers omit it.  A negative
+    elapsed time is a clock/accounting error, not a pass.
+    """
+    _require(type(max_wall_seconds) is int and max_wall_seconds > 0,
+             'Deadline must be a positive integer number of seconds')
+    current = time.monotonic() if now is None else float(now)
+    elapsed = current - float(started_monotonic)
+    _require(elapsed >= 0, 'Monotonic elapsed time cannot be negative')
+    if elapsed > max_wall_seconds:
+        raise TimeoutError(
+            f'{label} exceeded its declared {max_wall_seconds}s budget '
+            f'(elapsed {elapsed:.3f}s)')
+    return elapsed
+
+
 def _mean(values):
     values = [value for value in values if value is not None]
     return (sum(values) / len(values)) if values else None
@@ -339,9 +358,72 @@ def _world_ids(seed, split, complexity, family_index, variant):
     return world_id, episode_id, family_id
 
 
-def _pool(seed, split, prefix, count=8):
+def _pool(seed, split, prefix, count=16):
     return [_opaque_token(prefix, f'{seed}:{split}:{prefix}:{index}')
             for index in range(count)]
+
+
+def _assign_split_key_blocks(seed, split, families, complexities, *, attempts=512):
+    """Deterministically allocate split keys with guaranteed near-miss support.
+
+    Interference families must have both a same-attribute and a same-entity
+    independent-family fact available for their corrected target.  A shuffle
+    that cannot provide both is rejected and the split is regenerated with the
+    next deterministic attempt; there is no silent neutral fallback.
+    """
+    entities = _pool(seed, split, 'ent')
+    attributes = _pool(seed, split, 'attr')
+    base = [(entity, attribute) for entity in entities
+            for attribute in attributes]
+    required = sum(COMPLEXITY_PLAN[complexity]['facts']
+                   for complexity in complexities) * families
+    _require(required <= len(base),
+             'Split key pool is too small for the declared family plan')
+    for attempt in range(attempts):
+        shuffle = random.Random(f'{seed}:{split}:keys:{attempt}')
+        keys = list(base)
+        shuffle.shuffle(keys)
+        cursor = 0
+        blocks = {}
+        for complexity in complexities:
+            count = COMPLEXITY_PLAN[complexity]['facts']
+            for family_index in range(families):
+                blocks[(complexity, family_index)] = list(
+                    keys[cursor:cursor + count])
+                cursor += count
+        plan = {}
+        failed = False
+        for (complexity, family_index), block in blocks.items():
+            target_index = family_index % len(block)
+            if COMPLEXITY_PLAN[complexity]['near_misses']:
+                chosen = None
+                for candidate_index, target in enumerate(block):
+                    support_attribute = any(
+                        key[1] == target[1] and key[0] != target[0]
+                        for (other_complexity, other_family), other in blocks.items()
+                        if (other_complexity, other_family) != (complexity, family_index)
+                        for key in other)
+                    support_entity = any(
+                        key[0] == target[0] and key[1] != target[1]
+                        for (other_complexity, other_family), other in blocks.items()
+                        if (other_complexity, other_family) != (complexity, family_index)
+                        for key in other)
+                    if support_attribute and support_entity:
+                        chosen = candidate_index
+                        break
+                if chosen is None:
+                    failed = True
+                    break
+                ordered = block[chosen:] + block[:chosen]
+                if target_index:
+                    ordered = ordered[-target_index:] + ordered[:-target_index]
+                plan[(complexity, family_index)] = (ordered, target_index)
+            else:
+                plan[(complexity, family_index)] = (list(block), target_index)
+        if not failed:
+            return plan
+    raise ValueError('Could not allocate split keys with required interference '
+                     'near-miss support')
 
 
 def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
@@ -365,25 +447,17 @@ def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
 
     used_values = set()
     used_record_ids = set()
-    used_worlds, used_episodes, used_families = set(), set(), set()
     worlds = []
 
     for split in SPLITS:
-        entities = _pool(seed, split, 'ent')
         attributes = _pool(seed, split, 'attr')
-        keys = [(entity, attribute) for entity in entities for attribute in attributes]
-        rng.shuffle(keys)
-        cursor = 0
+        key_plan = _assign_split_key_blocks(
+            seed, split, plan_families[split], complexities)
         for complexity in complexities:
             plan = COMPLEXITY_PLAN[complexity]
             facts_count = plan['facts']
             for family_index in range(plan_families[split]):
-                family_keys = []
-                for _ in range(facts_count):
-                    _require(cursor < len(keys),
-                             'Split key pool exhausted; reduce families or facts')
-                    family_keys.append(keys[cursor])
-                    cursor += 1
+                family_keys, correction_index = key_plan[(complexity, family_index)]
                 unknown_entity = _opaque_token(
                     'ent', f'{seed}:{split}:{complexity}:{family_index}:unknown:entity')
                 unknown_attribute = attributes[(family_index + facts_count) % len(attributes)]
@@ -395,7 +469,9 @@ def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
                         'split': split, 'complexity': complexity,
                         'family_index': family_index, 'variant': variant,
                         'world_id': world_id, 'episode_id': episode_id,
-                        'family_id': family_id, 'family_keys': list(family_keys),
+                        'family_id': family_id,
+                        'family_keys': list(family_keys),
+                        'correction_index': correction_index,
                         'unknown': {'entity': unknown_entity,
                                     'attribute': unknown_attribute,
                                     'form': unknown_form},
@@ -403,7 +479,6 @@ def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
 
     # Facts and corrections, then independent-world distractors from another
     # family in the same split.
-    family_facts = {}
     for world in worlds:
         values = [
             _fresh_token('val', f"{world['world_id']}:fact:{index}:value", used_values)
@@ -418,9 +493,8 @@ def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
                 'observed_at': INITIAL_DAY, 'source_world_id': world['world_id'],
             })
         world['facts'] = facts
-        family_facts[world['world_id']] = facts
         if COMPLEXITY_PLAN[world['complexity']]['correction']:
-            target = facts[world['family_index'] % len(facts)]
+            target = facts[world['correction_index']]
             world['corrections'] = [{
                 'record_id': _fresh_token(
                     'rec', f"{world['world_id']}:correction", used_record_ids),
@@ -456,9 +530,9 @@ def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
             correction_target = world['corrections'][0]
             criteria = [
                 ('near_attribute', correction_target['attribute'],
-                 world['facts'][(world['family_index'] + 1) % len(world['facts'])]['entity']),
-                ('near_entity', None,
-                 world['facts'][(world['family_index'] + 1) % len(world['facts'])]['entity']),
+                 correction_target['entity']),
+                ('near_entity', correction_target['attribute'],
+                 correction_target['entity']),
             ]
         else:
             criteria = [('neutral', None, None)] * plan['distractors']
@@ -493,15 +567,30 @@ def generate_matched_episodes(*, seed=DEFAULT_SEED, families_per_split=None,
 
         for kind, attribute, entity in criteria:
             options = _options(kind, attribute, entity)
-            if not options and kind != 'neutral':
-                options = _options('neutral', None, None)
             if not options:
+                if plan['near_misses'] and kind.startswith('near_'):
+                    raise ValueError(
+                        'Interference worlds require both same-attribute and '
+                        'same-entity independent-world near misses')
                 options = _options('any', None, None)
             if not options:
                 raise ValueError('Insufficient independent-world distractor facts')
             choice = rng.choice(options)
             chosen_origins.add(choice['origin_world_id'])
             chosen.append(choice)
+        if plan['near_misses']:
+            target = world['corrections'][0]
+            same_attribute = [item for item in chosen
+                              if item['attribute'] == target['attribute']
+                              and item['entity'] != target['entity']]
+            same_entity = [item for item in chosen
+                           if item['entity'] == target['entity']
+                           and item['attribute'] != target['attribute']]
+            _require(same_attribute and same_entity,
+                     'Interference distractors must cover both near-miss types')
+            _require(same_attribute[0]['origin_world_id']
+                     != same_entity[0]['origin_world_id'],
+                     'Near-miss distractors must come from distinct worlds')
         distractors = []
         for index, choice in enumerate(chosen):
             distractors.append({
@@ -678,6 +767,22 @@ def validate_matched_episodes(episodes, *, families_per_split=None,
             corrected_ids.add(target['record_id'])
         _require(len(facts) - len(corrected_ids) >= 1,
                  'At least one unaffected fact is required')
+        if plan['near_misses']:
+            _require(corrections, 'Interference requires a dated correction target')
+            target = next(fact for fact in facts
+                          if fact['record_id'] == corrections[0]['fact_id'])
+            same_attribute = [item for item in distractors
+                              if item['attribute'] == target['attribute']
+                              and item['entity'] != target['entity']]
+            same_entity = [item for item in distractors
+                           if item['entity'] == target['entity']
+                           and item['attribute'] != target['attribute']]
+            _require(same_attribute and same_entity,
+                     'Interference requires same-attribute and same-entity '
+                     'independent-world near misses')
+            _require(same_attribute[0]['origin_world_id']
+                     != same_entity[0]['origin_world_id'],
+                     'Interference near misses must come from distinct worlds')
 
         pages = episode['observations']
         _require(isinstance(pages, list)
@@ -1244,14 +1349,35 @@ def _readout_row(*, stage, arm, episode, state, case_id, query_id,
 
 
 def _outside_fact(episodes, episode):
+    """Return an observed fact whose key and value are absent from this episode.
+
+    Counterfactual variants share their local addresses, so a sibling variant is
+    never a valid no-match control.  The helper rejects rather than silently
+    falling back when the split has no independent, non-colliding fact.
+    """
+    local_keys = {(fact['entity'], fact['attribute'])
+                  for fact in episode['facts'] + episode['distractors']}
+    local_keys.update((correction['entity'], correction['attribute'])
+                      for correction in episode['corrections'])
+    local_values = {fact['value']
+                    for fact in episode['facts'] + episode['distractors']}
+    local_values.update(correction['value']
+                        for correction in episode['corrections'])
     for candidate in episodes:
         if candidate['split'] != episode['split']:
             continue
         if candidate['world_id'] == episode['world_id']:
             continue
-        if candidate['facts']:
-            return candidate['facts'][0]
-    return None
+        if candidate['family_id'] == episode['family_id']:
+            continue
+        for fact in candidate['facts']:
+            key = (fact['entity'], fact['attribute'])
+            if key in local_keys or fact['value'] in local_values:
+                continue
+            return fact
+    raise ValueError(
+        'No independent foreign fact with a non-matching address/value exists '
+        'for the cross-world control')
 
 
 def _evaluate_readouts(model, tokenizer, episodes, episode, state, memory,
@@ -1312,23 +1438,13 @@ def _evaluate_readouts(model, tokenizer, episodes, episode, state, memory,
             status='unavailable',
             unavailable_reason='at least two live entries are required'))
     outside = _outside_fact(episodes, episode)
-    if outside is not None:
-        binding = observed_binding(model, tokenizer, outside, layer=layer)
-        rows.append(_readout_row(
-            stage=1, arm='control', episode=episode, state=state,
-            case_id='control:cross_world', query_id=None,
-            query_text_sha256=_sha_json('cross-world:' + outside['record_id']),
-            codebook=codebook, readout=read_with(binding.keys),
-            readout_space='value',
-            context_source_ids=[outside['record_id']]))
-    else:
-        rows.append(_readout_row(
-            stage=1, arm='control', episode=episode, state=state,
-            case_id='control:cross_world', query_id=None,
-            query_text_sha256=_sha_json('cross-world-unavailable'),
-            codebook=codebook, readout=None, readout_space='value',
-            status='unavailable',
-            unavailable_reason='independent-world fact is unavailable'))
+    binding = observed_binding(model, tokenizer, outside, layer=layer)
+    rows.append(_readout_row(
+        stage=1, arm='control', episode=episode, state=state,
+        case_id='control:cross_world', query_id=None,
+        query_text_sha256=_sha_json('cross-world:' + outside['record_id']),
+        codebook=codebook, readout=read_with(binding.keys),
+        readout_space='value', context_source_ids=[outside['record_id']]))
 
     # Stage 2: rendered query-derived key ranked against stored write keys.
     for query in episode['queries']:
@@ -1343,23 +1459,13 @@ def _evaluate_readouts(model, tokenizer, episodes, episode, state, memory,
         case_id='control:zero', query_id=None,
         query_text_sha256=_sha_json('zero-query'), codebook=codebook,
         readout=torch.zeros(*head_shape).float(), readout_space='key'))
-    if outside is not None:
-        binding = observed_binding(model, tokenizer, outside, layer=layer)
-        rows.append(_readout_row(
-            stage=2, arm='control', episode=episode, state=state,
-            case_id='control:cross_world', query_id=None,
-            query_text_sha256=_sha_json('cross-world:' + outside['record_id']),
-            codebook=codebook,
-            readout=binding.keys[0, 0].detach().float().cpu(),
-            readout_space='key', context_source_ids=[outside['record_id']]))
-    else:
-        rows.append(_readout_row(
-            stage=2, arm='control', episode=episode, state=state,
-            case_id='control:cross_world', query_id=None,
-            query_text_sha256=_sha_json('cross-world-unavailable'),
-            codebook=codebook, readout=None, readout_space='key',
-            status='unavailable',
-            unavailable_reason='independent-world fact is unavailable'))
+    rows.append(_readout_row(
+        stage=2, arm='control', episode=episode, state=state,
+        case_id='control:cross_world', query_id=None,
+        query_text_sha256=_sha_json('cross-world:' + outside['record_id']),
+        codebook=codebook,
+        readout=binding.keys[0, 0].detach().float().cpu(),
+        readout_space='key', context_source_ids=[outside['record_id']]))
 
     # Stage 3: candidate/value discrimination with the stage-2 key.
     for query in episode['queries']:
@@ -1375,22 +1481,12 @@ def _evaluate_readouts(model, tokenizer, episodes, episode, state, memory,
         query_text_sha256=_sha_json('zero-query'), codebook=codebook,
         readout=read_with(torch.zeros(1, 1, *head_shape, device=device)),
         readout_space='value'))
-    if outside is not None:
-        binding = observed_binding(model, tokenizer, outside, layer=layer)
-        rows.append(_readout_row(
-            stage=3, arm='control', episode=episode, state=state,
-            case_id='control:cross_world', query_id=None,
-            query_text_sha256=_sha_json('cross-world:' + outside['record_id']),
-            codebook=codebook, readout=read_with(binding.keys),
-            readout_space='value', context_source_ids=[outside['record_id']]))
-    else:
-        rows.append(_readout_row(
-            stage=3, arm='control', episode=episode, state=state,
-            case_id='control:cross_world', query_id=None,
-            query_text_sha256=_sha_json('cross-world-unavailable'),
-            codebook=codebook, readout=None, readout_space='value',
-            status='unavailable',
-            unavailable_reason='independent-world fact is unavailable'))
+    rows.append(_readout_row(
+        stage=3, arm='control', episode=episode, state=state,
+        case_id='control:cross_world', query_id=None,
+        query_text_sha256=_sha_json('cross-world:' + outside['record_id']),
+        codebook=codebook, readout=read_with(binding.keys),
+        readout_space='value', context_source_ids=[outside['record_id']]))
     if negative:
         labels = derive_state_labels(episode, state)
         _require(len(labels['corrected_query_ids']) == 1,
@@ -1445,19 +1541,27 @@ def _default_answerer_factory(model, tokenizer, protocol):
     from .memory_system.session import MemorySession
 
     max_new_tokens = int(protocol['generation']['max_new_tokens'])
+    layer = protocol.get('layer')
+    _require(type(layer) is int,
+             'Default answerer requires the declared injection layer')
 
     def factory(ledger):
         session = MemorySession(model, tokenizer, ledger)
 
         def answer(*, prompt_ids, prompt_mask, query, scope, fast_state):
             selection = session.index.retrieve(query, **asdict(scope), limit=0)
+            # The fast value read is numerically inert unless its declared
+            # injection port is enabled.  Enable it, and the fast branch, for
+            # the memory arm only; exact/full-context/removed controls keep no
+            # fast state, no fast port and only the empty memory branch.
+            ports = (layer,) if fast_state is not None else ()
             request = session.prepare(
                 prompt_ids=prompt_ids, prompt_mask=prompt_mask, query=query,
                 scope=scope,
                 task=TaskGraph(f"{scope.branch_id}:matched", query),
                 core_impl='none', selection=selection,
-                fast_state=fast_state, enabled_ports=(),
-                enabled_branches=(('memory', 'fast') if fast_state is not None
+                fast_state=fast_state, enabled_ports=ports,
+                enabled_branches=(('fast',) if fast_state is not None
                                   else ('memory',)))
             try:
                 generated = session.generate(request, max_new_tokens=max_new_tokens)
@@ -1713,8 +1817,11 @@ def _metric_summary(rows, *, stages, arm, control_prefix='control:'):
     queries = [row for row in selected if not row['case_id'].startswith(control_prefix)]
     facts = [row for row in queries if row['kind'] == 'fact']
     unknowns = [row for row in queries if row['kind'] == 'unknown']
-    controls = {row['case_id'].split(':', 1)[1]: row for row in selected
-                if row['case_id'].startswith(control_prefix)}
+    controls = {}
+    for row in selected:
+        if row['case_id'].startswith(control_prefix):
+            name = row['case_id'].split(':', 1)[1]
+            controls.setdefault(name, []).append(row)
     correction = [row for row in facts if row['target_role'] == 'correction_target']
     unaffected = [row for row in facts if row['target_role'] == 'retained']
 
@@ -1734,6 +1841,11 @@ def _metric_summary(rows, *, stages, arm, control_prefix='control:'):
             'mean_superseded_margin': _mean(superseded),
             'mean_candidate_count': _mean([row['candidate_count'] for row in items]),
         }
+
+    def control_rate(name, field):
+        rows = controls.get(name, [])
+        return (_rate(sum(int(bool(row[field])) for row in rows), len(rows))
+                if rows else None)
 
     false_kinds = {}
     for row in queries:
@@ -1758,18 +1870,15 @@ def _metric_summary(rows, *, stages, arm, control_prefix='control:'):
             sum(row['superseded_selected'] for row in queries), len(queries)),
         'cross_world_selection_rate': _rate(
             sum(row['cross_world_selected'] for row in queries), len(queries)),
-        'zero_false_recall_rate': (
-            _rate(int(controls['zero']['false_recall']), 1)
-            if 'zero' in controls else None),
-        'cross_world_false_recall_rate': (
-            _rate(int(controls['cross_world']['false_recall']), 1)
-            if 'cross_world' in controls else None),
-        'wrong_key_owner_rate': (
-            _rate(int(controls['wrong_key']['top1']), 1)
-            if 'wrong_key' in controls else None),
-        'superseded_probe_top1_rate': (
-            _rate(int(controls['superseded_probe']['top1']), 1)
-            if 'superseded_probe' in controls else None),
+        'zero_false_recall_rate': control_rate('zero', 'false_recall'),
+        'cross_world_false_recall_rate': control_rate('cross_world',
+                                                       'false_recall'),
+        'wrong_key_owner_rate': control_rate('wrong_key', 'top1'),
+        'superseded_probe_top1_rate': control_rate('superseded_probe',
+                                                    'top1'),
+        'superseded_probe_selected_rate': control_rate('superseded_probe',
+                                                        'superseded_selected'),
+        'control_counts': {name: len(rows) for name, rows in controls.items()},
     }
     return summary
 
@@ -1950,7 +2059,7 @@ def _answer_summary(rows, arm):
             'accuracy': _rate(sum(row['correct'] for row in unknowns),
                               len(unknowns)),
             'false_answer_rate': _rate(
-                sum(row['answer'].strip().casefold() != 'unknown'
+                sum(row['normalized_answer'] != 'unknown'
                     for row in unknowns), len(unknowns)),
         },
         'correction': block(corrected),
@@ -2327,6 +2436,12 @@ def run_matched_diagnostic(model, tokenizer, protocol, *, output_dir,
              'Matched diagnostic requires its versioned protocol format')
     thresholds = _resolve_thresholds(protocol.get('thresholds'))
     limits = _resolve_limits(protocol.get('limits'))
+    budget = protocol.get('budget') or {}
+    _require(isinstance(budget, dict), 'Protocol budget must be an object')
+    max_wall_seconds = budget.get('max_wall_seconds')
+    _require(max_wall_seconds is None
+             or (type(max_wall_seconds) is int and max_wall_seconds > 0),
+             'Protocol wall-clock budget must be a positive integer')
     layer = protocol.get('layer')
     available = tuple(model.ports.injection_layers)
     _require(type(layer) is int and layer in available,
@@ -2358,6 +2473,7 @@ def run_matched_diagnostic(model, tokenizer, protocol, *, output_dir,
     _freeze(model)
     versions_before = _parameter_versions(model)
     started = _utc_now()
+    started_monotonic = time.monotonic()
     readouts, answers, codebooks, mechanical_rows = [], [], {}, []
     if answerer_factory is None:
         answerer_factory = _default_answerer_factory(model, tokenizer, protocol)
@@ -2395,6 +2511,10 @@ def run_matched_diagnostic(model, tokenizer, protocol, *, output_dir,
                     reference.close()
                     ledger.close()
                 memory = None
+                if max_wall_seconds is not None:
+                    enforce_elapsed_deadline(
+                        started_monotonic, max_wall_seconds,
+                        label='matched diagnostic')
 
     readouts.sort(key=lambda row: (row['stage'], row['episode_id'],
                                    row['state'], row['case_id'], row['arm']))
@@ -2444,9 +2564,17 @@ def run_matched_diagnostic(model, tokenizer, protocol, *, output_dir,
     def _hash(path):
         return _sha_file(output / path)
 
+    elapsed_seconds = time.monotonic() - started_monotonic
+    if max_wall_seconds is not None:
+        enforce_elapsed_deadline(started_monotonic, max_wall_seconds,
+                                 label='matched diagnostic')
     resource = {
         'started_at_utc': started,
         'finished_at_utc': _utc_now(),
+        'elapsed_seconds': elapsed_seconds,
+        'deadline_seconds': max_wall_seconds,
+        'deadline_ok': (True if max_wall_seconds is None
+                        else elapsed_seconds <= max_wall_seconds),
         'rss_start_bytes': _rss_bytes(),
         'max_rss_bytes': _rss_bytes(),
         'mps': _mps_memory() if device == 'mps' else None,
@@ -2518,6 +2646,15 @@ def _protocol_from_config(config, *, episodes_sha256, labels_sha256,
              and extension.get('weights_sha256')
              and extension.get('path'),
              'Configuration must pin the frozen rejected writer extension')
+    budget = dict(config.get('budget') or {})
+    max_wall = budget.get('max_wall_seconds', 900)
+    _require(type(max_wall) is int and 1 <= max_wall <= 86400,
+             'Declared wall-clock budget must be 1..86400 seconds')
+    _require(int(budget.get('optimizer_updates', 0)) == 0,
+             'Matched diagnostic must declare zero optimizer updates')
+    _require(int(budget.get('native_training_jobs', 0)) == 0,
+             'Matched diagnostic must declare zero native training jobs')
+    budget['max_wall_seconds'] = max_wall
     return {
         'format': PROTOCOL_FORMAT, 'config_format': CONFIG_FORMAT,
         'config_path': config_path, 'config_sha256': config_sha256,
@@ -2526,7 +2663,7 @@ def _protocol_from_config(config, *, episodes_sha256, labels_sha256,
         'variants': variants,
         'layer': layer, 'representation': FACT_REPRESENTATION,
         'engine': dict(config.get('engine') or DEFAULT_ENGINE),
-        'thresholds': thresholds, 'limits': limits,
+        'thresholds': thresholds, 'limits': limits, 'budget': budget,
         'generation': {'max_new_tokens': limits['max_new_tokens'],
                        'max_prompt_tokens': limits['max_prompt_tokens'],
                        'greedy': True},
@@ -2544,6 +2681,7 @@ def _protocol_from_config(config, *, episodes_sha256, labels_sha256,
             'nonfinite state or readout',
             'hash/provenance/scope/source-view mismatch',
             'row inventory, token or artifact bound',
+            'declared monotonic wall-clock deadline',
             'frozen parameter or save/reload parity failure',
             'missing or stale MPS telemetry',
         ],
@@ -2614,6 +2752,7 @@ def prepare_matched(output, *, config_path=None, config=None):
         'config_sha256': protocol['config_sha256'],
         'audit': audit,
         'planned_workload': protocol['planned_workload'],
+        'budget': protocol['budget'],
         'source': source, 'writer_extension': extension,
         'implementation_sha256': implementation,
     }
@@ -2665,6 +2804,11 @@ def verify_matched_prepared(prepared):
     _require(protocol.get('planned_workload') == matched_workload(episodes, protocol)
              and manifest.get('planned_workload') == protocol['planned_workload'],
              'Prepared matched workload differs from the exact plan')
+    _require(protocol.get('budget') == manifest.get('budget')
+             and isinstance(protocol.get('budget'), dict)
+             and type(protocol['budget'].get('max_wall_seconds')) is int
+             and protocol['budget']['max_wall_seconds'] > 0,
+             'Prepared wall-clock budget differs or is invalid')
     _require(protocol['config_sha256'] == manifest['config_sha256'],
              'Configuration pin differs between protocol and manifest')
     config_path = Path(protocol.get('config_path') or
