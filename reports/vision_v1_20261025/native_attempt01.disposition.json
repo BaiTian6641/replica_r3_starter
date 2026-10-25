@@ -1,0 +1,17 @@
+{
+  "format": "replica.vision_v1_attempt_disposition.v1",
+  "status": "failed_before_model_allocation",
+  "native_protocol_sha256": "044cebb9b1eafe8a529eb42b04e98217a4b8b755fba4d465ba815ebec410a401",
+  "run": "runs/minicpm5_vision_v1_20261025/attempt01",
+  "error_type": "KeyError",
+  "error": "split",
+  "cause": "Production runner asked label-free model rows for split; split lives in verifier case metadata.",
+  "targeted_fix": "Use dataset.case(case_id).split on the host; do not add split/labels to sensing/model rows.",
+  "optimizer_updates": 0,
+  "changed_tensors": 0,
+  "model_loaded": false,
+  "guard_peak_driver_bytes": 393216,
+  "swap_growth_bytes": 0,
+  "minimum_host_free_percent": 94,
+  "regression": "Actual native pre-allocation failure preserved; seven actual tiny/admission runner tests pass in8.57s after the host metadata fix."
+}

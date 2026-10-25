@@ -119,7 +119,7 @@ prototype can precede selected-system deployment qualification.
 | V3: visual persistent memory | Visual writer/readers; accepted visual producer initially frozen | V2 and the chosen memory path are qualified; image removal, multiple later queries, correction, unaffected-fact retention and fresh-process continuation demonstrate useful memory |
 | V4: bounded visual RSI | One isolated, named candidate scope at a time | Reliable perception/memory and independent evaluators exist; verified practice improves unseen later tasks without unacceptable retention loss |
 
-The first [V1 protocol](../../configs/minicpm5_vision_v1_projector_alignment_v1.json)
+The first [V1 protocol](../../configs/minicpm5_vision_v1_projector_alignment_v2.json)
 is a projector-only 128-update, 512-example arm over 64 complete owned worlds.
 Sixty-four evaluation cases span 32 disjoint worlds from the same procedural
 source family; they are not broad photographic/source-family coverage. All

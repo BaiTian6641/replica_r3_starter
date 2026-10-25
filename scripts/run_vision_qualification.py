@@ -1196,7 +1196,7 @@ def execute_v1(args, protocol, protocol_sha, dataset, source, spec, manifest_pat
     prerequisites = stage_protocol["v1"]["prerequisites"]
     # Gate before native loading: accepted independent V0 and named admission.
     verify_v0_prerequisite(stage_protocol)
-    train_splits = [row["split"] for row in dataset.model_rows
+    train_splits = [dataset.case(row["case_id"])["split"] for row in dataset.model_rows
                     if dataset.case(row["case_id"])["split"] == "train"]
     train_splits = sorted(set(train_splits))
     require(bool(train_splits), "Admitted V1 data lacks a training split")

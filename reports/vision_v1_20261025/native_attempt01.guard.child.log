@@ -1,0 +1,11 @@
+W1025 02:47:20.497000 7334 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1471, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1431, in main
+    result = execute_v1(args, protocol, protocol_sha, dataset,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_qualification.py", line 1199, in execute_v1
+    train_splits = [row["split"] for row in dataset.model_rows
+                    ~~~^^^^^^^^^
+KeyError: 'split'

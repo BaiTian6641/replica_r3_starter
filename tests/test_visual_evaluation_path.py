@@ -47,3 +47,15 @@ def test_every_control_and_measured_retention_survive_independent_consumption(vi
     assert set(verified['scores']['controls']) == set(vq.CONTROLS)
     assert verified['retention']['tokens_by_case'] == verified['baseline_retention']['tokens_by_case']
     assert len({(row['control'], row['case_id']) for row in evaluation['rows']}) == len(evaluation['rows'])
+
+
+def test_native_admission_consumes_split_metadata_before_backend_allocation(tmp_path, monkeypatch):
+    import pytest
+    from types import SimpleNamespace
+    copy_stage(tmp_path, 'v1')
+    protocol = base_protocol(tmp_path, 'v1')
+    dataset = vq.load_verified_dataset(protocol)
+    make_v1_admission_fixture(tmp_path, protocol, dataset)
+    monkeypatch.setattr(torch.backends.mps, 'is_available', lambda: False)
+    with pytest.raises(vq.QualificationError):
+        runner.execute_v1(SimpleNamespace(), protocol, '0' * 64, dataset, None, None, None)

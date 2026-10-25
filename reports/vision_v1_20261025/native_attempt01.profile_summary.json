@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "device": "mps",
+  "started_at": "2026-10-25T07:47:21.325132+00:00",
+  "ended_at": "2026-10-25T07:47:21.366153+00:00",
+  "elapsed_seconds": 0.04103445797227323,
+  "sample_interval_seconds": 0.25,
+  "rss_sample_interval_seconds": 2.0,
+  "sample_count": 2,
+  "memory": {
+    "rss_peak_process_lifetime_bytes": 372064256,
+    "rss_peak_sampled_bytes": 372031488,
+    "mps_allocated_peak_sampled_bytes": 0,
+    "mps_driver_peak_sampled_bytes": 393216
+  },
+  "mps_recommended_max_memory_bytes": 55662788608,
+  "host_start": {
+    "timestamp": "2026-10-25T07:47:21.326056+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 2048.00M  used = 1192.56M  free = 855.44M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 2147483648,
+      "used_bytes": 1250489794,
+      "free_bytes": 896993853
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 94%",
+    "memory_free_percent": 94.0
+  },
+  "host_end": {
+    "timestamp": "2026-10-25T07:47:21.355929+00:00",
+    "platform": "darwin",
+    "swapusage_raw": "total = 2048.00M  used = 1192.56M  free = 855.44M  (encrypted)",
+    "swapusage": {
+      "total_bytes": 2147483648,
+      "used_bytes": 1250489794,
+      "free_bytes": 896993853
+    },
+    "memory_pressure_raw": "The system has 68719476736 (4194304 pages with a page size of 16384).\nSystem-wide memory free percentage: 94%",
+    "memory_free_percent": 94.0
+  },
+  "phases": [],
+  "errors": [],
+  "notes": [
+    "All memory values are bytes; GiB = bytes / 2**30.",
+    "MPS and RSS sampled peaks may miss transient allocations.",
+    "ru_maxrss is the process lifetime high-water mark, not a phase or run reset counter.",
+    "Apple unified-memory MPS driver memory and process RSS overlap; do not add them.",
+    "CUDA peak counters are reset at profiler start; timing marks synchronize the device."
+  ]
+}

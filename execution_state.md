@@ -154,6 +154,16 @@ schedule and scorer imports validate. Sealed model/parent runtime inputs are
 explicit APFS clones, not tracked payloads. See
 [V1 source admission](reports/vision_v1_20261025/source_admission.json).
 
+V1 attempt01 then fails before model allocation: the runner reads `split` from
+the intentionally label-free model rows, rather than verified case metadata.
+Zero updates; peak driver is 393,216 bytes, zero swap growth, 94% minimum free.
+The raw guard/failure/profile and [disposition](reports/vision_v1_20261025/native_attempt01.disposition.json)
+remain preserved. The host lookup is corrected; seven real tiny/admission tests
+pass in 8.57 s. [Protocol v2](configs/minicpm5_vision_v1_projector_alignment_v2.json)
+(`980454c29f31f1196af71889aecf4fa6a5e99da996d4351d7798c73d34ca36c2`)
+changes only the runner code pin. Data, seed, checkpoint, schedule, optimizer,
+resource policy and every numerical quality gate remain unchanged.
+
 
 
 ## Repository maintenance — 25 October 2026
