@@ -73,6 +73,17 @@ def test_scorer_replay_rejects_changed_parent_artifacts(tmp_path, parent):
         scorer.verify_scoring_source(args, protocol, root=tmp_path)
 
 
+
+def test_scorer_replay_allows_v1_with_same_scorer_only_overlay(tmp_path):
+    args, protocol, replay = replay_fixture(tmp_path)
+    protocol['stage'] = 'v1'
+    args.protocol.write_text(json.dumps(protocol))
+    replay['native_protocol_sha256'] = sha256_file(args.protocol)
+    args.scoring_replay.write_text(json.dumps(replay))
+    result = scorer.verify_scoring_source(args, protocol, root=tmp_path)
+    assert result['mode'] == 'post_native_scoring_replay'
+
+
 @pytest.mark.parametrize('mutation', ['runner', 'gates'])
 def test_scorer_replay_cannot_replace_native_runner_or_override_gates(tmp_path, mutation):
     args, protocol, replay = replay_fixture(tmp_path)
@@ -124,7 +135,7 @@ def v1_restart_fixture(tmp_path):
     }
     (restart / 'restart_report.json').write_text(json.dumps(restart_report))
     args = SimpleNamespace(restart=restart, protocol=protocol_path)
-    report = {'extension': {'weights_sha256': weights}}
+    report = {'final_extension': {'weights_sha256': weights}}
     return args, run, restart, report, protocol
 
 

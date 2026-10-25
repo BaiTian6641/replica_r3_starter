@@ -61,8 +61,8 @@ def verify_scoring_source(args, protocol, *, root=ROOT):
     if replay_path is None:
         pins = verify_implementation_pins({**protocol, "root": str(Path(root).resolve())}, root)
         return {"mode": "native_pinned_scorer", "implementation_sha256": pins}
-    require(protocol["stage"] == "v0" and args.restart is not None,
-            "Scoring replay requires a completed V0 primary and restart")
+    require(protocol["stage"] in ("v0", "v1") and args.restart is not None,
+            "Scoring replay requires a completed V0/V1 primary and restart")
     replay = json.loads(Path(replay_path).read_text(encoding="utf-8"))
     fields = {"format", "evaluation_only", "retrospective_to_native",
               "native_protocol_sha256", "native_run_report_sha256",
@@ -804,7 +804,7 @@ def verify_v1_restart(args, run, report, protocol, run_report_sha):
     require(restart.get("zero_updates") is True,
             "V1 restart performed an optimizer update")
     require(restart.get("prior_extension_weights_sha256")
-            == report["extension"]["weights_sha256"]
+            == report["final_extension"]["weights_sha256"]
             == restart.get("loaded_extension", {}).get("weights_sha256"),
             "V1 restart loaded a different extension")
     require(all(restart.get("checks", {}).values()),
