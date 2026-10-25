@@ -328,11 +328,18 @@ def decide(results, statistics, *, min_above_chance=0.1, min_combined_gain=0.05)
     elif combined <= chance + min_above_chance:
         decision = 'fail_features_insufficient'
         change = 'Neither stream separates answers; treat as a data/supervision blocker.'
+    elif (combined <= max(image, question) + min_combined_gain
+          or combined <= shuffled + min_combined_gain):
+        decision = 'inconclusive_visual_contribution'
+        change = ('Image features lack the declared incremental gain over the best '
+                  'single stream or shuffled-image control. Build a balanced paired '
+                  'fresh-world diagnostic before changing the connector.')
     else:
         decision = 'frozen_features_support_readout'
-        change = ('A linear readout over frozen features predicts answers; the '
-                  'projector/training path is the bottleneck. Test one connector '
-                  'change (wider projector with LayerNorm) in a bounded retry.')
+        change = ('A linear readout shows incremental image-dependent signal beyond '
+                  'the best single stream and shuffled control. The connector/training '
+                  'path is a candidate bottleneck, not a proven one; confirm on a '
+                  'balanced fresh-world diagnostic before a bounded connector retry.')
     return {'decision': decision, 'justified_next_change': change,
             'image_minus_question': image - question,
             'combined_minus_best_single': combined - max(image, question),

@@ -99,10 +99,15 @@ def test_decision_maps_evidence_to_one_justified_change():
     assert encoder["decision"] == "fail_encoder_features_carry_no_linear_signal"
     insufficient = vd.decide(_results(0.15, 0.30, 0.25), {})
     assert insufficient["decision"] == "fail_features_insufficient"
-    supported = vd.decide(_results(0.75, 0.45, 0.30), {})
+    supported = vd.decide(_results(0.75, 0.45, 0.30, shuffled=0.40), {})
     assert supported["decision"] == "frozen_features_support_readout"
-    assert supported["shuffled_image_drop"] == pytest.approx(0.0)
+    assert supported["shuffled_image_drop"] == pytest.approx(0.35)
     assert supported["justified_next_change"].startswith("A linear readout")
+    inconclusive = vd.decide(_results(0.4167, 0.1875, 0.4375, chance=1 / 12,
+                                      shuffled=0.375), {})
+    assert inconclusive["decision"] == "inconclusive_visual_contribution"
+    no_drop = vd.decide(_results(0.75, 0.45, 0.30), {})
+    assert no_drop["decision"] == "inconclusive_visual_contribution"
 
 
 def test_feature_statistics_report_scale_mask_and_pair_shape():

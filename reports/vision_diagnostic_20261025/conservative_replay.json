@@ -1,0 +1,72 @@
+{
+  "format": "replica.vision_diagnostic_decision_replay.v1",
+  "parent_run_report_sha256": "49b7d132b75616ea0bed4aaa78d2c083db7670f08150acd55b13cad9bd06afb1",
+  "parent_diagnostic_sha256": "9b01173afd6cbf89fa0f8ce211b61e055c0fbcef952f1768734338eb9b67e84b",
+  "protocol_sha256": "88f72d4142166a168be39699fae388261affb5dcee0af7ebc70a23e41e067dd3",
+  "implementation_sha256": {
+    "src/replica_lab/vision_diagnostic.py": "677588cb570d6991d0b4385b199d5d051ca15106b36276de9bb16bee708bdb79",
+    "scripts/replay_vision_diagnostic.py": "7fcdd340a5730ba9785c242758638071755ea7d6ca5e537945772381f172e5fe"
+  },
+  "readout": {
+    "image_only": {
+      "train_accuracy": 0.75,
+      "dev_accuracy": 0.1875,
+      "dev_by_task": {
+        "absent": 0.16666666666666666,
+        "color": 0.2916666666666667,
+        "count": 0.0,
+        "shape": 0.0,
+        "spatial": 0.16666666666666666
+      },
+      "dev_accuracy_shuffled_images": 0.14583333333333334
+    },
+    "question_only": {
+      "train_accuracy": 0.6875,
+      "dev_accuracy": 0.4375,
+      "dev_by_task": {
+        "absent": 1.0,
+        "color": 0.16666666666666666,
+        "count": 1.0,
+        "shape": 0.3333333333333333,
+        "spatial": 0.5
+      }
+    },
+    "combined": {
+      "train_accuracy": 1.0,
+      "dev_accuracy": 0.4166666666666667,
+      "dev_by_task": {
+        "absent": 0.6666666666666666,
+        "color": 0.25,
+        "count": 1.0,
+        "shape": 0.16666666666666666,
+        "spatial": 0.5
+      },
+      "dev_accuracy_shuffled_images": 0.375
+    },
+    "baselines": {
+      "dev_majority_accuracy": 0.16666666666666666,
+      "dev_class_count": 12,
+      "dev_random_chance": 0.08333333333333333,
+      "train_label_count": 11
+    }
+  },
+  "previous_verdict": {
+    "decision": "frozen_features_support_readout",
+    "justified_next_change": "A linear readout over frozen features predicts answers; the projector/training path is the bottleneck. Test one connector change (wider projector with LayerNorm) in a bounded retry.",
+    "image_minus_question": -0.25,
+    "combined_minus_best_single": -0.020833333333333315,
+    "shuffled_image_drop": 0.041666666666666685,
+    "chance": 0.08333333333333333
+  },
+  "replayed_verdict": {
+    "decision": "inconclusive_visual_contribution",
+    "justified_next_change": "Image features lack the declared incremental gain over the best single stream or shuffled-image control. Build a balanced paired fresh-world diagnostic before changing the connector.",
+    "image_minus_question": -0.25,
+    "combined_minus_best_single": -0.020833333333333315,
+    "shuffled_image_drop": 0.041666666666666685,
+    "chance": 0.08333333333333333
+  },
+  "interpretation_changed": true,
+  "native_inference_repeated": false,
+  "quality_claim": "Retrospective decision-logic repair only; raw measurements are unchanged and useful visual contribution is not assumed"
+}
