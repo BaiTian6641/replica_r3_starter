@@ -91,7 +91,8 @@ def stop_child(child):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--report", type=Path, required=True)
-    parser.add_argument("--driver-limit-gib", type=float, default=40)
+    parser.add_argument("--driver-limit-gib", type=float,
+                        default=CapacityPolicy().driver_limit_bytes / 1024**3)
     parser.add_argument("--swap-growth-limit-mib", type=float, default=512)
     parser.add_argument("--minimum-free-percent", type=float, default=15)
     parser.add_argument("--sustained-host-samples", type=int, default=3)

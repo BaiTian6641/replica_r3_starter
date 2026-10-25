@@ -65,16 +65,20 @@ def test_guard_evidence_cannot_make_evaluator_output_nonempty(tmp_path):
         GUARD.evaluation_arguments(["--device", "mps", "--output", str(broken)])
 
 
-@pytest.mark.parametrize("final_event,expected_status,expected_reason", [
-    ({"type": "sample", "mps_driver_bytes": 2048}, "completed_within_declared_sampled_limits", None),
-    ({"type": "sample", "mps_driver_bytes": 40 * 1024**3}, "stopped_or_failed", "sampled_mps_driver_limit"),
-    ("incomplete", "stopped_or_failed", "incomplete_final_profile_record"),
+@pytest.mark.parametrize("limit_gib,final_event,expected_status,expected_reason", [
+    (None, {"type": "sample", "mps_driver_bytes": 2048}, "completed_within_declared_sampled_limits", None),
+    (None, {"type": "sample", "mps_driver_bytes": 40 * 1024**3}, "completed_within_declared_sampled_limits", None),
+    (None, {"type": "sample", "mps_driver_bytes": 50 * 1024**3 - 1}, "completed_within_declared_sampled_limits", None),
+    (None, {"type": "sample", "mps_driver_bytes": 50 * 1024**3}, "stopped_or_failed", "sampled_mps_driver_limit"),
+    (40, {"type": "sample", "mps_driver_bytes": 40 * 1024**3}, "stopped_or_failed", "sampled_mps_driver_limit"),
+    (None, "incomplete", "stopped_or_failed", "incomplete_final_profile_record"),
 ])
 def test_mocked_evaluator_routes_offline_and_drains_late_exit_samples(
-        tmp_path, monkeypatch, final_event, expected_status, expected_reason):
+        tmp_path, monkeypatch, limit_gib, final_event, expected_status, expected_reason):
     output, report = tmp_path / "generation", tmp_path / "guard.json"
     monkeypatch.setattr(sys, "platform", "darwin")
-    monkeypatch.setattr(sys, "argv", ["run_generation_preflight.py", "--report", str(report), "--",
+    limit_args = [] if limit_gib is None else ["--driver-limit-gib", str(limit_gib)]
+    monkeypatch.setattr(sys, "argv", ["run_generation_preflight.py", *limit_args, "--report", str(report), "--",
                                       "--device", "mps", "--output", str(output), "--split", "train",
                                       "--max-examples", "8", "--max-new-tokens", "256"])
     monkeypatch.delenv("PYTORCH_ENABLE_MPS_FALLBACK", raising=False)
@@ -107,6 +111,7 @@ def test_mocked_evaluator_routes_offline_and_drains_late_exit_samples(
     result = GUARD.main()
     saved = json.loads(report.read_text())
     assert saved["status"] == expected_status and saved["guard"]["stop_reason"] == expected_reason
+    assert saved["guard"]["policy"]["driver_limit_bytes"] == (50 if limit_gib is None else limit_gib) * 1024**3
     assert result == (0 if expected_reason is None else 1)
     assert captured["command"][:2] == [sys.executable, str(ROOT / "scripts/evaluate_text.py")]
     assert "scripts/train_text.py" not in " ".join(captured["command"])

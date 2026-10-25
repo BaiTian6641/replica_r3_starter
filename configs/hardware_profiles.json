@@ -1,12 +1,24 @@
 {
   "kind": "setup_and_experiment_profiles_not_trainer_config",
-  "reviewed_on": "2026-10-22",
+  "reviewed_on": "2026-10-23",
   "timezone": "America/Chicago",
   "mac_m2_ultra_64gb": {
     "status": "locally_inventoried",
     "hardware": "Apple Mac Studio M2 Ultra",
     "unified_memory_bytes": 68719476736,
     "device": "mps",
+    "current_operational_guard": {
+      "authorized_on": "2026-10-23",
+      "driver_limit_gib": 50,
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3,
+      "exclusive_native_workers": 1,
+      "runtime_policy_source": "src/replica_lab/capacity_guard.py:CapacityPolicy",
+      "scope": "current default for fresh training/generation protocols; sampled stop policy, not model-fit evidence or an allocator setting",
+      "historical_protocols": "explicit 40 GiB protocols and reports retain their original policy; fresh 50 GiB studies require new protocol/code pins"
+    },
     "compute_dtype": "float32",
     "parameter_dtype": "float32",
     "optimizer": "muon8bit",

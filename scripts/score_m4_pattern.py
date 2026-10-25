@@ -5,9 +5,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src'))
+from replica_lab.answer_audit import audit_m4_answers
 
 
 def sha(path):
@@ -78,6 +81,10 @@ def main():
             raise ValueError(f'M4 dataset changed: {filename}')
     parent_controls = None
     if args.parent_controls is not None:
+        pinned_controls = protocol.get('parent_controls', {})
+        if (args.parent_controls.resolve() != (ROOT / pinned_controls['path']).resolve()
+                or sha(args.parent_controls) != pinned_controls['sha256']):
+            raise ValueError('M4 parent-control bytes differ from protocol')
         parent_controls = json.loads(args.parent_controls.read_text())
         control_report_path = (parent_controls.get('parent_run_report')
                                or parent_controls['parent_evidence']['report'])
@@ -95,6 +102,15 @@ def main():
             parent_controls['parent_retention']['adversarial'])
         source['parent_general_dev_metrics']['adversarial'] = accuracy(
             parent_controls['parent_retention_dev']['adversarial'])
+    from transformers import AutoTokenizer
+    lock = json.loads((ROOT / 'configs/minicpm5_sealed_lock.local.json').read_text())
+    for name in ('tokenizer.json', 'tokenizer_config.json', 'special_tokens_map.json', 'chat_template.jinja'):
+        if sha(ROOT / 'checkpoints/minicpm5_source' / name) != lock['snapshot_files_sha256'][name]:
+            raise ValueError('Sealed tokenizer bytes changed')
+    tokenizer = AutoTokenizer.from_pretrained(ROOT / 'checkpoints/minicpm5_source', local_files_only=True, trust_remote_code=False)
+    queries = [json.loads(line) for line in (data / 'queries.jsonl').read_text().splitlines()]
+    source['independent_answer_audit'] = audit_m4_answers(
+        source, queries, lambda ids: tokenizer.decode(ids, skip_special_tokens=True))
     parent_fast = source['parent_metrics']['fast']
     candidate = source['metrics']['router']
     general_parent = source['parent_general_metrics']

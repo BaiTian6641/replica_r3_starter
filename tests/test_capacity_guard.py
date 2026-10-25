@@ -108,11 +108,19 @@ def test_relative_output_is_bound_to_child_workspace(monkeypatch, tmp_path):
     assert output == (script.ROOT / "runs/test").resolve()
 
 
-def test_final_profile_write_at_child_exit_cannot_hide_a_driver_breach(monkeypatch, tmp_path):
+@pytest.mark.parametrize("limit_gib,final_driver_bytes,stopped", [
+    (None, 40 * 1024**3, False),
+    (None, 50 * 1024**3 - 1, False),
+    (None, 50 * 1024**3, True),
+    (40, 40 * 1024**3, True),
+])
+def test_final_profile_write_at_child_exit_enforces_declared_driver_limit(
+        monkeypatch, tmp_path, limit_gib, final_driver_bytes, stopped):
     script = load_script()
     report, output = tmp_path / "guard.json", tmp_path / "run"
     monkeypatch.setattr(sys, "platform", "darwin")
-    monkeypatch.setattr(sys, "argv", ["guard", "--report", str(report), "--",
+    limit_args = [] if limit_gib is None else ["--driver-limit-gib", str(limit_gib)]
+    monkeypatch.setattr(sys, "argv", ["guard", *limit_args, "--report", str(report), "--",
                                     "--device", "mps", "--output", str(output)])
     monkeypatch.setattr(script, "host_reading", baseline)
     class ExitsAfterFinalWrite:
@@ -125,17 +133,19 @@ def test_final_profile_write_at_child_exit_cannot_hide_a_driver_breach(monkeypat
         def poll(self):
             if not self.written:
                 with self.profile.open("a") as stream:
-                    stream.write(json.dumps({"mps_driver_bytes": 41 * 1024**3}) + "\n")
+                    stream.write(json.dumps({"mps_driver_bytes": final_driver_bytes}) + "\n")
                 self.written = True
             return 0
         def wait(self, **kwargs):
             return 0
     monkeypatch.setattr(script.subprocess, "Popen", ExitsAfterFinalWrite)
-    assert script.main() == 1
+    assert script.main() == int(stopped)
     result = json.loads(report.read_text())
-    assert result["status"] == "stopped_or_failed"
-    assert result["guard"]["peak_driver_bytes"] == 41 * 1024**3
-    assert result["guard"]["stop_reason"] == "sampled_mps_driver_limit"
+    assert result["status"] == ("stopped_or_failed" if stopped
+                                else "completed_within_declared_sampled_limits")
+    assert result["guard"]["policy"]["driver_limit_bytes"] == (50 if limit_gib is None else limit_gib) * 1024**3
+    assert result["guard"]["peak_driver_bytes"] == final_driver_bytes
+    assert result["guard"]["stop_reason"] == ("sampled_mps_driver_limit" if stopped else None)
     assert result["child_exit_code"] == 0
 
 
