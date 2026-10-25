@@ -1,0 +1,33 @@
+{
+  "format": "replica.vision_source_export.v1",
+  "status": "accepted_for_native_retry_only",
+  "code_commit": "a2bc82ef0b6efec2ae7915c310df3c94d8305f59",
+  "source_archive_sha256": "7c1b59228902fd9a44b5244491aea6687debe66d7251147b71862b042a0121ec",
+  "protocol_path": "configs/minicpm5_vision_v0_qualification_v3.json",
+  "protocol_sha256": "7d0089e999ce505a4331f6ffbb1581846f13e9a20b46e0199734a5e46bc0b36a",
+  "fresh_export_tests": {
+    "passed": 89,
+    "seconds": 4.05,
+    "junit": "reports/vision_v0_20261025/clean_export_attempt03_tests.xml"
+  },
+  "implementation_files_verified": 83,
+  "source_offline_reuse": "passed",
+  "auxiliary_command_failure": "The first inline pin-verification command had an extra closing parenthesis. Only that command was corrected; it then verified all 83 pins. Tests/builders were not rerun to confirm the typo.",
+  "prior_evidence": "reports/vision_v0_20261025/source_qualification.json",
+  "native_failure_preserved": "reports/vision_v0_20261025/native_attempt01.disposition.json",
+  "regression": "Encoder buffer mutation failed before and passes after, with raw XML preserved.",
+  "native_output": "runs/minicpm5_vision_v0_20261025/attempt02",
+  "expected_guard_report": "reports/vision_v0_20261025/native_attempt02.guard.json",
+  "optimizer_updates": 0,
+  "training_admitted_rows": 0,
+  "resource_policy": {
+    "exclusive_mps_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_free_admission": true,
+    "wall_time_semantics": "End-of-run acceptance ceiling plus fixed generation/update bounds; sampled memory watchdog remains authoritative."
+  }
+}
