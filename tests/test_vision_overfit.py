@@ -64,7 +64,7 @@ def test_overfit_protocol_bounds(tmp_path):
     template = json.loads((ROOT / "configs/vision_overfit_v1.json").read_text())
     assert vo.validate_overfit_protocol(template)["training_updates"] == 16
     broken = json.loads(json.dumps(template))
-    broken["train"]["updates"] = 64
+    broken["train"]["updates"] = 129
     with pytest.raises(vq.QualificationError, match="bounded"):
         vo.validate_overfit_protocol(broken)
     broken = json.loads(json.dumps(template))
@@ -75,3 +75,15 @@ def test_overfit_protocol_bounds(tmp_path):
     broken["implementation_sha256"] = {}
     with pytest.raises(vq.QualificationError, match="pins"):
         vo.validate_overfit_protocol(broken)
+
+
+def test_overfit_supports_declared_sgd_and_wider_projector_options(tmp_path):
+    template = json.loads((ROOT / "configs/vision_overfit_sgd_v1.json").read_text())
+    assert template["train"]["optimizer"] == "sgd"
+    vo.validate_overfit_protocol(template)
+    wide = json.loads((ROOT / "configs/vision_overfit_wide_v1.json").read_text())
+    assert wide["vision"]["projector_hidden"] == 4096
+    vo.validate_overfit_protocol(wide)
+    from replica_lab.architecture.vision import VisionFeatureService
+    import inspect
+    assert "projector_hidden" in inspect.signature(VisionFeatureService.__init__).parameters

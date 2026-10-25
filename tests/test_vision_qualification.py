@@ -254,7 +254,7 @@ def make_v1_admission_fixture(tmp_path, protocol, dataset):
     admission_path = tmp_path / "admission.json"
     write_json(admission_path, admission)
     run_report_path = tmp_path / "v0_run_report.json"
-    write_json(run_report_path, {"status": "completed"})
+    write_json(run_report_path, {"status": "completed", "vision_spec": protocol["vision"]})
     score_report = {
         "format": vq.SCORE_FORMAT, "stage": "v0", "accepted": True,
         "engineering_pass": True, "protocol_sha256": "d" * 64,
@@ -438,6 +438,25 @@ def test_v1_admission_and_accepted_v0_are_hard_prerequisites(tmp_path):
     with pytest.raises(vq.QualificationError, match="lacks pinned text"):
         vq.verify_admission(protocol, dataset, train_splits=["train"],
                             eval_splits=["dev"])
+
+
+
+def test_v1_fresh_initialization_allows_only_connector_width_change(tmp_path):
+    copy_stage(tmp_path, "v1")
+    protocol = base_protocol(tmp_path, "v1")
+    dataset = vq.load_verified_dataset(protocol)
+    make_v1_admission_fixture(tmp_path, protocol, dataset)
+    protocol["v1"]["initial_checkpoint"] = None
+    protocol["vision"]["projector_hidden"] = 4096
+    protocol["vision_digest"] = vq.fingerprint(protocol["vision"])
+    vq.validate_protocol(protocol)
+    report, _ = vq.verify_v0_prerequisite(protocol)
+    assert report["accepted"] is True
+
+    protocol["vision"]["encoder_source_digest"] = "e" * 64
+    protocol["vision_digest"] = vq.fingerprint(protocol["vision"])
+    with pytest.raises(vq.QualificationError, match="another vision encoder"):
+        vq.verify_v0_prerequisite(protocol)
 
 
 def test_training_schedule_and_budget_are_deterministic_and_bounded(tmp_path):

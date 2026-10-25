@@ -1257,10 +1257,17 @@ def verify_v0_prerequisite(protocol: Mapping[str, Any]) -> tuple[dict[str, Any],
     require(run_report.is_file(), "Scored V0 run report is missing")
     require(sha256_file(run_report) == report["run_report_sha256"],
             "Scored V0 run report bytes changed")
-    require(report.get("vision_spec_digest") == protocol["vision_digest"]
-            and report.get("vision_source_manifest_sha256")
-            == protocol["vision_source"]["manifest"]["sha256"],
-            "Accepted V0 uses another vision producer")
+    accepted_spec = report.get("vision_spec")
+    if not isinstance(accepted_spec, dict):
+        native_run = json.loads(run_report.read_text())
+        accepted_spec = native_run.get("vision_spec")
+    require(isinstance(accepted_spec, dict), "Accepted V0 lacks vision spec evidence")
+    immutable_fields = ("encoder_repo", "encoder_revision", "encoder_source_digest",
+                        "processor_digest", "encoder_width", "image_size", "patch_size",
+                        "max_visual_tokens", "feature_version", "compute_dtype")
+    require(all(accepted_spec.get(field) == protocol["vision"][field]
+                for field in immutable_fields),
+            "Accepted V0 uses another vision encoder or processor")
     require(report.get("model_revision") == protocol["model"]["revision"]
             and report.get("model_lock_sha256") == protocol["model"]["lock_sha256"],
             "Accepted V0 uses another sealed text source")

@@ -104,7 +104,8 @@ def feature_service(protocol, device):
                                     protocol["vision_source"]["manifest"]["path"])
     limit = int(protocol["limits"].get("max_cache_bytes", 8 * 1024 * 1024))
     return VisionFeatureService(source, manifest, device=device,
-                                max_cache_bytes=limit)
+                                max_cache_bytes=limit,
+                                projector_hidden=protocol["vision"]["projector_hidden"])
 
 
 def verify_source_and_spec(protocol, device):
