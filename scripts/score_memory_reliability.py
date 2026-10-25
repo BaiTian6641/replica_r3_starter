@@ -15,6 +15,7 @@ os.environ['TRANSFORMERS_OFFLINE'] = '1'
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from replica_lab.answer_audit import audit_rows
+from replica_lab.memory_reliability import audit_dataset, cases
 from replica_lab.reliability_scoring import (metrics_and_checks, regression_inventory, family_metrics,
                                              validate_training_routes)
 

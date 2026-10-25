@@ -79,8 +79,10 @@ def validate_training_routes(report, episodes, protocol):
             raise ValueError('Training state-use flag differs from route')
         if row['memory_active'] != (route == 'fast'):
             raise ValueError('Training memory-active flag differs from route')
-        if row['backward_called'] != (route == 'fast'):
-            raise ValueError('Backward-call accounting differs from differentiable route')
+        if route == 'fast' and not row['backward_called']:
+            raise ValueError('Fast-route training example omitted its differentiable backward')
+        # Gate-off disables fast state, not necessarily every non-fast graph.
+        # The recorded call is evidence; never infer per-example gradients.
         totals[route] += 1
     for update in training['updates']:
         index = update.get('update')
@@ -106,6 +108,8 @@ def validate_training_routes(report, episodes, protocol):
     return {'examples': len(rows), 'route_counts': totals,
             'memory_active_examples': totals['fast'],
             'backward_calls': sum(row['backward_called'] for row in rows),
+            'disabled_backward_calls': sum(row['backward_called'] and row['route'] == 'disabled'
+                                           for row in rows),
             'updates_checked': len(training['updates']),
             'gradient_attribution': 'update_level_accumulated_only'}
 
