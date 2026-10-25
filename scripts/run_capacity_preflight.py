@@ -71,6 +71,7 @@ def main():
                                                  "run_memory_storage_probe.py",
                                                  "run_vision_diagnostic.py",
                                                  "run_vision_dependence.py",
+                                                 "run_memory_matched.py",
                                                  "run_m3_restart.py",
                                                  "eval_m3_retention.py",
                                                  "run_vision_overfit.py",
