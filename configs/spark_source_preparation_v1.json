@@ -1,0 +1,303 @@
+{
+  "schema": "replica.spark_source_preparation_plan.v1",
+  "reviewed_on": "2026-10-25",
+  "scope": "Bounded metadata, text-asset and safetensors-header acquisition for the official Spark-X2.6 FP8 adaptation base and its independent BF16 control. No weight payload, remote Python execution or native model run.",
+  "weights_downloaded": false,
+  "remote_code_execution": false,
+  "topology": {
+    "num_hidden_layers": 36,
+    "hidden_size": 2560,
+    "intermediate_size": 10240,
+    "num_attention_heads": 16,
+    "num_key_value_heads": 4,
+    "head_dim": 256,
+    "vocab_size": 131072,
+    "sliding_window": 512,
+    "tie_word_embeddings": true,
+    "layer_pattern": [
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention",
+      "sliding_attention", "sliding_attention", "sliding_attention", "full_attention"
+    ]
+  },
+  "limits": {
+    "max_header_bytes": 8388608,
+    "max_asset_bytes": 16777216,
+    "max_total_fetch_bytes": 67108864,
+    "max_api_bytes": 2097152,
+    "min_free_bytes": 1073741824,
+    "timeout_seconds": 90
+  },
+  "sources": [
+    {
+      "role": "official_fp8_adaptation_base",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "storage": "fp8_compressed_tensors",
+      "license_claim": "apache-2.0",
+      "weight_files": [
+        {
+          "filename": "model.safetensors",
+          "bytes": 4451626120,
+          "hub_lfs_sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9"
+        }
+      ],
+      "weight_index": null,
+      "quantization": {
+        "method": "compressed-tensors",
+        "format": "float-quantized",
+        "version": "0.16.0",
+        "weight_strategy": "channel",
+        "weight_symmetric": true,
+        "weight_bits": 8,
+        "weight_dtype": "F8_E4M3",
+        "activation_strategy": "token",
+        "activation_dynamic": true,
+        "activation_symmetric": true,
+        "activation_bits": 8,
+        "activation_dtype": "F8_E4M3",
+        "scale_dtype": "BF16",
+        "zero_points": false,
+        "kv_cache_quantized": false,
+        "quantized_suffixes": [
+          "self_attn.q_k_v_proj.weight",
+          "self_attn.out_proj.weight",
+          "mlp.gate_proj.weight",
+          "mlp.up_proj.weight",
+          "mlp.down_proj.weight"
+        ],
+        "unquantized_suffixes_required": [
+          "self_attn.g_proj.weight"
+        ],
+        "dequantization_equivalent_to_bf16_release": false
+      },
+      "assets": [
+        {
+          "filename": "config.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 4510,
+          "expected_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2"
+        },
+        {
+          "filename": "LICENSE",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 11338,
+          "expected_sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36"
+        },
+        {
+          "filename": "README.md",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 14122,
+          "expected_sha256": "570208eb4a1c3022a58bc277325f5b29f393b55fc3096d373893038cbe27b0f0"
+        },
+        {
+          "filename": "chat_template.jinja",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 5717,
+          "expected_sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929"
+        },
+        {
+          "filename": "generation_config.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 281,
+          "expected_sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c"
+        },
+        {
+          "filename": "tokenizer_config.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 5841,
+          "expected_sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd"
+        },
+        {
+          "filename": "special_tokens_map.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 156,
+          "expected_sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5"
+        },
+        {
+          "filename": "configuration_spark.py",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 4329,
+          "expected_sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722"
+        },
+        {
+          "filename": "modeling_spark.py",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 19418,
+          "expected_sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+        },
+        {
+          "filename": "tokenizer.json",
+          "required": true,
+          "retain": false,
+          "expected_bytes": 10115786,
+          "expected_sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c"
+        },
+        {
+          "filename": "vocab.json",
+          "required": true,
+          "retain": false,
+          "expected_bytes": 3032795,
+          "expected_sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1"
+        },
+        {
+          "filename": "merges.txt",
+          "required": true,
+          "retain": false,
+          "expected_bytes": 1567883,
+          "expected_sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36"
+        }
+      ]
+    },
+    {
+      "role": "official_bf16_control",
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "storage": "bf16",
+      "license_claim": "apache-2.0",
+      "weight_files": [
+        {
+          "filename": "model-00001-of-00005.safetensors",
+          "bytes": 1982449560,
+          "hub_lfs_sha256": "9ba8a59a47ce4197d5c749c76c04272e0b4b880747b31b9167a82d8757e90665"
+        },
+        {
+          "filename": "model-00002-of-00005.safetensors",
+          "bytes": 1993132424,
+          "hub_lfs_sha256": "f0cad973670dda858a177d62a1845f9ec3c3e2a7a1cdbd34f98ab6789fbd452d"
+        },
+        {
+          "filename": "model-00003-of-00005.safetensors",
+          "bytes": 1993225080,
+          "hub_lfs_sha256": "479c8aecd24d1d4c6c2243541b36acc6a84df4c0706a7ccaacda748eac46b8e8"
+        },
+        {
+          "filename": "model-00004-of-00005.safetensors",
+          "bytes": 1993132448,
+          "hub_lfs_sha256": "766cd843c58676b0be533b465368a76f574f36bea074f4d16f7e37d910423d08"
+        },
+        {
+          "filename": "model-00005-of-00005.safetensors",
+          "bytes": 262252896,
+          "hub_lfs_sha256": "e2cb22cc6aa1dccdc30042170841058a1a8cffb7e9eb57356c86ae14fc4ca0e3"
+        }
+      ],
+      "weight_index": "model.safetensors.index.json",
+      "quantization": null,
+      "assets": [
+        {
+          "filename": "config.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 2035,
+          "expected_sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad"
+        },
+        {
+          "filename": "LICENSE",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 11338,
+          "expected_sha256": "525c465ab952779d2d360a9ff36f7f49ae018a23d80302ff839a850a77784c36"
+        },
+        {
+          "filename": "README.md",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 14127,
+          "expected_sha256": "c483630bf7e9c22a6583d127d74ecf0e3270aea0c358e770ac5b5f4dbb82bf39"
+        },
+        {
+          "filename": "chat_template.jinja",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 5717,
+          "expected_sha256": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929"
+        },
+        {
+          "filename": "generation_config.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 281,
+          "expected_sha256": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c"
+        },
+        {
+          "filename": "tokenizer_config.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 5841,
+          "expected_sha256": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd"
+        },
+        {
+          "filename": "special_tokens_map.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 156,
+          "expected_sha256": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5"
+        },
+        {
+          "filename": "configuration_spark.py",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 4329,
+          "expected_sha256": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722"
+        },
+        {
+          "filename": "modeling_spark.py",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 19418,
+          "expected_sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+        },
+        {
+          "filename": "model.safetensors.index.json",
+          "required": true,
+          "retain": true,
+          "expected_bytes": 24133,
+          "expected_sha256": "77a11d49b279b5e44fcb1f2453f71a8023237f93992fe5275d842e149d896edd"
+        },
+        {
+          "filename": "tokenizer.json",
+          "required": true,
+          "retain": false,
+          "expected_bytes": 10115786,
+          "expected_sha256": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c"
+        },
+        {
+          "filename": "vocab.json",
+          "required": true,
+          "retain": false,
+          "expected_bytes": 3032795,
+          "expected_sha256": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1"
+        },
+        {
+          "filename": "merges.txt",
+          "required": true,
+          "retain": false,
+          "expected_bytes": 1567883,
+          "expected_sha256": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36"
+        }
+      ]
+    }
+  ],
+  "environment": {
+    "isolation": "dedicated Spark environment; never upgrade the MiniCPM5 lock",
+    "transformers": "4.57.x only; serialized 4.57.6 (FP8) and 4.57.1 (BF16)",
+    "compressed_tensors": "0.16.0",
+    "mps_fp8_claim": "none"
+  }
+}

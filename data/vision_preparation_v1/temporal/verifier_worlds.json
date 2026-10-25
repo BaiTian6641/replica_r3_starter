@@ -1,0 +1,3966 @@
+{
+  "format": "replica.temporal_verifier_worlds.v1",
+  "label_visibility": "verifier_only",
+  "worlds": [
+    {
+      "asset_ids": {
+        "t1": "temporal-world-000-t1",
+        "t2": "temporal-world-000-t2",
+        "t3": "temporal-world-000-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "green"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "orange"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "blue"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "yellow"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "yellow",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-000-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "blue",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-000-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-000-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-000-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "orange",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-000-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "blue",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "orange",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-000-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "blue",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "orange",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-000-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-000"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-001-t1",
+        "t2": "temporal-world-001-t2",
+        "t3": "temporal-world-001-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "green"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "blue"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-001-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "blue",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-001-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-001-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-001-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-001-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "blue",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-001-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "orange",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "blue",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-001-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-001"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-002-t1",
+        "t2": "temporal-world-002-t2",
+        "t3": "temporal-world-002-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "red"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "green"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-002-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-002-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-002-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "purple",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-002-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "blue",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "orange",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "purple",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-002-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "blue",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "purple",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-002-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "green",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "purple",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-002-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-002"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-003-t1",
+        "t2": "temporal-world-003-t2",
+        "t3": "temporal-world-003-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "orange"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "green"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "purple"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "purple",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-003-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-003-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-003-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-003-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                19,
+                27,
+                37,
+                45
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "blue",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                92,
+                26,
+                116,
+                46
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-003-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                19,
+                27,
+                37,
+                45
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                92,
+                26,
+                116,
+                46
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-003-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                19,
+                27,
+                37,
+                45
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                92,
+                26,
+                116,
+                46
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-003-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-003"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-004-t1",
+        "t2": "temporal-world-004-t2",
+        "t3": "temporal-world-004-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "green"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-004-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-004-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-004-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-004-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                19,
+                27,
+                37,
+                45
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "blue",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "purple",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-004-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                19,
+                27,
+                37,
+                45
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "blue",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-004-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                19,
+                27,
+                37,
+                45
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "orange",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-004-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-004"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-005-t1",
+        "t2": "temporal-world-005-t2",
+        "t3": "temporal-world-005-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "green"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "orange"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "red"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "purple"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "purple",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-005-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-005-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-005-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-005-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "green",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "yellow",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "blue",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-005-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "green",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "blue",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-005-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                45,
+                28,
+                61,
+                44
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "blue",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-005-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-005"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-006-t1",
+        "t2": "temporal-world-006-t2",
+        "t3": "temporal-world-006-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "orange"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "green"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "yellow"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "yellow",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-006-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-006-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-006-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "blue",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-006-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "red",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "purple",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "orange",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-006-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "red",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "orange",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-006-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "orange",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-006-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-006"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-007-t1",
+        "t2": "temporal-world-007-t2",
+        "t3": "temporal-world-007-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "orange"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "green"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "yellow"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "yellow",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-007-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-007-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-007-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-007-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "blue",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-007-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-007-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "orange",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-007-t3",
+          "width": 128
+        }
+      },
+      "split": "dev",
+      "world_id": "temporal-world-007"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-008-t1",
+        "t2": "temporal-world-008-t2",
+        "t3": "temporal-world-008-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "green"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-008-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-008-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-008-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "blue",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-008-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "purple",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-008-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-008-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "orange",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                70,
+                27,
+                88,
+                45
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "red",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-008-t3",
+          "width": 128
+        }
+      },
+      "split": "audit",
+      "world_id": "temporal-world-008"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-009-t1",
+        "t2": "temporal-world-009-t2",
+        "t3": "temporal-world-009-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "green"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "yellow"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-009-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "yellow",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-009-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-009-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "purple",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-009-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "blue",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "green",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "purple",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-009-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "blue",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "yellow",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "green",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "purple",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-009-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "orange",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "yellow",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "green",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "purple",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-009-t3",
+          "width": 128
+        }
+      },
+      "split": "audit",
+      "world_id": "temporal-world-009"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-010-t1",
+        "t2": "temporal-world-010-t2",
+        "t3": "temporal-world-010-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "green"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "red"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-010-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-010-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-010-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "blue",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-010-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-010-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "purple",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-010-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                20,
+                28,
+                36,
+                44
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "orange",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                43,
+                26,
+                63,
+                46
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "red",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                71,
+                28,
+                87,
+                44
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "yellow",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                93,
+                27,
+                115,
+                45
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "blue",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-010-t3",
+          "width": 128
+        }
+      },
+      "split": "audit",
+      "world_id": "temporal-world-010"
+    },
+    {
+      "asset_ids": {
+        "t1": "temporal-world-011-t1",
+        "t2": "temporal-world-011-t2",
+        "t3": "temporal-world-011-t3"
+      },
+      "events": [
+        {
+          "fact": "circle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "yellow"
+        },
+        {
+          "fact": "square_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "purple"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "blue"
+        },
+        {
+          "fact": "rectangle_color",
+          "kind": "assert",
+          "time": 1,
+          "value": "red"
+        },
+        {
+          "fact": "square_color",
+          "kind": "correction",
+          "time": 2,
+          "value": "green"
+        },
+        {
+          "fact": "circle_color",
+          "kind": "change",
+          "time": 3,
+          "value": "orange"
+        },
+        {
+          "fact": "triangle_color",
+          "kind": "revocation",
+          "time": 3
+        }
+      ],
+      "fact_object": {
+        "circle_color": "o0",
+        "rectangle_color": "o3",
+        "square_color": "o1",
+        "triangle_color": "o2"
+      },
+      "label_visibility": "verifier_only",
+      "queries": [
+        {
+          "cutoff_time": 4,
+          "expected_answer": "orange",
+          "expected_status": "changed",
+          "fact": "circle_color",
+          "query_id": "temporal-world-011-q-circle_color",
+          "question": "What color is the circle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "green",
+          "expected_status": "corrected",
+          "fact": "square_color",
+          "query_id": "temporal-world-011-q-square_color",
+          "question": "What color is the square?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "unknown",
+          "expected_status": "revoked",
+          "fact": "triangle_color",
+          "query_id": "temporal-world-011-q-triangle_color",
+          "question": "What color is the triangle?",
+          "unaffected": false
+        },
+        {
+          "cutoff_time": 4,
+          "expected_answer": "red",
+          "expected_status": "unchanged",
+          "fact": "rectangle_color",
+          "query_id": "temporal-world-011-q-rectangle_color",
+          "question": "What color is the rectangle?",
+          "unaffected": true
+        }
+      ],
+      "scenes": {
+        "t1": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "purple",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "blue",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-011-t1",
+          "width": 128
+        },
+        "t2": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "yellow",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "blue",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-011-t2",
+          "width": 128
+        },
+        "t3": {
+          "height": 96,
+          "layout": {
+            "cell_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "crop_policy": "inner_margin_crop",
+            "template": "temporal_row_4"
+          },
+          "objects": [
+            {
+              "bbox": [
+                18,
+                26,
+                38,
+                46
+              ],
+              "center": [
+                28,
+                36
+              ],
+              "color": "orange",
+              "id": "o0",
+              "shape": "circle"
+            },
+            {
+              "bbox": [
+                44,
+                27,
+                62,
+                45
+              ],
+              "center": [
+                53,
+                36
+              ],
+              "color": "green",
+              "id": "o1",
+              "shape": "square"
+            },
+            {
+              "bbox": [
+                69,
+                26,
+                89,
+                46
+              ],
+              "center": [
+                79,
+                36
+              ],
+              "color": "blue",
+              "id": "o2",
+              "shape": "triangle"
+            },
+            {
+              "bbox": [
+                94,
+                28,
+                114,
+                44
+              ],
+              "center": [
+                104,
+                36
+              ],
+              "color": "red",
+              "id": "o3",
+              "shape": "rectangle"
+            }
+          ],
+          "scene_id": "temporal-world-011-t3",
+          "width": 128
+        }
+      },
+      "split": "audit",
+      "world_id": "temporal-world-011"
+    }
+  ]
+}

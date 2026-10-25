@@ -1,0 +1,290 @@
+{
+  "audit": {
+    "admitted_training_rows": 0,
+    "asset_bytes": 400867,
+    "campaign_asset_ceiling_bytes": 26843545600,
+    "external": {
+      "admitted": 0,
+      "assets_acquired": 0,
+      "awaiting_immutable_pin": 12,
+      "catalog_external_sources": 34,
+      "content_inspected": 0,
+      "eligible_for_this_campaign": 0,
+      "metadata_pinned": 22,
+      "normalized": 0
+    },
+    "external_assets_acquired": 0,
+    "stages": {
+      "v0": {
+        "admitted_rows": 0,
+        "asset_bytes": 52692,
+        "assets": 160,
+        "generation_fingerprint": "b474c0602779ec6ee13251265bfbbf3b27ecbb39ff6333ee7dd021084fb99897",
+        "groups": 100,
+        "model_rows": 640,
+        "splits": {
+          "audit": {
+            "assets": 32,
+            "groups": 20
+          },
+          "calibration": {
+            "assets": 32,
+            "groups": 20
+          },
+          "dev": {
+            "assets": 32,
+            "groups": 20
+          },
+          "promotion": {
+            "assets": 32,
+            "groups": 20
+          },
+          "train": {
+            "assets": 32,
+            "groups": 20
+          }
+        },
+        "stage": "v0",
+        "tasks": {
+          "absent": 128,
+          "color": 128,
+          "count": 128,
+          "shape": 128,
+          "spatial": 128
+        },
+        "verifier_cases": 640
+      },
+      "v1": {
+        "admitted_rows": 0,
+        "asset_bytes": 335295,
+        "assets": 1024,
+        "generation_fingerprint": "8638f62f32474919eca7cb9858c7fb672580c8de368e9c36a6b20d8972001d20",
+        "groups": 256,
+        "model_rows": 2048,
+        "splits": {
+          "dev": {
+            "assets": 128,
+            "groups": 32
+          },
+          "train": {
+            "assets": 896,
+            "groups": 224
+          }
+        },
+        "stage": "v1",
+        "tasks": {
+          "absent": 256,
+          "color": 1024,
+          "count": 256,
+          "shape": 256,
+          "spatial": 256
+        },
+        "verifier_cases": 2048
+      }
+    },
+    "status": "passed",
+    "temporal": {
+      "admitted_rows": 0,
+      "asset_bytes": 12880,
+      "assets": 36,
+      "generation_fingerprint": "1c6d20ea99a75360f6691933f5d46842488d2c28e534a74b24462adba5f84eb0",
+      "observations": 36,
+      "queries": 48,
+      "splits": {
+        "audit": 4,
+        "dev": 8
+      },
+      "stage": "temporal",
+      "worlds": 12
+    },
+    "within_asset_ceiling": true
+  },
+  "campaign_budget": {
+    "asset_ceiling_bytes": 26843545600,
+    "checkpoint_bytes_accounted_separately": true,
+    "headroom_bytes": 26843144733,
+    "internal_asset_bytes": 400867,
+    "note": "Checkpoint storage and the 50 GiB native RAM stop guard are separate budgets.",
+    "ram_guard_accounted_separately": true,
+    "within_asset_ceiling": true
+  },
+  "config": {
+    "fingerprint": "4d8b7e39e08e87299fb17b76a7c126b61ca20049d65f093600676123b871489b",
+    "path": "/Users/flare/replica_r3_starter/configs/vision_data_preparation_v1.json"
+  },
+  "external_components": {
+    "admitted_here": 0,
+    "assets_acquired_here": 0,
+    "bytes_acquired_here": 0,
+    "catalog_sources": 34,
+    "eligible_for_this_campaign": 0,
+    "note": "No external asset was eligible/needed for this owned procedural preparation tranche. Generated image bytes are internally distinct from any catalog asset and are not a substitute for real-image evaluation.",
+    "policy": "No catalog component has completed asset inspection, normalization, eligibility and named admission; bulk downloads are outside this preparation profile.",
+    "stage_status_counts": {
+      "acquired": 0,
+      "admitted": 0,
+      "inspected": 0,
+      "located": 34,
+      "normalized": 0,
+      "pinned": 22
+    }
+  },
+  "format": "replica.vision_data_preparation_report.v1",
+  "generated": {
+    "candidate_model_rows": 2688,
+    "internal_asset_bytes": 400867,
+    "internal_assets": 1220,
+    "stages": {
+      "v0": {
+        "admitted_rows": 0,
+        "asset_bytes": 52692,
+        "assets": 160,
+        "crop_assets": 60,
+        "dev_candidate_assets": null,
+        "generation_fingerprint": "b474c0602779ec6ee13251265bfbbf3b27ecbb39ff6333ee7dd021084fb99897",
+        "groups": 100,
+        "manifest_sha256": "7196a7ed46a570cf42891090db3f07acb8138ac8e24a68e3d4868121c01216ef",
+        "model_rows": 640,
+        "root_assets": 100,
+        "splits": {
+          "audit": {
+            "assets": 32,
+            "groups": 20,
+            "model_rows": 128
+          },
+          "calibration": {
+            "assets": 32,
+            "groups": 20,
+            "model_rows": 128
+          },
+          "dev": {
+            "assets": 32,
+            "groups": 20,
+            "model_rows": 128
+          },
+          "promotion": {
+            "assets": 32,
+            "groups": 20,
+            "model_rows": 128
+          },
+          "train": {
+            "assets": 32,
+            "groups": 20,
+            "model_rows": 128
+          }
+        },
+        "status": "interface_qualification_candidate_not_training_admitted",
+        "task_histogram": {
+          "absent": 128,
+          "color": 128,
+          "count": 128,
+          "shape": 128,
+          "spatial": 128
+        },
+        "train_candidate_assets": null,
+        "verifier_cases": 640
+      },
+      "v1": {
+        "admitted_rows": 0,
+        "asset_bytes": 335295,
+        "assets": 1024,
+        "crop_assets": 512,
+        "dev_candidate_assets": 128,
+        "generation_fingerprint": "8638f62f32474919eca7cb9858c7fb672580c8de368e9c36a6b20d8972001d20",
+        "groups": 256,
+        "manifest_sha256": "38f714bdddd1cf8cad97c8e38a224f1d5408d8fd5c44caf3e8885d7cd88de0a7",
+        "model_rows": 2048,
+        "root_assets": 512,
+        "splits": {
+          "dev": {
+            "assets": 128,
+            "groups": 32,
+            "model_rows": 256
+          },
+          "train": {
+            "assets": 896,
+            "groups": 224,
+            "model_rows": 1792
+          }
+        },
+        "status": "candidate_not_admitted",
+        "task_histogram": {
+          "absent": 256,
+          "color": 1024,
+          "count": 256,
+          "shape": 256,
+          "spatial": 256
+        },
+        "train_candidate_assets": 896,
+        "verifier_cases": 2048
+      }
+    },
+    "temporal": {
+      "admitted_rows": 0,
+      "asset_bytes": 12880,
+      "assets": 36,
+      "generation_fingerprint": "1c6d20ea99a75360f6691933f5d46842488d2c28e534a74b24462adba5f84eb0",
+      "groups": 12,
+      "manifest_sha256": "55e353e35c252ad539ddfa21dd435a5ea2854b6e7354590b9a8fafe1ef055e1b",
+      "model_rows_exposed": 0,
+      "observations": 36,
+      "queries_verifier_only": 48,
+      "status": "storage_probe_candidate"
+    },
+    "total_generated_bytes": 4240405,
+    "total_generated_files": 1233
+  },
+  "generated_on": "2026-10-25",
+  "inputs": {
+    "runtime_registry": {
+      "entries": 13,
+      "path": "/Users/flare/replica_r3_starter/configs/dataset_registry.json",
+      "role": "existing experiment-admission interface; not overridden here",
+      "sha256": "45b812da965ebc605f6d63abc7250b91730fbc6f96d0e309e2776ea6503b13c4",
+      "status": "research_catalog_not_an_ingestion_manifest"
+    },
+    "source_catalog": {
+      "awaiting_immutable_pin": 12,
+      "external_sources": 34,
+      "metadata_pinned": 22,
+      "path": "/Users/flare/replica_r3_starter/docs/datasets/20261024_Source_Catalog.json",
+      "sha256": "a5d7e95cd028ed9f87deb97c2f04798737855a684dbbd4c4979720d1d0ab8b27"
+    }
+  },
+  "limitations": [
+    "Generated scenes are synthetic controls, not evidence of broad real-image competence.",
+    "V0 is interface qualification; V1 rows are candidates pending a named admission protocol.",
+    "Rendering metadata, scene graphs and answers are verifier-only; model rows expose image and question.",
+    "No native model computation, MPS worker, training or bulk download occurred.",
+    "A programmatic label is not infallible; the executable checks reduce but do not remove generator risk."
+  ],
+  "manifest_hashes": {
+    "external_component_allowlist": "b91a5e8c872588d44ea92237d6cde5ee5e878dc9c921e56b6e76c9a8f185fa4b",
+    "temporal": "55e353e35c252ad539ddfa21dd435a5ea2854b6e7354590b9a8fafe1ef055e1b",
+    "v0": "7196a7ed46a570cf42891090db3f07acb8138ac8e24a68e3d4868121c01216ef",
+    "v1": "38f714bdddd1cf8cad97c8e38a224f1d5408d8fd5c44caf3e8885d7cd88de0a7"
+  },
+  "sample_images": {
+    "temporal": "/Users/flare/replica_r3_starter/data/vision_preparation_v1/temporal/assets/temporal-world-000-t1.png",
+    "v0": "/Users/flare/replica_r3_starter/data/vision_preparation_v1/v0/assets/v0-f000-root.png",
+    "v1": "/Users/flare/replica_r3_starter/data/vision_preparation_v1/v1/assets/v1-w000-p0-a.png"
+  },
+  "source_catalog_vs_generated": {
+    "admitted_training_rows": 0,
+    "catalog_asset_bytes_acquired": 0,
+    "catalog_assets_acquired": 0,
+    "catalog_external_sources": 34,
+    "catalog_pinned_metadata_sources": 22,
+    "internal_generated_asset_bytes": 400867,
+    "internal_generated_assets": 1220,
+    "internal_generated_candidate_rows": 2688
+  },
+  "status": "audit_passed",
+  "training_admission": {
+    "admitted": false,
+    "admitted_training_rows": 0,
+    "temporal": "Fresh storage-probe candidates; observation captions are inputs while expected answers/statuses and the event ledger remain verifier-only.",
+    "v0": "Interface-qualification candidate only; not a training run.",
+    "v1": "Capped candidate manifest only. Do not treat tiny procedural scenes as broad V1 alignment or admit them without a named protocol."
+  }
+}

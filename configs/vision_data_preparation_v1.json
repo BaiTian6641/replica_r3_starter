@@ -1,0 +1,52 @@
+{
+  "format": "replica.vision_data_preparation.v1",
+  "seed": 20261025,
+  "renderer": {
+    "version": "procedural_png_v1",
+    "width": 128,
+    "height": 96,
+    "image_format": "png_rgb8",
+    "standard_library_only": true
+  },
+  "campaign": {
+    "asset_ceiling_bytes": 26843545600,
+    "checkpoint_bytes_separate": true,
+    "ram_guard_separate": true,
+    "note": "25 GiB asset ceiling for the acquisition campaign; checkpoints and the 50 GiB native RAM guard are separate budgets."
+  },
+  "v0": {
+    "status": "interface_qualification_candidate_not_training_admitted",
+    "root_families": 100,
+    "crop_families": 60,
+    "max_assets": 256,
+    "cases_per_asset": 4,
+    "split_family_counts": {
+      "train": 20,
+      "dev": 20,
+      "calibration": 20,
+      "promotion": 20,
+      "audit": 20
+    }
+  },
+  "v1": {
+    "status": "candidate_not_admitted",
+    "worlds": 256,
+    "dev_worlds": 32,
+    "assets_per_world": 4,
+    "max_assets": 1024,
+    "cases_per_asset": 2
+  },
+  "temporal": {
+    "status": "storage_probe_candidate",
+    "worlds": 12,
+    "dev_worlds": 8,
+    "observations_per_world": 3,
+    "queries_per_world": 4
+  },
+  "external": {
+    "catalog": "docs/datasets/20261024_Source_Catalog.json",
+    "runtime_registry": "configs/dataset_registry.json",
+    "acquire_assets": false,
+    "max_external_assets": 0
+  }
+}
