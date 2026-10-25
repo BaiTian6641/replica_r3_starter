@@ -126,7 +126,7 @@ def test_scorer_recomputes_scores_and_requires_complete_arms():
 def test_persistent_reload_then_append_preserves_prior_snapshot_and_lineage(tmp_path, monkeypatch):
     model = tiny_adapter(fast_memory=SPEC).eval()
     memory = PersistentFastMemory(model, Tokenizer(), SCOPE)
-    memory.append('a', 'first page'); memory.append('b', 'second page')
+    memory.append('a', 'first page', records=()); memory.append('b', 'second page', records=())
     before = memory.read(); snapshot = before.weights.clone()
     memory.save(tmp_path/'before')
     encode = model.encode_fast_observation
@@ -134,7 +134,8 @@ def test_persistent_reload_then_append_preserves_prior_snapshot_and_lineage(tmp_
     loaded = PersistentFastMemory.load(tmp_path/'before', model, Tokenizer(), SCOPE)
     assert loaded.read().state_digest == before.state_digest and len(loaded.lineage) == 2
     monkeypatch.setattr(model, 'encode_fast_observation', encode)
-    memory.append('c', 'correction page'); loaded.append('c', 'correction page')
+    memory.append('c', 'correction page', records=())
+    loaded.append('c', 'correction page', records=())
     torch.testing.assert_close(loaded.read().weights, memory.read().weights, atol=0, rtol=0)
     before.assert_immutable()
     torch.testing.assert_close(before.weights, snapshot, atol=0, rtol=0)

@@ -114,9 +114,10 @@ def _validate_writer_representation(value):
     return value
 
 
-def _append_source(memory, event_id, text, representation, *, fact=None, correction=False):
+def _append_source(memory, event_id, text, representation, *, fact=None, correction=False,
+                   records=None):
     if _validate_writer_representation(representation) == RAW_REPRESENTATION:
-        memory.append(event_id, text)
+        memory.append(event_id, text, records=records)
     else:
         if fact is None:
             raise ValueError('Structured fact required by fact-binding writer')
@@ -125,8 +126,15 @@ def _append_source(memory, event_id, text, representation, *, fact=None, correct
 
 def _append_last_source(memory, episode, stage, representation):
     if representation == RAW_REPRESENTATION:
-        memory.append('last_only', episode['observations'][-1] if stage == 'initial'
-                      else episode['correction_observation'])
+        from replica_lab.runtime.exact_memory import episode_records
+        initial, correction = episode_records(episode)
+        if stage == 'initial':
+            observation = episode['observations'][-1]
+            lines = set(observation.splitlines())
+            records = tuple(record for record in initial if record.text in lines)
+        else:
+            observation, records = episode['correction_observation'], (correction,)
+        memory.append('last_only', observation, records=records)
         return
     from replica_lab.runtime.fact_memory import fact_source_text
     if stage == 'corrected':
@@ -142,6 +150,7 @@ def _append_last_source(memory, episode, stage, representation):
 
 def initialize(model, tokenizer, episode, training=False, reference=None,
                writer_representation=RAW_REPRESENTATION):
+    from replica_lab.runtime.exact_memory import episode_records
     from replica_lab.runtime.persistent_fast_memory import PersistentFastMemory
     _validate_writer_representation(writer_representation)
     if reference is not None:
@@ -152,8 +161,11 @@ def initialize(model, tokenizer, episode, training=False, reference=None,
         for index, fact in enumerate(episode['facts'] + episode['distractors']):
             memory.append_fact(f"{episode['episode_id']}:fact:{index}", fact)
     else:
+        initial, _ = episode_records(episode)
         for index, observation in enumerate(episode['observations']):
-            memory.append(f"{episode['episode_id']}:source:{index}", observation)
+            lines = set(observation.splitlines())
+            records = tuple(record for record in initial if record.text in lines)
+            memory.append(f"{episode['episode_id']}:source:{index}", observation, records=records)
     return memory
 
 
@@ -172,7 +184,7 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
         adversarial = None
         if adversarial_text is not None:
             adversarial = PersistentFastMemory(session.adapter, session.tokenizer, memory_scope(episode))
-            adversarial.append(f"{episode['episode_id']}:adversarial", adversarial_text)
+            adversarial.append(f"{episode['episode_id']}:adversarial", adversarial_text, records=())
         initial = memory.read().state_digest
         correction_record = episode_records(episode)[1] if reference is not None else None
         for stage in ('initial', 'corrected'):
@@ -191,12 +203,15 @@ def evaluate(session, episodes, arms, output=None, check=lambda: None,
                         raise ValueError('Reload changed initial state')
                 if reference is not None:
                     reference.correct_episode(episode)
+                correction_dependencies = (episode_records(episode)[1],)
                 _append_source(memory, f"{episode['episode_id']}:correction",
                                episode['correction_observation'], writer_representation,
-                               fact=episode['correction'], correction=True)
+                               fact=episode['correction'], correction=True,
+                               records=correction_dependencies)
                 _append_source(shuffled, f"{other['episode_id']}:correction",
                                other['correction_observation'], writer_representation,
-                               fact=other['correction'], correction=True)
+                               fact=other['correction'], correction=True,
+                               records=(episode_records(other)[1],))
                 if output is not None:
                     after = output / episode['episode_id'] / 'corrected'
                     if reference is not None:
@@ -240,6 +255,7 @@ def train_candidate(session, episodes, protocol, report, check):
     import torch.nn.functional as F
     from replica_lab.optimizers import build_optimizer
     model, tokenizer = session.adapter, session.tokenizer
+    from replica_lab.runtime.exact_memory import episode_records
     reference = None
     if protocol.get('exact_reference', {}).get('enabled', False):
         from replica_lab.runtime.exact_memory import ExactMemoryReference
@@ -276,7 +292,8 @@ def train_candidate(session, episodes, protocol, report, check):
                     reference.correct_episode(episode)
                 _append_source(memory, f"{episode['episode_id']}:correction",
                                episode['correction_observation'], writer_representation,
-                               fact=episode['correction'], correction=True)
+                               fact=episode['correction'], correction=True,
+                               records=(episode_records(episode)[1],))
             evidence = reference.select(case['query'], case_scope(case)) if gate else None
             fast_read = memory.read()
             route = route_metadata(fast_read, evidence)

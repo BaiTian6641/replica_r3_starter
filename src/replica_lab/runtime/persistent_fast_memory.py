@@ -32,13 +32,42 @@ def _is_sha256(value):
             and all(char in '0123456789abcdef' for char in value))
 
 
+PAGE_DEPENDENCY_FORMAT = 'replica.fast_memory.page_dependencies.v1'
+_EVENT_FIELDS = {'event_id', 'source_hash', 'correction', 'record_hash', 'supersedes'}
+_PAGE_DEPENDENCY_FIELDS = {'record_id', 'record_hash', 'source_hash', 'supersedes'}
+
+
+def _validate_page_dependencies(value):
+    """Authenticate an explicit ordered page -> record dependency list."""
+    if not isinstance(value, list):
+        raise ValueError('Persistent page dependency metadata differs')
+    dependencies, seen = [], set()
+    for dependency in value:
+        if not isinstance(dependency, dict) or set(dependency) != _PAGE_DEPENDENCY_FIELDS:
+            raise ValueError('Persistent page dependency metadata differs')
+        record_id = dependency['record_id']
+        if (not isinstance(record_id, str) or not record_id or record_id in seen
+                or not _is_sha256(dependency['record_hash'])
+                or not _is_sha256(dependency['source_hash'])
+                or (dependency['supersedes'] is not None and (
+                    not isinstance(dependency['supersedes'], str) or not dependency['supersedes']))):
+            raise ValueError('Persistent page dependency metadata differs')
+        seen.add(record_id)
+        dependencies.append({key: dependency[key] for key in
+                             ('record_id', 'record_hash', 'source_hash', 'supersedes')})
+    return dependencies
+
+
 def read_persistent_manifest(path):
     """Authenticate the wrapper manifest; callers must also verify producer pins."""
     value = json.loads((Path(path) / 'persistent_manifest.json').read_text())
     fields = {'format', 'representation', 'representation_config', 'dependencies', 'engine_config',
               'model_version', 'producer', 'events', 'semantics', 'migration',
               'depth_manifest_sha256', 'source_binding_sha256', 'manifest_digest'}
-    if (set(value) != fields or value['format'] != PERSISTENT_FORMAT
+    if (set(value) not in (fields, fields | {'page_dependency_format'})
+            or value['format'] != PERSISTENT_FORMAT
+            or ('page_dependency_format' in value
+                and value['page_dependency_format'] != PAGE_DEPENDENCY_FORMAT)
             or value['representation_config'] != representation_configuration(value['representation'])
             or type(value['representation_config']['version']) is not int
             or value['semantics'] not in {'incremental_history', 'history', 'current_view'}):
@@ -106,17 +135,46 @@ class PersistentFastMemory:
             raise PermissionError('Source view scope differs from the persistent state owner')
 
 
+    def _authorize_page_dependency(self, dependency, *, index, dep_index, eligible,
+                                   superseding, positions, ledger):
+        """Prove one explicitly declared page dependency is still authorized."""
+        binding = (dependency['source_hash'], dependency['record_hash'],
+                   dependency['supersedes'])
+        record_id = dependency['record_id']
+        record = eligible.get(record_id)
+        if record is not None:
+            if binding != (record.source_hash, record.record_hash, record.supersedes):
+                raise ValueError('Consumed page dependency no longer matches the authoritative view')
+            return
+        status = ledger.record_status(record_id)
+        if status is None:
+            raise ValueError('Consumed page dependency is missing from the ledger; '
+                             'rebuild before rebinding')
+        if status['revoked']:
+            raise ValueError('Consumed page dependency was revoked; rebuild before rebinding')
+        if binding != (status['source_hash'], status['record_hash'], status['supersedes']):
+            raise ValueError('Consumed page dependency changed in the ledger; '
+                             'rebuild before rebinding')
+        correction = superseding.get(record_id)
+        if (correction is None
+                or positions.get(correction.record_id, (-1, -1)) <= (index, dep_index)):
+            raise ValueError('Consumed page dependency is absent from the authoritative view; '
+                             'rebuild before rebinding')
+
     def _authorize_source_view(self, reference, view):
         """Prove the consumed lineage is still authorized by this exact view.
 
         Record-backed events must match an eligible record byte-for-byte, or be
         superseded originals whose eligible correction this state consumed later.
-        Unbacked observation events must not repeat revoked source text, and the
-        state must already reflect every eligible correction in the view. A
-        metadata-only rebind can therefore never re-authorize stale contents:
-        only consuming the authoritative change (append) or an explicit verified
-        rebuild can. Unbacked events are text-authorized, so revocation inside a
-        larger observed page is detected only at that page's own granularity.
+        Raw events authorize their exact consumed page text and every explicitly
+        declared page -> record dependency. Dependencies are never guessed from
+        arbitrary page text: an event whose provenance is unknown (legacy
+        snapshots) fails closed here. Dependency revocation, absence or change
+        therefore invalidates the page even when the page hash is unchanged. The
+        state must also already reflect every eligible correction in the view.
+        A metadata-only rebind can never re-authorize stale contents: only
+        consuming the authoritative change (append) or an explicit verified
+        rebuild can.
         """
         ledger = getattr(reference, 'ledger', None)
         if ledger is None:
@@ -124,11 +182,21 @@ class PersistentFastMemory:
         eligible = {record.record_id: record for record in view.records}
         superseding = {record.supersedes: record for record in view.records
                        if record.supersedes is not None}
-        positions = {event_id: index for index, (event_id, _) in enumerate(self.lineage)}
+        positions = {}
+        for index, ((event_id, _), event) in enumerate(zip(self.lineage, self.events)):
+            if event['record_hash'] is not None:
+                positions[event_id] = max(positions.get(event_id, (-1, -1)), (index, -1))
+            for dep_index, dependency in enumerate(event['dependencies'] or ()):
+                record_id = dependency['record_id']
+                positions[record_id] = max(positions.get(record_id, (-1, -1)),
+                                           (index, dep_index))
         revoked = set(ledger.revoked_source_hashes())
-        for (event_id, source_hash), event in zip(self.lineage, self.events):
+        consumed_ids = set()
+        consumed_hashes = {source_hash for _, source_hash in self.lineage}
+        for index, ((event_id, source_hash), event) in enumerate(zip(self.lineage, self.events)):
             record = eligible.get(event_id)
             if event['record_hash'] is not None:
+                consumed_ids.add(event_id)
                 if record is not None:
                     if (source_hash != record.source_hash
                             or event['record_hash'] != record.record_hash
@@ -138,7 +206,7 @@ class PersistentFastMemory:
                     continue
                 correction = superseding.get(event_id)
                 if (correction is None
-                        or positions.get(correction.record_id, -1) <= positions[event_id]):
+                        or positions.get(correction.record_id, (-1, -1)) <= positions[event_id]):
                     raise ValueError('Consumed record is absent from the authoritative view; '
                                      'rebuild before rebinding')
                 status = ledger.record_status(event_id)
@@ -147,13 +215,21 @@ class PersistentFastMemory:
                         != (source_hash, event['record_hash'], event['supersedes'])):
                     raise ValueError('Consumed superseded record no longer matches the ledger')
             else:
+                dependencies = event['dependencies']
+                if dependencies is None:
+                    raise ValueError('Consumed page dependency provenance is absent; '
+                                     'rebuild before rebinding')
                 if source_hash in revoked:
                     raise ValueError('Consumed observation repeats revoked source text; '
                                      'rebuild before rebinding')
+                for dep_index, dependency in enumerate(dependencies):
+                    self._authorize_page_dependency(
+                        dependency, index=index, dep_index=dep_index, eligible=eligible,
+                        superseding=superseding, positions=positions, ledger=ledger)
+                    consumed_ids.add(dependency['record_id'])
         for correction in superseding.values():
-            if not any(event_id == correction.record_id
-                       or source_hash == correction.source_hash
-                       for event_id, source_hash in self.lineage):
+            if (correction.record_id not in consumed_ids
+                    and correction.source_hash not in consumed_hashes):
                 raise ValueError('Authoritative view contains corrections this state never '
                                  'consumed; append and rebind or rebuild')
 
@@ -190,7 +266,34 @@ class PersistentFastMemory:
             raise PermissionError('Source record is outside the persistent owner scope')
         return record
 
-    def _append(self, event_id, text, *, fact=None, correction=False, record=None):
+    def _page_dependencies(self, text, records):
+        """Derive authenticated dependencies from explicit source records only.
+
+        Omitted records mean provenance is unknown, not empty: such an event can
+        be inspected but never source-authorized or persisted. Callers must pass
+        an explicit tuple (empty only for a deliberately opaque observation).
+        """
+        if records is None:
+            return None
+        if isinstance(records, (str, bytes)):
+            raise TypeError('Raw page dependencies require MemoryRecord values')
+        lines = text.splitlines()
+        dependencies, seen = [], set()
+        for record in records:
+            record = self._record(record)
+            if record.record_id in seen:
+                raise ValueError('Raw page dependency IDs must be unique')
+            if record.text not in lines:
+                raise ValueError('Declared page dependency is not present exactly '
+                                 'in the observed page')
+            seen.add(record.record_id)
+            dependencies.append({'record_id': record.record_id,
+                                 'record_hash': record.record_hash,
+                                 'source_hash': record.source_hash,
+                                 'supersedes': record.supersedes})
+        return dependencies
+
+    def _append(self, event_id, text, *, fact=None, correction=False, record=None, records=None):
         self._mutable()
         if self.state.chunk_index >= self.config.max_chunks:
             raise ValueError('Persistent chunk quota exceeded')
@@ -198,6 +301,10 @@ class PersistentFastMemory:
             raise ValueError('Observation event IDs must be fresh')
         if not isinstance(text, str) or not text.strip():
             raise ValueError('Observed source text must be nonempty')
+        if record is not None and records is not None:
+            raise ValueError('A record-backed event cannot also declare page dependencies')
+        dependencies = ([] if record is not None or fact is not None
+                        else self._page_dependencies(text, records))
         ids = self.tokenizer(text, add_special_tokens=False)['input_ids']
         if not ids or len(ids) > self.config.max_tokens_per_chunk:
             raise ValueError('Observation must fit without silent truncation')
@@ -213,16 +320,39 @@ class PersistentFastMemory:
         source_hash = _digest_text(text)
         event = {'event_id': event_id, 'source_hash': source_hash, 'correction': correction,
                  'record_hash': record.record_hash if record is not None else None,
-                 'supersedes': record.supersedes if record is not None else None}
+                 'supersedes': record.supersedes if record is not None else None,
+                 'dependencies': dependencies}
         self.state = state
         self.lineage.append((event_id, source_hash))
         self.events.append(event)
         self._clear_binding()
 
-    def append(self, event_id, text):
+    def append(self, event_id, text, *, records=None):
+        """Consume one raw observation page.
+
+        `records` explicitly declares the ordered ledger records contained in
+        this page. Their identity and hashes are persisted with the event so a
+        later rebind can reject revoked, missing or changed dependencies instead
+        of trusting the page text hash. Omitting `records` leaves provenance
+        unknown: the event can be inspected but not source-authorized or saved.
+        Pass `records=()` only for a deliberately opaque observation with no
+        ledger dependencies. Text is never parsed to guess provenance.
+        """
         if self.representation != RAW_REPRESENTATION:
             raise ValueError('Raw append cannot mix with fact-binding representation')
-        self._append(event_id, text)
+        self._append(event_id, text, records=records)
+
+    def append_page(self, event_id, records):
+        """Consume a raw page derived exactly from these ordered source records."""
+        if self.representation != RAW_REPRESENTATION:
+            raise ValueError('Raw append cannot mix with fact-binding representation')
+        if isinstance(records, (str, bytes)):
+            raise TypeError('Raw page dependencies require MemoryRecord values')
+        records = tuple(self._record(record) for record in records)
+        if not records:
+            raise ValueError('Raw page dependencies must be explicit and nonempty')
+        text = '\n'.join(record.text for record in records)
+        self._append(event_id, text, records=records)
 
     def append_fact(self, event_id, fact, *, correction=False):
         if self.representation != FACT_REPRESENTATION:
@@ -302,6 +432,8 @@ class PersistentFastMemory:
             raise ValueError('Training graphs cannot be persisted')
         if require_source_binding and self.source_binding is None:
             raise ValueError('Source-bound image required')
+        if any(not isinstance(event.get('dependencies'), list) for event in self.events):
+            raise ValueError('Page dependency provenance is unknown; rebuild before saving')
         read = self.read()
         final = Path(path)
         if final.exists():
@@ -323,7 +455,9 @@ class PersistentFastMemory:
             persistent = {'format': PERSISTENT_FORMAT, 'representation': self.representation,
                           'representation_config': self.representation_config,
                           'dependencies': self.dependencies, 'engine_config': self.config.to_dict(),
-                          'model_version': model_version, 'producer': producer, 'events': self.events,
+                          'model_version': model_version, 'producer': producer,
+                          'page_dependency_format': PAGE_DEPENDENCY_FORMAT,
+                          'events': self.events,
                           'semantics': self.semantics, 'migration': self.migration,
                           'depth_manifest_sha256': _sha(temporary / 'manifest.json'),
                           'source_binding_sha256': _sha(binding_path) if binding_path.exists() else None}
@@ -366,12 +500,16 @@ class PersistentFastMemory:
         result.lineage = [tuple(item) for item in metadata['lineage']]
         if modern:
             events = persistent['events']
+            provenance = 'page_dependency_format' in persistent
             if not isinstance(events, list) or len(events) != len(result.lineage):
                 raise ValueError('Persistent event inventory differs')
+            normalized = []
             for event, (event_id, source_hash) in zip(events, result.lineage):
-                if (not isinstance(event, dict) or set(event) != {
-                        'event_id', 'source_hash', 'correction', 'record_hash', 'supersedes'}
-                        or (event['event_id'], event['source_hash']) != (event_id, source_hash)
+                if (not isinstance(event, dict)
+                        or set(event) not in (_EVENT_FIELDS,
+                                              _EVENT_FIELDS | {'dependencies'})):
+                    raise ValueError('Persistent event lineage or correction metadata differs')
+                if ((event['event_id'], event['source_hash']) != (event_id, source_hash)
                         or type(event['correction']) is not bool
                         or (event['record_hash'] is not None and not _is_sha256(event['record_hash']))
                         or (event['supersedes'] is not None and (
@@ -380,13 +518,34 @@ class PersistentFastMemory:
                         or (event['record_hash'] is not None
                             and event['correction'] != (event['supersedes'] is not None))):
                     raise ValueError('Persistent event lineage or correction metadata differs')
-            result.events = events
+                if provenance != ('dependencies' in event):
+                    raise ValueError('Persistent page dependency metadata is incomplete')
+                # Older versioned snapshots omit dependencies entirely. They
+                # remain inspectable; record-backed events keep full provenance
+                # through their record hash, while raw events have unknown
+                # provenance and fail closed on any source authorization.
+                if provenance:
+                    if event['dependencies'] is None:
+                        if event['record_hash'] is not None:
+                            raise ValueError('Persistent event lineage or correction metadata differs')
+                        dependencies = None
+                    else:
+                        dependencies = _validate_page_dependencies(event['dependencies'])
+                        if event['record_hash'] is not None and dependencies:
+                            raise ValueError('Persistent event lineage or correction metadata differs')
+                elif event['record_hash'] is not None:
+                    dependencies = []
+                else:
+                    dependencies = None
+                normalized.append(dict(event, dependencies=dependencies))
+            result.events = normalized
             result.semantics, result.migration = persistent['semantics'], persistent['migration']
         else:
             result._legacy = True
             result.producer = result._producer()
             result.events = [dict(event_id=event_id, source_hash=source_hash, correction=False,
-                                  record_hash=None, supersedes=None) for event_id, source_hash in result.lineage]
+                                  record_hash=None, supersedes=None, dependencies=None)
+                             for event_id, source_hash in result.lineage]
             result.migration = {'legacy_depth_manifest_sha256': _sha(path / 'manifest.json'),
                                 'legacy_state_digest': read.state_digest,
                                 'declared_legacy_representation': representation}

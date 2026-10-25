@@ -186,8 +186,8 @@ def test_atomic_source_bound_image_and_stale_view_rejection(tmp_path, monkeypatc
     model = tiny_adapter(fast_memory=SPEC).eval()
     scope_fast = replace(FAST_SCOPE, branch_id=episode['episode_id'])
     memory = PersistentFastMemory(model, Tokenizer(), scope_fast)
-    memory.append('page0', episode['observations'][0])
-    memory.append('page1', episode['observations'][1])
+    memory.append('page0', episode['observations'][0], records=())
+    memory.append('page1', episode['observations'][1], records=())
     memory.bind_source(ref, scope=scope(episode))
     target = tmp_path / 'image'
     metadata = memory.save(target, require_source_binding=True)
@@ -205,7 +205,7 @@ def test_atomic_source_bound_image_and_stale_view_rejection(tmp_path, monkeypatc
     memory.bind_source(ref, scope=scope(episode))
     with pytest.raises(ValueError, match='never consumed'):
         memory.bind_source(ref, scope=scope(episode, 'corrected'))
-    memory.append('page-correction', episode['correction_observation'])
+    memory.append('page-correction', episode['correction_observation'], records=())
     memory.bind_source(ref, scope=scope(episode, 'corrected'))
     # A failed image write never publishes a final or temporary directory.
     import replica_lab.runtime.persistent_fast_memory as module
@@ -225,7 +225,7 @@ def test_rebuild_replaces_derived_state_and_requires_new_source_binding(tmp_path
     model = tiny_adapter(fast_memory=SPEC).eval()
     scope_fast = replace(FAST_SCOPE, branch_id=episode['episode_id'])
     memory = PersistentFastMemory(model, Tokenizer(), scope_fast)
-    memory.append('old', 'old page')
+    memory.append('old', 'old page', records=())
     ref = reference(tmp_path, episode)
     memory.bind_source(ref, scope=scope(episode))
     memory.rebuild(semantics='current_view', reference=ref, source_scope=scope(episode))
@@ -341,7 +341,7 @@ def test_append_invalidates_existing_source_binding(tmp_path):
     model = tiny_adapter(fast_memory=SPEC).eval()
     memory = PersistentFastMemory(model, Tokenizer(), replace(FAST_SCOPE, branch_id=episode['episode_id']))
     memory.bind_source(ref, scope=scope(episode))
-    memory.append('new-page', episode['observations'][0])
+    memory.append('new-page', episode['observations'][0], records=())
     assert memory.source_binding is None
     with pytest.raises(ValueError, match='Source-bound'):
         memory.save(tmp_path / 'stale', require_source_binding=True)
