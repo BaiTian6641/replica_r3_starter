@@ -1,0 +1,12 @@
+W1023 20:34:44.776000 93554 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  23%|██▎       | 87/381 [00:00<00:00, 846.97it/s]Loading weights:  47%|████▋     | 180/381 [00:00<00:00, 874.18it/s]Loading weights:  70%|███████   | 268/381 [00:00<00:00, 862.25it/s]Loading weights:  94%|█████████▎| 357/381 [00:00<00:00, 862.81it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 886.55it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 360, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 342, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 279, in execute
+    fs.stage_sgdn2_observation(f'observation-{index}', write,
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/fast_memory.py", line 267, in stage_sgdn2_observation
+    raise ValueError('invalid SGDN-2 write shape or values')
+ValueError: invalid SGDN-2 write shape or values

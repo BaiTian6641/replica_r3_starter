@@ -1,0 +1,196 @@
+{
+  "format": "replica.memory_reliability.verdict.v1",
+  "decision": "reject",
+  "deployment": "diagnostic_only_not_published",
+  "report_sha256": "5aea250dd6abb85c8f8d8b1ea67895fb1865bc4e5f9dc830c031c528527c2dd6",
+  "protocol_sha256": "02b8fdf6a341f4d2983d476777c4982e76adb8c94875209a9073ebb5ec6b4926",
+  "dataset_audit": {
+    "episodes": 12,
+    "families": 6,
+    "fact_queries": 48,
+    "first_line_accuracy": 0.22916666666666666,
+    "last_line_accuracy": 0.1875,
+    "query_only_best_accuracy": 0.5,
+    "counterfactual_pairs": 24,
+    "family_splits_disjoint": true,
+    "rendered_oracle_verified": true,
+    "split_episodes": {
+      "train": 8,
+      "dev": 2,
+      "heldout": 2
+    },
+    "heldout_values_absent_from_training": [
+      "crimson",
+      "indigo"
+    ]
+  },
+  "metrics": {
+    "parent": {
+      "fast": {
+        "dev": {
+          "fact": 0.25,
+          "changed": 1.0,
+          "unaffected": 0.0,
+          "unknown": 0.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.125,
+          "changed": 1.0,
+          "unaffected": 0.0,
+          "unknown": 0.0,
+          "general": 0.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      }
+    },
+    "candidate": {
+      "fast": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        }
+      },
+      "disabled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      },
+      "shuffled": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        }
+      },
+      "last_chunk": {
+        "dev": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        },
+        "heldout": {
+          "fact": 0.0,
+          "changed": 0.0,
+          "unaffected": 0.0,
+          "unknown": 1.0,
+          "general": 0.0
+        }
+      },
+      "full_context": {
+        "dev": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        },
+        "heldout": {
+          "fact": 1.0,
+          "changed": 1.0,
+          "unaffected": 1.0,
+          "unknown": 1.0,
+          "general": 1.0
+        }
+      }
+    }
+  },
+  "checks": {
+    "dev_fact_reliable": false,
+    "dev_changed_reliable": false,
+    "dev_unaffected_reliable": false,
+    "dev_unknown": true,
+    "dev_delayed_above_controls": false,
+    "dev_retention": false,
+    "dev_retention_no_correct_to_wrong": false,
+    "heldout_fact_reliable": false,
+    "heldout_changed_reliable": false,
+    "heldout_unaffected_reliable": false,
+    "heldout_unknown": true,
+    "heldout_delayed_above_controls": false,
+    "heldout_retention": false,
+    "heldout_retention_no_correct_to_wrong": false,
+    "disabled_token_parity": true,
+    "persistent_correction_lineage": true
+  },
+  "failed_checks": [
+    "dev_fact_reliable",
+    "dev_changed_reliable",
+    "dev_unaffected_reliable",
+    "dev_delayed_above_controls",
+    "dev_retention",
+    "dev_retention_no_correct_to_wrong",
+    "heldout_fact_reliable",
+    "heldout_changed_reliable",
+    "heldout_unaffected_reliable",
+    "heldout_delayed_above_controls",
+    "heldout_retention",
+    "heldout_retention_no_correct_to_wrong"
+  ],
+  "decoded_answer_rows": 336,
+  "images": {
+    "images_authenticated": 8,
+    "actual_tensor_bytes_checked": true,
+    "scope_source_lineage_and_counters_checked": true,
+    "multiple_queries_per_state": true
+  },
+  "guard": {
+    "path": "reports/memory_reliability_attempt02.guard.json",
+    "sha256": "9f3018531dc606a82ca042f8c57c08a0ab0a808bc6b322c426aad8f32a2fb1a2",
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    }
+  },
+  "restart": null,
+  "scope": "Small exposed synthetic diagnostic; no RSI or broad memory claim"
+}

@@ -1,0 +1,16 @@
+W1023 20:39:48.625000 93996 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 906.54it/s]Loading weights:  48%|████▊     | 182/381 [00:00<00:00, 886.22it/s]Loading weights:  71%|███████   | 271/381 [00:00<00:00, 856.78it/s]Loading weights:  94%|█████████▎| 357/381 [00:00<00:00, 807.62it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 857.35it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 361, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 343, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 282, in execute
+    fs.commit()
+  File "/Users/flare/replica_r3_starter/src/replica_lab/runtime/fast_memory.py", line 299, in commit
+    next_state = self._primitive(head).update_shared_chunk(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/neural.py", line 400, in update_shared_chunk
+    state = torch.where(mask[:, index, None, None, None], candidate, state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, mps:0 and cpu!

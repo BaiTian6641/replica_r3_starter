@@ -1,0 +1,18 @@
+W1023 20:33:39.163000 93413 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 889.13it/s]Loading weights:  47%|████▋     | 180/381 [00:00<00:00, 879.79it/s]Loading weights:  70%|███████   | 268/381 [00:00<00:00, 869.91it/s]Loading weights:  93%|█████████▎| 355/381 [00:00<00:00, 850.25it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 877.34it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 359, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 341, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 223, in execute
+    state = make_read(model, tokenizer, query['observations'], tag='linear', linear=True)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 46, in make_read
+    state = primitive.update_shared_chunk(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/neural.py", line 258, in update_shared_chunk
+    _hidden(write.keys, self.key_size, "keys")
+  File "/Users/flare/replica_r3_starter/src/replica_lab/neural.py", line 26, in _hidden
+    raise ValueError(f"{name} must have shape [batch, positions, {width}]")
+ValueError: keys must have shape [batch, positions, 64]

@@ -1,0 +1,93 @@
+{
+  "changed_extension_tensors": [
+    "fast_depth_write_encoders.13.erase_projection.weight",
+    "fast_depth_write_encoders.13.forget_projection.weight",
+    "fast_depth_write_encoders.13.input_norm.bias",
+    "fast_depth_write_encoders.13.input_norm.weight",
+    "fast_depth_write_encoders.13.key_projection.weight",
+    "fast_depth_write_encoders.13.value_projection.weight",
+    "fast_depth_write_encoders.13.write_projection.weight",
+    "fast_depth_write_encoders.27.erase_projection.weight",
+    "fast_depth_write_encoders.27.forget_projection.weight",
+    "fast_depth_write_encoders.27.input_norm.bias",
+    "fast_depth_write_encoders.27.input_norm.weight",
+    "fast_depth_write_encoders.27.key_projection.weight",
+    "fast_depth_write_encoders.27.value_projection.weight",
+    "fast_depth_write_encoders.27.write_projection.weight",
+    "fast_ports.13.gate_logit",
+    "fast_ports.13.output_projection.weight",
+    "fast_ports.13.query_norm.bias",
+    "fast_ports.13.query_norm.weight",
+    "fast_ports.13.query_projection.weight",
+    "fast_ports.27.gate_logit",
+    "fast_ports.27.output_projection.weight",
+    "fast_ports.27.query_norm.bias",
+    "fast_ports.27.query_norm.weight",
+    "fast_ports.27.query_projection.weight"
+  ],
+  "changed_tensor_count": 24,
+  "nonfast_extension_tensors_unchanged": true,
+  "parent_weights_sha256": "29267d2201562996fcf573f9349c06cd55392ecc2afc8976fa699729cdfa1b64",
+  "candidate_weights_sha256": "13fec4a36cfd19c49ad70166ac699acef0206df06b62cc4d07116685e98b8974",
+  "candidate_extension_bytes": 48948272,
+  "fast_answer_distribution": {
+    "unknown": 34,
+    "Unknown": 3,
+    "copper": 4,
+    "3": 1,
+    "9": 2,
+    "3 plus 4": 1,
+    "9 - 5": 1,
+    "5": 1,
+    "7": 1
+  },
+  "by_kind": {
+    "fact": {
+      "correct": 0,
+      "total": 16,
+      "answers": {
+        "unknown": 14,
+        "Unknown": 2
+      }
+    },
+    "changed": {
+      "correct": 0,
+      "total": 4,
+      "answers": {
+        "unknown": 4
+      }
+    },
+    "unaffected": {
+      "correct": 0,
+      "total": 12,
+      "answers": {
+        "copper": 4,
+        "unknown": 8
+      }
+    },
+    "unknown": {
+      "correct": 8,
+      "total": 8,
+      "answers": {
+        "Unknown": 1,
+        "unknown": 7
+      }
+    },
+    "general": {
+      "correct": 0,
+      "total": 8,
+      "answers": {
+        "3": 1,
+        "9": 2,
+        "3 plus 4": 1,
+        "9 - 5": 1,
+        "5": 1,
+        "unknown": 1,
+        "7": 1
+      }
+    }
+  },
+  "loss_first_update": 18.868358850479126,
+  "loss_last_update": 2.1528893411159515,
+  "loss_comparison_limit": "Different shuffled minibatches; not a paired before/after validation-loss comparison."
+}

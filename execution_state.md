@@ -29,6 +29,13 @@ documentation and preparation packages separately. Concurrent V0 implementation
 is excluded until its owner completes its qualification. No native work is
 launched by this maintenance.
 
+Stage 1 committed as `a2dc0cf`; `core.hooksPath=.githooks` is enabled locally.
+Stage 2 archives 53 previously untracked historical evidence files (412,375
+bytes): M0a/M2 guard traces, recovery verdicts, v5 scorer/restart traces and the
+dated recovery record. All 17 JSON files, 1,410 JSONL rows and one JUnit document
+parse. These are preserved past results, not experiments rerun or prospectively
+registered by this maintenance; no historical payload was edited.
+
 ## Current evidence and limits
 
 - The committed v5 protocol trained one writer-only D1 arm for 48 updates / 192

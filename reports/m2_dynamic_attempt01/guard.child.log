@@ -1,0 +1,14 @@
+W1023 20:31:32.010000 93198 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 85/381 [00:00<00:00, 849.05it/s]Loading weights:  45%|████▌     | 172/381 [00:00<00:00, 832.20it/s]Loading weights:  69%|██████▊   | 261/381 [00:00<00:00, 833.78it/s]Loading weights:  91%|█████████▏| 348/381 [00:00<00:00, 828.13it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 859.48it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 359, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 341, in main
+    execute(args, profiler, report)
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 223, in execute
+    state = make_read(model, tokenizer, query['observations'], tag='linear', linear=True)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_m2_dynamic.py", line 47, in make_read
+    state, [type(part)(part.keys, part.values, state.chunk_index)])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: SGDN2Write.__init__() missing 2 required positional arguments: 'write_gate' and 'decay'
