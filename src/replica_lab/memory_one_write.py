@@ -376,7 +376,7 @@ def run_one_write_diagnostic(model, tokenizer, protocol, *, output_dir,
         'representation': FACT_REPRESENTATION,
         'counts': {
             'worlds': len(worlds), 'facts': sum(len(world['facts']) for world in worlds),
-            'evaluated_rows': len(rows), 'unique_cases': len(rows) // 2,
+            'rows': len(rows), 'evaluated_rows': len(rows), 'unique_cases': len(rows) // 2,
             'before_save_rows': sum(1 for row in rows if row['phase'] == 'before_save'),
             'after_save_rows': sum(1 for row in rows if row['phase'] == 'after_save'),
         },
