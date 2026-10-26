@@ -1,0 +1,50 @@
+{
+  "format": "replica.vision_curriculum.supplemental_lineage.v1",
+  "scope": "Supplemental evidence for an already completed run; no native rerun and no protocol rewrite",
+  "protocol_sha256": "43a6d0f9130a1599d0dd7132cad328ee56fbebebd5ae5a2951311a3a5e7da044",
+  "manifest_sha256": "1b46bfb4c0e072ba197614e37941345ba2b0bfe5b71fe4ae8541cad926870b91",
+  "native_launch": {
+    "entry_point": "run_vision_curriculum.py",
+    "guard_entry_point": "run_capacity_preflight.py",
+    "guard_sha256": "343d595e85316797c41d5d64c9568ae8dc55c627b9bceb77b8f67e2509b22c16",
+    "outer_guard_report_sha256": "424e58dc77721285bb7410fbdb6783256acdb3c81d032d2a253a46c4261c97b0",
+    "note": "The outer host-guard artifact is bound here. The executed protocol's original 27-file inventory omitted this launcher; this overlay records that omission instead of rewriting the executed protocol."
+  },
+  "run_reports": {
+    "muon8bit": {
+      "run_report_sha256": "601270c14b8ff03a5bbb1d7de6ab07569a3cbd387b3b8c68b41c51ab14292085",
+      "score_report_sha256": "d7395f7ce44717fef6dad32be540f9b1e3f10cd4a128c1227dcb6fe9cb56860d"
+    },
+    "adamw_control": {
+      "run_report_sha256": "e6f6c938cde0e97f1e6b6d31c7323e7ec681ae334a0d43f653ec39470336a346",
+      "score_report_sha256": "bdda81974953d952c275e6ad616ca59152282e63a5c4f07a94333780db3e3912"
+    }
+  },
+  "fresh_process_reload": {
+    "muon8bit": {
+      "independent_reload_report_sha256": "ee000b7309d519607e679bf673764048db360ef2c9de030ab8b312c24b99df88",
+      "run_local_copy_sha256": "ee000b7309d519607e679bf673764048db360ef2c9de030ab8b312c24b99df88",
+      "copies_byte_identical": true
+    },
+    "adamw_control": {
+      "independent_reload_report_sha256": "6ed4b48442a69f55d56fc0a1d267ee2c0607881237be8a827eee1529c860ea26",
+      "run_local_copy_sha256": "6ed4b48442a69f55d56fc0a1d267ee2c0607881237be8a827eee1529c860ea26",
+      "copies_byte_identical": true
+    }
+  },
+  "reservations": {
+    "audit_reserve_sha256": "d92cbb38603d09d7607d404b61ed1045f400a4f3e54c042f7eae4bc08e6f1847",
+    "external_final_reserve_sha256": "d92cbb38603d09d7607d404b61ed1045f400a4f3e54c042f7eae4bc08e6f1847",
+    "final_receipt_sha256": "06ca3671b5c098587e0341f1e010e2d74b088523d08f27907bb7a6fcccea165d",
+    "receipts_byte_identical": true,
+    "child_log_path_note": "The child log prints the reservation path with a .reserve.json suffix; the actual receipt is the same basename without that suffix. Both final receipt files exist and are byte-identical."
+  },
+  "seal_repeat_proof": {
+    "check": "require_global_finalize_allowed was called with the consumed external-final and audit seals",
+    "repeat_refused": true,
+    "error_type": "VisionCurriculumError",
+    "error": "Finalize namespace already used: external_final_a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d.json",
+    "note": "This independently verifies seal-level one-shot refusal. The separate finalize_repeat attempt stopped earlier at the fresh-output check and is not used as seal evidence."
+  },
+  "learned_quality_disposition": "rejected; engineering execution is not a promotable visual model"
+}

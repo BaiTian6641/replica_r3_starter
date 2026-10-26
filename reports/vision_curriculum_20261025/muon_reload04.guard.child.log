@@ -1,0 +1,16 @@
+W1025 21:18:39.310000 33545 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 2116, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 2086, in main
+    execute_reload(args, protocol, protocol_sha, dataset)
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 1412, in execute_reload
+    with exclusive_mps_worker(ROOT):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/loading.py", line 18, in exclusive_mps_worker
+    fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+BlockingIOError: [Errno 35] Resource temporarily unavailable

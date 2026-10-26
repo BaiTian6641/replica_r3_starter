@@ -48,7 +48,7 @@ Final offline [evidence validation](reports/m2_ultra_training_performance_202610
 reproduces the cached analysis and verifies native provenance, matched initial
 conditions, six updates, all changed tensors, resource limits and report links.
 
-**Current implementation — write-position interference isolated in memory; balanced image dependence supported on procedural holdouts; staged curriculum next.**
+**Current implementation — staged curriculum rejected on learned quality; write-position interference isolated in memory; balanced image dependence supported on procedural holdouts.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -130,6 +130,24 @@ order-aware/refresh diagnostic with the writer frozen, not writer training or
 per-depth promotion. Independent review confirms all 22,224 rows, 1,464 ordered
 histories and candidate inventories. Guard elapsed is 86.923 s, peak driver
 11,815,763,968 bytes, zero swap growth and 78% minimum free.
+
+## Staged vision curriculum — engineering pass, learned quality rejected
+
+The [staged curriculum results](docs/experiments/20261025_Staged_Vision_Curriculum_Results.md)
+complete Muon-8bit and AdamW arms with identical fresh initialization, 128 updates
+/512 examples and 32 probe updates /64 examples each. AdamW is selected by mean dev
+loss 0.797576 versus Muon 6.707518 and finalizes once. Dev correct is **99/240**
+versus no-image 65/240, wrong 92/240 and shuffled 87/240. Audit correct is
+**37/120** versus no-image 29/120, wrong 38/120 and shuffled 32/120. Every
+accuracy/control margin and abstention gate fails. External final captions have
+token-F1 0 on all 8. Text retention is unchanged at 22/32, with component
+nonregression passing but baseline ineligible. Engineering, strict export,
+zero-update fresh-process reload and independent scoring pass; the curriculum is
+rejected on learned quality. The [supplemental lineage](reports/vision_curriculum_20261025/supplemental_lineage.json)
+binds outer guard, reloads, reservations and the seal-repeat refusal. Next analyze
+constant-output priors and abstention before any larger training arm; do not
+enlarge the connector or claim optimizer causality.
+The final full suite passes **1,863 tests +21 subtests in 228.22 s**.
 
 ## Isolated V0 source and native preregistration — 25 October 2026
 

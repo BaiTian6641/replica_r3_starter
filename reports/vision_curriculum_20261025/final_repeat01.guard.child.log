@@ -1,0 +1,17 @@
+W1025 21:54:14.117000 51167 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+{"status": "failed", "error_type": "VisionCurriculumError", "error": "Use a fresh output directory: runs/vision_curriculum_20261025/adamw01/finalize"}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 2116, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 2098, in main
+    receipt = execute_finalize(args, protocol, protocol_sha, dataset)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 1870, in execute_finalize
+    output = ensure_fresh_directory(selected_run / "finalize")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 123, in ensure_fresh_directory
+    require(path.is_dir() and not any(path.iterdir()),
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 72, in require
+    raise VisionCurriculumError(message)
+replica_lab.vision_curriculum.VisionCurriculumError: Use a fresh output directory: runs/vision_curriculum_20261025/adamw01/finalize

@@ -1,0 +1,105 @@
+W1025 20:38:30.696000 5933 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 897.52it/s]Loading weights:  48%|████▊     | 181/381 [00:00<00:00, 883.56it/s]Loading weights:  71%|███████   | 271/381 [00:00<00:00, 876.13it/s]Loading weights:  94%|█████████▍| 359/381 [00:00<00:00, 842.76it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 903.23it/s]
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 19000.66it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: /Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 2104, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 2066, in main
+    result = execute_train(args, protocol, protocol_sha, dataset,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 1094, in execute_train
+    lr_selection = select_learning_rate(
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 719, in select_learning_rate
+    probe_run = run_updates(
+                ^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py", line 544, in run_updates
+    result = session.forward(
+             ^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/memory_system/session.py", line 456, in forward
+    return self.adapter.forward_with_frame(input_ids,request.frame,labels=labels,attention_mask=attention_mask)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 653, in forward_with_frame
+    hidden, _ = self._native(input_ids, mask, frame=frame)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/architecture/minicpm5.py", line 480, in _native
+    hidden = layer(hidden, attention_mask=causal, position_ids=positions,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 110, in __call__
+    return self._gradient_checkpointing_func(partial(super().__call__, **kwargs), *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 606, in checkpoint
+    return _checkpoint_impl(
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 681, in _checkpoint_impl
+    gen.throw(e)
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1988, in _checkpoint_without_reentrant_generator_impl
+    yield
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 678, in _checkpoint_impl
+    ret = function(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/models/llama/modeling_llama.py", line 297, in forward
+    hidden_states, _ = self.self_attn(
+                       ^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/models/llama/modeling_llama.py", line 257, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/transformers/models/llama/modeling_llama.py", line 193, in eager_attention_forward
+    attn_weights = torch.matmul(query, key_states.transpose(2, 3)) * scaling
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/checkpoint.py", line 1347, in pack_hook
+    with torch.no_grad():
+         ^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 167, in __new__
+    def __new__(cls, orig_func: F | None = None) -> Self | F:  # type: ignore[misc]
+
+KeyboardInterrupt

@@ -1,0 +1,57 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-26T02:42:28.416582+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-vision/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py",
+    "reload",
+    "--run",
+    "runs/vision_curriculum_20261025/adamw01",
+    "--device",
+    "mps",
+    "--protocol",
+    "data/vision_curriculum_20261025/protocol.json",
+    "--output",
+    "runs/vision_curriculum_20261025/adamw01_reload",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/vision_curriculum_20261025/adamw01_reload",
+  "child_log": "reports/vision_curriculum_20261025/adamw01_reload.guard.child.log",
+  "host_samples": "reports/vision_curriculum_20261025/adamw01_reload.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "343d595e85316797c41d5d64c9568ae8dc55c627b9bceb77b8f67e2509b22c16",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 358.26896812487394,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 1238305341,
+      "memory_free_percent": 91.0
+    },
+    "host_samples": 173,
+    "driver_samples": 1357,
+    "peak_driver_bytes": 11815763968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 73.0,
+    "stop_reason": null
+  }
+}

@@ -1,6 +1,6 @@
 # Coding-agent continuation instruction
 
-**Current priority — run the staged vision curriculum, then validate order-aware memory refresh only with the writer frozen.**
+**Current priority — analyze constant-output priors and abstention before any larger training arm; validate order-aware memory refresh only with the writer frozen.**
 All four verification defects are fixed. Raw-page rebinding requires explicit
 record dependencies and fails closed on unknown provenance or contained
 revocation. Memory parity checks every fact and rejects duplicate/missing rows.
@@ -21,12 +21,13 @@ Query-derived addressing remains invariant at 232/240. See
 Do not start another blind writer arm or promote per-depth; validate only an
 order-aware/refresh policy with identical sources, candidates, vectors and scoring.
 
-External intake admits 30 inspected LLaVA-Pretrain roots/rows. Spark2_5
-preparation contracts are implemented but native FP8 remains blocked. The staged
-curriculum uses fresh 4096 projection, equal-compute Muon-8bit and AdamW, strict
-split seals and fresh-process reload. Keep V2/LoRA and learned V3/neural RSI
+The staged curriculum is rejected on learned quality: AdamW correct 99/240 and
+audit 37/120, with all accuracy/control and abstention gates failing. External
+captions have token-F1 0 on all 8. Engineering, reload and independent scoring
+pass. See [curriculum results](docs/experiments/20261025_Staged_Vision_Curriculum_Results.md).
+External intake admits 30 roots/rows. Spark2_5 preparation contracts are
+implemented but native FP8 remains blocked. Keep V2/LoRA and learned V3/neural RSI
 unadmitted. Preserve the 50 GiB guard, one worker, swap/memory limits and v5 rejection.
-
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context
 is 184/192 versus full context 176/192; the reference still fails its declared
