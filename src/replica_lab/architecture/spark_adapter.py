@@ -431,6 +431,7 @@ class Spark2_5Adapter(nn.Module):
                 raise SparkAdapterError("decoder layer did not receive a hidden-state tensor")
             hidden = args[0]
             context.traced.append((index, layer_type))
+            device = next(self.extension.vision_projector.parameters()).device
             delta = None
             if context.use_projector and index == self.projector_layer:
                 source = context.projector_input
@@ -445,14 +446,16 @@ class Spark2_5Adapter(nn.Module):
                 if not source.requires_grad:
                     source = source.detach().requires_grad_(True)
                 context.projector_source = source
-                delta = self.extension.vision_projector(source.to(torch.float32))
+                delta = self.extension.vision_projector(
+                    source.to(device=device, dtype=torch.float32))
             if context.use_ports and index in self._port_layers:
                 if context.memory is None or context.memory_mask is None:
                     raise SparkAdapterError("memory and memory_mask are required for enabled ports")
                 port = self.extension.memory_ports[str(index)]
-                port_delta = port(hidden.to(torch.float32),
-                                  context.memory.to(torch.float32),
-                                  context.memory_mask)
+                port_delta = port(
+                    hidden.to(device=device, dtype=torch.float32),
+                    context.memory.to(device=device, dtype=torch.float32),
+                    context.memory_mask.to(device=device))
                 delta = port_delta if delta is None else delta + port_delta
             if delta is None:
                 return None
