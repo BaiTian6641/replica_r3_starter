@@ -35,9 +35,9 @@ def _fresh(path):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path,
-                        default=ROOT / "configs/memory_causal_fresh_v1.json")
+                        default=ROOT / "configs/memory_causal_fresh_v2.json")
     parser.add_argument("--output", type=Path,
-                        default=ROOT / "data/memory_causal_fresh_20261026/prepared01")
+                        default=ROOT / "data/memory_causal_fresh_v2_20261026/prepared01")
     parser.add_argument("--verify", action="store_true",
                         help="re-derive and verify the prepared fixture instead of writing")
     args = parser.parse_args(argv)

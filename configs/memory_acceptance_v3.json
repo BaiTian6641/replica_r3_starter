@@ -1,0 +1,69 @@
+{
+  "format": "replica.memory_acceptance.config.v3",
+  "metric_version": "memory.acceptance.v3",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "primary_quality_arm": "query_key_value",
+  "diagnostic_arms": [
+    "exact_key_value",
+    "query_key_address",
+    "context_removed"
+  ],
+  "candidate_variant": "shared_mean/causal_query_refresh",
+  "oracle_variant": "shared_mean/oracle_target_refresh_last",
+  "expected_inventory": {
+    "path": "data/memory_causal_fresh_20261026/prepared03/inventory.json",
+    "sha256": "5994de0da6e7f863f4a697a40a25041e760d0d9e8e5c77f565713e1bdf763a93",
+    "variants": [
+      "shared_mean/full",
+      "shared_mean/causal_query_refresh",
+      "shared_mean/causal_query_refresh_shuffled_values",
+      "shared_mean/disabled",
+      "shared_mean/oracle_target_refresh_last"
+    ],
+    "layers": [
+      13,
+      27
+    ],
+    "arms": [
+      "query_key_value",
+      "exact_key_value",
+      "query_key_address",
+      "context_removed"
+    ],
+    "phases": [
+      "first_process",
+      "restart",
+      "revocation"
+    ]
+  },
+  "gates": {
+    "accepted_correct_rate_min": 0.85,
+    "accepted_precision_min": 0.9,
+    "correction_accepted_correct_rate_min": 0.6,
+    "unaffected_accepted_correct_rate_min": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "revoked_false_recall_max": 0.25,
+    "oracle_raw_top1_rate_min": 0.85
+  },
+  "bootstrap": {
+    "seed": 17,
+    "resamples": 2000,
+    "confidence": 0.95,
+    "unit": "world; layers are not independent examples"
+  },
+  "historical_artifacts": [
+    {
+      "path": "reports/memory_acceptance_20261026/native04_acceptance_v2_reconciled_uncertainty_20261026.json",
+      "reason": "v2 receipt; historical only and never accepted as v3"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/native04_acceptance_v2_final.json",
+      "reason": "superseded v2 receipt; historical only and never accepted as v3"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/native04_acceptance_v2_superseded_pre_value_arms.json",
+      "reason": "superseded v2 receipt with pre-value-arm rows; historical only"
+    }
+  ],
+  "interpretation": "Candidate quality is the actual query_key_value readout only. exact_key_value is a mixture diagnostic and is never an upper bound. Oracle rows are a separate gold-target population. Missing, malformed, duplicate or extra rows fail closed; omission cannot improve a score. Raw rows remain immutable and v1/v2 receipts are never silently accepted as v3."
+}

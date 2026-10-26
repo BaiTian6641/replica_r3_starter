@@ -1,25 +1,36 @@
-"""Fresh disjoint causal-selector evaluation with exactly-once writes.
+"""Fresh disjoint causal-selector evaluation with versioned durable writes.
 
-The protocol closes the Task 5 gaps left by ``memory_causal_refresh``:
+The v2 protocol closes the Task 5 gaps left by ``memory_causal_refresh``:
 
 * a fresh, disjoint paraphrase/distractor/correction/unknown fixture with
   explicit train/dev/heldout roles and post-restart queries;
 * deterministic full/causal/shuffled/disabled/oracle selector arms;
-* a write ledger that commits each observation at most once and rejects
-  duplicate replay, including an accepted refresh of an already-committed
-  observation;
-* live revocation and revoked-query controls, with stale (superseded) and
-  revoked records barred from accepted retrieval;
+* durable ingestion that is idempotent per ``(episode, record, version)`` and
+  rejects duplicate or restart replay of the identical record version;
+* a separately identified, query-local accepted refresh that is admitted only
+  for a live record matching its committed durable version.  Refresh never
+  writes a durable record, optimizer update, decay or persistent state; it
+  rebuilds a query-local history for the current readout only, and stable
+  attempt IDs retry idempotently;
+* live revocation and revoked-query controls.  Runtime selection consumes only
+  runtime-available revocation/staleness metadata.  A revoked-target query that
+  selects another live record is scored as wrong retrieval, never as an
+  evaluator-induced abstention;
 * checkpoints bound to protocol, fixture, source/model/tokenizer, writer,
-  representation and implementation hashes;
+  representation and implementation hashes.  Only durable state is serialized;
+  query-local refresh attempts are audit metadata;
 * restart evaluation of genuinely new queries with zero old-observation
   re-encoding and byte-identical same-query parity;
 * per-phase cached-history encode, rebuild, readout, checkpoint and wall-clock
-  cost accounting.
+  cost accounting;
+* inventory accounting in explicit units: declared query rows, inventory case
+  rows and arm-expanded metric rows are reconciled rather than conflated.
 
-Raw rows stay diagnostics.  Accepted metrics are produced by the unchanged
-``memory.acceptance.v2`` scorer.  Nothing here trains, unfreezes, or promotes
-the rejected writer, and no learned-selector or generation claim is made.
+Raw rows stay diagnostics.  Candidate quality in the new scorer uses the actual
+``query_key_value`` readout.  ``exact_key_value`` is a mixture diagnostic, not
+an upper bound, and oracle rows are a separate gold-target population.  Nothing
+here trains, unfreezes, or promotes the rejected writer, and no learned-selector
+or generation claim is made.
 """
 from __future__ import annotations
 
@@ -36,8 +47,10 @@ import time
 import torch
 
 from .architecture.contracts import fingerprint
-from .memory_acceptance import (
-    acceptance_metrics, evaluate_acceptance, validate_config as validate_acceptance,
+from .memory_acceptance_v3 import (
+    acceptance_metrics as acceptance_metrics_v3,
+    evaluate_acceptance as evaluate_acceptance_v3,
+    validate_config as validate_acceptance_v3,
 )
 from .memory_diagnosis import (
     _cosine_heads, _display_path, _extension_pins, _freeze, _parameter_versions,
@@ -56,17 +69,18 @@ from .memory_update_dynamics import (
 )
 from .neural import SGDN2Memory, SGDN2Write
 
-CONFIG_FORMAT = "replica.memory_causal_fresh.config.v1"
-PROTOCOL_FORMAT = "replica.memory_causal_fresh.protocol.v1"
-EPISODES_FORMAT = "replica.memory_causal_fresh.episodes.v1"
-LABELS_FORMAT = "replica.memory_causal_fresh.labels.v1"
-REVOCATIONS_FORMAT = "replica.memory_causal_fresh.revocations.v1"
-PREPARED_FORMAT = "replica.memory_causal_fresh.prepared.v1"
-INVENTORY_FORMAT = "replica.memory_causal_fresh.inventory.v1"
-CHECKPOINT_FORMAT = "replica.memory_causal_fresh.checkpoint.v2"
-RUN_FORMAT = "replica.memory_causal_fresh.run.v1"
-DECISION_FORMAT = "replica.memory_causal_fresh.decision.v1"
-LEDGER_FORMAT = "replica.memory_causal_fresh.ledger.v1"
+CONFIG_FORMAT = "replica.memory_causal_fresh.config.v2"
+PROTOCOL_FORMAT = "replica.memory_causal_fresh.protocol.v2"
+EPISODES_FORMAT = "replica.memory_causal_fresh.episodes.v2"
+LABELS_FORMAT = "replica.memory_causal_fresh.labels.v2"
+REVOCATIONS_FORMAT = "replica.memory_causal_fresh.revocations.v2"
+PREPARED_FORMAT = "replica.memory_causal_fresh.prepared.v2"
+INVENTORY_FORMAT = "replica.memory_causal_fresh.inventory.v2"
+CHECKPOINT_FORMAT = "replica.memory_causal_fresh.checkpoint.v3"
+RUN_FORMAT = "replica.memory_causal_fresh.run.v2"
+DECISION_FORMAT = "replica.memory_causal_fresh.decision.v2"
+LEDGER_FORMAT = "replica.memory_causal_fresh.ledger.v2"
+REFRESH_AUDIT_FORMAT = "replica.memory_causal_fresh.refresh_audit.v1"
 
 FULL = "shared_mean/full"
 CAUSAL = "shared_mean/causal_query_refresh"
@@ -482,12 +496,36 @@ def validate_fresh_fixture(episodes, labels_by_episode, revocations, *, config,
 # Prepared fixture pins and planned work
 # ---------------------------------------------------------------------------
 
-def planned_workload(episodes, layers):
+ARM_CASE_COUNTS = {"fact": 4, "unknown": 3, "revoked": 3}
+
+
+def _inventory_rows(episodes, labels_by_episode):
+    rows = []
+    for episode in episodes:
+        labels_states = labels_by_episode[episode["episode_id"]]
+        for state_name in (state["name"] for state in episode_states(episode)):
+            labels = labels_states[state_name]
+            for phase in PHASE_ORDER:
+                for query in episode[PHASE_QUERY_FIELDS[phase]]:
+                    target = labels["targets"][query["query_id"]]
+                    rows.append([
+                        episode["episode_id"], episode["split"], state_name,
+                        phase, query["query_id"], query["cohort"],
+                        target["kind"], target["target_role"]])
+    return rows
+
+
+def planned_workload(episodes, layers, labels_by_episode=None):
     layer_count = len(layers)
     observation_encodes = query_first = query_restart = contexts = declared = 0
+    inventory_case_rows = 0
     for episode in episodes:
         states = episode_states(episode)
         contexts += len(states)
+        phase_queries = sum(len(episode[field])
+                            for field in PHASE_QUERY_FIELDS.values())
+        declared += phase_queries
+        inventory_case_rows += len(states) * phase_queries
         seen = set()
         for state in states:
             records, _, _ = _record_views(episode, state)
@@ -502,7 +540,15 @@ def planned_workload(episodes, layers):
         new_revocation = ({query["text"] for query in episode["revocation_queries"]}
                           - encoded)
         query_restart += len(new_revocation) * layer_count
-        declared += sum(len(episode[field]) for field in PHASE_QUERY_FIELDS.values())
+    if labels_by_episode is None:
+        arm_expanded = None
+    else:
+        rows = _inventory_rows(episodes, labels_by_episode)
+        _require(len(rows) == inventory_case_rows,
+                 "Inventory case rows differ from the declared state expansion")
+        arm_expanded = sum(
+            ARM_CASE_COUNTS[row[6]] * len(VARIANT_NAMES) * layer_count
+            for row in rows)
     return {
         "episodes": len(episodes), "contexts": contexts,
         "layers": layer_count,
@@ -511,23 +557,47 @@ def planned_workload(episodes, layers):
         "query_encodes_restart": query_restart,
         "state_rebuilds_per_process": contexts * 2,
         "declared_query_rows": declared,
+        "inventory_case_rows": inventory_case_rows,
+        "arm_expanded_metric_rows": arm_expanded,
+        "units": {
+            "declared_query_rows": (
+                "unique declared query rows per episode across phases; no state "
+                "duplication"),
+            "inventory_case_rows": (
+                "episode/state/phase/query cases; states duplicate the declared "
+                "phase queries"),
+            "arm_expanded_metric_rows": (
+                "inventory case rows x variants x layers x arms, with "
+                "exact_key_value present only for fact targets"),
+            "reconciliation": (
+                "inventory_case_rows == sum(state_count * phase_query_count); "
+                "arm_expanded_metric_rows == sum(arm_case_counts[kind] * "
+                "variants * layers over inventory_case_rows)"),
+        },
     }
 
 
-def build_inventory(episodes, labels_by_episode):
-    rows = []
-    for episode in episodes:
-        labels_states = labels_by_episode[episode["episode_id"]]
-        for state_name in (state["name"] for state in episode_states(episode)):
-            labels = labels_states[state_name]
-            for phase in PHASE_ORDER:
-                for query in episode[PHASE_QUERY_FIELDS[phase]]:
-                    target = labels["targets"][query["query_id"]]
-                    rows.append([
-                        episode["episode_id"], episode["split"], state_name,
-                        phase, query["query_id"], query["cohort"],
-                        target["kind"], target["target_role"]])
-    return {"format": INVENTORY_FORMAT, "rows": rows}
+def build_inventory(episodes, labels_by_episode, layers=None):
+    rows = _inventory_rows(episodes, labels_by_episode)
+    per_layer = sum(
+        ARM_CASE_COUNTS[row[6]] * len(VARIANT_NAMES) for row in rows)
+    units = {
+        "inventory_case_rows": len(rows),
+        "declared_query_rows": sum(
+            sum(len(episode[field]) for field in PHASE_QUERY_FIELDS.values())
+            for episode in episodes),
+        "per_layer_arm_expanded_metric_rows": per_layer,
+        "arm_case_counts": dict(ARM_CASE_COUNTS),
+        "variants": len(VARIANT_NAMES),
+        "note": (
+            "declared query rows are before state duplication; inventory case "
+            "rows are state-expanded; arm-expanded rows multiply by variants, "
+            "layers and kind-eligible arms (exact_key_value only for facts)"),
+    }
+    if layers is not None:
+        units["layers"] = len(layers)
+        units["arm_expanded_metric_rows"] = per_layer * len(layers)
+    return {"format": INVENTORY_FORMAT, "rows": rows, "units": units}
 
 
 def _validate_config(config):
@@ -541,12 +611,60 @@ def _validate_config(config):
                 "stop_conditions", "budget", "resource_policy",
                 "checkpoint_policy", "raw_output_policy", "source",
                 "writer_extension", "implementation_paths", "limitations",
-                "disjoint_from"):
+                "disjoint_from", "durable_ingestion", "query_local_refresh",
+                "inventory_units"):
         _require(key in config, f"Fresh configuration is missing: {key}")
     _require(type(config["seed"]) is int and config["seed"] >= 0,
              "Fresh fixture seed must be a nonnegative integer")
     _require(tuple(config["variant_names"]) == VARIANT_NAMES,
              "Fresh variant inventory differs")
+    durable = config["durable_ingestion"]
+    _require(durable.get("identity")
+             == "episode_id/record_id/record_version",
+             "Durable ingestion identity differs")
+    _require(durable.get("record_version")
+             == "sha256(canonical(record_id,entity,attribute,value,"
+                "observed_at,supersedes,origin_world_id))",
+             "Durable record-version rule differs")
+    _require(durable.get("duplicate_replay") == "reject"
+             and durable.get("restart_replay") == "reject"
+             and durable.get("refresh_source") == "excluded",
+             "Durable replay/refresh policy differs")
+    refresh = config["query_local_refresh"]
+    _require(refresh.get("enabled") is True
+             and refresh.get("owner") == "query_local_refresh",
+             "Query-local refresh must be explicitly enabled and owned")
+    _require(refresh.get("persistence") == "query_local_only"
+             and refresh.get("persistent_memory_writes") == 0
+             and refresh.get("optimizer_updates") == 0
+             and refresh.get("decay_updates") == 0,
+             "Refresh must not persist or mutate durable state")
+    _require(refresh.get("requires_live_record") is True
+             and refresh.get("requires_durable_version") is True,
+             "Refresh must require a live record matching its durable version")
+    retry = refresh.get("retry") or {}
+    _require(retry.get("attempt_id") == "stable_per_variant_episode_state_query_layer"
+             and retry.get("idempotent") is True,
+             "Query-local refresh retry policy differs")
+    per_query = refresh.get("per_query") or {}
+    _require(type(per_query.get("max_applied_per_query")) is int
+             and per_query["max_applied_per_query"] >= 1,
+             "Query-local refresh requires a positive per-query bound")
+    positive = refresh.get("positive_control") or {}
+    _require(positive.get("admitted_refresh_changes_state") is True
+             and positive.get("shuffled_refresh_perturbs_values") is True
+             and isinstance(positive.get("oracle_recovery_raw_top1_min"),
+                            (int, float)),
+             "Admitted-refresh positive controls are undeclared")
+    selector = config["selector"]
+    _require(selector.get("runtime_inputs_only") is True
+             and "sealed evaluator labels" in selector.get("forbidden_inputs", [])
+             and "evaluator expected answers" in selector.get("forbidden_inputs", []),
+             "Selector must use runtime inputs only")
+    revocation = config["revocation"]
+    _require(revocation.get("runtime_metadata_only") is True
+             and revocation.get("evaluator_label_kind_forces_abstention") is False,
+             "Revocation must not force evaluator-induced abstention")
     _require(tuple(config["layers"]) and len(set(config["layers"]))
              == len(config["layers"]), "Fresh layers must be a unique sequence")
     _require(config["engine"]["reducer"] == "shared_mean",
@@ -574,7 +692,18 @@ def _validate_config(config):
              "Fresh raw outputs must be immutable first writes")
     _require(config["restart"]["old_observation_encodes_allowed"] == 0,
              "Restart must not re-encode old observations")
-    validate_acceptance(config["acceptance"])
+    limits = config["limits"]
+    _require(limits.get("max_durable_refresh_commits") == 0,
+             "Durable refresh commits must be forbidden")
+    _require(limits.get("max_duplicate_observe_commits") == 0,
+             "Duplicate observation commits must be forbidden")
+    _require(type(limits.get("max_query_local_refresh_applied")) is int
+             and limits["max_query_local_refresh_applied"] >= 1,
+             "Query-local refresh needs a positive applied-attempt bound")
+    _require(type(limits.get("max_record_versions_per_record")) is int
+             and limits["max_record_versions_per_record"] >= 1,
+             "Record-version bound is invalid")
+    validate_acceptance_v3(config["acceptance"], require_inventory=False)
     gates = config["acceptance"]["gates"]
     for gate in ("accepted_correct_rate_min", "accepted_precision_min",
                  "correction_accepted_correct_rate_min",
@@ -682,7 +811,8 @@ def prepare_fresh(output, *, config_path=None, config=None):
         "note": "Evaluation-only live revocation; cached observation history is retained.",
         "revocations": revocations,
     }))
-    inventory = build_inventory(episodes, labels_by_episode)
+    inventory = build_inventory(episodes, labels_by_episode,
+                                layers=config["layers"])
     inventory_path = output / "inventory.json"
     inventory_path.write_bytes(_canonical_bytes(inventory))
 
@@ -702,7 +832,8 @@ def prepare_fresh(output, *, config_path=None, config=None):
     protocol["source_pins"] = source_pins
     protocol["writer_pins"] = writer_pins
     protocol["implementation_sha256"] = implementation
-    protocol["planned_workload"] = planned_workload(episodes, protocol["layers"])
+    protocol["planned_workload"] = planned_workload(
+        episodes, protocol["layers"], labels_by_episode)
     protocol["planned_inventory_sha256"] = _sha_json(inventory)
     protocol["fixture_audit"] = audit
     protocol_path = output / "protocol.json"
@@ -802,12 +933,13 @@ def verify_fresh_prepared(prepared):
              "Prepared fixture audit differs from the protocol")
     _require(audit == manifest["fixture_audit"],
              "Prepared fixture audit differs from the manifest")
-    inventory = build_inventory(episodes, labels_by_episode)
+    inventory = build_inventory(episodes, labels_by_episode,
+                                layers=protocol["layers"])
     _require(inventory == data["inventory"],
              "Prepared inventory differs from the regenerated plan")
     _require(_sha_json(inventory) == protocol["planned_inventory_sha256"],
              "Prepared inventory digest differs from the protocol")
-    _require(planned_workload(episodes, protocol["layers"])
+    _require(planned_workload(episodes, protocol["layers"], labels_by_episode)
              == protocol["planned_workload"]
              == manifest["planned_workload"],
              "Prepared planned workload differs")
@@ -832,18 +964,43 @@ def verify_fresh_prepared(prepared):
 # Exactly-once write ledger and cost accounting
 # ---------------------------------------------------------------------------
 
+def record_version(record):
+    """Explicit durable record-version identity for one observed record.
+
+    The version covers the observed content and its supersession edge, so a
+    replay of the same record bytes is the same version while a genuine update
+    with new content or a new supersession target is a new version.
+    """
+    payload = {
+        key: record.get(key) for key in (
+            "record_id", "entity", "attribute", "value", "observed_at",
+            "supersedes", "origin_world_id")
+    }
+    return _sha_json(payload)
+
+
+def durable_identity(record):
+    return {"record_id": record["record_id"],
+            "record_version": record_version(record)}
+
+
 class DuplicateWrite(ValueError):
-    """A record was recomposed after it had already been committed once."""
+    """An identical durable record version was replayed after commit."""
 
 
 class WriteLedger:
-    """At-most-once observation commits with retry idempotence.
+    """Idempotent durable ingestion keyed by episode, record and version.
 
-    The commit key is ``(episode_id, record_id)``: one observed record is
-    written once across every evaluation state.  Replaying a committed record
-    under a new attempt ID raises :class:`DuplicateWrite` and is logged.  A
-    retried attempt returns its original outcome without a second write.  The
-    full ledger is checkpointed, so a fresh process rejects the same replay.
+    Durable writes accept only ``source="observation"``.  The commit identity is
+    ``(episode_id, record_id, record_version)``.  Replaying the identical
+    version under a new attempt ID raises :class:`DuplicateWrite`; a new version
+    of the same record may commit as a distinct durable update.  A retried
+    attempt returns its original outcome without a second write.  Only durable
+    state is serialized, so a fresh process rejects the same version replay.
+
+    Query-local accepted refresh is deliberately *not* committed here.  See
+    :class:`QueryLocalRefresh`; it is audit metadata and cannot mutate durable
+    state.
     """
 
     def __init__(self):
@@ -858,80 +1015,117 @@ class WriteLedger:
     def _key(episode_id, record_id):
         return f"{episode_id}:{record_id}"
 
-    def is_committed(self, episode_id, record_id):
-        return self._key(episode_id, record_id) in self._commits
+    @staticmethod
+    def _attempt_identity(episode_id, record_id, record_version):
+        return {"episode_id": episode_id, "record_id": record_id,
+                "record_version": record_version}
 
-    def commit(self, *, attempt_id, episode_id, record_id, state, source):
+    def is_committed(self, episode_id, record_id, record_version=None):
+        key = self._key(episode_id, record_id)
+        versions = self._commits.get(key)
+        if not versions:
+            return False
+        if record_version is None:
+            return True
+        return record_version in versions
+
+    def committed_versions(self, episode_id, record_id):
+        return sorted(self._commits.get(self._key(episode_id, record_id), {}))
+
+    def commit(self, *, attempt_id, episode_id, record_id, record_version,
+               state, source="observation"):
         _require(isinstance(attempt_id, str) and attempt_id,
                  "A ledger attempt requires a stable attempt ID")
-        _require(source in ("observation", "accepted_refresh"),
-                 "Unknown ledger write source")
+        _require(source == "observation",
+                 "Durable ingestion accepts only observed records")
+        _require(isinstance(record_version, str) and len(record_version) == 64,
+                 "A durable record requires a version identity")
         key = self._key(episode_id, record_id)
+        identity = self._attempt_identity(episode_id, record_id, record_version)
         previous = self._attempts.get(attempt_id)
         if previous is not None:
             _require(previous["episode_id"] == episode_id
-                     and previous["record_id"] == record_id,
+                     and previous["record_id"] == record_id
+                     and previous["record_version"] == record_version,
                      "A retried attempt changed its write identity")
             if previous["status"] == "committed":
                 return {"status": "retry", "commit_index": previous["index"]}
             return {"status": "duplicate_rejected", "retry": True,
                     "reason": "already_committed"}
-        attempt = {"attempt_id": attempt_id, "episode_id": episode_id,
-                   "record_id": record_id, "state": state, "source": source,
-                   "status": "pending", "index": None}
+        versions = self._commits.setdefault(key, {})
         self._attempt_source[source] = self._attempt_source.get(source, 0) + 1
-        if key in self._commits:
-            attempt["status"] = "rejected"
+        if record_version in versions:
+            attempt = {"attempt_id": attempt_id, **identity, "state": state,
+                       "source": source, "status": "rejected",
+                       "index": versions[record_version]["index"]}
             self._attempts[attempt_id] = attempt
             self._rejections[source] = self._rejections.get(source, 0) + 1
             self._rejected_records[key] = self._rejected_records.get(key, 0) + 1
             raise DuplicateWrite(
-                f"Record {record_id} in {episode_id} was already committed; "
-                f"{source} replay rejected")
-        attempt.update({"status": "committed", "index": len(self._commits)})
-        self._commits[key] = attempt
+                f"Record {record_id} in {episode_id} version {record_version} "
+                f"was already committed; {source} replay rejected")
+        index = sum(len(items) for items in self._commits.values())
+        attempt = {"attempt_id": attempt_id, **identity, "state": state,
+                   "source": source, "status": "committed", "index": index}
+        versions[record_version] = attempt
         self._attempts[attempt_id] = attempt
         self._commit_source[source] = self._commit_source.get(source, 0) + 1
-        return {"status": "committed", "commit_index": attempt["index"]}
+        return {"status": "committed", "commit_index": index,
+                "record_version": record_version}
 
-    def require_committed(self, episode_id, record_id):
-        _require(self.is_committed(episode_id, record_id),
-                 f"Observation is not committed: {record_id}")
-        return self._commits[self._key(episode_id, record_id)]
+    def require_committed(self, episode_id, record_id, record_version):
+        _require(self.is_committed(episode_id, record_id, record_version),
+                 f"Observation version is not committed: {record_id}")
+        return self._commits[self._key(episode_id, record_id)][record_version]
 
-    def probe_replay(self, episode_id, record_id):
-        return self.is_committed(episode_id, record_id)
+    def probe_replay(self, episode_id, record_id, record_version):
+        return self.is_committed(episode_id, record_id, record_version)
 
     def counts(self):
-        return {key: 1 for key in sorted(self._commits)}
+        return {key: len(versions)
+                for key, versions in sorted(self._commits.items())
+                if versions}
+
+    def durable_snapshot(self):
+        """Canonical durable identity used to prove refresh has no effect."""
+        return _sha_json({
+            key: {version: {"state": item["state"],
+                            "index": item["index"]}
+                  for version, item in sorted(versions.items())}
+            for key, versions in sorted(self._commits.items())})
 
     def summary(self):
         counts = self.counts()
         return {
-            "committed_writes": len(self._commits),
+            "committed_writes": sum(counts.values()),
             "unique_records": len(counts),
             "max_commits_per_record": max(counts.values()) if counts else 0,
             "per_record_commit_counts": counts,
+            "per_record_versions": {
+                key: sorted(versions)
+                for key, versions in sorted(self._commits.items()) if versions},
             "commit_source_counts": dict(sorted(self._commit_source.items())),
             "attempt_source_counts": dict(sorted(self._attempt_source.items())),
             "rejection_counts": dict(sorted(self._rejections.items())),
             "rejected_record_count": len(self._rejected_records),
+            "durable_snapshot_sha256": self.durable_snapshot(),
         }
 
     def retry_probe(self):
-        """Retry a recorded attempt and prove the commit set is unchanged."""
+        """Retry a recorded attempt and prove the durable set is unchanged."""
         if not self._attempts:
             return {"retried": False, "idempotent": True}
         attempt_id = sorted(self._attempts)[0]
         attempt = self._attempts[attempt_id]
-        before = (len(self._commits),
+        before = (self.durable_snapshot(),
                   dict(sorted(self._rejections.items())),
                   dict(sorted(self._commit_source.items())))
         outcome = self.commit(
             attempt_id=attempt_id, episode_id=attempt["episode_id"],
-            record_id=attempt["record_id"], state=attempt["state"],
+            record_id=attempt["record_id"],
+            record_version=attempt["record_version"], state=attempt["state"],
             source=attempt["source"])
-        after = (len(self._commits),
+        after = (self.durable_snapshot(),
                  dict(sorted(self._rejections.items())),
                  dict(sorted(self._commit_source.items())))
         return {"retried": True,
@@ -941,68 +1135,217 @@ class WriteLedger:
     def to_dict(self):
         return {
             "format": LEDGER_FORMAT,
+            "identity": "episode_id/record_id/record_version",
             "commits": [
                 {"episode_id": item["episode_id"],
-                 "record_id": item["record_id"], "state": item["state"],
-                 "source": item["source"], "index": item["index"]}
-                for key, item in sorted(self._commits.items())],
+                 "record_id": item["record_id"],
+                 "record_version": item["record_version"],
+                 "state": item["state"], "source": item["source"],
+                 "index": item["index"]}
+                for key, versions in sorted(self._commits.items())
+                for version, item in sorted(versions.items())],
             "attempts": [
                 {"attempt_id": item["attempt_id"],
                  "episode_id": item["episode_id"],
-                 "record_id": item["record_id"], "state": item["state"],
-                 "source": item["source"], "status": item["status"],
-                 "index": item["index"]}
+                 "record_id": item["record_id"],
+                 "record_version": item["record_version"],
+                 "state": item["state"], "source": item["source"],
+                 "status": item["status"], "index": item["index"]}
                 for key, item in sorted(self._attempts.items())],
             "rejections": dict(sorted(self._rejections.items())),
             "rejected_records": dict(sorted(self._rejected_records.items())),
             "commit_counts": self.counts(),
             "commit_source_counts": dict(sorted(self._commit_source.items())),
             "attempt_source_counts": dict(sorted(self._attempt_source.items())),
+            "durable_snapshot_sha256": self.durable_snapshot(),
         }
 
     @classmethod
     def from_dict(cls, payload):
         _require(isinstance(payload, dict)
                  and payload.get("format") == LEDGER_FORMAT,
-                 "Invalid write ledger")
+                 "Invalid durable write ledger")
+        _require(payload.get("identity")
+                 == "episode_id/record_id/record_version",
+                 "Durable ledger identity differs")
         ledger = cls()
         seen = set()
         indexes = set()
         for item in payload.get("commits", []):
             key = cls._key(item["episode_id"], item["record_id"])
-            _require(key not in seen, "Write ledger contains duplicate commits")
+            version = item["record_version"]
+            _require(isinstance(version, str) and len(version) == 64,
+                     "Durable commit lacks a record version")
+            _require((key, version) not in seen,
+                     "Durable ledger contains duplicate record versions")
+            _require(item.get("source") == "observation",
+                     "Durable ledger contains a non-observation source")
             _require(type(item["index"]) is int and item["index"] not in indexes,
-                     "Write ledger commit indexes are not unique")
-            seen.add(key)
+                     "Durable ledger commit indexes are not unique")
+            seen.add((key, version))
             indexes.add(item["index"])
-            ledger._commits[key] = {
+            ledger._commits.setdefault(key, {})[version] = {
                 "episode_id": item["episode_id"],
-                "record_id": item["record_id"], "state": item["state"],
+                "record_id": item["record_id"],
+                "record_version": version, "state": item["state"],
                 "source": item["source"], "status": "committed",
                 "index": item["index"], "attempt_id": None}
         _require(sorted(indexes) == list(range(len(indexes))),
-                 "Write ledger commit indexes are not contiguous")
+                 "Durable ledger commit indexes are not contiguous")
         for item in payload.get("attempts", []):
             _require(item["attempt_id"] not in ledger._attempts,
-                     "Write ledger attempt IDs are not unique")
+                     "Durable ledger attempt IDs are not unique")
             ledger._attempts[item["attempt_id"]] = {
                 "attempt_id": item["attempt_id"],
                 "episode_id": item["episode_id"],
-                "record_id": item["record_id"], "state": item["state"],
-                "source": item["source"], "status": item["status"],
-                "index": item["index"]}
+                "record_id": item["record_id"],
+                "record_version": item["record_version"],
+                "state": item["state"], "source": item["source"],
+                "status": item["status"], "index": item["index"]}
         committed_attempts = {item["attempt_id"] for item in ledger._attempts.values()
                               if item["status"] == "committed"}
-        _require(len(committed_attempts) == len(ledger._commits),
-                 "Write ledger committed attempts are incomplete")
+        _require(len(committed_attempts) == len(seen),
+                 "Durable ledger committed attempts are incomplete")
         if "commit_counts" in payload:
             _require(payload["commit_counts"] == ledger.counts(),
-                     "Write ledger per-record commit counts differ")
+                     "Durable ledger per-record commit counts differ")
         ledger._rejections = dict(payload.get("rejections", {}))
         ledger._rejected_records = dict(payload.get("rejected_records", {}))
         ledger._commit_source = dict(payload.get("commit_source_counts", {}))
         ledger._attempt_source = dict(payload.get("attempt_source_counts", {}))
+        if "durable_snapshot_sha256" in payload:
+            _require(payload["durable_snapshot_sha256"]
+                     == ledger.durable_snapshot(),
+                     "Durable ledger snapshot digest differs")
         return ledger
+
+
+class QueryLocalRefresh:
+    """Audit-only accepted refresh over a query-local history.
+
+    An attempt is admitted only when it is enabled, names a live record whose
+    exact durable version is committed, and stays within the per-query policy.
+    Admission never touches the durable ledger.  The returned attempt record is
+    audit metadata; callers rebuild a query-local history from cached writes.
+    Repeated calls with a stable attempt ID return the original outcome; the
+    same attempt ID with a different identity fails closed.
+    """
+
+    def __init__(self, policy=None):
+        self.policy = dict(policy or {})
+        self._attempts = {}
+        self._per_query = {}
+        self._status_counts = {}
+        self._durable_snapshot = None
+
+    @property
+    def enabled(self):
+        return self.policy.get("enabled") is True
+
+    def bind_durable(self, ledger):
+        self._durable_snapshot = ledger.durable_snapshot()
+
+    def assert_durable_unchanged(self, ledger):
+        _require(self._durable_snapshot is not None,
+                 "Query-local refresh is not bound to durable state")
+        _require(ledger.durable_snapshot() == self._durable_snapshot,
+                 "Query-local refresh mutated durable state")
+
+    def attempt(self, *, attempt_id, ledger, episode_id, record_id,
+                record_version, live_ids, query_id, layer, state,
+                variant=None):
+        _require(isinstance(attempt_id, str) and attempt_id,
+                 "A refresh attempt requires a stable attempt ID")
+        identity = {"episode_id": episode_id, "record_id": record_id,
+                    "record_version": record_version, "query_id": query_id,
+                    "layer": layer, "variant": variant}
+        scope_key = (episode_id, state, query_id, variant)
+        previous = self._attempts.get(attempt_id)
+        if previous is not None:
+            _require(previous["identity"] == identity,
+                     "A retried refresh attempt changed its identity")
+            return {"status": previous["status"],
+                    "retry": True, "reason": previous.get("reason"),
+                    "query_local": True, "durable_mutation": False}
+        max_per_query = self.policy.get("per_query", {}).get(
+            "max_applied_per_query")
+        _require(type(max_per_query) is int and max_per_query >= 0,
+                 "Query-local refresh requires a per-query bound")
+        reason = None
+        if not self.enabled:
+            reason = "refresh_disabled"
+        elif self.policy.get("persistence") != "query_local_only":
+            reason = "refresh_not_query_local"
+        elif record_id not in live_ids:
+            reason = "record_not_live"
+        elif (self.policy.get("requires_durable_version") is not True
+              or not ledger.is_committed(episode_id, record_id,
+                                         record_version)):
+            reason = "durable_version_mismatch"
+        elif self._per_query.get(scope_key, 0) >= max_per_query:
+            reason = "per_query_limit"
+        if reason is not None:
+            self._attempts[attempt_id] = {
+                "identity": identity, "status": "rejected",
+                "reason": reason, "query_local": True}
+            self._status_counts["rejected"] = \
+                self._status_counts.get("rejected", 0) + 1
+            return {"status": "rejected", "retry": False, "reason": reason,
+                    "query_local": True}
+        self._per_query[scope_key] = self._per_query.get(scope_key, 0) + 1
+        self._attempts[attempt_id] = {
+            "identity": identity, "status": "applied", "reason": None,
+            "query_local": True}
+        self._status_counts["applied"] = \
+            self._status_counts.get("applied", 0) + 1
+        return {"status": "applied", "retry": False, "reason": None,
+                "query_local": True, "durable_mutation": False}
+
+    def retry_probe(self, ledger):
+        """Retry an applied attempt and prove audit and durable state match."""
+        for attempt_id, item in sorted(self._attempts.items()):
+            if item["status"] != "applied":
+                continue
+            identity = item["identity"]
+            before = (dict(self._status_counts), ledger.durable_snapshot())
+            ledger.durable_snapshot()
+            retry = self.attempt(
+                attempt_id=attempt_id, ledger=ledger,
+                episode_id=identity["episode_id"],
+                record_id=identity["record_id"],
+                record_version=identity["record_version"],
+                live_ids={identity["record_id"]},
+                query_id=identity["query_id"], layer=identity["layer"],
+                state="retry", variant=identity.get("variant"))
+            after = (dict(self._status_counts), ledger.durable_snapshot())
+            return {"retried": True, "idempotent": before == after,
+                    "outcome": retry["status"],
+                    "durable_unchanged": before[1] == after[1]}
+        return {"retried": False, "idempotent": True,
+                "durable_unchanged": True}
+
+    def summary(self):
+        return {
+            "format": REFRESH_AUDIT_FORMAT,
+            "owner": "query_local",
+            "persistent_memory_writes": 0,
+            "optimizer_updates": 0,
+            "decay_updates": 0,
+            "enabled": self.enabled,
+            "policy": copy.deepcopy(self.policy),
+            "attempts": len(self._attempts),
+            "status_counts": dict(sorted(self._status_counts.items())),
+            "applied_per_query": {
+                "|".join("" if part is None else str(part) for part in key):
+                    value
+                for key, value in sorted(self._per_query.items())},
+            "durable_snapshot_sha256": self._durable_snapshot,
+            "attempt_records": [
+                {"attempt_id": attempt_id,
+                 **item["identity"], "status": item["status"],
+                 "reason": item["reason"]}
+                for attempt_id, item in sorted(self._attempts.items())],
+        }
 
 
 class CostLedger:
@@ -1059,53 +1402,139 @@ class CostLedger:
         }
 
 
+def _control_record(record_id, *, value, entity="control-entity"):
+    return {
+        "record_id": record_id, "entity": entity,
+        "attribute": "control-attribute", "value": value,
+        "observed_at": 1, "supersedes": None,
+        "origin_world_id": "control-world",
+    }
+
+
 def run_exactly_once_control(*, episode_id="control-episode",
                              record_ids=("rec-control-a", "rec-control-b"),
                              state="initial"):
-    """Exercise retry, duplicate, accepted-refresh and restart replay rules."""
+    """Exercise durable replay, versioning, query-local refresh and restart."""
     ledger = WriteLedger()
-    for record_id in record_ids:
+    records = {record_id: _control_record(record_id, value=f"value-{index}")
+               for index, record_id in enumerate(record_ids)}
+    for record_id, record in records.items():
         ledger.commit(attempt_id=f"{episode_id}:observe:{record_id}",
                       episode_id=episode_id, record_id=record_id,
+                      record_version=record_version(record),
                       state=state, source="observation")
     counts_before = ledger.counts()
     retry = ledger.retry_probe()
-    duplicate_rejected = refresh_rejected = False
+    duplicate_rejected = restart_replay_rejected = False
+    first = records[record_ids[0]]
     try:
         ledger.commit(attempt_id=f"{episode_id}:replay:{record_ids[0]}",
                       episode_id=episode_id, record_id=record_ids[0],
+                      record_version=record_version(first),
                       state=state, source="observation")
     except DuplicateWrite:
         duplicate_rejected = True
+    updated = dict(first, value="updated-value")
+    version_update = ledger.commit(
+        attempt_id=f"{episode_id}:update:{record_ids[0]}",
+        episode_id=episode_id, record_id=record_ids[0],
+        record_version=record_version(updated), state="corrected",
+        source="observation")
+    versions_after_update = len(ledger.committed_versions(
+        episode_id, record_ids[0]))
+    policy = {
+        "enabled": True,
+        "owner": "query_local_refresh",
+        "persistence": "query_local_only",
+        "requires_durable_version": True,
+        "per_query": {"max_applied_per_query": 1},
+        "retry": {"attempt_id": "stable", "idempotent": True},
+    }
+    refresh = QueryLocalRefresh(policy)
+    refresh.bind_durable(ledger)
+    durable_before = ledger.durable_snapshot()
+    second = records[record_ids[1]]
+    applied = refresh.attempt(
+        attempt_id="refresh-applied", ledger=ledger, episode_id=episode_id,
+        record_id=record_ids[1], record_version=record_version(second),
+        live_ids=set(record_ids), query_id="query-live", layer=0,
+        state=state)
+    retried = refresh.attempt(
+        attempt_id="refresh-applied", ledger=ledger, episode_id=episode_id,
+        record_id=record_ids[1], record_version=record_version(second),
+        live_ids=set(record_ids), query_id="query-live", layer=0,
+        state="retry")
+    non_live = refresh.attempt(
+        attempt_id="refresh-non-live", ledger=ledger, episode_id=episode_id,
+        record_id=record_ids[1], record_version=record_version(second),
+        live_ids=set(), query_id="query-non-live", layer=0, state=state)
+    mismatched = refresh.attempt(
+        attempt_id="refresh-mismatch", ledger=ledger, episode_id=episode_id,
+        record_id=record_ids[1], record_version="f" * 64,
+        live_ids=set(record_ids), query_id="query-mismatch", layer=0,
+        state=state)
+    limit = refresh.attempt(
+        attempt_id="refresh-limit", ledger=ledger, episode_id=episode_id,
+        record_id=record_ids[1], record_version=record_version(second),
+        live_ids=set(record_ids), query_id="query-live", layer=1,
+        state=state)
+    refresh.bind_durable(ledger)
     try:
-        ledger.commit(attempt_id=f"{episode_id}:refresh:{record_ids[1]}",
-                      episode_id=episode_id, record_id=record_ids[1],
-                      state=state, source="accepted_refresh")
-    except DuplicateWrite:
-        refresh_rejected = True
+        refresh.assert_durable_unchanged(ledger)
+        durable_unchanged = ledger.durable_snapshot() == durable_before
+    except ValueError:
+        durable_unchanged = False
+    refresh_probe = refresh.retry_probe(ledger)
     restored = WriteLedger.from_dict(
         json.loads(json.dumps(ledger.to_dict())))
-    restart_replay_rejected = False
     try:
         restored.commit(attempt_id=f"{episode_id}:restart:{record_ids[0]}",
                         episode_id=episode_id, record_id=record_ids[0],
+                        record_version=record_version(first),
                         state=state, source="observation")
     except DuplicateWrite:
         restart_replay_rejected = True
-    return {
+    durable_refresh_source = ledger.summary()["commit_source_counts"].get(
+        "accepted_refresh", 0)
+    outcome = {
         "counts_before": len(counts_before),
         "counts_after": len(ledger.counts()),
-        "retry": retry,
+        "durable_retry": retry,
+        "refresh_retry": refresh_probe,
         "duplicate_observe_rejected": duplicate_rejected,
-        "accepted_refresh_rejected": refresh_rejected,
         "restart_replay_rejected": restart_replay_rejected,
+        "version_update_committed": version_update["status"] == "committed",
+        "versions_after_update": versions_after_update,
         "max_commits_per_record": max(ledger.counts().values()),
-        "refresh_commits": ledger.summary()["commit_source_counts"].get(
-            "accepted_refresh", 0),
-        "passed": (retry["idempotent"] and duplicate_rejected
-                   and refresh_rejected and restart_replay_rejected
-                   and len(counts_before) == len(ledger.counts())),
+        "refresh_applied": applied["status"] == "applied",
+        "refresh_retry_status": retried["status"],
+        "refresh_retry_idempotent": retried["status"] == "applied",
+        "refresh_non_live_rejected": non_live["status"] == "rejected",
+        "refresh_non_live_reason": non_live["reason"],
+        "refresh_mismatch_rejected": mismatched["status"] == "rejected",
+        "refresh_mismatch_reason": mismatched["reason"],
+        "refresh_per_query_limit_rejected": limit["status"] == "rejected",
+        "refresh_durable_unchanged": durable_unchanged,
+        "refresh_audit": refresh.summary(),
+        "refresh_commits": durable_refresh_source,
+        "durable_mutations_from_refresh": 0 if durable_unchanged else 1,
     }
+    outcome["passed"] = (
+        retry["idempotent"]
+        and refresh_probe["idempotent"]
+        and refresh_probe["durable_unchanged"]
+        and duplicate_rejected
+        and restart_replay_rejected
+        and outcome["version_update_committed"]
+        and outcome["refresh_applied"]
+        and outcome["refresh_retry_status"] == "applied"
+        and outcome["refresh_non_live_rejected"]
+        and outcome["refresh_mismatch_rejected"]
+        and outcome["refresh_per_query_limit_rejected"]
+        and durable_unchanged
+        and durable_refresh_source == 0
+    )
+    return outcome
 
 
 # ---------------------------------------------------------------------------
@@ -1507,33 +1936,37 @@ def _decide(variant, cache, state_name, query, layer, labels, *,
             "excluded_revoked_ids": sorted(revoked_ids)}
 
 
-def _refresh_attempt(ledger, cache, variant, state_name, query, layer, decision):
+def _refresh_attempt(refresh, ledger, cache, variant, state_name, query,
+                     layer, decision):
     selected = decision["selected_record_id"]
-    if selected is None:
-        return {"status": "not_attempted", "reason": decision["reason"]}
     attempt_id = (f"{variant}|{cache.episode['episode_id']}|{state_name}|"
                   f"{query['query_id']}|{layer}")
-    try:
-        outcome = ledger.commit(
-            attempt_id=attempt_id,
-            episode_id=cache.episode["episode_id"], record_id=selected,
-            state=state_name, source="accepted_refresh")
-        if outcome["status"] == "committed":
-            return {"status": "applied", "attempt_id": attempt_id,
-                    "selected_record_id": selected,
-                    "commit_index": outcome.get("commit_index")}
-        return {"status": "duplicate_rejected", "attempt_id": attempt_id,
-                "selected_record_id": selected,
-                "reason": "already_committed"}
-    except DuplicateWrite:
-        return {"status": "duplicate_rejected", "attempt_id": attempt_id,
-                "selected_record_id": selected,
-                "reason": "already_committed"}
+    if selected is None:
+        return {"status": "not_attempted", "attempt_id": None,
+                "selected_record_id": None, "record_version": None,
+                "reason": decision["reason"], "query_local": True,
+                "durable_mutation": False}
+    record = next(item for item in cache.states[state_name]["records"]
+                  if item["record_id"] == selected)
+    outcome = refresh.attempt(
+        attempt_id=attempt_id, ledger=ledger,
+        episode_id=cache.episode["episode_id"], record_id=selected,
+        record_version=record_version(record),
+        live_ids=cache.states[state_name]["live_ids"],
+        query_id=query["query_id"], layer=layer, state=state_name,
+        variant=variant)
+    return {"status": outcome["status"], "attempt_id": attempt_id,
+            "selected_record_id": selected,
+            "record_version": record_version(record),
+            "reason": outcome.get("reason"), "query_local": True,
+            "durable_mutation": False}
 
 
 def _decision_row(variant, cache, state_name, phase, query, layer, labels,
-                  decision, attempt, *, revoked_ids):
+                  decision, attempt, *, revoked_ids, weights_source,
+                  base_state_sha, state_sha):
     state = cache.states[state_name]
+    applied = attempt["status"] == "applied"
     return {
         "format": DECISION_FORMAT, "variant": variant,
         "policy_class": ("gold_target_oracle" if variant == ORACLE
@@ -1553,7 +1986,22 @@ def _decision_row(variant, cache, state_name, phase, query, layer, labels,
         "excluded_revoked_ids": decision["excluded_revoked_ids"],
         "committed_record_ids": [record["record_id"]
                                  for record in state["records"]],
+        "committed_record_versions": {
+            record["record_id"]: record_version(record)
+            for record in state["records"]},
         "refresh_attempt": attempt,
+        "refresh_applied": applied,
+        "refresh_persistent": False,
+        "weights_source": weights_source,
+        "base_state_sha256": base_state_sha,
+        "state_sha256": state_sha,
+        "refresh_changed_state": (applied and state_sha != base_state_sha),
+        "causal_fallback_to_full": (
+            variant in (CAUSAL, SHUFFLED) and not applied
+            and weights_source == "full_state"),
+        "oracle_no_refresh_fallback": (
+            variant == ORACLE and not applied
+            and weights_source == "full_state"),
         "used_gold_target": variant == ORACLE,
         "used_future_queries": False, "reread_source": False,
         "reencoded_old_observations": False,
@@ -1561,8 +2009,8 @@ def _decision_row(variant, cache, state_name, phase, query, layer, labels,
 
 
 def _evaluate_query(cache, state_name, labels, query, variant, *,
-                    primitive, device, thresholds, ledger, costs, phase,
-                    revoked_ids):
+                    primitive, device, thresholds, ledger, refresh_audit,
+                    costs, phase, revoked_ids):
     rows, decisions = [], []
     target = labels["targets"][query["query_id"]]
     kind = target["kind"]
@@ -1572,64 +2020,86 @@ def _evaluate_query(cache, state_name, labels, query, variant, *,
     final_write = record_ids[-1] if record_ids else None
     zero_weights = _weights(cache, state_name, "zero", primitive, device, costs)
     zero_sha = _weights_sha(cache, state_name, "zero", primitive, device, costs)
+    base_kind = _variant_kind(variant)
+    base_weights = _weights(cache, state_name, base_kind, primitive, device,
+                            costs)
+    base_sha = _weights_sha(cache, state_name, base_kind, primitive, device,
+                            costs)
+    base_source = {"full": "full_state", "shuffled": "shuffled_state",
+                   "zero": "zero_state"}[base_kind]
     for layer in cache.layers:
         decision = _decide(
             variant, cache, state_name, query, layer, labels,
             thresholds=thresholds, revoked_ids=revoked_ids)
         attempt = _refresh_attempt(
-            ledger, cache, variant, state_name, query, layer, decision)
-        applied = ([decision["selected_record_id"]]
-                   if attempt["status"] == "applied" else [])
+            refresh_audit, ledger, cache, variant, state_name, query, layer,
+            decision)
+        applied = attempt["status"] == "applied"
         if applied:
+            selected = attempt["selected_record_id"]
             history = state["records"] + [
                 record for record in state["records"]
-                if record["record_id"] in applied]
+                if record["record_id"] == selected]
             weights = _build_weights(
                 cache, history, cache.layers, primitive, device, costs,
-                shuffle_values=False)
+                shuffle_values=(variant == SHUFFLED))
             state_sha = _state_sha(weights)
+            weights_source = ("query_local_refresh_shuffled"
+                              if variant == SHUFFLED
+                              else "query_local_refresh")
         else:
-            weights = _weights(cache, state_name, _variant_kind(variant),
-                               primitive, device, costs)
-            state_sha = _weights_sha(cache, state_name, _variant_kind(variant),
-                                     primitive, device, costs)
+            weights = base_weights
+            state_sha = base_sha
+            weights_source = base_source
         variant_doc = {"name": variant, "reducer": "shared_mean"}
         vector = cache.query_vectors[(query["query_id"], layer)]
+        layer_rows = []
         if kind == "fact" and target_id is not None:
             key_vector = cache.writes[(target_id, layer)].keys[0, 0] \
                 .detach().float().cpu()
             with costs.timed("readout"):
                 readout = _read_weights(
                     weights, key_vector.view(1, 1, *key_vector.shape))
-            rows.append(_readout_row(
+            layer_rows.append(_readout_row(
                 variant=variant_doc, arm="exact_key_value", context=_context(
                     cache, state_name), query=query, layer=layer,
                 readout=readout, readout_space="value",
                 final_write_id=final_write, state_sha256=state_sha))
         with costs.timed("readout"):
             readout = _read_weights(weights, vector)
-        rows.append(_readout_row(
+        layer_rows.append(_readout_row(
             variant=variant_doc, arm="query_key_value",
             context=_context(cache, state_name), query=query, layer=layer,
             readout=readout, readout_space="value",
             final_write_id=final_write, state_sha256=state_sha))
         with costs.timed("readout"):
             readout = vector[0, 0].detach().float().cpu()
-        rows.append(_readout_row(
+        layer_rows.append(_readout_row(
             variant=variant_doc, arm="query_key_address",
             context=_context(cache, state_name), query=query, layer=layer,
             readout=readout, readout_space="key",
             final_write_id=final_write, state_sha256=state_sha))
         with costs.timed("readout"):
             readout = _read_weights(zero_weights, vector)
-        rows.append(_readout_row(
+        layer_rows.append(_readout_row(
             variant=variant_doc, arm="context_removed",
             context=_context(cache, state_name), query=query, layer=layer,
             readout=readout, readout_space="value",
             final_write_id=final_write, state_sha256=zero_sha))
+        for row in layer_rows:
+            row["refresh_applied"] = applied
+            row["refresh_attempt_id"] = attempt["attempt_id"]
+            row["weights_source"] = weights_source
+            row["runtime_selected_record_id"] = decision["selected_record_id"]
+            row["runtime_accepted"] = decision["accepted"]
+            row["runtime_reason"] = decision["reason"]
+            row["used_gold_target"] = variant == ORACLE
+            rows.append(row)
         decisions.append(_decision_row(
             variant, cache, state_name, phase, query, layer, labels,
-            decision, attempt, revoked_ids=revoked_ids))
+            decision, attempt, revoked_ids=revoked_ids,
+            weights_source=weights_source, base_state_sha=base_sha,
+            state_sha=state_sha))
     for row in rows:
         row["phase"] = phase
         row["codebook_key"] = (
@@ -1660,6 +2130,14 @@ def _codebook(cache, state_name, phase, revoked_ids):
 
 
 def _fresh_ranking(row, codebook, labels, thresholds, revoked_ids):
+    """Rank a readout while keeping policy blocks separate from correctness.
+
+    ``policy_blocked`` is derived only from runtime metadata (the declared
+    revocation view and the superseded/live record sets).  It is never derived
+    from the sealed evaluator label kind.  A revoked-target query that accepts
+    another live record therefore remains an accepted wrong retrieval instead
+    of being converted into evaluator-induced abstention.
+    """
     ranking = _recompute_ranking(row, codebook, labels, thresholds)
     kind = labels["targets"][row["case_id"]]["kind"]
     top = ranking["top_entry_id"]
@@ -1668,31 +2146,82 @@ def _fresh_ranking(row, codebook, labels, thresholds, revoked_ids):
         blocked = "revoked"
     elif top in set(codebook["negative_entry_ids"]):
         blocked = "stale"
+    readout_accepted = bool(ranking["accepted"])
+    policy_blocked = blocked is not None
+    accepted = readout_accepted and not policy_blocked
+    ranking["readout_accepted"] = readout_accepted
+    ranking["policy_blocked"] = blocked
+    ranking["blocked_acceptance"] = blocked
+    ranking["policy_blocked_acceptance"] = readout_accepted and policy_blocked
     ranking["revoked_blocked"] = blocked == "revoked"
     ranking["stale_blocked"] = blocked == "stale"
-    ranking["revoked_query_blocked"] = kind == "revoked"
-    ranking["blocked_acceptance"] = blocked
-    if blocked is not None or kind == "revoked":
-        ranking["accepted"] = False
-        ranking["false_recall"] = False
-        ranking["false_recall_kind"] = (
-            None if ranking["top1"] else (blocked or "revoked_query"))
+    ranking["revoked_query_kind"] = kind == "revoked"
+    ranking["accepted"] = accepted
+    top1 = bool(ranking["top1"])
+    ranking["false_recall"] = bool(accepted and not top1)
+    if accepted and not top1:
+        if kind == "revoked":
+            false_recall_kind = "revoked_target_other_live"
+        elif kind == "unknown":
+            false_recall_kind = "unknown_address"
+        elif top in set(codebook["negative_entry_ids"]):
+            false_recall_kind = "superseded"
+        elif ranking.get("target_role") is None:
+            false_recall_kind = "other_source"
+        else:
+            false_recall_kind = ranking.get("false_recall_kind") or "other_source"
+    else:
+        false_recall_kind = None
+    ranking["false_recall_kind"] = false_recall_kind
+    runtime_selected = row.get("runtime_selected_record_id")
+    ranking["runtime_selected_record_id"] = runtime_selected
+    ranking["runtime_accepted"] = bool(row.get("runtime_accepted"))
+    ranking["selection_correct"] = bool(
+        runtime_selected is not None and runtime_selected == ranking["target_entry_id"])
+    ranking["selected_other_live"] = bool(
+        ranking["runtime_accepted"]
+        and not ranking["selection_correct"]
+        and runtime_selected is not None)
+    ranking["refresh_applied"] = bool(row.get("refresh_applied"))
+    ranking["refresh_attempt_id"] = row.get("refresh_attempt_id")
+    ranking["weights_source"] = row.get("weights_source")
+    ranking["runtime_selection_available"] = "runtime_accepted" in row
     return ranking
 
 
-def _rank(readouts, codebooks, labels_by_episode, thresholds):
+def _rank(readouts, decisions, codebooks, labels_by_episode, revocations,
+          thresholds):
+    decision_by_key = {
+        (row["variant"], row["episode_id"], row["state"], row["case_id"],
+         row["phase"], row["layer"]): row for row in decisions}
     rankings = []
     for row in readouts:
         key = (row["episode_id"], row["state"], row["phase"])
         labels = labels_by_episode[row["episode_id"]][row["state"]]
-        revoked = (tuple(labels["revoked_entry_ids"])
-                   if row["phase"] == REVOCATION else ())
+        runtime_revoked = (
+            (revocations[row["episode_id"]]["record_id"],)
+            if row["phase"] == REVOCATION else ())
+        decision = decision_by_key.get(
+            (row["variant"], row["episode_id"], row["state"], row["case_id"],
+             row["phase"], row["layer"]))
+        _require(decision is not None, "Readout row has no matching decision")
+        enriched = dict(row)
+        enriched["runtime_selected_record_id"] = decision[
+            "selected_record_id"]
+        enriched["runtime_accepted"] = decision["accepted"]
+        enriched["runtime_reason"] = decision["reason"]
+        enriched["refresh_applied"] = decision["refresh_applied"]
+        enriched["refresh_attempt_id"] = (
+            decision["refresh_attempt"]["attempt_id"])
+        enriched["weights_source"] = decision["weights_source"]
         ranking = _fresh_ranking(
-            row, codebooks[key], labels, thresholds, revoked)
+            enriched, codebooks[key], labels, thresholds, runtime_revoked)
         ranking["phase"] = row["phase"]
         ranking["cohort"] = labels["cohort_by_query"][row["case_id"]]
         ranking["split"] = labels["split"]
-        ranking["revoked_entry_ids"] = list(revoked)
+        ranking["runtime_revoked_ids"] = list(runtime_revoked)
+        ranking["runtime_negative_ids"] = list(
+            codebooks[key]["negative_entry_ids"])
         rankings.append(ranking)
     return rankings
 
@@ -1720,7 +2249,13 @@ def _cohort_blocks(rankings):
                                   for row in rows),
             "revoked_accepted": sum(row["revoked_blocked"] and row["accepted"]
                                     for row in rows),
-            "note": "descriptive cohort block; acceptance-v2 metrics are separate",
+            "policy_blocked": sum(bool(row["policy_blocked"]) for row in rows),
+            "policy_blocked_acceptance": sum(
+                row["policy_blocked_acceptance"] for row in rows),
+            "revoked_target_other_live": sum(
+                row["false_recall_kind"] == "revoked_target_other_live"
+                for row in rows),
+            "note": "descriptive cohort block; acceptance-v3 metrics are separate",
         }
     return blocks
 
@@ -1735,6 +2270,12 @@ def _revocation_summary(rankings):
                    if row["variant"] == variant and row["phase"] == REVOCATION]
         live_accepted = sum(row["accepted"] for row in live)
         revoked_accepted = sum(row["accepted"] for row in revoked)
+        revoked_policy_accepted = sum(
+            row["accepted"] and row["policy_blocked"] == "revoked"
+            for row in revoked)
+        other_live = sum(
+            row["false_recall_kind"] == "revoked_target_other_live"
+            for row in revoked)
         summary[variant] = {
             "live_distractor_rows": len(live),
             "live_accepted": live_accepted,
@@ -1743,17 +2284,20 @@ def _revocation_summary(rankings):
             "revoked_accepted": revoked_accepted,
             "revoked_acceptance_rate": (revoked_accepted / len(revoked)
                                         if revoked else None),
+            "revoked_policy_accepted": revoked_policy_accepted,
+            "revoked_target_other_live_accepted": other_live,
             "revoked_blocked": sum(row["revoked_blocked"] for row in revoked),
             "control_meaningful": live_accepted > 0,
-            "passed": revoked_accepted == 0,
+            "passed": revoked_policy_accepted == 0,
         }
     live_reference = next((item for item in summary.values()
                            if item["live_accepted"] > 0), None)
     return {
         "by_variant": summary,
         "any_live_reference_accepted": live_reference is not None,
-        "all_revoked_acceptance_zero": all(
-            item["revoked_accepted"] == 0 for item in summary.values()),
+        "all_revoked_policy_acceptance_zero": all(
+            item["revoked_policy_accepted"] == 0 for item in summary.values()),
+        "revoked_target_other_live_is_wrong_retrieval": True,
         "paired_text": "revocation query reuses the live distractor query text",
     }
 
@@ -1798,24 +2342,155 @@ def _representation(protocol, model):
 # Metrics, limits and the run
 # ---------------------------------------------------------------------------
 
-def _metric_bundle(rows, acceptance):
+def _metric_bundle(rows, acceptance, *, strict=True):
     if not rows:
-        return {"metrics": None,
-                "verdict": {"decision": "inconclusive",
-                            "error": "no ranking rows"}}
-    metrics = acceptance_metrics(
-        rows, bootstrap_seed=acceptance["bootstrap"]["seed"],
-        resamples=acceptance["bootstrap"]["resamples"],
-        confidence=acceptance["bootstrap"]["confidence"])
+        verdict = {"decision": "invalid", "error": "no ranking rows",
+                   "fail_closed": True, "checks": {}}
+        return {"metrics": None, "verdict": verdict,
+                "coverage_valid": False}
+    metrics = acceptance_metrics_v3(rows, acceptance)
+    require_revoked = any(row.get("phase") == REVOCATION for row in rows)
     try:
-        verdict = evaluate_acceptance(metrics, acceptance)
+        verdict = evaluate_acceptance_v3(
+            metrics, acceptance, require_revoked=require_revoked)
     except ValueError as error:
-        verdict = {"decision": "inconclusive", "error": str(error),
-                   "checks": {}}
-    return {"metrics": metrics, "verdict": verdict}
+        if strict:
+            raise ValueError(
+                f"Acceptance coverage failed closed: {error}") from error
+        verdict = {"decision": "invalid", "error": str(error),
+                   "fail_closed": True, "checks": {}}
+        return {"metrics": metrics, "verdict": verdict,
+                "coverage_valid": False}
+    return {"metrics": metrics, "verdict": verdict, "coverage_valid": True}
 
 
-def _limits_check(protocol, costs, checkpoint_bytes, *, first_process):
+def refresh_positive_control_fixture(*, layers=(0,), device="cpu"):
+    """Deterministic single-record fixture for admitted-refresh controls.
+
+    A one-record state is recoverable by construction: its query key is the
+    record key, so the target value must be the top value.  Re-Admitting the
+    same record into a query-local history changes the state, and a two-record
+    shuffled history deranges value donors.
+    """
+    generator = torch.Generator(device="cpu").manual_seed(20261102)
+    heads, key_size, value_size = 4, 16, 16
+
+    def write(key, value):
+        return SGDN2Write(
+            keys=key.view(1, 1, heads, key_size),
+            values=value.view(1, 1, heads, value_size),
+            erase=torch.zeros(1, 1, heads, key_size),
+            write_gate=torch.ones(1, 1, heads, value_size),
+            decay=torch.ones(1, 1, heads, key_size),
+            chunk_index=0)
+
+    keys = [torch.randn(heads, key_size, generator=generator)
+            for _ in range(2)]
+    values = [torch.randn(heads, value_size, generator=generator)
+              for _ in range(2)]
+    writes = {"rec-1": write(keys[0], values[0]),
+              "rec-2": write(keys[1], values[1])}
+    records = [{"record_id": record_id} for record_id in writes]
+    context = {"records": records,
+               "writes": {(record_id, layer): value
+                          for record_id, value in writes.items()
+                          for layer in layers}}
+    primitive = SGDN2Memory(heads, key_size, value_size)
+
+    def state(history, *, shuffle=False):
+        history_writes = _history_writes(
+            context, history, layers, shuffle_values=shuffle)
+        return _build_state(
+            primitive, layers, history_writes, reducer="shared_mean",
+            gate_control=None, device=device)["shared"].weights
+
+    base = state([records[0]])
+    refreshed = state([records[0], records[0]])
+    paired = state(records)
+    shuffled = state(records, shuffle=True)
+    query = keys[0].view(1, 1, heads, key_size)
+    base_readout = _read_weights(base, query)
+    refresh_readout = _read_weights(refreshed, query)
+    paired_readout = _read_weights(paired, query)
+    shuffled_readout = _read_weights(shuffled, query)
+    target_value = values[0]
+    target_cosine = _cosine_heads(refresh_readout, target_value)
+    other_cosine = _cosine_heads(refresh_readout, values[1])
+    oracle_top1 = bool(target_cosine > other_cosine and target_cosine > 0.99)
+    refresh_changed_state = _state_sha(base) != _state_sha(refreshed)
+    refresh_changed_readout = (
+        _sha_json(base_readout.tolist())
+        != _sha_json(refresh_readout.tolist()))
+    shuffled_changed_state = _state_sha(paired) != _state_sha(shuffled)
+    shuffled_changed_readout = (
+        _sha_json(paired_readout.tolist())
+        != _sha_json(shuffled_readout.tolist()))
+    result = {
+        "oracle_fixture": "single_record_query_key_recoverable",
+        "oracle_target_cosine": target_cosine,
+        "oracle_other_cosine": other_cosine,
+        "oracle_recovers_known_fixture": oracle_top1,
+        "admitted_refresh_changes_state": refresh_changed_state,
+        "admitted_refresh_changes_readout": refresh_changed_readout,
+        "shuffled_refresh_changes_state": shuffled_changed_state,
+        "shuffled_refresh_perturbs_values": shuffled_changed_readout,
+        "durable_writes": 0,
+        "optimizer_updates": 0,
+    }
+    result["passed"] = (
+        oracle_top1 and refresh_changed_state and refresh_changed_readout
+        and shuffled_changed_state and shuffled_changed_readout)
+    return result
+
+
+def _refresh_positive_controls(rankings, decisions):
+    applied = [row for row in decisions if row["refresh_applied"]]
+    causal = [row for row in applied if row["variant"] == CAUSAL]
+    shuffled = [row for row in applied if row["variant"] == SHUFFLED]
+    oracle = [row for row in applied if row["variant"] == ORACLE]
+    state_changed = sum(bool(row["refresh_changed_state"]) for row in applied)
+    # Paired causal/shuffled refreshes share the same selected record and query
+    # but derange values; a non-degenerate writer must produce a different state.
+    by_key = {}
+    for row in decisions:
+        by_key[(row["episode_id"], row["state"], row["case_id"],
+                row["layer"], row["variant"])] = row
+    shuffled_perturbed = 0
+    for (episode, state, case, layer, variant), row in by_key.items():
+        if variant != SHUFFLED or not row["refresh_applied"]:
+            continue
+        causal_row = by_key.get((episode, state, case, layer, CAUSAL))
+        if (causal_row is not None and causal_row["refresh_applied"]
+                and causal_row["state_sha256"] != row["state_sha256"]):
+            shuffled_perturbed += 1
+    oracle_rankings = [row for row in rankings
+                       if row["variant"] == ORACLE
+                       and row["arm"] == "query_key_value"]
+    return {
+        "applied_refreshes": len(applied),
+        "causal_refreshes": len(causal),
+        "shuffled_refreshes": len(shuffled),
+        "oracle_refreshes": len(oracle),
+        "refresh_changed_state_rows": state_changed,
+        "admitted_refresh_changes_state": bool(state_changed),
+        "shuffled_pairs": sum(
+            1 for (episode, state, case, layer, variant), row in by_key.items()
+            if variant == SHUFFLED and row["refresh_applied"]
+            and (episode, state, case, layer, CAUSAL) in by_key),
+        "shuffled_refresh_perturbs_values": shuffled_perturbed > 0,
+        "shuffled_perturbed_pairs": shuffled_perturbed,
+        "oracle_applied": bool(oracle),
+        "oracle_raw_top1": sum(row["top1"] for row in oracle_rankings),
+        "oracle_query_rows": len(oracle_rankings),
+        "oracle_recovery_rate": (
+            sum(row["top1"] for row in oracle_rankings) / len(oracle_rankings)
+            if oracle_rankings else None),
+        "oracle_is_diagnostic_not_upper_bound": True,
+    }
+
+
+def _limits_check(protocol, costs, checkpoint_bytes, *, first_process,
+                  exactly_once):
     limits = protocol["limits"]
     observations = costs.counts.get("observation_encoding", 0)
     queries = costs.counts.get("query_encoding", 0)
@@ -1830,6 +2505,13 @@ def _limits_check(protocol, costs, checkpoint_bytes, *, first_process):
         "checkpoint_bytes": checkpoint_bytes <= limits["max_checkpoint_bytes"],
         "restart_observation_encodes": (first_process
                                         or observations == 0),
+        "durable_refresh_commits": exactly_once[
+            "durable_refresh_commits"] == 0,
+        "query_local_refresh_applied": exactly_once[
+            "query_local_refresh_applied"]
+        <= limits["max_query_local_refresh_applied"],
+        "record_versions": exactly_once["max_record_versions_per_record"]
+        <= limits["max_record_versions_per_record"],
     }
     return {"checks": checks, "passed": all(checks.values()),
             "observed": {"observation_encodes": observations,
@@ -1837,7 +2519,13 @@ def _limits_check(protocol, costs, checkpoint_bytes, *, first_process):
                          "state_rebuilds": rebuilds,
                          "readout_rows": readouts,
                          "wall_seconds": costs.wall_seconds(),
-                         "checkpoint_bytes": checkpoint_bytes}}
+                         "checkpoint_bytes": checkpoint_bytes,
+                         "durable_refresh_commits": exactly_once[
+                             "durable_refresh_commits"],
+                         "query_local_refresh_applied": exactly_once[
+                             "query_local_refresh_applied"],
+                         "max_record_versions_per_record": exactly_once[
+                             "max_record_versions_per_record"]}}
 
 
 def _raw_digests(caches, decisions, readouts, rankings, codebooks):
@@ -1891,11 +2579,16 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
     _require(isinstance(revocations, dict) and revocations,
              "Fresh revocation controls are missing")
     layers = tuple(protocol["layers"])
+    workload = planned_workload(episodes, layers, labels_by_episode)
+    if protocol.get("planned_workload"):
+        _require(protocol["planned_workload"] == workload,
+                 "Protocol planned workload differs from the fixture")
     thresholds = protocol["thresholds"]
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     filenames = ("decisions.jsonl", "readouts.jsonl", "rankings.jsonl",
-                 "codebooks.json", "ledger.json", "report.json")
+                 "codebooks.json", "ledger.json", "refresh_audit.json",
+                 "report.json")
     if resume_checkpoint is None:
         filenames += ("policy_checkpoint.pt",)
     else:
@@ -1931,6 +2624,7 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
 
     expected_episodes = {episode["episode_id"]: episode for episode in episodes}
     resumed = resume_checkpoint is not None
+    refresh_audit = QueryLocalRefresh(protocol["query_local_refresh"])
     if not resumed:
         caches = {}
         ledger = WriteLedger()
@@ -1943,15 +2637,18 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
                                    for state in episode_states(episode)):
                     for record in cache.states[state_name]["records"]:
                         record_id = record["record_id"]
-                        if ledger.is_committed(episode["episode_id"], record_id):
+                        version = record_version(record)
+                        if ledger.is_committed(episode["episode_id"],
+                                               record_id, version):
                             ledger.require_committed(
-                                episode["episode_id"], record_id)
+                                episode["episode_id"], record_id, version)
                             continue
                         ledger.commit(
-                            attempt_id=f"{episode['episode_id']}:observe:{record_id}",
+                            attempt_id=(f"{episode['episode_id']}:observe:"
+                                        f"{record_id}:{version}"),
                             episode_id=episode["episode_id"],
-                            record_id=record_id, state=state_name,
-                            source="observation")
+                            record_id=record_id, record_version=version,
+                            state=state_name, source="observation")
         encoded = {
             "contexts": sum(len(cache.states) for cache in caches.values()),
             "observations": costs.counts.get("observation_encoding", 0),
@@ -1965,6 +2662,7 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
                   sum(len(cache.writes) for cache in caches.values()))
         costs.add("cached_query_vectors",
                   sum(len(cache.query_vectors) for cache in caches.values()))
+        refresh_audit.bind_durable(ledger)
     else:
         with costs.timed("cache_load"):
             payload = load_fresh_checkpoint(
@@ -1973,6 +2671,7 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
         costs.add("checkpoint_bytes", checkpoint_bytes)
         costs.add("checkpoint_loads")
         ledger = WriteLedger.from_dict(payload["ledger"])
+        refresh_audit.bind_durable(ledger)
         packed = {item["episode_id"]: item for item in payload["episodes"]}
         _require(set(packed) == set(expected_episodes),
                  "Cached episode inventory differs")
@@ -1987,7 +2686,8 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
                                    for state in episode_states(episode)):
                     for record in cache.states[state_name]["records"]:
                         ledger.require_committed(
-                            episode["episode_id"], record["record_id"])
+                            episode["episode_id"], record["record_id"],
+                            record_version(record))
                 for query in episode["queries"]:
                     _require(cache.query_phases.get(query["query_id"], (None,))[0]
                              == FIRST_PROCESS,
@@ -2040,8 +2740,9 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
                 for state in episode_states(episode):
                     state_name = state["name"]
                     labels = labels_by_episode[episode["episode_id"]][state_name]
-                    revoked_ids = (tuple(labels["revoked_entry_ids"])
-                                   if phase == REVOCATION else ())
+                    revoked_ids = (
+                        (revocations[episode["episode_id"]]["record_id"],)
+                        if phase == REVOCATION else ())
                     codebooks[(episode["episode_id"], state_name, phase)] = \
                         _codebook(cache, state_name, phase, revoked_ids)
                     queries = episode[PHASE_QUERY_FIELDS[phase]]
@@ -2051,6 +2752,7 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
                                 cache, state_name, labels, query, variant,
                                 primitive=primitive, device=device,
                                 thresholds=thresholds, ledger=ledger,
+                                refresh_audit=refresh_audit,
                                 costs=costs, phase=phase,
                                 revoked_ids=revoked_ids)
                             decisions.extend(new_decisions)
@@ -2099,10 +2801,12 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
             "loaded": True,
         }
 
-    rankings = _rank(readouts, codebooks, labels_by_episode, thresholds)
+    rankings = _rank(readouts, decisions, codebooks, labels_by_episode,
+                     revocations, thresholds)
     costs.add("readout_rows", len(readouts))
     _require(_parameter_versions(model) == versions,
              "Frozen writer parameters changed")
+    refresh_audit.assert_durable_unchanged(ledger)
     for row in decisions + readouts:
         _check_no_label_keys(row)
     _write_jsonl(output_dir / "decisions.jsonl", decisions)
@@ -2112,6 +2816,7 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
                     for key, value in sorted(codebooks.items())}
     _write_json(output_dir / "codebooks.json", {"codebooks": codebook_doc})
     _write_json(output_dir / "ledger.json", ledger.to_dict())
+    _write_json(output_dir / "refresh_audit.json", refresh_audit.summary())
 
     raw = _raw_digests(caches, decisions, readouts, rankings, codebooks)
     acceptance = protocol["acceptance"]
@@ -2119,19 +2824,22 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
     metric_bundles = {"first_process_all": _metric_bundle(first_rows, acceptance)}
     if resumed:
         restart_rows = [row for row in rankings if row["phase"] == RESTART]
-        restart_heldout = [row for row in restart_rows if row["split"] == "heldout"]
         revocation_rows = [row for row in rankings if row["phase"] == REVOCATION]
-        metric_bundles["restart_all"] = _metric_bundle(restart_rows, acceptance)
+        post_rows = restart_rows + revocation_rows
+        restart_heldout = [row for row in post_rows if row["split"] == "heldout"]
+        metric_bundles["restart_all"] = _metric_bundle(post_rows, acceptance)
         metric_bundles["restart_heldout"] = _metric_bundle(
             restart_heldout, acceptance)
         metric_bundles["restart_by_split"] = {
             split: _metric_bundle(
-                [row for row in restart_rows if row["split"] == split],
-                acceptance)
+                [row for row in post_rows if row["split"] == split],
+                acceptance, strict=False)
             for split in ("train", "dev", "heldout")}
         metric_bundles["revocation_descriptive"] = {
             "metrics": None, "verdict": None,
-            "cohort": _cohort_blocks(revocation_rows)}
+            "cohort": _cohort_blocks(revocation_rows),
+            "revocation": metric_bundles["restart_all"]["metrics"][
+                "variants"][acceptance["candidate_variant"]]["revoked"]}
     cohorts = _cohort_blocks(rankings)
     revocation = _revocation_summary(rankings) if resumed else None
 
@@ -2148,50 +2856,83 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
             probe.commit(
                 attempt_id="restart-replay-probe",
                 episode_id=probe_episode["episode_id"],
-                record_id=probe_record["record_id"], state="initial",
+                record_id=probe_record["record_id"],
+                record_version=record_version(probe_record), state="initial",
                 source="observation")
         except DuplicateWrite:
             restart_replay_rejected = True
-    exactly_once["restart_replay_rejected"] = restart_replay_rejected
-    exactly_once["accepted_refresh_applied"] = exactly_once[
-        "commit_source_counts"].get("accepted_refresh", 0)
-    exactly_once["accepted_refresh_attempts"] = exactly_once[
-        "attempt_source_counts"].get("accepted_refresh", 0)
-    exactly_once["accepted_refresh_rejected"] = exactly_once[
-        "rejection_counts"].get("accepted_refresh", 0)
-    exactly_once["duplicate_observe_commits_rejected"] = exactly_once[
-        "rejection_counts"].get("observation", 0)
+    refresh_summary = refresh_audit.summary()
+    refresh_probe = refresh_audit.retry_probe(ledger)
+    exactly_once.update({
+        "restart_replay_rejected": restart_replay_rejected,
+        "durable_refresh_commits": exactly_once[
+            "commit_source_counts"].get("accepted_refresh", 0),
+        "durable_identity": "episode_id/record_id/record_version",
+        "record_version_counts": {
+            key: len(versions) for key, versions in
+            exactly_once["per_record_versions"].items()},
+        "max_record_versions_per_record": max(
+            (len(versions) for versions in
+             exactly_once["per_record_versions"].values()), default=0),
+        "query_local_refresh": refresh_summary,
+        "query_local_refresh_applied": refresh_summary[
+            "status_counts"].get("applied", 0),
+        "query_local_refresh_rejected": refresh_summary[
+            "status_counts"].get("rejected", 0),
+        "query_local_refresh_retry": refresh_probe,
+        "query_local_refresh_durable_unchanged": refresh_probe[
+            "durable_unchanged"],
+        "duplicate_observe_commits_rejected": exactly_once[
+            "rejection_counts"].get("observation", 0),
+    })
     exactly_once["passed"] = (
-        exactly_once["max_commits_per_record"] == 1
-        and exactly_once["accepted_refresh_applied"] <= protocol["limits"][
-            "max_accepted_refresh_applied"]
+        exactly_once["max_record_versions_per_record"]
+        <= protocol["limits"]["max_record_versions_per_record"]
+        and exactly_once["durable_refresh_commits"] == 0
         and exactly_once["duplicate_observe_commits_rejected"]
         <= protocol["limits"]["max_duplicate_observe_commits"]
+        and exactly_once["query_local_refresh_applied"]
+        <= protocol["limits"]["max_query_local_refresh_applied"]
         and retry["idempotent"]
-        and (not resumed or exactly_once["restart_replay_rejected"]))
+        and refresh_probe["idempotent"]
+        and refresh_probe["durable_unchanged"]
+        and (not resumed or exactly_once["restart_replay_rejected"])
+    )
     exactly_once["ledger_sha256"] = _sha_file(output_dir / "ledger.json")
-    _require(exactly_once["accepted_refresh_applied"]
-             <= protocol["limits"]["max_accepted_refresh_applied"],
-             "Accepted refresh applied beyond the predeclared limit")
+    exactly_once["refresh_audit_sha256"] = _sha_file(
+        output_dir / "refresh_audit.json")
+    _require(exactly_once["durable_refresh_commits"] == 0,
+             "Query-local refresh created a durable commit")
+    _require(exactly_once["query_local_refresh_applied"]
+             <= protocol["limits"]["max_query_local_refresh_applied"],
+             "Query-local refresh applied beyond the predeclared limit")
     _require(exactly_once["duplicate_observe_commits_rejected"]
              <= protocol["limits"]["max_duplicate_observe_commits"],
              "Duplicate observation commits exceeded the predeclared limit")
+    _require(exactly_once["max_record_versions_per_record"]
+             <= protocol["limits"]["max_record_versions_per_record"],
+             "Record version bound exceeded")
 
     blocked = {
         "stale_blocked": sum(row["stale_blocked"] for row in rankings),
         "revoked_blocked": sum(row["revoked_blocked"] for row in rankings),
-        "revoked_query_blocked": sum(row["revoked_query_blocked"]
-                                     for row in rankings),
+        "revoked_query_kind": sum(row["revoked_query_kind"]
+                                  for row in rankings),
+        "policy_blocked_acceptance": sum(
+            row["policy_blocked_acceptance"] for row in rankings),
         "stale_accepted": sum(row["stale_blocked"] and row["accepted"]
                               for row in rankings),
-        "revoked_accepted": sum((row["revoked_blocked"]
-                                 or row["revoked_query_blocked"])
-                                and row["accepted"] for row in rankings),
+        "revoked_policy_accepted": sum(
+            row["accepted"] and row["policy_blocked"] == "revoked"
+            for row in rankings),
+        "revoked_target_other_live": sum(
+            row["false_recall_kind"] == "revoked_target_other_live"
+            for row in rankings),
     }
     _require(blocked["stale_accepted"] == 0,
              "Stale records must not be accepted")
-    _require(blocked["revoked_accepted"] == 0,
-             "Revoked records must not be accepted")
+    _require(blocked["revoked_policy_accepted"] == 0,
+             "Revoked records must not be accepted by runtime policy")
 
     parity = None
     if resumed:
@@ -2214,6 +2955,9 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
         _require(parity["same_query_parity"],
                  "Fresh-process same-query parity differs")
 
+    refresh_controls = _refresh_positive_controls(rankings, decisions)
+    positive_control = refresh_positive_control_fixture(device="cpu")
+    refresh_controls["positive_control_fixture"] = positive_control
     mechanical = {
         "frozen_writer": _parameter_versions(model) == versions,
         "requires_grad_all_false": all(
@@ -2227,20 +2971,30 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
             not resumed or encoded["restart_new_queries"] > 0),
         "same_query_parity": (not resumed or parity["same_query_parity"]),
         "revocation_blocks_acceptance": (
-            not resumed or (revocation["all_revoked_acceptance_zero"]
-                            and blocked["revoked_accepted"] == 0)),
+            not resumed or (revocation["all_revoked_policy_acceptance_zero"]
+                            and blocked["revoked_policy_accepted"] == 0)),
         "stale_blocks_acceptance": blocked["stale_accepted"] == 0,
+        "query_local_refresh_durable_unchanged": exactly_once[
+            "query_local_refresh_durable_unchanged"],
+        "causal_refresh_admitted": (
+            not resumed or exactly_once["query_local_refresh_applied"] > 0),
+        "refresh_positive_control": positive_control["passed"],
+        "coverage_valid": metric_bundles["first_process_all"]["coverage_valid"],
         "representation_bound": True,
     }
     decisive = metric_bundles.get(acceptance["decisive_cohort"]) \
         if resumed else metric_bundles["first_process_all"]
-    oracle = metric_bundles.get("restart_all" if resumed
-                                else "first_process_all")["metrics"][ORACLE]["query"]
+    oracle_rows = (metric_bundles["restart_all"] if resumed
+                   else metric_bundles["first_process_all"])
+    oracle = oracle_rows["metrics"]["variants"][ORACLE]["quality"]
     oracle_ok = (oracle["raw_top1_rate"] is not None
                  and oracle["raw_top1_rate"]
                  >= acceptance["gates"]["oracle_raw_top1_rate_min"])
     if not resumed:
-        decision = "inconclusive"
+        decision = ("invalid" if not decisive["coverage_valid"]
+                    else "inconclusive")
+    elif not decisive["coverage_valid"]:
+        decision = "invalid"
     elif all(mechanical.values()) and decisive["verdict"]["decision"] == "accepted":
         decision = "accepted"
     elif oracle_ok:
@@ -2248,7 +3002,8 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
     else:
         decision = "inconclusive"
     limits = _limits_check(
-        protocol, costs, checkpoint_report["bytes"], first_process=not resumed)
+        protocol, costs, checkpoint_report["bytes"],
+        first_process=not resumed, exactly_once=exactly_once)
     _require(limits["passed"], "Fresh protocol limit exceeded")
 
     report = {
@@ -2266,8 +3021,21 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
         "encoded": encoded,
         "checkpoint": checkpoint_report,
         "exactly_once": exactly_once,
+        "refresh": refresh_summary,
+        "refresh_controls": refresh_controls,
+        "refresh_positive_control": positive_control,
         "revocation": revocation,
         "blocked": blocked,
+        "inventory": {
+            "declared_query_rows": workload["declared_query_rows"],
+            "inventory_case_rows": workload["inventory_case_rows"],
+            "arm_expanded_metric_rows": workload["arm_expanded_metric_rows"],
+            "process_ranking_rows": len(rankings),
+            "process_phases": list(phases),
+            "units": workload["units"],
+            "note": ("declared query rows are not inventory case rows and are "
+                     "not arm-expanded metric rows"),
+        },
         "representation_compatibility": {
             "protocol_bound": True, "source_bound": True,
             "writer_bound": True, "representation_bound": True,
@@ -2286,10 +3054,15 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
             "full_history": "frozen learned-memory baseline",
             "causal_refresh": ("hybrid query-addressed cached-observation "
                                "retrieval plus neural refresh"),
-            "oracle_refresh": "gold-target diagnostic upper bound; not deployable policy",
+            "oracle_refresh": ("gold-target diagnostic population; not a legal "
+                               "policy and not a candidate-quality upper bound"),
             "disabled": "zero state and zero value readout control",
             "shuffled": "cyclically deranged value-vector control",
-            "accepted_refresh_at_most_once": True,
+            "exact_key_value": ("mixture diagnostic for a gold key readout; "
+                                "not an upper bound"),
+            "query_key_value": "primary candidate-quality readout",
+            "query_local_refresh_at_most_once_per_query": True,
+            "durable_refresh_commits": 0,
             "learned_selector": False,
             "useful_memory_claim": False,
         },

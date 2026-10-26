@@ -40,7 +40,8 @@ def execute(args):
     from replica_lab.architecture.contracts import FastMemorySpec, fingerprint
     from replica_lab.architecture.loading import exclusive_mps_worker, load_local_mps
     from replica_lab.memory_causal_fresh import (
-        PROTOCOL_FORMAT, VARIANT_NAMES, run_memory_causal_fresh)
+        CHECKPOINT_FORMAT, PROTOCOL_FORMAT, VARIANT_NAMES,
+        run_memory_causal_fresh)
     from replica_lab.memory_diagnosis import (
         _display_path, _extension_pins, _resolve_path, _source_pins)
     from replica_lab.profiling import RunProfiler
@@ -60,9 +61,42 @@ def execute(args):
         raise ValueError("Fresh causal variant inventory differs")
     if protocol["budget"]["optimizer_updates"] != 0:
         raise ValueError("Fresh causal protocol must declare zero updates")
-    for condition in ("abort_on_checkpoint_binding_mismatch",
+    if protocol["durable_ingestion"]["identity"] != \
+            "episode_id/record_id/record_version":
+        raise ValueError("Durable ingestion identity differs")
+    refresh = protocol.get("query_local_refresh") or {}
+    if (refresh.get("enabled") is not True
+            or refresh.get("owner") != "query_local_refresh"
+            or refresh.get("persistence") != "query_local_only"
+            or refresh.get("persistent_memory_writes") != 0
+            or refresh.get("optimizer_updates") != 0
+            or refresh.get("decay_updates") != 0
+            or refresh.get("requires_live_record") is not True
+            or refresh.get("requires_durable_version") is not True):
+        raise ValueError("Query-local refresh policy differs")
+    per_query = refresh.get("per_query") or {}
+    if type(per_query.get("max_applied_per_query")) is not int \
+            or per_query["max_applied_per_query"] < 1:
+        raise ValueError("Query-local refresh per-query policy differs")
+    retry = refresh.get("retry") or {}
+    if retry.get("idempotent") is not True:
+        raise ValueError("Query-local refresh retry policy differs")
+    positive = refresh.get("positive_control") or {}
+    if (positive.get("admitted_refresh_changes_state") is not True
+            or positive.get("shuffled_refresh_perturbs_values") is not True
+            or not isinstance(positive.get("oracle_recovery_raw_top1_min"),
+                              (int, float))
+            or positive["oracle_recovery_raw_top1_min"] <= 0):
+        raise ValueError("Query-local refresh positive controls differ")
+    if protocol["checkpoint_policy"]["format"] != CHECKPOINT_FORMAT:
+        raise ValueError("Fresh checkpoint format differs")
+    for condition in ("abort_on_duplicate_record_version",
                       "abort_on_duplicate_observe_commit",
-                      "abort_on_revoked_acceptance"):
+                      "abort_on_durable_refresh_commit",
+                      "abort_on_query_local_refresh_persistence",
+                      "abort_on_missing_coverage",
+                      "abort_on_revoked_policy_acceptance",
+                      "abort_on_checkpoint_binding_mismatch"):
         if condition not in protocol["stop_conditions"]:
             raise ValueError(f"Fresh causal protocol lacks stop condition: {condition}")
 
@@ -194,9 +228,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--device", choices=("mps",), required=True)
     parser.add_argument("--protocol", type=Path,
-                        default=ROOT / "data/memory_causal_fresh_20261026/prepared01/protocol.json")
+                        default=ROOT / "data/memory_causal_fresh_v2_20261026/prepared01/protocol.json")
     parser.add_argument("--prepared", type=Path,
-                        default=ROOT / "data/memory_causal_fresh_20261026/prepared01")
+                        default=ROOT / "data/memory_causal_fresh_v2_20261026/prepared01")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--resume-checkpoint", type=Path)
     parser.add_argument("--baseline-report", type=Path)
