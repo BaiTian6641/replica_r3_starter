@@ -45,6 +45,15 @@ exported or promoted.
 | Clip s/update | 5.42053 | 5.42499 | 5.42425 |
 | Optimizer s/update | 1.05396 | 0.91233 | 0.93593 |
 
+The probe brackets forward/backward, gradient audit, clipping and optimizer phases
+with explicit `torch.mps.synchronize()` calls. Clipping remains the global
+`torch.nn.utils.clip_grad_norm_(..., 1.0, error_if_nonfinite=True)` operation;
+there is no per-parameter norm substitute, nonfinite suppression or backend
+fallback. The sustained native run measured **5.42425 s/update** in clipping and
+**0.93593 s/update** in the optimizer over all 12 updates. These timings profile
+synchronization-inclusive phases; they do not change clipping semantics or
+establish a learning-quality result.
+
 The steady period therefore has 8.4216 s/update. Gradient audit runs only in
 the first two updates per process; clipping remains every update. Final native
 state is **20,134,053,364 bytes (18.75 GiB), all FP32**. Sampled driver peak is
@@ -57,42 +66,51 @@ The historical three-update fused/Muon comparison remains **2.57× faster**,
 but this sustained run does not establish universal speedup, convergence
 equivalence or retention. Its loss trace is not a quality evaluation.
 
-## Full-size native resume: bounded repair and qualification
+## Full-size native resume: bounded smoke passes, matched equivalence open
 
 The earlier loader repeatedly failed the sustained 512 MiB swap-growth guard
 during optimizer-state restoration or the first resumed update. Those failed
 guards and child logs remain preserved under `reports/fused_adamw_20261025/`
 and `runs/fused_adamw_20261025/`; they are not rewritten as passes.
 
-The repaired path constructs the architecture and optimizer on the meta device,
-restores the validated optimizer/RNG/scheduler/cursor state with explicit target
-device ownership, then loads the real checkpoint model and attaches the restored
-state by the validated parameter-group order. It does not migrate a second full
-CPU model copy. Declared base learning rates are captured before optimizer-state
-restoration. The same-device state handoff retains one moment allocation; no
-backend fallback is permitted.
+The repaired path validates the architecture and declared base rates on the meta
+device, materializes eager checkpoint tensors without a second full CPU model,
+then restores optimizer/RNG/scheduler/cursor state on CPU and migrates each
+tensor to MPS with periodic cache release. Train mode is restored explicitly
+before updates. A separate predeclared comparison uses deterministic algorithms
+and disables MPS fast math. No backend fallback is permitted.
 
-The predeclared two-update smoke passed in two fresh native processes on 26
-October 2026, using the sealed MiniCPM5 source and the unchanged protocol. The
-first process completed update 1 and retained one **30,211,387,008-byte**
-checkpoint. The second process started at step 1, matched all first-process
-final parameter hashes, completed update 2, and changed all **381 tensors /
-2,516,756,480 parameters**. Native optimizer state step values were `[2.0]`;
-checkpoint reload validation and resume-start hash validation passed. No final
-model was exported or promoted.
+The original two-update smoke passed in two fresh native processes on 26 October
+2026, using the sealed MiniCPM5 source and its protocol. The first process
+completed update 1 and retained one **30,211,387,008-byte** checkpoint. The
+second started at step 1, matched all first-process final parameter hashes,
+completed update 2 and changed all **381 tensors / 2,516,756,480 parameters**.
+Optimizer state steps were `[2.0]`; checkpoint and resume-start hash validation
+passed. No final model was exported or promoted.
 
-| Native process | Guard wall time | Peak sampled driver | Swap growth | Minimum host free |
-|---|---:|---:|---:|---:|
-| First (`smoke_first03`) | 71.51 s | 40,886,763,520 B | 0 B | 57% |
-| Fresh resume (`smoke_resume03`) | 70.53 s | 43,243,962,368 B | 0 B | 50% |
+| Evidence | Guard wall time | Peak sampled driver | Swap growth | Result |
+|---|---:|---:|---:|---|
+| `resume01/smoke_first03` | 71.51 s | 40,886,763,520 B | 0 B | checkpoint passed |
+| `resume01/smoke_resume03` | 70.53 s | 43,243,962,368 B | 0 B | bounded resume passed |
+| `comparison09/interrupted_resume` | 206.07 s | 43,473,207,296 B | 143,791,227 B | resume passed; exact comparison failed |
+| `comparison11/interrupted_resume` | 58.48 s | 25,124,945,920 B | 1,019,677,245 B | stopped by swap guard |
 
-Evidence: `runs/fused_adamw_20261026_resume01/smoke_first03/run_report.json`,
-`runs/fused_adamw_20261026_resume01/smoke_resume03/run_report.json`, and the
-corresponding guard JSON/child/host logs under
-`reports/fused_adamw_20261026_resume01/`. Two earlier attempts in this new
-directory are retained as setup/code failures (`HF_DATASETS_OFFLINE` missing and
-a probe `base_path` regression); neither performed a model update.
+The independent `scripts/compare_fused_continuation.py` receipt is required in
+addition to guard success. Comparison01 exposed a missing train-mode restore;
+that defect was fixed. Comparison05 exposed the direct constructor's missing
+eager-attention setting, also fixed. Comparison09 then passed resume resource
+checks but still differed from the uninterrupted control in all 381 final
+parameter hashes and the final logits: update-two loss differed by
+`4.842877388e-07` and fixed-output loss by `-1.1920928955e-05`. Comparison11,
+with deterministic algorithms and fast math disabled, stopped during optimizer
+migration before a continuous control could run. No exact matched native
+continuation receipt passes.
 
-This qualifies only the bounded full-scope two-update interrupted smoke. It does
-not establish longer interrupted schedules, other model/optimizer scopes,
-convergence, retention, or learning-quality equivalence.
+Evidence is retained under `runs/fused_adamw_20261026_resume01/`,
+`runs/fused_adamw_20261026_comparison{01..11}/` and the corresponding tracked
+`reports/` directories, including failed comparisons and resource stops. The
+bounded checkpoint smoke is implemented evidence; **robust repeated residency
+and exact uninterrupted-versus-resumed execution remain unqualified**. Longer
+interrupted schedules, other scopes, convergence, retention and learning-quality
+equivalence also remain open. Further fused retries were stopped rather than
+turning the final comparison into a tuning loop.
