@@ -10,6 +10,14 @@ Modes:
 
 No base weights are saved. No backbone tensor is trained. The preserved stage
 rejection is not rerun or replaced.
+
+Protocol version 2 adds the corrected target contract: teacher-forced caption
+loss always uses the original sealed target, changed-image following is scored
+separately, answer counterfactual following is scored against the sibling's
+sealed answer, and train-fit/development gates must pass before the sealed
+held-out role is reserved. It also requires a fresh-process reload to reproduce
+train-fit, dev, held-out, score and gate receipts bitwise before resolving the
+pending run disposition.
 """
 from __future__ import annotations
 
@@ -27,8 +35,14 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from replica_lab.vision_balanced_alignment import (  # noqa: E402
-    compare_reload_artifacts, diagnostic_gate_report, load_prepared,
-    score_caption_controls, score_counterfactual_answers,
+    AccessOrder, PROTOCOL_FORMAT_V2, RELOAD_FORMAT_V2, RUN_FORMAT_V2,
+    compare_reload_artifacts, control_assignment_sha256,
+    diagnostic_gate_report,
+    diagnostic_gate_report_v2, load_prepared, preaudit_allows_heldout,
+    reload_comparison_names_v2, score_answer_controls_v2,
+    score_caption_controls_v2, score_counterfactual_answers,
+    score_caption_controls, scorer_contract_preflight_v2,
+    train_fit_gate_report,
 )
 
 
@@ -183,6 +197,115 @@ def _load_data(protocol):
     }
 
 
+def _load_training_v2(protocol):
+    """Read only training payloads; development and audit stay sealed."""
+    from replica_lab.vision_balanced_alignment import _read_jsonl as read_jsonl
+    data_root = _data_root(protocol)
+    training = read_jsonl(data_root / "training/alignment.jsonl")
+    batches = read_jsonl(
+        data_root / protocol["schedule"]["batches"]["path"])
+    _require(len(batches) == protocol["schedule"]["total_updates"],
+             "Pinned batch count differs")
+    examples = {row["example_id"]: row for row in training}
+    _require(len(examples) == len(training), "Training example ids repeat")
+    scheduled = []
+    used = set()
+    for batch in batches:
+        ids = batch["example_ids"]
+        _require(len(ids) == protocol["schedule"]["alignment"]["batch"],
+                 "Batch size differs")
+        rows = []
+        for example_id in ids:
+            _require(example_id in examples,
+                     f"Batch references an unknown example: {example_id}")
+            rows.append(examples[example_id])
+            used.add(example_id)
+        scheduled.append(rows)
+    _require(used == set(examples),
+             "Pinned schedule does not cover all training examples")
+    for row in training:
+        _require(isinstance(row.get("response"), str) and row["response"],
+                 "Training response is missing")
+        _require("label" not in row and "answer" not in row,
+                 "Training rows must not carry evaluation labels")
+        row["image_path"] = data_root / row["image"]
+    train_caption_labels = read_jsonl(
+        data_root / "training/train_caption_labels.jsonl")
+    train_answer_cases = []
+    for row in training:
+        if row.get("kind") == "answer":
+            train_answer_cases.append({
+                **row, "label": row["response"], "scene_sha256": None})
+    train_caption_cases = [dict(row) for row in training
+                           if row.get("kind") == "caption"]
+    caption_labels = {row["case_id"]: row for row in train_caption_labels}
+    _require({row["case_id"] for row in train_caption_cases}
+             == set(caption_labels), "Train caption probe labels differ")
+    return {
+        "training": training,
+        "batches": scheduled,
+        "train_answer_cases": train_answer_cases,
+        "train_caption_cases": train_caption_cases,
+        "train_answer_labels": [
+            {"case_id": row["case_id"], "answer": row["response"],
+             "world_id": row["world_id"], "task": row.get("task")}
+            for row in train_answer_cases],
+        "train_caption_labels": train_caption_labels,
+        "train_answer_controls": _train_control_map(train_answer_cases),
+        "train_caption_controls": _train_control_map(train_caption_cases),
+    }
+
+
+def _train_control_map(cases):
+    rows = {}
+    for case in cases:
+        row = {"case_id": case["case_id"], "split": "train_fit"}
+        row["assignment_sha256"] = control_assignment_sha256(row)
+        rows[case["case_id"]] = row
+    return rows
+
+
+def _load_dev_v2(protocol):
+    from replica_lab.vision_balanced_alignment import _read_jsonl as read_jsonl
+    data_root = _data_root(protocol)
+    cases = read_jsonl(data_root / "evaluation/dev_answer_cases.jsonl")
+    labels = read_jsonl(data_root / "evaluation/dev_answer_labels.jsonl")
+    caption_cases = read_jsonl(
+        data_root / "evaluation/dev_caption_cases.jsonl")
+    caption_labels = read_jsonl(
+        data_root / "evaluation/dev_caption_labels.jsonl")
+    answer_controls = read_jsonl(
+        data_root / "evaluation/dev_answer_controls.jsonl")
+    caption_controls = read_jsonl(
+        data_root / "evaluation/dev_caption_controls.jsonl")
+    for rows, label_rows in ((cases, labels),
+                             (caption_cases, caption_labels)):
+        _bind_images(rows, data_root)
+        _require({row["case_id"] for row in rows}
+                 == {row["case_id"] for row in label_rows},
+                 "Development cases and labels differ")
+        _require(len({row["case_id"] for row in rows}) == len(rows),
+                 "Development case ids repeat")
+    _bind_images(answer_controls, data_root)
+    _bind_images(caption_controls, data_root)
+    for controls, case_rows in ((answer_controls, cases),
+                                (caption_controls, caption_cases)):
+        _require({row["case_id"] for row in controls}
+                 == {row["case_id"] for row in case_rows},
+                 "Development control map coverage differs")
+    return {
+        "dev_answer_cases": cases,
+        "dev_answer_labels": labels,
+        "dev_answer_scored": _merge_labels(cases, labels),
+        "dev_caption_cases": caption_cases,
+        "dev_caption_labels": caption_labels,
+        "dev_answer_controls": {row["case_id"]: row
+                                for row in answer_controls},
+        "dev_caption_controls": {row["case_id"]: row
+                                 for row in caption_controls},
+    }
+
+
 def _load_heldout(protocol):
     """Read sealed held-out cases only after the extension is exported."""
     from replica_lab.vision_balanced_alignment import _read_jsonl as read_jsonl
@@ -238,6 +361,50 @@ def _delta_norm(before, after):
                      for name in before) ** 0.5)
 
 
+def _verify_fit_tensor_contract(tokenizer, row, prompt_tensor, input_ids,
+                                labels, protocol):
+    fit = protocol.get("fit_contract")
+    if fit is None:
+        return None
+    prompt_length = int(prompt_tensor.shape[1])
+    _require(labels.shape == input_ids.shape,
+             "Fit labels and inputs differ in shape")
+    _require(bool((labels[:, :prompt_length] == -100).all()),
+             "Prompt labels are not fully masked")
+    response_labels = labels[:, prompt_length:]
+    _require(bool((response_labels != -100).all()),
+             "Response labels are masked")
+    _require(int(labels[0, -1]) == int(tokenizer.eos_token_id),
+             "Response does not end with the explicit EOS token")
+    response_ids = [int(value) for value in
+                    input_ids[0, prompt_length:].tolist()]
+    _require(response_ids[-1] == int(tokenizer.eos_token_id),
+             "Input response does not end with EOS")
+    pad = getattr(tokenizer, "pad_token_id", None)
+    if fit["pad_tokens_forbidden"] and pad is not None:
+        _require(int(pad) not in response_ids,
+                 "A pad token appears in the supervised response")
+    _require(input_ids.shape[1] <= int(protocol["limits"][
+        "max_sequence_tokens"]), "Fit example exceeds the token budget")
+    if row.get("kind") == "caption":
+        _require(row["question"] == fit["caption_template"],
+                 "Caption prompt template differs from the fit contract")
+    _require(isinstance(row.get("response"), str) and row["response"],
+             "Fit response is missing")
+    return {
+        "prompt_tokens": prompt_length,
+        "response_tokens": len(response_ids),
+        "supervised_tokens": int((labels != -100).sum()),
+        "eos_token_id": int(tokenizer.eos_token_id),
+        "prompt_masked": True,
+        "response_eos": True,
+        "pad_free_response": True,
+        "template_checked": True,
+        "loss": fit["loss"],
+        "response_only_labels": True,
+    }
+
+
 def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
                 optimizer, trace_path, *, start_time):
     import torch
@@ -246,6 +413,13 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
     train = protocol["train"]
     limits = protocol["limits"]
     records = []
+    fit = protocol.get("fit_contract")
+    if fit is not None:
+        _require(protocol["evaluation"]["question_template"]
+                 == fit["question_template"],
+                 "Protocol question template differs from the fit contract")
+        _require(tokenizer.eos_token_id is not None,
+                 "Tokenizer requires an explicit EOS token")
     for update_index, rows in enumerate(batches, 1):
         if time.monotonic() - start_time > train["max_seconds"]:
             raise RuntimeError("Alignment exceeded its wall budget")
@@ -271,6 +445,8 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
                 session, tokenizer, row,
                 maximum_prompt=limits["max_prompt_tokens"],
                 maximum_sequence=limits["max_sequence_tokens"])
+            fit_check = _verify_fit_tensor_contract(
+                tokenizer, row, prompt_tensor, input_ids, labels, protocol)
             prompt_text = curriculum_prompt(row["question"])
             with session.training_request(
                     prompt_ids=prompt_tensor,
@@ -327,6 +503,9 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
                 adapter.parameter_stamp(original_only=True)
                 == adapter._initial_base_stamp),
         }
+        if fit is not None:
+            record["fit_contract_checked"] = True
+            record["fit_contract"] = fit_check
         if not record["base_stamp_unchanged"]:
             raise RuntimeError("Training changed the sealed base")
         records.append(record)
@@ -383,6 +562,10 @@ def evaluate_answer_controls(adapter, session, tokenizer, service, protocol,
                 control == "counterfactual"
                 and control_map[case["case_id"]].get(
                     "counterfactual_same_image", False))
+            assignment = control_map.get(case["case_id"], {}).get(
+                "assignment_sha256")
+            if assignment is not None:
+                row["control_assignment_sha256"] = assignment
             rows.append(row)
             _write_jsonl(output_path, rows)
     return rows
@@ -448,27 +631,37 @@ def evaluate_caption_controls(adapter, session, tokenizer, service, protocol,
             guard.sample(index=position, event="caption_evaluation")
         label = labels_by_id[case["case_id"]]
         question = case["question"]
+        fixed_target = protocol.get("format") == PROTOCOL_FORMAT_V2
         for control in controls:
             if control == "correct":
                 image_case = case
-                target_text = label["answer"]
-                target_objects = label["visible_objects"]
             elif control == "counterfactual":
                 entry = control_map[case["case_id"]]["counterfactual"]
                 image_case = {**entry, "image_path": entry["image_path"]}
-                target_text = label["counterfactual_answer"]
-                target_objects = label["counterfactual_visible_objects"]
             elif control == "shuffled":
                 entry = control_map[case["case_id"]]["shuffled"]
                 image_case = {**entry, "image_path": entry["image_path"]}
+            elif control == "noimage":
+                image_case = None
+            else:
+                raise RuntimeError(f"Undeclared caption control: {control}")
+            if fixed_target:
+                # The teacher-forced comparison always uses the original
+                # sealed target; only the supplied image changes.
+                target_text = label["answer"]
+                target_objects = label["visible_objects"]
+            elif control == "counterfactual":
+                target_text = label["counterfactual_answer"]
+                target_objects = label["counterfactual_visible_objects"]
+            elif control == "shuffled":
                 target_text = entry["caption"]
                 target_objects = entry["visible_objects"]
             elif control == "noimage":
-                image_case = None
                 target_text = label["answer"]
                 target_objects = label["visible_objects"]
             else:
-                raise RuntimeError(f"Undeclared caption control: {control}")
+                target_text = label["answer"]
+                target_objects = label["visible_objects"]
             visual = None
             if image_case is not None:
                 visual = observe(
@@ -499,8 +692,14 @@ def evaluate_caption_controls(adapter, session, tokenizer, service, protocol,
                 "target_visible_objects": [list(item)
                                            for item in target_objects],
                 "response_loss": loss,
-                "scope": "teacher_forced_target_response",
+                "scope": ("fixed_original_target_teacher_forced"
+                          if fixed_target else
+                          "teacher_forced_target_response"),
             }
+            assignment = control_map.get(case["case_id"], {}).get(
+                "assignment_sha256")
+            if assignment is not None:
+                row["control_assignment_sha256"] = assignment
             rows.append(row)
             _write_jsonl(output_path, rows)
     return rows
@@ -530,8 +729,35 @@ def _score_bundle(protocol, output, *, kind, answer_rows=None,
     return result
 
 
+def _score_bundle_v2(protocol, output, *, kind, answer_rows=None,
+                     answer_cases=None, answer_labels=None,
+                     answer_control_map=None, answer_controls=None,
+                     caption_rows=None, caption_cases=None,
+                     caption_labels=None, caption_control_map=None,
+                     caption_controls=None, seed_offset=0):
+    evaluation = protocol["evaluation"]
+    bootstrap = evaluation["bootstrap"]
+    result = {}
+    if answer_rows is not None:
+        result["answer"] = score_answer_controls_v2(
+            answer_cases, answer_labels, answer_rows,
+            control_map=answer_control_map, controls=answer_controls,
+            seed=int(protocol["seed"]) + seed_offset,
+            bootstrap=bootstrap)
+    if caption_rows is not None:
+        result["caption"] = score_caption_controls_v2(
+            caption_cases, caption_labels, caption_rows,
+            control_map=caption_control_map, controls=caption_controls,
+            seed=int(protocol["seed"]) + seed_offset + 101,
+            bootstrap=bootstrap)
+    _write_json(output / f"scores/{kind}.json", result)
+    return result
+
+
 def _audit_receipt(protocol, run_output, *, create):
-    path = ROOT / "reports/vision_balanced_alignment_20261026" / (
+    report_root = protocol.get("report_root",
+                               "reports/vision_balanced_alignment_20261026")
+    path = ROOT / report_root / (
         f"audit_{protocol['data']['seals']['heldout_answer_case_ids'][:16]}"
         ".reserve.json")
     if create:
@@ -547,6 +773,527 @@ def _audit_receipt(protocol, run_output, *, create):
     return str(path)
 
 
+def _evaluate_and_score_v2(adapter, session, tokenizer, service, protocol,
+                           scope, *, prefix, cases, labels, controls,
+                           caption_cases, caption_labels, caption_controls,
+                           answer_control_map, caption_control_map, output,
+                           guard, started, train_fit=False):
+    answer_rows = evaluate_answer_controls(
+        adapter, session, tokenizer, service, protocol, scope,
+        cases, controls, answer_control_map,
+        output / f"{prefix}_answer_generations.jsonl",
+        guard=guard, start_time=started)
+    caption_rows = evaluate_caption_controls(
+        adapter, session, tokenizer, service, protocol, scope,
+        caption_cases, caption_labels, caption_controls,
+        caption_control_map,
+        output / f"{prefix}_caption_generations.jsonl",
+        guard=guard, start_time=started)
+    bundle = _score_bundle_v2(
+        protocol, output, kind=f"{prefix}_answer",
+        answer_rows=answer_rows, answer_cases=cases,
+        answer_labels=labels, answer_control_map=answer_control_map,
+        answer_controls=controls, seed_offset=17)
+    caption_bundle = _score_bundle_v2(
+        protocol, output, kind=f"{prefix}_caption",
+        caption_rows=caption_rows, caption_cases=caption_cases,
+        caption_labels=caption_labels,
+        caption_control_map=caption_control_map,
+        caption_controls=caption_controls, seed_offset=19)
+    if train_fit:
+        gate = train_fit_gate_report(
+            answer=bundle["answer"], caption=caption_bundle["caption"],
+            evaluation=protocol["evaluation"])
+    else:
+        gate = diagnostic_gate_report_v2(
+            label=prefix, answer=bundle["answer"],
+            caption=caption_bundle["caption"],
+            evaluation=protocol["evaluation"])
+    _write_json(output / f"gates/{prefix}.json", gate)
+    return {"answer": bundle["answer"],
+            "caption": caption_bundle["caption"], "gates": gate,
+            "answer_rows": answer_rows, "caption_rows": caption_rows}
+
+
+def _v2_overfit_summary(train, heldout):
+    train_answer = train["answer"]["controls"]["correct"]["accuracy"]
+    heldout_answer = heldout["answer"]["controls"]["correct"]["accuracy"]
+    train_caption = train["caption"]["controls"]["correct"]
+    heldout_caption = heldout["caption"]["controls"]["correct"]
+    return {
+        "train_correct_accuracy": train_answer,
+        "heldout_correct_accuracy": heldout_answer,
+        "answer_accuracy_gap": train_answer - heldout_answer,
+        "train_caption_original_semantic_f1":
+            train_caption["original_semantic_f1"],
+        "heldout_caption_original_semantic_f1":
+            heldout_caption["original_semantic_f1"],
+        "caption_semantic_f1_gap": (
+            train_caption["original_semantic_f1"]
+            - heldout_caption["original_semantic_f1"]),
+        "train_caption_following_accuracy":
+            train_caption.get("following_accuracy"),
+        "heldout_caption_following_accuracy":
+            heldout_caption.get("following_accuracy"),
+        "scope": ("training-fit minus sealed held-out fit only; no semantic "
+                  "quality, generalization or promotion claim"),
+    }
+
+
+def _v2_retention_receipt(before, after):
+    return {
+        "before": before["score"],
+        "after": after["score"],
+        "accuracy_delta": (after["score"]["accuracy"]
+                           - before["score"]["accuracy"]),
+        "scope": "text retention only; reported separately from vision gates",
+    }
+
+
+def _execute_train_v2(args, protocol, manifest, implementation, data_root):
+    import torch
+    from replica_lab.architecture.loading import (
+        exclusive_mps_worker, load_local_mps)
+    from replica_lab.optimizers import NativeFusedAdamW, build_optimizer
+    from replica_lab.profiling import RunProfiler
+    from run_vision_curriculum import (
+        Guard, backward_only_probe, evaluate_retention, export_extension,
+        feature_service, freeze_projector_only, initialize_projector,
+        make_session, protocol_scope, verify_source_and_spec)
+    protocol_path = Path(args.protocol).resolve()
+    output = Path(args.output)
+    guard = Guard(protocol)
+    scope = protocol_scope(protocol)
+    started = time.monotonic()
+    (output / "protocol.json").write_text(protocol_path.read_text())
+    scorer_contract = scorer_contract_preflight_v2(protocol["evaluation"])
+    _write_json(output / "scores/scorer_contracts.json", scorer_contract)
+    order = AccessOrder()
+    order.access("train")
+    training = _load_training_v2(protocol)
+    with exclusive_mps_worker(ROOT):
+        profiler = RunProfiler("mps", output)
+        profiler.start()
+        try:
+            _, spec, _ = verify_source_and_spec(protocol, "mps")
+            adapter, tokenizer, lock = load_local_mps(
+                args.model_path, args.model_lock, vision=spec)
+            guard.sample(index=0, event="model_loaded")
+            freeze_projector_only(adapter)
+            adapter._initial_base_stamp = adapter.parameter_stamp(
+                original_only=True)
+            init_hash = initialize_projector(adapter.vision_projector,
+                                             protocol["train"]["init_seed"])
+            if init_hash in set(
+                    protocol["train"]["forbidden_parent_weights_sha256"]):
+                raise RuntimeError(
+                    "Fresh initialization matches the rejected parent")
+            session = make_session(adapter, tokenizer, output)
+            service = feature_service(protocol, "mps")
+            guard.sample(index=0, event="feature_service")
+            optimizer = build_optimizer(
+                adapter, "adamw_fused", lr_base=0.0,
+                lr_new=protocol["train"]["lr"],
+                weight_decay=protocol["train"]["weight_decay"])
+            if not isinstance(optimizer, NativeFusedAdamW):
+                raise RuntimeError(
+                    "V2 requires the projector-only NativeFusedAdamW")
+            probe_case = dict(training["train_answer_cases"][0])
+            probe_case["response"] = probe_case["label"]
+            backward = backward_only_probe(
+                adapter, session, tokenizer, service, protocol, scope,
+                probe_case)
+            initialize_projector(adapter.vision_projector,
+                                 protocol["train"]["init_seed"])
+            adapter._initial_base_stamp = adapter.parameter_stamp(
+                original_only=True)
+            retention_pre = evaluate_retention(
+                adapter, session, tokenizer, protocol,
+                output / "retention_before.jsonl",
+                label="before_updates", guard=guard, start_time=started)
+            adapter.train()
+            trace = run_updates(
+                adapter, session, tokenizer, service, protocol, scope,
+                training["batches"], optimizer,
+                output / "training_trace.jsonl", start_time=started)
+            _require(all(record.get("fit_contract_checked")
+                         for record in trace),
+                     "A v2 update skipped the fit contract checks")
+            extension = export_extension(
+                adapter, output / "alignment/extension", protocol,
+                label="alignment")
+            retention_after = evaluate_retention(
+                adapter, session, tokenizer, protocol,
+                output / "retention_after.jsonl",
+                label="after_updates", guard=guard, start_time=started)
+            adapter.eval()
+            order.advance("train_fit")
+            order.access("train_fit")
+            train_fit = _evaluate_and_score_v2(
+                adapter, session, tokenizer, service, protocol, scope,
+                prefix="train_fit",
+                cases=training["train_answer_cases"],
+                labels=training["train_answer_labels"],
+                controls=["correct"],
+                caption_cases=training["train_caption_cases"],
+                caption_labels=training["train_caption_labels"],
+                caption_controls=["correct"],
+                answer_control_map=training["train_answer_controls"],
+                caption_control_map=training["train_caption_controls"],
+                output=output, guard=guard, started=started,
+                train_fit=True)
+            order.advance("dev")
+            order.access("dev")
+            dev_data = _load_dev_v2(protocol)
+            dev = _evaluate_and_score_v2(
+                adapter, session, tokenizer, service, protocol, scope,
+                prefix="dev", cases=dev_data["dev_answer_scored"],
+                labels=dev_data["dev_answer_labels"],
+                controls=protocol["evaluation"]["dev_answer_controls"],
+                caption_cases=dev_data["dev_caption_cases"],
+                caption_labels=dev_data["dev_caption_labels"],
+                caption_controls=protocol["evaluation"]["caption_controls"],
+                answer_control_map=dev_data["dev_answer_controls"],
+                caption_control_map=dev_data["dev_caption_controls"],
+                output=output, guard=guard, started=started)
+            audit_receipt = None
+            heldout = None
+            if not preaudit_allows_heldout(
+                    train_fit["gates"], dev["gates"], protocol):
+                report = {
+                    "format": RUN_FORMAT_V2,
+                    "status": "stopped_before_audit",
+                    "disposition": "diagnostic_only_no_promotion",
+                    "reason": ("train-fit or development gates failed; the "
+                               "sealed held-out role was never read"),
+                    "protocol_sha256": _sha(protocol_path),
+                    "implementation_sha256": implementation,
+                    "data_manifest_sha256":
+                        protocol["data"]["manifest"]["sha256"],
+                    "data_seals": protocol["data"]["seals"],
+                    "source_revision": lock["revision"],
+                    "device": "mps",
+                    "cpu_fallback_enabled": False,
+                    "preserved_prior_sources": protocol["prior_consumed"],
+                    "initialization": {
+                        "seed": protocol["train"]["init_seed"],
+                        "projector_init_sha256": init_hash,
+                        "warm_start": None,
+                    },
+                    "trainable_scope": "vision_projector.",
+                    "trainable_tensors": 6,
+                    "optimizer": optimizer.audit(),
+                    "backward_only_probe": backward,
+                    "training": {
+                        "updates": trace,
+                        "total_updates": len(trace),
+                        "total_examples": sum(len(row["example_ids"])
+                                              for row in trace),
+                        "schedule": protocol["schedule"],
+                        "fit_contract": protocol["fit_contract"],
+                    },
+                    "extension": extension,
+                    "retention": _v2_retention_receipt(
+                        retention_pre, retention_after),
+                    "train_fit": {"answer": train_fit["answer"],
+                                  "caption": train_fit["caption"],
+                                  "gates": train_fit["gates"]},
+                    "dev": {"answer": dev["answer"],
+                            "caption": dev["caption"],
+                            "gates": dev["gates"]},
+                    "heldout_accessed": False,
+                    "audit_receipt": None,
+                    "scorer_contract": scorer_contract,
+                    "access_order": order.snapshot(),
+                    "raw_outputs": sorted(
+                        path.name for path in output.glob("*.jsonl")),
+                    "base_saved": False,
+                    "promotion": False,
+                    "profile": profiler.stop(),
+                }
+                _write_json(output / "run_report.json", report)
+                return report
+            order.advance("audit")
+            order.access("audit")
+            audit_receipt = _audit_receipt(protocol, output, create=True)
+            heldout = _load_heldout(protocol)
+            heldout_result = _evaluate_and_score_v2(
+                adapter, session, tokenizer, service, protocol, scope,
+                prefix="heldout",
+                cases=heldout["heldout_answer_scored"],
+                labels=heldout["heldout_answer_labels"],
+                controls=protocol["evaluation"][
+                    "heldout_answer_controls"],
+                caption_cases=heldout["heldout_caption_cases"],
+                caption_labels=heldout["heldout_caption_labels"],
+                caption_controls=protocol["evaluation"]["caption_controls"],
+                answer_control_map=heldout["heldout_answer_controls"],
+                caption_control_map=heldout["heldout_caption_controls"],
+                output=output, guard=guard, started=started)
+            retention = _v2_retention_receipt(
+                retention_pre, retention_after)
+            _write_json(output / "scores/retention.json", retention)
+            overfit = _v2_overfit_summary(train_fit, heldout_result)
+            _write_json(output / "scores/overfit_summary.json", overfit)
+            report = {
+                "format": RUN_FORMAT_V2,
+                "status": "completed_pending_reload",
+                "disposition": "diagnostic_only_no_promotion",
+                "protocol_sha256": _sha(protocol_path),
+                "implementation_sha256": implementation,
+                "data_manifest_sha256":
+                    protocol["data"]["manifest"]["sha256"],
+                "data_seals": protocol["data"]["seals"],
+                "source_revision": lock["revision"],
+                "device": "mps",
+                "cpu_fallback_enabled": False,
+                "preserved_prior_sources": protocol["prior_consumed"],
+                "initialization": {
+                    "seed": protocol["train"]["init_seed"],
+                    "projector_init_sha256": init_hash,
+                    "warm_start": None,
+                },
+                "trainable_scope": "vision_projector.",
+                "trainable_tensors": 6,
+                "optimizer": optimizer.audit(),
+                "native_fused_adamw": True,
+                "backward_only_probe": backward,
+                "training": {
+                    "updates": trace,
+                    "total_updates": len(trace),
+                    "total_examples": sum(len(row["example_ids"])
+                                          for row in trace),
+                    "schedule": protocol["schedule"],
+                    "fit_contract": protocol["fit_contract"],
+                },
+                "extension": extension,
+                "retention": retention,
+                "train_fit": {"answer": train_fit["answer"],
+                              "caption": train_fit["caption"],
+                              "gates": train_fit["gates"]},
+                "dev": {"answer": dev["answer"],
+                        "caption": dev["caption"],
+                        "gates": dev["gates"]},
+                "heldout": {"answer": heldout_result["answer"],
+                            "caption": heldout_result["caption"],
+                            "gates": heldout_result["gates"],
+                            "audit_receipt": audit_receipt},
+                "overfit_summary": overfit,
+                "scorer_contract": scorer_contract,
+                "preaudit": protocol["preaudit"],
+                "access_order": order.snapshot(),
+                "raw_outputs": sorted(
+                    path.name for path in output.glob("*.jsonl")),
+                "terminal_resolution": (
+                    "pending: only a fresh-process bitwise reload may resolve "
+                    "completed_pending_reload"),
+                "base_saved": False,
+                "promotion": False,
+                "profile": profiler.stop(),
+            }
+            _write_json(output / "run_report.json", report)
+            print(json.dumps({
+                "status": report["status"],
+                "updates": len(trace),
+                "dev_gate_failures": dev["gates"]["gate_failures"],
+                "heldout_gate_failures":
+                    heldout_result["gates"]["gate_failures"],
+                "report": str(output / "run_report.json"),
+            }))
+            return report
+        except BaseException as error:
+            failure = {
+                "status": "failed",
+                "error_type": type(error).__name__,
+                "error": str(error),
+                "traceback": traceback.format_exc(),
+                "partial_outputs": sorted(
+                    path.name for path in output.glob("*.jsonl")),
+                "access_order": order.snapshot(),
+                "profile": profiler.stop(),
+            }
+            _write_json(output / "failure_report.json", failure)
+            raise
+
+
+def _execute_reload_v2(args, protocol, manifest, implementation, data_root):
+    from replica_lab.architecture.loading import (
+        exclusive_mps_worker, load_local_mps)
+    from replica_lab.profiling import RunProfiler
+    from run_vision_curriculum import (
+        Guard, evaluate_retention, feature_service, freeze_projector_only,
+        make_session, protocol_scope, verify_source_and_spec)
+    protocol_path = Path(args.protocol).resolve()
+    run = Path(args.run)
+    prior = json.loads((run / "run_report.json").read_text())
+    if prior["status"] != "completed_pending_reload":
+        raise RuntimeError("Reload requires a pending run report")
+    if prior["protocol_sha256"] != _sha(protocol_path):
+        raise RuntimeError("Reload protocol differs")
+    if prior["disposition"] != "diagnostic_only_no_promotion":
+        raise RuntimeError("Reload refuses a non-diagnostic disposition")
+    output = Path(args.output)
+    guard = Guard(protocol)
+    scope = protocol_scope(protocol)
+    started = time.monotonic()
+    (output / "protocol.json").write_text(protocol_path.read_text())
+    scorer_contract = scorer_contract_preflight_v2(protocol["evaluation"])
+    _write_json(output / "scores/scorer_contracts.json", scorer_contract)
+    order = AccessOrder()
+    order.access("train")
+    training = _load_training_v2(protocol)
+    with exclusive_mps_worker(ROOT):
+        profiler = RunProfiler("mps", output)
+        profiler.start()
+        try:
+            _, spec, _ = verify_source_and_spec(protocol, "mps")
+            adapter, tokenizer, lock = load_local_mps(
+                args.model_path, args.model_lock, vision=spec)
+            guard.sample(index=0, event="model_loaded")
+            freeze_projector_only(adapter)
+            adapter.load_extension(run / "alignment/extension")
+            session = make_session(adapter, tokenizer, output)
+            service = feature_service(protocol, "mps")
+            guard.sample(index=0, event="feature_service")
+            adapter.eval()
+            order.advance("train_fit")
+            order.access("train_fit")
+            train_fit = _evaluate_and_score_v2(
+                adapter, session, tokenizer, service, protocol, scope,
+                prefix="train_fit",
+                cases=training["train_answer_cases"],
+                labels=training["train_answer_labels"],
+                controls=["correct"],
+                caption_cases=training["train_caption_cases"],
+                caption_labels=training["train_caption_labels"],
+                caption_controls=["correct"],
+                answer_control_map=training["train_answer_controls"],
+                caption_control_map=training["train_caption_controls"],
+                output=output, guard=guard, started=started,
+                train_fit=True)
+            order.advance("dev")
+            order.access("dev")
+            dev_data = _load_dev_v2(protocol)
+            dev = _evaluate_and_score_v2(
+                adapter, session, tokenizer, service, protocol, scope,
+                prefix="dev", cases=dev_data["dev_answer_scored"],
+                labels=dev_data["dev_answer_labels"],
+                controls=protocol["evaluation"]["dev_answer_controls"],
+                caption_cases=dev_data["dev_caption_cases"],
+                caption_labels=dev_data["dev_caption_labels"],
+                caption_controls=protocol["evaluation"]["caption_controls"],
+                answer_control_map=dev_data["dev_answer_controls"],
+                caption_control_map=dev_data["dev_caption_controls"],
+                output=output, guard=guard, started=started)
+            order.advance("audit")
+            order.access("audit")
+            audit_receipt = _audit_receipt(protocol, run, create=False)
+            heldout = _load_heldout(protocol)
+            heldout_result = _evaluate_and_score_v2(
+                adapter, session, tokenizer, service, protocol, scope,
+                prefix="heldout",
+                cases=heldout["heldout_answer_scored"],
+                labels=heldout["heldout_answer_labels"],
+                controls=protocol["evaluation"][
+                    "heldout_answer_controls"],
+                caption_cases=heldout["heldout_caption_cases"],
+                caption_labels=heldout["heldout_caption_labels"],
+                caption_controls=protocol["evaluation"]["caption_controls"],
+                answer_control_map=heldout["heldout_answer_controls"],
+                caption_control_map=heldout["heldout_caption_controls"],
+                output=output, guard=guard, started=started)
+            retention_after = evaluate_retention(
+                adapter, session, tokenizer, protocol,
+                output / "retention_after.jsonl",
+                label="after_updates", guard=guard, start_time=started)
+            retention = {
+                "before": prior["retention"]["before"],
+                "after": retention_after["score"],
+                "accuracy_delta": (
+                    retention_after["score"]["accuracy"]
+                    - prior["retention"]["before"]["accuracy"]),
+                "scope": ("text retention only; reported separately from "
+                          "vision gates"),
+            }
+            _write_json(output / "scores/retention.json", retention)
+            overfit = _v2_overfit_summary(train_fit, heldout_result)
+            _write_json(output / "scores/overfit_summary.json", overfit)
+            names = reload_comparison_names_v2()
+            comparisons = compare_reload_artifacts(run, output, names)
+            if not all(comparisons.values()):
+                failure = {
+                    "status": "failed",
+                    "terminal_disposition": "failed_reload_mismatch",
+                    "comparisons": comparisons,
+                    "bitwise_equal": False,
+                    "access_order": order.snapshot(),
+                }
+                _write_json(output / "reload_report.json", failure)
+                raise RuntimeError(
+                    f"Fresh-process outputs differ: {comparisons}")
+            report = {
+                "format": RELOAD_FORMAT_V2,
+                "status": "completed",
+                "terminal_disposition": "completed_reload_verified",
+                "run_status_resolved_from": prior["status"],
+                "zero_updates": True,
+                "protocol_sha256": _sha(protocol_path),
+                "run_report_sha256": _sha(run / "run_report.json"),
+                "extension_weights_sha256":
+                    prior["extension"]["weights_sha256"],
+                "comparisons": comparisons,
+                "bitwise_equal": True,
+                "retention": retention,
+                "audit_receipt": audit_receipt,
+                "scorer_contract": scorer_contract,
+                "access_order": order.snapshot(),
+                "dev_gate_failures": dev["gates"]["gate_failures"],
+                "heldout_gate_failures":
+                    heldout_result["gates"]["gate_failures"],
+                "disposition": prior["disposition"],
+                "promotion": False,
+                "profile": profiler.stop(),
+            }
+            _write_json(output / "reload_report.json", report)
+            report_root = ROOT / protocol["report_root"]
+            report_root.mkdir(parents=True, exist_ok=True)
+            _write_json(report_root / "terminal_disposition.json", {
+                "format": RELOAD_FORMAT_V2,
+                "terminal_disposition": "completed_reload_verified",
+                "run": str(run),
+                "reload": str(output),
+                "run_report_sha256": report["run_report_sha256"],
+                "reload_report_sha256": _sha(
+                    output / "reload_report.json"),
+                "comparisons_all_equal": True,
+                "run_status_resolved_from": prior["status"],
+                "dev_gate_failures": report["dev_gate_failures"],
+                "heldout_gate_failures": report["heldout_gate_failures"],
+            })
+            print(json.dumps({
+                "status": "completed",
+                "terminal_disposition": "completed_reload_verified",
+                "bitwise_equal": True,
+                "report": str(output / "reload_report.json"),
+            }))
+            return report
+        except BaseException as error:
+            existing = output / "reload_report.json"
+            if not existing.exists():
+                failure = {
+                    "status": "failed",
+                    "error_type": type(error).__name__,
+                    "error": str(error),
+                    "traceback": traceback.format_exc(),
+                    "partial_outputs": sorted(
+                        path.name for path in output.glob("*.jsonl")),
+                    "access_order": order.snapshot(),
+                    "profile": profiler.stop(),
+                }
+                _write_json(existing, failure)
+            raise
+
+
 def execute_train(args):
     import torch
     from replica_lab.architecture.loading import (
@@ -560,6 +1307,9 @@ def execute_train(args):
     protocol_path = Path(args.protocol).resolve()
     protocol, manifest, implementation, data_root = load_prepared(
         protocol_path, ROOT)
+    if protocol.get("format") == PROTOCOL_FORMAT_V2:
+        return _execute_train_v2(
+            args, protocol, manifest, implementation, data_root)
     output = Path(args.output)
     guard = Guard(protocol)
     scope = protocol_scope(protocol)
@@ -835,6 +1585,9 @@ def execute_reload(args):
     protocol_path = Path(args.protocol).resolve()
     protocol, manifest, implementation, data_root = load_prepared(
         protocol_path, ROOT)
+    if protocol.get("format") == PROTOCOL_FORMAT_V2:
+        return _execute_reload_v2(
+            args, protocol, manifest, implementation, data_root)
     run = Path(args.run)
     prior = json.loads((run / "run_report.json").read_text())
     if prior["protocol_sha256"] != _sha(protocol_path):

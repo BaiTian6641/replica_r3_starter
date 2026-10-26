@@ -1,0 +1,206 @@
+{
+  "dev_answer": {
+    "all_contracts_passed": true,
+    "contract_version": "caption_target_contract.v2",
+    "controls": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage"
+    ],
+    "format": "replica.vision_balanced_alignment.scorer_contracts.v2",
+    "negative": {
+      "assignment_tampering_rejected": "Answer control assignment binding differs",
+      "gate_failures": {
+        "constant_answer": [
+          "max_false_abstention_on_answerable",
+          "min_correct_accuracy",
+          "min_correct_margin_noimage",
+          "min_correct_margin_shuffled",
+          "min_correct_margin_wrong",
+          "min_following_accuracy_shuffled",
+          "min_following_accuracy_wrong"
+        ],
+        "image_ignoring": [
+          "min_correct_margin_noimage",
+          "min_correct_margin_shuffled",
+          "min_correct_margin_wrong",
+          "min_following_accuracy_shuffled",
+          "min_following_accuracy_wrong"
+        ],
+        "shuffled": [
+          "min_correct_accuracy",
+          "min_correct_margin_noimage",
+          "min_correct_margin_shuffled",
+          "min_correct_margin_wrong",
+          "min_following_accuracy_shuffled",
+          "min_following_accuracy_wrong"
+        ]
+      },
+      "malformed_rejected": "Answer generation fields are missing: ['control_assignment_sha256']"
+    },
+    "positive": {
+      "all_declared_gates_passed": true,
+      "gate_failures": [],
+      "mode": "perfect_image_following"
+    }
+  },
+  "dev_caption": {
+    "all_contracts_passed": true,
+    "assignment_bindings": 12,
+    "cases": 12,
+    "contract_version": "caption_target_contract.v2",
+    "controls": [
+      "correct",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "format": "replica.vision_balanced_alignment.scorer_contracts.v2",
+    "negative": {
+      "gate_failures": {
+        "constant_caption": [
+          "min_caption_following_accuracy",
+          "min_caption_following_accuracy_counterfactual",
+          "min_caption_following_accuracy_shuffled",
+          "min_caption_following_semantic_f1_counterfactual",
+          "min_caption_following_semantic_f1_shuffled",
+          "min_caption_original_agreement_drop_counterfactual",
+          "min_caption_original_agreement_drop_shuffled",
+          "min_caption_semantic_descriptor_f1",
+          "min_caption_token_f1",
+          "min_noimage_loss_margin"
+        ],
+        "image_ignoring": [
+          "max_noimage_original_semantic_f1",
+          "min_caption_following_accuracy_counterfactual",
+          "min_caption_following_accuracy_shuffled",
+          "min_caption_following_semantic_f1_shuffled",
+          "min_caption_original_agreement_drop_counterfactual",
+          "min_caption_original_agreement_drop_shuffled",
+          "min_noimage_loss_margin"
+        ],
+        "shuffled": [
+          "max_noimage_original_semantic_f1",
+          "min_caption_following_accuracy",
+          "min_caption_following_accuracy_counterfactual",
+          "min_caption_following_accuracy_shuffled",
+          "min_caption_original_agreement_drop_counterfactual"
+        ]
+      },
+      "malformed_rejected": "Caption generation fields are missing: ['response_loss']",
+      "target_tampering_rejected": "Caption generation target text was altered"
+    },
+    "positive": {
+      "all_declared_gates_passed": true,
+      "gate_failures": [],
+      "mode": "perfect_image_following"
+    }
+  },
+  "format": "replica.vision_balanced_alignment.scorer_contracts.v2",
+  "heldout_answer": {
+    "all_contracts_passed": true,
+    "contract_version": "caption_target_contract.v2",
+    "controls": [
+      "correct",
+      "wrong",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "format": "replica.vision_balanced_alignment.scorer_contracts.v2",
+    "negative": {
+      "assignment_tampering_rejected": "Answer control assignment binding differs",
+      "gate_failures": {
+        "constant_answer": [
+          "max_false_abstention_on_answerable",
+          "min_correct_accuracy",
+          "min_correct_margin_noimage",
+          "min_correct_margin_shuffled",
+          "min_correct_margin_wrong",
+          "min_counterfactual_following_accuracy",
+          "min_counterfactual_margin_answerable",
+          "min_following_accuracy_shuffled",
+          "min_following_accuracy_wrong"
+        ],
+        "image_ignoring": [
+          "min_correct_margin_noimage",
+          "min_correct_margin_shuffled",
+          "min_correct_margin_wrong",
+          "min_counterfactual_following_accuracy",
+          "min_counterfactual_margin_answerable",
+          "min_following_accuracy_shuffled",
+          "min_following_accuracy_wrong"
+        ],
+        "shuffled": [
+          "min_correct_accuracy",
+          "min_correct_margin_noimage",
+          "min_correct_margin_shuffled",
+          "min_correct_margin_wrong",
+          "min_counterfactual_following_accuracy",
+          "min_counterfactual_margin_answerable",
+          "min_following_accuracy_shuffled",
+          "min_following_accuracy_wrong"
+        ]
+      },
+      "malformed_rejected": "Answer generation fields are missing: ['control_assignment_sha256']"
+    },
+    "positive": {
+      "all_declared_gates_passed": true,
+      "gate_failures": [],
+      "mode": "perfect_image_following"
+    }
+  },
+  "heldout_caption": {
+    "all_contracts_passed": true,
+    "assignment_bindings": 12,
+    "cases": 12,
+    "contract_version": "caption_target_contract.v2",
+    "controls": [
+      "correct",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "format": "replica.vision_balanced_alignment.scorer_contracts.v2",
+    "negative": {
+      "gate_failures": {
+        "constant_caption": [
+          "min_caption_following_accuracy",
+          "min_caption_following_accuracy_counterfactual",
+          "min_caption_following_accuracy_shuffled",
+          "min_caption_following_semantic_f1_counterfactual",
+          "min_caption_following_semantic_f1_shuffled",
+          "min_caption_original_agreement_drop_counterfactual",
+          "min_caption_original_agreement_drop_shuffled",
+          "min_caption_semantic_descriptor_f1",
+          "min_caption_token_f1",
+          "min_noimage_loss_margin"
+        ],
+        "image_ignoring": [
+          "max_noimage_original_semantic_f1",
+          "min_caption_following_accuracy_counterfactual",
+          "min_caption_following_accuracy_shuffled",
+          "min_caption_following_semantic_f1_shuffled",
+          "min_caption_original_agreement_drop_counterfactual",
+          "min_caption_original_agreement_drop_shuffled",
+          "min_noimage_loss_margin"
+        ],
+        "shuffled": [
+          "max_noimage_original_semantic_f1",
+          "min_caption_following_accuracy",
+          "min_caption_following_accuracy_counterfactual",
+          "min_caption_following_accuracy_shuffled",
+          "min_caption_original_agreement_drop_counterfactual"
+        ]
+      },
+      "malformed_rejected": "Caption generation fields are missing: ['response_loss']",
+      "target_tampering_rejected": "Caption generation target text was altered"
+    },
+    "positive": {
+      "all_declared_gates_passed": true,
+      "gate_failures": [],
+      "mode": "perfect_image_following"
+    }
+  }
+}

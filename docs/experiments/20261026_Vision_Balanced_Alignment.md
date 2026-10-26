@@ -71,3 +71,81 @@ under `reports/vision_balanced_alignment_20261026/`. Preparation and focused CPU
 contracts are covered by `tests/test_vision_balanced_alignment.py`; the combined
 fresh causal/visual/stage suite passed 22 tests before native execution. No
 larger projector, backbone unfreezing or scaling follows from this diagnostic.
+
+## V2 learnability preparation (predeclared, CPU-only)
+
+The v1 run above is preserved unchanged; it is not reinterpreted or promoted.
+`configs/vision_balanced_alignment_v2.json` and the new
+`tests/test_vision_caption_v2.py` replace the scoring/control contract, not the
+historical receipt.
+
+### Corrected caption contract
+
+- The teacher-forced target is **the original sealed target for every image
+  control**. Only the supplied image changes; v1 changed the target for
+  counterfactual/shuffled controls, so its loss margins conflated target and
+  image.
+- Caption targets are derived from sealed labels and sealed control assignments,
+  never from generation-record target fields. The scorer validates the receiver
+  case, image identity/hash, target case, target text/descriptors, fixed loss
+  finiteness and a per-case control-assignment SHA-256. Malformed rows and
+  target/assignment tampering raise and preserve the raw rows in the failure
+  path.
+- Metrics are separated: generated correctness against the original target,
+  following correctness against the changed image's sealed descriptors, and
+  no-image behavior. A perfect image-follower is no longer required to
+  reproduce the original description. `dependence` reports the original-target
+  agreement drop separately from following accuracy.
+
+### Corrected answer contract
+
+Every v1 answer control, including counterfactual, was scored against the
+receiver's original label; `counterfactual_answer` was unused. V2 keeps
+original-label correctness but adds changed-image following accuracy against
+the sibling's sealed answer, plus original-label margins (`change-only
+dependence`) as a separate metric. It also reports donor-answer following for
+wrong/shuffled controls when the donor task matches.
+
+### Positive and negative controls
+
+`verify_caption_control_contracts_v2` and
+`verify_answer_control_contracts_v2` require a **perfect image-following
+positive control to pass every intended gate**. Negative controls -
+constant caption/answer, image-ignoring original description, shuffled donor,
+malformed rows and target/assignment tampering - must fail the intended gate or
+raise. The runner executes a data-free synthetic preflight before any training,
+and preparation refuses to seal payloads unless the real dev/held-out controls
+also pass.
+
+### Learnability gates and access order
+
+- A small training-only fit set (one answer per class, two captions per class),
+  fresh v2 namespace/seed and a different schedule (24 updates, batch 4,
+  lr 3e-4) avoid repeating the failed v1 schedule.
+- Backbone and encoder remain frozen; exactly the six projector tensors train
+  under `NativeFusedAdamW` (`adamw_fused`). Explicit token/template/mask/EOS/
+  loss checks are declared in `fit_contract` and enforced on every update.
+- Access is monotonic: `train -> train_fit -> dev -> audit`. Train-fit and dev
+  gates are written before the audit reservation; if either fails, the sealed
+  held-out role is never read and the run stops with
+  `stopped_before_heldout_access`.
+- A fresh-process reload must reproduce train-fit, dev, held-out, score, gate
+  and retention artifacts bitwise before
+  `completed_pending_reload` is resolved to `completed_reload_verified`;
+  otherwise no terminal disposition is written.
+
+No native v2 execution, quality claim or promotion is made here. Preparation may
+generate sealed v2 data and a `scorer_contracts.json` receipt; the parent
+schedules any native train/reload run after review.
+
+The prepared v2 set is `data/vision_balanced_alignment_v2_20261026/prepared01`
+(protocol SHA-256
+`bf5e8c40de4453383e1ef49692b092e4453c11ead994b6bb6ca009a69af4198b`, manifest
+SHA-256 `12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227`).
+It has 14 answer plus 12 caption training examples, 18 answer plus 12 caption
+development cases, and 18 answer plus 12 caption sealed held-out cases across
+146 verified assets. The prepared positive controls passed every intended gate,
+while the constant, image-ignoring, shuffled and malformed/tampering negatives
+failed or raised as declared. `reports/vision_balanced_alignment_v2_20261026/`
+holds the preparation and scorer-contract receipts; native execution has not
+yet occurred.

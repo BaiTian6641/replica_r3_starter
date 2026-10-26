@@ -36,6 +36,20 @@ ADMISSION_FORMAT = "replica.vision_balanced_alignment.admission.v1"
 RUN_FORMAT = "replica.vision_balanced_alignment.run.v1"
 RELOAD_FORMAT = "replica.vision_balanced_alignment.reload.v1"
 VERSION = "replica.vision_balanced_alignment.v1"
+CONFIG_FORMAT_V2 = "replica.vision_balanced_alignment.config.v2"
+PROTOCOL_FORMAT_V2 = "replica.vision_balanced_alignment.protocol.v2"
+MANIFEST_FORMAT_V2 = "replica.vision_balanced_alignment.manifest.v2"
+RUN_FORMAT_V2 = "replica.vision_balanced_alignment.run.v2"
+RELOAD_FORMAT_V2 = "replica.vision_balanced_alignment.reload.v2"
+VERSION_V2 = "replica.vision_balanced_alignment.v2"
+CAPTION_CONTRACT_VERSION = "caption_target_contract.v2"
+CAPTION_SCORE_FORMAT = "replica.vision_balanced_alignment.caption_score.v2"
+ANSWER_SCORE_FORMAT = "replica.vision_balanced_alignment.answer_score.v2"
+SCORER_CONTRACT_FORMAT = "replica.vision_balanced_alignment.scorer_contracts.v2"
+_V2_EXTRA_KEYS = {
+    "hypothesis", "preaudit", "fit_contract", "report_root",
+    "scorer_contract",
+}
 
 COLOR_NAMES = tuple(COLORS)
 _ALLOWED_LAYOUTS = ("row_major", "row_major_shift", "column_major",
@@ -107,6 +121,12 @@ def _safe_relative(root: Path, value: str) -> Path:
 
 def validate_config(config: Mapping[str, Any]) -> dict[str, Any]:
     _require(isinstance(config, Mapping), "Config must be a mapping")
+    if config.get("format") == CONFIG_FORMAT_V2:
+        return validate_config_v2(config)
+    return _validate_config_v1(config)
+
+
+def _validate_config_v1(config: Mapping[str, Any]) -> dict[str, Any]:
     _require(set(config) == _CONFIG_KEYS,
              f"Config fields differ: missing={sorted(_CONFIG_KEYS - set(config))} "
              f"extra={sorted(set(config) - _CONFIG_KEYS)}")
@@ -374,6 +394,179 @@ def validate_config(config: Mapping[str, Any]) -> dict[str, Any]:
     return dict(config)
 
 
+def validate_config_v2(config: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate the v2 learnability preparation without changing v1 rules."""
+    _require(set(config) == _CONFIG_KEYS | _V2_EXTRA_KEYS,
+             "v2 config fields differ: "
+             f"missing={sorted((_CONFIG_KEYS | _V2_EXTRA_KEYS) - set(config))} "
+             f"extra={sorted(set(config) - (_CONFIG_KEYS | _V2_EXTRA_KEYS))}")
+    _require(config["format"] == CONFIG_FORMAT_V2, "Unknown config format")
+    _require(config["version"] == VERSION_V2, "Unknown config version")
+    _require(isinstance(config["hypothesis"], str)
+             and config["hypothesis"].strip(), "hypothesis is required")
+    report_root = config["report_root"]
+    _require(isinstance(report_root, str) and report_root
+             and not Path(report_root).is_absolute()
+             and ".." not in Path(report_root).parts,
+             "report_root must be a safe relative path")
+    _require("vba1" != config["procedural_overrides"].get("id_prefix"),
+             "v2 requires a fresh case namespace")
+    _require(int(config["seed"]) != 20261027,
+             "v2 requires a fresh procedural seed")
+
+    priors = config["prior_consumed"]
+    _require(isinstance(priors, list) and len(priors) >= 2,
+             "v2 prior_consumed must list every consumed evaluation source")
+    seen: set[str] = set()
+    for entry in priors:
+        _require(isinstance(entry, Mapping)
+                 and set(entry) == {"data_root", "protocol", "manifest",
+                                    "role"},
+                 "v2 prior_consumed entry fields differ")
+        _require(isinstance(entry["data_root"], str) and entry["data_root"]
+                 and not Path(entry["data_root"]).is_absolute()
+                 and ".." not in Path(entry["data_root"]).parts,
+                 "v2 prior data_root is invalid")
+        _require(entry["data_root"] not in seen,
+                 "v2 prior sources must be unique")
+        seen.add(entry["data_root"])
+        for name in ("protocol", "manifest"):
+            pin = entry[name]
+            _require(isinstance(pin, Mapping)
+                     and set(pin) == {"path", "sha256"}
+                     and isinstance(pin["path"], str) and pin["path"]
+                     and _is_sha256(pin["sha256"]),
+                     f"v2 prior {name} pin is invalid")
+        _require(isinstance(entry["role"], str) and entry["role"].strip(),
+                 "v2 prior role is required")
+
+    preaudit = config["preaudit"]
+    _require(isinstance(preaudit, Mapping)
+             and set(preaudit) == {
+                 "order", "require_train_fit_gates",
+                 "require_dev_gates", "on_failure",
+                 "reserve_audit_after_dev"},
+             "preaudit fields differ")
+    _require(list(preaudit["order"])
+             == ["train_fit", "dev", "heldout"],
+             "preaudit order must be train_fit, dev, heldout")
+    _require(preaudit["require_train_fit_gates"] is True
+             and preaudit["require_dev_gates"] is True
+             and preaudit["reserve_audit_after_dev"] is True,
+             "preaudit must require train-fit and dev gates first")
+    _require(preaudit["on_failure"] == "stop_before_heldout_access",
+             "preaudit failure must stop before held-out access")
+
+    fit = config["fit_contract"]
+    _require(isinstance(fit, Mapping)
+             and set(fit) == {
+                 "question_template", "caption_template",
+                 "prompt_labels_masked", "response_includes_eos",
+                 "pad_tokens_forbidden", "loss", "require_finite_loss",
+                 "require_all_projector_gradients",
+                 "require_nonzero_projector_gradients",
+                 "response_only_labels"},
+             "fit_contract fields differ")
+    _require(fit["question_template"]
+             == "Question: {question}\nReply briefly with the answer alone.",
+             "fit_contract question template differs")
+    _require(fit["caption_template"] == "Describe the image briefly.",
+             "fit_contract caption template differs")
+    for name in ("prompt_labels_masked", "response_includes_eos",
+                 "pad_tokens_forbidden", "require_finite_loss",
+                 "require_all_projector_gradients",
+                 "require_nonzero_projector_gradients",
+                 "response_only_labels"):
+        _require(fit[name] is True, f"fit_contract.{name} must be true")
+    _require(fit["loss"] == "mean_response_nll", "fit_contract.loss differs")
+
+    scorer = config["scorer_contract"]
+    _require(isinstance(scorer, Mapping)
+             and set(scorer) == {
+                 "version", "fixed_original_target", "following_target",
+                 "bind_control_assignment", "validate_image_identity",
+                 "validate_generation_target_fields",
+                 "positive_control", "negative_controls"},
+             "scorer_contract fields differ")
+    _require(scorer["version"] == CAPTION_CONTRACT_VERSION,
+             "scorer contract version differs")
+    _require(scorer["fixed_original_target"] is True
+             and scorer["following_target"] is True
+             and scorer["bind_control_assignment"] is True
+             and scorer["validate_image_identity"] is True
+             and scorer["validate_generation_target_fields"] is True,
+             "v2 scorer contract must validate targets and identity")
+    _require(scorer["positive_control"] == "perfect_image_following",
+             "positive control differs")
+    _require(list(scorer["negative_controls"]) == [
+        "constant_caption", "image_ignoring", "shuffled",
+        "malformed", "target_tampering"],
+        "negative control inventory differs")
+
+    evaluation = config["evaluation"]
+    v2_keys = {
+        "min_caption_following_accuracy",
+        "min_caption_following_semantic_f1",
+        "min_caption_original_agreement_drop",
+        "max_noimage_original_semantic_f1",
+        "min_noimage_loss_margin",
+        "min_counterfactual_following_accuracy",
+        "min_following_accuracy_wrong",
+        "min_following_accuracy_shuffled",
+        "min_train_fit_answer_accuracy",
+        "min_train_fit_caption_following_accuracy",
+        "caption_score_format",
+        "answer_score_format",
+    }
+    _require(v2_keys <= set(evaluation),
+             f"v2 evaluation fields missing: "
+             f"{sorted(v2_keys - set(evaluation))}")
+    for name in ("min_caption_following_accuracy",
+                 "min_caption_following_semantic_f1",
+                 "min_caption_original_agreement_drop",
+                 "max_noimage_original_semantic_f1",
+                 "min_noimage_loss_margin",
+                 "min_counterfactual_following_accuracy",
+                 "min_following_accuracy_wrong",
+                 "min_following_accuracy_shuffled",
+                 "min_train_fit_answer_accuracy",
+                 "min_train_fit_caption_following_accuracy"):
+        _require(isinstance(evaluation[name], (int, float))
+                 and not isinstance(evaluation[name], bool)
+                 and 0.0 <= float(evaluation[name]) <= 1.0,
+                 f"{name} is outside [0, 1]")
+    _require(evaluation["caption_score_format"] == CAPTION_SCORE_FORMAT,
+             "caption score format differs")
+    _require(evaluation["answer_score_format"] == ANSWER_SCORE_FORMAT,
+             "answer score format differs")
+
+    alignment = config["schedule"]["alignment"]
+    _require(not (int(alignment["updates"]) == 10
+                  and int(alignment["batch"]) == 6
+                  and float(config["train"]["lr"]) == 0.0001),
+             "v2 must not repeat the failed v1 schedule")
+
+    # Validate every shared field with the preserved v1 rules, without
+    # altering or reinterpreting v1 semantics.
+    shadow = {key: config[key] for key in _CONFIG_KEYS}
+    shadow["format"] = CONFIG_FORMAT
+    shadow["version"] = VERSION
+    shadow["prior_consumed"] = {
+        "data_root": priors[0]["data_root"],
+        "protocol": dict(priors[0]["protocol"]),
+        "manifest": dict(priors[0]["manifest"]),
+        "role": priors[0]["role"],
+    }
+    shadow_eval = dict(shadow["evaluation"])
+    for name in ("min_caption_dependence_f1_margin",
+                 "min_caption_dependence_loss_margin"):
+        shadow_eval.setdefault(name, 0.0)
+    shadow_eval.setdefault("min_counterfactual_margin_answerable", 0.1)
+    shadow["evaluation"] = shadow_eval
+    _validate_config_v1(shadow)
+    return dict(config)
+
+
 def load_config(path: str | Path) -> dict[str, Any]:
     return validate_config(json.loads(Path(path).read_text()))
 
@@ -381,6 +574,9 @@ def load_config(path: str | Path) -> dict[str, Any]:
 def load_prior_evaluation(project_root: str | Path,
                           config: Mapping[str, Any]) -> dict[str, Any]:
     """Read only the prior evaluation identities used for freshness exclusion."""
+    if isinstance(config.get("prior_consumed"), list):
+        return _load_prior_evaluations_v2(project_root,
+                                          config["prior_consumed"])
     root = Path(project_root)
     prior = config["prior_consumed"]
     data_root = _safe_relative(root, prior["data_root"])
@@ -433,6 +629,112 @@ def load_prior_evaluation(project_root: str | Path,
         "files": files_used,
         "protocol_sha256": prior["protocol"]["sha256"],
         "manifest_sha256": prior["manifest"]["sha256"],
+    }
+
+
+def _load_prior_source_v2(root: Path, entry: Mapping[str, Any]
+                          ) -> dict[str, Any]:
+    data_root = _safe_relative(root, entry["data_root"])
+    protocol_path = _safe_relative(root, entry["protocol"]["path"])
+    manifest_path = _safe_relative(root, entry["manifest"]["path"])
+    _require(protocol_path.is_file(), "Prior protocol is missing")
+    _require(manifest_path.is_file(), "Prior manifest is missing")
+    _require(sha256_file(protocol_path) == entry["protocol"]["sha256"],
+             "Prior protocol bytes differ")
+    _require(sha256_file(manifest_path) == entry["manifest"]["sha256"],
+             "Prior manifest bytes differ")
+    manifest = json.loads(manifest_path.read_text())
+    manifest_format = manifest.get("format")
+    if manifest_format == "replica.vision_stage_diagnostic.manifest.v1":
+        names = ("dev_cases.jsonl", "audit_cases.jsonl",
+                 "caption_dev_cases.jsonl", "caption_audit_cases.jsonl")
+    elif manifest_format in (MANIFEST_FORMAT, MANIFEST_FORMAT_V2):
+        names = ("dev_answer_cases.jsonl", "heldout_answer_cases.jsonl",
+                 "dev_caption_cases.jsonl", "heldout_caption_cases.jsonl")
+    else:
+        raise ValueError(f"Unsupported prior manifest format: {manifest_format}")
+    case_ids: set[str] = set()
+    image_hashes: set[str] = set()
+    scene_hashes: set[str] = set()
+    files_used = []
+    for name in names:
+        path = data_root / "evaluation" / name
+        _require(path.is_file(), f"Prior evaluation file is missing: {name}")
+        rows = _read_jsonl(path)
+        _require(rows, f"Prior evaluation file is empty: {name}")
+        files_used.append({"path": f"{entry['data_root']}/evaluation/{name}",
+                           "sha256": sha256_file(path), "rows": len(rows)})
+        for row in rows:
+            _require(isinstance(row.get("case_id"), str)
+                     and _is_sha256(row.get("image_sha256"))
+                     and _is_sha256(row.get("scene_sha256")),
+                     f"Prior evaluation row is invalid: {name}")
+            case_ids.add(row["case_id"])
+            image_hashes.add(row["image_sha256"])
+            scene_hashes.add(row["scene_sha256"])
+    all_asset_hashes = {value["sha256"]
+                        for value in manifest["files"].values()
+                        if _is_sha256(value.get("sha256"))}
+    return {
+        "data_root": entry["data_root"],
+        "case_ids": case_ids,
+        "image_sha256": image_hashes,
+        "scene_sha256": scene_hashes,
+        "all_asset_sha256": all_asset_hashes,
+        "namespaces": sorted({case_id.split("-")[0]
+                              for case_id in case_ids}),
+        "files": files_used,
+        "protocol_sha256": entry["protocol"]["sha256"],
+        "manifest_sha256": entry["manifest"]["sha256"],
+        "manifest_format": manifest_format,
+    }
+
+
+def _load_prior_evaluations_v2(project_root: str | Path,
+                               priors: Sequence[Mapping[str, Any]]
+                               ) -> dict[str, Any]:
+    root = Path(project_root)
+    sources = [_load_prior_source_v2(root, entry) for entry in priors]
+    case_ids: set[str] = set()
+    image_hashes: set[str] = set()
+    scene_hashes: set[str] = set()
+    all_asset_hashes: set[str] = set()
+    namespaces: set[str] = set()
+    files_used = []
+    for source in sources:
+        case_ids |= source["case_ids"]
+        image_hashes |= source["image_sha256"]
+        scene_hashes |= source["scene_sha256"]
+        all_asset_hashes |= source["all_asset_sha256"]
+        namespaces |= set(source["namespaces"])
+        files_used.extend(source["files"])
+    return {
+        "case_ids": case_ids,
+        "image_sha256": image_hashes,
+        "scene_sha256": scene_hashes,
+        "all_asset_sha256": all_asset_hashes,
+        "namespaces": sorted(namespaces),
+        "counts": {
+            "cases": len(case_ids), "images": len(image_hashes),
+            "scenes": len(scene_hashes),
+            "all_manifest_assets": len(all_asset_hashes),
+            "sources": len(sources),
+        },
+        "files": files_used,
+        "sources": [{
+            "data_root": source["data_root"],
+            "protocol_sha256": source["protocol_sha256"],
+            "manifest_sha256": source["manifest_sha256"],
+            "manifest_format": source["manifest_format"],
+            "case_ids": len(source["case_ids"]),
+            "images": len(source["image_sha256"]),
+            "scenes": len(source["scene_sha256"]),
+            "files": source["files"],
+        } for source in sources],
+        "protocol_sha256": fingerprint(
+            [source["protocol_sha256"] for source in sources]),
+        "manifest_sha256": fingerprint(
+            [source["manifest_sha256"] for source in sources]),
     }
 
 
@@ -709,7 +1011,8 @@ def _case_row(case: Mapping[str, Any], asset: Mapping[str, Any], *,
 
 def _donor_info(case: Mapping[str, Any], asset: Mapping[str, Any],
                 *, caption: str | None = None,
-                visible_objects: Sequence[Sequence[str]] | None = None
+                visible_objects: Sequence[Sequence[str]] | None = None,
+                sealed_answer: str | None = None
                 ) -> dict[str, Any]:
     info = {
         "case_id": case["case_id"],
@@ -724,6 +1027,8 @@ def _donor_info(case: Mapping[str, Any], asset: Mapping[str, Any],
                  "Caption donor requires visible descriptors")
         info["caption"] = caption
         info["visible_objects"] = [list(item) for item in visible_objects]
+    if sealed_answer is not None:
+        info["sealed_answer"] = sealed_answer
     return info
 
 
@@ -778,12 +1083,36 @@ def _select_role(split_cases: Sequence[Mapping[str, Any]], *, label: str,
     return answers, answer_hist, captions, caption_hist
 
 
+_CONTROL_ASSIGNMENT_KEYS = (
+    "case_id", "split", "wrong", "shuffled", "counterfactual",
+    "counterfactual_same_image",
+)
+
+
+def _assignment_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _assignment_value(item) for key, item in value.items()
+                if key != "image_path"}
+    if isinstance(value, (list, tuple)):
+        return [_assignment_value(item) for item in value]
+    return value
+
+
+def control_assignment_sha256(row: Mapping[str, Any]) -> str:
+    """Bind one sealed control assignment, including donor target fields."""
+    payload = {key: row[key] for key in _CONTROL_ASSIGNMENT_KEYS
+               if key in row}
+    return fingerprint(_assignment_value(payload))
+
+
 def _control_map(selected: Sequence[Mapping[str, Any]], *,
                  combined: Sequence[Mapping[str, Any]], seed_offset: int,
                  assets: Mapping[str, Mapping[str, Any]],
                  case_by_id: Mapping[str, Mapping[str, Any]],
                  donor_info, sibling_case, split_label: str,
-                 include_wrong: bool = True) -> list[dict[str, Any]]:
+                 include_wrong: bool = True,
+                 include_sealed_answers: bool = False,
+                 bind_assignment: bool = False) -> list[dict[str, Any]]:
     assignment = assign_controls(list(combined), seed_offset=seed_offset)
     rows = []
     selected_ids = {row["case_id"] for row in selected}
@@ -796,19 +1125,53 @@ def _control_map(selected: Sequence[Mapping[str, Any]], *,
             donor_id = assignment[control].get(case["case_id"])
             _require(donor_id is not None,
                      f"{split_label} control is missing for {case['case_id']}")
+            if include_sealed_answers:
+                donor = case_by_id[donor_id]
+                needs_change = (
+                    donor["answer"] == case["answer"]
+                    or (control == "shuffled"
+                        and donor["task"] != case["task"]))
+                if needs_change:
+                    candidates = sorted(
+                        other["case_id"] for other in combined
+                        if other["case_id"] != case["case_id"]
+                        and other["world_id"] != case["world_id"]
+                        and other["task"] == case["task"]
+                        and other["answer"] != case["answer"])
+                    if not candidates:
+                        candidates = sorted(
+                            other["case_id"] for other in combined
+                            if other["case_id"] != case["case_id"]
+                            and other["world_id"] != case["world_id"]
+                            and other["answer"] != case["answer"])
+                    _require(candidates,
+                             f"No answer-changing {control} donor for "
+                             f"{case['case_id']}")
+                    index = (seed_offset
+                             + sum(ord(char) for char in case["case_id"])
+                             + (0 if control == "wrong" else 1)) \
+                        % len(candidates)
+                    donor_id = candidates[index]
             donor = case_by_id[donor_id]
             donor_asset = assets[donor["asset_id"]]
             _require(donor_asset["sha256"] != receiver,
                      "Control donor reuses the receiver image")
             if control == "wrong":
-                _require(donor["task"] == case["task"],
-                         "Wrong-image donor task differs")
+                if donor["task"] != case["task"]:
+                    _require(include_sealed_answers,
+                             "Wrong-image donor task differs")
                 _require(donor["world_id"] != case["world_id"],
                          "Wrong-image donor world differs")
             else:
                 _require(donor["world_id"] != case["world_id"],
                          "Shuffled donor world differs")
             entry[control] = donor_info(donor)
+            if include_sealed_answers:
+                entry[control]["sealed_answer"] = donor["answer"]
+                if control in ("wrong", "shuffled"):
+                    _require(donor["answer"] != case["answer"],
+                             f"{control} donor does not change the answer: "
+                             f"{case['case_id']}")
         sibling = sibling_case(case)
         sibling_asset = assets[sibling["asset_id"]]
         same_image = sibling_asset["sha256"] == receiver
@@ -819,7 +1182,11 @@ def _control_map(selected: Sequence[Mapping[str, Any]], *,
             _require(case["answer"] == UNKNOWN_ANSWER,
                      "Only abstain pairs may share an identical image")
         entry["counterfactual"] = donor_info(sibling)
+        if include_sealed_answers:
+            entry["counterfactual"]["sealed_answer"] = sibling["answer"]
         entry["counterfactual_same_image"] = same_image
+        if bind_assignment:
+            entry["assignment_sha256"] = control_assignment_sha256(entry)
         rows.append(entry)
     _require({row["case_id"] for row in rows} == selected_ids,
              "Control map does not cover every selected case")
@@ -830,6 +1197,7 @@ def build_balanced_dataset(config: Mapping[str, Any],
                            project_root: str | Path
                            ) -> dict[str, Any]:
     config = validate_config(config)
+    v2 = config["format"] == CONFIG_FORMAT_V2
     root = Path(project_root)
     data_config = load_curriculum_config(
         _safe_relative(root, config["parent_data_config"]["path"]))
@@ -974,7 +1342,8 @@ def build_balanced_dataset(config: Mapping[str, Any],
             seed_offset=selection["control_seed_offset"],
             assets=assets, case_by_id=case_by_id,
             donor_info=answer_donor_info, sibling_case=sibling,
-            split_label=f"{split}_answer")
+            split_label=f"{split}_answer",
+            include_sealed_answers=v2, bind_assignment=v2)
         combined_caption = {row["case_id"]: dict(row, task="caption")
                             for row in caption_candidates[split]}
         for row in roles[split]["captions"]:
@@ -985,7 +1354,8 @@ def build_balanced_dataset(config: Mapping[str, Any],
             seed_offset=selection["control_seed_offset"] + 1,
             assets=assets, case_by_id=case_by_id,
             donor_info=caption_donor_info, sibling_case=sibling,
-            split_label=f"{split}_caption", include_wrong=False)
+            split_label=f"{split}_caption", include_wrong=False,
+            bind_assignment=v2)
 
     # Gather every selected and control asset, then audit pixels and captions.
     used_case_ids: set[str] = set()
@@ -1105,6 +1475,8 @@ def build_balanced_dataset(config: Mapping[str, Any],
         },
     }
     used_objects = [case_by_id[case_id] for case_id in sorted(used_case_ids)]
+    if v2:
+        freshness["prior_sources"] = list(prior.get("sources", []))
     freshness["all_used_cases"] = {
         "cases": len(used_objects),
         "case_overlap": overlap(used_objects, "case_id", "case_ids"),
@@ -1369,12 +1741,19 @@ def build_balanced_dataset(config: Mapping[str, Any],
     }
 
     manifest = {
-        "format": MANIFEST_FORMAT,
-        "version": VERSION,
+        "format": MANIFEST_FORMAT_V2 if v2 else MANIFEST_FORMAT,
+        "version": VERSION_V2 if v2 else VERSION,
         "seed": config["seed"],
         "case_namespace": config["procedural_overrides"]["id_prefix"],
         "fresh_evaluation": True,
         "consumed_stage_result_preserved": True,
+        **({
+            "hypothesis": config["hypothesis"],
+            "scorer_contract": dict(config["scorer_contract"]),
+            "fit_contract": dict(config["fit_contract"]),
+            "preaudit": dict(config["preaudit"]),
+            "caption_contract_version": CAPTION_CONTRACT_VERSION,
+        } if v2 else {}),
         "roles": {
             "train": ("balanced caption and answer projector alignment "
                       "examples only"),
@@ -1516,10 +1895,55 @@ def _evaluation_gates(config: Mapping[str, Any],
     }
 
 
+def _evaluation_gates_v2(config: Mapping[str, Any],
+                         manifest: Mapping[str, Any]) -> dict[str, Any]:
+    evaluation = config["evaluation"]
+    return {
+        "min_correct_accuracy": evaluation["min_correct_accuracy"],
+        "min_unique_families": min(
+            8, manifest["counts"]["dev_answers"],
+            manifest["counts"]["heldout_answers"]),
+        "max_unknown_rate": evaluation["max_false_abstention_on_answerable"],
+        "min_correct_margin_wrong": evaluation["min_margin_wrong"],
+        "min_correct_margin_shuffled": evaluation["min_margin_shuffled"],
+        "min_correct_margin_noimage": evaluation["min_margin_noimage"],
+        "min_unknown_accuracy": evaluation["min_unknown_accuracy"],
+        "max_false_answer_on_abstain":
+            evaluation["max_false_answer_on_abstain"],
+        "max_false_abstention_on_answerable":
+            evaluation["max_false_abstention_on_answerable"],
+        "min_counterfactual_margin_answerable":
+            evaluation["min_counterfactual_margin_answerable"],
+        "min_counterfactual_following_accuracy":
+            evaluation["min_counterfactual_following_accuracy"],
+        "min_following_accuracy_wrong":
+            evaluation["min_following_accuracy_wrong"],
+        "min_following_accuracy_shuffled":
+            evaluation["min_following_accuracy_shuffled"],
+        "min_caption_token_f1": evaluation["min_caption_token_f1"],
+        "min_caption_semantic_descriptor_f1":
+            evaluation["min_caption_semantic_descriptor_f1"],
+        "min_caption_following_accuracy":
+            evaluation["min_caption_following_accuracy"],
+        "min_caption_following_semantic_f1":
+            evaluation["min_caption_following_semantic_f1"],
+        "min_caption_original_agreement_drop":
+            evaluation["min_caption_original_agreement_drop"],
+        "max_noimage_original_semantic_f1":
+            evaluation["max_noimage_original_semantic_f1"],
+        "min_noimage_loss_margin": evaluation["min_noimage_loss_margin"],
+        "min_train_fit_answer_accuracy":
+            evaluation["min_train_fit_answer_accuracy"],
+        "min_train_fit_caption_following_accuracy":
+            evaluation["min_train_fit_caption_following_accuracy"],
+    }
+
+
 def build_protocol(config: Mapping[str, Any], built: Mapping[str, Any],
                    parent_protocol: Mapping[str, Any],
                    project_root: str | Path | None = None) -> dict[str, Any]:
     config = validate_config(config)
+    v2 = config["format"] == CONFIG_FORMAT_V2
     root = Path(project_root or config["project_root"])
     manifest = built["manifest"]
     implementation = {}
@@ -1537,16 +1961,51 @@ def build_protocol(config: Mapping[str, Any], built: Mapping[str, Any],
         + manifest["counts"]["heldout_captions"])
     evaluation = dict(config["evaluation"])
     evaluation["question_template"] = parent_eval["question_template"]
-    evaluation["gates"] = _evaluation_gates(config, manifest)
+    evaluation["gates"] = (_evaluation_gates_v2(config, manifest) if v2
+                           else _evaluation_gates(config, manifest))
     evaluation["caption_max_new_tokens"] = limits["caption_max_new_tokens"]
     evaluation["max_new_tokens"] = limits["max_new_tokens"]
+    prior_consumed = ({
+        "sources": [
+            {
+                "data_root": entry["data_root"],
+                "protocol": dict(entry["protocol"]),
+                "manifest": dict(entry["manifest"]),
+                "role": entry["role"],
+            }
+            for entry in config["prior_consumed"]
+        ],
+        "role": ("Every consumed evaluation source is excluded by case id, "
+                 "image hash, scene hash and prepared-asset hash; its raw "
+                 "rejection/reload evidence is preserved unchanged."),
+    } if v2 else {
+        "data_root": config["prior_consumed"]["data_root"],
+        "protocol": config["prior_consumed"]["protocol"],
+        "manifest": config["prior_consumed"]["manifest"],
+        "role": config["prior_consumed"]["role"],
+    })
     protocol = {
-        "format": PROTOCOL_FORMAT,
-        "version": VERSION,
+        "format": PROTOCOL_FORMAT_V2 if v2 else PROTOCOL_FORMAT,
+        "version": VERSION_V2 if v2 else VERSION,
         "declared_at_utc": config["declared_at_utc"],
         "purpose": config["purpose"],
         "root": str(root),
         "seed": config["seed"],
+        **({
+            "hypothesis": config["hypothesis"],
+            "report_root": config["report_root"],
+            "scorer_contract": dict(config["scorer_contract"]),
+            "fit_contract": dict(config["fit_contract"]),
+            "preaudit": dict(config["preaudit"]),
+            "optimizer_contract": {
+                "name": "adamw_fused",
+                "wrapper": "NativeFusedAdamW",
+                "optimizer_class": "torch.optim.AdamW",
+                "fused": True,
+                "scope": "vision_projector. only",
+                "backbone_frozen": True,
+            },
+        } if v2 else {}),
         "parent": {
             "protocol": config["parent_protocol"]["path"],
             "protocol_sha256": config["parent_protocol"]["sha256"],
@@ -1556,12 +2015,7 @@ def build_protocol(config: Mapping[str, Any], built: Mapping[str, Any],
                      "contracts only; no warm start and no reused parent "
                      "weights."),
         },
-        "prior_consumed": {
-            "data_root": config["prior_consumed"]["data_root"],
-            "protocol": config["prior_consumed"]["protocol"],
-            "manifest": config["prior_consumed"]["manifest"],
-            "role": config["prior_consumed"]["role"],
-        },
+        "prior_consumed": prior_consumed,
         "data": {
             "root": config["data_root"],
             "manifest": {"path": "manifest.json",
@@ -1631,8 +2085,9 @@ def load_prepared(protocol_path: str | Path,
                                                      dict[str, str],
                                                      Path]:
     protocol = json.loads(Path(protocol_path).read_text())
-    _require(protocol.get("format") == PROTOCOL_FORMAT,
+    _require(protocol.get("format") in (PROTOCOL_FORMAT, PROTOCOL_FORMAT_V2),
              "Prepared protocol format differs")
+    v2 = protocol.get("format") == PROTOCOL_FORMAT_V2
     root = Path(project_root)
     raw_data_root = protocol["data"]["root"]
     data_root = (Path(raw_data_root) if Path(raw_data_root).is_absolute()
@@ -1643,8 +2098,19 @@ def load_prepared(protocol_path: str | Path,
              == protocol["data"]["manifest"]["sha256"],
              "Prepared manifest bytes differ")
     manifest = json.loads(manifest_path.read_text())
-    _require(manifest.get("format") == MANIFEST_FORMAT,
+    _require(manifest.get("format") in (MANIFEST_FORMAT, MANIFEST_FORMAT_V2),
              "Prepared manifest format differs")
+    _require(v2 == (manifest.get("format") == MANIFEST_FORMAT_V2),
+             "Prepared protocol and manifest versions differ")
+    if v2:
+        _require(manifest.get("scorer_contract")
+                 == protocol["scorer_contract"],
+                 "Prepared scorer contract differs")
+        _require(manifest.get("fit_contract") == protocol["fit_contract"],
+                 "Prepared fit contract differs")
+        _require(manifest.get("caption_contract_version")
+                 == CAPTION_CONTRACT_VERSION,
+                 "Prepared caption contract version differs")
     _require(manifest.get("seals") == protocol["data"]["seals"],
              "Prepared seals differ from the protocol")
     _require(manifest.get("counts") == protocol["data"]["counts"],
@@ -1912,3 +2378,1261 @@ def compare_reload_artifacts(original: str | Path, reloaded: str | Path,
                  f"Reload artifact is missing: {name}")
         comparisons[name] = sha256_file(left) == sha256_file(right)
     return comparisons
+
+
+# ---------------------------------------------------------------------------
+# V2 caption/answer target contracts and scoring
+# ---------------------------------------------------------------------------
+
+_CAPTION_CONTROLS = ("correct", "counterfactual", "shuffled", "noimage")
+
+
+def _descriptor_list(value: Any, label: str) -> list[list[str]]:
+    _require(isinstance(value, (list, tuple)) and value,
+             f"{label} descriptors are missing")
+    result = []
+    for item in value:
+        _require(isinstance(item, (list, tuple)) and len(item) == 2,
+                 f"{label} descriptor is malformed")
+        color, shape = str(item[0]), str(item[1])
+        _require(color in _COLOR_SET and shape in _SHAPE_SET,
+                 f"{label} descriptor is not a sealed colour/shape pair")
+        result.append([color, shape])
+    return result
+
+
+def _require_caption_target_text(text: Any, objects: Sequence[Sequence[str]],
+                                 label: str) -> str:
+    _require(isinstance(text, str) and text.strip(),
+             f"{label} target text is missing")
+    parsed = Counter(caption_descriptors(text))
+    expected = Counter(tuple(item) for item in objects)
+    _require(parsed == expected,
+             f"{label} target text and sealed descriptors differ")
+    return text
+
+
+def _control_row(control_map: Mapping[str, Mapping[str, Any]],
+                 case_id: str) -> Mapping[str, Any]:
+    _require(case_id in control_map,
+             f"Sealed control assignment is missing: {case_id}")
+    row = control_map[case_id]
+    _require(isinstance(row.get("assignment_sha256"), str)
+             and row["assignment_sha256"] == control_assignment_sha256(row),
+             f"Sealed control assignment bytes differ: {case_id}")
+    return row
+
+
+def caption_target_specs_v2(cases: Sequence[Mapping[str, Any]],
+                            labels: Sequence[Mapping[str, Any]],
+                            control_map: Mapping[str, Mapping[str, Any]],
+                            *, controls: Sequence[str] = _CAPTION_CONTROLS
+                            ) -> dict[tuple[str, str], dict[str, Any]]:
+    """Derive every caption target from sealed labels and assignments.
+
+    The original sealed target is fixed for every image control.  Following
+    targets describe only the image actually supplied for that control.
+    """
+    case_by_id = {case["case_id"]: case for case in cases}
+    label_by_id = {label["case_id"]: label for label in labels}
+    _require(len(case_by_id) == len(cases), "Caption cases repeat")
+    _require(len(label_by_id) == len(labels), "Caption labels repeat")
+    _require(set(case_by_id) == set(label_by_id),
+             "Caption cases and sealed labels differ")
+    _require(isinstance(controls, (list, tuple)) and controls,
+             "Caption controls are required")
+    specs: dict[tuple[str, str], dict[str, Any]] = {}
+    for case_id in sorted(case_by_id):
+        case = case_by_id[case_id]
+        label = label_by_id[case_id]
+        _require(_is_sha256(case.get("image_sha256")),
+                 f"Caption case image hash is invalid: {case_id}")
+        original_objects = _descriptor_list(
+            label.get("visible_objects"), f"{case_id} original")
+        original_text = _require_caption_target_text(
+            label.get("answer"), original_objects, f"{case_id} original")
+        row = _control_row(control_map, case_id)
+        for control in controls:
+            spec = {
+                "case_id": case_id,
+                "control": control,
+                "original_text": original_text,
+                "original_objects": [list(item) for item in original_objects],
+                "original_image_case_id": case_id,
+                "original_image_sha256": case["image_sha256"],
+                "expected_image_case_id": case_id,
+                "expected_image_sha256": case["image_sha256"],
+                "following_text": original_text,
+                "following_objects": [list(item)
+                                      for item in original_objects],
+                "following_available": True,
+                "image_changed": False,
+                "assignment_sha256": row["assignment_sha256"],
+            }
+            if control == "counterfactual":
+                donor = row.get("counterfactual")
+                _require(isinstance(donor, Mapping),
+                         f"Counterfactual assignment is missing: {case_id}")
+                _require(donor.get("case_id")
+                         == case.get("counterfactual_case_id"),
+                         f"Counterfactual case identity differs: {case_id}")
+                _require(donor.get("image_sha256")
+                         == case.get("counterfactual_image_sha256"),
+                         f"Counterfactual image hash differs: {case_id}")
+                following_objects = _descriptor_list(
+                    label.get("counterfactual_visible_objects"),
+                    f"{case_id} counterfactual")
+                following_text = _require_caption_target_text(
+                    label.get("counterfactual_answer"), following_objects,
+                    f"{case_id} counterfactual")
+                if isinstance(donor.get("visible_objects"), list):
+                    _require(Counter(map(tuple, donor["visible_objects"]))
+                             == Counter(map(tuple, following_objects)),
+                             "Counterfactual assignment descriptors differ")
+                spec.update({
+                    "expected_image_case_id": donor.get("case_id"),
+                    "expected_image_sha256": donor.get("image_sha256"),
+                    "following_text": following_text,
+                    "following_objects": [list(item)
+                                          for item in following_objects],
+                    "image_changed": (donor.get("image_sha256")
+                                      != case["image_sha256"]),
+                })
+                _require(spec["image_changed"] is True,
+                         "Counterfactual image does not change")
+                _require(bool(row.get("counterfactual_same_image"))
+                         is False,
+                         "Counterfactual assignment reuses the image")
+            elif control == "shuffled":
+                donor = row.get("shuffled")
+                _require(isinstance(donor, Mapping),
+                         f"Shuffled assignment is missing: {case_id}")
+                following_objects = _descriptor_list(
+                    donor.get("visible_objects"), f"{case_id} shuffled")
+                following_text = _require_caption_target_text(
+                    donor.get("caption"), following_objects,
+                    f"{case_id} shuffled")
+                _require(donor.get("image_sha256") != case["image_sha256"],
+                         "Shuffled assignment reuses the receiver image")
+                spec.update({
+                    "expected_image_case_id": donor.get("case_id"),
+                    "expected_image_sha256": donor.get("image_sha256"),
+                    "following_text": following_text,
+                    "following_objects": [list(item)
+                                          for item in following_objects],
+                    "image_changed": True,
+                })
+            elif control == "noimage":
+                spec.update({
+                    "expected_image_case_id": None,
+                    "expected_image_sha256": None,
+                    "following_text": None,
+                    "following_objects": None,
+                    "following_available": False,
+                    "image_changed": True,
+                })
+            elif control != "correct":
+                raise ValueError(f"Undeclared caption control: {control}")
+            specs[(case_id, control)] = spec
+    return specs
+
+
+def _validate_caption_generation_v2(generation: Mapping[str, Any],
+                                    spec: Mapping[str, Any]
+                                    ) -> None:
+    required = {
+        "control", "case_id", "generated_text", "image_sha256",
+        "image_case_id", "target_case_id", "target_text",
+        "target_visible_objects", "response_loss",
+        "control_assignment_sha256",
+    }
+    missing = sorted(required - set(generation))
+    _require(not missing, f"Caption generation fields are missing: {missing}")
+    _require(generation["case_id"] == spec["case_id"],
+             "Caption generation case differs")
+    _require(generation["control"] == spec["control"],
+             "Caption generation control differs")
+    _require(isinstance(generation["generated_text"], str),
+             "Caption generated text must be a string")
+    _require(generation.get("control_assignment_sha256")
+             == spec["assignment_sha256"],
+             "Caption control assignment binding differs")
+    _require(generation.get("image_case_id") == spec["expected_image_case_id"]
+             and generation.get("image_sha256")
+             == spec["expected_image_sha256"],
+             "Caption generation image identity differs from the assignment")
+    _require(generation.get("target_case_id")
+             == spec["original_image_case_id"],
+             "Caption generation target case was altered")
+    _require(generation.get("target_text") == spec["original_text"],
+             "Caption generation target text was altered")
+    try:
+        target_objects = [list(item)
+                          for item in generation["target_visible_objects"]]
+    except (TypeError, ValueError) as error:
+        raise ValueError("Caption generation target descriptors are malformed") \
+            from error
+    _require(target_objects == spec["original_objects"],
+             "Caption generation target descriptors were altered")
+    loss = generation.get("response_loss")
+    _require(isinstance(loss, (int, float)) and not isinstance(loss, bool)
+             and math.isfinite(float(loss)) and float(loss) >= 0,
+             "Caption teacher-forced loss is missing or invalid")
+
+
+def _caption_row_metrics_v2(generation: Mapping[str, Any],
+                            spec: Mapping[str, Any]) -> dict[str, Any]:
+    generated = str(generation["generated_text"])
+    original = semantic_caption_agreement(generated, spec["original_objects"])
+    following = None
+    if spec["following_available"]:
+        following = semantic_caption_agreement(generated,
+                                               spec["following_objects"])
+    return {
+        **generation,
+        "original_token_f1": caption_token_f1(
+            generated, spec["original_text"]),
+        "original_semantic": original,
+        "original_semantic_f1": original["f1"],
+        "original_exact_agreement": original["exact_agreement"],
+        "following_target_case_id": spec["expected_image_case_id"],
+        "following_text": spec["following_text"],
+        "following_objects": spec["following_objects"],
+        "following_available": spec["following_available"],
+        "following_semantic": following,
+        "following_semantic_f1": (None if following is None
+                                  else following["f1"]),
+        "following_accuracy": (None if following is None
+                               else float(following["exact_agreement"])),
+        "image_changed": spec["image_changed"],
+        "response_loss": float(generation["response_loss"]),
+        "contract_version": CAPTION_CONTRACT_VERSION,
+    }
+
+
+def _caption_summary_v2(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    _require(rows, "Caption control has no rows")
+    following = [row for row in rows if row["following_available"]]
+    return {
+        "cases": len(rows),
+        "image_changed_cases": sum(bool(row["image_changed"])
+                                   for row in rows),
+        "original_token_f1": sum(row["original_token_f1"]
+                                 for row in rows) / len(rows),
+        "original_semantic_f1": sum(row["original_semantic_f1"]
+                                    for row in rows) / len(rows),
+        "original_exact_agreement": sum(
+            row["original_exact_agreement"] for row in rows) / len(rows),
+        "phantom_object_rate": sum(
+            row["original_semantic"]["phantom_objects"] > 0
+            for row in rows) / len(rows),
+        "following_available_cases": len(following),
+        "following_semantic_f1": (
+            sum(row["following_semantic_f1"] for row in following)
+            / len(following) if following else None),
+        "following_accuracy": (
+            sum(row["following_accuracy"] for row in following)
+            / len(following) if following else None),
+        "teacher_forced_response_loss": sum(
+            row["response_loss"] for row in rows) / len(rows),
+    }
+
+
+def score_caption_controls_v2(cases: Sequence[Mapping[str, Any]],
+                              labels: Sequence[Mapping[str, Any]],
+                              generations: Sequence[Mapping[str, Any]],
+                              *, control_map: Mapping[str, Mapping[str, Any]],
+                              controls: Sequence[str], seed: int,
+                              bootstrap: Mapping[str, Any],
+                              gates: Mapping[str, Any] | None = None
+                              ) -> dict[str, Any]:
+    """Score fixed-target teacher-forced loss and changed-image following."""
+    controls = list(controls)
+    _require(controls and "correct" in controls
+             and set(controls) <= set(_CAPTION_CONTROLS),
+             "V2 caption scoring requires the correct control")
+    specs = caption_target_specs_v2(
+        cases, labels, control_map, controls=controls)
+    labels_by_id = {row["case_id"]: row for row in labels}
+    rows_by_control: dict[str, dict[str, dict[str, Any]]] = {
+        control: {} for control in controls}
+    for generation in generations:
+        _require(isinstance(generation, Mapping),
+                 "Caption generation must be a mapping")
+        control = generation.get("control")
+        case_id = generation.get("case_id")
+        _require(control in controls, f"Unknown caption control: {control}")
+        _require((case_id, control) in specs,
+                 f"Undeclared caption target: {control}/{case_id}")
+        _require(case_id not in rows_by_control[control],
+                 f"Duplicate caption generation: {control}/{case_id}")
+        spec = specs[(case_id, control)]
+        _validate_caption_generation_v2(generation, spec)
+        rows_by_control[control][case_id] = _caption_row_metrics_v2(
+            generation, spec)
+    for control in controls:
+        _require(set(rows_by_control[control]) == set(labels_by_id),
+                 f"Caption control is incomplete: {control}")
+
+    metrics = {control: _caption_summary_v2(
+        list(rows_by_control[control].values())) for control in controls}
+    correct = rows_by_control["correct"]
+
+    def bootstrap_margin(values, control):
+        by_world: dict[str, list[float]] = defaultdict(list)
+        for case_id, value in values.items():
+            by_world[labels_by_id[case_id]["world_id"]].append(value)
+        return clustered_bootstrap(
+            by_world, resamples=int(bootstrap["resamples"]),
+            confidence=float(bootstrap["confidence"]),
+            seed=seed + 211 * (controls.index(control) + 1))
+
+    dependence: dict[str, dict[str, Any]] = {}
+    for control in ("counterfactual", "shuffled"):
+        if control not in controls:
+            continue
+        other = rows_by_control[control]
+        shared = sorted(set(correct) & set(other))
+        _require(shared, f"No paired caption cases for {control}")
+        original_drop = {}
+        following_accuracy = {}
+        following_semantic = {}
+        loss_delta = {}
+        original_exact_drop = {}
+        for case_id in shared:
+            _require(correct[case_id]["following_available"]
+                     and other[case_id]["following_available"],
+                     "Caption dependence requires image-following targets")
+            original_drop[case_id] = (
+                correct[case_id]["original_semantic_f1"]
+                - other[case_id]["original_semantic_f1"])
+            original_exact_drop[case_id] = (
+                float(correct[case_id]["original_exact_agreement"])
+                - float(other[case_id]["original_exact_agreement"]))
+            following_accuracy[case_id] = float(
+                other[case_id]["following_accuracy"])
+            following_semantic[case_id] = float(
+                other[case_id]["following_semantic_f1"])
+            loss_delta[case_id] = (
+                other[case_id]["response_loss"]
+                - correct[case_id]["response_loss"])
+        dependence[control] = {
+            "cases": len(shared),
+            "following_accuracy": sum(following_accuracy.values())
+            / len(shared),
+            "following_semantic_f1": sum(following_semantic.values())
+            / len(shared),
+            "original_semantic_f1_drop": sum(original_drop.values())
+            / len(shared),
+            "original_exact_drop": sum(original_exact_drop.values())
+            / len(shared),
+            "following_accuracy_bootstrap": bootstrap_margin(
+                following_accuracy, control),
+            "original_semantic_drop_bootstrap": bootstrap_margin(
+                original_drop, control),
+            "fixed_target_loss_delta": sum(loss_delta.values()) / len(shared),
+            "loss_delta_bootstrap": bootstrap_margin(loss_delta, control),
+        }
+    noimage = rows_by_control.get("noimage")
+    noimage_summary = None
+    if noimage is not None:
+        noimage_summary = {
+            "cases": len(noimage),
+            "original_semantic_f1": metrics["noimage"][
+                "original_semantic_f1"],
+            "original_exact_agreement": metrics["noimage"][
+                "original_exact_agreement"],
+            "phantom_object_rate": metrics["noimage"]["phantom_object_rate"],
+            "teacher_forced_response_loss": metrics["noimage"][
+                "teacher_forced_response_loss"],
+            "loss_margin": (
+                metrics["noimage"]["teacher_forced_response_loss"]
+                - metrics["correct"]["teacher_forced_response_loss"]),
+            "following_available": False,
+            "scope": "no-image behavior is reported separately from following",
+        }
+    result = {
+        "format": CAPTION_SCORE_FORMAT,
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "cases": len(labels_by_id),
+        "controls": metrics,
+        "dependence": dependence,
+        "noimage": noimage_summary,
+        "claim": "fixed_target_loss_and_changed_image_following_only",
+        "bootstrap": dict(bootstrap),
+        "case_ids": sorted(labels_by_id),
+        "case_ids_sha256": fingerprint(sorted(labels_by_id)),
+        "raw_generations": [dict(row) for row in generations],
+        "rows": [row for control in controls
+                 for row in rows_by_control[control].values()],
+    }
+    if gates is not None:
+        result["gate_failures"] = diagnostic_gate_report_v2(
+            label="caption_score", answer=None, caption=result,
+            evaluation={"gates": dict(gates)})["gate_failures"]
+    return result
+
+
+# ---------------------------------------------------------------------------
+# V2 answer counterfactual-following scoring
+# ---------------------------------------------------------------------------
+
+
+def answer_target_specs_v2(cases: Sequence[Mapping[str, Any]],
+                           labels: Sequence[Mapping[str, Any]],
+                           control_map: Mapping[str, Mapping[str, Any]],
+                           *, controls: Sequence[str]
+                           ) -> dict[tuple[str, str], dict[str, Any]]:
+    case_by_id = {case["case_id"]: case for case in cases}
+    label_by_id = {label["case_id"]: label for label in labels}
+    _require(set(case_by_id) == set(label_by_id),
+             "Answer cases and sealed labels differ")
+    specs: dict[tuple[str, str], dict[str, Any]] = {}
+    for case_id in sorted(case_by_id):
+        case = case_by_id[case_id]
+        label = label_by_id[case_id]
+        _require(isinstance(label.get("answer"), str) and label["answer"],
+                 f"Answer target is missing: {case_id}")
+        _require(_is_sha256(case.get("image_sha256")),
+                 f"Answer case image hash is invalid: {case_id}")
+        row = _control_row(control_map, case_id)
+        for control in controls:
+            spec = {
+                "case_id": case_id,
+                "control": control,
+                "original_answer": label["answer"],
+                "expected_image_case_id": case_id,
+                "expected_image_sha256": case["image_sha256"],
+                "following_answer": label["answer"],
+                "following_applicable": control != "noimage",
+                "following_scope": "original_image",
+                "assignment_sha256": row["assignment_sha256"],
+            }
+            if control == "counterfactual":
+                donor = row.get("counterfactual")
+                _require(isinstance(donor, Mapping),
+                         f"Counterfactual assignment is missing: {case_id}")
+                _require(donor.get("case_id")
+                         == case.get("counterfactual_case_id")
+                         and donor.get("image_sha256")
+                         == case.get("counterfactual_image_sha256"),
+                         f"Counterfactual assignment differs: {case_id}")
+                _require(isinstance(label.get("counterfactual_answer"), str)
+                         and label["counterfactual_answer"],
+                         "Counterfactual answer target is missing")
+                if isinstance(donor.get("sealed_answer"), str):
+                    _require(donor["sealed_answer"]
+                             == label["counterfactual_answer"],
+                             "Counterfactual sealed answers differ")
+                spec.update({
+                    "expected_image_case_id": donor["case_id"],
+                    "expected_image_sha256": donor["image_sha256"],
+                    "following_answer": label["counterfactual_answer"],
+                    "following_scope": "changed_image",
+                })
+            elif control in ("wrong", "shuffled"):
+                donor = row.get(control)
+                _require(isinstance(donor, Mapping),
+                         f"{control} assignment is missing: {case_id}")
+                sealed = donor.get("sealed_answer")
+                _require(isinstance(sealed, str) and sealed,
+                         f"{control} sealed answer is missing: {case_id}")
+                spec.update({
+                    "expected_image_case_id": donor["case_id"],
+                    "expected_image_sha256": donor["image_sha256"],
+                    "following_answer": sealed,
+                    "following_applicable": donor.get("task")
+                    == case.get("task"),
+                    "following_scope": ("same_task_changed_image"
+                                        if donor.get("task")
+                                        == case.get("task")
+                                        else "not_applicable_cross_task"),
+                })
+            elif control == "noimage":
+                spec.update({
+                    "expected_image_case_id": None,
+                    "expected_image_sha256": None,
+                    "following_answer": None,
+                    "following_applicable": False,
+                    "following_scope": "no_image",
+                })
+            elif control != "correct":
+                raise ValueError(f"Undeclared answer control: {control}")
+            specs[(case_id, control)] = spec
+    return specs
+
+
+_ANSWER_GENERATION_FIELDS = {
+    "control", "case_id", "generated_text", "image_sha256",
+    "image_case_id", "control_assignment_sha256",
+}
+
+
+def _validate_answer_generation_v2(generation: Mapping[str, Any],
+                                   spec: Mapping[str, Any]) -> None:
+    missing = sorted(_ANSWER_GENERATION_FIELDS - set(generation))
+    _require(not missing, f"Answer generation fields are missing: {missing}")
+    _require(generation["case_id"] == spec["case_id"]
+             and generation["control"] == spec["control"],
+             "Answer generation identity differs")
+    _require(isinstance(generation["generated_text"], str),
+             "Answer generated text must be a string")
+    _require(generation.get("control_assignment_sha256")
+             == spec["assignment_sha256"],
+             "Answer control assignment binding differs")
+    _require(generation.get("image_case_id") == spec["expected_image_case_id"]
+             and generation.get("image_sha256")
+             == spec["expected_image_sha256"],
+             "Answer generation image identity differs from the assignment")
+
+
+def score_answer_controls_v2(cases: Sequence[Mapping[str, Any]],
+                             labels: Sequence[Mapping[str, Any]],
+                             generations: Sequence[Mapping[str, Any]],
+                             *, control_map: Mapping[str, Mapping[str, Any]],
+                             controls: Sequence[str], seed: int,
+                             bootstrap: Mapping[str, Any],
+                             gates: Mapping[str, Any] | None = None
+                             ) -> dict[str, Any]:
+    """Keep original-label correctness and changed-image following separate."""
+    from .vision_curriculum import answer_correct
+
+    controls = list(controls)
+    case_by_id = {case["case_id"]: case for case in cases}
+    label_by_id = {label["case_id"]: label for label in labels}
+    _require(set(case_by_id) == set(label_by_id),
+             "Answer cases and sealed labels differ")
+    for case in cases:
+        _require(case.get("label") == label_by_id[case["case_id"]]["answer"],
+                 "Answer case label differs from the sealed label")
+    specs = answer_target_specs_v2(cases, labels, control_map,
+                                   controls=controls)
+    seen: set[tuple[str, str]] = set()
+    for generation in generations:
+        key = (generation.get("case_id"), generation.get("control"))
+        _require(key in specs, f"Undeclared answer target: {key}")
+        _require(key not in seen, f"Duplicate answer generation: {key}")
+        seen.add(key)
+        _validate_answer_generation_v2(generation, specs[key])
+    for control in controls:
+        covered = {case_id for case_id, name in seen if name == control}
+        _require(covered == set(case_by_id),
+                 f"Answer control is incomplete: {control}")
+    score = score_procedural(
+        cases, generations, controls=controls, seed=seed,
+        bootstrap_resamples=int(bootstrap["resamples"]),
+        bootstrap_confidence=float(bootstrap["confidence"]), gates=None)
+    generated_by_key = {(row["case_id"], row["control"]):
+                        str(row["generated_text"]) for row in generations}
+    following: dict[str, dict[str, Any]] = {}
+    for control in controls:
+        applicable = [case_id for case_id in sorted(case_by_id)
+                      if specs[(case_id, control)]["following_applicable"]]
+        correct_cases = [case_id for case_id in applicable
+                         if answer_correct(
+                             generated_by_key[(case_id, control)],
+                             specs[(case_id, control)]["following_answer"])]
+        following[control] = {
+            "cases": len(applicable),
+            "correct": len(correct_cases),
+            "accuracy": (len(correct_cases) / len(applicable)
+                         if applicable else None),
+            "following_scope": specs[(applicable[0], control)][
+                "following_scope"] if applicable else "no_applicable_cases",
+        }
+    answerable = []
+    if "counterfactual" in controls:
+        answerable = [
+            case_id for case_id in sorted(case_by_id)
+            if control_map[case_id].get("counterfactual_same_image")
+            is not True
+            and label_by_id[case_id].get("answer") != UNKNOWN_ANSWER
+            and label_by_id[case_id].get(
+                "answer_changes_under_counterfactual",
+                label_by_id[case_id].get("answer")
+                != label_by_id[case_id].get("counterfactual_answer")) is True
+        ]
+        _require(answerable, "No answerable counterfactual pairs exist")
+    else:
+        answerable = []
+    correct_rows = {row["case_id"]: row for row in score["rows"]
+                    if row["control"] == "correct"}
+    cf_rows = {row["case_id"]: row for row in score["rows"]
+               if row["control"] == "counterfactual"}
+    margins: dict[str, float] = {}
+    following_answerable: list[str] = []
+    if answerable:
+        following_answerable = [
+            case_id for case_id in answerable
+            if answer_correct(generated_by_key[(case_id, "counterfactual")],
+                              specs[(case_id, "counterfactual")][
+                                  "following_answer"])]
+        margins = {
+            case_id: (float(correct_rows[case_id]["correct"])
+                      - float(cf_rows[case_id]["correct"]))
+            for case_id in answerable
+        }
+        by_world: dict[str, list[float]] = defaultdict(list)
+        for case_id, value in margins.items():
+            by_world[case_by_id[case_id]["world_id"]].append(value)
+        score["counterfactual_answerable"] = {
+            "cases": len(answerable),
+            "correct_accuracy": sum(correct_rows[case_id]["correct"]
+                                    for case_id in answerable)
+            / len(answerable),
+            "counterfactual_original_accuracy":
+                sum(cf_rows[case_id]["correct"] for case_id in answerable)
+                / len(answerable),
+            "original_label_margin": sum(margins.values()) / len(answerable),
+            "margin_bootstrap": clustered_bootstrap(
+                by_world, resamples=int(bootstrap["resamples"]),
+                confidence=float(bootstrap["confidence"]),
+                seed=seed + 7919),
+            "following_cases": len(answerable),
+            "following_correct": len(following_answerable),
+            "following_accuracy": len(following_answerable) / len(answerable),
+            "scope": ("answerable cases only; original-label correctness and "
+                      "changed-image following are separate"),
+        }
+    score.update({
+        "format": ANSWER_SCORE_FORMAT,
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "following": following,
+        "raw_generations": [dict(row) for row in generations],
+        "claim": ("original-label correctness, changed-image following and "
+                  "change-only dependence are reported separately"),
+    })
+    if gates is not None:
+        score["gate_report"] = diagnostic_gate_report_v2(
+            label="answer_score", answer=score, caption=None,
+            evaluation={"gates": dict(gates)})
+    return score
+
+
+# ---------------------------------------------------------------------------
+# V2 gate semantics
+# ---------------------------------------------------------------------------
+
+
+def diagnostic_gate_report_v2(*, label: str,
+                              answer: Mapping[str, Any] | None,
+                              caption: Mapping[str, Any] | None,
+                              evaluation: Mapping[str, Any]
+                              ) -> dict[str, Any]:
+    gates = dict(evaluation.get("gates", evaluation))
+    for nested, flat in (
+            ("min_correct_margin_wrong", "min_margin_wrong"),
+            ("min_correct_margin_shuffled", "min_margin_shuffled"),
+            ("min_correct_margin_noimage", "min_margin_noimage"),
+            ("max_unknown_rate", "max_false_abstention_on_answerable")):
+        gates.setdefault(nested, gates.get(flat, 0.0))
+    failures: list[str] = []
+    if answer is not None:
+        correct = answer["controls"].get("correct")
+        _require(correct and correct.get("available"),
+                 f"{label} lacks a correct answer control")
+        if correct["accuracy"] < gates["min_correct_accuracy"]:
+            failures.append("min_correct_accuracy")
+        for control, key in (("wrong", "min_correct_margin_wrong"),
+                             ("shuffled", "min_correct_margin_shuffled"),
+                             ("noimage", "min_correct_margin_noimage")):
+            if control not in answer["controls"]:
+                failures.append(f"missing_control_{control}")
+                continue
+            margin = answer["paired"].get(control, {}).get("correct_margin")
+            if margin is None or margin < gates[key]:
+                failures.append(key)
+        counterfactual = answer.get("counterfactual_answerable")
+        if "counterfactual" in answer["controls"]:
+            if counterfactual is None:
+                failures.append("missing_counterfactual_answerable")
+            else:
+                if counterfactual["original_label_margin"] \
+                        < gates["min_counterfactual_margin_answerable"]:
+                    failures.append("min_counterfactual_margin_answerable")
+                if counterfactual["following_accuracy"] \
+                        < gates["min_counterfactual_following_accuracy"]:
+                    failures.append("min_counterfactual_following_accuracy")
+        for control, key in (
+                ("wrong", "min_following_accuracy_wrong"),
+                ("shuffled", "min_following_accuracy_shuffled")):
+            values = answer.get("following", {}).get(control, {})
+            accuracy = values.get("accuracy")
+            if accuracy is not None and accuracy < gates[key]:
+                failures.append(key)
+        unknown = answer.get("unknown", {})
+        if unknown.get("abstention_accuracy", 0.0) \
+                < gates["min_unknown_accuracy"]:
+            failures.append("min_unknown_accuracy")
+        if unknown.get("false_answer_on_abstain", 1.0) \
+                > gates["max_false_answer_on_abstain"]:
+            failures.append("max_false_answer_on_abstain")
+        if unknown.get("false_abstention_on_answerable", 1.0) \
+                > gates["max_false_abstention_on_answerable"]:
+            failures.append("max_false_abstention_on_answerable")
+    if caption is not None:
+        correct = caption["controls"]["correct"]
+        if correct["original_token_f1"] < gates["min_caption_token_f1"]:
+            failures.append("min_caption_token_f1")
+        if correct["original_semantic_f1"] \
+                < gates["min_caption_semantic_descriptor_f1"]:
+            failures.append("min_caption_semantic_descriptor_f1")
+        accuracy = correct.get("following_accuracy")
+        if accuracy is None or accuracy < gates[
+                "min_caption_following_accuracy"]:
+            failures.append("min_caption_following_accuracy")
+        for control in ("counterfactual", "shuffled"):
+            if control not in caption["dependence"]:
+                continue
+            dependence = caption["dependence"][control]
+            if dependence["following_accuracy"] \
+                    < gates["min_caption_following_accuracy"]:
+                failures.append(
+                    f"min_caption_following_accuracy_{control}")
+            if dependence["following_semantic_f1"] \
+                    < gates["min_caption_following_semantic_f1"]:
+                failures.append(
+                    f"min_caption_following_semantic_f1_{control}")
+            if dependence["original_semantic_f1_drop"] \
+                    < gates["min_caption_original_agreement_drop"]:
+                failures.append(
+                    f"min_caption_original_agreement_drop_{control}")
+        noimage = caption.get("noimage")
+        if noimage is not None:
+            if noimage["loss_margin"] < gates["min_noimage_loss_margin"]:
+                failures.append("min_noimage_loss_margin")
+            if noimage["original_semantic_f1"] \
+                    > gates["max_noimage_original_semantic_f1"]:
+                failures.append("max_noimage_original_semantic_f1")
+    return {
+        "label": label,
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "diagnostic_only": True,
+        "promotion": False,
+        "gate_failures": failures,
+        "all_declared_gates_passed": not failures,
+        "scope": evaluation.get("gates_scope", "diagnostic only"),
+    }
+
+
+# ---------------------------------------------------------------------------
+# V2 positive and negative control contracts
+# ---------------------------------------------------------------------------
+
+_CAPTION_PROBE_LOSSES = {
+    "correct": 0.1, "counterfactual": 0.2, "shuffled": 0.2, "noimage": 8.0,
+}
+
+
+def _caption_probe_rows_v2(cases, labels, control_map, controls, mode
+                           ) -> list[dict[str, Any]]:
+    specs = caption_target_specs_v2(
+        cases, labels, control_map, controls=controls)
+    case_ids = sorted({case["case_id"] for case in cases})
+    rows = []
+    for case_id in case_ids:
+        for control in controls:
+            spec = specs[(case_id, control)]
+            if mode == "perfect_image_following":
+                generated = ("" if not spec["following_available"]
+                             else spec["following_text"])
+                loss = _CAPTION_PROBE_LOSSES[control]
+            elif mode == "image_ignoring":
+                generated = spec["original_text"]
+                loss = 0.2
+            elif mode == "constant_caption":
+                generated = "a red circle"
+                loss = 0.5
+            elif mode == "shuffled":
+                donor_index = (case_ids.index(case_id) + 1) % len(case_ids)
+                donor_id = case_ids[donor_index]
+                donor_spec = specs[(donor_id, control)]
+                generated = (spec["original_text"]
+                             if not donor_spec["following_available"]
+                             else donor_spec["following_text"])
+                loss = _CAPTION_PROBE_LOSSES[control]
+            else:
+                raise ValueError(f"Unknown caption probe mode: {mode}")
+            rows.append({
+                "control": control,
+                "case_id": case_id,
+                "generated_text": generated,
+                "image_sha256": spec["expected_image_sha256"],
+                "image_case_id": spec["expected_image_case_id"],
+                "target_case_id": spec["original_image_case_id"],
+                "target_text": spec["original_text"],
+                "target_visible_objects": [list(item)
+                                           for item in
+                                           spec["original_objects"]],
+                "response_loss": loss,
+                "control_assignment_sha256": spec["assignment_sha256"],
+            })
+    return rows
+
+
+def _answer_probe_rows_v2(cases, labels, control_map, controls, mode
+                          ) -> list[dict[str, Any]]:
+    specs = answer_target_specs_v2(cases, labels, control_map,
+                                   controls=controls)
+    case_ids = sorted({case["case_id"] for case in cases})
+    label_by_id = {label["case_id"]: label for label in labels}
+    rows = []
+    for case_id in case_ids:
+        for control in controls:
+            spec = specs[(case_id, control)]
+            if mode == "perfect_image_following":
+                generated = (spec["following_answer"]
+                             if spec["following_applicable"]
+                             else UNKNOWN_ANSWER)
+            elif mode == "image_ignoring":
+                generated = spec["original_answer"]
+            elif mode == "constant_answer":
+                generated = UNKNOWN_ANSWER
+            elif mode == "shuffled":
+                donor_index = (case_ids.index(case_id) + 1) % len(case_ids)
+                donor_id = case_ids[donor_index]
+                donor_spec = specs[(donor_id, control)]
+                generated = (donor_spec["following_answer"]
+                             if donor_spec["following_applicable"]
+                             else label_by_id[donor_id]["answer"])
+            else:
+                raise ValueError(f"Unknown answer probe mode: {mode}")
+            rows.append({
+                "control": control,
+                "case_id": case_id,
+                "generated_text": generated,
+                "image_sha256": spec["expected_image_sha256"],
+                "image_case_id": spec["expected_image_case_id"],
+                "control_assignment_sha256": spec["assignment_sha256"],
+            })
+    return rows
+
+
+def verify_caption_control_contracts_v2(
+        cases, labels, control_map, *, controls=_CAPTION_CONTROLS,
+        seed: int = 20261028, bootstrap: Mapping[str, Any] | None = None,
+        evaluation: Mapping[str, Any]) -> dict[str, Any]:
+    """Positive must pass every declared gate; negatives must fail/raise."""
+    controls = list(controls)
+    bootstrap = dict(bootstrap or {"cluster": "world", "confidence": 0.95,
+                                   "resamples": 200})
+    positive_rows = _caption_probe_rows_v2(
+        cases, labels, control_map, controls, "perfect_image_following")
+    positive = score_caption_controls_v2(
+        cases, labels, positive_rows, control_map=control_map,
+        controls=controls, seed=seed, bootstrap=bootstrap)
+    report = diagnostic_gate_report_v2(
+        label="positive_perfect_image_following", answer=None,
+        caption=positive, evaluation=evaluation)
+    _require(report["all_declared_gates_passed"],
+             "Perfect caption image-following control fails intended gates: "
+             f"{report['gate_failures']}")
+    negative_failures: dict[str, list[str]] = {}
+    expected = {
+        "constant_caption": {"min_caption_following_accuracy_counterfactual"},
+        "image_ignoring": {
+            "min_caption_original_agreement_drop_counterfactual",
+            "min_caption_following_accuracy_counterfactual",
+        },
+        "shuffled": {"min_caption_following_accuracy_counterfactual",
+                     "min_caption_following_accuracy_shuffled"},
+    }
+    for mode, keys in expected.items():
+        rows = _caption_probe_rows_v2(cases, labels, control_map,
+                                      controls, mode)
+        score = score_caption_controls_v2(
+            cases, labels, rows, control_map=control_map, controls=controls,
+            seed=seed + 1, bootstrap=bootstrap)
+        negative = diagnostic_gate_report_v2(
+            label=f"negative_{mode}", answer=None, caption=score,
+            evaluation=evaluation)
+        negative_failures[mode] = negative["gate_failures"]
+        _require(keys & set(negative["gate_failures"]),
+                 f"Caption negative control {mode} did not fail its "
+                 f"intended gate: {negative['gate_failures']}")
+    malformed = _caption_probe_rows_v2(
+        cases, labels, control_map, controls, "perfect_image_following")
+    malformed[0] = dict(malformed[0])
+    malformed[0].pop("response_loss")
+    try:
+        score_caption_controls_v2(
+            cases, labels, malformed, control_map=control_map,
+            controls=controls, seed=seed + 2, bootstrap=bootstrap)
+    except ValueError as error:
+        malformed_error = str(error)
+    else:
+        raise ValueError("Malformed caption generation was accepted")
+    tampered = _caption_probe_rows_v2(
+        cases, labels, control_map, controls, "perfect_image_following")
+    tampered[0] = dict(tampered[0])
+    tampered[0]["target_text"] = "a purple hexagon"
+    try:
+        score_caption_controls_v2(
+            cases, labels, tampered, control_map=control_map,
+            controls=controls, seed=seed + 3, bootstrap=bootstrap)
+    except ValueError as error:
+        tampered_error = str(error)
+    else:
+        raise ValueError("Target-tampered caption generation was accepted")
+    return {
+        "format": SCORER_CONTRACT_FORMAT,
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "controls": controls,
+        "positive": {
+            "mode": "perfect_image_following",
+            "all_declared_gates_passed": True,
+            "gate_failures": [],
+        },
+        "negative": {
+            "gate_failures": {key: sorted(value)
+                              for key, value in negative_failures.items()},
+            "malformed_rejected": malformed_error,
+            "target_tampering_rejected": tampered_error,
+        },
+        "assignment_bindings": len(
+            {(row["case_id"], row["assignment_sha256"])
+             for row in control_map.values()}),
+        "cases": len({case["case_id"] for case in cases}),
+        "all_contracts_passed": True,
+    }
+
+
+def verify_answer_control_contracts_v2(
+        cases, labels, control_map, *, controls, seed: int = 20261028,
+        bootstrap: Mapping[str, Any] | None = None,
+        evaluation: Mapping[str, Any]) -> dict[str, Any]:
+    bootstrap = dict(bootstrap or {"cluster": "world", "confidence": 0.95,
+                                   "resamples": 200})
+    controls = list(controls)
+    positive_rows = _answer_probe_rows_v2(
+        cases, labels, control_map, controls, "perfect_image_following")
+    positive = score_answer_controls_v2(
+        cases, labels, positive_rows, control_map=control_map,
+        controls=controls, seed=seed, bootstrap=bootstrap)
+    report = diagnostic_gate_report_v2(
+        label="positive_perfect_answer_following", answer=positive,
+        caption=None, evaluation=evaluation)
+    _require(report["all_declared_gates_passed"],
+             "Perfect answer image-following control fails intended gates: "
+             f"{report['gate_failures']}")
+    negative_failures: dict[str, list[str]] = {}
+    for mode in ("constant_answer", "image_ignoring", "shuffled"):
+        rows = _answer_probe_rows_v2(cases, labels, control_map,
+                                     controls, mode)
+        score = score_answer_controls_v2(
+            cases, labels, rows, control_map=control_map, controls=controls,
+            seed=seed + 1, bootstrap=bootstrap)
+        negative = diagnostic_gate_report_v2(
+            label=f"negative_{mode}", answer=score, caption=None,
+            evaluation=evaluation)
+        negative_failures[mode] = negative["gate_failures"]
+        _require(negative["gate_failures"],
+                 f"Answer negative control {mode} passed every gate")
+    malformed = _answer_probe_rows_v2(
+        cases, labels, control_map, controls, "perfect_image_following")
+    malformed[0] = dict(malformed[0])
+    malformed[0].pop("control_assignment_sha256")
+    try:
+        score_answer_controls_v2(
+            cases, labels, malformed, control_map=control_map,
+            controls=controls, seed=seed + 2, bootstrap=bootstrap)
+    except ValueError as error:
+        malformed_error = str(error)
+    else:
+        raise ValueError("Malformed answer generation was accepted")
+    tampered = _answer_probe_rows_v2(
+        cases, labels, control_map, controls, "perfect_image_following")
+    tampered[0] = dict(tampered[0])
+    tampered[0]["control_assignment_sha256"] = "0" * 64
+    try:
+        score_answer_controls_v2(
+            cases, labels, tampered, control_map=control_map,
+            controls=controls, seed=seed + 3, bootstrap=bootstrap)
+    except ValueError as error:
+        tampered_error = str(error)
+    else:
+        raise ValueError("Target-tampered answer generation was accepted")
+    return {
+        "format": SCORER_CONTRACT_FORMAT,
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "controls": controls,
+        "positive": {"mode": "perfect_image_following",
+                     "all_declared_gates_passed": True,
+                     "gate_failures": []},
+        "negative": {
+            "gate_failures": {key: sorted(value)
+                              for key, value in negative_failures.items()},
+            "malformed_rejected": malformed_error,
+            "assignment_tampering_rejected": tampered_error,
+        },
+        "all_contracts_passed": True,
+    }
+
+
+# ---------------------------------------------------------------------------
+# V2 access order and reload comparison receipts
+# ---------------------------------------------------------------------------
+
+_ACCESS_ORDER = ("train", "train_fit", "dev", "audit")
+
+
+class AccessOrder:
+    """Monotonic train -> train-fit -> dev -> audit data-access gate."""
+
+    def __init__(self) -> None:
+        self.phase = _ACCESS_ORDER[0]
+        self.events: list[dict[str, Any]] = []
+
+    def access(self, role: str) -> None:
+        _require(role in _ACCESS_ORDER,
+                 f"Unknown data access role: {role}")
+        _require(_ACCESS_ORDER.index(role)
+                 <= _ACCESS_ORDER.index(self.phase),
+                 f"Data access {role} precedes the current phase {self.phase}")
+        self.events.append({"role": role, "phase": self.phase})
+
+    def advance(self, role: str) -> None:
+        _require(role in _ACCESS_ORDER, f"Unknown data phase: {role}")
+        current = _ACCESS_ORDER.index(self.phase)
+        _require(current + 1 < len(_ACCESS_ORDER)
+                 and _ACCESS_ORDER[current + 1] == role,
+                 f"Cannot advance data phase {self.phase} to {role}")
+        self.phase = role
+        self.events.append({"advanced_to": role})
+
+    def snapshot(self) -> dict[str, Any]:
+        return {"phase": self.phase, "order": list(_ACCESS_ORDER),
+                "events": [dict(event) for event in self.events]}
+
+
+def preaudit_allows_heldout(train_fit_report: Mapping[str, Any] | None,
+                            dev_report: Mapping[str, Any],
+                            protocol: Mapping[str, Any]) -> bool:
+    preaudit = protocol.get("preaudit", {})
+    if preaudit.get("require_train_fit_gates"):
+        if train_fit_report is None \
+                or not train_fit_report.get("all_declared_gates_passed"):
+            return False
+    if preaudit.get("require_dev_gates"):
+        if not dev_report.get("all_declared_gates_passed"):
+            return False
+    return True
+
+
+def train_fit_gate_report(*, answer: Mapping[str, Any] | None,
+                          caption: Mapping[str, Any] | None,
+                          evaluation: Mapping[str, Any]) -> dict[str, Any]:
+    """Train-fit acceptance must be observable before development/audit."""
+    gates = dict(evaluation.get("gates", evaluation))
+    gates.setdefault("min_train_fit_answer_accuracy",
+                     gates.get("min_correct_accuracy", 0.0))
+    gates.setdefault("min_train_fit_caption_following_accuracy",
+                     gates.get("min_caption_following_accuracy", 0.0))
+    failures: list[str] = []
+    if answer is not None:
+        correct = answer["controls"].get("correct")
+        if not correct or not correct.get("available") \
+                or correct["accuracy"] < gates[
+                    "min_train_fit_answer_accuracy"]:
+            failures.append("min_train_fit_answer_accuracy")
+        counterfactual = answer.get("counterfactual_answerable")
+        if evaluation.get("train_probe_controls") == ["correct"]:
+            counterfactual = None
+        if counterfactual is not None and counterfactual[
+                "following_accuracy"] < gates[
+                    "min_counterfactual_following_accuracy"]:
+            failures.append("min_counterfactual_following_accuracy")
+    if caption is not None:
+        correct = caption["controls"]["correct"]
+        accuracy = correct.get("following_accuracy")
+        if accuracy is None or accuracy < gates[
+                "min_train_fit_caption_following_accuracy"]:
+            failures.append("min_train_fit_caption_following_accuracy")
+    return {
+        "label": "train_fit",
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "diagnostic_only": True,
+        "promotion": False,
+        "gate_failures": failures,
+        "all_declared_gates_passed": not failures,
+        "scope": "training-set fit evidence only; not generalization",
+    }
+
+
+def reload_comparison_names_v2() -> tuple[str, ...]:
+    return (
+        "train_fit_answer_generations.jsonl",
+        "train_fit_caption_generations.jsonl",
+        "dev_answer_generations.jsonl",
+        "dev_caption_generations.jsonl",
+        "heldout_answer_generations.jsonl",
+        "heldout_caption_generations.jsonl",
+        "retention_after.jsonl",
+        "scores/train_fit_answer.json",
+        "scores/train_fit_caption.json",
+        "scores/dev_answer.json",
+        "scores/dev_caption.json",
+        "scores/heldout_answer.json",
+        "scores/heldout_caption.json",
+        "scores/overfit_summary.json",
+        "scores/retention.json",
+        "gates/train_fit.json",
+        "gates/dev.json",
+        "gates/heldout.json",
+    )
+
+
+def _scorer_fixture_v2():
+    """Synthetic, sealed-shape fixture that reads no prepared data."""
+    def sha(tag: str) -> str:
+        return sha256_bytes(tag.encode())
+
+    caption_cases = []
+    caption_labels = []
+    caption_controls = {}
+    worlds = ("w1", "w2", "w3", "w4", "w5")
+    originals = {
+        "fx-a": ([["red", "circle"]], [["blue", "square"]]),
+        "fx-b": ([["green", "triangle"]], [["yellow", "rectangle"]]),
+        "fx-c": ([["purple", "square"]], [["orange", "triangle"]]),
+        "fx-d": ([["blue", "rectangle"]], [["red", "triangle"]]),
+    }
+    for index, case_id in enumerate(sorted(originals)):
+        owned, changed = originals[case_id]
+        donor_id = sorted(originals)[(index + 1) % len(originals)]
+        other = sorted(originals)[(index + 2) % len(originals)]
+        donor_objects = originals[other][0]
+        caption_cases.append({
+            "case_id": case_id,
+            "world_id": worlds[index],
+            "task": "caption",
+            "image_sha256": sha(f"img:{case_id}"),
+            "scene_sha256": sha(f"scene:{case_id}"),
+            "counterfactual_case_id": f"{case_id}-cf",
+            "counterfactual_image_sha256": sha(f"cf:{case_id}"),
+        })
+        caption_labels.append({
+            "case_id": case_id,
+            "world_id": worlds[index],
+            "answer": _caption_text(owned),
+            "visible_objects": owned,
+            "counterfactual_answer": _caption_text(changed),
+            "counterfactual_visible_objects": changed,
+        })
+        entry = {
+            "case_id": case_id,
+            "split": "fixture_caption",
+            "counterfactual": {
+                "case_id": f"{case_id}-cf",
+                "image": f"fixture/{case_id}-cf.png",
+                "image_sha256": sha(f"cf:{case_id}"),
+                "scene_sha256": sha(f"cfscene:{case_id}"),
+                "world_id": worlds[index],
+                "task": "caption",
+            },
+            "shuffled": {
+                "case_id": other,
+                "image": f"fixture/{other}.png",
+                "image_sha256": sha(f"img:{other}"),
+                "scene_sha256": sha(f"scene:{other}"),
+                "world_id": worlds[sorted(originals).index(other)],
+                "task": "caption",
+                "caption": _caption_text(donor_objects),
+                "visible_objects": donor_objects,
+            },
+            "counterfactual_same_image": False,
+        }
+        entry["assignment_sha256"] = control_assignment_sha256(entry)
+        caption_controls[case_id] = entry
+    answer_cases = []
+    answer_labels = []
+    answer_controls = {}
+    answer_values = {"fx-a": ("red", "blue"), "fx-b": ("green", "yellow"),
+                     "fx-c": ("purple", "orange"), "fx-d": ("blue", "red"),
+                     "fx-e": ("unknown", "red")}
+    for index, case_id in enumerate(sorted(answer_values)):
+        original, changed = answer_values[case_id]
+        other = sorted(answer_values)[(index + 1) % len(answer_values)]
+        answer_cases.append({
+            "case_id": case_id,
+            "world_id": worlds[index],
+            "task": "color",
+            "label": original,
+            "image_sha256": sha(f"img:{case_id}"),
+            "scene_sha256": sha(f"scene:{case_id}"),
+            "counterfactual_case_id": f"{case_id}-cf",
+            "counterfactual_image_sha256": sha(f"cf:{case_id}"),
+        })
+        answer_labels.append({
+            "case_id": case_id,
+            "world_id": worlds[index],
+            "answer": original,
+            "counterfactual_answer": changed,
+            "answer_changes_under_counterfactual": True,
+        })
+        entry = {
+            "case_id": case_id,
+            "split": "fixture_answer",
+            "wrong": {
+                "case_id": other,
+                "image": f"fixture/{other}.png",
+                "image_sha256": sha(f"img:{other}"),
+                "scene_sha256": sha(f"scene:{other}"),
+                "world_id": worlds[sorted(answer_values).index(other)],
+                "task": "color",
+                "sealed_answer": answer_values[other][0],
+            },
+            "shuffled": {
+                "case_id": other,
+                "image": f"fixture/{other}.png",
+                "image_sha256": sha(f"img:{other}"),
+                "scene_sha256": sha(f"scene:{other}"),
+                "world_id": worlds[sorted(answer_values).index(other)],
+                "task": "color",
+                "sealed_answer": answer_values[other][0],
+            },
+            "counterfactual": {
+                "case_id": f"{case_id}-cf",
+                "image": f"fixture/{case_id}-cf.png",
+                "image_sha256": sha(f"cf:{case_id}"),
+                "scene_sha256": sha(f"cfscene:{case_id}"),
+                "world_id": worlds[index],
+                "task": "color",
+                "sealed_answer": changed,
+            },
+            "counterfactual_same_image": False,
+        }
+        entry["assignment_sha256"] = control_assignment_sha256(entry)
+        answer_controls[case_id] = entry
+    return (caption_cases, caption_labels, caption_controls,
+            answer_cases, answer_labels, answer_controls)
+
+
+def _caption_text(objects: Sequence[Sequence[str]]) -> str:
+    return "a " + " and a ".join(f"{color} {shape}"
+                                for color, shape in objects)
+
+
+def scorer_contract_preflight_v2(evaluation: Mapping[str, Any]) -> dict[str, Any]:
+    """Run positive/negative control contracts before touching any data."""
+    (caption_cases, caption_labels, caption_controls,
+     answer_cases, answer_labels, answer_controls) = _scorer_fixture_v2()
+    caption = verify_caption_control_contracts_v2(
+        caption_cases, caption_labels, caption_controls,
+        controls=list(evaluation["caption_controls"]), seed=20261028,
+        bootstrap=evaluation["bootstrap"], evaluation=evaluation)
+    answer = verify_answer_control_contracts_v2(
+        answer_cases, answer_labels, answer_controls,
+        controls=list(evaluation["heldout_answer_controls"]),
+        seed=20261028, bootstrap=evaluation["bootstrap"],
+        evaluation=evaluation)
+    return {
+        "format": SCORER_CONTRACT_FORMAT,
+        "contract_version": CAPTION_CONTRACT_VERSION,
+        "caption": caption,
+        "answer": answer,
+        "positive_control": caption["positive"],
+        "answer_positive_control": answer["positive"],
+        "all_contracts_passed": True,
+        "reads_prepared_data": False,
+    }

@@ -1,0 +1,729 @@
+{
+  "checkpoint_policy": {
+    "base_copies": 0,
+    "export": "strict extension only; no base copy and no optimizer state export",
+    "keep_all_trajectories": true,
+    "promotion": false,
+    "reload": "fresh process, zero updates, bitwise train-fit/dev/held-out generation, score and gate equality",
+    "stage_checkpoints": [
+      "alignment"
+    ]
+  },
+  "claims": {
+    "overall_baseline_eligible": false,
+    "perception_quality": false,
+    "promotion": false,
+    "scope": "bounded balanced projector overfit-alignment diagnostic only; the prior stage rejection stands",
+    "semantic_quality": false
+  },
+  "config_sha256": "44f742f0674081ba5c02300739db89ea9d6a1dbab3cc238b6f33a40c31b3686e",
+  "data": {
+    "balance": {
+      "dev": {
+        "answer_cases": 18,
+        "answer_histogram_selected": {
+          "task=abstain|answer=unknown": 2,
+          "task=color|answer=blue": 2,
+          "task=color|answer=orange": 2,
+          "task=count|answer=2": 2,
+          "task=count|answer=3": 2,
+          "task=presence|answer=no": 2,
+          "task=presence|answer=yes": 2,
+          "task=spatial|answer=no": 2,
+          "task=spatial|answer=yes": 2
+        },
+        "answers": {
+          "task=abstain|answer=unknown": 24,
+          "task=color|answer=blue": 12,
+          "task=color|answer=orange": 12,
+          "task=count|answer=2": 12,
+          "task=count|answer=3": 12,
+          "task=presence|answer=no": 12,
+          "task=presence|answer=yes": 12,
+          "task=spatial|answer=no": 12,
+          "task=spatial|answer=yes": 12
+        },
+        "caption_cases": 12,
+        "caption_histogram_selected": {
+          "objects=1": 2,
+          "objects=2": 2,
+          "objects=3": 2,
+          "objects=4": 2,
+          "objects=5": 2,
+          "objects=6": 2
+        },
+        "captions": {
+          "objects=1": 7,
+          "objects=2": 12,
+          "objects=3": 29,
+          "objects=4": 7,
+          "objects=5": 7,
+          "objects=6": 4
+        }
+      },
+      "heldout": {
+        "answer_cases": 18,
+        "answer_histogram_selected": {
+          "task=abstain|answer=unknown": 2,
+          "task=color|answer=purple": 2,
+          "task=color|answer=yellow": 2,
+          "task=count|answer=2": 2,
+          "task=count|answer=3": 2,
+          "task=presence|answer=no": 2,
+          "task=presence|answer=yes": 2,
+          "task=spatial|answer=no": 2,
+          "task=spatial|answer=yes": 2
+        },
+        "answers": {
+          "task=abstain|answer=unknown": 24,
+          "task=color|answer=purple": 12,
+          "task=color|answer=yellow": 12,
+          "task=count|answer=2": 12,
+          "task=count|answer=3": 12,
+          "task=presence|answer=no": 12,
+          "task=presence|answer=yes": 12,
+          "task=spatial|answer=no": 12,
+          "task=spatial|answer=yes": 12
+        },
+        "caption_cases": 12,
+        "caption_histogram_selected": {
+          "objects=1": 2,
+          "objects=2": 2,
+          "objects=3": 2,
+          "objects=4": 2,
+          "objects=5": 2,
+          "objects=6": 2
+        },
+        "captions": {
+          "objects=1": 9,
+          "objects=2": 13,
+          "objects=3": 27,
+          "objects=4": 6,
+          "objects=5": 7,
+          "objects=6": 4
+        }
+      },
+      "train": {
+        "answer_cases": 14,
+        "answer_histogram_selected": {
+          "task=abstain|answer=unknown": 1,
+          "task=color|answer=blue": 1,
+          "task=color|answer=orange": 1,
+          "task=color|answer=purple": 1,
+          "task=color|answer=red": 1,
+          "task=color|answer=yellow": 1,
+          "task=count|answer=2": 1,
+          "task=count|answer=3": 1,
+          "task=presence|answer=no": 1,
+          "task=presence|answer=yes": 1,
+          "task=shape|answer=circle": 1,
+          "task=shape|answer=square": 1,
+          "task=spatial|answer=no": 1,
+          "task=spatial|answer=yes": 1
+        },
+        "answers": {
+          "task=abstain|answer=unknown": 24,
+          "task=color|answer=blue": 5,
+          "task=color|answer=orange": 6,
+          "task=color|answer=purple": 5,
+          "task=color|answer=red": 4,
+          "task=color|answer=yellow": 4,
+          "task=count|answer=2": 12,
+          "task=count|answer=3": 12,
+          "task=presence|answer=no": 12,
+          "task=presence|answer=yes": 12,
+          "task=shape|answer=circle": 12,
+          "task=shape|answer=square": 12,
+          "task=spatial|answer=no": 12,
+          "task=spatial|answer=yes": 12
+        },
+        "caption_cases": 12,
+        "caption_histogram_selected": {
+          "objects=1": 2,
+          "objects=2": 2,
+          "objects=3": 2,
+          "objects=4": 2,
+          "objects=5": 2,
+          "objects=6": 2
+        },
+        "captions": {
+          "objects=1": 9,
+          "objects=2": 14,
+          "objects=3": 46,
+          "objects=4": 7,
+          "objects=5": 8,
+          "objects=6": 4
+        }
+      }
+    },
+    "consumed_stage_result_preserved": true,
+    "counts": {
+      "assets": 146,
+      "dev_answers": 18,
+      "dev_captions": 12,
+      "heldout_answers": 18,
+      "heldout_captions": 12,
+      "procedural_worlds": 192,
+      "semantic_audit_cases": 146,
+      "train_answers": 14,
+      "train_captions": 12,
+      "train_examples": 26,
+      "train_examples_scheduled": 96,
+      "train_updates": 24
+    },
+    "fresh_evaluation": true,
+    "freshness": {
+      "all_used_cases": {
+        "case_overlap": 0,
+        "cases": 146,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "all_used_prior_assets": {
+        "geometry": {
+          "height": 128,
+          "width": 172
+        },
+        "image_overlap": 0,
+        "images": 146,
+        "policy": "all used images are newly rendered at the declared geometry, not just disjoint from prior evaluation"
+      },
+      "dev": {
+        "case_overlap": 0,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "heldout": {
+        "case_overlap": 0,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "namespace": "vba2",
+      "namespace_disjoint_from_prior": true,
+      "policy": "every train/dev/held-out case, control donor and counterfactual sibling excludes prior evaluation case ids, image hashes and scene hashes; all used images are newly rendered at fresh geometry and are disjoint from every prior prepared asset; the prior rejected stage result is preserved and not rerun",
+      "prior": {
+        "counts": {
+          "all_manifest_assets": 724,
+          "cases": 117,
+          "images": 117,
+          "scenes": 117,
+          "sources": 2
+        },
+        "files": [
+          {
+            "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/dev_cases.jsonl",
+            "rows": 24,
+            "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+          },
+          {
+            "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/audit_cases.jsonl",
+            "rows": 24,
+            "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+          },
+          {
+            "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_dev_cases.jsonl",
+            "rows": 24,
+            "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+          },
+          {
+            "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_audit_cases.jsonl",
+            "rows": 24,
+            "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+          },
+          {
+            "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_answer_cases.jsonl",
+            "rows": 27,
+            "sha256": "7d585456104c600fd0056c3478d09b50afc196730ceaf732689caf183f92f50e"
+          },
+          {
+            "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_answer_cases.jsonl",
+            "rows": 18,
+            "sha256": "c715cd5c075e961f1db438c1cb903929736d78a78a1f06ed6f6e2ce056723baa"
+          },
+          {
+            "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_caption_cases.jsonl",
+            "rows": 12,
+            "sha256": "ead1b0b91222f8e472286b301e63f76e3f9b93077af34e297567b04e607737dc"
+          },
+          {
+            "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_caption_cases.jsonl",
+            "rows": 12,
+            "sha256": "a4e7d016b29591d290ec10f81651c8ac3bcd8c000357e38027f53afe19391003"
+          }
+        ],
+        "manifest_sha256": "47690d53d36c3d0792dcf7f907d53a0b68933379fd3d7bc40ac3e582aca1bf08",
+        "namespaces": [
+          "vba1",
+          "vc2"
+        ],
+        "protocol_sha256": "4586302cace5b4b3397a81482758ae5eb08689860de421d0c304bfd9b38dc21f"
+      },
+      "prior_namespaces": [
+        "vba1",
+        "vc2"
+      ],
+      "prior_sources": [
+        {
+          "case_ids": 48,
+          "data_root": "data/vision_stage_diagnostic_20261026/prepared01",
+          "files": [
+            {
+              "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/dev_cases.jsonl",
+              "rows": 24,
+              "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+            },
+            {
+              "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/audit_cases.jsonl",
+              "rows": 24,
+              "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+            },
+            {
+              "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_dev_cases.jsonl",
+              "rows": 24,
+              "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+            },
+            {
+              "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_audit_cases.jsonl",
+              "rows": 24,
+              "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+            }
+          ],
+          "images": 48,
+          "manifest_format": "replica.vision_stage_diagnostic.manifest.v1",
+          "manifest_sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1",
+          "protocol_sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7",
+          "scenes": 48
+        },
+        {
+          "case_ids": 69,
+          "data_root": "data/vision_balanced_alignment_20261026/prepared01",
+          "files": [
+            {
+              "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_answer_cases.jsonl",
+              "rows": 27,
+              "sha256": "7d585456104c600fd0056c3478d09b50afc196730ceaf732689caf183f92f50e"
+            },
+            {
+              "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_answer_cases.jsonl",
+              "rows": 18,
+              "sha256": "c715cd5c075e961f1db438c1cb903929736d78a78a1f06ed6f6e2ce056723baa"
+            },
+            {
+              "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_caption_cases.jsonl",
+              "rows": 12,
+              "sha256": "ead1b0b91222f8e472286b301e63f76e3f9b93077af34e297567b04e607737dc"
+            },
+            {
+              "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_caption_cases.jsonl",
+              "rows": 12,
+              "sha256": "a4e7d016b29591d290ec10f81651c8ac3bcd8c000357e38027f53afe19391003"
+            }
+          ],
+          "images": 69,
+          "manifest_format": "replica.vision_balanced_alignment.manifest.v1",
+          "manifest_sha256": "1bc1cbdf20b963f78688f1c4648286ff3405eadea2c5a9037892b0cf581df3a1",
+          "protocol_sha256": "6a334e7337d0c0394c9a2237a1a510e20a0440d9895cf13e0f14ee9388ebaa5e",
+          "scenes": 69
+        }
+      ],
+      "train": {
+        "case_overlap": 0,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "train_overlap_with_all_prior_assets": 0
+    },
+    "manifest": {
+      "path": "manifest.json",
+      "sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227"
+    },
+    "root": "data/vision_balanced_alignment_v2_20261026/prepared01",
+    "seals": {
+      "dev_answer_case_ids": "4ac2bec6210010a946a6b20421fc4d1dbeb6fb9306fd940fe6c9cb34c81f71da",
+      "dev_answer_cases_payload": "e15f75556698682213f5c284d89bf965608854b8869a5d313d9f252fd8614f4d",
+      "dev_answer_controls_payload": "8d114542b439a7b73da70e90a103e1f932040fa0e94d70b59a39e05fc718a784",
+      "dev_answer_labels_payload": "854c115356c7732d4b20b54a261a063d21f401a7c457682cdaeb6bde2f936ae8",
+      "dev_caption_case_ids": "2e26431477ca0d7949d5d8094fbcda3ae2f00447e188537381a2aa5ee2e5acea",
+      "dev_caption_cases_payload": "965a5cd32ed653318170520dfb16debdf9f511c5a137d1f5790cf4b66246f848",
+      "dev_caption_controls_payload": "a2d7701c1e85e21f792f76dca93b803442d91d2aa35268d12bd41d395bc71eed",
+      "dev_caption_labels_payload": "2d0a777b8e92c85560ac424a57737eccfec744b8488bfc162635d68c0da9b959",
+      "heldout_answer_case_ids": "c316209c01efb667f9239ef830aaef9824af676648f10ab92e8fe45710d0bc75",
+      "heldout_answer_cases_payload": "44b49a22d75cb9d1008013a1f57d5eeefb793b61aa5c8f9c69dccd34f76872aa",
+      "heldout_answer_controls_payload": "092d4cc90ea6af3f428b58c52858863aa742cd1dae01ddb88eb383185a514e92",
+      "heldout_answer_labels_payload": "423c25ecda9a6c7af26cb9dd2218c2da081caecb8984536c5bf55797fea7c07b",
+      "heldout_caption_case_ids": "8fce9bc9d4d2753715807418a081777dced51cc0a84abf0a4aed71d48ea37fe3",
+      "heldout_caption_cases_payload": "92274b28af2c8257c084ca3c63dcd4f88e1e67212c3dae44aac5ae8125073c01",
+      "heldout_caption_controls_payload": "976ceccc19658962781d3268a684409f570e78c869bd8f73890215a8d4332635",
+      "heldout_caption_labels_payload": "b8050bdc4095a400f5221d719d6d71b7c8e8e56626f804c5ea6957ff80489706",
+      "semantic_audit_payload": "10122bdc538874ec9665aa41581029bc5b3ad0605565bfd683034b688068c5c6",
+      "train_alignment_payload": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+      "train_batches_payload": "08484a4dbc000488c94c54510fad655c06251598a87294837e24d80cad09433a",
+      "train_caption_labels_payload": "84788b08bd6c3a66f9c241e18db73ca8828c8dd15b62aad83e8d3bdf235b1954",
+      "train_example_ids": "d77c8c48cade0c1f6ee02a35b0a61775cd6f769ce7021115ea1a4b1b6d0d1cb7"
+    },
+    "semantic_audit": {
+      "all_passed": true,
+      "cases_checked": 146,
+      "format": "replica.vision_balanced_alignment.semantic_audit.v1",
+      "occluded_centres_hidden": 0,
+      "occluded_pixels_inspected": 0,
+      "visible_pixels_verified": 435
+    }
+  },
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "evaluation": {
+    "answer_score_format": "replica.vision_balanced_alignment.answer_score.v2",
+    "audit_policy": "held-out cases and labels are not read until train-fit and development gates pass; scored once after export; a fresh-process reload must reproduce train-fit, dev, held-out, score, gate and retention artifacts bitwise before a terminal disposition is written",
+    "bootstrap": {
+      "cluster": "world",
+      "confidence": 0.95,
+      "resamples": 1000
+    },
+    "caption_controls": [
+      "correct",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "caption_dependence_policy": "fixed original target for every image control; generated correctness against the original target, following correctness against the supplied image's sealed descriptors, and no-image behavior are separate metrics so a perfect follower is never required to reproduce the original description",
+    "caption_max_new_tokens": 32,
+    "caption_metric": "fixed_original_target_response_mean_nll_and_changed_image_following_descriptor_exactness",
+    "caption_question": "Describe the image briefly.",
+    "caption_score_format": "replica.vision_balanced_alignment.caption_score.v2",
+    "counterfactual_policy": "sealed sibling image from the same procedural pair; the supplied image changes while the original sealed answer/caption target stays fixed for teacher-forced comparison",
+    "dev_answer_controls": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage"
+    ],
+    "gates": {
+      "max_false_abstention_on_answerable": 0.5,
+      "max_false_answer_on_abstain": 0.5,
+      "max_noimage_original_semantic_f1": 0.25,
+      "max_unknown_rate": 0.5,
+      "min_caption_following_accuracy": 0.5,
+      "min_caption_following_semantic_f1": 0.5,
+      "min_caption_original_agreement_drop": 0.15,
+      "min_caption_semantic_descriptor_f1": 0.5,
+      "min_caption_token_f1": 0.2,
+      "min_correct_accuracy": 0.5,
+      "min_correct_margin_noimage": 0.15,
+      "min_correct_margin_shuffled": 0.1,
+      "min_correct_margin_wrong": 0.1,
+      "min_counterfactual_following_accuracy": 0.5,
+      "min_counterfactual_margin_answerable": 0.1,
+      "min_following_accuracy_shuffled": 0.5,
+      "min_following_accuracy_wrong": 0.5,
+      "min_noimage_loss_margin": 0.1,
+      "min_train_fit_answer_accuracy": 0.5,
+      "min_train_fit_caption_following_accuracy": 0.5,
+      "min_unique_families": 8,
+      "min_unknown_accuracy": 0.5
+    },
+    "gates_scope": "diagnostic only; failures are reported verbatim and never trigger promotion",
+    "heldout_answer_controls": [
+      "correct",
+      "wrong",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "max_false_abstention_on_answerable": 0.5,
+    "max_false_answer_on_abstain": 0.5,
+    "max_new_tokens": 8,
+    "max_noimage_original_semantic_f1": 0.25,
+    "min_caption_dependence_f1_margin": 0.0,
+    "min_caption_dependence_loss_margin": 0.0,
+    "min_caption_following_accuracy": 0.5,
+    "min_caption_following_semantic_f1": 0.5,
+    "min_caption_original_agreement_drop": 0.15,
+    "min_caption_semantic_descriptor_f1": 0.5,
+    "min_caption_token_f1": 0.2,
+    "min_correct_accuracy": 0.5,
+    "min_counterfactual_following_accuracy": 0.5,
+    "min_counterfactual_margin_answerable": 0.1,
+    "min_following_accuracy_shuffled": 0.5,
+    "min_following_accuracy_wrong": 0.5,
+    "min_margin_noimage": 0.15,
+    "min_margin_shuffled": 0.1,
+    "min_margin_wrong": 0.1,
+    "min_noimage_loss_margin": 0.1,
+    "min_train_fit_answer_accuracy": 0.5,
+    "min_train_fit_caption_following_accuracy": 0.5,
+    "min_unknown_accuracy": 0.5,
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "semantic_metric": "descriptor_multiset_precision_recall_f1_from_generated_caption_against_the_original_sealed_target",
+    "train_probe_controls": [
+      "correct"
+    ]
+  },
+  "fit_contract": {
+    "caption_template": "Describe the image briefly.",
+    "loss": "mean_response_nll",
+    "pad_tokens_forbidden": true,
+    "prompt_labels_masked": true,
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "require_all_projector_gradients": true,
+    "require_finite_loss": true,
+    "require_nonzero_projector_gradients": true,
+    "response_includes_eos": true,
+    "response_only_labels": true
+  },
+  "format": "replica.vision_balanced_alignment.protocol.v2",
+  "hypothesis": "If the projector is optimized only on a small, balanced, response-only fit set with the corrected target contract, then a fresh development gate that requires both changed-image following and change-only dependence will pass before the sealed held-out role is read; a model that ignores the image, emits a constant caption or produces the original description must fail those gates. No generalization or perception-quality claim follows.",
+  "implementation_sha256": {
+    "scripts/prepare_vision_balanced_alignment.py": "649e08e2497347182c3578d722ac111e8048f029adc34efb0fb6dcc866b977bd",
+    "scripts/run_vision_balanced_alignment.py": "d1e11ae58fa104b9fc8ca9b16d2d77a1e532ac1a7072ed886cc1d7e61cb4171b",
+    "scripts/run_vision_curriculum.py": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/architecture/vision.py": "c83a57b3511a9ea6c9c5e8d50a0215e3f141d41e2a13a77b76b9c4a1242827f5",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/optimizers.py": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/vision_balanced_alignment.py": "531dede551fe90d6f394bd3c9dac06eabb65475d3c5f599e15889e0adfa0bf00",
+    "src/replica_lab/vision_curriculum.py": "6a6f708ef5e644f70bb28253f977b01133ef30f7ea0a2728e01ec6941054e386",
+    "src/replica_lab/vision_qualification.py": "0958f87d789631938f47c1800c649d482bd8af59958ec9a1c503461e5c958439",
+    "src/replica_lab/vision_stage_data.py": "977d5eff454dd1b6f65f6078402276ba84347f29246e9a2230c9c7279efd4c15",
+    "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397"
+  },
+  "limitations": [
+    "Procedural scenes and owned captions remain narrow synthetic evidence, not real-image or broad perception evidence.",
+    "A small training-only fit set plus development gates demonstrates contract learnability, not convergence, generalization, semantic quality or capability.",
+    "The sealed held-out role is scored once and only after train-fit and development gates pass; it cannot justify further candidate selection or a v3 retry.",
+    "The corrected control contract validates targets and image identity at scoring time; it cannot prove that the model uses the image outside these controls.",
+    "No base weights are saved, no optimizer state is exported, no backbone tensor is trained and every prior rejection/reload receipt remains unchanged."
+  ],
+  "limits": {
+    "caption_max_new_tokens": 32,
+    "max_bootstrap_resamples": 1000,
+    "max_cache_bytes": 8388608,
+    "max_control_pool": 384,
+    "max_driver_bytes": 53687091200,
+    "max_eval_cases": 240,
+    "max_export_bytes": 134217728,
+    "max_new_tokens": 8,
+    "max_probe_updates": 64,
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 32,
+    "max_rollout_steps": 1,
+    "max_rows": 4096,
+    "max_seconds": 1800,
+    "max_sequence_tokens": 288,
+    "max_tool_calls": 0,
+    "max_updates": 24,
+    "min_free_disk_bytes": 5368709120
+  },
+  "model": {
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "optimizer_contract": {
+    "backbone_frozen": true,
+    "fused": true,
+    "name": "adamw_fused",
+    "optimizer_class": "torch.optim.AdamW",
+    "scope": "vision_projector. only",
+    "wrapper": "NativeFusedAdamW"
+  },
+  "parent": {
+    "data_config": "configs/vision_curriculum_v1.json",
+    "data_config_sha256": "f0db805f216bb2d21a3d861b84a09d19e9329828760cb9e46a89aa7c6a85414c",
+    "protocol": "data/vision_curriculum_20261025/protocol.json",
+    "protocol_sha256": "43a6d0f9130a1599d0dd7132cad328ee56fbebebd5ae5a2951311a3a5e7da044",
+    "role": "Sealed source, preprocessing, optimizer and retention contracts only; no warm start and no reused parent weights."
+  },
+  "preaudit": {
+    "on_failure": "stop_before_heldout_access",
+    "order": [
+      "train_fit",
+      "dev",
+      "heldout"
+    ],
+    "require_dev_gates": true,
+    "require_train_fit_gates": true,
+    "reserve_audit_after_dev": true
+  },
+  "prior_consumed": {
+    "role": "Every consumed evaluation source is excluded by case id, image hash, scene hash and prepared-asset hash; its raw rejection/reload evidence is preserved unchanged.",
+    "sources": [
+      {
+        "data_root": "data/vision_stage_diagnostic_20261026/prepared01",
+        "manifest": {
+          "path": "data/vision_stage_diagnostic_20261026/prepared01/manifest.json",
+          "sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1"
+        },
+        "protocol": {
+          "path": "data/vision_stage_diagnostic_20261026/prepared01/protocol.json",
+          "sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7"
+        },
+        "role": "The preserved rejected stage result is unchanged. Only its evaluation case ids, image hashes, scene hashes and prepared-asset hashes are read for freshness exclusion and lineage; its outputs and labels are never reused as targets."
+      },
+      {
+        "data_root": "data/vision_balanced_alignment_20261026/prepared01",
+        "manifest": {
+          "path": "data/vision_balanced_alignment_20261026/prepared01/manifest.json",
+          "sha256": "1bc1cbdf20b963f78688f1c4648286ff3405eadea2c5a9037892b0cf581df3a1"
+        },
+        "protocol": {
+          "path": "data/vision_balanced_alignment_20261026/prepared01/protocol.json",
+          "sha256": "6a334e7337d0c0394c9a2237a1a510e20a0440d9895cf13e0f14ee9388ebaa5e"
+        },
+        "role": "The rejected v1 balanced alignment result, including its failed gates, unchanged retention and bitwise reload receipt, is preserved byte-for-byte. Its consumed train/dev/held-out evaluation identities and prepared assets are excluded from v2; its labels and generations are never reused as targets."
+      }
+    ]
+  },
+  "purpose": "Learnability preparation for a corrected balanced caption/answer projector diagnostic. It fixes the caption control contract: teacher-forced loss always uses the original sealed target while generated following is measured against the supplied image, and answer counterfactual scoring reports original-label correctness, changed-image following and change-only dependence separately. It uses a small training-only fit set, the frozen backbone/encoder and projector-only NativeFusedAdamW, enforces train-fit and development gates before sealed held-out access, and preserves every prior rejection and reload receipt. It is a bounded diagnostic only: no promotion, no scaling, no backbone unfreezing and no capability claim.",
+  "report_root": "reports/vision_balanced_alignment_v2_20261026",
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "initial_free_admission": true,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "sustained_swap_growth_bytes": 536870912,
+    "workers": 1
+  },
+  "retention": {
+    "baseline": {
+      "accuracy": 0.6875,
+      "cases": 32,
+      "correct": 22,
+      "source": "execution_state.md#measured-projector-only-v1-disposition-and-wide-arm"
+    },
+    "labels": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+      "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+    },
+    "max_cases": 32,
+    "policy": "component_nonregression.v1",
+    "prompts": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+      "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+    },
+    "require_token_parity": true,
+    "role": "Reported separately from component nonregression; the declared 22/32 baseline stays overall ineligible."
+  },
+  "root": "/Users/flare/replica_r3_starter",
+  "schedule": {
+    "alignment": {
+      "answer_per_batch": 2,
+      "batch": 4,
+      "caption_per_batch": 2,
+      "policy": "deterministic_epoch_cycle",
+      "role": "small bounded caption and answer projector fit set; every update sees both roles",
+      "updates": 24
+    },
+    "batches": {
+      "path": "training/batches.jsonl",
+      "sha256": "08484a4dbc000488c94c54510fad655c06251598a87294837e24d80cad09433a"
+    },
+    "response_only_labels": true,
+    "total_examples": 96,
+    "total_updates": 24,
+    "unique_examples": 26
+  },
+  "scorer_contract": {
+    "bind_control_assignment": true,
+    "fixed_original_target": true,
+    "following_target": true,
+    "negative_controls": [
+      "constant_caption",
+      "image_ignoring",
+      "shuffled",
+      "malformed",
+      "target_tampering"
+    ],
+    "positive_control": "perfect_image_following",
+    "validate_generation_target_fields": true,
+    "validate_image_identity": true,
+    "version": "caption_target_contract.v2"
+  },
+  "seed": 20261028,
+  "stopping": {
+    "audit_after_export": true,
+    "early_stopping": false,
+    "fail_fast_on_budget_exhaustion": true,
+    "fail_fast_on_nonfinite_loss": true,
+    "fail_fast_on_nonprojector_gradient": true,
+    "reload_must_be_bitwise": true,
+    "updates": 24,
+    "wall_seconds": 1800
+  },
+  "train": {
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ],
+    "fused": true,
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "init_seed": 29,
+    "lr": 0.0003,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1800,
+    "optimizer": "adamw_fused",
+    "optimizer_class": "torch.optim.AdamW",
+    "response_only_labels": true,
+    "seed": 31,
+    "warm_start": null,
+    "weight_decay": 0.01
+  },
+  "trainable_scope": {
+    "backbone": "frozen",
+    "names": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "parameters": 11542016,
+    "tensor_count": 6,
+    "warm_start": null
+  },
+  "version": "replica.vision_balanced_alignment.v2",
+  "vision": {
+    "compute_dtype": "float32",
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "encoder_width": 768,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "image_size": 224,
+    "max_visual_tokens": 196,
+    "patch_size": 16,
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "projector_hidden": 4096
+  },
+  "vision_digest": "71209159fe9c26a44be4a84e3d630d3f69f27588049868edcb955a1f5b5747fe",
+  "vision_source": {
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "scope": {
+      "as_of": 0,
+      "branch_id": "curriculum-run01",
+      "mode": "parallel_replica",
+      "purpose": "staged_vision_curriculum",
+      "snapshot_at": null,
+      "subject_id": "owned-curriculum-v1"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1"
+  }
+}
