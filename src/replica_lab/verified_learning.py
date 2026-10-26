@@ -46,10 +46,10 @@ from .architecture.heads import TaskSuccessHead
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-PROTOCOL_FORMAT = 'replica.verified_learning.protocol.v1'
-CONFIG_FORMAT = 'replica.verified_learning.config.v1'
+PROTOCOL_FORMAT = 'replica.verified_learning.protocol.v2'
+CONFIG_FORMAT = 'replica.verified_learning.config.v2'
 PREPARED_FORMAT = 'replica.verified_learning.prepared.v1'
-FIXTURE_FORMAT = 'replica.verified_learning.fixture_report.v1'
+FIXTURE_FORMAT = 'replica.verified_learning.fixture_report.v2'
 POLICY_FORMAT = 'replica.verified_learning.policy_comparison.v1'
 ACCOUNTING_FORMAT = 'replica.verified_learning.accounting.v1'
 
@@ -64,7 +64,14 @@ POLICY_ARMS = ('frozen_policy', 'updated_policy')
 TOKEN_PAD, TOKEN_BOS, TOKEN_RULE, TOKEN_X, TOKEN_ARROW = 0, 1, 2, 3, 4
 TOKEN_BASE = 5
 DIGITS = 10
-DEFAULT_SEQUENCE = 7
+TOKEN_APPLY_ONCE, TOKEN_COMPOSE_TWICE = 15, 16
+MODEL_VOCABULARY = 17
+DEFAULT_SEQUENCE = 8
+OPERATION_ENCODING = 'explicit_operation_tokens.v2'
+OPERATION_TOKENS = {'apply_once': TOKEN_APPLY_ONCE,
+                     'compose_twice': TOKEN_COMPOSE_TWICE}
+KIND_OPERATIONS = {'demo': 'apply_once', 'transfer': 'apply_once',
+                   'composition': 'compose_twice'}
 
 COUNTER_KEYS = (
     'inference_batches', 'inference_examples', 'inference_positions',
@@ -75,7 +82,7 @@ COUNTER_KEYS = (
 IMPLEMENTATION_PATHS = (
     'src/replica_lab/verified_learning.py',
     'scripts/run_verified_learning.py',
-    'configs/verified_learning_v1.json',
+    'configs/verified_learning_v2.json',
     'tests/test_verified_learning.py',
 )
 
@@ -408,7 +415,7 @@ class RuleResponseModel(nn.Module):
     """
 
     def __init__(self, spec: CoreSpec, *, core_impl: str = 'recurrent',
-                 steps: int = 2, vocabulary: int = TOKEN_BASE + DIGITS,
+                 steps: int = 2, vocabulary: int = MODEL_VOCABULARY,
                  max_positions: int = DEFAULT_SEQUENCE,
                  audit_hidden: int = 16) -> None:
         super().__init__()
@@ -485,11 +492,19 @@ class RuleResponseModel(nn.Module):
 # Deterministic encoding, scope and resource accounting
 
 
-def encode_example(world: RuleWorld, x: int) -> tuple[list[int], list[float]]:
-    """Prompt tokens and prompt-only task features; no target is encoded."""
+def encode_example(world: RuleWorld, x: int, *,
+                   operation: str = 'apply_once') -> tuple[list[int], list[float]]:
+    """Encode the supplied rule, input and requested arithmetic operation.
+
+    The target is never encoded.  ``apply_once`` and ``compose_twice`` differ
+    at the sensor input even when world, input and task features are identical.
+    This is supplied-rule arithmetic, not inference of an unknown rule.
+    """
     _require(0 <= x < world.modulus, 'input outside the rule domain')
-    tokens = [TOKEN_BOS, TOKEN_RULE, TOKEN_BASE + world.a,
-              TOKEN_BASE + world.b, TOKEN_X, TOKEN_BASE + x, TOKEN_ARROW]
+    _require(operation in OPERATION_TOKENS, 'unknown arithmetic operation')
+    tokens = [TOKEN_BOS, OPERATION_TOKENS[operation], TOKEN_RULE,
+              TOKEN_BASE + world.a, TOKEN_BASE + world.b, TOKEN_X,
+              TOKEN_BASE + x, TOKEN_ARROW]
     features = [world.a / world.modulus, world.b / world.modulus,
                 world.modulus / DIGITS, 1.0]
     return tokens, features
@@ -499,9 +514,11 @@ def encode_rows(worlds, kind: str) -> dict:
     """Encode one observation kind without ever reading a hidden label."""
     _require(kind in OBSERVATION_KINDS, 'unknown observation kind')
     token_rows, feature_rows, targets, world_ids, inputs = [], [], [], [], []
+    operation = KIND_OPERATIONS[kind]
     for world in worlds:
         for row in world.rows(kind):
-            tokens, features = encode_example(world, row['input'])
+            tokens, features = encode_example(
+                world, row['input'], operation=operation)
             token_rows.append(tokens)
             feature_rows.append(features)
             targets.append(row['target'])
@@ -517,6 +534,9 @@ def encode_rows(worlds, kind: str) -> dict:
         'world_ids': tuple(world_ids),
         'inputs': tuple(inputs),
         'kind': kind,
+        'operation': operation,
+        'operation_encoding': OPERATION_ENCODING,
+        'rule_source': 'supplied_affine_rule',
         'sequence_positions': len(token_rows[0]),
     }
 
@@ -1263,6 +1283,10 @@ def build_protocol(worlds, config: dict) -> dict:
             'transfer_targets_used_in_training': False,
             'audit_logits_rejected_by_objective': True,
             'monitor_detached': True,
+            'operation_encoding': OPERATION_ENCODING,
+            'rule_source': 'explicit_rule_tokens_and_task_features',
+            'task': 'supplied_rule_arithmetic_transfer_and_composition',
+            'unknown_rule_inference_from_demonstrations': False,
         },
         'worlds': {
             'seed': config['seed'],
@@ -1292,7 +1316,7 @@ def default_config() -> dict:
     return {
         'format': CONFIG_FORMAT,
         'declared_at_utc': '2026-10-25T00:00:00+00:00',
-        'purpose': 'CPU procedure contract binding held-out rule transfer, matched learning-policy arms, controls, detached audit and exact accounting.',
+        'purpose': 'CPU procedure contract binding supplied-rule arithmetic transfer and explicit once/twice composition, matched learning-policy arms, controls, detached audit and exact accounting. Unknown-rule inference is not evaluated.',
         'seed': 20261025,
         'worlds': {
             'modulus': 10,
@@ -1342,7 +1366,7 @@ def default_config() -> dict:
         'native_evaluation': {
             'required': True, 'status': 'not_run',
             'gate': 'separately_gated_native_experiment',
-            'reason': 'CPU fixtures cannot establish verified learning or RSI',
+            'reason': 'CPU fixtures cannot establish verified learning, unknown-rule inference or RSI',
         },
     }
 
@@ -1536,6 +1560,7 @@ def run_fixture(config: dict, *, device: str = 'cpu') -> dict:
         'protocol_sha256': protocol['protocol_sha256'],
         'claims': dict(config['claims']),
         'native_evaluation': dict(config['native_evaluation']),
+        'task_semantics': dict(protocol['objective']),
         'worlds': protocol['worlds'],
         'training': training_summary,
         'fake_training': {**fake_summary,

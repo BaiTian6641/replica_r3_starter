@@ -1,0 +1,2376 @@
+{
+  "accounting": {
+    "exact_counters": true,
+    "fake": {
+      "counters": {
+        "backward_batches": 4,
+        "forward_batches": 4,
+        "forward_examples": 64,
+        "forward_positions": 512,
+        "gradient_clip_calls": 4,
+        "inference_batches": 1,
+        "inference_examples": 16,
+        "inference_positions": 128,
+        "optimizer_steps": 4
+      },
+      "format": "replica.verified_learning.accounting.v1",
+      "limits": {
+        "max_adapter_parameters": 25000,
+        "max_backward_batches": 256,
+        "max_forward_batches": 256,
+        "max_forward_examples": 8192,
+        "max_forward_positions": 65536,
+        "max_gradient_clip_calls": 256,
+        "max_inference_batches": 512,
+        "max_inference_examples": 16384,
+        "max_inference_positions": 131072,
+        "max_optimizer_state_elements": 0,
+        "max_optimizer_steps": 128,
+        "max_parameter_delta_norm": 100.0
+      },
+      "optimizer_state_elements": 0,
+      "optimizer_state_tensors": 0,
+      "parameter_delta_norm": 0.1357942670583725,
+      "trainable_parameters": 4979,
+      "update_norms": [
+        0.04999994486570358,
+        0.0378432497382164,
+        0.03679034858942032,
+        0.03482179716229439
+      ]
+    },
+    "real": {
+      "counters": {
+        "backward_batches": 4,
+        "forward_batches": 4,
+        "forward_examples": 64,
+        "forward_positions": 512,
+        "gradient_clip_calls": 4,
+        "inference_batches": 1,
+        "inference_examples": 16,
+        "inference_positions": 128,
+        "optimizer_steps": 4
+      },
+      "format": "replica.verified_learning.accounting.v1",
+      "limits": {
+        "max_adapter_parameters": 25000,
+        "max_backward_batches": 256,
+        "max_forward_batches": 256,
+        "max_forward_examples": 8192,
+        "max_forward_positions": 65536,
+        "max_gradient_clip_calls": 256,
+        "max_inference_batches": 512,
+        "max_inference_examples": 16384,
+        "max_inference_positions": 131072,
+        "max_optimizer_state_elements": 0,
+        "max_optimizer_steps": 128,
+        "max_parameter_delta_norm": 100.0
+      },
+      "optimizer_state_elements": 0,
+      "optimizer_state_tensors": 0,
+      "parameter_delta_norm": 0.13551302254199982,
+      "trainable_parameters": 4979,
+      "update_norms": [
+        0.04955892637372017,
+        0.03720378875732422,
+        0.03630347177386284,
+        0.03447604551911354
+      ]
+    },
+    "wall_time_reported": false
+  },
+  "audit": {
+    "adapter_trainable": false,
+    "carries_hidden_answers": false,
+    "detached_from_adapter": true,
+    "head": "TaskSuccessHead",
+    "logits_finite": true,
+    "parameters": 353,
+    "response_objective_rejected": true,
+    "substitutes_for_objective": false
+  },
+  "claims": {
+    "native_capability": false,
+    "rsi": false,
+    "verified_learning": false
+  },
+  "controls": {
+    "analytic_recurrent_parameters": 3443,
+    "arms": [
+      "no_core",
+      "feedforward",
+      "recurrent_0",
+      "recurrent_1",
+      "recurrent_2"
+    ],
+    "feedforward_matched_within_5_percent": true,
+    "feedforward_relative_delta": -0.03340110368864362,
+    "parameter_counts": {
+      "feedforward": 3328,
+      "no_core": 0,
+      "recurrent_0": 3443,
+      "recurrent_1": 3443,
+      "recurrent_2": 3443
+    },
+    "recurrence_parameter_matched": true,
+    "recurrence_steps": [
+      0,
+      1,
+      2
+    ],
+    "recurrent_parameters": 3443,
+    "spec": {
+      "control_hidden": 32,
+      "ffn_hidden": 32,
+      "heads": 2,
+      "slots": 2,
+      "steps": 2,
+      "task_features": 4,
+      "width": 16
+    }
+  },
+  "device": "cpu",
+  "fake_training": {
+    "accounting": {
+      "counters": {
+        "backward_batches": 4,
+        "forward_batches": 4,
+        "forward_examples": 64,
+        "forward_positions": 512,
+        "gradient_clip_calls": 4,
+        "inference_batches": 1,
+        "inference_examples": 16,
+        "inference_positions": 128,
+        "optimizer_steps": 4
+      },
+      "format": "replica.verified_learning.accounting.v1",
+      "limits": {
+        "max_adapter_parameters": 25000,
+        "max_backward_batches": 256,
+        "max_forward_batches": 256,
+        "max_forward_examples": 8192,
+        "max_forward_positions": 65536,
+        "max_gradient_clip_calls": 256,
+        "max_inference_batches": 512,
+        "max_inference_examples": 16384,
+        "max_inference_positions": 131072,
+        "max_optimizer_state_elements": 0,
+        "max_optimizer_steps": 128,
+        "max_parameter_delta_norm": 100.0
+      },
+      "optimizer_state_elements": 0,
+      "optimizer_state_tensors": 0,
+      "parameter_delta_norm": 0.1357942670583725,
+      "trainable_parameters": 4979,
+      "update_norms": [
+        0.04999994486570358,
+        0.0378432497382164,
+        0.03679034858942032,
+        0.03482179716229439
+      ]
+    },
+    "audit_trainable": false,
+    "fake_targets": true,
+    "final_loss": 2.6794259548187256,
+    "initial_loss": 2.7948851585388184,
+    "learning_rate": 0.05,
+    "ledger_matches_real_counter_shape": true,
+    "objective": "response_cross_entropy_through_frozen_base_decoder",
+    "observations_sha256": "f00c6fc1cc411724702ab9cfe71aaf0bd02c7e7aecbb3d6a59768a946bf512ea",
+    "trainable_parameters": 4979,
+    "training_kind": "demonstrations_only",
+    "transfer_targets_used_in_training": false,
+    "update_steps": 4
+  },
+  "fidelity": {
+    "authentic_personality_claim": false,
+    "authentic_personality_content": "pending_user_specification",
+    "combined_score": null,
+    "factual_accuracy": {
+      "composition": 0.0,
+      "demo": 0.125,
+      "transfer": 0.0625
+    },
+    "factual_accuracy_used": false,
+    "mean": 1.0,
+    "memory_accuracy": null,
+    "memory_accuracy_status": "not_measured_no_memory_bank_in_fixture",
+    "memory_accuracy_used": false,
+    "metric": "cosine_synthetic_style_trace",
+    "min_required": 0.9,
+    "per_trace": [
+      1.0000001192092896,
+      0.9999999403953552,
+      1.0,
+      0.9999999403953552
+    ],
+    "status": "synthetic_style_only"
+  },
+  "format": "replica.verified_learning.fixture_report.v2",
+  "mode": "cpu_procedure_fixture",
+  "native_evaluation": {
+    "gate": "separately_gated_native_experiment",
+    "reason": "CPU fixtures cannot establish verified learning, unknown-rule inference or RSI",
+    "required": true,
+    "status": "not_run"
+  },
+  "policy": {
+    "comparison": {
+      "all_matched": true,
+      "arms": {
+        "frozen": {
+          "counters": [],
+          "initial_digests": [
+            "0e77be7d669eeb10278d748ba2eea9b18d21bb80984f873100060914d9469a89",
+            "a7eb9e762e4c4cacf0ccf1237afba16e2a4e094b4482473031db3cb24805212e",
+            "b73152627b1530ba6f68d4b35dda47453e549a7a9ef7e2a650280a08e3a6f579",
+            "8794e699326da4923de2a60b85420fe518ba7ffaae64679486c4822dc65ceb0e"
+          ],
+          "limits": [
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            },
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            },
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            },
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            }
+          ],
+          "observations": [
+            "f35e9c6d975276c5ff573594beb27d39dfc6eee44062c34310e3783a8298c112",
+            "8c255fa4a2dd4bafd196d212292930b5c00c220249aca795e272cfd7c9911bb3",
+            "6177b73332902c97a08066336fe01c34f8499dc9dc1e868a3026df55437c831d",
+            "197deee6e34cbc2572c28af6ca7f7bcc8f7101c6fc417c452d4ec6b1be9d398d"
+          ],
+          "policy": {
+            "learning_rate": 0.05,
+            "policy_id": "policy.frozen.v1",
+            "role": "frozen",
+            "source": "declared default; no meta-selection"
+          },
+          "update_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "worlds": {
+            "heldout-00-a1-b0-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "0e77be7d669eeb10278d748ba2eea9b18d21bb80984f873100060914d9469a89",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "f35e9c6d975276c5ff573594beb27d39dfc6eee44062c34310e3783a8298c112",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            },
+            "heldout-01-a5-b2-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "a7eb9e762e4c4cacf0ccf1237afba16e2a4e094b4482473031db3cb24805212e",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "8c255fa4a2dd4bafd196d212292930b5c00c220249aca795e272cfd7c9911bb3",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            },
+            "heldout-02-a5-b7-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "b73152627b1530ba6f68d4b35dda47453e549a7a9ef7e2a650280a08e3a6f579",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "6177b73332902c97a08066336fe01c34f8499dc9dc1e868a3026df55437c831d",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            },
+            "heldout-03-a8-b8-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "8794e699326da4923de2a60b85420fe518ba7ffaae64679486c4822dc65ceb0e",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "197deee6e34cbc2572c28af6ca7f7bcc8f7101c6fc417c452d4ec6b1be9d398d",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            }
+          }
+        },
+        "updated": {
+          "counters": [],
+          "initial_digests": [
+            "0e77be7d669eeb10278d748ba2eea9b18d21bb80984f873100060914d9469a89",
+            "a7eb9e762e4c4cacf0ccf1237afba16e2a4e094b4482473031db3cb24805212e",
+            "b73152627b1530ba6f68d4b35dda47453e549a7a9ef7e2a650280a08e3a6f579",
+            "8794e699326da4923de2a60b85420fe518ba7ffaae64679486c4822dc65ceb0e"
+          ],
+          "limits": [
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            },
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            },
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            },
+            {
+              "max_adapter_parameters": 25000,
+              "max_backward_batches": 256,
+              "max_forward_batches": 256,
+              "max_forward_examples": 8192,
+              "max_forward_positions": 65536,
+              "max_gradient_clip_calls": 256,
+              "max_inference_batches": 512,
+              "max_inference_examples": 16384,
+              "max_inference_positions": 131072,
+              "max_optimizer_state_elements": 0,
+              "max_optimizer_steps": 128,
+              "max_parameter_delta_norm": 100.0
+            }
+          ],
+          "observations": [
+            "f35e9c6d975276c5ff573594beb27d39dfc6eee44062c34310e3783a8298c112",
+            "8c255fa4a2dd4bafd196d212292930b5c00c220249aca795e272cfd7c9911bb3",
+            "6177b73332902c97a08066336fe01c34f8499dc9dc1e868a3026df55437c831d",
+            "197deee6e34cbc2572c28af6ca7f7bcc8f7101c6fc417c452d4ec6b1be9d398d"
+          ],
+          "policy": {
+            "learning_rate": 0.01,
+            "policy_id": "policy.updated.v1",
+            "role": "updated",
+            "source": "meta-training transfer selection"
+          },
+          "update_counts": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "worlds": {
+            "heldout-00-a1-b0-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "0e77be7d669eeb10278d748ba2eea9b18d21bb80984f873100060914d9469a89",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "f35e9c6d975276c5ff573594beb27d39dfc6eee44062c34310e3783a8298c112",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            },
+            "heldout-01-a5-b2-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "a7eb9e762e4c4cacf0ccf1237afba16e2a4e094b4482473031db3cb24805212e",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "8c255fa4a2dd4bafd196d212292930b5c00c220249aca795e272cfd7c9911bb3",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            },
+            "heldout-02-a5-b7-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "b73152627b1530ba6f68d4b35dda47453e549a7a9ef7e2a650280a08e3a6f579",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "6177b73332902c97a08066336fe01c34f8499dc9dc1e868a3026df55437c831d",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            },
+            "heldout-03-a8-b8-m10": {
+              "counters": {
+                "backward_batches": 2,
+                "forward_batches": 2,
+                "forward_examples": 8,
+                "forward_positions": 64,
+                "gradient_clip_calls": 2,
+                "inference_batches": 3,
+                "inference_examples": 12,
+                "inference_positions": 96,
+                "optimizer_steps": 2
+              },
+              "gain": 0.0,
+              "initial_parameters_sha256": "8794e699326da4923de2a60b85420fe518ba7ffaae64679486c4822dc65ceb0e",
+              "limits": {
+                "max_adapter_parameters": 25000,
+                "max_backward_batches": 256,
+                "max_forward_batches": 256,
+                "max_forward_examples": 8192,
+                "max_forward_positions": 65536,
+                "max_gradient_clip_calls": 256,
+                "max_inference_batches": 512,
+                "max_inference_examples": 16384,
+                "max_inference_positions": 131072,
+                "max_optimizer_state_elements": 0,
+                "max_optimizer_steps": 128,
+                "max_parameter_delta_norm": 100.0
+              },
+              "observations_sha256": "197deee6e34cbc2572c28af6ca7f7bcc8f7101c6fc417c452d4ec6b1be9d398d",
+              "post_accuracy": 0.0,
+              "pre_accuracy": 0.0,
+              "update_steps": 2
+            }
+          }
+        }
+      },
+      "claim": "bounded_policy_procedure_only_not_rsi",
+      "decision": "inconclusive",
+      "design": {
+        "eval_labels_used_for_policy": false,
+        "initial_parameters": "identical_seed_per_world",
+        "observations": "identical_example_digest_per_world",
+        "policy_scope": "one_learning_rate_action",
+        "resource_limits": {
+          "max_adapter_parameters": 25000,
+          "max_backward_batches": 256,
+          "max_forward_batches": 256,
+          "max_forward_examples": 8192,
+          "max_forward_positions": 65536,
+          "max_gradient_clip_calls": 256,
+          "max_inference_batches": 512,
+          "max_inference_examples": 16384,
+          "max_inference_positions": 131072,
+          "max_optimizer_state_elements": 0,
+          "max_optimizer_steps": 128,
+          "max_parameter_delta_norm": 100.0
+        },
+        "update_counts": "identical_optimizer_steps_per_world"
+      },
+      "format": "replica.verified_learning.policy_comparison.v1",
+      "matched": {
+        "initial_parameters": true,
+        "observations": true,
+        "resource_limits": true,
+        "update_counts": true
+      },
+      "paired_gain_delta": {
+        "high": 0.665629847511789,
+        "low": -0.665629847511789,
+        "mean": 0.0,
+        "method": "constant_sample_unseen_guard",
+        "n": 4
+      },
+      "policy_update_cost_excluded_from_paired_arms": true,
+      "reason": "insufficient_or_unmatched_policy_gain",
+      "update_steps": 2
+    },
+    "selection": {
+      "candidates": [
+        {
+          "learning_rate": 0.01,
+          "mean_transfer": 0.0,
+          "worlds": [
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.019916586577892303,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.009999986737966537,
+                  0.009999990463256836
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "b3b90c9b3a48dd0ab8fb58f31edac278fb82d72b5f592baed3f2ff6398ef1f9e",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.019916586577892303,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.009999986737966537,
+                    0.009999990463256836
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.7748169898986816,
+                "initial_loss": 2.80186128616333,
+                "learning_rate": 0.01,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "b3b90c9b3a48dd0ab8fb58f31edac278fb82d72b5f592baed3f2ff6398ef1f9e",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-00-a2-b5-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.019845373928546906,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.009999995119869709,
+                  0.009999990463256836
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "a2c903a7ddba26c37f3fe6f26dd5f8938d24ea176a93a66c35195ebb67596ec3",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.019845373928546906,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.009999995119869709,
+                    0.009999990463256836
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.812035083770752,
+                "initial_loss": 2.8383588790893555,
+                "learning_rate": 0.01,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "a2c903a7ddba26c37f3fe6f26dd5f8938d24ea176a93a66c35195ebb67596ec3",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-01-a8-b0-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.01990881934762001,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.009999988600611687,
+                  0.009999985806643963
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "9e80a8dc10c96e6a55358b6bb25af7ff1bace2a788aa98156225da05b59ff9ee",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.01990881934762001,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.009999988600611687,
+                    0.009999985806643963
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.807129144668579,
+                "initial_loss": 2.848637580871582,
+                "learning_rate": 0.01,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "9e80a8dc10c96e6a55358b6bb25af7ff1bace2a788aa98156225da05b59ff9ee",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-02-a8-b5-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.0198152344673872,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.00999999139457941,
+                  0.00999999325722456
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "8e1890c1f793105e26dd99132b919da8da44b6caaf88b31039898ad203b7b849",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.0198152344673872,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.00999999139457941,
+                    0.00999999325722456
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.9476218223571777,
+                "initial_loss": 2.986508369445801,
+                "learning_rate": 0.01,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "8e1890c1f793105e26dd99132b919da8da44b6caaf88b31039898ad203b7b849",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-03-a3-b6-m10"
+            }
+          ]
+        },
+        {
+          "learning_rate": 0.05,
+          "mean_transfer": 0.0,
+          "worlds": [
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.09096278995275497,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.04999994486570358,
+                  0.04999994859099388
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "b3b90c9b3a48dd0ab8fb58f31edac278fb82d72b5f592baed3f2ff6398ef1f9e",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.09096278995275497,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.04999994486570358,
+                    0.04999994859099388
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.694399833679199,
+                "initial_loss": 2.80186128616333,
+                "learning_rate": 0.05,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "b3b90c9b3a48dd0ab8fb58f31edac278fb82d72b5f592baed3f2ff6398ef1f9e",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-00-a2-b5-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.0870005339384079,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.04999995976686478,
+                  0.046076491475105286
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "a2c903a7ddba26c37f3fe6f26dd5f8938d24ea176a93a66c35195ebb67596ec3",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.0870005339384079,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.04999995976686478,
+                    0.046076491475105286
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.7468106746673584,
+                "initial_loss": 2.8383588790893555,
+                "learning_rate": 0.05,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "a2c903a7ddba26c37f3fe6f26dd5f8938d24ea176a93a66c35195ebb67596ec3",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-01-a8-b0-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.09227827191352844,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.04999998211860657,
+                  0.04999997094273567
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "9e80a8dc10c96e6a55358b6bb25af7ff1bace2a788aa98156225da05b59ff9ee",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.09227827191352844,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.04999998211860657,
+                    0.04999997094273567
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.703029155731201,
+                "initial_loss": 2.848637580871582,
+                "learning_rate": 0.05,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "9e80a8dc10c96e6a55358b6bb25af7ff1bace2a788aa98156225da05b59ff9ee",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-02-a8-b5-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.08871026337146759,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.049999967217445374,
+                  0.0488075315952301
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "8e1890c1f793105e26dd99132b919da8da44b6caaf88b31039898ad203b7b849",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.08871026337146759,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.049999967217445374,
+                    0.0488075315952301
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.8840432167053223,
+                "initial_loss": 2.986508369445801,
+                "learning_rate": 0.05,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "8e1890c1f793105e26dd99132b919da8da44b6caaf88b31039898ad203b7b849",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-03-a3-b6-m10"
+            }
+          ]
+        },
+        {
+          "learning_rate": 0.1,
+          "mean_transfer": 0.0,
+          "worlds": [
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.16322176158428192,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.09999991208314896,
+                  0.0970815122127533
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "b3b90c9b3a48dd0ab8fb58f31edac278fb82d72b5f592baed3f2ff6398ef1f9e",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.16322176158428192,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.09999991208314896,
+                    0.0970815122127533
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.6266050338745117,
+                "initial_loss": 2.80186128616333,
+                "learning_rate": 0.1,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "b3b90c9b3a48dd0ab8fb58f31edac278fb82d72b5f592baed3f2ff6398ef1f9e",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-00-a2-b5-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.16290710866451263,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.09999991953372955,
+                  0.08889950811862946
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "a2c903a7ddba26c37f3fe6f26dd5f8938d24ea176a93a66c35195ebb67596ec3",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.16290710866451263,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.09999991953372955,
+                    0.08889950811862946
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.6804800033569336,
+                "initial_loss": 2.8383588790893555,
+                "learning_rate": 0.1,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "a2c903a7ddba26c37f3fe6f26dd5f8938d24ea176a93a66c35195ebb67596ec3",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-01-a8-b0-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.1722308248281479,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.09999994933605194,
+                  0.09999989718198776
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "9e80a8dc10c96e6a55358b6bb25af7ff1bace2a788aa98156225da05b59ff9ee",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.1722308248281479,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.09999994933605194,
+                    0.09999989718198776
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.6315574645996094,
+                "initial_loss": 2.848637580871582,
+                "learning_rate": 0.1,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "9e80a8dc10c96e6a55358b6bb25af7ff1bace2a788aa98156225da05b59ff9ee",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-02-a8-b5-m10"
+            },
+            {
+              "accounting": {
+                "counters": {
+                  "backward_batches": 2,
+                  "forward_batches": 2,
+                  "forward_examples": 8,
+                  "forward_positions": 64,
+                  "gradient_clip_calls": 2,
+                  "inference_batches": 1,
+                  "inference_examples": 4,
+                  "inference_positions": 32,
+                  "optimizer_steps": 2
+                },
+                "format": "replica.verified_learning.accounting.v1",
+                "limits": {
+                  "max_adapter_parameters": 25000,
+                  "max_backward_batches": 256,
+                  "max_forward_batches": 256,
+                  "max_forward_examples": 8192,
+                  "max_forward_positions": 65536,
+                  "max_gradient_clip_calls": 256,
+                  "max_inference_batches": 512,
+                  "max_inference_examples": 16384,
+                  "max_inference_positions": 131072,
+                  "max_optimizer_state_elements": 0,
+                  "max_optimizer_steps": 128,
+                  "max_parameter_delta_norm": 100.0
+                },
+                "optimizer_state_elements": 0,
+                "optimizer_state_tensors": 0,
+                "parameter_delta_norm": 0.14894157648086548,
+                "trainable_parameters": 4979,
+                "update_norms": [
+                  0.09999992698431015,
+                  0.07625310122966766
+                ]
+              },
+              "accuracy": 0.0,
+              "observations_sha256": "8e1890c1f793105e26dd99132b919da8da44b6caaf88b31039898ad203b7b849",
+              "training": {
+                "accounting": {
+                  "counters": {
+                    "backward_batches": 2,
+                    "forward_batches": 2,
+                    "forward_examples": 8,
+                    "forward_positions": 64,
+                    "gradient_clip_calls": 2,
+                    "inference_batches": 1,
+                    "inference_examples": 4,
+                    "inference_positions": 32,
+                    "optimizer_steps": 2
+                  },
+                  "format": "replica.verified_learning.accounting.v1",
+                  "limits": {
+                    "max_adapter_parameters": 25000,
+                    "max_backward_batches": 256,
+                    "max_forward_batches": 256,
+                    "max_forward_examples": 8192,
+                    "max_forward_positions": 65536,
+                    "max_gradient_clip_calls": 256,
+                    "max_inference_batches": 512,
+                    "max_inference_examples": 16384,
+                    "max_inference_positions": 131072,
+                    "max_optimizer_state_elements": 0,
+                    "max_optimizer_steps": 128,
+                    "max_parameter_delta_norm": 100.0
+                  },
+                  "optimizer_state_elements": 0,
+                  "optimizer_state_tensors": 0,
+                  "parameter_delta_norm": 0.14894157648086548,
+                  "trainable_parameters": 4979,
+                  "update_norms": [
+                    0.09999992698431015,
+                    0.07625310122966766
+                  ]
+                },
+                "audit_trainable": false,
+                "fake_targets": false,
+                "final_loss": 2.8524603843688965,
+                "initial_loss": 2.986508369445801,
+                "learning_rate": 0.1,
+                "objective": "response_cross_entropy_through_frozen_base_decoder",
+                "observations_sha256": "8e1890c1f793105e26dd99132b919da8da44b6caaf88b31039898ad203b7b849",
+                "trainable_parameters": 4979,
+                "training_kind": "demonstrations_only",
+                "transfer_targets_used_in_training": false,
+                "update_steps": 2
+              },
+              "world_id": "train-03-a3-b6-m10"
+            }
+          ]
+        }
+      ],
+      "claim": "bounded_policy_selection_procedure_only",
+      "format": "replica.verified_learning.policy_comparison.v1",
+      "frozen": {
+        "learning_rate": 0.05,
+        "policy_id": "policy.frozen.v1",
+        "role": "frozen",
+        "source": "declared default; no meta-selection"
+      },
+      "meta_learning_rate_grid": [
+        0.01,
+        0.05,
+        0.1
+      ],
+      "meta_resource_limits": {
+        "max_adapter_parameters": 25000,
+        "max_backward_batches": 256,
+        "max_forward_batches": 256,
+        "max_forward_examples": 8192,
+        "max_forward_positions": 65536,
+        "max_gradient_clip_calls": 256,
+        "max_inference_batches": 512,
+        "max_inference_examples": 16384,
+        "max_inference_positions": 131072,
+        "max_optimizer_state_elements": 0,
+        "max_optimizer_steps": 128,
+        "max_parameter_delta_norm": 100.0
+      },
+      "meta_total_optimizer_steps": 24,
+      "meta_update_steps": 2,
+      "meta_worlds": [
+        "train-00-a2-b5-m10",
+        "train-01-a8-b0-m10",
+        "train-02-a8-b5-m10",
+        "train-03-a3-b6-m10"
+      ],
+      "policy_update_uses_eval_labels": false,
+      "selected_learning_rate": 0.01,
+      "updated": {
+        "learning_rate": 0.01,
+        "policy_id": "policy.updated.v1",
+        "role": "updated",
+        "source": "meta-training transfer selection"
+      }
+    }
+  },
+  "protocol_sha256": "39e866f0ab45ecb2dd25c9bb6aec81949607829945887c12af6d64a3d08a60e9",
+  "remaining_prerequisites": [
+    "independently reviewed CPU component tests",
+    "native capability experiment under separate gates",
+    "retention/replay measurement against general regression tasks",
+    "permitted personality specification and human fidelity review"
+  ],
+  "rule_learning": {
+    "fake_transfer": {
+      "accuracy": 0.0625,
+      "examples": 16,
+      "inputs": [
+        5,
+        0,
+        1,
+        4,
+        4,
+        5,
+        3,
+        7,
+        9,
+        1,
+        3,
+        6,
+        6,
+        5,
+        3,
+        8
+      ],
+      "kind": "transfer",
+      "observations_sha256": "cbaedb862a8e021b504192fc4c6367cd130aadc388ba2784499c85b42dabdafc",
+      "per_world": {
+        "heldout-00-a1-b0-m10": 0.0,
+        "heldout-01-a5-b2-m10": 0.0,
+        "heldout-02-a5-b7-m10": 0.0,
+        "heldout-03-a8-b8-m10": 0.25
+      },
+      "predictions": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "targets": [
+        5,
+        0,
+        1,
+        4,
+        2,
+        7,
+        7,
+        7,
+        2,
+        2,
+        2,
+        7,
+        6,
+        8,
+        2,
+        2
+      ],
+      "world_ids": [
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10"
+      ]
+    },
+    "gate": {
+      "adjustment": "holm_split_two_control_comparisons",
+      "claim": "fixture_gate_only_not_verified_learning",
+      "comparisons": {
+        "fake_update": {
+          "high": 0.665629847511789,
+          "low": -0.665629847511789,
+          "mean": 0.0,
+          "method": "constant_sample_unseen_guard",
+          "n": 4
+        },
+        "no_update": {
+          "high": -0.0625,
+          "low": -0.625,
+          "mean": -0.3125,
+          "method": "paired_percentile_bootstrap",
+          "n": 4
+        }
+      },
+      "confidence": 0.975,
+      "decision": "inconclusive",
+      "demonstration_recall_alone_sufficient": false,
+      "family_alpha": 0.05,
+      "min_rule_transfer_gain": 0.05,
+      "point_gain": -0.3125,
+      "post_demonstration_recall": 0.1875,
+      "reason": "heldout_transfer_gain_unresolved",
+      "recall_control": {
+        "composition_accuracy": 0.0,
+        "control": "demonstration_recall_only",
+        "demo_accuracy": 1.0,
+        "exact_training_answer_in_transfer": false,
+        "fallback": "fixed_token",
+        "parameters": 0,
+        "transfer_accuracy": 0.0625
+      },
+      "transfer_after": 0.0625,
+      "transfer_before": 0.375,
+      "transfer_targets_used_in_training": false
+    },
+    "post_composition": {
+      "accuracy": 0.0,
+      "examples": 8,
+      "inputs": [
+        9,
+        8,
+        2,
+        8,
+        8,
+        2,
+        9,
+        4
+      ],
+      "kind": "composition",
+      "observations_sha256": "09462bf9570b275051d42679b06bb8aa903d5507d5a39c2ebbbf82c8cba22861",
+      "per_world": {
+        "heldout-00-a1-b0-m10": 0.0,
+        "heldout-01-a5-b2-m10": 0.0,
+        "heldout-02-a5-b7-m10": 0.0,
+        "heldout-03-a8-b8-m10": 0.0
+      },
+      "predictions": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "targets": [
+        9,
+        8,
+        2,
+        2,
+        2,
+        2,
+        8,
+        8
+      ],
+      "world_ids": [
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10"
+      ]
+    },
+    "post_demonstration_recall": {
+      "accuracy": 0.1875,
+      "examples": 16,
+      "inputs": [
+        3,
+        2,
+        6,
+        8,
+        8,
+        7,
+        2,
+        4,
+        2,
+        4,
+        8,
+        1,
+        3,
+        0,
+        4,
+        7
+      ],
+      "kind": "demo",
+      "observations_sha256": "f00c6fc1cc411724702ab9cfe71aaf0bd02c7e7aecbb3d6a59768a946bf512ea",
+      "per_world": {
+        "train-00-a2-b5-m10": 0.0,
+        "train-01-a8-b0-m10": 0.5,
+        "train-02-a8-b5-m10": 0.0,
+        "train-03-a3-b6-m10": 0.25
+      },
+      "predictions": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "targets": [
+        1,
+        9,
+        7,
+        1,
+        4,
+        6,
+        6,
+        2,
+        1,
+        7,
+        9,
+        3,
+        5,
+        6,
+        8,
+        7
+      ],
+      "world_ids": [
+        "train-00-a2-b5-m10",
+        "train-00-a2-b5-m10",
+        "train-00-a2-b5-m10",
+        "train-00-a2-b5-m10",
+        "train-01-a8-b0-m10",
+        "train-01-a8-b0-m10",
+        "train-01-a8-b0-m10",
+        "train-01-a8-b0-m10",
+        "train-02-a8-b5-m10",
+        "train-02-a8-b5-m10",
+        "train-02-a8-b5-m10",
+        "train-02-a8-b5-m10",
+        "train-03-a3-b6-m10",
+        "train-03-a3-b6-m10",
+        "train-03-a3-b6-m10",
+        "train-03-a3-b6-m10"
+      ]
+    },
+    "post_transfer": {
+      "accuracy": 0.0625,
+      "examples": 16,
+      "inputs": [
+        5,
+        0,
+        1,
+        4,
+        4,
+        5,
+        3,
+        7,
+        9,
+        1,
+        3,
+        6,
+        6,
+        5,
+        3,
+        8
+      ],
+      "kind": "transfer",
+      "observations_sha256": "cbaedb862a8e021b504192fc4c6367cd130aadc388ba2784499c85b42dabdafc",
+      "per_world": {
+        "heldout-00-a1-b0-m10": 0.0,
+        "heldout-01-a5-b2-m10": 0.0,
+        "heldout-02-a5-b7-m10": 0.0,
+        "heldout-03-a8-b8-m10": 0.25
+      },
+      "predictions": [
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6
+      ],
+      "targets": [
+        5,
+        0,
+        1,
+        4,
+        2,
+        7,
+        7,
+        7,
+        2,
+        2,
+        2,
+        7,
+        6,
+        8,
+        2,
+        2
+      ],
+      "world_ids": [
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10"
+      ]
+    },
+    "pre_transfer": {
+      "accuracy": 0.375,
+      "examples": 16,
+      "inputs": [
+        5,
+        0,
+        1,
+        4,
+        4,
+        5,
+        3,
+        7,
+        9,
+        1,
+        3,
+        6,
+        6,
+        5,
+        3,
+        8
+      ],
+      "kind": "transfer",
+      "observations_sha256": "cbaedb862a8e021b504192fc4c6367cd130aadc388ba2784499c85b42dabdafc",
+      "per_world": {
+        "heldout-00-a1-b0-m10": 0.0,
+        "heldout-01-a5-b2-m10": 0.25,
+        "heldout-02-a5-b7-m10": 0.75,
+        "heldout-03-a8-b8-m10": 0.5
+      },
+      "predictions": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "targets": [
+        5,
+        0,
+        1,
+        4,
+        2,
+        7,
+        7,
+        7,
+        2,
+        2,
+        2,
+        7,
+        6,
+        8,
+        2,
+        2
+      ],
+      "world_ids": [
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-00-a1-b0-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-01-a5-b2-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-02-a5-b7-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10",
+        "heldout-03-a8-b8-m10"
+      ]
+    }
+  },
+  "status": "procedure_only",
+  "task_semantics": {
+    "audit_logits_rejected_by_objective": true,
+    "loss": "response_cross_entropy_through_frozen_base_decoder",
+    "monitor_detached": true,
+    "operation_encoding": "explicit_operation_tokens.v2",
+    "rule_source": "explicit_rule_tokens_and_task_features",
+    "task": "supplied_rule_arithmetic_transfer_and_composition",
+    "training_rows": "demonstrations_only",
+    "transfer_targets_used_in_training": false,
+    "unknown_rule_inference_from_demonstrations": false
+  },
+  "training": {
+    "accounting": {
+      "counters": {
+        "backward_batches": 4,
+        "forward_batches": 4,
+        "forward_examples": 64,
+        "forward_positions": 512,
+        "gradient_clip_calls": 4,
+        "inference_batches": 1,
+        "inference_examples": 16,
+        "inference_positions": 128,
+        "optimizer_steps": 4
+      },
+      "format": "replica.verified_learning.accounting.v1",
+      "limits": {
+        "max_adapter_parameters": 25000,
+        "max_backward_batches": 256,
+        "max_forward_batches": 256,
+        "max_forward_examples": 8192,
+        "max_forward_positions": 65536,
+        "max_gradient_clip_calls": 256,
+        "max_inference_batches": 512,
+        "max_inference_examples": 16384,
+        "max_inference_positions": 131072,
+        "max_optimizer_state_elements": 0,
+        "max_optimizer_steps": 128,
+        "max_parameter_delta_norm": 100.0
+      },
+      "optimizer_state_elements": 0,
+      "optimizer_state_tensors": 0,
+      "parameter_delta_norm": 0.13551302254199982,
+      "trainable_parameters": 4979,
+      "update_norms": [
+        0.04955892637372017,
+        0.03720378875732422,
+        0.03630347177386284,
+        0.03447604551911354
+      ]
+    },
+    "audit_trainable": false,
+    "fake_targets": false,
+    "final_loss": 2.6798648834228516,
+    "initial_loss": 2.792888879776001,
+    "learning_rate": 0.05,
+    "objective": "response_cross_entropy_through_frozen_base_decoder",
+    "observations_sha256": "f00c6fc1cc411724702ab9cfe71aaf0bd02c7e7aecbb3d6a59768a946bf512ea",
+    "trainable_parameters": 4979,
+    "training_kind": "demonstrations_only",
+    "transfer_targets_used_in_training": false,
+    "update_steps": 4
+  },
+  "worlds": {
+    "counts": {
+      "dev": 3,
+      "heldout": 4,
+      "train": 4
+    },
+    "demo_count": 4,
+    "families": [
+      "rule_a2_b5_m10",
+      "rule_a8_b0_m10",
+      "rule_a8_b5_m10",
+      "rule_a3_b6_m10",
+      "rule_a7_b3_m10",
+      "rule_a6_b9_m10",
+      "rule_a2_b3_m10",
+      "rule_a1_b0_m10",
+      "rule_a5_b2_m10",
+      "rule_a5_b7_m10",
+      "rule_a8_b8_m10"
+    ],
+    "families_per_split": {
+      "dev": 3,
+      "heldout": 4,
+      "train": 4
+    },
+    "modulus": 10,
+    "observation_sha256": "3279920f34270c36abdcb243d2050f7a49bd3dbc18fc6a7da3fd640d6aa39d80",
+    "seed": 20261025
+  }
+}

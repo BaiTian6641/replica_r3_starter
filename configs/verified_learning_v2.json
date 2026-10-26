@@ -1,0 +1,77 @@
+{
+  "format": "replica.verified_learning.config.v2",
+  "declared_at_utc": "2026-10-25T00:00:00+00:00",
+  "purpose": "CPU procedure contract binding supplied-rule arithmetic transfer and explicit once/twice composition, matched learning-policy arms, controls, detached audit and exact accounting. Unknown-rule inference is not evaluated.",
+  "seed": 20261025,
+  "worlds": {
+    "modulus": 10,
+    "families_per_split": {
+      "train": 4,
+      "dev": 3,
+      "heldout": 4
+    },
+    "demo_count": 4,
+    "composition_count": 2,
+    "style_width": 4,
+    "style_values": 4
+  },
+  "model": {
+    "width": 16,
+    "slots": 2,
+    "heads": 2,
+    "task_features": 4,
+    "ffn_hidden": 32,
+    "control_hidden": 32,
+    "audit_hidden": 16,
+    "max_positions": 8
+  },
+  "training": {
+    "learning_rate": 0.05,
+    "update_steps": 4,
+    "max_grad_norm": 1.0,
+    "fake_target_shift": 1
+  },
+  "limits": {
+    "max_forward_batches": 256,
+    "max_forward_examples": 8192,
+    "max_forward_positions": 65536,
+    "max_backward_batches": 256,
+    "max_inference_batches": 512,
+    "max_inference_examples": 16384,
+    "max_inference_positions": 131072,
+    "max_optimizer_steps": 128,
+    "max_gradient_clip_calls": 256,
+    "max_adapter_parameters": 25000,
+    "max_optimizer_state_elements": 0,
+    "max_parameter_delta_norm": 100.0
+  },
+  "policy": {
+    "learning_rate_grid": [0.01, 0.05, 0.1],
+    "frozen_learning_rate": 0.05,
+    "update_steps": 2,
+    "meta_split": "train",
+    "comparison_split": "heldout"
+  },
+  "gates": {
+    "min_rule_transfer_gain": 0.05,
+    "family_alpha": 0.05,
+    "bootstrap_draws": 2000,
+    "min_personality_fidelity": 0.9,
+    "retention_gate": "required_separately"
+  },
+  "fidelity": {
+    "style_values": 4,
+    "claim": "synthetic_style_only_personality_specification_pending"
+  },
+  "claims": {
+    "verified_learning": false,
+    "rsi": false,
+    "native_capability": false
+  },
+  "native_evaluation": {
+    "required": true,
+    "status": "not_run",
+    "gate": "separately_gated_native_experiment",
+    "reason": "CPU fixtures cannot establish verified learning, unknown-rule inference or RSI"
+  }
+}

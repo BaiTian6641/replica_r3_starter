@@ -1,6 +1,8 @@
 """Fresh E4 contextual data: source-separated groups and observation isolation."""
 import hashlib,json
 from pathlib import Path
+import pytest
+from conftest import require_local_artifacts
 ROOT=Path(__file__).resolve().parents[1]; DATA=ROOT/'data/e4_contextual'
 def test_contextual_data_manifest():
     m=json.loads((DATA/'manifest.json').read_text())
@@ -13,4 +15,15 @@ def test_contextual_data_manifest():
         q=json.loads(line)
         assert q['expected_answer'].casefold() not in q['query'].casefold()
         assert q['expected_answer'] in q['observation']
-        assert len(__import__('transformers').AutoTokenizer.from_pretrained(ROOT/'checkpoints/minicpm5_source',local_files_only=True)(q['observation'],add_special_tokens=False)['input_ids'])<=128
+
+
+@require_local_artifacts("checkpoints/minicpm5_source")
+@pytest.mark.integration
+def test_native_tokenizer_observation_budget():
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained(
+        ROOT/'checkpoints/minicpm5_source', local_files_only=True,
+        trust_remote_code=False)
+    for line in (DATA/'queries.jsonl').read_text().splitlines():
+        q=json.loads(line)
+        assert len(tokenizer(q['observation'], add_special_tokens=False)['input_ids']) <= 128

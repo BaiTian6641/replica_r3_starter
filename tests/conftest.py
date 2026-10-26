@@ -20,6 +20,7 @@ PROVISIONING = {
     "configs/minicpm5_sealed_lock.local.json": "scripts/seal_snapshot.py over the sealed local source snapshot",
     "PIL": "python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt",
     "checkpoints/siglip2_base_patch16_224_source": "scripts/prepare_vision_encoder.py --offline",
+    "data/external_caption_tranche_20261025_v2/raw/images": ".venv/bin/python scripts/prepare_external_tranche.py --config configs/external_caption_tranche_v1.json (pinned acquisition; or copy the verified ignored raw/images directory from the provisioned workspace)",
     "data/cache/spark_sources/run_02": "scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json "
                                        "--output data/cache/spark_sources/run_02 --export-header-bundle",
     "runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json": "copy the immutable V0 score replay from the provisioned native-evidence workspace; historical integration only",

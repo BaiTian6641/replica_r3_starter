@@ -1,10 +1,14 @@
 """The 32-unit capacity bank has exactly 32 eligible source units."""
 import hashlib,json
 from pathlib import Path
+import pytest
+from conftest import require_local_artifacts
 from replica_lab.memory_system import MemoryRecord
 from replica_lab.memory_system.session import MemorySession
 
 ROOT=Path(__file__).resolve().parents[1]; DATA=ROOT/'data/e2_capacity32'
+@require_local_artifacts("checkpoints/minicpm5_source")
+@pytest.mark.integration
 def test_capacity32_manifest_and_spans():
     m=json.loads((DATA/'manifest.json').read_text())
     assert m['units']==32 and m['records']==29

@@ -44,7 +44,7 @@ def fresh_output(path, parser):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', type=Path,
-                        default=ROOT / 'configs/verified_learning_v1.json')
+                        default=ROOT / 'configs/verified_learning_v2.json')
     parser.add_argument('--prepare', action='store_true',
                         help='write deterministic worlds/protocol/manifest')
     parser.add_argument('--verify', action='store_true',

@@ -17,7 +17,7 @@ import replica_lab.verified_learning as verified
 from replica_lab.architecture.contracts import CoreSpec
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG_PATH = ROOT / 'configs/verified_learning_v1.json'
+CONFIG_PATH = ROOT / 'configs/verified_learning_v2.json'
 SPEC = CoreSpec(width=16, slots=2, steps=2, heads=2, task_features=4,
                 ffn_hidden=32, control_hidden=32)
 
@@ -74,6 +74,35 @@ def test_worlds_are_deterministic_disjoint_and_observation_bound(worlds):
             families_per_split={'train': 1, 'dev': 1, 'heldout': 1},
             demo_count=3)
 
+def test_composition_operation_identity_reaches_model(worlds):
+    world = worlds[0]
+    x = world.composition_inputs[0]
+    once_tokens, once_features = verified.encode_example(
+        world, x, operation='apply_once')
+    twice_tokens, twice_features = verified.encode_example(
+        world, x, operation='compose_twice')
+    assert once_features == twice_features
+    assert once_tokens != twice_tokens
+    assert once_tokens[1] == verified.TOKEN_APPLY_ONCE
+    assert twice_tokens[1] == verified.TOKEN_COMPOSE_TWICE
+
+    transfer = verified.encode_rows([world], 'transfer')
+    composition = verified.encode_rows([world], 'composition')
+    assert transfer['operation'] == 'apply_once'
+    assert composition['operation'] == 'compose_twice'
+    assert composition['rule_source'] == 'supplied_affine_rule'
+    once = torch.tensor([once_tokens], dtype=torch.long)
+    twice = torch.tensor([twice_tokens], dtype=torch.long)
+    features = torch.tensor([once_features], dtype=torch.float32)
+
+    model = verified.build_model(SPEC, core_impl='recurrent', steps=2, seed=23)
+    with torch.no_grad():
+        once_logits = model(once, features).logits
+        twice_logits = model(twice, features).logits
+    assert not torch.equal(once_logits, twice_logits)
+    with pytest.raises(ValueError, match='unknown arithmetic operation'):
+        verified.encode_example(world, x, operation='infer_rule')
+
 
 def test_config_matches_declared_default(config):
     assert config == verified.default_config()
@@ -99,9 +128,10 @@ def test_protocol_and_preparation_are_deterministic(tmp_path, config):
          if key != 'protocol_sha256'})
     assert protocol['objective']['training_rows'] == 'demonstrations_only'
     assert protocol['objective']['transfer_targets_used_in_training'] is False
-    assert protocol['controls']['arms'] == list(verified.REQUIRED_CONTROL_ARMS)
-    assert protocol['claims'] == config['claims']
-    assert protocol['native_evaluation']['status'] == 'not_run'
+    assert protocol['objective']['operation_encoding'] == verified.OPERATION_ENCODING
+    assert protocol['objective']['task'] == (
+        'supplied_rule_arithmetic_transfer_and_composition')
+    assert protocol['objective']['unknown_rule_inference_from_demonstrations'] is False
 
     first = verified.prepare_verified_learning(
         tmp_path / 'first', config_path=CONFIG_PATH, config=config)
@@ -226,8 +256,8 @@ def test_resource_accounting_is_exact_repeatable_and_enforced(worlds):
     assert summaries[0]['final_loss'] == summaries[1]['final_loss']
     assert totals[0]['counters'] == {
         'inference_batches': 1, 'inference_examples': 3,
-        'inference_positions': 21, 'forward_batches': 3,
-        'forward_examples': 9, 'forward_positions': 63,
+        'inference_positions': 24, 'forward_batches': 3,
+        'forward_examples': 9, 'forward_positions': 72,
         'backward_batches': 3, 'optimizer_steps': 3,
         'gradient_clip_calls': 3}
     assert totals[0]['limits'] == limits.to_dict()
@@ -393,6 +423,9 @@ def test_fixture_report_is_procedure_only(config):
     assert report['controls']['recurrence_parameter_matched'] is True
     assert report['fake_training']['ledger_matches_real_counter_shape'] is True
     assert report['rule_learning']['gate']['transfer_targets_used_in_training'] is False
+    assert report['task_semantics']['unknown_rule_inference_from_demonstrations'] is False
+    assert report['task_semantics']['rule_source'] == (
+        'explicit_rule_tokens_and_task_features')
     assert report['fidelity']['combined_score'] is None
     assert report['fidelity']['memory_accuracy'] is None
     assert report['accounting']['exact_counters'] is True

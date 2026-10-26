@@ -7,6 +7,7 @@ import pytest
 
 from replica_lab.contracts import audit_splits
 from replica_lab.curriculum import dataset_diagnostics
+from conftest import require_local_artifacts
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -103,8 +104,8 @@ def test_tokenizer_provenance_rejects_unsealed_and_changed_bytes(tmp_path):
         BUILDER.tokenizer_provenance(tmp_path, lock)
 
 
-@pytest.mark.skipif(not (ROOT / "checkpoints/minicpm5_source/tokenizer.json").exists(),
-                    reason="Native tokenizer is an ignored local acquisition")
+@require_local_artifacts("checkpoints/minicpm5_source")
+@pytest.mark.integration
 @pytest.mark.parametrize("length", [256, 512])
 def test_pinned_native_tokenizer_reaches_exact_capacity_lengths(length):
     from transformers import AutoTokenizer

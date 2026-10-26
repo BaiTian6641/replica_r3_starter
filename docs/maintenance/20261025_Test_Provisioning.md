@@ -5,10 +5,11 @@
 ## Self-contained unit tests (default)
 
 Every ordinary test builds synthetic fixtures (tiny adapters, synthetic
-safetensors headers, owned procedural data committed under `data/`) and runs
-from any clean tracked export of the repository with the baseline
-`.venv` alone. No test in this class reads `checkpoints/`, `runs/`,
-`data/cache/` or `.venv-vision`.
+safetensors headers, owned procedural data committed under `data/`, or an
+in-memory external-caption source) and runs from any clean tracked export with
+the baseline `.venv` alone. Native tokenizer/model assets, ignored external
+images, caches and historical native receipts belong only to the integration
+class below.
 
 ## Artifact-dependent integration tests
 
@@ -27,6 +28,8 @@ Current declarations and their provisioning:
 | `PIL` (Pillow 12.0.0 via `.venv-vision` overlay) | `python -m venv .venv-vision && .venv-vision/bin/pip install -r requirements-vision-overlay.txt` | `test_vision_features.py::test_processor_backend_is_official_pil_when_overlay_present` |
 | `data/cache/spark_sources/run_02` | `scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json --output data/cache/spark_sources/run_02 --export-header-bundle` | offline Spark reproduction runs (not part of the unit suite) |
 | `runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json` | copy the immutable V0 score replay from the provisioned native-evidence workspace | `test_bounded_rsi.py::test_historical_native_evidence_remains_explicitly_provisioned` |
+| `data/external_caption_tranche_20261025_v2/raw/images` | `.venv/bin/python scripts/prepare_external_tranche.py --config configs/external_caption_tranche_v1.json`, or copy the verified ignored `raw/images` directory from the provisioned workspace | `test_vision_curriculum.py::test_external_final_seal_is_derived_from_manifest_rows`, `test_vision_curriculum.py::test_external_final_preflight_resolves_external_root` |
+| `checkpoints/minicpm5_source` | sealed local MiniCPM5-2B acquisition (`scripts/pin_model.py`) | `test_capacity*_data.py`, `test_e4_contextual_data.py::test_native_tokenizer_observation_budget` |
 
 ## Historical verdict replay (outside the unit suite)
 
@@ -41,10 +44,13 @@ Historical protocol hashes are never rewritten.
 
 ## Verification
 
-- With all inputs provisioned: the full suite passes (1,584 tests +21
-  subtests at the rebind fix) with zero skips beyond explicitly reasoned ones.
-- From a clean tracked export without ignored inputs: only the declared
-  integration tests skip, each printing its provisioning command.
+- With all inputs provisioned: native-tokenizer and external-image integration
+  tests execute; without them they skip with exact provisioning instructions.
+- From a clean tracked export without ignored inputs: ordinary tests execute
+  and only declared integration tests skip. A skip is unavailable integration
+  coverage, never a passing native-asset result.
+- Historical focused clean-export evidence is retained below; rerun the full
+  suite after changes rather than presenting these older counts as current.
 - A [focused clean-export replay](../../reports/clean_export_verification_20261025.json)
-  at `4112e18` passes **69 tests with one explicitly reasoned integration skip**;
-  bounded RSI alone passes 11 with that skip and 12/12 when provisioned.
+  at `4112e18` passed **69 tests with one explicitly reasoned integration skip**;
+  bounded RSI alone passed 11 with that skip and 12/12 when provisioned.

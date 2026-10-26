@@ -1,10 +1,10 @@
-"""Self-contained CPU tests for the staged vision curriculum.
+"""CPU tests for the staged vision curriculum.
 
-These tests build the curriculum corpus from the admitted repository sources,
-never load a native model, never run a native job and never score a real final
-split. They cover split/final seals, provenance, abstention coverage,
-equal-compute schedules, optimizer routing, sensing leakage, component-vs-
-baseline retention policy and report validation.
+Curriculum construction uses a synthetic in-memory external source and tracked
+owned procedural payloads. Tests of the real ignored external image acquisition
+are separately marked integration. No test loads a native model or runs a
+native job. Covers split/final seals, provenance, abstention, schedules,
+optimizer routing, leakage and report validation.
 """
 from __future__ import annotations
 
@@ -20,6 +20,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from replica_lab.contracts import fingerprint  # noqa: E402
 from replica_lab.visual_data import render_scene_png  # noqa: E402
+import replica_lab.vision_curriculum as curriculum  # noqa: E402
+from conftest import require_local_artifacts  # noqa: E402
 from replica_lab.vision_curriculum import (  # noqa: E402
     ABSTAIN_KINDS, ARMS, AUDIT_FORBIDDEN_V2_DESCRIPTORS, CONTROLS,
     DIAGNOSTIC_FINAL_DESCRIPTORS,
@@ -52,6 +54,44 @@ TEMPLATE = json.loads(
 PREPARED = ROOT / "data/vision_curriculum_20261025"
 
 
+EXTERNAL_IMAGES = "data/external_caption_tranche_20261025_v2/raw/images"
+
+
+def synthetic_external_source():
+    """Small owned stand-in for builder tests; no real caption asset is read."""
+    def row(role, index):
+        upstream_id = f"synthetic-{role}-{index:02d}"
+        payload = f"owned synthetic {role} image {index}".encode()
+        caption = f"synthetic {role} caption {index}"
+        return {
+            "case_id": upstream_id,
+            "group_key": f"synthetic-group-{role}-{index}",
+            "image": f"synthetic/{role}/{upstream_id}.jpg",
+            "image_sha256": sha256_bytes(payload),
+            "image_bytes": payload,
+            "question": f"Describe synthetic image {index}.",
+            "response": caption,
+            "row_sha256": sha256_bytes(f"row:{upstream_id}".encode()),
+            "target_sha256": sha256_bytes(caption.encode()),
+            "upstream_id": upstream_id,
+        }
+
+    final_ids = [f"synthetic-final-{index:02d}" for index in range(8)]
+    return {
+        "root": "synthetic_external_fixture",
+        "train": [row("train", index) for index in range(15)],
+        "development": [row("development", index) for index in range(7)],
+        "final_pointer": {
+            "manifest": "manifests/final_eval_untouched.json",
+            "manifest_sha256": sha256_bytes(b"synthetic final manifest"),
+            "seal_sha256": sha256_bytes(b"synthetic final seal"),
+            "rows": len(final_ids),
+            "row_ids_sha256": fingerprint(sorted(final_ids)),
+            "consumed": False,
+            "policy": "sealed_unconsumed_pointer_only",
+        },
+    }
+
 def small_config(seed: int = 101, worlds: int = 8) -> dict:
     config = copy.deepcopy(BASE_CONFIG)
     config["seed"] = seed
@@ -68,7 +108,10 @@ def procedural():
 @pytest.fixture(scope="session")
 def built(tmp_path_factory, procedural):
     config = small_config()
-    built = build_curriculum(config, ROOT)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(curriculum, "load_external_source",
+                      lambda project_root, config: synthetic_external_source())
+        built = build_curriculum(config, ROOT)
     root = tmp_path_factory.mktemp("curriculum") / "data"
     write_curriculum(root, built)
     return {"root": root, "built": built, "config": config}
@@ -278,6 +321,8 @@ def test_prompt_isolation_and_no_absent_text_shortcut(procedural):
              "Held-out scene: ", "Final image question: "))
 
 
+@require_local_artifacts(EXTERNAL_IMAGES)
+@pytest.mark.integration
 def test_external_final_seal_is_derived_from_manifest_rows():
     config = load_config(ROOT / "configs/vision_curriculum_v1.json")
     external = load_external_source(ROOT, config)
@@ -1673,6 +1718,8 @@ def _runner_import(name):
                 os.environ[key] = value
 
 
+@require_local_artifacts(EXTERNAL_IMAGES)
+@pytest.mark.integration
 def test_external_final_preflight_resolves_external_root(prepared_protocol):
     dataset = audit_dataset(PREPARED)
     validate = _runner_import("validate_external_final_preflight")
@@ -1703,3 +1750,131 @@ def test_no_final_split_rows_copied_into_prepared_curriculum(prepared_protocol):
                            encoding="utf-8").splitlines() if line.strip())
     assert final_ids.isdisjoint(managed)
     assert len([case for case in managed if case.startswith("liuhaotian")]) == 22
+
+
+def _score_replay_files(tmp_path, protocol):
+    protocol_path = tmp_path / "protocol.json"
+    write_protocol(protocol_path, protocol)
+    run = _run_report(protocol)
+    run.pop("_run_report_sha256")
+    run["implementation_runtime"]["guard"] = {
+        "peak_driver_bytes": run["costs"]["peak_driver_bytes"],
+        "events": [{"event": "train_end", "mps_driver_bytes": 1024}],
+        "workers": 1, "cpu_fallback": False,
+    }
+    run_path = tmp_path / "run_report.json"
+    run_path.write_text(json.dumps(run, indent=2) + "\n")
+    run_for_score = copy.deepcopy(run)
+    run_for_score["_run_report_sha256"] = sha256_file(run_path)
+    reload_report = {
+        "format": "replica.vision_curriculum.reload_report.v1",
+        "version": protocol["version"],
+        "run_report_sha256": sha256_file(run_path),
+        "protocol_sha256": protocol_sha256(protocol),
+        "arm": run["arm"], "zero_updates": True,
+        "extension_weights_sha256": run["extension"]["weights_sha256"],
+        "dev_generations_equal": True, "retention_generations_equal": True,
+        "extension_unchanged": True,
+        "dev_cases_sha256": run["dev"]["cases_sha256"],
+        "dataset_dev_cases_sha256": run["dev"]["dataset_dev_cases_sha256"],
+        "dev_generations_sha256": run["dev"]["generations_sha256"],
+        "retention_sha256": run["retention"]["post_sha256"],
+        "checks": {"zero_updates": True, "extension_unchanged": True,
+                   "dev_equal": True, "retention_equal": True,
+                   "strict_export": True},
+        "claims": {"bitwise_reload": True, "quality_claim": False},
+        "guard": {}, "packages": {},
+    }
+    reload_report["payload_sha256"] = fingerprint(reload_report)
+    reload_path = tmp_path / "reload_report.json"
+    reload_path.write_text(json.dumps(reload_report, indent=2) + "\n")
+    cases = _synthetic_cases()
+    score = assemble_score_report(
+        protocol=protocol, run_report=run_for_score, cases=cases,
+        generations=_synthetic_generations(cases),
+        caption_labels=[{"case_id": "cap", "answer": "a red car"}],
+        caption_generations=[{"case_id": "cap", "generated_text": "a red car",
+                              "response_loss": 0.5}],
+        retention={"measured_correct": 22, "token_parity": True},
+        reload_report_sha256=sha256_file(reload_path))
+    current_path = tmp_path / "current_score.json"
+    current_path.write_text(json.dumps(score, indent=2) + "\n")
+    historical = copy.deepcopy(score)
+    del historical["reload_report_sha256"]
+    historical_path = tmp_path / "historical_score.json"
+    historical_path.write_text(json.dumps(historical, indent=2) + "\n")
+    lineage = {
+        "format": "replica.vision_curriculum.supplemental_lineage.v1",
+        "protocol_sha256": sha256_file(protocol_path),
+        "manifest_sha256": protocol["data"]["manifest"]["sha256"],
+        "run_reports": {run["arm"]: {
+            "run_report_sha256": sha256_file(run_path),
+            "score_report_sha256": sha256_file(historical_path)}},
+        "fresh_process_reload": {run["arm"]: {
+            "independent_reload_report_sha256": sha256_file(reload_path),
+            "run_local_copy_sha256": sha256_file(reload_path),
+            "copies_byte_identical": True}},
+    }
+    lineage_path = tmp_path / "supplemental_lineage.json"
+    lineage_path.write_text(json.dumps(lineage, indent=2) + "\n")
+    outer_guard = {
+        "status": "completed_within_declared_sampled_limits",
+        "command": ["python", "run_vision_curriculum.py", "train",
+                    "--arm", run["arm"], "--device", "mps",
+                    "--protocol", str(protocol_path),
+                    "--output", str(run_path.parent)],
+        "child_exit_code": 0,
+        "guard": {
+            "policy": {
+                "driver_limit_bytes": protocol["resource_policy"]["driver_limit_bytes"],
+                "swap_growth_limit_bytes": protocol["resource_policy"]["sustained_swap_growth_bytes"],
+                "minimum_free_percent": protocol["resource_policy"]["minimum_host_free_percent"],
+                "sustained_host_samples": protocol["resource_policy"]["sustained_host_samples"],
+            },
+            "peak_driver_bytes": run["costs"]["peak_driver_bytes"],
+            "stop_reason": None,
+        },
+    }
+    outer_path = tmp_path / "outer_guard.json"
+    outer_path.write_text(json.dumps(outer_guard, indent=2) + "\n")
+    return {"protocol": protocol_path, "run": run_path, "reload": reload_path,
+            "current": current_path, "historical": historical_path,
+            "lineage": lineage_path, "outer_guard": outer_path}
+
+
+def test_versioned_score_replay_current_and_historical(tmp_path, prepared_protocol):
+    from replica_lab.vision_score_replay import (
+        CURRENT_V1, HISTORICAL_V1, replay_score_report)
+
+    files = _score_replay_files(tmp_path, prepared_protocol)
+    current = replay_score_report(
+        score_path=files["current"], protocol_path=files["protocol"],
+        run_report_path=files["run"], reload_report_path=files["reload"],
+        validation_version=CURRENT_V1)
+    original = files["historical"].read_bytes()
+    historical = replay_score_report(
+        score_path=files["historical"], protocol_path=files["protocol"],
+        run_report_path=files["run"], reload_report_path=files["reload"],
+        validation_version=HISTORICAL_V1, lineage_path=files["lineage"],
+        outer_guard_report_path=files["outer_guard"])
+    assert current["status"] == historical["status"] == "validated"
+    assert current["normalized_score_payload_fingerprint"] == \
+        historical["normalized_score_payload_fingerprint"]
+    assert files["historical"].read_bytes() == original
+    assert historical["historical_score_modified"] is False
+    assert historical["native_execution"] is False
+    with pytest.raises(VisionCurriculumError):
+        replay_score_report(
+            score_path=files["historical"], protocol_path=files["protocol"],
+            run_report_path=files["run"], reload_report_path=files["reload"],
+            validation_version=CURRENT_V1)
+    lineage = json.loads(files["lineage"].read_text())
+    lineage["run_reports"]["muon8bit"]["score_report_sha256"] = "0" * 64
+    files["lineage"].write_text(json.dumps(lineage, indent=2) + "\n")
+    with pytest.raises(VisionCurriculumError, match="lineage run/score"):
+        replay_score_report(
+            score_path=files["historical"], protocol_path=files["protocol"],
+            run_report_path=files["run"], reload_report_path=files["reload"],
+            validation_version=HISTORICAL_V1, lineage_path=files["lineage"],
+            outer_guard_report_path=files["outer_guard"])
+    assert files["historical"].read_bytes() == original
