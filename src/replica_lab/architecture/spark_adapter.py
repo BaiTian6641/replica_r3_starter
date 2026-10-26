@@ -304,6 +304,7 @@ class Spark2_5Adapter(nn.Module):
             raise SparkAdapterError("positive head-divisible memory_size required")
         for spec in specs:
             port = MemoryAccessPort(self.config.geometry.hidden_size, size, head_count)
+            port.to(next(self.extension.vision_projector.parameters()).device)
             port.train(self.training)
             self.extension.memory_ports[str(spec.layer)] = port
         self._port_layers = tuple(spec.layer for spec in specs)
