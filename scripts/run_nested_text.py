@@ -632,6 +632,7 @@ def run_p_only(args, config: dict) -> int:
         validate_p_only_payload(state, protocol=protocol)
         learner = build_read_only_learner(protocol, config, adapter, state)
         personality = PersonalityIdentity.default()
+        (output / "p_only").mkdir(parents=True, exist_ok=True)
         ledger = RecordLedger(output / "p_only" / "ledger.sqlite")
         session = MemorySession(adapter, tokenizer, ledger)
         # Development first: no heldout exists for this process before the gate.
