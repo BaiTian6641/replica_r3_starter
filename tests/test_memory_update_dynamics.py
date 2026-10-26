@@ -15,6 +15,7 @@ import pytest
 
 from architecture_helpers import tiny_adapter
 from conftest import require_local_artifacts
+from replica_lab.memory_diagnosis import query_key
 from replica_lab.memory_matched import (
     _record_views,
     derive_matched_labels,
@@ -28,6 +29,7 @@ from replica_lab.memory_update_dynamics import (
     INVENTORY_FORMAT,
     READOUT_FORMAT,
     READ_ARMS,
+    _full_fact_parity,
     admit_update_dynamics_prepared,
     arm_applies,
     build_protocol,
@@ -67,14 +69,7 @@ for _episode in _ALL_EPISODES:
         EPISODES.append(_episode)
 LABELS = derive_matched_labels(EPISODES)
 LAYERS = (0, 2)
-FIXTURE_VARIANTS = [
-    'shared_mean/full', 'per_depth/full',
-    'shared_mean/reversed', 'shared_mean/target_only',
-    'shared_mean/prefix_through_target', 'shared_mean/target_and_later',
-    'shared_mean/no_erase', 'shared_mean/no_decay',
-    'shared_mean/full_gate', 'shared_mean/no_forget',
-    'shared_mean/target_refresh_last',
-]
+FIXTURE_VARIANTS = variant_names()
 
 
 def _protocol(**overrides):
@@ -105,7 +100,8 @@ def test_variant_plan_is_deterministic_and_ordered():
     assert set(item['reducer'] for item in first) == {'shared_mean', 'per_depth'}
     assert {'target_only', 'prefix_through_target', 'target_and_later'} <= {
         item['order'] for item in first}
-    assert {'no_erase', 'no_decay', 'full_gate', 'no_forget'} <= {
+    assert {'forced_full_erase', 'forced_full_decay',
+            'forced_full_gate', 'forced_full_forget'} <= {
         item['gate_control'] for item in first}
     assert any(item['refresh_target'] for item in first)
     assert variant_by_name('shared_mean/full')['reducer'] == 'shared_mean'
@@ -204,7 +200,12 @@ def test_tiny_run_holds_rows_candidates_and_parity(tiny_run):
     assert report['mechanical_gates']['full_fact_parity']['status'] == 'pass'
     assert report['mechanical_gates']['candidate_inventory_parity']['status']
     assert report['mechanical_gates']['row_inventory']['status'] == 'pass'
+    assert report['mechanical_gates']['full_fact_parity']['metrics'][
+        'ordered_identity'] is True
     assert report['mechanical_valid'] is True
+    assert report['role_quality']['exact_key_value']['status'] == 'report_only'
+    assert report['role_quality']['exact_key_value']['enforced'] is False
+    assert report['role_quality']['query_key_value']['status'] == 'report_only'
     for name in ('readouts.jsonl', 'states.jsonl', 'codebooks.json',
                  'rankings.jsonl', 'failures.json', 'mechanical.json'):
         assert (output / name).is_file()
@@ -235,12 +236,79 @@ def test_tiny_run_holds_rows_candidates_and_parity(tiny_run):
             (row['candidate_count'], tuple(sorted(row['scores']))))
     assert groups and all(len(signatures) == 1
                           for signatures in groups.values())
-    # Every requested variant is preserved, including failing ablations.
+    # Every one of the 20 variants is preserved, including per-depth and
+    # failing reversed/position/gate/refresh combinations.
     reported = {row['variant'] for row in rows}
     assert reported == set(FIXTURE_VARIANTS)
+    assert len(reported) == 20
+    assert {'per_depth/reversed', 'per_depth/target_only',
+            'per_depth/prefix_through_target', 'per_depth/target_and_later',
+            'per_depth/forced_full_erase', 'per_depth/forced_full_decay',
+            'per_depth/forced_full_gate', 'per_depth/forced_full_forget',
+            'per_depth/target_refresh_last'} <= reported
     failures = json.loads((output / 'failures.json').read_text())
     assert failures['failed_variants']
     assert set(failures['failed_variants']) <= reported
+
+
+def test_query_key_address_is_raw_and_variant_independent(tiny_run):
+    model, output, report = tiny_run
+    rows = [json.loads(line) for line in
+            (output / 'readouts.jsonl').read_text().splitlines()]
+    address = [row for row in rows if row['arm'] == 'query_key_address']
+    assert address
+    episodes = {episode['episode_id']: episode for episode in EPISODES}
+    expected_by_key = {}
+    for row in address:
+        key = (row['episode_id'], row['case_id'], row['layer'])
+        if key not in expected_by_key:
+            query = next(item for item in episodes[row['episode_id']]['queries']
+                         if item['query_id'] == row['case_id'])
+            expected = query_key(model, Tokenizer(), query['text'],
+                                 layer=row['layer'])[0, 0]
+            expected_by_key[key] = expected.detach().float().cpu().tolist()
+        assert row['readout'] == expected_by_key[key]
+    groups = {}
+    for row in address:
+        key = (row['episode_id'], row['state'], row['case_id'], row['layer'])
+        groups.setdefault(key, set()).add(row['readout_sha256'])
+    assert groups and all(len(values) == 1 for values in groups.values())
+    rankings = [json.loads(line) for line in
+                (output / 'rankings.jsonl').read_text().splitlines()]
+    ranking_groups = {}
+    for row in rankings:
+        if row['arm'] != 'query_key_address':
+            continue
+        key = (row['episode_id'], row['state'], row['case_id'], row['layer'])
+        ranking_groups.setdefault(key, set()).add(
+            (tuple(sorted(row['scores'])), row['target_rank'],
+             row['top_entry_id']))
+    assert ranking_groups and all(len(values) == 1
+                                  for values in ranking_groups.values())
+
+
+def test_ordered_fact_parity_rejects_reordered_history(tiny_run):
+    _, output, _ = tiny_run
+    states = [json.loads(line) for line in
+              (output / 'states.jsonl').read_text().splitlines()]
+    variants = resolve_variants(FIXTURE_VARIANTS)
+    good = _full_fact_parity(states, LABELS, variants, EPISODES)
+    assert good['all_equal'] is True
+    target = next(item for item in states
+                  if item['variant'] == 'shared_mean/full'
+                  and len(item['written_record_ids']) > 1)
+    changed = copy.deepcopy(states)
+    match = next(item for item in changed
+                 if item['variant'] == target['variant']
+                 and item['episode_id'] == target['episode_id']
+                 and item['state'] == target['state']
+                 and item['case_id'] == target['case_id'])
+    match['written_record_ids'][0], match['written_record_ids'][1] = (
+        match['written_record_ids'][1], match['written_record_ids'][0])
+    rejected = _full_fact_parity(changed, LABELS, variants, EPISODES)
+    assert rejected['all_equal'] is False
+    assert rejected['ordered_identity'] is True
+    assert rejected['failures']
 
 
 def _metric(top1, *, rank=1.0, margin=0.1, n=10, false_recall=0.0):
@@ -282,15 +350,23 @@ def test_first_failing_mechanism_order_and_precedence():
     assert position['first_failing_mechanism'] == 'write_position'
 
     gate = select_first_failing_mechanism(_metrics(**{
-        'shared_mean/no_decay': {
+        'shared_mean/forced_full_decay': {
             'exact_key_value': _metric(0.95, rank=1.05, margin=0.08)}}))
-    assert gate['decision'] == 'write_gate_erase_decay_interference'
-    assert gate['first_failing_mechanism'] == 'erase_decay_gate'
+    assert gate['decision'] == 'forced_full_gate_dynamics_interference'
+    assert gate['first_failing_mechanism'] == 'forced_full_erase_decay_gate'
 
     refresh = select_first_failing_mechanism(_metrics(**{
         'shared_mean/target_refresh_last': {
             'exact_key_value': _metric(0.95, rank=1.05, margin=0.08)}}))
     assert refresh['decision'] == 'last_write_recency_interference'
+
+    # Refresh is evaluated before forced-full gate controls.
+    refresh_precedence = select_first_failing_mechanism(_metrics(**{
+        'shared_mean/target_refresh_last': {
+            'exact_key_value': _metric(0.95, rank=1.05, margin=0.08)},
+        'shared_mean/forced_full_decay': {
+            'exact_key_value': _metric(0.95, rank=1.05, margin=0.08)}}))
+    assert refresh_precedence['decision'] == 'last_write_recency_interference'
 
     # Shared reduction takes precedence when a later mechanism also passes.
     precedence = select_first_failing_mechanism(_metrics(**{
@@ -302,6 +378,13 @@ def test_first_failing_mechanism_order_and_precedence():
 
     downstream = select_first_failing_mechanism(_metrics())
     assert downstream['decision'] == 'value_readout_downstream'
+    value_passes = select_first_failing_mechanism(_metrics(**{
+        'shared_mean/full': {
+            'exact_key_value': _metric(0.15, rank=3.0, margin=-0.02),
+            'query_key_value': _metric(0.95, rank=1.05, margin=0.08),
+            'query_key_address': _metric(0.95, rank=1.03, margin=0.08)}}))
+    assert value_passes['decision'] == 'exact_key_specific_failure'
+    assert value_passes['first_failing_mechanism'] == 'exact_observed_key_read_path'
 
     unresolved_metrics = _metrics()
     unresolved_metrics['shared_mean/full']['query_key_address'] = _metric(

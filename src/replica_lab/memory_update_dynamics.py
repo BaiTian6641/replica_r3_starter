@@ -80,7 +80,8 @@ FAILURES_FORMAT = 'replica.memory_update_dynamics.failures.v1'
 REDUCERS = ('shared_mean', 'per_depth')
 WRITE_ORDERS = ('full', 'reversed', 'target_only', 'prefix_through_target',
                 'target_and_later')
-GATE_CONTROLS = ('no_erase', 'no_decay', 'full_gate', 'no_forget')
+GATE_CONTROLS = ('forced_full_erase', 'forced_full_decay',
+                  'forced_full_gate', 'forced_full_forget')
 READ_ARMS = ('exact_key_value', 'query_key_value', 'query_key_address',
              'context_removed')
 POSITION_LABELS = ('target_only', 'prefix_through_target', 'target_and_later',
@@ -218,11 +219,19 @@ def variant_plan():
             variants.append(_variant(
                 reducer, gate, gate_control=gate,
                 description={
-                    'no_erase': 'Production order with erase forced to one.',
-                    'no_decay': 'Production order with decay forced to one.',
-                    'full_gate': 'Production order with write gate forced to one.',
-                    'no_forget': ('Production order with erase and decay both '
-                                  'forced to one.'),
+                    'forced_full_erase': ('Production order with the erase '
+                                          'factor forced to one (full erase, '
+                                          'not literal erasure removal).'),
+                    'forced_full_decay': ('Production order with decay forced '
+                                          'to one (no per-token decay, not '
+                                          'literal decay removal).'),
+                    'forced_full_gate': ('Production order with the write gate '
+                                         'forced to one (maximum write, not '
+                                         'literal gate removal).'),
+                    'forced_full_forget': ('Production order with erase and '
+                                           'decay both forced to one '
+                                           '(full erase/no decay, not literal '
+                                           'forgetting removal).'),
                 }[gate]))
     for reducer in REDUCERS:
         variants.append(_variant(
@@ -422,11 +431,11 @@ def variant_history(records, variant, *, target_id=None):
 
 def _gate_control_write(write, control, chunk_index):
     fields = {'chunk_index': chunk_index}
-    if control in ('no_erase', 'no_forget'):
+    if control in ('forced_full_erase', 'forced_full_forget'):
         fields['erase'] = torch.ones_like(write.erase)
-    if control in ('no_decay', 'no_forget'):
+    if control in ('forced_full_decay', 'forced_full_forget'):
         fields['decay'] = torch.ones_like(write.decay)
-    if control == 'full_gate':
+    if control == 'forced_full_gate':
         fields['write_gate'] = torch.ones_like(write.write_gate)
     return replace(write, **fields)
 
@@ -641,7 +650,7 @@ def _evaluate_context_query(*, variant, context, states, history, labels,
         rows.append(_readout_row(
             variant=variant, arm='query_key_address', context=context,
             query=query, layer=layer,
-            readout=_read_weights(weights, vector),
+            readout=vector[0, 0].detach().float().cpu(),
             readout_space='key', final_write_id=final_write_id,
             state_sha256=state_sha))
         rows.append(_readout_row(
@@ -1001,7 +1010,7 @@ def run_update_dynamics(model, tokenizer, protocol, *, output_dir,
                 (row['max_abs_difference'] for row in parity_rows), default=None),
         },
         'full_fact_parity': _full_fact_parity(
-            state_rows, labels_by_episode, variants),
+            state_rows, labels_by_episode, variants, episodes),
         'limits': limits,
     }
     _write_json(output_dir / 'mechanical.json', mechanical)
@@ -1068,39 +1077,37 @@ def run_update_dynamics(model, tokenizer, protocol, *, output_dir,
     }
 
 
-def _full_fact_parity(state_rows, labels_by_episode, variants):
+def _full_fact_parity(state_rows, labels_by_episode, variants, episodes):
+    """Verify exact ordered history identity for every declared variant."""
     by_name = {variant['name']: variant for variant in variants}
+    episodes_by_id = {episode['episode_id']: episode for episode in episodes}
     failures = []
     rows = 0
     for summary in state_rows:
         variant = by_name[summary['variant']]
         labels = labels_by_episode[summary['episode_id']][summary['state']]
+        episode = episodes_by_id[summary['episode_id']]
+        records, _, _ = _record_views(
+            episode, {'cutoff': labels['cutoff']})
+        full_ids = [record['record_id'] for record in records]
         observed = list(labels['observed_record_ids'])
         written = list(summary['written_record_ids'])
         target = None
         if variant['target_dependent']:
             target_info = labels['targets'].get(summary['case_id'])
             target = (target_info or {}).get('target_entry_id')
+        expected = variant_history(records, variant, target_id=target)
+        expected_ids = [record['record_id'] for record in expected]
         rows += 1
-        if variant['refresh_target']:
-            valid = (written[:len(observed)] == observed
-                     and written[len(observed):] == [target]
-                     and set(written) <= set(observed))
-        else:
-            valid = (len(set(written)) == len(written)
-                     and set(written) <= set(observed))
-        if variant['refresh_target']:
-            pass
-        elif variant['order'] in ('full', 'reversed') or variant['gate_control']:
-            valid = valid and sorted(written) == sorted(observed)
-        elif variant['order'] == 'target_only':
-            valid = valid and written == [target]
-        elif variant['order'] == 'prefix_through_target':
-            index = observed.index(target) if target in observed else -1
-            valid = valid and index >= 0 and written == observed[:index + 1]
-        elif variant['order'] == 'target_and_later':
-            index = observed.index(target) if target in observed else -1
-            valid = valid and index >= 0 and written == [target] + observed[index + 1:]
+        valid = written == expected_ids
+        if variant['order'] == 'full' and not variant['refresh_target']:
+            valid = valid and expected_ids == observed == full_ids
+        elif variant['order'] == 'reversed':
+            reversed_ids = [record['record_id'] for record in _reverse_groups(records)]
+            valid = valid and expected_ids == reversed_ids and sorted(
+                expected_ids) == sorted(full_ids)
+        elif variant['gate_control']:
+            valid = valid and expected_ids == observed == full_ids
         if not valid:
             failures.append({
                 'variant': summary['variant'],
@@ -1108,10 +1115,11 @@ def _full_fact_parity(state_rows, labels_by_episode, variants):
                 'state': summary['state'],
                 'case_id': summary['case_id'],
                 'written_record_ids': written[:12],
+                'expected_record_ids': expected_ids[:12],
                 'observed_record_ids': observed[:12],
             })
     return {'rows': rows, 'all_equal': not failures,
-            'failures': failures[:20]}
+            'ordered_identity': True, 'failures': failures[:20]}
 
 
 # ---------------------------------------------------------------------------
@@ -1195,6 +1203,27 @@ def _candidate_parity(rankings):
             'failures': [list(item) for item in failures[:20]]}
 
 
+def _role_quality(metrics, settings):
+    """Explicitly report-only role thresholds; no mechanism consumer uses them."""
+    result = {}
+    for arm in ('exact_key_value', 'query_key_value'):
+        metric = _metric(metrics, 'shared_mean/full', arm) or {}
+        result[arm] = {
+            'status': 'report_only',
+            'enforced': False,
+            'correction_top1': {
+                'value': (metric.get('correction') or {}).get('top1_rate'),
+                'threshold': settings['correction_top1_floor']},
+            'unaffected_top1': {
+                'value': (metric.get('unaffected') or {}).get('top1_rate'),
+                'threshold': settings['unaffected_top1_floor']},
+            'unknown_false_recall': {
+                'value': (metric.get('unknown') or {}).get('false_recall_rate'),
+                'threshold': settings['unknown_false_recall_max']},
+        }
+    return result
+
+
 def _metric(metrics, variant, arm):
     return (metrics.get(variant) or {}).get(arm)
 
@@ -1269,8 +1298,11 @@ def select_first_failing_mechanism(metrics, *, mechanical_valid=True,
     """Select the first mechanism whose isolated control recovers the upper bound.
 
     Order is fixed by design: mechanical validity, shared reduction, write
-    position/recency, erase/decay/gate, then downstream value readout.  A later
-    mechanism cannot be named when an earlier isolated control passes.
+    position, recency (target refresh), forced-full erase/decay/gate, then
+    downstream value readout.  Query-key value recovery must fail before a
+    downstream readout cause is named; if it passes while the exact observed
+    key fails, the result is exact-key-specific.  A later mechanism cannot be
+    named when an earlier isolated control passes.
     """
     settings = _resolve_thresholds(settings)
     baseline = 'shared_mean/full'
@@ -1287,8 +1319,9 @@ def select_first_failing_mechanism(metrics, *, mechanical_valid=True,
     baseline_exact = _metric(metrics, baseline, 'exact_key_value')
     baseline_address = _metric(metrics, baseline, 'query_key_address')
     baseline_value = _metric(metrics, baseline, 'query_key_value')
-    _require(baseline_exact is not None and baseline_address is not None,
-             'Selection requires the shared full baseline')
+    _require(baseline_exact is not None and baseline_address is not None
+             and baseline_value is not None,
+             'Selection requires the shared full exact, address and value baselines')
     if _passes_exact(baseline_exact, settings):
         return {
             'decision': 'exact_key_recovery_ok',
@@ -1343,32 +1376,6 @@ def select_first_failing_mechanism(metrics, *, mechanical_valid=True,
             'address_passes': address_passes,
         }
 
-    gate_names = [f'shared_mean/{gate}' for gate in GATE_CONTROLS]
-    gate_names += [f'per_depth/{gate}' for gate in GATE_CONTROLS]
-    gate_hits = []
-    for name in gate_names:
-        if name not in metrics:
-            continue
-        item = _comparison(metrics, name, 'exact_key_value', baseline, settings)
-        comparisons[f'gate:{name}'] = item
-        if item['passes_exact_gate'] and item['improved']:
-            gate_hits.append(item)
-    if gate_hits:
-        best = sorted(gate_hits, key=lambda item: (
-            -(item['top1_rate'] or 0.0),
-            item['mean_rank'] or float('inf'), item['variant']))[0]
-        return {
-            'decision': 'write_gate_erase_decay_interference',
-            'first_failing_mechanism': 'erase_decay_gate',
-            'comparisons': comparisons,
-            'isolated_gate_variant': best['variant'],
-            'smallest_next_change': (
-                f'{best["variant"]} recovers exact-key recovery. Inspect the '
-                'per-head erase/decay/gate overwrite before proposing any '
-                'writer change; do not train.'),
-            'address_passes': address_passes,
-        }
-
     refresh_names = ['shared_mean/target_refresh_last',
                      'per_depth/target_refresh_last']
     refresh_hits = []
@@ -1395,15 +1402,60 @@ def select_first_failing_mechanism(metrics, *, mechanical_valid=True,
             'address_passes': address_passes,
         }
 
-    if address_passes and baseline_value is not None:
+    gate_names = [f'shared_mean/{gate}' for gate in GATE_CONTROLS]
+    gate_names += [f'per_depth/{gate}' for gate in GATE_CONTROLS]
+    gate_hits = []
+    for name in gate_names:
+        if name not in metrics:
+            continue
+        item = _comparison(metrics, name, 'exact_key_value', baseline, settings)
+        comparisons[f'gate:{name}'] = item
+        if item['passes_exact_gate'] and item['improved']:
+            gate_hits.append(item)
+    if gate_hits:
+        best = sorted(gate_hits, key=lambda item: (
+            -(item['top1_rate'] or 0.0),
+            item['mean_rank'] or float('inf'), item['variant']))[0]
+        return {
+            'decision': 'forced_full_gate_dynamics_interference',
+            'first_failing_mechanism': 'forced_full_erase_decay_gate',
+            'comparisons': comparisons,
+            'isolated_gate_variant': best['variant'],
+            'smallest_next_change': (
+                f'{best["variant"]} recovers exact-key recovery. Inspect the '
+                'per-head erase/decay/gate overwrite before proposing any '
+                'writer change; forced-full factors are diagnostics, not '
+                'literal removal of erasure/forgetting. Do not train.'),
+            'address_passes': address_passes,
+        }
+
+    value_passes = _passes_exact(baseline_value, settings)
+    comparisons['query_value_recovery'] = _comparison(
+        metrics, baseline, 'query_key_value', baseline, settings)
+    comparisons['query_value_recovery']['passes_value_gate'] = value_passes
+    if value_passes:
+        return {
+            'decision': 'exact_key_specific_failure',
+            'first_failing_mechanism': 'exact_observed_key_read_path',
+            'comparisons': comparisons,
+            'smallest_next_change': ('Query-key value recovery passes while '
+                                     'exact observed-key recovery fails. '
+                                     'Inspect per-head write-key/value '
+                                     'alignment and exact-key normalization; '
+                                     'do not change candidates or train.'),
+            'address_passes': address_passes,
+        }
+
+    if address_passes:
         return {
             'decision': 'value_readout_downstream',
             'first_failing_mechanism': 'value_write_or_readout',
             'comparisons': comparisons,
-            'smallest_next_change': ('Addressing passes while stored-value '
-                                     'recovery does not. Inspect per-head key/'
-                                     'value write alignment and candidate '
-                                     'scoring; do not train the writer.'),
+            'smallest_next_change': ('Query-derived addressing passes while '
+                                     'query-key and exact-key value recovery '
+                                     'fail. Inspect per-head key/value write '
+                                     'alignment and candidate scoring; do not '
+                                     'train the writer.'),
             'address_passes': True,
         }
     return {
@@ -1498,7 +1550,8 @@ def score_update_dynamics(readouts, codebooks, labels_by_episode, *,
         'full_fact_parity': {
             'status': 'pass' if fact_parity_ok else 'fail',
             'metrics': {key: fact_parity.get(key)
-                        for key in ('rows', 'all_equal', 'failures')}},
+                        for key in ('rows', 'all_equal', 'ordered_identity',
+                                    'failures')}},
         'candidate_inventory_parity': {
             'status': 'pass' if candidate_parity['all_equal'] else 'fail',
             'metrics': candidate_parity},
@@ -1513,6 +1566,7 @@ def score_update_dynamics(readouts, codebooks, labels_by_episode, *,
         metrics, mechanical_valid=mechanical_valid, settings=settings)
     decision = selection['decision']
     first = selection['first_failing_mechanism']
+    role_quality = _role_quality(metrics, settings)
 
     failures = {}
     counts = {}
@@ -1554,6 +1608,7 @@ def score_update_dynamics(readouts, codebooks, labels_by_episode, *,
         'isolated_refresh_variant': selection.get('isolated_refresh_variant'),
         'smallest_next_change': selection['smallest_next_change'],
         'thresholds': settings,
+        'role_quality': role_quality,
         'failure_counts': counts,
         'failure_total': sum(counts.values()),
         'failed_variants': failed_variants,
