@@ -47,11 +47,7 @@ import time
 import torch
 
 from .architecture.contracts import fingerprint
-from .memory_acceptance_v3 import (
-    acceptance_metrics as acceptance_metrics_v3,
-    evaluate_acceptance as evaluate_acceptance_v3,
-    validate_config as validate_acceptance_v3,
-)
+from . import memory_acceptance_v3 as _acceptance_v3
 from .memory_diagnosis import (
     _cosine_heads, _display_path, _extension_pins, _freeze, _parameter_versions,
     _resolve_path, _sha_file, _sha_text, _source_pins, _utc_now, _write_json,
@@ -105,6 +101,16 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 def _require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def _acceptance_api(acceptance):
+    version = acceptance.get("metric_version")
+    if version == _acceptance_v3.VERSION:
+        return _acceptance_v3
+    if version == "memory.acceptance.v4":
+        from . import memory_acceptance_v4 as acceptance_v4
+        return acceptance_v4
+    raise ValueError(f"Unsupported acceptance metric version: {version}")
 
 
 def _canonical(value):
@@ -703,7 +709,8 @@ def _validate_config(config):
     _require(type(limits.get("max_record_versions_per_record")) is int
              and limits["max_record_versions_per_record"] >= 1,
              "Record-version bound is invalid")
-    validate_acceptance_v3(config["acceptance"], require_inventory=False)
+    _acceptance_api(config["acceptance"]).validate_config(
+        config["acceptance"], require_inventory=False)
     gates = config["acceptance"]["gates"]
     for gate in ("accepted_correct_rate_min", "accepted_precision_min",
                  "correction_accepted_correct_rate_min",
@@ -2348,10 +2355,11 @@ def _metric_bundle(rows, acceptance, *, strict=True):
                    "fail_closed": True, "checks": {}}
         return {"metrics": None, "verdict": verdict,
                 "coverage_valid": False}
-    metrics = acceptance_metrics_v3(rows, acceptance)
+    acceptance_api = _acceptance_api(acceptance)
+    metrics = acceptance_api.acceptance_metrics(rows, acceptance)
     require_revoked = any(row.get("phase") == REVOCATION for row in rows)
     try:
-        verdict = evaluate_acceptance_v3(
+        verdict = acceptance_api.evaluate_acceptance(
             metrics, acceptance, require_revoked=require_revoked)
     except ValueError as error:
         if strict:
@@ -2986,10 +2994,11 @@ def run_memory_causal_fresh(model, tokenizer, protocol, *, output_dir, episodes,
         if resumed else metric_bundles["first_process_all"]
     oracle_rows = (metric_bundles["restart_all"] if resumed
                    else metric_bundles["first_process_all"])
-    oracle = oracle_rows["metrics"]["variants"][ORACLE]["quality"]
-    oracle_ok = (oracle["raw_top1_rate"] is not None
-                 and oracle["raw_top1_rate"]
-                 >= acceptance["gates"]["oracle_raw_top1_rate_min"])
+    if acceptance["metric_version"] == "memory.acceptance.v4":
+        oracle_ok = oracle_rows["verdict"]["checks"][
+            "oracle_answerable_fact_recoverability"]
+    else:
+        oracle_ok = oracle_rows["verdict"]["checks"]["oracle_raw_bound"]
     if not resumed:
         decision = ("invalid" if not decisive["coverage_valid"]
                     else "inconclusive")

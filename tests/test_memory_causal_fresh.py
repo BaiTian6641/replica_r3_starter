@@ -684,3 +684,32 @@ def test_checkpoint_crash_injection_preserves_atomic_recovery(tmp_path, monkeypa
     recovered = load_fresh_checkpoint(checkpoint, expected=bindings)
     assert recovered["phase"] == FIRST_PROCESS
     assert recovered["ledger"]["commits"] == []
+
+
+def test_native_v4_disposition_uses_answerable_fact_oracle_verdict(tmp_path):
+    config = _test_config()
+    config["acceptance"] = json.loads(
+        (ROOT / "configs/memory_acceptance_v4.json").read_text())
+    config["acceptance"]["bootstrap"] = {
+        "seed": 17, "resamples": 16, "confidence": 0.90}
+    config["acceptance"]["decisive_cohort"] = "restart_heldout"
+    first, resumed, *_ = _run_pair(tmp_path, config=config)
+
+    for report in (first, resumed):
+        cohort = ("first_process_all" if report is first else "restart_all")
+        verdict = report["metrics"][cohort]["verdict"]
+        assert report["metrics"][cohort]["metrics"]["metric_version"] == (
+            "memory.acceptance.v4")
+        assert verdict["oracle_gate_population"] == "answerable_fact"
+        assert report["gates"]["oracle_raw_bound"] == verdict["checks"][
+            "oracle_answerable_fact_recoverability"]
+        rate = verdict["oracle_answerable_fact_recoverability"]
+        assert 0.0 < rate <= 1.0
+        assert verdict["decision"] == "rejected"
+        expected_ok = rate >= config["acceptance"]["gates"][
+            "oracle_raw_top1_rate_min"]
+        assert report["gates"]["oracle_raw_bound"] is expected_ok
+        if report is resumed:
+            assert resumed["decision"] == (
+                "rejected" if expected_ok else "inconclusive")
+    assert first["decision"] == "inconclusive"

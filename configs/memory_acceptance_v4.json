@@ -1,0 +1,99 @@
+{
+  "format": "replica.memory_acceptance.config.v4",
+  "metric_version": "memory.acceptance.v4",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "primary_quality_arm": "query_key_value",
+  "diagnostic_arms": [
+    "exact_key_value",
+    "query_key_address",
+    "context_removed"
+  ],
+  "candidate_variant": "shared_mean/causal_query_refresh",
+  "oracle_variant": "shared_mean/oracle_target_refresh_last",
+  "oracle_population": {
+    "gate_population": "answerable_fact",
+    "numerator": "raw_valid_top1",
+    "denominator": "fact_n",
+    "excluded_kinds": [
+      "unknown",
+      "revoked"
+    ],
+    "total_group_rate_is_descriptive": true,
+    "is_legal_policy": false
+  },
+  "layer_combination": {
+    "raw_top1": "any_layer_valid_top1",
+    "raw_top1_all": "all_layers_valid_top1",
+    "observed_top1": "any_layer_observed_top1",
+    "accepted": "any_layer_accepted",
+    "accepted_correct": "all_layers_accepted_and_correct",
+    "accepted_wrong": "accepted_and_not_all_correct",
+    "zero_or_tied": "all_layers_zero_or_tied",
+    "zero_or_tied_recoverability_credit": "none",
+    "zero_or_tied_acceptance_credit": "none",
+    "layers_are_independent_samples": false,
+    "uncertainty_unit": "world"
+  },
+  "phase_scoping": {
+    "default": "all",
+    "subset_recomputes_units": true,
+    "parent_inventory_pin_preserved": true,
+    "revocation_required_only_when_selected": true
+  },
+  "expected_inventory": {
+    "path": "data/memory_causal_fresh_20261026/prepared03/inventory.json",
+    "sha256": "5994de0da6e7f863f4a697a40a25041e760d0d9e8e5c77f565713e1bdf763a93",
+    "variants": [
+      "shared_mean/full",
+      "shared_mean/causal_query_refresh",
+      "shared_mean/causal_query_refresh_shuffled_values",
+      "shared_mean/disabled",
+      "shared_mean/oracle_target_refresh_last"
+    ],
+    "layers": [
+      13,
+      27
+    ],
+    "arms": [
+      "query_key_value",
+      "exact_key_value",
+      "query_key_address",
+      "context_removed"
+    ],
+    "phases": [
+      "first_process",
+      "restart",
+      "revocation"
+    ]
+  },
+  "gates": {
+    "accepted_correct_rate_min": 0.85,
+    "accepted_precision_min": 0.9,
+    "correction_accepted_correct_rate_min": 0.6,
+    "unaffected_accepted_correct_rate_min": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "revoked_false_recall_max": 0.25,
+    "oracle_raw_top1_rate_min": 0.85
+  },
+  "bootstrap": {
+    "seed": 17,
+    "resamples": 2000,
+    "confidence": 0.95,
+    "unit": "world; layers are not independent examples"
+  },
+  "historical_artifacts": [
+    {
+      "path": "reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json",
+      "reason": "v3 receipt; historical only and never accepted as v4"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/causal_fresh_restart01_acceptance_v3.json",
+      "reason": "v3 receipt; historical only and never accepted as v4"
+    },
+    {
+      "path": "reports/memory_acceptance_20261026/native04_acceptance_v2_final.json",
+      "reason": "v2 receipt; historical only and never accepted as v4"
+    }
+  ],
+  "interpretation": "Candidate quality is the actual query_key_value readout only. exact_key_value is a mixture diagnostic and is never an upper bound. The oracle gate is answerable-fact recoverability: raw valid top-1 on kind=fact divided by fact_n; unknown and revoked cases have separate abstention and false-recall rates and never enter that denominator. The total-group raw top-1 rate is descriptive only, and zero or tied readouts receive no recoverability or acceptance credit. Phase-scoped replay validates exact subset coverage, recomputes subset units and keeps the pinned parent inventory hash. Missing, duplicate, extra or out-of-declared-scope rows fail closed. Raw rows remain immutable and v1/v2/v3 receipts are never silently accepted as v4."
+}
