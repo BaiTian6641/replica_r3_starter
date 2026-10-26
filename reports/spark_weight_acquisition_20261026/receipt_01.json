@@ -1,0 +1,80 @@
+{
+  "budget": {
+    "budget_respected": true,
+    "bytes_downloaded": 12705404543,
+    "environment_reserve_bytes": 10737418240,
+    "evidence_reserve_bytes": 1073741824,
+    "final_bytes": 12705404543,
+    "high_water_estimate_bytes": 12705404543,
+    "planned_assets_bytes": 29586015,
+    "planned_payload_bytes": 12705404543,
+    "planned_weights_bytes": 12675818528,
+    "staging_bytes": 12705404543,
+    "total_budget_bytes": 42949672960,
+    "unallocated_bytes": 18433108353
+  },
+  "data_access": {
+    "heldout_opened": false,
+    "note": "Acquisition touches only the two official model repositories. No train/dev/heldout split is read or materialised, and no heldout split may be opened after any failure.",
+    "split_order": [
+      "train",
+      "development",
+      "heldout"
+    ],
+    "training_data_access": "none"
+  },
+  "failures": [],
+  "finished_at": "2026-10-26T20:17:22+00:00",
+  "free_bytes_after": 500005724160,
+  "free_bytes_before": 513548660736,
+  "model_executed": false,
+  "plan_path": "configs/spark_weight_acquisition_v1.json",
+  "plan_sha256": "4d7530c349f09763fcd866b308ef87e8c671559490627660816864fb50195767",
+  "remote_code_executed": false,
+  "schema": "replica.spark_weight_acquisition_receipt.v1",
+  "sources": [
+    {
+      "bytes_downloaded": 4466408296,
+      "final_bytes": 4466408296,
+      "free_bytes_after": 508679987200,
+      "free_bytes_before": 513548652544,
+      "high_water_estimate_bytes": 4466408296,
+      "manifest_fingerprint": "0abb0d6c74b3ac2d1f1ae17b3939dd0ae144d78eb6b5fb4eea519427e0e365bf",
+      "manifest_path": "/Users/flare/replica_r3_starter/checkpoints/sparkx2_5_fp8_source/acquisition_manifest.json",
+      "network_requests": 13,
+      "resumed_bytes": 0,
+      "resumed_from_partial": false,
+      "reused_completed_snapshot": false,
+      "role": "official_fp8_adaptation_base",
+      "staged_bytes": 4466408296,
+      "staging_path": "/Users/flare/replica_r3_starter/checkpoints/sparkx2_5_fp8_source.0318d6f6ab07.staging",
+      "staging_removed": true,
+      "status": "complete",
+      "target": "/Users/flare/replica_r3_starter/checkpoints/sparkx2_5_fp8_source",
+      "verified": true
+    },
+    {
+      "bytes_downloaded": 8238996247,
+      "final_bytes": 8238996247,
+      "free_bytes_after": 500005724160,
+      "free_bytes_before": 508679987200,
+      "high_water_estimate_bytes": 12705404543,
+      "manifest_fingerprint": "7700a6a0e1a106530fa02dd322ea24522f44d026d1eaaea6497678bc15b67de9",
+      "manifest_path": "/Users/flare/replica_r3_starter/checkpoints/sparkx2_5_bf16_source/acquisition_manifest.json",
+      "network_requests": 18,
+      "resumed_bytes": 0,
+      "resumed_from_partial": false,
+      "reused_completed_snapshot": false,
+      "role": "official_bf16_control",
+      "staged_bytes": 8238996247,
+      "staging_path": "/Users/flare/replica_r3_starter/checkpoints/sparkx2_5_bf16_source.66e3ae7bee54.staging",
+      "staging_removed": true,
+      "status": "complete",
+      "target": "/Users/flare/replica_r3_starter/checkpoints/sparkx2_5_bf16_source",
+      "verified": true
+    }
+  ],
+  "started_at": "2026-10-26T20:12:01+00:00",
+  "status": "complete",
+  "weights_downloaded_this_run": true
+}
