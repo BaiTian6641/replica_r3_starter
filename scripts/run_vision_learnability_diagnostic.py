@@ -875,7 +875,14 @@ def execute_ablation(args, config, pins):
             accounting=accounting, artifact_bytes=_data_bytes(args.output))
         _failure_report(output, exc, mode="ablation",
                         stop_report=stop_report,
-                        partial={"loads": accounting.counts()})
+                        partial={"loads": accounting.counts(),
+                                 "evidence": {
+                                     name: locals().get(name)
+                                     for name in (
+                                         "receipt_invariants", "image_invariants",
+                                         "mean_preservation", "full_generations",
+                                         "mean_generations", "baseline_identity",
+                                         "paired_ablation", "ablation_decision")}})
         raise
 
 

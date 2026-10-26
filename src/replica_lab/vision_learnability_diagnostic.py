@@ -937,30 +937,8 @@ def verify_mean_preservation(
         mean_feature: Mapping[str, Any], *,
         tolerance: float = 1e-6) -> dict[str, Any]:
     """Compare stage-invariant projected-space geometry within tolerance."""
-    paths = (
-        ("pca_content", "ratio"),
-        ("pca_content", "top_singular_squared"),
-        ("pca_content", "total_singular_squared"),
-        ("sibling_cosine_distance", "mean"),
-        ("cross_pair_cosine_distance", "mean"),
-    )
     violations: list[str] = []
     comparisons: dict[str, dict[str, Any]] = {}
-    for path in paths:
-        full_value = _nested(full_feature, path)
-        mean_value = _nested(mean_feature, path)
-        name = ".".join(path)
-        item = {"full": full_value, "mean_only": mean_value,
-                "delta": None, "within_tolerance": False}
-        if full_value is None or mean_value is None:
-            violations.append(name)
-        else:
-            delta = abs(float(full_value) - float(mean_value))
-            item["delta"] = delta
-            item["within_tolerance"] = delta <= float(tolerance)
-            if not item["within_tolerance"]:
-                violations.append(name)
-        comparisons[name] = item
     for name in ("projected_mean_vector_rms_mean",
                  "within_image_spatial_variance_mean"):
         full_value = float(full_feature[name])

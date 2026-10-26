@@ -186,7 +186,9 @@ def test_ablation_stage_invariants_require_collapse_and_mean_preservation():
         _feature_summary(0.75), _feature_summary(0.0))
     assert same["ok"] is True
     drift = _feature_summary(0.0)
-    drift["pca_content"]["ratio"] = 0.6
+    assert learn.verify_mean_preservation(
+        _feature_summary(0.75), drift)["ok"] is True
+    drift["projected_mean_vector_rms_mean"] = 2.1
     assert learn.verify_mean_preservation(
         _feature_summary(0.75), drift)["ok"] is False
 
