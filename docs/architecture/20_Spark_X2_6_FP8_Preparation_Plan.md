@@ -1,10 +1,16 @@
 # Spark-X2.6-4B: official FP8 adaptation base and BF16 comparison
 
-**Source review: 24 October 2026; design updated 25 October. Status: preparation only.** MiniCPM5
-remains the baseline and first vision implementation. Spark metadata preparation
-starts now; native loading, training and vision transfer require their own
-qualifications. Completion of MiniCPM5 RSI is not a prerequisite for preparing
-or later qualifying Spark. Spark does not block the MiniCPM5 work.
+**Source review: 24 October 2026; design updated 25 October; contract reconciled
+26 October. Status: preparation only, native FP8 blocked.** MiniCPM5
+remains the baseline and first vision implementation. Spark metadata and
+tokenizer-payload preparation exist (`run_02`/`run_03`); no weights, native
+loader, adapter, gradient or measured capability is admitted. Native loading,
+training and vision transfer require their own qualifications. Completion of
+MiniCPM5 RSI is not a prerequisite for preparing or later qualifying Spark.
+Spark does not block the MiniCPM5 work. This document authorizes no native
+execution. The state, routing/compilation and RSI gate contracts that Spark must
+inherit are in
+[document 22](22_State_Mechanism_and_RSI_Contracts.md).
 
 This revision fetched public model metadata, configuration and model cards,
 not weights. Machine-readable pins and content hashes are in the
@@ -63,9 +69,11 @@ actual shard headers and scale tensors before loading; metadata alone does not
 prove tensor-by-tensor coverage.
 
 Treat three precision concepts separately: checkpoint storage, forward/backward
-compute and optimizer state. Muon 8-bit momentum affects only its supported
-optimizer state. It neither supplies FP8 kernels nor makes every parameter and
-gradient low precision.
+compute and optimizer state. Historical Muon 8-bit momentum affects only its
+supported optimizer state and is not a current training recommendation; new
+training, if any, routes through `NativeFusedAdamW`. No optimizer supplies FP8
+kernels by itself, and no precision label makes every parameter or gradient low
+precision.
 
 ## 3. Supported paths to qualify
 
@@ -126,11 +134,12 @@ the proposed alignment path. Trace gradients into new modules, prove original
 weight immutability for frozen-base tuning, check finite loss/gradients, then
 export and reload in a fresh process with the same precision semantics.
 
-Use Muon int8 momentum only for audited supported parameter groups, with an
-explicit AdamW policy for other tensors. Compare against an appropriate stable
-optimizer control before attributing quality or memory savings. Current FP32
-trainable parameter/gradient residency must be measured, not inferred from the
-BF16 or FP8 source label. Record temporary dequantization/master copies.
+Route any new candidate training through `NativeFusedAdamW` — native
+`torch.optim.AdamW(fused=True)` with strict FP32 ownership, finite-gradient and
+resume checks, and no fallback. Do not open a new Muon arm, and do not use
+archived Muon results as a matched control for new runs. Current FP32 trainable
+parameter/gradient residency must be measured, not inferred from the BF16 or FP8
+source label. Record temporary dequantization/master copies.
 
 ## 6. Vision and new memory layers: S3
 
@@ -163,13 +172,21 @@ and exclusive worker from the [integrated design](19_Integrated_Memory_Learning_
 Profile text inference, visual prefill, backward and optimizer step separately.
 Model weight bytes and the prior MiniCPM5 11 GiB run are not Spark fit evidence.
 
-| Gate | Required artifact | Failure action |
-|---|---|---|
-| S0 source | Pinned artifact inventory and code review | Retain preparation status; no native execution with an unknown source |
-| S1 inference | Native report plus FP8/BF16 comparison | Diagnose loader/backend; preserve output evidence |
-| S2 training | Gradient/update manifest and reload parity | Choose an explicitly named derivative/control or defer; no hidden format switch |
-| S3 visual | New connector, native V0 checks, measured grounding/retention | Reject or refine that scope; no automatic backbone promotion |
-| Memory/RSI | Correction, retention, restart and later-task gain | Preserve failure and useful baseline; reuse only qualified mechanisms |
+| Gate | Required artifact | Current status (26 October 2026) | Failure action |
+|---|---|---|---|
+| S0 source | Pinned artifact inventory and code review | Metadata plus tokenizer payloads pinned (`run_01`–`run_03`); shard/tensor inventory and custom-code review incomplete | Retain preparation status; no native execution with an unknown source |
+| S1 inference | Native report plus FP8/BF16 comparison | Unrun; native FP8 loading and kernels blocked | Diagnose loader/backend; preserve output evidence |
+| S2 training | Gradient/update manifest and reload parity | Unrun; no backend gradient or optimizer qualification | Choose an explicitly named derivative/control or defer; no hidden format switch |
+| S3 visual | New connector, native V0 checks, measured grounding/retention | Unrun; depends on S1/S2 and accepted perception | Reject or refine that scope; no automatic backbone promotion |
+| Memory/RSI | Correction, retention, restart and later-task gain | Unrun; MiniCPM memory, causal-refresh and visual quality remain rejected; no RSI gate passed | Preserve failure and useful baseline; reuse only qualified mechanisms |
+
+Native FP8 remains **blocked**: configuration parsing and tokenizer provisioning
+do not admit a loader, supported kernels or gradients. The rejected MiniCPM
+visual/causal quality and the zero-update memory candidate are not repaired by
+Spark preparation. No native work is authorized by this document, and no Spark
+run is scheduled here. Any future S1/S2 result additionally reports the state
+owners, version keys, reset classes and cost ledger defined in
+[document 22](22_State_Mechanism_and_RSI_Contracts.md).
 
 The final recommendation between MiniCPM5 and Spark requires measured quality,
 retention, latency and training cost. The official FP8 artifact is now a concrete

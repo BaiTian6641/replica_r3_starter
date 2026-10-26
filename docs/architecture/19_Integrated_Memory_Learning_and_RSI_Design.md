@@ -8,6 +8,19 @@ The rejected v5 writer is not promoted. Exact visual-source retrieval and a
 sandbox procedure publication/rejection/rollback cycle have separate CPU
 engineering qualification; neither is learned visual memory or neural RSI.
 
+**Contract reconciliation — 26 October 2026:**
+[document 22](22_State_Mechanism_and_RSI_Contracts.md) now owns the canonical
+per-state matrix (owner, read/write timing, update equation, loss, gradient path,
+reset, persistence, cost and version key), the primary-source/deviation audit for
+Titans, uTTT, HOPE, MemT/Mem-T and selective plasticity, the routing-versus-
+compilation admission gates and the bounded RSI gate sequence. This document
+keeps the integrated plan and its evidence boundary. The dispositions are
+unchanged: `native04` remains rejected at 110/240 with zero optimizer updates
+(`restart04` passes reload parity), the current vision-stage audit remains
+rejected at 6/24 with caption F1 zero, Spark remains preparation-only with native
+FP8 blocked, and no Titans/uTTT/HOPE/MemT/selective-plasticity mechanism has been
+trained. No mechanism is promoted by this revision.
+
 **Design revision: 25 October 2026. Reviewed implementation: `7c7018e`.**
 This is a proposed system and qualification plan, not a record of new training.
 MiniCPM5 remains the baseline; the native memory guard remains **50 GiB**.
@@ -107,7 +120,11 @@ cannot make itself authoritative by writing a more confident explanation.
 Keep source evidence, teacher output, generated practice, agent experience and
 approved identity facts distinct. Every derivative records its parents. New
 retrieval or a new crop creates a new pinned decision rather than changing the
-evidence behind an existing decision.
+evidence behind an existing decision. The per-state owner, read/write timing,
+update equation, loss, gradient path, reset, persistence, cost and version key
+for the stable backbone, identity/personality, trained memory machinery, mutable
+episodic/fast state, persistent learning, task state and external sensors are
+specified in [document 22](22_State_Mechanism_and_RSI_Contracts.md).
 
 Reuse the current adapter/session/frame, ledger, fast-memory service, compiler,
 candidate registry, publisher and identity interfaces. This design extends those
@@ -129,6 +146,9 @@ paths; it does not authorize another disconnected model demonstration.
 These are different state types, not interchangeable caches. Native attention
 KV state is a sequence acceleration artifact, not the persistent source ledger
 or evidence of learned episodic memory. A warm cache does not count as learning.
+The exact reset, persistence and version-key rules for each row are in
+[document 22 §2](22_State_Mechanism_and_RSI_Contracts.md); clearing a state is
+only interpretable when its class is named.
 
 The initial learned path retains the existing MiniCPM5 ports at layers 13/27 and
 the declared state ownership. Compare shared and private state only at matched
@@ -185,13 +205,50 @@ the deployed reader. New neural objectives may combine response supervision,
 observed-association reconstruction and selective-write/retention terms, but
 choose and ablate one mechanism first, with weights and masks fixed before runs.
 
-## 4. Dynamic Engram paths and runtime compilation
+## 4. Dynamic routing and runtime compilation
 
 The proposed dynamic path is a bounded router over exact records, episodic state,
 stable pattern lookup and verified procedures. Record the query, eligible source
 epoch, selected path, retrieved IDs, state/producer versions, coverage, fallback
 and cost. Initially use explicit, auditable rules. Learn routing only after
 reliable outcomes and a matched fixed-router comparison exist.
+
+**Routing and compilation are different operations.** Routing selects among
+paths that already exist for one decision and emits a route audit; it creates no
+reusable artifact. Compilation produces a reusable artifact with a declared
+input contract, lineage and consumer (exact-context bundle, feature cache,
+record slots, fast-state snapshot, pattern index, procedure or trained adapter);
+it does not choose its own route. A compiled artifact may later be one of the
+router's choices. Neither operation is learning, and a valid manifest proves
+provenance only. The detailed contract is in
+[document 22 §4](22_State_Mechanism_and_RSI_Contracts.md).
+
+A compiled path may replace an eager path only after all of the following:
+
+1. **Eager-reference parity.** The compiled path reproduces the eager reference
+   on a preregistered fixture set within declared tolerances, including masks,
+   positions, dtypes, KV behavior, batching and sampling, deterministically
+   across restart and request order.
+2. **Cache invalidation.** A source correction, revocation, producer,
+   representation, scope or state-revision change invalidates the artifact and
+   every dependent cache. Stale artifacts are rejected, and interrupted
+   publication preserves the last valid revision.
+3. **Rollback.** An atomic active pointer can disable the compiled path and
+   restore the eager path byte-identically; it cannot become the only path to a
+   capability.
+4. **Measured benefit.** At matched quality, a preregistered latency, throughput,
+   memory or cost improvement on a defined workload, with compile/warmup and
+   transport charged. Parameter counts and analytical ledgers do not qualify.
+
+A learned router adds a behavioral gate: it must be compared with an explicit
+fixed router on the same eligible evidence and budget, with a route audit,
+coverage/fallback and abstention behavior, no evaluation-label leakage and
+either a quality gain or a cost gain at equal quality on held-out families. A
+learned router is **not** admitted by manifest validation, by successful
+training or because it is bundled in a compiled artifact. No compiled path or
+learned router is currently admitted; the default remains the eager path with
+explicit rules, and the existing publisher is a single-writer reference rather
+than a durable cross-store transaction.
 
 An Engram n-gram table is not the authority for a recently corrected personal
 fact. Resolve such facts against current eligible evidence. Do not treat hashes
@@ -298,6 +355,34 @@ changes, bad candidates, no-improvement periods and rollback. T3 must improve
 later adaptation relative to T2 at comparable cost; merely improving relative
 to T0 does not establish a better learning algorithm.
 
+### Bounded RSI gates
+
+An observation write, practice generation, candidate fine-tuning, replay, a
+larger procedure/skill library, longer reflection, more stored records or higher
+confidence are **not** recursive improvement. The ladder is observation write →
+verified practice → actual candidate update → consolidation → learning-policy
+improvement → RSI. A gate is passed only by the named evidence; the full
+protocol, including reset classes and reporting, is in
+[document 22 §5](22_State_Mechanism_and_RSI_Contracts.md).
+
+| Gate | Required evidence | Rejection condition |
+|---|---|---|
+| RS0 independently verified practice | Practice tied to an actual failure and eligible evidence; labels/results checked outside the candidate | Self-certified labels or unverified teacher text treated as knowledge |
+| RS1 actual candidate updates | One isolated scope; nonzero optimizer steps, named/changed tensors, finite gradients, exact optimizer membership | Zero-update/no-op candidate or hidden parameter scope |
+| RS2 causal update effect | Reset/revert of the update removes the claimed effect; wrong-world/shuffled-feedback controls do not reproduce it | Effect survives reset or appears without the update |
+| RS3 unseen later-task gain | Preregistered rule, held-out families and new instances, paired confidence interval, matched T0–T3 exposure/replay/compute, retention and cost | Gain only on development instances, the current task or versus T0 |
+| RS4 successive cycles | At least two successive qualified policy revisions on fresh families against frozen-policy and equal-cumulative-compute controls; task state reset between worlds | One accepted update or repeated fine-tuning of the same policy |
+| RS5 reset ablations | Reset task state only versus reset policy/identity only; reset the declared learned substrate; wrong-world and shuffled-feedback arms | One unspecified “memory reset” or a result that cannot separate task state from conditioning |
+| RS6 rollback and audit | Authenticated ancestor, atomic restore, deterministic replay, independent evaluator, candidate cannot alter verifier/rules/guards/identity goals | Unauthenticated rollback or candidate-controlled promotion |
+
+RS3 is the first gate that can support a capability claim; only repeated RS4
+passes with fresh families and matched cumulative cost can support a bounded RSI
+claim. The current status is RS0 host plumbing only: the bounded procedure-cycle
+smoke exercised real practice, independent verification, rejection, sandbox
+publication and rollback, while `native04` records zero optimizer updates. No
+neural candidate update, later-task gain, successive policy revision or reset
+series exists.
+
 Multi-rate consolidation is later work. Give each level its own state, objective,
 update context and measured frequency, and compare with an equal-budget fixed
 schedule. Different timers alone do not reproduce Nested Learning. Code and
@@ -318,6 +403,43 @@ retrieval and trained identity reader on reserved decision families. Authentic
 fidelity needs permitted source material and human judgment; fictional contracts
 establish engineering only. Missing identity material does not block V0.
 
+### Behavioral stability, correction and reset separation
+
+Personality is a **behavioral contract**, not a claim about subjective state: the
+stable, source-grounded conditioning of priorities, expression, clarification and
+refusal, plus a declared behavioral policy. Functional appraisal is a bounded
+control state. Neither implies feeling or consciousness, and a model self-report
+is not an observation or a fact.
+
+Use reserved decision families with equal eligible information for:
+paraphrase/order stability; irrelevant-context and long-context stability; dated
+correction sensitivity with untouched-fact retention; source/branch authorship
+separation; null/disabled-identity parity; counterfactual preference and exception
+handling; fact-versus-style separation; adversarial fabricated-identity injection;
+and delayed test–retest. Stubborn repetition, sycophantic reversal under pressure,
+refusal to accept a valid correction and invented biography all fail. Report
+choice agreement, evidence attribution, correction uptake, unrelated retention
+and calibration separately; never collapse them into one “fidelity” score.
+
+The reset series must manipulate two axes on the same families. **E1** resets task
+state only (workspace, task graph and task KV) while retaining identity and
+declared policy; task accuracy should return to baseline without task leakage.
+**E2** resets identity/policy to null while retaining task state; task performance
+should persist and the identity-conditioned difference from E1 should disappear.
+**E3** resets both as the floor. The E1−E2 contrast measures dependence on
+conditioning rather than on task memory; a single unspecified “memory reset”
+cannot locate behavior. If a learning-policy revision is under test, name it
+explicitly rather than folding it into personality.
+
+The external-sensor and UAP boundary is **read-only with respect to canonical
+state**. A sensor packet is available no earlier than its acquisition end plus
+encoder delay; observer egress cannot mutate hidden state or memory and leaves
+deterministic outputs bitwise unchanged; action egress uses a separate clock with
+units, frame, validity and deadline handling; feedback returns as a new
+observation. No layer consumes a result produced later in the same pass, and
+teacher forcing uses the same availability masks. See
+[document 22 §6](22_State_Mechanism_and_RSI_Contracts.md).
+
 The core should integrate perception, evidence, task state and uncertainty into
 an immutable decision, followed by a bounded action and real outcome. Calibrate
 success/uncertainty heads before they control tool calls or learning expenditure.
@@ -326,21 +448,31 @@ recurrence. An internal narrative is not an independent observation.
 
 ## 8. Research guidance and limits
 
-| Primary source | Narrow contribution used by this design | What remains our hypothesis |
+The table separates the **published mechanism** from **this project's deviation**
+and its implementation status. Paper results are author-reported, not
+reproduced locally; source inspections were static. **No row is trained or
+quality-qualified.** “Design-only” means specified but unimplemented (no
+candidate artifact exists); “unrun” means no local execution. The full audit is
+in [document 22 §3](22_State_Mechanism_and_RSI_Contracts.md).
+
+| Primary source | Exact published mechanism (narrow) | Project deviation and status |
 |---|---|---|
-| [Titans](https://arxiv.org/abs/2501.00663) | Learning a neural memory at test time | Reliable correction, source eligibility and persistence in this native integration |
-| [Nested Learning / HOPE](https://arxiv.org/abs/2512.24695) | Nested optimization contexts and multi-rate memory | Choosing useful levels and objectives after simpler paths work |
-| [uTTT](https://arxiv.org/abs/2610.05484), [author code](https://github.com/Zefan-Cai/uTTT) | Shared test-time state across layers; current release includes dense and MoE implementations | Fair shared/private comparisons in MiniCPM5; our two ports are not a reproduction |
-| [Engram](https://arxiv.org/abs/2601.07372v2) | Conditional lookup for stable patterns | Dynamic scoped episodic routing and visual record paths |
-| [MemT-1.0](https://arxiv.org/abs/2610.26825), [author code](https://github.com/MemTensor/MemT-1.0) | Native memory processing, trainable projections and local dynamic state | Retrofitting a small frozen model with a much smaller budget; authors' large-scale training is not evidence for our pilot |
-| [Mem-T](https://arxiv.org/abs/2601.23014v2) | Memory-operation policy learning | Coordinating it with native fast state; distinct work from MemT-1.0 |
-| [LLaVA](https://arxiv.org/abs/2304.08485) | Alignment followed by visual instruction tuning | MiniCPM5-specific projector, retention and persistent visual memory |
-| [SEAL](https://arxiv.org/abs/2506.10943) | Learning to propose adaptation material | Externally verified, bounded selection with retained capabilities |
-| [STaR](https://arxiv.org/abs/2203.14465), [Absolute Zero](https://arxiv.org/abs/2505.03335) | Iterative reasoning practice and verifiable generated tasks | Transfer to grounded multimodal tasks without self-certifying labels |
+| [Titans](https://arxiv.org/html/2501.00663v1) | Neural long-term memory updated at test time by gradient on an associative objective, with momentum, adaptive forgetting and several attention combinations | We keep a bounded linear delta-rule control and the separate SGDN-2 primitive; no deep memory, momentum, or faithful inner/outer schedule. `design-only`; `unrun` |
+| [Nested Learning / HOPE](https://arxiv.org/html/2512.24695v1) | Interacting optimization levels with distinct context flows/frequencies, CMS and self-referential modules; ~15B-token Llama adaptation | We separate state lifetimes and objectives. A scheduler, two core iterations or several timers is not CMS/HOPE; no cross-level credit or self-referential derivation. `design-only`; `unrun` |
+| [uTTT](https://arxiv.org/html/2610.05484v1), [author code](https://github.com/Zefan-Cai/uTTT) | Shared fast weights across depths; chunk-start reads; one combined gradient update; historical cross-depth outer gradients; routed/private controls | Two ports may share state only at matched bytes/write count/cost. M3 averages state proposals and is not this optimizer; no shared-depth schedule. `design-only`; `unrun` |
+| [MemT-1.0 v2](https://arxiv.org/html/2610.26825v2), [author code](https://github.com/MemTensor/MemT-1.0) | Selected-layer memory attention; fixed hyper-memory projections/gates; local per-trajectory matrices; SGDN-2; **dense** Mixture-of-Storage; ~34B training tokens | Post-block residual ports remain the baseline; pre-output attention is a separate versioned candidate. Separate read/write routers and top-two sparse execution are our extension; dense MoS is the faithful control. `design-only`; `unrun` |
+| [Mem-T v2](https://arxiv.org/html/2601.23014v2) | Learned memory-operation policy over hierarchical working/factual/experiential/raw stores with operation-tree credit; distinct from MemT-1.0 | Deterministic director first; a learned selector only after fixed-policy learning works. No operation-policy training; author training scripts still listed as forthcoming. `design-only`; `unrun` |
+| Selective plasticity: [ANML](https://arxiv.org/pdf/2002.09571v2), [Backpropamine](https://arxiv.org/html/2002.10585v1) | ANML meta-learns a gate fixed at meta-test and updates only the final prediction layer; Backpropamine learns plasticity coefficients over Hebbian traces with eligibility traces | We specify a plasticity gate over a declared `F/P` subset, compared with fixed/sparse/random gates at equal update budgets. Neither protocol is implemented, and classification/RL evidence is not language or open-world evidence. `design-only`; `unrun` |
+| [Engram](https://arxiv.org/html/2601.07372v2) | Deterministic hashed n-gram tables with contextual gating and causal convolution; static sparse capacity | “Dynamic Engram” is native editable associative memory, not the paper. `PatternAccessPort` implements causal hashed n-grams, not the full architecture; visual patch hashes are not token n-grams. `implemented control`, no quality claim |
+| [LLaVA](https://arxiv.org/abs/2304.08485) | Alignment followed by visual instruction tuning | MiniCPM5-specific projector, retention and persistent visual memory; V0 interface-only, current vision-stage quality rejected, V2 unrun. |
+| [SEAL](https://arxiv.org/abs/2506.10943) | Learning to propose adaptation material, evaluated after actual inner adaptation | Externally verified, bounded selection with retained capabilities; proposal plumbing only, no neural RSI. |
+| [STaR](https://arxiv.org/abs/2203.14465), [Absolute Zero](https://arxiv.org/abs/2505.03335) | Iterative reasoning practice and verifiable generated tasks | Transfer to grounded multimodal tasks without self-certifying labels; only host-side practice/verification contracts exist. |
 
 No combination of paper names establishes the complete system. The integration,
 ownership, rejection and evaluation contracts above are project design choices.
 Upstream benchmark gains and training budgets are not local acceptance values.
+Adding a mechanism named in this table does not authorize training or imply that
+the mechanism is implemented.
 
 ## 9. Work packages and resource gates
 
@@ -355,8 +487,10 @@ Upstream benchmark gains and training budgets are not local acceptance values.
 | M probe | Fresh storage/addressing/readout diagnosis | A discriminating result; one targeted repair if justified, separate from V0 |
 | V3 | Exact visual retrieval then learned visual memory | Useful delayed recall, correction, unaffected retention and restart |
 | V4 | Verified candidate cycle, then T0–T3 study | Later-task gains, retention, cost and rollback; no automatic promotion |
-| S0 now | Spark source/precision/backend plan and data portability | Pinned metadata; unsupported capabilities remain explicit |
+| S0 preparation | Spark source/precision/backend plan and data portability | Pinned metadata; native FP8 remains blocked and unsupported capabilities stay explicit |
 | S1–S3 later | Spark native parity, training capability, then vision/memory transfer | Independent qualification; neither depends on completing RSI nor blocks MiniCPM5 |
+| C1–C5 | Compiled-path parity, invalidation, rollback and measured benefit; learned-router comparison | Admit only the path that passes all gates; eager path remains the default |
+| RS0–RS6 | Verified practice, actual candidate updates, unseen later-task gain, successive cycles, reset series and rollback | No capability claim before RS3; bounded RSI only after repeated RS4 with fresh families |
 
 Use one exclusive MPS worker, fallback disabled, sampled driver stop at
 53,687,091,200 bytes, sustained 512 MiB swap growth and 15% minimum free memory
@@ -364,10 +498,14 @@ over three host samples. Keep initial admission checks and historical policies.
 The guard is not a promised usable allocation or a disk-storage limit.
 
 Measure encoder, visual/text tokens, activations, trainable tensors, optimizer,
-fast state, caches and temporary copies separately. Muon int8 momentum does not
-make the original parameters or gradients int8. FP8 weights do not establish a
-supported training kernel. Larger models and full-scope tuning require separate
-capacity evidence, never an inferred fit from active-parameter count.
+fast state, caches and temporary copies separately. New training, if any, routes
+through `NativeFusedAdamW` — native `torch.optim.AdamW(fused=True)` with strict
+FP32 ownership, finite-gradient and resume checks, and no eager/custom fallback.
+Archived Muon arms remain historical observations and are not a new comparison
+target. Parameter precision does not make gradients or optimizer moments low
+precision. FP8 weights do not establish a supported training kernel. Larger
+models and full-scope tuning require separate capacity evidence, never an
+inferred fit from active-parameter count.
 
 Every package reports implemented/tested/trained/evaluated/unrun status, exact
 pins, independent units, controls, failed gates, resource cost and the next
