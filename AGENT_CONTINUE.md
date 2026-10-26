@@ -24,6 +24,10 @@ analytical only; strict 32-input bundle replay passes with owned synthetic
 fixtures only. External media rights, asset QA and native Spark remain
 prerequisites, not completed work. Earlier evidence below is historical.
 
+The final integration suite passed 2016 tests plus 21 subtests with one
+explicit skip in 292.73 s; see `reports/regression_20261026/full_suite.log`
+and `full_suite.xml`.
+
 The balanced diagnostic supports narrow procedural image dependence: primary
 71/120 dev and 75/120 final versus question-only 36/120 and shuffled 50/120 and
 46/120, with positive clustered lower bounds. Spatial leads; this is not uniform

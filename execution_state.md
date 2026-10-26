@@ -76,14 +76,19 @@ and [dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md
 | Optimizer suite | 25 passed |
 | Spark residency + first-tranche suites | 35 passed |
 | Spark residency receipt / strict bundle | both verified |
+| Full repository regression | 2016 passed, 1 skipped, 21 subtests |
 
 The next justified work is a predeclared visual learnability hypothesis only
 if the failed fit/dev analysis supports it, and explicitly authorized external
-asset/right clearance before any real tranche.
-Do not open the sealed visual audit after the failed gates,
-do not tune against it, and do not infer native Spark or exact fused-resume
-success from software receipts. A full clean-export regression run remains a
-separate integration check, not a capability claim.
+asset/right clearance before any real tranche. Do not open the sealed visual
+audit after the failed gates, do not tune against it, and do not infer native
+Spark or exact fused-resume success from software receipts. The final full
+suite, including checkpoint crash injection, passed in 292.73 s with one
+explicit skip and one warning. Raw evidence is
+`reports/regression_20261026/full_suite.log` (SHA-256
+`89005405637e13a0ba33dc316fbdc708d1d92d0d5ed152c2378343112a686f23`)
+and `full_suite.xml` (SHA-256
+`1564943f57a6d88fb1379ad1c7d1e68c71dd042a7b584db6ce0aef4459e458ea`).
 
 
 ## Full-scope training performance investigation — 25 October 2026
