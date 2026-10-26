@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import hashlib
 import copy
+import functools
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -757,3 +759,248 @@ def test_v2_protocol_declares_corrected_benchmark_and_no_training():
     assert hashlib.sha256(manifest.read_bytes()).hexdigest() == (
         config["episodes"]["manifest_sha256"])
     assert config["transaction"]["objective_admitted_for_this_protocol"] is False
+
+
+# ---------------------------------------------------------------------------
+# NL1 v2 runner helpers (CPU only: no model load, no MPS, no native job)
+# ---------------------------------------------------------------------------
+
+
+@functools.lru_cache(maxsize=1)
+def runner_module():
+    spec = importlib.util.spec_from_file_location(
+        "run_nested_text_v2_contract",
+        ROOT / "scripts" / "run_nested_text.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def v2_directory() -> Path:
+    return ROOT / "data" / "nested_text_nl1_v2_20261026"
+
+
+def test_v2_runner_accepts_both_episode_manifest_versions():
+    module = runner_module()
+    v1 = module.load_episode_manifest(ROOT / "data" / "nested_text_nl1_20261026")
+    v2 = module.load_episode_manifest(v2_directory())
+    assert v1["format"] == "replica.nested_text.episode_manifest.v1"
+    assert v2["format"] == "replica.nested_text.episode_manifest.v2"
+    assert v2["schema_version"] == 2
+    assert set(v2["role_files"]) >= {"development", "sealed_final", "wrong_world"}
+
+
+def test_v2_mode_dispatch_enforces_allowed_native_modes():
+    module = runner_module()
+    v1 = json.loads((ROOT / "configs" / "nested_text_nl1_v1.json").read_text())
+    v2 = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
+    module.validate_run_mode(v1, "p-only-eval")
+    module.validate_run_mode(v1, "teach")
+    with pytest.raises(module.RunnerError, match="init"):
+        module.validate_run_mode(v1, "init")
+    module.validate_run_mode(v2, "init")
+    module.validate_run_mode(v2, "p-only-eval")
+    for mode in ("teach", "resume"):
+        with pytest.raises(module.RunnerError, match="not admitted"):
+            module.validate_run_mode(v2, mode)
+    module.validate_v2_config(v2)
+    with pytest.raises(module.RunnerError, match="one shared expert"):
+        module.validate_v2_config({**v2, "bank": {**v2["bank"], "experts": 2}})
+    with pytest.raises(module.RunnerError, match="stop tokens"):
+        module.validate_v2_config(
+            {**v2, "generation": {**v2["generation"], "stop_tokens": [1]}})
+    with pytest.raises(module.RunnerError, match="v2 protocol"):
+        module.validate_v2_config(v1)
+
+
+def test_v2_protocol_binds_constant_single_expert():
+    module = runner_module()
+    config = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
+    lock = {"snapshot_files_sha256": {
+        "model.safetensors": "a" * 64,
+        "tokenizer.json": "b" * 64,
+        "chat_template.jinja": "c" * 64,
+    }}
+    protocol_value = module.protocol_for_world(
+        config, lock, hidden_size=32, world_uid="world_alpha")
+    assert protocol_value.expert_count == 1
+    assert protocol_value.expert_count == config["bank"]["experts"]
+    assert protocol_value.route_mode == "fixed"
+    assert protocol_value.route_seed == 0
+    assert protocol_value.scope == "world_alpha/text"
+
+
+def test_v2_workload_duty_amortizes_teaching_and_evaluation():
+    module = runner_module()
+    assert module.workload_duty_cycle(
+        learning_update_seconds=2.0, teaching_end_to_end_seconds=6.0,
+        evaluation_end_to_end_seconds=2.0) == pytest.approx(0.25)
+    assert module.workload_duty_cycle(
+        learning_update_seconds=0.0, teaching_end_to_end_seconds=0.0,
+        evaluation_end_to_end_seconds=3.0) == 0.0
+    for kwargs in ({"learning_update_seconds": None,
+                    "teaching_end_to_end_seconds": 1.0,
+                    "evaluation_end_to_end_seconds": 1.0},
+                   {"learning_update_seconds": 1.0,
+                    "teaching_end_to_end_seconds": -1.0,
+                    "evaluation_end_to_end_seconds": 1.0},
+                   {"learning_update_seconds": 1.0,
+                    "teaching_end_to_end_seconds": 0.0,
+                    "evaluation_end_to_end_seconds": 0.0}):
+        with pytest.raises(module.RunnerError):
+            module.workload_duty_cycle(**kwargs)
+
+
+def test_v2_phase_work_counts_measured_calls_and_positions():
+    module = runner_module()
+    records = [("plastic_read", 7), ("session_prepare", 7),
+               ("generation", 7), ("generation", 8), ("generation", 9)]
+    work = module.phase_work_from_records(
+        records, generated_ids=3, stop_reason="stop_token", stop_token=1)
+    assert work["plastic_feature_forward_calls"] == 1
+    assert work["plastic_feature_prompt_positions"] == 7
+    assert work["session_sense_forward_calls"] == 1
+    assert work["session_sense_prompt_positions"] == 7
+    assert work["generation_prefill_forward_calls"] == 1
+    assert work["generation_prefill_positions"] == 7
+    assert work["generation_decode_forward_calls"] == 2
+    assert work["decode_positions"] == 17
+    assert work["generated_ids"] == 3
+    assert work["backward_calls"] == 0 and work["replay_calls"] == 0
+    assert work["response_supervised_tokens"] == 0
+    assert work["truncated"] is False
+    budget = module.phase_work_from_records(
+        records[:3], generated_ids=1, stop_reason="token_budget",
+        stop_token=None)
+    assert budget["decode_positions"] == 0
+    assert budget["truncated"] is True
+    missing = module.phase_work_from_records(
+        [], generated_ids=1, stop_reason="missing_stop", stop_token=None)
+    assert missing["generation_prefill_positions"] == 0
+    assert missing["generation_prefill_forward_calls"] == 0
+    with pytest.raises(module.RunnerError, match="unknown measured phase"):
+        module.phase_work_from_records(
+            [("unattributed", 1)], generated_ids=1,
+            stop_reason="stop_token", stop_token=1)
+
+
+def test_v2_work_totals_sum_positions_and_forward_calls():
+    module = runner_module()
+    first = module.phase_work_from_records(
+        [("plastic_read", 4), ("session_prepare", 4), ("generation", 4),
+         ("generation", 5)],
+        generated_ids=2, stop_reason="stop_token", stop_token=1)
+    second = module.phase_work_from_records(
+        [("plastic_read", 3), ("session_prepare", 3), ("generation", 3)],
+        generated_ids=1, stop_reason="token_budget", stop_token=None)
+    totals = module.sum_phase_work([first, second])
+    assert totals["requests"] == 2
+    assert totals["generated_ids"] == 3
+    assert totals["plastic_feature_prompt_positions"] == 7
+    assert totals["session_sense_prompt_positions"] == 7
+    assert totals["generation_prefill_positions"] == 7
+    assert totals["decode_positions"] == 5
+    assert totals["forward_calls"]["total"] == 7
+    assert totals["stop_reasons"] == {"stop_token": 1, "token_budget": 1}
+    assert totals["truncated_attempts"] == 1
+    assert totals["backward_calls"] == 0 and totals["replay_calls"] == 0
+
+
+def test_v2_latency_summary_reports_p50_and_p95_for_each_phase():
+    module = runner_module()
+    rows = [{field: index / 1000.0 for field in module.LATENCY_FIELDS}
+            for index in range(1, 21)]
+    summary = module.summarize_latency(rows)
+    assert set(summary) == set(module.LATENCY_FIELDS)
+    values = [index / 1000.0 for index in range(1, 21)]
+    for field in module.LATENCY_FIELDS:
+        entry = summary[field]
+        assert entry["count"] == 20
+        assert entry["p50_ms"] == pytest.approx(module.p50(values) * 1000.0)
+        assert entry["p95_ms"] >= entry["p50_ms"]
+    empty = module.summarize_latency([])
+    assert empty["total_seconds"] == {"count": 0, "p50_ms": 0.0,
+                                      "p95_ms": 0.0}
+
+
+def test_v2_phase_work_merges_per_request_latency():
+    module = runner_module()
+    work = [{"id": "dev-0000", "label": "taught_development",
+             "generated_ids": 2}]
+    latency = [{"id": "dev-0000", "label": "taught_development",
+                **{field: 0.01 for field in module.LATENCY_FIELDS}}]
+    merged = module._merge_request_rows(work, latency)
+    assert merged[0]["generated_ids"] == 2
+    assert merged[0]["total_seconds"] == 0.01
+    assert merged[0]["plastic_read_seconds"] == 0.01
+
+
+def test_v2_scoring_uses_stop_metadata_and_rejects_empty_truncated():
+    module = runner_module()
+    stopped = module.finalize_generation(
+        [7, 1], decode=lambda ids: "Tevufa", max_new_tokens=24)
+    assert stopped.stop_reason == "stop_token" and stopped.truncated is False
+    assert module.score_generation("Tevufa", stopped).correct is True
+    budget = module.finalize_generation(
+        [7, 8], decode=lambda ids: "Tevu", max_new_tokens=2)
+    assert budget.stop_reason == "token_budget" and budget.truncated is True
+    assert module.score_generation("Tevufa", budget).correct is False
+    empty = module.finalize_generation(
+        [1], decode=lambda ids: "", max_new_tokens=24)
+    assert empty.truncated is False
+    assert module.score_generation("Tevufa", empty).correct is False
+    conflict = module.finalize_generation(
+        [9, 1], decode=lambda ids: "Tevufa Mipezu", max_new_tokens=24)
+    assert module.score_generation(
+        "Tevufa", conflict, candidate_answers=("Mipezu",)).correct is False
+    exact = module.finalize_generation(
+        [9, 1], decode=lambda ids: "unknown", max_new_tokens=24)
+    assert module.score_generation("unknown", exact).correct is True
+    loose = module.finalize_generation(
+        [9, 1], decode=lambda ids: "the answer is unknown", max_new_tokens=24)
+    assert module.score_generation("unknown", loose).correct is False
+
+
+def test_v2_native_forward_counter_tracks_actual_calls():
+    module = runner_module()
+
+    class CountingAdapter:
+        def __init__(self):
+            self.seen = []
+
+        def _native(self, ids, valid=None, **kwargs):
+            self.seen.append(int(ids.shape[-1]))
+            return ids
+
+    adapter = CountingAdapter()
+    with module.counted_native_forwards(adapter) as counter:
+        counter.phase = "plastic_read"
+        adapter._native(torch.ones(1, 4, dtype=torch.long))
+        counter.phase = "generation"
+        adapter._native(torch.ones(1, 5, dtype=torch.long))
+        adapter._native(torch.ones(1, 6, dtype=torch.long))
+    assert counter.records == [("plastic_read", 4), ("generation", 5),
+                               ("generation", 6)]
+    assert adapter.seen == [4, 5, 6]
+    with pytest.raises(module.RunnerError, match="accounting phase"):
+        with module.counted_native_forwards(adapter) as unphased:
+            adapter._native(torch.ones(1, 1, dtype=torch.long))
+    adapter._native(torch.ones(1, 2, dtype=torch.long))
+    assert adapter.seen == [4, 5, 6, 2]
+    assert counter.records == [("plastic_read", 4), ("generation", 5),
+                               ("generation", 6)]
+    assert unphased.records == []
+
+
+def test_v2_candidate_answers_cover_conflict_roles_only():
+    module = runner_module()
+    directory = v2_directory()
+    manifest = module.load_episode_manifest(directory)
+    answers = module.candidate_answers_for(directory, manifest)
+    expected = set()
+    for role in ("development", "correction", "unaffected", "wrong_world"):
+        expected.update(row["expected_response"]
+                        for row in module.load_rows(directory, manifest, role))
+    assert set(answers) == expected
+    assert list(answers) == sorted(expected)
