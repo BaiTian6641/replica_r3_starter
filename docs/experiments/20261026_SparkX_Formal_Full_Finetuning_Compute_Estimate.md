@@ -1,5 +1,11 @@
 # SparkX 2.6 4B: formal full fine-tuning compute estimate
 
+Follow-up: the [BF16/Muon and parallel-GPU review](20261026_Mixed_Precision_Muon_and_Parallel_GPU_Budget_Review.md)
+adds MiniCPM budgets, verified 3090 Ti unlock gains, TITAN's existing full-rate
+FP16 capability, explicit optimizer work and joint four-GPU placement. The
+figures below remain the original FP32-residency/fused-AdamW planning baseline;
+they do not include the newly reviewed unlock or low-memory Muon candidates.
+
 26 October 2026, America/Chicago. Review of the current revision 4.5 design,
 corrected residency ledger and recorded MiniCPM training runs. The user selected
 100M, 1B and 5B total processed-position scenarios. This is a planning report,

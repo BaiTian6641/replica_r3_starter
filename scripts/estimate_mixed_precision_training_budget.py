@@ -132,6 +132,11 @@ def estimate(config_path=DEFAULT):
     cfg = read(config_path)
     folder = ROOT / cfg["evidence_directory"]
     evidence = inputs(folder)
+    residency = read(evidence["residency_v2.json"])
+    moved_ids = {"vision_encoder", "audio_encoder", "vision_projector", "audio_projector"}
+    moved_parameters = sum(c["parameters"] for c in residency["parameter_inventory"]["components"] if c["id"] in moved_ids)
+    if moved_parameters != cfg["pipeline"]["encoder_and_bridge_parameters"]:
+        raise ValueError("Pipeline placement differs from the pinned component inventory")
     mini = read(evidence["minicpm_tensor_audit.json"])
     inv = {
         "minicpm": inventory([{"name": k, "shape": v["shape"]} for k, v in mini["tensors"].items()], "minicpm", cfg["optimizer"]["ns_steps"]),

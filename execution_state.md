@@ -1,5 +1,33 @@
 # Execution state — integrated memory, cognition and learning
 
+## BF16/Muon and parallel GPU budget follow-up — 26 October 2026
+
+The user requested a second review including optimized low-precision Muon,
+the 3090 Ti compute unlock, both MiniCPM5 and Spark, and parallel multimodal /
+backbone work across the two GPU pairs. The
+[follow-up report](docs/experiments/20261026_Mixed_Precision_Muon_and_Parallel_GPU_Budget_Review.md)
+corrects the missing unlock: primary-source 3090 Ti BF16 GEMM is 1.80× faster
+with FP32 accumulation. TITAN RTX already has full-rate FP16 accumulation and
+does not receive another 2× factor or a native-BF16 claim.
+
+At 1B total processed positions, the unlocked pair's conditional full-schedule
+budget is 353–1,325 GPU-h for the current 2.5168B MiniCPM backbone, 424–1,590
+for a 2.8B complete-module MiniCPM envelope, and 627–2,349 for the full 4.4B
+Spark envelope. CUDA phase delivery remains assumed, with slower fallbacks
+reported. Full Spark's H200 Muon budget is 138–501 GPU-h per schedule or
+421–1,518 for three equivalents plus qualification; the fused-AdamW control
+is 118–429 per schedule. The M2 BF16 projection remains unqualified with a
+null executable budget, despite potentially lower persistent Muon state.
+
+The review distinguishes overlapping independent warmups from a connected
+joint autograd pipeline. Moving live encoders/bridges to TITAN can relieve
+3090 residency but does not halve a backbone-bound schedule. All original
+parameters and live joint-stage sensory paths remain in scope. The calculator
+and evidence were committed at `25aa426`; final report validation checks the
+pipeline placement against the pinned component ledger as well. No training,
+driver/firmware modification, paid provisioning or change to optimizer defaults
+and resource guards was performed.
+
 ## Spark formal full-training compute review — 26 October 2026
 
 The user requested total compute estimates for the modified SparkX 2.6 4B
