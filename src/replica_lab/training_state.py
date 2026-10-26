@@ -3,8 +3,8 @@
 The caller saves model weights separately and publishes a checkpoint only after
 both files are complete. This module does not clone the model or optimizer to
 CPU before saving: ``torch.save`` serializes the optimizer's resident tensors.
-Loading maps storage to CPU, then the optimizer owns its validated migration to
-the model's device (including preservation of Muon's int8 momentum).
+Loading maps storage to the requested target device (CPU for fixtures, native
+device for native resume), then the optimizer owns validated state attachment.
 
 Data cursors and schedule state are explicit JSON values. A caller must include
 the model source, tokenizer, data identity, training regime and hyperparameters
@@ -178,9 +178,17 @@ def load_runtime_state(path: str | Path, optimizer: Optimizer, *, run_contract: 
     restoring only available saved RNG devices, without equivalence guarantees.
     """
     expected, expected_digest = _contract(run_contract)
-    payload = torch.load(path, map_location="cpu", weights_only=True, mmap=True)
+    map_location = target_device if target_device is not None else "cpu"
+    payload = torch.load(path, map_location=map_location, weights_only=True, mmap=True)
     if not isinstance(payload, dict) or set(payload) != {"metadata", "optimizer", "rng"}:
         raise ValueError("Invalid runtime checkpoint payload")
+    if isinstance(payload.get("rng"), dict):
+        for key in ("torch_cpu", "torch_mps"):
+            value = payload["rng"].get(key)
+            if isinstance(value, torch.Tensor):
+                payload["rng"][key] = value.cpu()
+        if isinstance(payload["rng"].get("torch_cuda"), list):
+            payload["rng"]["torch_cuda"] = [value.cpu() for value in payload["rng"]["torch_cuda"]]
     metadata = payload["metadata"]
     if not isinstance(metadata, dict) or metadata.get("format_version") != FORMAT_VERSION:
         raise ValueError("Unsupported runtime checkpoint format")

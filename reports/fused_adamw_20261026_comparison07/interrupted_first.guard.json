@@ -1,0 +1,52 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-26T09:31:48.010243+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py",
+    "--mode",
+    "smoke",
+    "--device",
+    "mps",
+    "--protocol",
+    "configs/fused_adamw_continuation_comparison_v1.json",
+    "--output",
+    "runs/fused_adamw_20261026_comparison07/interrupted_first"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/fused_adamw_20261026_comparison07/interrupted_first",
+  "child_log": "reports/fused_adamw_20261026_comparison07/interrupted_first.guard.child.log",
+  "host_samples": "reports/fused_adamw_20261026_comparison07/interrupted_first.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "b391d92349166c44a96001ecb137c94bea0b3338b14b95ec5cdf3bff12cda386",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 70.28690408309922,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 5827198976,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 34,
+    "driver_samples": 254,
+    "peak_driver_bytes": 40886763520,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 59.0,
+    "stop_reason": null
+  }
+}
