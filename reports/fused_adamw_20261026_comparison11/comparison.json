@@ -1,0 +1,33 @@
+{
+  "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+  "status": "failed",
+  "checks": {
+    "continuous_completed": null,
+    "interrupted_first_completed": true,
+    "interrupted_resume_completed": false,
+    "final_parameter_hashes_identical": null,
+    "update_losses_rates_and_counts_identical": null,
+    "final_logits_and_loss_identical": null
+  },
+  "failures": [
+    "interrupted_resume_did_not_complete",
+    "sustained_host_swap_growth"
+  ],
+  "failure_stage": "native_resume_staged_optimizer_migration",
+  "resume_guard": {
+    "child_exit_code": -2,
+    "stop_reason": "sustained_host_swap_growth",
+    "peak_driver_bytes": 25124945920,
+    "peak_swap_growth_bytes": 1019677245,
+    "minimum_observed_free_percent": 36.0,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912
+  },
+  "evidence": {
+    "interrupted_first": "runs/fused_adamw_20261026_comparison11/interrupted_first/run_report.json",
+    "interrupted_resume_failure": "runs/fused_adamw_20261026_comparison11/interrupted_resume/failure_report.json",
+    "interrupted_first_guard": "reports/fused_adamw_20261026_comparison11/interrupted_first.guard.json",
+    "interrupted_resume_guard": "reports/fused_adamw_20261026_comparison11/interrupted_resume.guard.json"
+  },
+  "scope": "Deterministic algorithms and disabled MPS fast math did not prevent swap growth during staged optimizer migration. No deterministic continuous control or final equivalence comparison was possible. Further fused retries are stopped; native exact continuation remains unqualified."
+}

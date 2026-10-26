@@ -1,0 +1,14 @@
+W1026 05:03:48.573000 67482 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 395, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 378, in main
+    report = execute(args, profiler)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 174, in execute
+    base, model, optimizer, restored, base_rates = materialize_resume_model(
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/training_state.py", line 304, in materialize_resume_model
+    state[key] = value.to(device)
+                 ^^^^^^^^^^^^^^^^
+KeyboardInterrupt
