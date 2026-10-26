@@ -10,7 +10,8 @@ Memory native02/restart02 passes mechanical, refresh-intervention and
 fresh-process parity gates. The v3 receipt rejects quality: 21/384
 accepted-correct at 15.22% precision; no useful learned memory is claimed.
 Read [fresh causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
-Crash-injection recovery remains a separate unrun check.
+Deterministic checkpoint crash-injection recovery also passes; no SIGKILL or
+native crash test is claimed.
 
 Vision train04 completes 24 projector-only updates and passes scorer
 contracts, but train-fit/dev gates fail (3/14 and 2/18 answers; caption

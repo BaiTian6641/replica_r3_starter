@@ -32,8 +32,8 @@ quality is rejected: 21/384 accepted-correct, 15.22% accepted precision and
 30.26% coverage; restart-held-out is 2/64 accepted-correct at 15.38% precision.
 The full-cohort oracle diagnostic is 384/456 raw top-1 (84.21%), below its 0.85
 bound, so the native disposition remains `inconclusive`, not accepted. No
-learned selector or useful-memory claim is made. Crash-injection recovery is
-not separately tested; this is planned checkpoint continuation evidence.
+learned selector or useful-memory claim is made. Deterministic checkpoint
+crash-injection recovery passes; no SIGKILL/native crash test is claimed.
 See [causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
 
 ### Vision v2 native result
@@ -70,17 +70,17 @@ and [dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md
 
 | Verification | Result |
 |---|---:|
-| Memory fresh + v3 + v2 acceptance suites | 32 passed |
+| Memory fresh + v3 + v2 acceptance suites | 33 passed |
 | Visual caption + balanced alignment suites | 27 passed |
 | Training-state + fused continuation suites | 33 passed |
 | Optimizer suite | 25 passed |
 | Spark residency + first-tranche suites | 35 passed |
 | Spark residency receipt / strict bundle | both verified |
 
-The next justified work is a separate crash-injection recovery fixture, a
-predeclared visual learnability hypothesis only if the failed fit/dev analysis
-supports it, and explicitly authorized external asset/right clearance before
-any real tranche. Do not open the sealed visual audit after the failed gates,
+The next justified work is a predeclared visual learnability hypothesis only
+if the failed fit/dev analysis supports it, and explicitly authorized external
+asset/right clearance before any real tranche.
+Do not open the sealed visual audit after the failed gates,
 do not tune against it, and do not infer native Spark or exact fused-resume
 success from software receipts. A full clean-export regression run remains a
 separate integration check, not a capability claim.

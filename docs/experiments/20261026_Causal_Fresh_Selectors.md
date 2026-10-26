@@ -74,13 +74,15 @@ false recall is 20.83%. No useful-memory or learned-selector promotion follows.
 
 ## Tests and remaining limits
 
-The focused suites pass 32 tests: 11 fresh causal, 9 v3 acceptance and 12
+The focused suites pass 33 tests: 12 fresh causal, 9 v3 acceptance and 12
 unchanged v2 acceptance tests. They cover fixture leakage, durable replay and
 retry identity, query-local refresh non-mutation, applied and shuffled
 interventions, checkpoint binding, fresh-process rebuild, revocation/stale
-enforcement, unknown handling, strict inventory and receipt replay. A separate
-crash-injection test is not claimed; the native evidence is a planned
-fresh-process checkpoint continuation.
+enforcement, unknown handling, strict inventory and receipt replay. A
+deterministic crash-injection test also simulates failed atomic writes,
+checks temporary-file cleanup and preservation of the prior checkpoint, and
+reloads it successfully. No SIGKILL or native crash test is claimed; native
+evidence is planned fresh-process checkpoint continuation.
 
 Raw decisions, readouts, rankings, codebooks, ledgers, refresh audits and both
 checkpoints remain under the two run directories. Guard and preparation

@@ -26,7 +26,7 @@ from replica_lab.memory_causal_fresh import (
     DuplicateWrite, QueryLocalRefresh, WriteLedger, _control_record,
     generate_fresh_fixture, load_fresh_checkpoint, prepare_fresh,
     record_version, run_exactly_once_control, run_memory_causal_fresh,
-    verify_fresh_prepared,
+    save_fresh_checkpoint, verify_fresh_prepared,
 )
 from test_memory_diagnosis import SPEC, Tokenizer
 
@@ -637,3 +637,50 @@ def test_protocol_predeclares_limits_seeds_controls_and_policy():
     assert ("abort_on_missing_coverage" in config["stop_conditions"])
     assert ("never_promote_quality_without_oracle_bound"
             in config["stop_conditions"])
+
+
+
+def test_checkpoint_crash_injection_preserves_atomic_recovery(tmp_path, monkeypatch):
+    """A failed atomic write cannot destroy a recoverable checkpoint."""
+    import torch
+
+    bindings = {
+        "protocol_sha256": "a" * 64,
+        "fixture": {}, "source": {}, "writer": {}, "representation": {},
+        "implementation": {}, "engine": {},
+    }
+    checkpoint = tmp_path / "policy_checkpoint.pt"
+    restart = tmp_path / "policy_checkpoint_restart.pt"
+    original_save = torch.save
+
+    def crash(_payload, stream):
+        stream.write(b"partial checkpoint")
+        raise OSError("simulated checkpoint crash")
+
+    monkeypatch.setattr(torch, "save", crash)
+    with pytest.raises(OSError, match="simulated checkpoint crash"):
+        save_fresh_checkpoint(
+            checkpoint, bindings=bindings, caches=[], ledger=WriteLedger(),
+            phase=FIRST_PROCESS, counters={})
+    assert not checkpoint.exists()
+    assert list(tmp_path.iterdir()) == []
+
+    monkeypatch.setattr(torch, "save", original_save)
+    save_fresh_checkpoint(
+        checkpoint, bindings=bindings, caches=[], ledger=WriteLedger(),
+        phase=FIRST_PROCESS, counters={})
+    before = checkpoint.read_bytes()
+
+    monkeypatch.setattr(torch, "save", crash)
+    with pytest.raises(OSError, match="simulated checkpoint crash"):
+        save_fresh_checkpoint(
+            restart, bindings=bindings, caches=[], ledger=WriteLedger(),
+            phase=RESTART, counters={})
+    assert checkpoint.read_bytes() == before
+    assert not restart.exists()
+    assert list(tmp_path.iterdir()) == [checkpoint]
+
+    monkeypatch.setattr(torch, "save", original_save)
+    recovered = load_fresh_checkpoint(checkpoint, expected=bindings)
+    assert recovered["phase"] == FIRST_PROCESS
+    assert recovered["ledger"]["commits"] == []
