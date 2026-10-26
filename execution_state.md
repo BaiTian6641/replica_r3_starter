@@ -1,52 +1,64 @@
 # Execution state — integrated memory, cognition and learning
 
 
-## Fused optimizer, causal refresh and stage diagnostics — 26 October 2026
+## Integrated repairs and diagnostics — 26 October 2026
 
-**Current work — native fused AdamW integrated; sustained full-scope training
-and the bounded two-update fresh-process resume pass; longer native resume
-schedules remain unqualified; causal hybrid refresh and stage vision learning
-are rejected.** New training uses
-`NativeFusedAdamW` around `torch.optim.AdamW(fused=True)`, not custom eager
-AdamW or Muon. Historical Muon evidence is preserved.
+**Current work — memory scoring, visual/causal diagnostics and offline Spark
+preparation are committed; learned visual quality and causal memory quality are
+rejected; exact native fused continuation and Spark runtime/asset qualification
+remain blocked.** Native fused AdamW and historical Muon evidence stay separate.
 
-Verification now separates ordinary synthetic tests from real-asset integration.
-Verified-learning v2 encodes `apply_once` versus `compose_twice` in model inputs,
-keeps supplied-rule arithmetic separate from unknown-rule inference and remains
-a CPU contract. Archived vision v1 scores validate through an explicit
-supplemental-lineage replay with original reports unchanged. Response-contract
-trainer pins now have a declared versioned migration.
+Acceptance-aware memory scoring now has explicit v2 config/receipt validation,
+supersession manifests and per-metric estimable-world uncertainty. The sole
+current receipt is `native04_acceptance_v2_reconciled_uncertainty_20261026.json`;
+both historical receipts and all 6,060 immutable ranking rows are preserved.
+Twelve focused tests pass, current-receipt selection rejects superseded history,
+and the rejected quality verdict is unchanged. See
+[memory scoring](docs/experiments/20261026_Memory_Acceptance_Scoring.md).
 
 The sustained sealed-MiniCPM5 FP32 probe completes 12 updates with all 381
 tensors changed: 0.11781 updates/s, 52.2464 steady processed tokens/s and
 8.4216 steady seconds/update. Peak sampled driver is 43,090,886,656 bytes,
 zero swap growth and 29% minimum host free. Actual FP32 optimizer state is
-20,134,053,364 bytes. See [fused integration and performance](docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md).
-First-process checkpoints and the repaired full-scope fresh-process resume pass
-the declared two-update smoke: exact resume-start hashes, restored scheduler/
-RNG/cursor, optimizer step 2 and all 381 tensors changed in each process. Peak
-sampled driver is 43,243,962,368 bytes with zero swap growth. Longer interrupted
-schedules, other scopes and learning-quality equivalence remain unqualified.
+20,134,053,364 bytes. Synchronized clipping remains global-norm with nonfinite
+rejection; its measured total is 5.42425 s/update. See
+[fused integration and performance](docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md).
+The bounded two-update checkpoint resume passes, but the matched uninterrupted
+comparison does not pass: comparison09 differs in all 381 final parameter hashes
+and final logits, while comparison11 stops with 1,019,677,245 B swap growth
+before comparison. Robust repeated residency and exact native continuation are
+therefore open; further fused retries are stopped.
 
-Causal frozen-writer query refresh improves learned recovery from 36/240 to
-110/240 but fails correction, unaffected and unknown-abstention gates. It is a
-hybrid retrieval plus neural-refresh result, not useful learned memory or V3.
-Fresh-process parity passes with zero old-observation encodes. See
-[causal refresh results](docs/experiments/20261026_Causal_Memory_Refresh.md).
+The balanced visual/projector diagnostic completes protocol admission, 10
+projector-only updates, all six-gradient checks, extension export and bitwise
+fresh-process reload. Held-out answer accuracy is 7/18 and generated descriptor
+semantic F1 is 0; all 12 overall quality gates fail. Retention is unchanged at
+22/32. Engineering/reload acceptance passes; learned visual quality is rejected.
+See [balanced visual results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
 
-The fused stage diagnostic recovered engineering and reload but rejects learned
-quality: audit 6/24, caption token-F1 0 and constant `yes` on all 24
-correct-control answers. Stage A never acquires useful captions; later procedural
-gains do not establish image dependence. Fresh-process reload is bitwise equal.
-Do not enlarge the projector or unfreeze the backbone. See
-[stage diagnostic results](docs/experiments/20261026_Vision_Stage_Diagnostic.md).
-Next analyze constant-output priors and caption alignment on fresh sealed data.
-Visual memory and RSI remain gated by accepted perception and useful memory.
+Fresh causal evaluation adds disjoint paraphrase/distractor/correction/unknown
+episodes and genuinely new post-restart queries. Exactly-once writes, live
+revocation, representation binding, same-query parity, zero old-observation/
+old-query re-encodes and cached-history cost accounting pass. Restart-held-out
+accepted correctness is only 2/128 with 5.71% accepted precision and every
+quality gate fails. It remains a hybrid retrieval+neural-refresh diagnostic,
+not useful learned memory. See [fresh causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
 
-The final clean tracked export at `6f63035` passes **1,869 tests +21 subtests
-in 226.43 s**, with 21 explicitly provisioned integration skips and no failures
-or errors. The earlier 11 response-contract pin failures are fixed by the
-declared migration. See `reports/verification_optimizer_package_20261026/summary.json`.
+Spark residency is recalculated for the combined backbone plus declared
+SigLIP2/SPEAR scope (4,298,253,060 parameters): 64.049 GiB at 16 bytes/parameter
+and 48.037 GiB at the optimistic 12-byte rate, before excluded work. Full-scope
+local admission is not inferred. Offline dataset validation replays 36 families,
+42 repositories and 125 records with zero media assets or admissions. The Spark
+adapter remains design-only, official weight payloads and asset QA are absent,
+and MPS FP8 backend admission is blocked. See
+[residency](docs/experiments/20261026_Spark_Residency_Reconciliation.md) and
+[dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md).
+
+The first clean export exposed 12 stale implementation-pin failures. After the
+declared response/vision migrations at `8ebf045`, the final clean `git archive`
+export passes **1,900 tests +21 subtests in 230.93 s**, with 40 explicit
+provisioning skips and no failures or errors. The earlier failed XML and final
+summary are retained at `reports/clean_export_20261026/summary.json`.
 
 ## Full-scope training performance investigation — 25 October 2026
 

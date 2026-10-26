@@ -1,0 +1,43 @@
+{
+  "format": "replica.clean_export_verification.v1",
+  "date": "2026-10-26",
+  "head_commit": "8ebf045",
+  "source": "git archive HEAD; no uncommitted files in the tested export",
+  "first_attempt": {
+    "export": "/tmp/replica_clean_export_20261026",
+    "xml": "reports/clean_export_20261026/tests.xml",
+    "junit_tests_attribute": 1961,
+    "passed": 1888,
+    "failed": 12,
+    "errors": 0,
+    "skipped": 40,
+    "subtests_passed": 21,
+    "seconds": 224.32,
+    "failure_scope": "Stale response-contract, response-policy and vision-curriculum implementation pins"
+  },
+  "final_attempt": {
+    "export": "/tmp/replica_clean_export_20261026_v2",
+    "xml": "reports/clean_export_20261026/tests_v2.xml",
+    "junit_tests_attribute": 1961,
+    "passed": 1900,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 40,
+    "subtests_passed": 21,
+    "seconds": 230.93,
+    "migration_commit": "8ebf045"
+  },
+  "provisioning": {
+    "skipped_tests": 40,
+    "includes_sparkx_research_inputs": true,
+    "sparkx_research_tests_skipped": 18,
+    "skip_policy": "Explicitly provisioned local artifacts are required; no hidden test deletion or fallback",
+    "local_dataset_tests_before_export": 18
+  },
+  "scope": "Clean-export software verification only. Native model results and their separate guard receipts are documented independently; no new native model job was run by this suite.",
+  "preservation": {
+    "first_failed_xml_retained": true,
+    "unrelated_uncommitted_user_files_excluded_and_preserved": true,
+    "protected_runtime_pilot_not_touched": true
+  }
+}

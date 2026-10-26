@@ -1,6 +1,6 @@
 # Coding-agent continuation instruction
 
-**Current priority — analyze constant-output priors and caption alignment on fresh sealed data; no scaling. The bounded full-size two-update native resume now passes; longer resume schedules remain unqualified.**
+**Current priority — preserve completed evidence; exact native fused continuation and Spark runtime/asset prerequisites remain blocked. No scaling or promotion.**
 All four verification defects are fixed. Raw-page rebinding requires explicit
 record dependencies and fails closed on unknown provenance or contained
 revocation. Memory parity checks every fact and rejects duplicate/missing rows.
@@ -24,24 +24,40 @@ New training uses native `torch.optim.AdamW(fused=True)` through
 `NativeFusedAdamW`; historical Muon experiments remain unchanged. Sustained
 full-scope FP32 training passes 12 updates /381 tensors: 0.11781 updates/s,
 52.2464 steady processed tokens/s, 43,090,886,656-byte sampled driver peak,
-zero swap growth and 18.75 GiB optimizer state. The repaired bounded native
-resume passes two fresh processes with exact start hashes, optimizer step 2,
-381 changed tensors per process, 43,243,962,368-byte peak sampled driver and
-zero swap growth. Longer interrupted schedules and other scopes remain
-unqualified; do not claim learning-quality equivalence.
+zero swap growth and 18.75 GiB optimizer state. Synchronized global-norm
+clipping measures 5.42425 s/update with nonfinite rejection unchanged.
+The bounded two-update checkpoint resume passes, but exact uninterrupted
+continuation is unqualified: comparison09 differs in all 381 final hashes and
+logits; comparison11 stops on 1,019,677,245 B swap growth. Further fused
+retries are stopped. See the fused performance/resume report.
 
-Causal frozen-writer query refresh improves learned recovery from36/240 to
-110/240 but fails correction, unaffected and unknown-abstention gates. It is a
-hybrid retrieval+neural-refresh result, not pure learned memory. Fresh-process
-parity passes with zero old-observation encodes.
+Fresh causal evaluation passes new-query restart parity, exactly-once writes,
+live revocation, representation binding and cached-cost accounting with zero
+old-observation/query re-encodes. Restart-held-out accepted correctness is only
+2/128 at 5.71% precision and all quality gates fail. It is hybrid retrieval plus
+neural refresh, not useful learned memory. See
+[fresh causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
 
-The fused stage diagnostic recovered engineering and reload but rejects learned
-quality: audit6/24, caption token-F1 0 and constant `yes` on all24 correct-control
-answers. Do not enlarge the projector or unfreeze the backbone.
+The balanced visual diagnostic completes 10 projector-only updates, all six
+gradient checks, extension export and bitwise fresh-process reload. Held-out
+answers are 7/18, generated descriptor semantic F1 is 0 and all 12 overall
+quality gates fail; retention is 22/32 before and after. Engineering/reload
+passes; learned visual quality is rejected. See
+[balanced visual results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
 
-The final clean tracked export passes 1,869 tests +21 subtests with 21 explicit
-integration skips. Response-contract trainer migration and historical score
-replay are repaired.
+Acceptance-aware memory scoring has 12 passing focused tests and a sole current
+uncertainty-reconciled v2 receipt with explicit supersession validation.
+Spark combined residency is 64.049 GiB at 16 bytes/parameter and 48.037 GiB at
+the optimistic 12-byte rate before excluded work; no local full-scope admission
+is inferred. Offline dataset validation replays 36 families/42 repositories/125
+records with zero assets or admissions. Spark adapter/backend and asset QA
+remain blocked; no native Spark or dataset-admission claim is made.
+
+The first clean export exposed 12 stale implementation-pin failures. After the
+declared response/vision migrations at `8ebf045`, the final clean `git archive`
+export passes **1,900 tests +21 subtests in 230.93 s**, with 40 explicit
+provisioning skips and no failures or errors. See
+`reports/clean_export_20261026/summary.json`.
 
 
 Verified-learning contracts now separate rule transfer from learning-policy
