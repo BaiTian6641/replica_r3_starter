@@ -148,6 +148,7 @@ def build_stage_dataset(config: Mapping[str, Any], project_root: str | Path, *,
                     "question": "Describe the image briefly.", "task": "caption",
                     "world_id": case["world_id"], "scene_sha256": case["scene_sha256"]}
             answer = scene_caption(scenes[case["scene_sha256"]])
+            item["label"] = answer
             model.append(item)
             labels.append({"case_id": case["case_id"], "split": split,
                            "answer": answer, "task": "caption",

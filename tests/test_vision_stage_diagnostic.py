@@ -28,6 +28,8 @@ def test_fresh_stage_data_protocol_and_seals(tmp_path, monkeypatch):
     assert all(row["case_id"].startswith("vc2-")
                for row in built["dev"] + built["audit"])
     assert len(built["dev"]) == len(built["audit"]) == 24
+    assert all(isinstance(row["label"], str) and row["label"]
+               for row in built["caption_dev"] + built["caption_audit"])
     assert len(built["caption_dev"]) == len(built["caption_audit"]) == 24
     assert any(row["label"] == "unknown" for row in built["dev"])
     assert {row["task"] for row in built["dev"]} == {
