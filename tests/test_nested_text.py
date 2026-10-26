@@ -729,3 +729,31 @@ def test_v2_episode_correction_is_minimal_and_v1_bytes_are_unchanged(tmp_path):
     assert manifest["corrections"] == config_v2["corrections"]
     for name, digest in manifest["files_sha256"].items():
         assert hashlib.sha256((output_v2 / name).read_bytes()).hexdigest() == digest
+
+
+def test_v2_protocol_declares_corrected_benchmark_and_no_training():
+    config = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
+    assert config["format"] == "replica.nested_text.nl1.v2"
+    assert config["bank"]["experts"] == 1
+    assert config["routing"]["constant_single_expert"] is True
+    assert config["routing"]["labels_used"] is False
+    assert config["routing"]["world_uid_used"] is False
+    assert config["routing"]["gold_record_ids_used"] is False
+    assert config["training_admitted"] is False
+    assert config["allowed_native_modes"] == ["init", "p-only-eval"]
+    generation = config["generation"]
+    assert generation["max_new_tokens"] == 24
+    assert generation["stop_tokens"] == [1, 130073]
+    assert generation["scoring_version"] == "replica.nested_text.scoring.v2"
+    assert generation["token_budget_credit"] is False
+    workload = config["workload"]
+    assert sum(workload["attempts"].values()) == workload["scoring_attempts"] == 196
+    assert "teaching_end_to_end_seconds" in workload["duty_cycle"]
+    assert "evaluation_end_to_end_seconds" in workload["duty_cycle"]
+    assert workload["teaching_events_for_this_baseline"] == 0
+    assert config["gates"]["cost"]["max_duty_cycle"] == 0.1
+    assert config["gates"]["cost"]["max_checkpoint_bytes"] == 268435456
+    manifest = ROOT / "data" / "nested_text_nl1_v2_20261026" / "manifest.json"
+    assert hashlib.sha256(manifest.read_bytes()).hexdigest() == (
+        config["episodes"]["manifest_sha256"])
+    assert config["transaction"]["objective_admitted_for_this_protocol"] is False
