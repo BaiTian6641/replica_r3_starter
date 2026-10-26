@@ -1,0 +1,235 @@
+{
+  "format": "replica.sparkx_residency.v1",
+  "kind": "analytical_lower_bounds_not_native_measurements_or_admission",
+  "regeneration": "deterministic; re-running the calculator reproduces this file byte for byte",
+  "calculator": {
+    "path": "reports/sparkx_residency_20261026/calculate_residency.py",
+    "sha256": "b92f8ead21cb138e94e84e49c292b2b00648b1df09dc3e1de48d58ecc1e6550d",
+    "language": "python3 standard library only",
+    "invocation": "python3 reports/sparkx_residency_20261026/calculate_residency.py"
+  },
+  "receipt": {
+    "path": "reports/sparkx_residency_20261026/residency.json",
+    "note": "this file; written by the calculator"
+  },
+  "sources": [
+    {
+      "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+      "role": "official BF16 safetensors tensor index for the pinned checkpoint",
+      "sha256": "05fa1b80b4888f319b2c42233b95ce43b5c1783ed335e830667298a1da91e590",
+      "bytes": 77950,
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "storage": "bf16",
+      "schema": "replica.spark_tensor_index.v1"
+    },
+    {
+      "path": "runs/fused_adamw_20261025/sustained01/run_report.json",
+      "role": "MiniCPM5 measured fused AdamW optimizer-state and parameter counts",
+      "sha256": "30fec17beb90de0982fbdffa663f31cb563c608018ae7f816ebe0934768439fd",
+      "bytes": 136703
+    },
+    {
+      "path": "reports/fused_adamw_20261025/sustained01.guard.json",
+      "role": "driver guard policy value and sampled peak driver bytes",
+      "sha256": "55741d7e063adcf3928789dff1e2a4f3d37a455cc0391e21e667a972936736cc",
+      "bytes": 1809
+    }
+  ],
+  "driver_guard": {
+    "driver_limit_bytes": 53687091200,
+    "driver_limit_GiB": 50.0,
+    "policy": "50 GiB sampled driver stop, unchanged repository policy",
+    "scope": "the guard bounds the native worker process, not the model alone",
+    "companion_limits": {
+      "sustained_swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "note": "neither companion limit is evaluated by this calculator"
+    }
+  },
+  "header_audit": {
+    "tensors": 290,
+    "shards": 5,
+    "unique_parameters": 4112079360,
+    "serialized_payload_bytes": 8224158720,
+    "dtype_element_counts": {
+      "BF16": 290
+    },
+    "embedding_tensors": [
+      "model.embedding.weight"
+    ],
+    "language_head": "not serialized as a separate tensor; the language head is tied to model.embedding.weight, so the tied head adds no parameters and no bytes",
+    "checks": {
+      "all_tensor_dtype_supported": true,
+      "all_tensors_bf16": true,
+      "no_duplicate_tensor_names": true,
+      "offsets_match_shape_and_dtype": true,
+      "tensor_count_matches_shards": true,
+      "payload_matches_shards": true,
+      "payload_equals_parameters_times_two": true,
+      "shards_referenced_are_indexed": true,
+      "language_head_not_serialized_separately": true,
+      "single_embedding_matrix_present": true
+    },
+    "auxiliary_parameters_historical_definition": 335731200
+  },
+  "weight_payload_lower_bounds": {
+    "scope": "all 4112079360 unique parameters of the serialized checkpoint",
+    "fp8_weights_only": {
+      "bytes": 4112079360,
+      "GiB": 3.829672,
+      "formula": "parameters * 1 byte",
+      "note": "8-bit storage of every parameter; per-block scales, padding and dequantization buffers are excluded"
+    },
+    "bf16_weights_only": {
+      "bytes": 8224158720,
+      "GiB": 7.659345,
+      "formula": "parameters * 2 bytes",
+      "note": "equals the serialized BF16 payload of the indexed shards"
+    },
+    "fp32_weights_only": {
+      "bytes": 16448317440,
+      "GiB": 15.318689,
+      "formula": "parameters * 4 bytes",
+      "note": "materialized FP32 parameters; the selected optimizer's measured state is FP32 and the model weights are FP32 in training"
+    }
+  },
+  "training_state_scenarios": [
+    {
+      "id": "fp32_weight_gradient_two_fp32_moments",
+      "label": "FP32 weights, FP32 gradients, two FP32 Adam moments",
+      "bytes_per_parameter": 16,
+      "formula": "4 + 4 + 4 + 4 bytes/parameter",
+      "total_bytes": 65793269760,
+      "total_GiB": 61.274757,
+      "below_driver_guard_lower_bound": false,
+      "headroom_to_driver_guard_bytes": -12106178560,
+      "headroom_to_driver_guard_GiB": -11.274757,
+      "status": "analytical_lower_bound_not_admitted",
+      "note": "Full-precision AdamW over the entire 4,112,079,360-parameter scope, matching the currently selected NativeFusedAdamW state dtype. Exceeds the driver guard on the parameter/state inventory alone."
+    },
+    {
+      "id": "bf16_weight_gradient_two_fp32_moments_no_master",
+      "label": "BF16 weights, BF16 gradients, two FP32 Adam moments, no FP32 master copy",
+      "bytes_per_parameter": 12,
+      "formula": "2 + 2 + 4 + 4 bytes/parameter",
+      "total_bytes": 49344952320,
+      "total_GiB": 45.956068,
+      "below_driver_guard_lower_bound": true,
+      "headroom_to_driver_guard_bytes": 4342138880,
+      "headroom_to_driver_guard_GiB": 4.043932,
+      "status": "analytical_lower_bound_not_admitted",
+      "note": "Mixed-precision AdamW without an FP32 master weight. BF16 gradients are an optimistic assumption: autocast/AMP normally accumulates FP32 gradients, which moves this row toward 14 bytes/parameter. The remaining headroom is not evidence of fit."
+    },
+    {
+      "id": "bf16_weight_fp32_gradient_two_fp32_moments_no_master",
+      "label": "BF16 stored weights, FP32 gradients, two FP32 Adam moments, no master copy",
+      "bytes_per_parameter": 14,
+      "formula": "2 + 4 + 4 + 4 bytes/parameter",
+      "total_bytes": 57569111040,
+      "total_GiB": 53.615413,
+      "below_driver_guard_lower_bound": false,
+      "headroom_to_driver_guard_bytes": -3882019840,
+      "headroom_to_driver_guard_GiB": -3.615413,
+      "status": "analytical_lower_bound_not_admitted",
+      "note": "The common autocast/AMP shape: stored BF16 weights with FP32 accumulated gradients. Also outside the guard on the parameter and state inventory alone, before any activation."
+    },
+    {
+      "id": "bf16_weight_gradient_two_fp32_moments_fp32_master",
+      "label": "BF16 stored weights plus FP32 master weights, FP32 gradients, two FP32 Adam moments",
+      "bytes_per_parameter": 16,
+      "formula": "2 + 4 + 4 + 4 + 4 bytes/parameter",
+      "total_bytes": 65793269760,
+      "total_GiB": 61.274757,
+      "below_driver_guard_lower_bound": false,
+      "headroom_to_driver_guard_bytes": -12106178560,
+      "headroom_to_driver_guard_GiB": -11.274757,
+      "status": "analytical_lower_bound_not_admitted",
+      "note": "Mixed precision with an explicit FP32 master copy, as required for faithful AdamW updates from BF16 storage. Byte-identical to the FP32 row and therefore also outside the guard before any activations."
+    }
+  ],
+  "historical_unselected_scenarios": [
+    {
+      "id": "historical_bf16_weight_gradient_two_int8_moments_no_master",
+      "label": "Historical: BF16 weights and gradients with two int8 quantized moments",
+      "bytes_per_parameter": 6,
+      "formula": "2 + 2 + 1 + 1 bytes/parameter",
+      "total_bytes": 24672476160,
+      "total_GiB": 22.978034,
+      "status": "historical_unselected",
+      "note": "Historical/unselected. These rows are the expressions from the earlier reports/sparkx_2_6_product_refinement_20261025/estimate_costs.py inventory. The selected optimizer is now NativeFusedAdamW (torch.optim.AdamW(fused=True)); Muon/int8 was never measured on Spark and is not a candidate here. They are reported only so the superseded numbers stay traceable. Quantization scales, block metadata and the dequantize/requantize workspace are excluded, so even this row is a lower bound for an implementation that does not exist here.",
+      "below_driver_guard_lower_bound": true,
+      "headroom_to_driver_guard_bytes": 29014615040,
+      "headroom_to_driver_guard_GiB": 27.021966
+    },
+    {
+      "id": "historical_fp32_muon_int8_momentum_with_auxiliary_fp32_adam",
+      "label": "Historical: FP32 Muon with int8 momentum plus auxiliary FP32 Adam",
+      "bytes_per_parameter": null,
+      "formula": "(9 * parameters + 7 * auxiliary_parameters) bytes",
+      "matrix_parameters": 3776348160,
+      "auxiliary_parameters": 335731200,
+      "total_bytes": 39358832640,
+      "total_GiB": 36.655769,
+      "status": "historical_unselected",
+      "note": "Historical/unselected. These rows are the expressions from the earlier reports/sparkx_2_6_product_refinement_20261025/estimate_costs.py inventory. The selected optimizer is now NativeFusedAdamW (torch.optim.AdamW(fused=True)); Muon/int8 was never measured on Spark and is not a candidate here. They are reported only so the superseded numbers stay traceable. The auxiliary set is the historical assumption 'any non-2D tensor plus model.embedding.weight'; orthogonalization scratch, Newton-Schulz temporaries, block scales and cross-rank reductions are excluded. The 7-byte auxiliary term was inherited without a recorded per-parameter decomposition.",
+      "below_driver_guard_lower_bound": true,
+      "headroom_to_driver_guard_bytes": 14328258560,
+      "headroom_to_driver_guard_GiB": 13.344231
+    }
+  ],
+  "minicpm_measured_cross_check": {
+    "role": "cross_check_of_optimizer_state_accounting_only_not_a_Spark_fit",
+    "model": "MiniCPM5 sealed source, native sustained fused AdamW probe",
+    "sources": [
+      "runs/fused_adamw_20261025/sustained01/run_report.json",
+      "reports/fused_adamw_20261025/sustained01.guard.json"
+    ],
+    "trainable_parameters": 2516756480,
+    "optimizer_class": "torch.optim.AdamW",
+    "optimizer_implementation": "native_fused",
+    "fused": true,
+    "parameter_dtype": "float32",
+    "state_tensor_bytes": 20134053364,
+    "state_bytes_by_dtype": {
+      "torch.float32": 20134053364
+    },
+    "measured_bytes_per_parameter": 8.000000606,
+    "two_moment_fp32_expectation_bytes": 20134051840,
+    "excess_over_two_moment_expectation_bytes": 1524,
+    "interpretation": "Measured optimizer state is two FP32 moments per trainable parameter (8 bytes/parameter) plus 1524 bytes of non-parameter scalars. It confirms that the selected AdamW keeps no master copy, no int8 moments and no extra per-parameter tensors, which is why the 12-byte and 16-byte Spark rows are the correct accounting shapes. It says nothing about Spark: the model, sequence length, activation profile and clip path differ.",
+    "measured_peak_driver_bytes": 43090886656,
+    "excluded_overhead_exercised_at_that_peak_bytes": 2822782976,
+    "excluded_overhead_fraction_of_16_byte_bound": 0.0701,
+    "excluded_overhead_note": "On MiniCPM5 the sampled process peak exceeded its 16-byte/parameter parameter/state inventory by the figure above at physical microbatch 1 with activation checkpointing. That delta covers activations, logits, clip and allocator behaviour for a 2.52B-parameter model and must not be scaled, transferred or subtracted from the Spark guard."
+  },
+  "excluded_from_every_figure": [
+    "activations, attention workspace and retained graphs, including activation checkpointing peaks",
+    "full logits and the vocabulary projection over 131,072 rows",
+    "gradient clipping reduction buffers and temporary copies",
+    "optimizer temporaries: fused-kernel scratch, foreach lists, step/scalar buffers, block scales and dequantization buffers",
+    "allocator, caching-allocator fragmentation, compiler and MPS driver overhead",
+    "data loaders, raw media, replay buffers, KV cache and long-context state",
+    "per-session or per-worker replication of any of the above",
+    "checkpoint serialization peaks and export copies"
+  ],
+  "interpretation": {
+    "over_driver_guard_on_lower_bound_alone": [
+      "fp32_weight_gradient_two_fp32_moments",
+      "bf16_weight_fp32_gradient_two_fp32_moments_no_master",
+      "bf16_weight_gradient_two_fp32_moments_fp32_master"
+    ],
+    "under_driver_guard_on_lower_bound_alone": [
+      "bf16_weight_gradient_two_fp32_moments_no_master"
+    ],
+    "full_scope_local_admission": "not_admitted",
+    "admission_statement": "No full-scope configuration is admitted. Any row at or above the guard is excluded outright, because the excluded terms can only add bytes. Any row below the guard remains unqualified: a lower bound below a ceiling is not evidence that the measured peak stays below it, and no Spark training run exists to measure that peak. No figure here is a native fit, allocator peak, throughput or convergence result.",
+    "rounding": "byte counts are exact integers; GiB values are bytes / 2**30 rounded to 6 decimals"
+  },
+  "non_claims": [
+    "no Spark weight, tokenizer, dataset or other asset was downloaded or inspected beyond the committed tensor index header",
+    "no native Spark training, export, adapter or inference run was performed or implied",
+    "the Spark adapter remains design_only_not_implemented; FP8/BF16 source preparation is offline-only",
+    "dataset admission, the source registry and optimizer/adapter status are unchanged by this receipt"
+  ]
+}
