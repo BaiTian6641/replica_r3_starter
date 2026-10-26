@@ -23,6 +23,13 @@ def _sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def _protocol_path(args):
+    value = getattr(args, "protocol", None)
+    if value is None:
+        return PROTOCOL_PATH
+    path = Path(value)
+    return path if path.is_absolute() else ROOT / path
+
 def _synchronize(torch):
     torch.mps.synchronize()
 
@@ -47,6 +54,23 @@ def _summary(records):
             for name in phases
         },
     }
+
+
+def _output_fingerprint(model, encoded, torch):
+    """Hash one fixed final forward without retaining autograd history."""
+    model.eval()
+    batch = {key: value.to("mps") for key, value in encoded[0].items()}
+    try:
+        with torch.no_grad():
+            result = model(**batch)
+            logits = result.logits.detach().cpu().contiguous()
+            digest = hashlib.sha256(logits.numpy().tobytes(order="C")).hexdigest()
+            loss = float(result.loss.detach()) if result.loss is not None else None
+        return {"example_index": 0, "logits_shape": list(logits.shape),
+                "logits_dtype": str(logits.dtype), "logits_sha256": digest,
+                "loss": loss, "source": "fixed encoded train row 0 after final update"}
+    finally:
+        model.release_context()
 
 
 def _require_full_gradient_audit(audit, expected_tensors):
@@ -74,8 +98,10 @@ def execute(args, profiler):
     from profile_full_training import assert_full_scope, parameter_hashes
     from train_text import encode_row, load_rows
 
-    protocol = json.loads(PROTOCOL_PATH.read_text())
+    protocol_path = _protocol_path(args)
+    protocol = json.loads(protocol_path.read_text())
     mode = args.mode
+    continuous = bool(getattr(args, "continuous", False))
     source = protocol["source"]
     scope = protocol["scope"]
     optim = protocol["optimizer"]
@@ -90,7 +116,13 @@ def execute(args, profiler):
         raise ValueError("Use the original sealed MiniCPM5 source")
     implementation = {name: _sha(ROOT / name) for name in protocol["implementation_paths"]}
     total_steps = int(protocol[mode]["total_updates"])
-    end_step = 1 if mode == "smoke" and args.resume_from is None else total_steps
+    comparison = protocol.get("continuation_comparison", {})
+    if continuous and (mode != "smoke" or not comparison.get("enabled")):
+        raise ValueError("Continuous comparison requires the declared smoke comparison protocol")
+    if continuous and (args.resume_from is not None or args.resume_report is not None):
+        raise ValueError("Continuous comparison cannot resume a checkpoint")
+    end_step = (total_steps if continuous else
+                1 if mode == "smoke" and args.resume_from is None else total_steps)
     if mode == "sustained" and (args.resume_from is not None or args.resume_report is not None):
         raise ValueError("Sustained mode is a fresh uninterrupted probe")
     if mode == "smoke" and ((args.resume_from is None) != (args.resume_report is None)):
@@ -125,7 +157,7 @@ def execute(args, profiler):
     resume_report = (json.loads(Path(args.resume_report).read_text())
                      if args.resume_report else None)
     if resume_report is not None:
-        if (resume_report.get("protocol_sha256") != _sha(PROTOCOL_PATH)
+        if (resume_report.get("protocol_sha256") != _sha(protocol_path)
                 or resume_report.get("mode") != "smoke"
                 or resume_report.get("steps") != 1):
             raise ValueError("Resume report is not the matching first smoke process")
@@ -235,7 +267,7 @@ def execute(args, profiler):
         optimizer.zero_grad(set_to_none=True)
         print(json.dumps({"mode": mode, "step": step + 1, "loss": loss_sum,
                           "seconds": record["total_seconds"]}), flush=True)
-        if mode == "smoke" and args.resume_from is None and step + 1 == 1:
+        if mode == "smoke" and not continuous and args.resume_from is None and step + 1 == 1:
             profiler.mark("resume_checkpoint_start", step=1)
             checkpoint_path = args.output / "resume_checkpoint"
             receipt = save_training_checkpoint(
@@ -256,6 +288,8 @@ def execute(args, profiler):
         if time.monotonic() - started > max_seconds:
             raise RuntimeError("Probe exceeded its declared wall budget")
 
+    output_receipt = (_output_fingerprint(model, encoded, torch)
+                      if comparison.get("enabled") and mode == "smoke" else None)
     after = parameter_hashes(model)
     changed = [name for name in before if before[name] != after[name]]
     if len(changed) != scope["trainable_tensors"]:
@@ -271,7 +305,9 @@ def execute(args, profiler):
         "format": "replica.fused_adamw_sustained_probe.run.v1",
         "status": "completed",
         "mode": mode,
-        "protocol_sha256": _sha(PROTOCOL_PATH),
+        "execution_mode": ("continuous" if continuous else
+                           "resume" if args.resume_from else "first"),
+        "protocol_sha256": _sha(protocol_path),
         "implementation_sha256": implementation,
         "source_revision": lock["revision"],
         "data_sha256": source["data_sha256"],
@@ -302,6 +338,7 @@ def execute(args, profiler):
         "changed_tensors": len(changed),
         "parameter_hashes_before": before,
         "parameter_hashes_after": after,
+        "output_fingerprint": output_receipt,
         "checkpoint": checkpoint_record,
         "checkpoint_reload_validated": resume_receipt is not None,
         "resume_start_matches_first_process": resume_report is not None,
@@ -316,6 +353,9 @@ def main():
     parser.add_argument("--mode", choices=("smoke", "sustained"), required=True)
     parser.add_argument("--device", choices=("mps",), required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--protocol", type=Path, default=PROTOCOL_PATH)
+    parser.add_argument("--continuous", action="store_true",
+                        help="Run the declared uninterrupted two-update comparison arm")
     parser.add_argument("--resume-from", type=Path)
     parser.add_argument("--resume-report", type=Path)
     args = parser.parse_args()

@@ -1,0 +1,150 @@
+{
+  "format": "replica.fused_adamw_sustained_probe.protocol.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Matched two-update native fused AdamW continuation comparison: uninterrupted versus checkpoint-interrupted fresh-process execution, with exact model/output/optimizer/schedule/RNG/cursor and resource verification. No convergence or learning-quality claim.",
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "data": "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+    "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+    "examples": 8,
+    "distinct_responses": 8
+  },
+  "scope": {
+    "regime": "full",
+    "trainable_tensors": 381,
+    "trainable_parameters": 2516756480,
+    "includes_embeddings_output_head_and_final_norm": true,
+    "resident_dtype": "float32",
+    "tokenization_max_length": 256,
+    "compute_dtype": "float32",
+    "attention": "eager",
+    "activation_checkpointing": true,
+    "physical_microbatch": 1,
+    "effective_batch": 8,
+    "sequence_length": 55,
+    "response_only_labels": true,
+    "causal_shift": true,
+    "accumulation_weighting": "supervised_token_fraction_per_update",
+    "gradient_audit": "first_two_updates_per_process",
+    "max_grad_norm": 1.0,
+    "nonfinite_loss_and_gradient_policy": "reject_before_optimizer_step"
+  },
+  "optimizer": {
+    "selection": "adamw_fused",
+    "class": "torch.optim.AdamW",
+    "fused": true,
+    "fallback": false,
+    "lr": 0.0001,
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "schedule": "constant_after_warmup",
+    "warmup_updates": 2,
+    "seed": 17,
+    "checkpoint_format": "replica.native_fused_adamw.state.v1"
+  },
+  "smoke": {
+    "total_updates": 2,
+    "first_process_updates": 1,
+    "fresh_process_resume": true,
+    "resume_checkpoint": "one full model plus optimizer/RNG/scheduler/cursor checkpoint after update 1",
+    "final_export": false,
+    "max_seconds_per_process": 600,
+    "required": [
+      "checkpoint byte receipt and model/runtime reload",
+      "restored scheduler, RNG, optimizer moments and data cursor",
+      "resume-start parameter hashes equal the first-process final hashes",
+      "all 381 tensors change in each process",
+      "native optimizer state step is 2 after resume"
+    ]
+  },
+  "sustained": {
+    "total_updates": 12,
+    "warmup_updates_reported": 2,
+    "steady_updates_reported": 10,
+    "checkpoint_or_export": false,
+    "max_seconds": 420,
+    "required_measurements": [
+      "per-update forward/backward, gradient audit, clipping and optimizer seconds",
+      "warmup and steady update time, updates/s, processed and supervised tokens/s",
+      "actual optimizer class, groups, state dtypes and allocated state bytes",
+      "all 381 before/after parameter hashes changed",
+      "sampled driver, process host memory, host free and swap growth"
+    ]
+  },
+  "continuation_comparison": {
+    "enabled": true,
+    "continuous_argument": "--continuous",
+    "total_updates": 2,
+    "arms": {
+      "continuous": "one fresh native process, two updates, no checkpoint or export",
+      "interrupted_first": "one fresh native process, update 1 and one retained checkpoint",
+      "interrupted_resume": "a second fresh native process, update 2 from the first checkpoint"
+    },
+    "matched_settings": [
+      "sealed source and data bytes",
+      "FP32 parameters and compute",
+      "eager attention and activation checkpointing",
+      "fixed eight-row update plan and supervised-token weighting",
+      "seed, warmup, learning rates, gradient norm and nonfinite rejection",
+      "global gradient clipping and explicit MPS synchronization"
+    ],
+    "final_output": {
+      "kind": "fixed_train_row_0_full_logits_sha256_and_loss",
+      "requires_no_grad": true,
+      "requires_context_release": true,
+      "not_a_generation_or_quality_metric": true
+    },
+    "required_comparisons": [
+      "continuous and resumed final parameter hashes are identical for all 381 tensors",
+      "continuous and resumed per-update losses and learning rates are identical",
+      "continuous and resumed final fixed-logit SHA256 and loss are identical",
+      "resumed optimizer state step is 2 and scheduler/RNG/cursor restoration succeeds",
+      "first/resume start hashes and checkpoint receipt validate",
+      "all three processes remain within declared resource guards"
+    ],
+    "checkpoint_policy": "Only interrupted_first writes a checkpoint; continuous and interrupted_resume write no checkpoint or final export",
+    "raw_policy": "Retain every process report, profile, guard log and failure; do not tune against the final comparison"
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_native_worker": true,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15.0,
+    "sustained_host_samples": 3,
+    "native_jobs_at_once": 1,
+    "downloads": 0
+  },
+  "retention": {
+    "smoke_checkpoint": "retain exactly one diagnostic checkpoint for inspection; no promotion and no duplicate final model export",
+    "sustained_weights": "discard after before/after hashes; preserve only reports/profiles",
+    "comparison_weights": "no continuous or resume final model export; preserve hashes and output receipts",
+    "failures": "preserve failure reports, profiles and guard logs",
+    "historical_muon": "reuse existing three-update evidence; do not rerun Muon"
+  },
+  "implementation_paths": [
+    "scripts/probe_fused_adamw_sustained.py",
+    "scripts/train_text.py",
+    "scripts/run_capacity_preflight.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/training_tools.py",
+    "src/replica_lab/training_state.py",
+    "src/replica_lab/checkpointing.py",
+    "src/replica_lab/checkpoint_storage.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py"
+  ],
+  "limitations": [
+    "Short 55-token exposed diagnostic, not a long-context or broad workload benchmark.",
+    "The comparison establishes execution/state equivalence only, not convergence, retention or universal speedup.",
+    "The fixed-logit receipt is an execution fingerprint, not a generation or task-quality metric.",
+    "Sampled memory telemetry can miss transient peaks.",
+    "The smoke checkpoint is required only for resume validation and is not a selected model."
+  ]
+}
