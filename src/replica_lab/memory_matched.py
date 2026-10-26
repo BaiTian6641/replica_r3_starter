@@ -88,6 +88,7 @@ READOUT_FORMAT = 'replica.memory_matched.readout.v1'
 ANSWER_FORMAT = 'replica.memory_matched.answer.v1'
 CODEBOOK_FORMAT = 'replica.memory_matched.codebook.v1'
 PROMPT_AUDIT_FORMAT = 'replica.memory_matched.prompt_audit.v1'
+GENERATION_AUDIT_FORMAT = 'replica.memory_matched.generation_audit.v1'
 
 SPLITS = ('train', 'dev', 'heldout')
 COMPLEXITIES = ('single', 'pair', 'triple', 'correction', 'interference')
@@ -1851,6 +1852,142 @@ def audit_prompt_bounds(episodes, tokenizer, *, configured_bound):
     return audit
 
 
+def audit_generation_bounds(episodes, labels_by_episode, tokenizer, *,
+                            configured_bound):
+    """Measure every expected-answer token length with the sealed tokenizer.
+
+    The bound covers the answer tokens plus the tokenizer EOS token, so the
+    native generator is neither truncated mid-answer nor denied its stop token.
+    Per-kind and per-role maxima, the exact maximum row and the first row over
+    the previous bound are recorded for review before any native work.
+    """
+    from .runtime.memory_representation import tokenizer_identity
+
+    _require(type(configured_bound) is int and configured_bound > 0,
+             'Configured generation bound must be a positive integer')
+    _require(isinstance(labels_by_episode, dict) and labels_by_episode,
+             'Generation audit requires verifier labels')
+    eos_token_id = tokenizer.eos_token_id
+    eos_required = eos_token_id is not None
+    per_kind = {}
+    per_role = {}
+    rows = []
+    max_row = None
+    first_over = None
+    first_over_answer_only = None
+    rows_over = 0
+    rows_over_answer_only = 0
+
+    def group(store, name):
+        return store.setdefault(name, {
+            'n': 0, 'max_required_tokens': -1,
+            'max_required_with_eos': -1, 'max_row': None,
+            'over_previous_bound_answer_only': 0,
+            'over_previous_bound_with_eos': 0,
+        })
+
+    for episode in episodes:
+        states = labels_by_episode.get(episode['episode_id'])
+        _require(isinstance(states, dict), 'Generation audit lacks episode labels')
+        for state in episode_states(episode):
+            labels = states.get(state['name'])
+            _require(isinstance(labels, dict), 'Generation audit lacks state labels')
+            for query in episode['queries']:
+                target = labels['targets'].get(query['query_id'])
+                _require(isinstance(target, dict),
+                         'Generation audit lacks query labels')
+                expected = target['expected']
+                _require(isinstance(expected, str) and expected,
+                         'Expected answer must be nonempty text')
+                token_ids = tokenizer(
+                    expected, add_special_tokens=False)['input_ids']
+                required = len(token_ids)
+                required_with_eos = required + (1 if eos_required else 0)
+                row = {
+                    'episode_id': episode['episode_id'],
+                    'state': state['name'], 'split': episode['split'],
+                    'complexity': episode['complexity'],
+                    'query_id': query['query_id'], 'kind': target['kind'],
+                    'target_role': target['target_role'],
+                    'expected': expected,
+                    'expected_sha256': _sha_text(expected),
+                    'required_tokens': required,
+                    'required_with_eos': required_with_eos,
+                }
+                rows.append(row)
+                for name, store in (('kind', per_kind),
+                                    ('role', per_role)):
+                    key = target['kind'] if name == 'kind' else target['target_role']
+                    metric = group(store, key)
+                    metric['n'] += 1
+                    if required > metric['max_required_tokens']:
+                        metric['max_required_tokens'] = required
+                    if required_with_eos > metric['max_required_with_eos']:
+                        metric['max_required_with_eos'] = required_with_eos
+                        metric['max_row'] = row
+                    if required > configured_bound:
+                        metric['over_previous_bound_answer_only'] += 1
+                        rows_over_answer_only += 1
+                        if first_over_answer_only is None:
+                            first_over_answer_only = row
+                    if required_with_eos > configured_bound:
+                        metric['over_previous_bound_with_eos'] += 1
+                        rows_over += 1
+                        if first_over is None:
+                            first_over = row
+                if max_row is None or required_with_eos > max_row['required_with_eos']:
+                    max_row = row
+
+    _require(rows and max_row is not None,
+             'Generation audit produced no expected answers')
+    observed_tokens = int(max_row['required_tokens'])
+    observed_with_eos = int(max_row['required_with_eos'])
+    bound = observed_with_eos
+    _require(bound >= 1, 'Generation audit bound must be positive')
+    model_max = int(getattr(tokenizer, 'model_max_length', 0) or 0)
+    recorded_model_max = model_max if 0 < model_max < 10 ** 9 else None
+    if recorded_model_max is not None:
+        _require(bound <= recorded_model_max,
+                 'Required generation bound exceeds the sealed tokenizer/model '
+                 'position budget; narrow observed answers explicitly')
+    audit = {
+        'format': GENERATION_AUDIT_FORMAT,
+        'evaluation_only': True,
+        'note': ('Expected answers are tokenized only to bound native generation; '
+                 'this file is never consumed by a writer, sense input or prompt.'),
+        'configured_bound': configured_bound,
+        'bound': bound,
+        'bound_justification': (
+            'maximum expected-answer tokens plus the tokenizer EOS token across '
+            'every episode/state/query target; answer truncation and EOS '
+            'suppression are both excluded'),
+        'eos_token_id': eos_token_id,
+        'eos_required': eos_required,
+        'answer_truncation': False,
+        'eos_suppression': False,
+        'observed_max_required_tokens': observed_tokens,
+        'observed_max_required_with_eos': observed_with_eos,
+        'max_row': max_row,
+        'per_kind': per_kind,
+        'per_role': per_role,
+        'first_row_over_previous_bound': first_over,
+        'first_row_over_previous_bound_answer_only': first_over_answer_only,
+        'rows_over_previous_bound': rows_over,
+        'rows_over_previous_bound_answer_only': rows_over_answer_only,
+        'previous_bound_would_fail': rows_over > 0,
+        'previous_bound_answer_only_would_fail': rows_over_answer_only > 0,
+        'total_targets': len(rows),
+        'tokenizer_identity': tokenizer_identity(tokenizer),
+        'tokenizer_model_max_length': recorded_model_max,
+        'rows': rows,
+    }
+    _require(all(row['required_with_eos'] <= bound for row in rows),
+             'An expected answer does not fit the audited generation bound')
+    _require(audit['observed_max_required_with_eos'] == audit['bound'],
+             'Audited generation bound is not the exact covering maximum')
+    return audit
+
+
 # ---------------------------------------------------------------------------
 # Independent scorer
 # ---------------------------------------------------------------------------
@@ -2933,6 +3070,17 @@ def prepare_matched(output, *, config_path=None, config=None, tokenizer=None):
         episodes, tokenizer, configured_bound=configured_bound)
     prompt_audit_path = output / 'prompt_audit.json'
     _write_json(prompt_audit_path, prompt_audit)
+    configured_generation_bound = _resolve_limits(
+        config.get('limits'))['max_new_tokens']
+    generation_audit = audit_generation_bounds(
+        episodes, labels, tokenizer,
+        configured_bound=configured_generation_bound)
+    generation_audit_path = output / 'generation_audit.json'
+    _write_json(generation_audit_path, generation_audit)
+    if prompt_audit['tokenizer_model_max_length'] is not None:
+        _require(prompt_audit['bound'] + generation_audit['bound']
+                 <= prompt_audit['tokenizer_model_max_length'],
+                 'Prompt plus generation budget exceeds the sealed position budget')
     implementation = _implementation_sha256()
     protocol = _protocol_from_config(
         config, episodes_sha256=_sha_file(episodes_path),
@@ -2968,13 +3116,49 @@ def prepare_matched(output, *, config_path=None, config=None, tokenizer=None):
             prompt_audit['tokenizer_model_max_length'],
         'bound_justification': prompt_audit['bound_justification'],
     }
+    protocol['limits']['max_new_tokens'] = generation_audit['bound']
+    protocol['generation']['max_new_tokens'] = generation_audit['bound']
+    protocol['generation_audit'] = {
+        'format': generation_audit['format'],
+        'path': 'generation_audit.json',
+        'sha256': _sha_file(generation_audit_path),
+        'configured_bound': generation_audit['configured_bound'],
+        'bound': generation_audit['bound'],
+        'observed_max_required_tokens':
+            generation_audit['observed_max_required_tokens'],
+        'observed_max_required_with_eos':
+            generation_audit['observed_max_required_with_eos'],
+        'max_row': generation_audit['max_row'],
+        'first_row_over_previous_bound':
+            generation_audit['first_row_over_previous_bound'],
+        'first_row_over_previous_bound_answer_only':
+            generation_audit['first_row_over_previous_bound_answer_only'],
+        'rows_over_previous_bound': generation_audit['rows_over_previous_bound'],
+        'rows_over_previous_bound_answer_only':
+            generation_audit['rows_over_previous_bound_answer_only'],
+        'previous_bound_would_fail':
+            generation_audit['previous_bound_would_fail'],
+        'previous_bound_answer_only_would_fail':
+            generation_audit['previous_bound_answer_only_would_fail'],
+        'per_kind': generation_audit['per_kind'],
+        'per_role': generation_audit['per_role'],
+        'total_targets': generation_audit['total_targets'],
+        'eos_token_id': generation_audit['eos_token_id'],
+        'eos_required': generation_audit['eos_required'],
+        'answer_truncation': generation_audit['answer_truncation'],
+        'eos_suppression': generation_audit['eos_suppression'],
+        'tokenizer_identity': generation_audit['tokenizer_identity'],
+        'tokenizer_model_max_length':
+            generation_audit['tokenizer_model_max_length'],
+        'bound_justification': generation_audit['bound_justification'],
+    }
     protocol['planned_workload'] = matched_workload(episodes, protocol)
     protocol_path = output / 'protocol.json'
     _write_json(protocol_path, protocol)
     manifest = {
         'format': PREPARED_FORMAT, 'created_at_utc': _utc_now(),
         'native_computation': False,
-        'prompt_audit_tokenizer_only': True,
+        'audit_tokenizer_only': True,
         'seed': seed, 'variants': variants,
         'families_per_split': families,
         'episodes_sha256': _sha_file(episodes_path),
@@ -2986,6 +3170,31 @@ def prepare_matched(output, *, config_path=None, config=None, tokenizer=None):
         'per_arm_max_prompt_tokens': {
             arm: prompt_audit['per_arm'][arm]['max_tokens']
             for arm in ANSWER_ARMS},
+        'generation_audit_sha256': _sha_file(generation_audit_path),
+        'max_new_tokens': generation_audit['bound'],
+        'observed_max_required_tokens':
+            generation_audit['observed_max_required_tokens'],
+        'observed_max_required_with_eos':
+            generation_audit['observed_max_required_with_eos'],
+        'generation_previous_bound_would_fail':
+            generation_audit['previous_bound_would_fail'],
+        'generation_previous_bound_answer_only_would_fail':
+            generation_audit['previous_bound_answer_only_would_fail'],
+        'per_kind_max_required_tokens': {
+            kind: metric['max_required_tokens']
+            for kind, metric in generation_audit['per_kind'].items()},
+        'per_kind_max_required_with_eos': {
+            kind: metric['max_required_with_eos']
+            for kind, metric in generation_audit['per_kind'].items()},
+        'per_role_max_required_tokens': {
+            role: metric['max_required_tokens']
+            for role, metric in generation_audit['per_role'].items()},
+        'per_role_max_required_with_eos': {
+            role: metric['max_required_with_eos']
+            for role, metric in generation_audit['per_role'].items()},
+        'eos_token_id': generation_audit['eos_token_id'],
+        'answer_truncation': generation_audit['answer_truncation'],
+        'eos_suppression': generation_audit['eos_suppression'],
         'protocol_sha256': _sha_file(protocol_path),
         'config_sha256': protocol['config_sha256'],
         'audit': audit,
@@ -3006,14 +3215,16 @@ def verify_matched_prepared(prepared):
     labels_path = prepared / 'labels.json'
     protocol_path = prepared / 'protocol.json'
     prompt_audit_path = prepared / 'prompt_audit.json'
+    generation_audit_path = prepared / 'generation_audit.json'
     for path in (manifest_path, episodes_path, labels_path, protocol_path,
-                 prompt_audit_path):
+                 prompt_audit_path, generation_audit_path):
         _require(path.is_file(), f'Prepared matched artifact is missing: {path.name}')
     manifest = json.loads(manifest_path.read_text())
     protocol = json.loads(protocol_path.read_text())
     data = json.loads(episodes_path.read_text())
     labels = json.loads(labels_path.read_text())
     prompt_audit = json.loads(prompt_audit_path.read_text())
+    generation_audit = json.loads(generation_audit_path.read_text())
     _require(manifest.get('format') == PREPARED_FORMAT,
              'Prepared matched manifest format differs')
     _require(manifest.get('native_computation') is False,
@@ -3026,13 +3237,17 @@ def verify_matched_prepared(prepared):
              and manifest.get('labels_sha256') == _sha_file(labels_path)
              and manifest.get('prompt_audit_sha256')
              == _sha_file(prompt_audit_path)
+             and manifest.get('generation_audit_sha256')
+             == _sha_file(generation_audit_path)
              and manifest.get('protocol_sha256') == _sha_file(protocol_path),
              'Prepared matched bytes differ from their manifest pins')
     _require(protocol['episodes']['sha256'] == _sha_file(episodes_path)
              and protocol['labels']['sha256'] == _sha_file(labels_path)
              and protocol['prompt_audit']['sha256']
-             == _sha_file(prompt_audit_path),
-             'Protocol episode/label/prompt-audit pins differ')
+             == _sha_file(prompt_audit_path)
+             and protocol['generation_audit']['sha256']
+             == _sha_file(generation_audit_path),
+             'Protocol episode/label/audit pins differ')
     episodes = data.get('episodes')
     audit = validate_matched_episodes(
         episodes, families_per_split=data['families_per_split'],
@@ -3073,11 +3288,17 @@ def verify_matched_prepared(prepared):
         'Matched source pins changed')
     _require(manifest.get('source') == source,
              'Matched source pins differ between protocol and manifest')
+    tokenizer = _load_sealed_tokenizer(source['model_path'])
     recomputed_prompt_audit = audit_prompt_bounds(
-        episodes, _load_sealed_tokenizer(source['model_path']),
+        episodes, tokenizer,
         configured_bound=prompt_audit['configured_bound'])
     _require(recomputed_prompt_audit == prompt_audit,
              'Prepared prompt audit differs from the sealed-tokenizer audit')
+    recomputed_generation_audit = audit_generation_bounds(
+        episodes, labels['episodes'], tokenizer,
+        configured_bound=generation_audit['configured_bound'])
+    _require(recomputed_generation_audit == generation_audit,
+             'Prepared generation audit differs from the sealed-tokenizer audit')
     prompt_bound = prompt_audit['bound']
     _require(protocol['limits']['max_prompt_tokens'] == prompt_bound
              and protocol['generation']['max_prompt_tokens'] == prompt_bound,
@@ -3105,6 +3326,67 @@ def verify_matched_prepared(prepared):
              == {arm: prompt_audit['per_arm'][arm]['max_tokens']
                  for arm in ANSWER_ARMS},
              'Prompt-audit protocol summary differs from the audit')
+    generation_bound = generation_audit['bound']
+    _require(protocol['limits']['max_new_tokens'] == generation_bound
+             and protocol['generation']['max_new_tokens'] == generation_bound,
+             'Protocol generation bound differs from the audited bound')
+    _require(generation_audit['observed_max_required_with_eos']
+             == generation_bound
+             and all(row['required_with_eos'] <= generation_bound
+                     for row in generation_audit['rows']),
+             'Audited expected answers exceed the generation bound')
+    _require(generation_audit['answer_truncation'] is False
+             and generation_audit['eos_suppression'] is False,
+             'Generation audit must exclude truncation and EOS suppression')
+    if prompt_audit['tokenizer_model_max_length'] is not None:
+        _require(prompt_bound + generation_bound
+                 <= prompt_audit['tokenizer_model_max_length'],
+                 'Prompt plus generation budget exceeds the sealed position budget')
+    _require(manifest.get('max_new_tokens') == generation_bound
+             and manifest.get('observed_max_required_tokens')
+             == generation_audit['observed_max_required_tokens']
+             and manifest.get('observed_max_required_with_eos')
+             == generation_audit['observed_max_required_with_eos']
+             and manifest.get('generation_previous_bound_would_fail')
+             == generation_audit['previous_bound_would_fail']
+             and manifest.get('generation_previous_bound_answer_only_would_fail')
+             == generation_audit['previous_bound_answer_only_would_fail']
+             and manifest.get('per_kind_max_required_tokens')
+             == {kind: metric['max_required_tokens']
+                 for kind, metric in generation_audit['per_kind'].items()}
+             and manifest.get('per_kind_max_required_with_eos')
+             == {kind: metric['max_required_with_eos']
+                 for kind, metric in generation_audit['per_kind'].items()}
+             and manifest.get('per_role_max_required_tokens')
+             == {role: metric['max_required_tokens']
+                 for role, metric in generation_audit['per_role'].items()}
+             and manifest.get('per_role_max_required_with_eos')
+             == {role: metric['max_required_with_eos']
+                 for role, metric in generation_audit['per_role'].items()}
+             and manifest.get('eos_token_id')
+             == generation_audit['eos_token_id']
+             and manifest.get('answer_truncation') is False
+             and manifest.get('eos_suppression') is False,
+             'Generation-audit manifest summary differs from the audit')
+    _require(protocol['generation_audit']['bound'] == generation_bound
+             and protocol['generation_audit']['observed_max_required_tokens']
+             == generation_audit['observed_max_required_tokens']
+             and protocol['generation_audit']['observed_max_required_with_eos']
+             == generation_audit['observed_max_required_with_eos']
+             and protocol['generation_audit']['previous_bound_would_fail']
+             == generation_audit['previous_bound_would_fail']
+             and protocol['generation_audit'][
+                 'previous_bound_answer_only_would_fail']
+             == generation_audit['previous_bound_answer_only_would_fail']
+             and protocol['generation_audit']['per_kind']
+             == generation_audit['per_kind']
+             and protocol['generation_audit']['per_role']
+             == generation_audit['per_role']
+             and protocol['generation_audit']['eos_token_id']
+             == generation_audit['eos_token_id']
+             and protocol['generation_audit']['answer_truncation'] is False
+             and protocol['generation_audit']['eos_suppression'] is False,
+             'Generation-audit protocol summary differs from the audit')
     extension = protocol.get('writer_extension')
     _require(isinstance(extension, dict)
              and _extension_pins(extension['path']) == extension,
@@ -3125,6 +3407,21 @@ def verify_matched_prepared(prepared):
             for arm in ANSWER_ARMS},
         'previous_bound_would_fail':
             prompt_audit['previous_bound_would_fail'],
+        'generation_audit_sha256': _sha_file(generation_audit_path),
+        'max_new_tokens': generation_bound,
+        'observed_max_required_tokens':
+            generation_audit['observed_max_required_tokens'],
+        'observed_max_required_with_eos':
+            generation_audit['observed_max_required_with_eos'],
+        'generation_previous_bound_would_fail':
+            generation_audit['previous_bound_would_fail'],
+        'per_kind_max_required_tokens': {
+            kind: metric['max_required_tokens']
+            for kind, metric in generation_audit['per_kind'].items()},
+        'per_role_max_required_with_eos': {
+            role: metric['max_required_with_eos']
+            for role, metric in generation_audit['per_role'].items()},
+        'eos_token_id': generation_audit['eos_token_id'],
         'protocol_sha256': _sha_file(protocol_path),
         'config_sha256': protocol['config_sha256'],
         'source': source, 'source_lock_sha256': source['model_lock_sha256'],
@@ -3141,6 +3438,9 @@ def verify_matched_prepared(prepared):
             'prompt_audit_regenerated': True,
             'prompt_bound_covers_rows': True,
             'complete_pages_no_truncation': True,
+            'generation_audit_regenerated': True,
+            'generation_bound_covers_targets': True,
+            'no_answer_truncation_or_eos_suppression': True,
             'workload_bound': True, 'config_pin': True,
             'source_pins': True, 'implementation_pins': True,
             'writer_extension_pins': True, 'no_native_computation': True,

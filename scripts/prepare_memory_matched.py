@@ -2,8 +2,9 @@
 """Prepare deterministic matched-memory episodes, verifier labels and pins.
 
 This command performs no model-weight load, no neural forward and no weight
-update; it loads only the sealed tokenizer to audit prompt bounds.  ``--admit``
-re-verifies every pin, re-runs the prompt audit, and writes an admission receipt.
+update; it loads only the sealed tokenizer to audit prompt and generation
+bounds.  ``--admit`` re-verifies every pin, re-runs both audits, and writes an
+admission receipt.
 """
 from __future__ import annotations
 

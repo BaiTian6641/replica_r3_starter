@@ -547,9 +547,11 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
     assert (output / 'labels.json').is_file()
     assert (output / 'protocol.json').is_file()
     assert (output / 'prompt_audit.json').is_file()
+    assert (output / 'generation_audit.json').is_file()
     labels = json.loads((output / 'labels.json').read_text())
     protocol = json.loads((output / 'protocol.json').read_text())
     prompt_audit = json.loads((output / 'prompt_audit.json').read_text())
+    generation_audit = json.loads((output / 'generation_audit.json').read_text())
     assert labels['format'] == LABELS_FORMAT
     assert labels['evaluation_only'] is True
     assert protocol['budget']['max_wall_seconds'] == 900
@@ -562,6 +564,19 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
     assert manifest['prompt_bound'] >= manifest['observed_max_prompt_tokens']
     assert all(row['tokens'] <= prompt_audit['bound']
                for row in prompt_audit['rows'])
+    assert generation_audit['previous_bound_would_fail'] is True
+    assert generation_audit['previous_bound_answer_only_would_fail'] is True
+    assert generation_audit['per_role']['correction_target'][
+        'over_previous_bound_answer_only'] == 12
+    assert protocol['generation']['max_new_tokens'] == generation_audit['bound']
+    assert protocol['limits']['max_new_tokens'] == generation_audit['bound']
+    assert manifest['generation_audit_sha256'] == hashlib.sha256(
+        (output / 'generation_audit.json').read_bytes()).hexdigest()
+    assert manifest['max_new_tokens'] == generation_audit['bound']
+    assert generation_audit['answer_truncation'] is False
+    assert generation_audit['eos_suppression'] is False
+    assert all(row['required_with_eos'] <= generation_audit['bound']
+               for row in generation_audit['rows'])
     receipt = admit_matched_prepared(output)
     assert receipt['status'] == 'admitted'
     assert receipt['checks']['seeded_episode_regeneration'] is True
@@ -569,6 +584,9 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
     assert receipt['checks']['prompt_audit_regenerated'] is True
     assert receipt['checks']['prompt_bound_covers_rows'] is True
     assert receipt['checks']['complete_pages_no_truncation'] is True
+    assert receipt['checks']['generation_audit_regenerated'] is True
+    assert receipt['checks']['generation_bound_covers_targets'] is True
+    assert receipt['checks']['no_answer_truncation_or_eos_suppression'] is True
     assert receipt['checks']['label_free_writer_inputs'] is True
     assert verify_matched_prepared(output)['status'] == 'admitted'
 
@@ -848,11 +866,28 @@ def test_prepared02_audits_interference_and_declared_budget():
         (prepared / 'prompt_audit.json').read_bytes()).hexdigest()
     assert all(row['tokens'] <= prompt_audit['bound']
                for row in prompt_audit['rows'])
+    generation_audit = json.loads((prepared / 'generation_audit.json').read_text())
+    assert generation_audit['previous_bound_would_fail'] is True
+    assert generation_audit['previous_bound_answer_only_would_fail'] is True
+    assert generation_audit['per_kind']['fact'][
+        'over_previous_bound_answer_only'] == 96
+    assert generation_audit['per_role']['correction_target'][
+        'over_previous_bound_answer_only'] == 12
+    assert protocol['generation']['max_new_tokens'] == generation_audit['bound']
+    assert protocol['limits']['max_new_tokens'] == generation_audit['bound']
+    assert manifest['generation_audit_sha256'] == hashlib.sha256(
+        (prepared / 'generation_audit.json').read_bytes()).hexdigest()
+    assert generation_audit['answer_truncation'] is False
+    assert generation_audit['eos_suppression'] is False
+    assert all(row['required_with_eos'] <= generation_audit['bound']
+               for row in generation_audit['rows'])
     receipt = verify_matched_prepared(prepared)
     assert receipt['status'] == 'admitted'
     assert receipt['checks']['verifier_labels_regenerated'] is True
     assert receipt['checks']['prompt_audit_regenerated'] is True
     assert receipt['checks']['prompt_bound_covers_rows'] is True
+    assert receipt['checks']['generation_audit_regenerated'] is True
+    assert receipt['checks']['generation_bound_covers_targets'] is True
     interference = [episode for episode in data['episodes']
                     if episode['complexity'] == 'interference']
     assert interference
@@ -981,3 +1016,53 @@ def test_prompt_bound_audit_detects_previous_256_failure_before_native():
     assert protocol['prompt_audit']['previous_bound_would_fail'] is True
     assert protocol['prompt_audit']['max_row']['tokens'] == \
         audit['observed_max_tokens']
+
+
+@require_local_artifacts('checkpoints/minicpm5_source',
+                         'configs/minicpm5_sealed_lock.local.json')
+def test_generation_budget_audit_detects_6_token_confound_before_native():
+    from replica_lab.memory_matched import (
+        _load_sealed_tokenizer, audit_generation_bounds,
+    )
+
+    prepared = ROOT / 'data/memory_matched_20261025/prepared02'
+    if not (prepared / 'episodes.json').is_file():
+        pytest.skip('prepared02 is not provisioned; run scripts/prepare_memory_matched.py --admit')
+    data = json.loads((prepared / 'episodes.json').read_text())
+    labels = json.loads((prepared / 'labels.json').read_text())
+    protocol = json.loads((prepared / 'protocol.json').read_text())
+    manifest = json.loads((prepared / 'manifest.json').read_text())
+    stored = json.loads((prepared / 'generation_audit.json').read_text())
+    tokenizer = _load_sealed_tokenizer(ROOT / 'checkpoints/minicpm5_source')
+    audit = audit_generation_bounds(
+        data['episodes'], labels['episodes'], tokenizer, configured_bound=6)
+    assert audit == stored
+    assert audit['configured_bound'] == 6
+    assert audit['previous_bound_would_fail'] is True
+    assert audit['previous_bound_answer_only_would_fail'] is True
+    assert audit['per_kind']['fact']['n'] == 120
+    assert audit['per_kind']['fact']['over_previous_bound_answer_only'] == 96
+    assert audit['per_role']['correction_target']['n'] == 12
+    assert audit['per_role']['correction_target'][
+        'over_previous_bound_answer_only'] == 12
+    assert audit['observed_max_required_tokens'] == \
+        audit['max_row']['required_tokens']
+    assert audit['bound'] == audit['observed_max_required_with_eos'] == \
+        audit['max_row']['required_with_eos']
+    assert audit['bound'] > 6
+    assert audit['bound'] == max(row['required_with_eos']
+                                 for row in audit['rows'])
+    assert all(row['required_with_eos'] <= audit['bound']
+               for row in audit['rows'])
+    assert audit['eos_required'] is True
+    assert audit['eos_token_id'] == tokenizer.eos_token_id
+    assert audit['answer_truncation'] is False
+    assert audit['eos_suppression'] is False
+    assert protocol['generation']['max_new_tokens'] == audit['bound']
+    assert protocol['limits']['max_new_tokens'] == audit['bound']
+    assert protocol['generation_audit']['bound'] == audit['bound']
+    assert protocol['generation_audit']['previous_bound_would_fail'] is True
+    assert manifest['max_new_tokens'] == audit['bound']
+    assert manifest['generation_previous_bound_would_fail'] is True
+    assert manifest['per_kind_max_required_tokens'][
+        'fact'] == audit['per_kind']['fact']['max_required_tokens']
