@@ -182,6 +182,7 @@ def execute(args, profiler):
             model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
             weight_decay=optim["weight_decay"])
         base_rates = [group["lr"] for group in optimizer.param_groups]
+    model.train()
     base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
     assert_full_scope(model, optimizer, scope["trainable_parameters"],
                       scope["trainable_tensors"])

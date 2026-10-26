@@ -90,7 +90,8 @@
       "eager attention and activation checkpointing",
       "fixed eight-row update plan and supervised-token weighting",
       "seed, warmup, learning rates, gradient norm and nonfinite rejection",
-      "global gradient clipping and explicit MPS synchronization"
+      "global gradient clipping and explicit MPS synchronization",
+      "explicit train mode before updates and eval mode only for final output fingerprinting"
     ],
     "final_output": {
       "kind": "fixed_train_row_0_full_logits_sha256_and_loss",
@@ -128,6 +129,7 @@
     "historical_muon": "reuse existing three-update evidence; do not rerun Muon"
   },
   "implementation_paths": [
+    "scripts/compare_fused_continuation.py",
     "scripts/probe_fused_adamw_sustained.py",
     "scripts/train_text.py",
     "scripts/run_capacity_preflight.py",
