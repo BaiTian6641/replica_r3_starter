@@ -1,0 +1,161 @@
+{
+  "all_used_cases": {
+    "case_overlap": 0,
+    "cases": 146,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "all_used_prior_assets": {
+    "geometry": {
+      "height": 128,
+      "width": 172
+    },
+    "image_overlap": 0,
+    "images": 146,
+    "policy": "all used images are newly rendered at the declared geometry, not just disjoint from prior evaluation"
+  },
+  "dev": {
+    "case_overlap": 0,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "heldout": {
+    "case_overlap": 0,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "namespace": "vba2",
+  "namespace_disjoint_from_prior": true,
+  "policy": "every train/dev/held-out case, control donor and counterfactual sibling excludes prior evaluation case ids, image hashes and scene hashes; all used images are newly rendered at fresh geometry and are disjoint from every prior prepared asset; the prior rejected stage result is preserved and not rerun",
+  "prior": {
+    "counts": {
+      "all_manifest_assets": 724,
+      "cases": 117,
+      "images": 117,
+      "scenes": 117,
+      "sources": 2
+    },
+    "files": [
+      {
+        "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/dev_cases.jsonl",
+        "rows": 24,
+        "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+      },
+      {
+        "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/audit_cases.jsonl",
+        "rows": 24,
+        "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+      },
+      {
+        "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_dev_cases.jsonl",
+        "rows": 24,
+        "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+      },
+      {
+        "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_audit_cases.jsonl",
+        "rows": 24,
+        "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+      },
+      {
+        "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_answer_cases.jsonl",
+        "rows": 27,
+        "sha256": "7d585456104c600fd0056c3478d09b50afc196730ceaf732689caf183f92f50e"
+      },
+      {
+        "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_answer_cases.jsonl",
+        "rows": 18,
+        "sha256": "c715cd5c075e961f1db438c1cb903929736d78a78a1f06ed6f6e2ce056723baa"
+      },
+      {
+        "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_caption_cases.jsonl",
+        "rows": 12,
+        "sha256": "ead1b0b91222f8e472286b301e63f76e3f9b93077af34e297567b04e607737dc"
+      },
+      {
+        "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_caption_cases.jsonl",
+        "rows": 12,
+        "sha256": "a4e7d016b29591d290ec10f81651c8ac3bcd8c000357e38027f53afe19391003"
+      }
+    ],
+    "manifest_sha256": "47690d53d36c3d0792dcf7f907d53a0b68933379fd3d7bc40ac3e582aca1bf08",
+    "namespaces": [
+      "vba1",
+      "vc2"
+    ],
+    "protocol_sha256": "4586302cace5b4b3397a81482758ae5eb08689860de421d0c304bfd9b38dc21f"
+  },
+  "prior_namespaces": [
+    "vba1",
+    "vc2"
+  ],
+  "prior_sources": [
+    {
+      "case_ids": 48,
+      "data_root": "data/vision_stage_diagnostic_20261026/prepared01",
+      "files": [
+        {
+          "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/dev_cases.jsonl",
+          "rows": 24,
+          "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+        },
+        {
+          "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/audit_cases.jsonl",
+          "rows": 24,
+          "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+        },
+        {
+          "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_dev_cases.jsonl",
+          "rows": 24,
+          "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+        },
+        {
+          "path": "data/vision_stage_diagnostic_20261026/prepared01/evaluation/caption_audit_cases.jsonl",
+          "rows": 24,
+          "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+        }
+      ],
+      "images": 48,
+      "manifest_format": "replica.vision_stage_diagnostic.manifest.v1",
+      "manifest_sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1",
+      "protocol_sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7",
+      "scenes": 48
+    },
+    {
+      "case_ids": 69,
+      "data_root": "data/vision_balanced_alignment_20261026/prepared01",
+      "files": [
+        {
+          "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_answer_cases.jsonl",
+          "rows": 27,
+          "sha256": "7d585456104c600fd0056c3478d09b50afc196730ceaf732689caf183f92f50e"
+        },
+        {
+          "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_answer_cases.jsonl",
+          "rows": 18,
+          "sha256": "c715cd5c075e961f1db438c1cb903929736d78a78a1f06ed6f6e2ce056723baa"
+        },
+        {
+          "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/dev_caption_cases.jsonl",
+          "rows": 12,
+          "sha256": "ead1b0b91222f8e472286b301e63f76e3f9b93077af34e297567b04e607737dc"
+        },
+        {
+          "path": "data/vision_balanced_alignment_20261026/prepared01/evaluation/heldout_caption_cases.jsonl",
+          "rows": 12,
+          "sha256": "a4e7d016b29591d290ec10f81651c8ac3bcd8c000357e38027f53afe19391003"
+        }
+      ],
+      "images": 69,
+      "manifest_format": "replica.vision_balanced_alignment.manifest.v1",
+      "manifest_sha256": "1bc1cbdf20b963f78688f1c4648286ff3405eadea2c5a9037892b0cf581df3a1",
+      "protocol_sha256": "6a334e7337d0c0394c9a2237a1a510e20a0440d9895cf13e0f14ee9388ebaa5e",
+      "scenes": 69
+    }
+  ],
+  "train": {
+    "case_overlap": 0,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "train_overlap_with_all_prior_assets": 0
+}

@@ -381,7 +381,7 @@ def test_v2_runner_imports_and_uses_corrected_target_contract():
 def test_prepared_v2_roles_load_separately_with_bound_assignments():
     import importlib.util
     protocol, manifest, implementation, data_root = vba.load_prepared(
-        ROOT / "data/vision_balanced_alignment_v2_20261026/prepared03/"
+        ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
         "protocol.json", ROOT)
     assert protocol["format"] == vba.PROTOCOL_FORMAT_V2
     spec = importlib.util.spec_from_file_location(
@@ -444,3 +444,56 @@ def test_fit_tensor_contract_allows_shared_eos_pad_but_rejects_interior_pad():
         module._verify_fit_tensor_contract(
             tokenizer, row, prompt, torch.tensor([[7, 2, 2]]),
             labels, protocol)
+
+
+def test_runner_binds_target_case_to_original_case_for_every_control(tmp_path):
+    import importlib.util
+    import time
+    from types import SimpleNamespace
+    import torch
+
+    spec = importlib.util.spec_from_file_location(
+        "vision_balanced_runner_target_case",
+        ROOT / "scripts/run_vision_balanced_alignment.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    import run_vision_curriculum as shared
+    shared.curriculum_prompt = lambda text: text
+    shared.observe = lambda service, **kwargs: {"image": kwargs["image_sha256"]}
+    shared.generate_row = lambda session, tokenizer, **kwargs: {
+        "control": kwargs["control"], "case_id": kwargs["case"]["case_id"],
+        "generated_text": "ok", "image_case_id": kwargs.get("image_case_id"),
+        "image_sha256": kwargs.get("image_sha256"),
+    }
+    module._teacher_forced_loss = lambda *args, **kwargs: 0.0
+    case = {"case_id": "original", "question": "q",
+            "image_path": "orig.png", "image_sha256": "a" * 64,
+            "counterfactual_case_id": "donor",
+            "counterfactual_image_sha256": "b" * 64}
+    labels = [{"case_id": "original", "answer": "original caption",
+               "visible_objects": [["red", "circle"]],
+               "counterfactual_answer": "changed caption",
+               "counterfactual_visible_objects": [["blue", "square"]]}]
+    control_map = {"original": {
+        "counterfactual": {"case_id": "donor", "image_path": "donor.png",
+                           "image_sha256": "b" * 64},
+        "shuffled": {"case_id": "shuffle", "image_path": "shuffle.png",
+                     "image_sha256": "c" * 64, "caption": "shuffled",
+                     "visible_objects": [["green", "triangle"]]},
+    }}
+    adapter = SimpleNamespace(eval=lambda: None)
+    session = SimpleNamespace(device=torch.device("cpu"),
+                              ledger=SimpleNamespace(epoch=1))
+    service = SimpleNamespace(spec=object())
+    protocol = {"format": module.PROTOCOL_FORMAT_V2,
+                "evaluation": {"caption_max_new_tokens": 8},
+                "limits": {"max_seconds": 1000, "max_prompt_tokens": 256},
+                "vision_source": {"source_id": "test-vision-source"}}
+    rows = module.evaluate_caption_controls(
+        adapter, session, object(), service, protocol, object(), [case], labels,
+        ["correct", "counterfactual", "shuffled", "noimage"], control_map,
+        tmp_path / "rows.jsonl", guard=None, start_time=time.monotonic())
+    assert [row["control"] for row in rows] == [
+        "correct", "counterfactual", "shuffled", "noimage"]
+    assert {row["target_case_id"] for row in rows} == {"original"}
+    assert {row["target_text"] for row in rows} == {"original caption"}

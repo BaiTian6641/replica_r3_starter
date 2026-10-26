@@ -686,8 +686,7 @@ def evaluate_caption_controls(adapter, session, tokenizer, service, protocol,
             row = {
                 **generated,
                 "split_role": "caption",
-                "target_case_id": (None if image_case is None
-                                   else image_case["case_id"]),
+                "target_case_id": case["case_id"],
                 "target_text": target_text,
                 "target_visible_objects": [list(item)
                                            for item in target_objects],
