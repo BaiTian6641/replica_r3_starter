@@ -23,8 +23,7 @@ sys.path.insert(0, str(ROOT / 'src'))
 from replica_lab.runtime.bounded_rsi import (  # noqa: E402
     BoundedRsiCycle, BoundedRsiError, EvidenceIntegrityError, HostPolicy,
     ResourceGuard)
-from replica_lab.runtime.compilation import (  # noqa: E402
-    ManifestIntegrityError, TransactionError)
+from replica_lab.runtime.compilation import TransactionError  # noqa: E402
 
 
 def build_policy() -> HostPolicy:
@@ -164,12 +163,15 @@ def main(argv=None) -> int:
                               'output': str(args.output.resolve())},
                              sort_keys=True))
             return 7
-        except ManifestIntegrityError as error:
-            print(json.dumps({'status': 'failed_recovery_evidence',
+        except ValueError as error:
+            # Includes manifest/catalog evidence errors; both are recoverable
+            # transaction failures from the CLI's point of view.
+            print(json.dumps({'status': 'failed_recovery',
+                              'error_type': type(error).__name__,
                               'error': str(error),
                               'output': str(args.output.resolve())},
                              sort_keys=True))
-            return 8
+            return 7
         except BoundedRsiError as error:
             print(json.dumps({'status': 'failed_recovery_cycle',
                               'error': str(error)}, sort_keys=True))
@@ -195,11 +197,15 @@ def main(argv=None) -> int:
                               f'run_bounded_rsi_cycle.py --recover '
                               f'--output {output}')}, sort_keys=True))
         return 7
-    except ManifestIntegrityError as error:
-        print(json.dumps({'status': 'failed_manifest_evidence',
+    except ValueError as error:
+        print(json.dumps({'status': 'failed_transaction',
+                          'error_type': type(error).__name__,
                           'error': str(error),
-                          'output': str(output)}, sort_keys=True))
-        return 8
+                          'output': str(output),
+                          'recovery_command': (
+                              f'run_bounded_rsi_cycle.py --recover '
+                              f'--output {output}')}, sort_keys=True))
+        return 7
     except EvidenceIntegrityError as error:
         print(json.dumps({'status': 'failed_evidence_integrity',
                           'error': str(error)}, sort_keys=True))
@@ -219,6 +225,24 @@ def main(argv=None) -> int:
         replay_output = output / 'replay'
         try:
             replay = run_one(replay_output, evidence_root)
+        except TransactionError as error:
+            print(json.dumps({'status': 'interrupted_replay_transaction',
+                              'error_type': type(error).__name__,
+                              'error': str(error),
+                              'output': str(replay_output),
+                              'recovery_command': (
+                                  f'run_bounded_rsi_cycle.py --recover '
+                                  f'--output {replay_output}')}, sort_keys=True))
+            return 7
+        except ValueError as error:
+            print(json.dumps({'status': 'failed_replay_transaction',
+                              'error_type': type(error).__name__,
+                              'error': str(error),
+                              'output': str(replay_output),
+                              'recovery_command': (
+                                  f'run_bounded_rsi_cycle.py --recover '
+                                  f'--output {replay_output}')}, sort_keys=True))
+            return 7
         except (EvidenceIntegrityError, BoundedRsiError) as error:
             print(json.dumps({'status': 'failed_replay',
                               'error': str(error)}, sort_keys=True))

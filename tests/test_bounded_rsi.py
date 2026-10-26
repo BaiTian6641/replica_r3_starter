@@ -161,7 +161,14 @@ def test_cycle_publishes_verified_procedure_rejects_and_rolls_back(tmp_path):
     assert runner.artifacts.list(kind='neural_candidate') == ()
     archived = json.loads((runner.manifests.root /
                            f"{data['publication']['manifest_id']}.json").read_text())
-    restored = CompiledProcedure.from_manifest(archived, ArtifactRegistry())
+    # The manifest was rolled back at the end of the cycle, so it is an audit-only
+    # archive.  published=True would correctly refuse it as non-active.
+    reload_registry = ArtifactRegistry()
+    restored = CompiledProcedure.from_manifest(archived, reload_registry,
+                                               published=False)
+    assert restored.artifact.status == 'validated'
+    assert reload_registry.publication(restored.artifact.artifact_id) is None
+    assert reload_registry.assert_consistent() is None
     assert restored.artifact.artifact_id == data['publication']['artifact_id']
     assert restored.binding.parent_manifest_id == data['base']['manifest_id']
     assert restored.binding.base_revision == 'procedure-sandbox-r0'
@@ -618,12 +625,62 @@ def test_cycle_script_recovery_dispatch(tmp_path, monkeypatch, capsys):
     with pytest.raises(InterruptedTransactionError):
         runner.publish(candidate, verification)
     monkeypatch.setattr(ArtifactRegistry, 'save', real_save)
+    # A restart may find a corrupt live catalog; recovery must compensate from
+    # the durable journal snapshot instead of failing first.
+    runner.catalog_path.write_text('{corrupt catalog')
     assert module.main(['--recover', '--output',
                         str(tmp_path / 'script-recovery')]) == 0
     recovered = json.loads(capsys.readouterr().out)
     assert recovered['status'] == 'recovered'
     assert recovered['recovery']['outcome'] == 'completed_publish'
     assert recovered['journal_present'] is False
+    durable = ArtifactRegistry.load(runner.catalog_path)
+    assert durable.get(candidate.artifact_id).status == 'accepted'
+    assert durable.assert_consistent() is None
+
+
+def test_cycle_script_classifies_value_errors_and_replay_transactions(
+        tmp_path, monkeypatch, capsys):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        'run_bounded_rsi_cycle_under_test_errors',
+        ROOT / 'scripts' / 'run_bounded_rsi_cycle.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    monkeypatch.setattr(module, 'recovery_root', lambda path: path)
+
+    def corrupt_recovery(path):
+        raise ValueError('catalog evidence corrupt')
+
+    monkeypatch.setattr(module, 'run_recovery', corrupt_recovery)
+    assert module.main(['--recover', '--output', str(tmp_path)]) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['status'] == 'failed_recovery'
+    assert payload['error_type'] == 'ValueError'
+
+    class FakeReport:
+        def as_dict(self):
+            return {'raw_traces': {}, 'replay_digest': 'fake'}
+
+    root = tmp_path / 'replay-root'
+    root.mkdir()
+    calls = {'count': 0}
+
+    def replay_then_interrupt(output, evidence_root):
+        calls['count'] += 1
+        if calls['count'] == 2:
+            raise InterruptedTransactionError('simulated replay interruption')
+        return FakeReport()
+
+    monkeypatch.setattr(module, 'run_one', replay_then_interrupt)
+    monkeypatch.setattr(module, 'summarize', lambda report, output: {})
+    assert module.main(['--output', str(root), '--replay-check']) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['status'] == 'interrupted_replay_transaction'
+    assert '--recover' in payload['recovery_command']
+    assert str(root / 'replay') in payload['recovery_command']
 
 
 def test_pending_transaction_refuses_silent_cycle_reconstruction(tmp_path):

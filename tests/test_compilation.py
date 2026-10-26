@@ -19,7 +19,7 @@ from replica_lab.runtime.compilation import (
     RecoveryError, StaleSourceError, TransactionError, TransactionJournal,
     WorldInventory, _transaction_record,
     catalog_path_for, journal_path_for, load_catalog, load_manifest,
-    recover_pending_transaction)
+    recover_pending_transaction, recover_transaction)
 from replica_lab.runtime.learning_proposal import LearningProposal
 from replica_lab.runtime.procedures import RepairProcedure
 from replica_lab.runtime.tools import FixtureWorkspace
@@ -150,7 +150,8 @@ def test_compile_execute_publish_restart_and_rollback(tmp_path):
     # A fresh process reads the same manifest and reconstructs the executable artifact.
     restored_manifest = load_manifest(manifests, manifest['manifest_id'])
     reloaded = ArtifactRegistry()
-    restored = CompiledProcedure.from_manifest(restored_manifest, reloaded)
+    restored = CompiledProcedure.from_manifest(restored_manifest, reloaded,
+                                               manifests=manifests)
     assert restored.legacy is False
     assert restored.proposal_digest == compiled.proposal_digest
     assert restored.binding.parent_manifest_digest is None
@@ -621,9 +622,14 @@ def test_legacy_manifest_requires_explicit_validated_migration(tmp_path):
     manifest = {'payload': payload, 'parent': None, 'evaluation': evaluation}
     manifest['manifest_id'] = fingerprint(
         {'payload': payload, 'parent': None, 'evaluation': evaluation})
+    # The legacy manifest is a real published revision in its own registry.
+    manifests = ManifestRegistry(tmp_path / 'legacy-manifests')
+    published = manifests.publish(payload, evaluation, expected_parent=None)
+    assert published['manifest_id'] == manifest['manifest_id']
 
     registry = ArtifactRegistry()
-    restored = CompiledProcedure.from_manifest(manifest, registry)
+    restored = CompiledProcedure.from_manifest(manifest, registry,
+                                               manifests=manifests)
     assert restored.legacy is True
     assert restored.artifact.status == 'accepted'
     assert restored.binding.parent_manifest_digest is None
@@ -631,19 +637,29 @@ def test_legacy_manifest_requires_explicit_validated_migration(tmp_path):
     assert registry.publication(restored.artifact.artifact_id)['imported'] is True
     assert registry.assert_consistent() is None
 
+    # Audit-only legacy reconstruction keeps the catalog legal without a
+    # publication claim.
+    audit = ArtifactRegistry()
+    audited = CompiledProcedure.from_manifest(manifest, audit, published=False)
+    assert audited.artifact.status == 'validated'
+    assert audit.publication(audited.artifact.artifact_id) is None
+    assert audit.assert_consistent() is None
+
     # Missing or additional fields are schema errors, never silently accepted.
     with pytest.raises(ManifestIntegrityError, match='schema mismatch'):
         broken = {**payload, 'extra': True}
         broker = {'payload': broken, 'parent': None, 'evaluation': evaluation}
         broker['manifest_id'] = fingerprint(
             {'payload': broken, 'parent': None, 'evaluation': evaluation})
-        CompiledProcedure.from_manifest(broker, ArtifactRegistry())
+        CompiledProcedure.from_manifest(broker, ArtifactRegistry(),
+                                        published=False)
     with pytest.raises(ManifestIntegrityError, match='schema mismatch'):
         broken = {key: value for key, value in payload.items() if key != 'owner'}
         broker = {'payload': broken, 'parent': None, 'evaluation': evaluation}
         broker['manifest_id'] = fingerprint(
             {'payload': broken, 'parent': None, 'evaluation': evaluation})
-        CompiledProcedure.from_manifest(broker, ArtifactRegistry())
+        CompiledProcedure.from_manifest(broker, ArtifactRegistry(),
+                                        published=False)
     with pytest.raises(ManifestIntegrityError, match='legacy manifest rejected'):
         CompiledProcedure.from_manifest(manifest, ArtifactRegistry(),
                                         allow_legacy=False)
@@ -777,7 +793,8 @@ def test_active_manifest_reload_restores_acceptance_and_rollback(tmp_path):
         _published_child(tmp_path)
     archived = load_manifest(manifests, manifest['manifest_id'])
     reloaded = ArtifactRegistry()
-    restored = CompiledProcedure.from_manifest(archived, reloaded)
+    restored = CompiledProcedure.from_manifest(archived, reloaded,
+                                               manifests=manifests)
     assert restored.artifact.status == 'accepted'
     assert restored.proposal_digest == original.proposal_digest
     publication = reloaded.publication(restored.artifact.artifact_id)
@@ -797,8 +814,16 @@ def test_reload_rejects_a_revoked_publication_flip(tmp_path):
         _published_child(tmp_path)
     archived = load_manifest(manifests, manifest['manifest_id'])
     compiled.rollback(artifacts, manifests, parent['manifest_id'])
-    with pytest.raises(ManifestIntegrityError, match='not currently publishable'):
-        CompiledProcedure.from_manifest(archived, artifacts)
+    before = artifacts.snapshot()
+    with pytest.raises(ManifestIntegrityError, match='not the active revision'):
+        CompiledProcedure.from_manifest(archived, artifacts, manifests=manifests)
+    assert artifacts.snapshot() == before
+    assert artifacts.assert_consistent() is None
+    with pytest.raises(ManifestIntegrityError, match='reuse a live publication'):
+        CompiledProcedure.from_manifest(archived, artifacts, published=False)
+    assert artifacts.snapshot() == before
+    assert artifacts.assert_consistent() is None
+    artifacts.save(catalog_path_for(manifests))
 
 
 def test_catalog_publication_flips_and_duplicates_are_rejected(tmp_path):
@@ -1053,3 +1078,158 @@ def test_rollback_keeps_journal_when_manifest_side_becomes_unreadable(
     reloaded = ArtifactRegistry.load(catalog_path_for(manifests))
     assert reloaded.get(compiled.artifact.artifact_id).status == 'accepted'
     assert reloaded.publication(compiled.artifact.artifact_id)['active'] is True
+
+
+def _reidentify(value):
+    value = json.loads(json.dumps(value))
+    value['manifest_id'] = fingerprint({'payload': value['payload'],
+                                        'parent': value['parent'],
+                                        'evaluation': value['evaluation']})
+    return value
+
+
+def test_recovery_compensates_before_requiring_a_valid_catalog(tmp_path):
+    compiled, artifacts, manifests, _records = _compiled(tmp_path)
+    journal = TransactionJournal(journal_path_for(manifests))
+    journal.write(_transaction_record(
+        'publish', artifacts.snapshot(), compiled.artifact.artifact_id,
+        artifact_content_digest(compiled.artifact), 'proposed', 'validated',
+        {'active_before': None, 'expected_manifest_id': '1' * 64,
+         'published_manifest_id': '1' * 64, 'payload_digest': None}))
+    catalog_path = catalog_path_for(manifests)
+    # A restart with a corrupt (or missing) live catalog must still compensate.
+    artifacts.save(catalog_path)
+    Path(catalog_path).write_text('{corrupt catalog')
+    recovered, outcome = recover_transaction(catalog_path, manifests, journal)
+    assert outcome['outcome'] == 'aborted_publish'
+    assert journal.read() is None
+    assert recovered.get(compiled.artifact.artifact_id).status == 'proposed'
+    durable = ArtifactRegistry.load(catalog_path)
+    assert durable.get(compiled.artifact.artifact_id).status == 'proposed'
+    assert durable.assert_consistent() is None
+
+    journal.write(_transaction_record(
+        'publish', recovered.snapshot(), compiled.artifact.artifact_id,
+        artifact_content_digest(compiled.artifact), 'proposed', 'validated',
+        {'active_before': None, 'expected_manifest_id': '2' * 64,
+         'published_manifest_id': '2' * 64, 'payload_digest': None}))
+    Path(catalog_path).unlink()
+    recovered, outcome = recover_transaction(catalog_path, manifests, journal)
+    assert outcome['outcome'] == 'aborted_publish'
+    assert ArtifactRegistry.load(catalog_path).get(
+        compiled.artifact.artifact_id).status == 'proposed'
+
+
+def test_publish_keeps_journal_when_active_becomes_unreadable(tmp_path, monkeypatch):
+    compiled, artifacts, manifests, records = _compiled(tmp_path)
+    evaluation = _evaluate(compiled, artifacts, tmp_path)
+
+    def corrupt_and_fail(self, payload, evaluation, *, expected_parent=None):
+        (Path(self.root) / 'active.json').write_text('{corrupt active')
+        raise OSError('simulated publication interruption')
+
+    monkeypatch.setattr(ManifestRegistry, 'publish', corrupt_and_fail)
+    with pytest.raises(InterruptedTransactionError,
+                       match='active manifest is unreadable after a failed publication'):
+        compiled.publish(artifacts, manifests, evaluation, _hashes(records))
+    journal = TransactionJournal(journal_path_for(manifests))
+    assert journal.read() is not None
+    assert artifacts.get(compiled.artifact.artifact_id).status == 'validated'
+    # The active state becomes readable again; recovery then aborts the publish.
+    (Path(manifests.root) / 'active.json').unlink()
+    outcome = recover_pending_transaction(artifacts, manifests, journal)
+    assert outcome['outcome'] == 'aborted_publish'
+    assert journal.read() is None
+
+
+def test_reload_validates_archived_proposal_target(tmp_path):
+    compiled, artifacts, manifests, records = _compiled(tmp_path)
+    evaluation = _evaluate(compiled, artifacts, tmp_path)
+    manifest = compiled.publish(artifacts, manifests, evaluation, _hashes(records))
+
+    def with_proposal(kind, target):
+        proposal = LearningProposal(
+            compiled.proposal['proposal_id'], None, ('train-failure',), kind,
+            target, {'fixture': 'e3_m0a_menus'}, {'cases': 2}, 'host_tools',
+            'replacement plan', 0)
+        broken = json.loads(json.dumps(manifest))
+        broken['payload']['proposal'] = proposal.to_dict()
+        broken['payload']['proposal_digest'] = proposal.digest
+        return _reidentify(broken)
+
+    with pytest.raises(ManifestIntegrityError,
+                       match='differs from the authorized target'):
+        CompiledProcedure.from_manifest(with_proposal('procedure',
+                                                      'memory-selection'),
+                                        ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError,
+                       match='does not authorize a procedure target'):
+        CompiledProcedure.from_manifest(with_proposal('record', 'memory-selection'),
+                                        ArtifactRegistry(), published=False)
+
+
+def test_v2_case_acceptance_roles_and_receipt_types_are_enforced(tmp_path):
+    compiled, artifacts, manifests, records = _compiled(tmp_path)
+    evaluation = _evaluate(compiled, artifacts, tmp_path)
+    manifest = compiled.publish(artifacts, manifests, evaluation, _hashes(records))
+
+    def broken_case(change):
+        value = json.loads(json.dumps(manifest))
+        change(value['evaluation']['cases'][0])
+        return _reidentify(value)
+
+    with pytest.raises(ManifestIntegrityError, match='succeeded, independently passed'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case.__setitem__('status', 'failed')),
+            ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='succeeded, independently passed'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case.__setitem__('independent_passed', False)),
+            ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='zero integer exit code'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case.__setitem__('final_exit_code', True)),
+            ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='role differs'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case.__setitem__('role', 'heldout')),
+            ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='exit_code must be an integer'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case['last_receipt'].__setitem__(
+                'exit_code', True)), ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='timed_out must be boolean'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case['last_receipt'].__setitem__(
+                'timed_out', 1)), ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='zero exit code'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case['last_receipt'].__setitem__(
+                'exit_code', 1)), ArtifactRegistry(), published=False)
+    with pytest.raises(ManifestIntegrityError, match='must not time out'):
+        CompiledProcedure.from_manifest(
+            broken_case(lambda case: case['last_receipt'].__setitem__(
+                'timed_out', True)), ArtifactRegistry(), published=False)
+
+
+def test_recovery_tolerates_a_missing_publication_archive(tmp_path):
+    compiled, artifacts, manifests, records, parent, manifest = \
+        _published_child(tmp_path)
+    compiled.rollback(artifacts, manifests, parent['manifest_id'])
+    # External damage: the archived manifest of the retired publication is gone.
+    (Path(manifests.root) / f"{manifest['manifest_id']}.json").unlink()
+    journal = TransactionJournal(journal_path_for(manifests))
+    journal.write(_transaction_record(
+        'publish', artifacts.snapshot(), compiled.artifact.artifact_id,
+        artifact_content_digest(artifacts.get(compiled.artifact.artifact_id)),
+        'revoked', 'accepted',
+        {'active_before': parent['manifest_id'],
+         'expected_manifest_id': '3' * 64,
+         'published_manifest_id': '3' * 64,
+         'payload_digest': None}))
+    assert manifests.active()['manifest_id'] == parent['manifest_id']
+    recovered, outcome = recover_transaction(
+        catalog_path_for(manifests), manifests, journal)
+    assert outcome['outcome'] == 'aborted_publish'
+    assert journal.read() is None
+    assert recovered.get(compiled.artifact.artifact_id).status == 'revoked'

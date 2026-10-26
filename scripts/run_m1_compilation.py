@@ -128,8 +128,10 @@ def main():
         manifest = compiled.publish(artifacts, manifests, evaluation, current)
         report['publication'] = {'manifest_id': manifest['manifest_id'], 'parent': manifest['parent']}
 
+        reload_registry = ManifestRegistry(args.output / 'manifests')
         restored = CompiledProcedure.from_manifest(
-            ManifestRegistry(args.output / 'manifests').active(), ArtifactRegistry())
+            reload_registry.active(), ArtifactRegistry(),
+            manifests=reload_registry)
         restart_procedure = RepairProcedure(
             restored.artifact.name, 'workspace/app_settings.py', restored.artifact.source_event_ids)
         restart_tools = copy_case(root / fixtures['restart_unseen'],

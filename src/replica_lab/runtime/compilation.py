@@ -380,6 +380,7 @@ class CompiledProcedure:
     source_hashes: dict[str, str]
     proposal: Mapping | None = None
     legacy: bool = False
+    authorized_target: str | None = None
 
     def __post_init__(self):
         _assert_artifact(self.artifact)
@@ -393,7 +394,13 @@ class CompiledProcedure:
             _sha(digest, 'source record hash')
         if self.proposal is not None:
             snapshot = _proposal_snapshot(self.proposal)
+            _text(self.authorized_target, 'authorized_target')
+            if snapshot['target_id'] != self.authorized_target:
+                raise CandidateIntegrityError(
+                    'proposal target differs from the authorized target')
             object.__setattr__(self, 'proposal', MappingProxyType(snapshot))
+        elif self.authorized_target is not None:
+            raise ValueError('an authorized target requires a proposal')
 
     @property
     def proposal_digest(self) -> str | None:
@@ -411,6 +418,9 @@ class CompiledProcedure:
         """
         source_hashes = _record_hashes(records)
         snapshot = _proposal_snapshot(proposal)
+        if snapshot is None and authorized_target is not None:
+            raise CandidateIntegrityError(
+                'an authorized target requires a proposal')
         if snapshot is not None:
             if snapshot['target_kind'] != 'procedure':
                 raise CandidateIntegrityError(
@@ -428,7 +438,8 @@ class CompiledProcedure:
                 raise CandidateIntegrityError(
                     'proposal sources are not compiled evidence')
         artifact = artifacts.add(procedure.artifact())
-        return cls(artifact, binding, source_hashes, snapshot)
+        return cls(artifact, binding, source_hashes, snapshot,
+                   authorized_target=authorized_target)
 
     # -- payload -------------------------------------------------------------
     def manifest_payload(self, *, world_inventory: Any = None,
@@ -455,6 +466,7 @@ class CompiledProcedure:
             'source_digest': fingerprint(sources),
             'proposal': dict(self.proposal) if self.proposal is not None else None,
             'proposal_digest': self.proposal_digest,
+            'authorized_target': self.authorized_target,
             'worlds': worlds,
             'artifact': artifact_to_dict(artifact, content_digest=True),
         }
@@ -659,19 +671,34 @@ class CompiledProcedure:
             artifacts.restore(snapshot)
             try:
                 current = active_manifest(manifests)
-            except ManifestIntegrityError:
-                current = None
+            except ManifestIntegrityError as read_error:
+                # The active state is unconfirmed: keep the journal and require
+                # explicit recovery rather than silently discarding it.
+                raise InterruptedTransactionError(
+                    'active manifest is unreadable after a failed publication; '
+                    'call recover_pending_transaction') from read_error
             if current is not None and current.get('manifest_id') == manifest_id:
                 # The registry moved before the error surfaced.  The journal and
                 # the durable pre-state catalog let recovery finish the commit.
                 raise InterruptedTransactionError(
                     'the manifest registry committed before an error was raised; '
                     'call recover_pending_transaction') from error
-            try:
-                journal.clear()
-            except OSError:
-                pass
-            raise
+            if current is None and self.binding.parent_manifest_id is None:
+                try:
+                    journal.clear()
+                except OSError:
+                    pass
+                raise
+            if current is not None and \
+                    current.get('manifest_id') == self.binding.parent_manifest_id:
+                try:
+                    journal.clear()
+                except OSError:
+                    pass
+                raise
+            raise InterruptedTransactionError(
+                'active manifest state is not confirmed after a failed '
+                'publication; call recover_pending_transaction') from error
         try:
             artifacts.transition(self.artifact.artifact_id, 'accepted')
             artifacts.record_publication(
@@ -814,13 +841,17 @@ class CompiledProcedure:
     @classmethod
     def from_manifest(cls, manifest: Mapping, artifacts: ArtifactRegistry, *,
                       allow_legacy: bool = True,
-                      published: bool = True) -> 'CompiledProcedure':
+                      published: bool = True,
+                      manifests: ManifestRegistry | None = None) -> 'CompiledProcedure':
         """Authenticate an archived manifest and reconstruct the procedure.
 
         A manifest with an accept decision records a published revision, so by
         default the catalog receives the accepted artifact plus the active
-        publication record bound to this manifest.  ``published=False`` keeps
-        the payload status for audit-only reconstruction.
+        publication record bound to this manifest, and the archived body must
+        be the registry's current active revision (``manifests`` is required).
+        ``published=False`` is the audit-only path for rolled-back archives: it
+        authenticates the bytes but claims no publication.  On any failure the
+        registry is restored to its entry state.
         """
         if not isinstance(manifest, Mapping):
             raise TypeError('manifest must be a mapping')
@@ -845,45 +876,59 @@ class CompiledProcedure:
         except (TypeError, ValueError) as error:
             raise ManifestIntegrityError(str(error)) from error
         payload_digest = fingerprint(payload)
-        if published:
-            catalog_artifact = replace(compiled.artifact, status='accepted')
-        elif compiled.artifact.status == 'accepted':
-            # An audit-only reload must not invent a publication; an accepted
-            # procedure without one is not a legal catalog state.
-            catalog_artifact = replace(compiled.artifact, status='validated')
-        else:
-            catalog_artifact = compiled.artifact
-        if not published and artifacts.publication(
-                compiled.artifact.artifact_id) is not None:
-            raise ManifestIntegrityError(
-                'audit-only reload cannot reuse a live publication record')
-        existing = artifacts.get(catalog_artifact.artifact_id)
-        if existing is None:
-            artifacts.add(catalog_artifact)
-            effective = catalog_artifact
-        elif artifact_content_digest(existing) != \
-                artifact_content_digest(catalog_artifact):
-            raise ManifestIntegrityError(
-                'catalog already holds a different artifact with this ID')
-        else:
-            effective = existing
-            if published and effective.status != 'accepted':
-                effective = artifacts.restore_status(effective.artifact_id,
-                                                     'accepted')
-        if published:
-            publication = artifacts.publication(effective.artifact_id)
-            if publication is None:
+        artifact_id = compiled.artifact.artifact_id
+        snapshot = artifacts.snapshot()
+        try:
+            existing = artifacts.get(artifact_id)
+            if existing is not None and artifact_content_digest(existing) != \
+                    artifact_content_digest(compiled.artifact):
+                raise ManifestIntegrityError(
+                    'catalog already holds a different artifact with this ID')
+            publication = artifacts.publication(artifact_id)
+            if published:
+                if manifests is None:
+                    raise ManifestIntegrityError(
+                        'published reload requires the manifest registry')
+                active = active_manifest(manifests)
+                if active is None or \
+                        active['manifest_id'] != manifest['manifest_id']:
+                    raise ManifestIntegrityError(
+                        'archived manifest is not the active revision')
+                if publication is not None:
+                    if publication['manifest_id'] != manifest['manifest_id'] or \
+                            publication['payload_digest'] != payload_digest:
+                        raise ManifestIntegrityError(
+                            'catalog publication differs from the archived manifest')
+                    if publication['active'] is not True:
+                        raise ManifestIntegrityError(
+                            'catalog publication was revoked; the manifest is not '
+                            'currently publishable')
+            elif publication is not None:
+                raise ManifestIntegrityError(
+                    'audit-only reload cannot reuse a live publication record')
+            if published:
+                catalog_artifact = replace(compiled.artifact, status='accepted')
+            elif compiled.artifact.status == 'accepted':
+                # An audit-only reload must not invent a publication; an accepted
+                # procedure without one is not a legal catalog state.
+                catalog_artifact = replace(compiled.artifact, status='validated')
+            else:
+                catalog_artifact = compiled.artifact
+            if existing is None:
+                artifacts.add(catalog_artifact)
+                effective = catalog_artifact
+            else:
+                effective = existing
+                if published and effective.status != 'accepted':
+                    effective = artifacts.restore_status(artifact_id, 'accepted')
+            if published and publication is None:
                 artifacts.record_publication(
-                    effective.artifact_id, manifest['manifest_id'],
-                    payload_digest, reason='manifest reload', imported=True)
-            elif publication['manifest_id'] != manifest['manifest_id'] or \
-                    publication['payload_digest'] != payload_digest:
-                raise ManifestIntegrityError(
-                    'catalog publication differs from the archived manifest')
-            elif publication['active'] is not True:
-                raise ManifestIntegrityError(
-                    'catalog publication was revoked; the manifest is not '
-                    'currently publishable')
+                    artifact_id, manifest['manifest_id'], payload_digest,
+                    reason='manifest reload', imported=True)
+            artifacts.assert_consistent()
+        except BaseException:
+            artifacts.restore(snapshot)
+            raise
         artifacts.assert_consistent()
         if effective is compiled.artifact:
             return compiled
@@ -1001,7 +1046,8 @@ _LEGACY_EVALUATION_KEYS = {'decision', 'candidate_digest', 'parent_manifest_id',
 _V2_PAYLOAD_KEYS = {'schema', 'identity', 'owner', 'base_revision',
                     'identity_version', 'parent_manifest_id',
                     'parent_manifest_digest', 'source_hashes', 'source_digest',
-                    'proposal', 'proposal_digest', 'worlds', 'artifact'}
+                    'proposal', 'proposal_digest', 'authorized_target',
+                    'worlds', 'artifact'}
 _V2_EVALUATION_KEYS = {'decision', 'candidate_digest', 'parent_manifest_id',
                        'artifact_digest', 'artifact_content_digest',
                        'source_digest', 'proposal_digest', 'worlds_digest',
@@ -1086,9 +1132,12 @@ def _validate_v2_case(case: Any) -> None:
     _text(case['status'], 'status')
     if type(case['independent_passed']) is not bool:
         raise ManifestIntegrityError('evaluation acceptance must be boolean')
-    if case['final_exit_code'] is not None and \
-            type(case['final_exit_code']) is not int:
-        raise ManifestIntegrityError('evaluation exit code must be an integer')
+    if case['status'] != 'succeeded' or case['independent_passed'] is not True:
+        raise ManifestIntegrityError(
+            'an accepted evaluation requires succeeded, independently passed cases')
+    if type(case['final_exit_code']) is not int or case['final_exit_code'] != 0:
+        raise ManifestIntegrityError(
+            'an accepted evaluation case requires a zero integer exit code')
     if case['error'] is not None:
         _text(case['error'], 'case error')
     receipt = case['last_receipt']
@@ -1103,10 +1152,15 @@ def _validate_v2_case(case: Any) -> None:
                  'stderr_excerpt'):
         if receipt[name] is not None and not isinstance(receipt[name], str):
             raise ManifestIntegrityError(f'receipt {name} must be text')
-    for name in ('exit_code', 'timed_out'):
-        if receipt[name] is not None and \
-                type(receipt[name]) not in (int, bool):
-            raise ManifestIntegrityError(f'receipt {name} has the wrong type')
+    if receipt['exit_code'] is not None and type(receipt['exit_code']) is not int:
+        raise ManifestIntegrityError('receipt exit_code must be an integer')
+    if receipt['timed_out'] is not None and type(receipt['timed_out']) is not bool:
+        raise ManifestIntegrityError('receipt timed_out must be boolean')
+    if receipt['exit_code'] is not None and receipt['exit_code'] != 0:
+        raise ManifestIntegrityError(
+            'a passed case receipt must record a zero exit code')
+    if receipt['timed_out'] is True:
+        raise ManifestIntegrityError('a passed case receipt must not time out')
     for name in ('stdout_sha256', 'stderr_sha256'):
         if receipt[name] is not None:
             _sha(receipt[name], f'receipt {name}')
@@ -1155,16 +1209,27 @@ def _compiled_from_v2(manifest: Mapping, payload: Mapping) -> CompiledProcedure:
     if fingerprint({key: hashes[key] for key in hashes}) != payload['source_digest']:
         raise ManifestIntegrityError('source hashes differ from their digest')
     proposal = payload['proposal']
+    authorized_target = payload['authorized_target']
     if proposal is None:
         if payload['proposal_digest'] is not None:
             raise ManifestIntegrityError(
                 'proposal digest is present without a proposal')
+        if authorized_target is not None:
+            raise ManifestIntegrityError(
+                'authorized target is present without a proposal')
     else:
         snapshot_proposal = verify_proposal_snapshot(proposal)
         _optional_sha(payload['proposal_digest'], 'proposal_digest')
         if snapshot_proposal.digest != payload['proposal_digest']:
             raise ManifestIntegrityError(
                 'proposal content differs from its digest')
+        if snapshot_proposal.target_kind != 'procedure':
+            raise ManifestIntegrityError(
+                'archived proposal does not authorize a procedure target')
+        _text(authorized_target, 'authorized_target')
+        if snapshot_proposal.target_id != authorized_target:
+            raise ManifestIntegrityError(
+                'archived proposal target differs from the authorized target')
         if snapshot_proposal.parent_manifest_id != binding.parent_manifest_id:
             raise ManifestIntegrityError('proposal lineage differs from the binding')
         if not set(snapshot_proposal.source_event_ids) <= set(hashes):
@@ -1198,11 +1263,17 @@ def _compiled_from_v2(manifest: Mapping, payload: Mapping) -> CompiledProcedure:
         case_ids.append(case['case_id'])
     if len(set(case_ids)) != len(case_ids):
         raise ManifestIntegrityError('evaluation case IDs are duplicated')
-    if set(case_ids) != {case.case_id for case in worlds.cases}:
+    expected_roles = {case.case_id: case.role for case in worlds.cases}
+    if set(case_ids) != set(expected_roles):
         raise ManifestIntegrityError(
             'evaluation cases do not cover the world inventory')
+    for case in evaluation['cases']:
+        if case['role'] != expected_roles[case['case_id']]:
+            raise ManifestIntegrityError(
+                'evaluation case role differs from the world inventory')
     return CompiledProcedure(artifact, binding, dict(hashes),
-                             payload['proposal'])
+                             payload['proposal'],
+                             authorized_target=payload['authorized_target'])
 
 
 # ---------------------------------------------------------------------------
@@ -1378,6 +1449,29 @@ def _assert_archived_payload(manifest: Mapping, payload_digest: str) -> None:
             'archived manifest payload differs from the journal binding')
 
 
+def recover_transaction(catalog_path: Any, manifests: ManifestRegistry,
+                        journal: TransactionJournal) -> tuple[ArtifactRegistry,
+                                                              dict | None]:
+    """Recover one durable transaction without first trusting the catalog.
+
+    The journal is parsed first.  If the live catalog is missing, corrupt or
+    refers to an absent manifest archive, recovery starts from the journal's
+    ``catalog_before`` snapshot so compensation can still complete.
+    """
+    record = journal.read()
+    if record is None:
+        target = Path(catalog_path)
+        return (ArtifactRegistry.load(target) if target.exists()
+                else ArtifactRegistry()), None
+    try:
+        artifacts = load_catalog(catalog_path, manifests)
+    except (OSError, TypeError, ValueError):
+        artifacts = ArtifactRegistry.import_state(record['catalog_before'])
+    outcome = recover_pending_transaction(
+        artifacts, manifests, journal, catalog_path=catalog_path)
+    return artifacts, outcome
+
+
 def recover_pending_transaction(artifacts: ArtifactRegistry,
                                 manifests: ManifestRegistry,
                                 journal: TransactionJournal, *,
@@ -1388,12 +1482,6 @@ def recover_pending_transaction(artifacts: ArtifactRegistry,
         return None
     catalog_path = Path(catalog_path) if catalog_path is not None \
         else catalog_path_for(manifests)
-    try:
-        verify_catalog_publications(artifacts, manifests)
-    except ManifestIntegrityError as error:
-        raise RecoveryError(
-            'catalog publication authentication failed; the journal is retained'
-        ) from error
     operation = record['operation']
     artifact_id = record['artifact']['artifact_id']
     expected = record['manifest']
@@ -1431,12 +1519,8 @@ def recover_pending_transaction(artifacts: ArtifactRegistry,
             raise RecoveryError(
                 f'committed artifact is {artifact.status}, expected {required}')
         artifacts.assert_consistent()
-        post_state = artifacts.snapshot()
-        if _catalog_commit_state(catalog_path, record['catalog_before'],
-                                 post_state) != 'committed':
-            raise RecoveryError(
-                'committed journal does not match the durable catalog; the '
-                'journal is retained')
+        _persist_recovered_catalog(artifacts, catalog_path,
+                                   record['catalog_before'])
         journal.clear()
         return {'transaction_id': record['transaction_id'],
                 'operation': operation, 'outcome': 'cleared_committed',

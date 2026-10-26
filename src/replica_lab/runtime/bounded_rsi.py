@@ -31,8 +31,8 @@ from .compilation import (
     CandidateIntegrityError, CompilationBinding, CompilationEvaluation,
     CompiledProcedure, ManifestIntegrityError, StaleSourceError,
     TransactionJournal, WorldInventory, active_manifest, authenticate_manifest,
-    catalog_path_for, journal_path_for, load_catalog, load_manifest,
-    recover_pending_transaction, authenticated_ancestor)
+    catalog_path_for, journal_path_for, load_manifest, recover_transaction,
+    authenticated_ancestor)
 from .director import DirectorBudget, LearningDirector
 from .learning_cycle import CycleEvidence, review_cycle
 from .learning_proposal import verify_proposal_snapshot
@@ -1091,11 +1091,8 @@ class BoundedRsiCycle:
         journal = TransactionJournal(journal_path_for(manifests))
         catalog = Path(catalog_path) if catalog_path is not None \
             else catalog_path_for(manifests)
-        artifacts = load_catalog(catalog, manifests) if catalog.exists() \
-            else ArtifactRegistry()
         try:
-            result = recover_pending_transaction(
-                artifacts, manifests, journal, catalog_path=catalog)
+            artifacts, result = recover_transaction(catalog, manifests, journal)
             active = active_manifest(manifests)
         except (CandidateIntegrityError, ManifestIntegrityError) as error:
             raise ProtectedRevisionError(str(error)) from error
