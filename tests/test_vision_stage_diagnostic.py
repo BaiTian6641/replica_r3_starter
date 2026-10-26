@@ -1,7 +1,8 @@
 """Fresh stage-wise vision data and protocol contracts (CPU only)."""
+import importlib.util
 import json
 from pathlib import Path
-
+import time
 import replica_lab.vision_stage_data as stage
 from replica_lab.vision_curriculum import load_config
 from test_vision_curriculum import synthetic_external_source
@@ -59,3 +60,15 @@ def test_caption_excludes_occluded_objects():
     caption = stage.scene_caption(scene)
     assert caption == "a red circle and a green triangle"
     assert "blue" not in caption and "square" not in caption
+
+
+def test_native_helper_imports_resolve_without_model(tmp_path):
+    spec = importlib.util.spec_from_file_location(
+        "vision_stage_runner", ROOT / "scripts/run_vision_stage_diagnostic.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    records = module.run_updates(
+        None, None, None, None, {"train": {"max_seconds": 1}}, None, [],
+        None, tmp_path / "trace.jsonl", label="import_check",
+        start_time=time.monotonic())
+    assert records == []

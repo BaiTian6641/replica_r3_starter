@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 
+sys.path.insert(0, str(ROOT / "scripts"))
 def _sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -66,7 +67,7 @@ def _delta_norm(before, after):
 def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
                 optimizer, trace_path, *, label, start_time):
     import torch
-    from scripts.run_vision_curriculum import (
+    from run_vision_curriculum import (
         _example_tensors, curriculum_prompt, observe, task_graph)
     train = protocol["train"]
     records = []
@@ -147,7 +148,7 @@ def evaluate_stage(adapter, session, tokenizer, service, protocol, scope,
                    cases, labels, caption_cases, caption_labels, output, *,
                    stage, seed_offset, guard, start_time):
     from replica_lab.vision_curriculum import normalise_answer, score_caption, score_procedural
-    from scripts.run_vision_curriculum import caption_evaluation, evaluate_generations
+    from run_vision_curriculum import caption_evaluation, evaluate_generations
     generations = evaluate_generations(
         adapter, session, tokenizer, service, protocol, scope, cases,
         output / f"{stage}_generations.jsonl", seed_offset=seed_offset,
@@ -237,7 +238,7 @@ def execute_train(args):
     from replica_lab.optimizers import build_optimizer
     from replica_lab.profiling import RunProfiler
     from replica_lab.vision_curriculum import score_caption
-    from scripts.run_vision_curriculum import (
+    from run_vision_curriculum import (
         Guard, backward_only_probe, evaluate_retention, export_extension,
         feature_service, freeze_projector_only, initialize_projector,
         make_session, protocol_scope, verify_source_and_spec)
@@ -382,7 +383,7 @@ def execute_train(args):
 def execute_reload(args):
     from replica_lab.architecture.loading import exclusive_mps_worker, load_local_mps
     from replica_lab.profiling import RunProfiler
-    from scripts.run_vision_curriculum import (
+    from run_vision_curriculum import (
         Guard, evaluate_retention, feature_service, freeze_projector_only,
         make_session, protocol_scope, verify_source_and_spec)
     protocol_path = Path(args.protocol).resolve()
