@@ -1,0 +1,24 @@
+# Isolated environment for the pinned official Spark-X2.6-4B snapshots.
+#
+# This file is deliberately separate from requirements-neural.txt and the
+# locked MiniCPM5 environment. Do not install it into .venv and never upgrade
+# the MiniCPM5 lock to satisfy Spark.
+#
+#   python3.12 -m venv .venv-spark
+#   .venv-spark/bin/python -m pip install --upgrade pip
+#   .venv-spark/bin/python -m pip install -r requirements-spark.txt
+#   .venv-spark/bin/python -m pip freeze > requirements-spark.lock.txt
+#
+# macOS arm64 wheel set; CUDA hosts must provision a verified torch build for
+# their driver separately. Python 3.12 is required by the upstream repositories.
+#
+# transformers 4.57.x is required by the serialized Spark configs (4.57.6 for
+# the FP8 source, 4.57.1 for the BF16 control). The tokenizers and hub bounds
+# are the transitive ranges transformers 4.57.6 declares.
+torch==2.14.1
+transformers==4.57.6
+tokenizers==0.22.1
+huggingface_hub==0.35.3
+compressed-tensors==0.16.0
+safetensors==0.8.0
+numpy==2.5.4

@@ -1,0 +1,141 @@
+{
+  "schema": "replica.spark_weight_acquisition_plan.v1",
+  "reviewed_on": "2026-10-26",
+  "scope": "Bounded acquisition of the two user-authorised official Spark-X2.6-4B snapshots into ignored local checkpoint directories. Every revision, file name, byte count and SHA256 is derived from configs/spark_source_preparation_v2.json and cross-checked against the retained preparation manifest. No model execution, no remote Python execution, no training-data access.",
+  "authorization": {
+    "user_authorized": true,
+    "download_authorized": true,
+    "model_execution": false,
+    "remote_code_execution": false,
+    "authorized_repo_ids": [
+      "XHToken/Spark-X2.6-4B-FP8",
+      "XHToken/Spark-X2.6-4B"
+    ]
+  },
+  "pins": {
+    "policy": "No revision, size or per-file SHA256 is authored here. The loader derives every pin from the pinned source-preparation plan and refuses to run if that plan's bytes, the preparation manifest's bytes, a repository revision or any file pin disagrees.",
+    "source_plan": {
+      "path": "configs/spark_source_preparation_v2.json",
+      "schema": "replica.spark_source_preparation_plan.v1",
+      "sha256": "efaf6507d593be451ee32abfc5b9566512ec9f29c7fb573f3d79f747340af17f"
+    },
+    "preparation_manifest": {
+      "path": "reports/spark_preparation_20261025/run_01/preparation_manifest.json",
+      "schema": "replica.spark_source_preparation.v1",
+      "sha256": "e0afb68105faa92967ca5f2cf23923f5576c491f8068e8f08227a78bb74c709d"
+    }
+  },
+  "access_order": [
+    "official_fp8_adaptation_base",
+    "official_bf16_control"
+  ],
+  "limits": {
+    "max_file_bytes": 5368709120,
+    "max_asset_bytes": 16777216,
+    "max_snapshot_bytes": 8500000000,
+    "max_total_acquisition_bytes": 42949672960,
+    "min_free_bytes": 2147483648,
+    "chunk_bytes": 8388608,
+    "checkpoint_bytes": 268435456,
+    "timeout_seconds": 120
+  },
+  "budget": {
+    "total_budget_bytes": 42949672960,
+    "scope": [
+      "spark weight payload",
+      "same-filesystem staging",
+      "isolated Python 3.12 environment",
+      "acquisition manifests and failure evidence"
+    ],
+    "planned_weights_bytes": 12675818528,
+    "planned_assets_bytes": 29586015,
+    "planned_payload_bytes": 12705404543,
+    "environment_reserve_bytes": 10737418240,
+    "evidence_reserve_bytes": 1073741824,
+    "unallocated_bytes": 18433108353
+  },
+  "sources": [
+    {
+      "role": "official_fp8_adaptation_base",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "storage": "fp8_compressed_tensors",
+      "output_dir": "checkpoints/sparkx2_5_fp8_source",
+      "expected_snapshot_bytes": 4466408296,
+      "weight_file_count": 1,
+      "asset_count": 12,
+      "weight_index": null,
+      "required_asset_roles": [
+        "config",
+        "license",
+        "readme",
+        "chat_template",
+        "generation_config",
+        "tokenizer",
+        "remote_code"
+      ]
+    },
+    {
+      "role": "official_bf16_control",
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "storage": "bf16",
+      "output_dir": "checkpoints/sparkx2_5_bf16_source",
+      "expected_snapshot_bytes": 8238996247,
+      "weight_file_count": 5,
+      "asset_count": 13,
+      "weight_index": "model.safetensors.index.json",
+      "required_asset_roles": [
+        "config",
+        "license",
+        "readme",
+        "chat_template",
+        "generation_config",
+        "tokenizer",
+        "remote_code",
+        "weights_index"
+      ]
+    }
+  ],
+  "protocol": {
+    "atomic_staging": "Each snapshot is written into a same-filesystem <output>.staging-<revision> directory and renamed to the final path only after every file has the exact pinned size and SHA256.",
+    "resume_policy": "Resume only from a verified partial prefix: the recorded byte offset and prefix SHA256 must match the bytes on disk; partials without state, short partials and hash-mismatched prefixes are refused, never appended to.",
+    "duplicate_payload_policy": "A completed snapshot is verified in place against every pin and reused without copying or re-downloading; staging is renamed, never copied.",
+    "hash_verification": "Exact SHA256 over the full file bytes for all weight shards, indexes, tokenizer assets, configuration and remote-code sources.",
+    "header_vs_weights": "The manifest records which bytes are actual weight payload and keeps preparation-phase safetensors header evidence in a separate header block.",
+    "failed_run_evidence": "A failed acquisition leaves enclosing evidence and staging bytes in place, writes a timestamped failure receipt beside the target (never overwriting prior receipts), and never deletes user or previous evidence.",
+    "offline_validation": "scripts/acquire_spark_weights.py --offline re-verifies completed snapshots with zero network requests.",
+    "network_requests": "Only pinned huggingface.co resolve URLs at the exact official revisions; redirects are followed by urllib and the pinned total size must match.",
+    "model_execution": "Never imports torch, transformers, safetensors or remote Python; acquisition is a byte-level operation only.",
+    "execution": {
+      "model_execution": false,
+      "device": "none",
+      "mps_workers": 0,
+      "cpu_fallback": false,
+      "downloaded_python_executed": false
+    },
+    "fresh_outputs": "A --receipt path must not already exist. Failure receipts are timestamped, never overwritten, and staging plus partial bytes are retained for inspection or verified resume.",
+    "budget": "A single 40 GiB budget covers both weight payloads, same-filesystem staging, the isolated Spark environment and all evidence; the manifest and receipt report free bytes before/after, staged bytes, final bytes and the high-water estimate."
+  },
+  "environment": {
+    "python": "3.12",
+    "requirements": "requirements-spark.txt",
+    "transformers": "4.57.x (serialized 4.57.6 for FP8, 4.57.1 for BF16)",
+    "compressed_tensors": "0.16.0",
+    "isolation": "dedicated .venv-spark environment; the locked MiniCPM5 environment is not modified",
+    "mps_fp8_claim": "none; acquisition does not qualify any backend"
+  },
+  "data_access": {
+    "split_order": ["train", "development", "heldout"],
+    "training_data_access": "none",
+    "heldout_opened": false,
+    "note": "Acquisition touches only the two official model repositories. No train/dev/heldout split is read or materialised, and no heldout split may be opened after any failure."
+  },
+  "non_claims": [
+    "Acquisition is not a successful model load.",
+    "The FP8 snapshot is not proven executable on MPS or CPU.",
+    "The BF16 control is not a dequantized substitute for the FP8 source.",
+    "Header evidence from the preparation phase is not weight-payload evidence.",
+    "No training data, train/dev/heldout split or model quality claim is implied."
+  ]
+}
