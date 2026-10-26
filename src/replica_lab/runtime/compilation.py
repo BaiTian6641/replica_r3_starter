@@ -811,9 +811,15 @@ class CompiledProcedure:
                 raise InterruptedTransactionError(
                     'active manifest is unreadable after a failed rollback; '
                     'call recover_pending_transaction') from read_error
-            if current is None or current['manifest_id'] != ancestor_manifest_id:
-                # The manifest side did not move: undo the catalog mutation if
-                # one happened, and keep the journal if compensation fails.
+            if current is not None and \
+                    current['manifest_id'] == ancestor_manifest_id:
+                # The registry rollback committed even though it raised.
+                journal.finish(record)
+                return current
+            if current is not None and \
+                    current['manifest_id'] == active['manifest_id']:
+                # Confirmed non-commit: undo the catalog mutation if one
+                # happened, and keep the journal if compensation fails.
                 if catalog_moved:
                     artifacts.restore(snapshot)
                     try:
@@ -827,8 +833,12 @@ class CompiledProcedure:
                 except OSError:
                     pass
                 raise
-            journal.finish(record)
-            return current
+            # A missing or unrelated active manifest proves nothing about the
+            # rollback outcome.  Keep the journal and fail closed.
+            artifacts.restore(snapshot)
+            raise InterruptedTransactionError(
+                'active manifest state is not confirmed after a failed '
+                'rollback; call recover_pending_transaction') from error
         if restored.get('manifest_id') != ancestor_manifest_id:
             raise InterruptedTransactionError(
                 'manifest rollback returned an unexpected body; call '
@@ -1461,7 +1471,7 @@ def recover_transaction(catalog_path: Any, manifests: ManifestRegistry,
     record = journal.read()
     if record is None:
         target = Path(catalog_path)
-        return (ArtifactRegistry.load(target) if target.exists()
+        return (load_catalog(target, manifests) if target.exists()
                 else ArtifactRegistry()), None
     try:
         artifacts = load_catalog(catalog_path, manifests)

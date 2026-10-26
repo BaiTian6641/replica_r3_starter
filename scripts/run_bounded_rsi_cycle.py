@@ -23,7 +23,8 @@ sys.path.insert(0, str(ROOT / 'src'))
 from replica_lab.runtime.bounded_rsi import (  # noqa: E402
     BoundedRsiCycle, BoundedRsiError, EvidenceIntegrityError, HostPolicy,
     ResourceGuard)
-from replica_lab.runtime.compilation import TransactionError  # noqa: E402
+from replica_lab.runtime.compilation import (  # noqa: E402
+    InterruptedTransactionError, TransactionError)
 
 
 def build_policy() -> HostPolicy:
@@ -56,6 +57,23 @@ def write_json(path: Path, value) -> str:
     text = json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + '\n'
     path.write_text(text, encoding='utf-8')
     return text
+
+
+def pending_transaction(output: Path) -> bool:
+    return (output / 'manifests' / 'transactions' / 'runtime_journal.json').is_file()
+
+
+def transaction_failure(error, output: Path, status: str) -> dict:
+    """Recovery guidance only when a journal could actually be replayed."""
+    payload = {'status': status,
+               'error_type': type(error).__name__,
+               'error': str(error),
+               'output': str(output),
+               'journal_pending': pending_transaction(output)}
+    if isinstance(error, InterruptedTransactionError) or payload['journal_pending']:
+        payload['recovery_command'] = (
+            f'run_bounded_rsi_cycle.py --recover --output {output}')
+    return payload
 
 
 def summarize(report, output: Path) -> dict:
@@ -189,22 +207,12 @@ def main(argv=None) -> int:
     try:
         report = run_one(output, evidence_root)
     except TransactionError as error:
-        print(json.dumps({'status': 'interrupted_transaction',
-                          'error_type': type(error).__name__,
-                          'error': str(error),
-                          'output': str(output),
-                          'recovery_command': (
-                              f'run_bounded_rsi_cycle.py --recover '
-                              f'--output {output}')}, sort_keys=True))
+        print(json.dumps(transaction_failure(
+            error, output, 'interrupted_transaction'), sort_keys=True))
         return 7
     except ValueError as error:
-        print(json.dumps({'status': 'failed_transaction',
-                          'error_type': type(error).__name__,
-                          'error': str(error),
-                          'output': str(output),
-                          'recovery_command': (
-                              f'run_bounded_rsi_cycle.py --recover '
-                              f'--output {output}')}, sort_keys=True))
+        print(json.dumps(transaction_failure(
+            error, output, 'failed_transaction'), sort_keys=True))
         return 7
     except EvidenceIntegrityError as error:
         print(json.dumps({'status': 'failed_evidence_integrity',
@@ -226,22 +234,14 @@ def main(argv=None) -> int:
         try:
             replay = run_one(replay_output, evidence_root)
         except TransactionError as error:
-            print(json.dumps({'status': 'interrupted_replay_transaction',
-                              'error_type': type(error).__name__,
-                              'error': str(error),
-                              'output': str(replay_output),
-                              'recovery_command': (
-                                  f'run_bounded_rsi_cycle.py --recover '
-                                  f'--output {replay_output}')}, sort_keys=True))
+            print(json.dumps(transaction_failure(
+                error, replay_output, 'interrupted_replay_transaction'),
+                sort_keys=True))
             return 7
         except ValueError as error:
-            print(json.dumps({'status': 'failed_replay_transaction',
-                              'error_type': type(error).__name__,
-                              'error': str(error),
-                              'output': str(replay_output),
-                              'recovery_command': (
-                                  f'run_bounded_rsi_cycle.py --recover '
-                                  f'--output {replay_output}')}, sort_keys=True))
+            print(json.dumps(transaction_failure(
+                error, replay_output, 'failed_replay_transaction'),
+                sort_keys=True))
             return 7
         except (EvidenceIntegrityError, BoundedRsiError) as error:
             print(json.dumps({'status': 'failed_replay',

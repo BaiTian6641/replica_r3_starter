@@ -1233,3 +1233,92 @@ def test_recovery_tolerates_a_missing_publication_archive(tmp_path):
     assert outcome['outcome'] == 'aborted_publish'
     assert journal.read() is None
     assert recovered.get(compiled.artifact.artifact_id).status == 'revoked'
+
+
+def test_rollback_keeps_journal_when_active_state_is_unconfirmed(
+        tmp_path, monkeypatch):
+    compiled, artifacts, manifests, records, parent, manifest = \
+        _published_child(tmp_path)
+
+    def remove_active_and_fail(self, manifest_id):
+        (Path(self.root) / 'active.json').unlink()
+        raise OSError('simulated rollback interruption')
+
+    monkeypatch.setattr(ManifestRegistry, 'rollback', remove_active_and_fail)
+    with pytest.raises(InterruptedTransactionError,
+                       match='not confirmed after a failed rollback'):
+        compiled.rollback(artifacts, manifests, parent['manifest_id'])
+    journal = TransactionJournal(journal_path_for(manifests))
+    assert journal.read() is not None
+    assert artifacts.get(compiled.artifact.artifact_id).status == 'accepted'
+    assert ArtifactRegistry.load(catalog_path_for(manifests)).get(
+        compiled.artifact.artifact_id).status == 'revoked'
+    with pytest.raises(RecoveryError,
+                       match='active manifest moved during an interrupted rollback'):
+        recover_pending_transaction(artifacts, manifests, journal)
+    assert journal.read() is not None
+
+    # Restoring the published manifest confirms non-commit and allows abort.
+    (Path(manifests.root) / 'active.json').write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+    outcome = recover_pending_transaction(artifacts, manifests, journal)
+    assert outcome['outcome'] == 'aborted_rollback'
+    assert journal.read() is None
+
+
+def test_rollback_keeps_journal_for_unrelated_active_manifest(
+        tmp_path, monkeypatch):
+    compiled, artifacts, manifests, records, parent, manifest = \
+        _published_child(tmp_path)
+    real_publish = ManifestRegistry.publish
+
+    def repoint_and_fail(self, manifest_id):
+        other = {'base_revision': 'base', 'identity_version': 'other'}
+        real_publish(self, other, {
+            'decision': 'accept', 'candidate_digest': fingerprint(other),
+            'parent_manifest_id': manifest['manifest_id']},
+            expected_parent=manifest['manifest_id'])
+        raise OSError('simulated rollback interruption')
+
+    monkeypatch.setattr(ManifestRegistry, 'rollback', repoint_and_fail)
+    with pytest.raises(InterruptedTransactionError,
+                       match='not confirmed after a failed rollback'):
+        compiled.rollback(artifacts, manifests, parent['manifest_id'])
+    journal = TransactionJournal(journal_path_for(manifests))
+    assert journal.read() is not None
+    other_active = manifests.active()['manifest_id']
+    assert other_active not in (manifest['manifest_id'], parent['manifest_id'])
+    with pytest.raises(RecoveryError,
+                       match='active manifest moved during an interrupted rollback'):
+        recover_pending_transaction(artifacts, manifests, journal)
+    assert journal.read() is not None
+
+
+def test_no_journal_recovery_authenticates_catalog_publications(tmp_path):
+    compiled, artifacts, manifests, records, parent, manifest = \
+        _published_child(tmp_path)
+    catalog_path = catalog_path_for(manifests)
+    journal = TransactionJournal(journal_path_for(manifests))
+    assert journal.read() is None
+    loaded, outcome = recover_transaction(catalog_path, manifests, journal)
+    assert outcome is None
+    assert loaded.get(compiled.artifact.artifact_id).status == 'accepted'
+
+    clean_catalog = ArtifactRegistry.load(catalog_path).export()
+
+    def tampered(change):
+        value = json.loads(json.dumps(clean_catalog))
+        change(value['publications'][0])
+        return value
+
+    flipped_manifest = tampered(
+        lambda record: record.__setitem__('manifest_id', '1' * 64))
+    Path(catalog_path).write_text(json.dumps(flipped_manifest))
+    with pytest.raises(ManifestIntegrityError):
+        recover_transaction(catalog_path, manifests, journal)
+
+    flipped_payload = tampered(
+        lambda record: record.__setitem__('payload_digest', '0' * 64))
+    Path(catalog_path).write_text(json.dumps(flipped_payload))
+    with pytest.raises(ManifestIntegrityError, match='payload digest'):
+        recover_transaction(catalog_path, manifests, journal)

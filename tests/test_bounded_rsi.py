@@ -682,6 +682,56 @@ def test_cycle_script_classifies_value_errors_and_replay_transactions(
     assert '--recover' in payload['recovery_command']
     assert str(root / 'replay') in payload['recovery_command']
 
+    # A validation error without a pending journal prints no recovery command.
+    def stale_run(output, evidence_root):
+        raise StaleSourceError('source evidence changed')
+
+    monkeypatch.setattr(module, 'run_one', stale_run)
+    monkeypatch.setattr(module, 'summarize', lambda report, output: {})
+    assert module.main(['--output', str(tmp_path / 'stale-run')]) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['status'] == 'failed_transaction'
+    assert payload['journal_pending'] is False
+    assert 'recovery_command' not in payload
+
+    # An explicit interruption always carries the recovery command.
+    def interrupted_run(output, evidence_root):
+        raise InterruptedTransactionError('interrupted without a journal file')
+
+    monkeypatch.setattr(module, 'run_one', interrupted_run)
+    assert module.main(['--output', str(tmp_path / 'interrupted-run')]) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['status'] == 'interrupted_transaction'
+    assert 'recovery_command' in payload
+
+    # A validation error with a durable journal does carry guidance.
+    journal_root = tmp_path / 'journal-run'
+    journal = journal_root / 'manifests' / 'transactions' / 'runtime_journal.json'
+    journal.parent.mkdir(parents=True)
+    journal.write_text('{}')
+    monkeypatch.setattr(module, 'run_one', stale_run)
+    assert module.main(['--output', str(journal_root)]) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['journal_pending'] is True
+    assert 'recovery_command' in payload
+
+    # Replay validation errors follow the same conditional rule.
+    calls['count'] = 0
+    replay_root = tmp_path / 'replay-stale'
+    replay_root.mkdir()
+
+    def stale_replay(output, evidence_root):
+        calls['count'] += 1
+        if calls['count'] == 2:
+            raise StaleSourceError('replay source evidence changed')
+        return FakeReport()
+
+    monkeypatch.setattr(module, 'run_one', stale_replay)
+    assert module.main(['--output', str(replay_root), '--replay-check']) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['status'] == 'failed_replay_transaction'
+    assert 'recovery_command' not in payload
+
 
 def test_pending_transaction_refuses_silent_cycle_reconstruction(tmp_path):
     root = tmp_path / 'pending'
