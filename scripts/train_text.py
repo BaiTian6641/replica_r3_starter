@@ -181,7 +181,7 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
     from replica_lab.optimizers import build_optimizer
     from replica_lab.curriculum import balanced_batches, batch_diagnostics, dataset_diagnostics
     from replica_lab.training_tools import apply_learning_rates, evaluate_generations, response_statistics
-    from replica_lab.training_state import load_runtime_state, optimizer_state_to
+    from replica_lab.training_state import load_runtime_state
     from replica_lab.checkpointing import save_training_checkpoint, validate_training_checkpoint
 
     lock = json.loads(args.model_lock.read_text())
@@ -249,15 +249,40 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
     actual_lengths = [int(b["input_ids"].shape[1]) for b in encoded_train + encoded_dev]
     profiler.mark("data_encoded", train_examples=len(train_rows), dev_examples=len(dev_rows),
                   minimum_sequence_length=min(actual_lengths), maximum_sequence_length=max(actual_lengths))
-    base = AutoModelForCausalLM.from_pretrained(
-        args.resume_from / "base" if args.resume_from else args.model_path,
-        local_files_only=True, trust_remote_code=False,
-        torch_dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
-    model = LlamaMemoryAdapter(base, args.regime, memory_size=args.memory_size,
-                               workspace_size=args.workspace_size,
-                               insertion_layer=args.insertion_layer).to(args.device)
-    if args.resume_from and model.augmented:
-        model.load_sidecars(args.resume_from / "sidecars.safetensors")
+    if args.resume_from and args.device != "cpu":
+        from replica_lab.training_state import materialize_resume_model
+        base, model, optimizer, restored, base_rates = materialize_resume_model(
+            args.resume_from / "base",
+            adapter_factory=lambda base: LlamaMemoryAdapter(
+                base, args.regime, memory_size=args.memory_size,
+                workspace_size=args.workspace_size,
+                insertion_layer=args.insertion_layer),
+            optimizer_factory=lambda model: build_optimizer(
+                model, args.optimizer, lr_base=args.lr_base, lr_new=args.lr_new,
+                lr_muon_base=args.lr_muon_base, lr_muon_new=args.lr_muon_new,
+                momentum=args.momentum, ns_steps=args.ns_steps,
+                block_size=args.block_size, weight_decay=args.weight_decay),
+            runtime_path=args.resume_from / "runtime.pt",
+            run_contract=contract, device=args.device)
+    else:
+        base = AutoModelForCausalLM.from_pretrained(
+            args.resume_from / "base" if args.resume_from else args.model_path,
+            local_files_only=True, trust_remote_code=False,
+            torch_dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
+        model = LlamaMemoryAdapter(base, args.regime, memory_size=args.memory_size,
+                                   workspace_size=args.workspace_size,
+                                   insertion_layer=args.insertion_layer).to(args.device)
+        if args.resume_from and model.augmented:
+            model.load_sidecars(args.resume_from / "sidecars.safetensors")
+        optimizer = build_optimizer(
+            model, args.optimizer, lr_base=args.lr_base, lr_new=args.lr_new,
+            lr_muon_base=args.lr_muon_base, lr_muon_new=args.lr_muon_new,
+            momentum=args.momentum, ns_steps=args.ns_steps,
+            block_size=args.block_size, weight_decay=args.weight_decay)
+        base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
+        if args.resume_from:
+            restored = load_runtime_state(args.resume_from / "runtime.pt", optimizer,
+                                          run_contract=contract)
     profiler.mark("model_loaded", parameters=sum(p.numel() for p in model.parameters()))
     if args.checkpointing:
         base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
@@ -270,28 +295,13 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                 if args.dtype == "bfloat16" else nullcontext())
     def device_batch(batch):
         return {key: value.to(args.device) for key, value in batch.items()}
-    migrate_on_resume = bool(args.resume_from and args.device != "cpu")
-    if migrate_on_resume:
-        model.to("cpu")
-        gc.collect()
-        if args.device == "mps":
-            torch.mps.empty_cache()
-        elif args.device == "cuda":
-            torch.cuda.empty_cache()
-    optimizer = build_optimizer(
-        model, args.optimizer, lr_base=args.lr_base, lr_new=args.lr_new,
-        lr_muon_base=args.lr_muon_base, lr_muon_new=args.lr_muon_new,
-        momentum=args.momentum, ns_steps=args.ns_steps,
-        block_size=args.block_size, weight_decay=args.weight_decay)
     first_gradient_audit = None
     update_reports = []
     generation_history = []
     checkpoint_receipts = []
     consecutive_perfect = 0
-    base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
     start_step = 0
     if args.resume_from:
-        restored = load_runtime_state(args.resume_from / "runtime.pt", optimizer, run_contract=contract)
         start_step = restored["step"]
         if start_step != resume_receipt["completed_steps"]:
             raise ValueError("Runtime completed step differs from the checkpoint receipt")
@@ -306,10 +316,6 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
         consecutive_perfect = state.get("consecutive_perfect", 0)
         if len(update_reports) != start_step:
             raise ValueError("Resume update history is incomplete")
-        if migrate_on_resume:
-            gc.collect()
-            optimizer_state_to(optimizer, args.device)
-            model.to(args.device)
         profiler.mark("runtime_restored", completed_steps=start_step)
     processed_tokens = sum(item["processed_tokens"] for item in update_reports)
     supervised_tokens = sum(item["supervised_tokens"] for item in update_reports)

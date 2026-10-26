@@ -69,7 +69,7 @@ def execute(args, profiler):
     from replica_lab.checkpointing import save_training_checkpoint, validate_training_checkpoint
     from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
     from replica_lab.optimizers import build_optimizer
-    from replica_lab.training_state import load_runtime_state, optimizer_state_to
+    from replica_lab.training_state import load_runtime_state
     from replica_lab.training_tools import apply_learning_rates, response_statistics
     from profile_full_training import assert_full_scope, parameter_hashes
     from train_text import encode_row, load_rows
@@ -131,25 +131,31 @@ def execute(args, profiler):
             raise ValueError("Resume report is not the matching first smoke process")
 
     base_path = Path(args.resume_from) / "base" if args.resume_from else model_path
-    base = AutoModelForCausalLM.from_pretrained(
-        base_path, local_files_only=True, trust_remote_code=False,
-        dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
-    model = LlamaMemoryAdapter(base, "full").to("mps").train()
+    if args.resume_from:
+        from replica_lab.training_state import materialize_resume_model
+        base, model, optimizer, restored, base_rates = materialize_resume_model(
+            args.resume_from / "base",
+            adapter_factory=lambda base: LlamaMemoryAdapter(base, "full"),
+            optimizer_factory=lambda model: build_optimizer(
+                model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
+                weight_decay=optim["weight_decay"]),
+            runtime_path=args.resume_from / "runtime.pt",
+            run_contract=contract, device="mps")
+    else:
+        base = AutoModelForCausalLM.from_pretrained(
+            base_path, local_files_only=True, trust_remote_code=False,
+            dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
+        model = LlamaMemoryAdapter(base, "full").to("mps").train()
+        optimizer = build_optimizer(
+            model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
+            weight_decay=optim["weight_decay"])
+        base_rates = [group["lr"] for group in optimizer.param_groups]
     base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
-    migrate_on_resume = bool(args.resume_from)
-    if migrate_on_resume:
-        model.to("cpu")
-        gc.collect()
-        torch.mps.empty_cache()
-    optimizer = build_optimizer(
-        model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
-        weight_decay=optim["weight_decay"])
     assert_full_scope(model, optimizer, scope["trainable_parameters"],
                       scope["trainable_tensors"])
     for group in optimizer.param_groups:
         if group["betas"] != tuple(optim["betas"]) or group["eps"] != optim["eps"]:
             raise ValueError("Native optimizer hyperparameters differ")
-    base_rates = [group["lr"] for group in optimizer.param_groups]
     before = parameter_hashes(model)
     if resume_report is not None and before != resume_report["parameter_hashes_after"]:
         raise ValueError("Resume model weights differ from first-process final weights")
@@ -157,8 +163,6 @@ def execute(args, profiler):
     start_step = 0
     update_reports = []
     if args.resume_from:
-        restored = load_runtime_state(
-            Path(args.resume_from) / "runtime.pt", optimizer, run_contract=contract)
         start_step = restored["step"]
         if start_step != 1 or start_step != resume_receipt["completed_steps"]:
             raise ValueError("Smoke resume must continue exactly update 1")
@@ -170,10 +174,6 @@ def execute(args, profiler):
         update_reports = state.get("update_reports", [])
         if len(update_reports) != 1:
             raise ValueError("Resume update history is incomplete")
-        if migrate_on_resume:
-            gc.collect()
-            optimizer_state_to(optimizer, "mps")
-            model.to("mps")
         profiler.mark("runtime_restored", completed_steps=1)
 
     profiler.mark("model_optimizer_loaded", start_step=start_step)

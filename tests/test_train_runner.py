@@ -439,3 +439,71 @@ def test_fused_adamw_rejects_nonfinite_loss_before_optimizer_step(
     with pytest.raises(RuntimeError, match="Nonfinite loss"):
         TRAIN.execute(args, PhaseRecorder(), expected_original_parameters=tiny_source.count)
     assert not (args.output / "checkpoint").exists()
+
+
+def test_meta_resume_matches_uninterrupted_second_update_and_optimizer_state(tiny_source):
+    from replica_lab.training_state import materialize_resume_model
+    from replica_lab.optimizers import build_optimizer
+
+    continuous_args = arguments(tiny_source, "meta-continuous", optimizer="adamw_fused")
+    continuous, _ = execute(tiny_source, continuous_args)
+    first_args = arguments(tiny_source, "meta-first", optimizer="adamw_fused", stop_after=1)
+    first, _ = execute(tiny_source, first_args)
+    resume_from = first_args.output / "training_checkpoint_0001"
+    base, model, optimizer, restored, base_rates = materialize_resume_model(
+        resume_from / "base",
+        adapter_factory=lambda base: model_adapter.LlamaMemoryAdapter(
+            base, "full", memory_size=8, workspace_size=8, insertion_layer=-1),
+        optimizer_factory=lambda model: build_optimizer(
+            model, "adamw_fused", lr_base=1e-4, lr_new=1e-4,
+            lr_muon_base=1e-4, lr_muon_new=1e-4,
+            momentum=0.95, ns_steps=5, block_size=64, weight_decay=0.01),
+        runtime_path=resume_from / "runtime.pt",
+        run_contract=first["run_contract"], device="cpu")
+    assert restored["step"] == 1
+    assert restored["data_state"]["next_step"] == 1
+    assert restored["schedule_state"]["completed_steps"] == 1
+    assert "cpu" in restored["rng_devices"]
+
+    rows = TRAIN.load_rows(tiny_source.train, "train")
+    encoded = {row["id"]: TRAIN.encode_row(row, SmallTokenizer(), 32) for row in rows}
+    selected = continuous["train_updates"][1]["example_ids"]
+    batches = [encoded[case_id] for case_id in selected]
+    counts = [int((batch["labels"][:, 1:] != -100).sum()) for batch in batches]
+    total = sum(counts)
+    optimizer.zero_grad(set_to_none=True)
+    from replica_lab.training_tools import apply_learning_rates
+    factor = apply_learning_rates(
+        optimizer, base_rates, 1, 2, 2,
+        "constant", 0.2)
+    assert factor == 1.0
+    base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    model.train()
+    losses = []
+    for batch, tokens in zip(batches, counts):
+        result = model(**batch)
+        loss = result.loss * (tokens / total)
+        loss.backward()
+        model.release_context()
+        losses.append(float(loss.detach()))
+    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
+    optimizer.step()
+    optimizer.zero_grad(set_to_none=True)
+    assert sum(losses) == pytest.approx(
+        continuous["train_updates"][1]["train_response_nll_before_update"])
+    expected_weights = load_file(continuous_args.output / "checkpoint/base/model.safetensors")
+    actual_weights = model.base.state_dict()
+    for name in expected_weights:
+        torch.testing.assert_close(actual_weights[name], expected_weights[name], rtol=0, atol=0)
+    continuous_runtime = torch.load(
+        continuous_args.output / "training_checkpoint_0002/runtime.pt",
+        map_location="cpu", weights_only=True)
+    assert optimizer.state_dict()["param_groups"] == continuous_runtime["optimizer"]["param_groups"]
+    for identity, state in optimizer.state_dict()["state"].items():
+        for key, value in state.items():
+            expected = continuous_runtime["optimizer"]["state"][identity][key]
+            if isinstance(value, torch.Tensor):
+                assert value.dtype == expected.dtype
+                torch.testing.assert_close(value, expected, rtol=0, atol=0)
+            else:
+                assert value == expected

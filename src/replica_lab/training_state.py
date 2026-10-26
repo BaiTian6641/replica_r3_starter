@@ -165,7 +165,8 @@ def save_runtime_state(path: str | Path, optimizer: Optimizer, *, step: int,
 
 
 def load_runtime_state(path: str | Path, optimizer: Optimizer, *, run_contract: dict,
-                       restore_rng: bool = True, strict_rng: bool = True) -> dict:
+                       restore_rng: bool = True, strict_rng: bool = True,
+                       target_device=None) -> dict:
     """Validate the contract, restore optimizer and optionally global RNG state.
 
     The caller must first restore the corresponding model weights. Return the
@@ -198,7 +199,43 @@ def load_runtime_state(path: str | Path, optimizer: Optimizer, *, run_contract: 
     result = _json_value(metadata, "runtime checkpoint metadata")
     if restore_rng:
         _validate_rng(payload["rng"], strict_rng)
-    optimizer.load_state_dict(payload["optimizer"])
+    if target_device is None:
+        optimizer.load_state_dict(payload["optimizer"])
+    else:
+        optimizer.load_state_dict(payload["optimizer"], target_device=target_device)
     if restore_rng:
         _restore_rng(payload["rng"])
     return result
+
+
+def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
+                             runtime_path, run_contract, device,
+                             restore_rng=True, strict_rng=True):
+    """Restore optimizer state before materializing full model weights on device.
+
+    Meta-device construction owns the complete architecture and parameter names
+    without allocating model storage. The checkpoint optimizer is restored on
+    the target backend first, then full weights and any sidecars are materialized.
+    """
+    from transformers import AutoConfig, AutoModelForCausalLM
+
+    base_path = Path(base_path)
+    with torch.device("meta"):
+        config = AutoConfig.from_pretrained(base_path)
+        base = AutoModelForCausalLM.from_config(config)
+        model = adapter_factory(base)
+        optimizer = optimizer_factory(model)
+    base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
+    restored = load_runtime_state(
+        runtime_path, optimizer, run_contract=run_contract,
+        restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
+    base = AutoModelForCausalLM.from_pretrained(
+        base_path, local_files_only=True, trust_remote_code=False,
+        dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
+    model = adapter_factory(base)
+    model.to(device)
+    actual_optimizer = optimizer_factory(model)
+    actual_optimizer.load_state_dict(optimizer.state_dict(), target_device=device)
+    if getattr(model, "augmented", False):
+        model.load_sidecars(base_path.parent / "sidecars.safetensors")
+    return base, model, actual_optimizer, restored, base_rates

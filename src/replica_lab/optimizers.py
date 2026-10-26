@@ -200,7 +200,7 @@ class ReplicaOptimizer(Optimizer):
         result["replica_optimizer"] = {"format_version": 1, "name": self.optimizer_name}
         return result
 
-    def load_state_dict(self, state_dict):
+    def load_state_dict(self, state_dict, target_device=None):
         """Load without Optimizer's default parameter-dtype cast of int8 state.
 
         Exact named routing is required. Device migration is supported; changing
@@ -252,7 +252,7 @@ class ReplicaOptimizer(Optimizer):
                             if not bool(torch.isfinite(value).all()):
                                 raise ValueError("Invalid AdamW checkpoint tensor values")
                     restored_state[parameter] = {
-                        key: value.to(parameter.device) if isinstance(value, Tensor) else value
+                        key: value.to(target_device or parameter.device) if isinstance(value, Tensor) else value
                         for key, value in state.items()}
         if not set(saved["state"]).issubset(valid_ids):
             raise ValueError("Optimizer checkpoint contains unowned state")
@@ -358,8 +358,7 @@ class NativeFusedAdamW(torch.optim.AdamW):
             "torch_version": str(torch.__version__),
         }
         return result
-
-    def load_state_dict(self, state_dict):
+    def load_state_dict(self, state_dict, target_device=None):
         """Validate and restore native fused v1 state with bounded residency.
 
         Group/metadata incompatibilities fail before mutation. During a valid
@@ -418,7 +417,8 @@ class NativeFusedAdamW(torch.optim.AdamW):
                                 or tuple(value.shape) != tuple(parameter.shape)):
                             raise ValueError("Invalid native fused AdamW checkpoint tensor")
                     restored_state[parameter] = {
-                        key: value.to(parameter.device) if isinstance(value, Tensor) else value
+                        key: value.to(target_device or parameter.device)
+                        if isinstance(value, Tensor) else value
                         for key, value in state.items()}
                     for key in ("exp_avg", "exp_avg_sq"):
                         if not bool(torch.isfinite(restored_state[parameter][key]).all()):

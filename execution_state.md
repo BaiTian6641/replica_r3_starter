@@ -4,8 +4,9 @@
 ## Fused optimizer, causal refresh and stage diagnostics — 26 October 2026
 
 **Current work — native fused AdamW integrated; sustained full-scope training
-passes; full-size native resume remains unqualified; causal hybrid refresh and
-stage vision learning are rejected.** New training uses
+and the bounded two-update fresh-process resume pass; longer native resume
+schedules remain unqualified; causal hybrid refresh and stage vision learning
+are rejected.** New training uses
 `NativeFusedAdamW` around `torch.optim.AdamW(fused=True)`, not custom eager
 AdamW or Muon. Historical Muon evidence is preserved.
 
@@ -21,9 +22,11 @@ tensors changed: 0.11781 updates/s, 52.2464 steady processed tokens/s and
 8.4216 steady seconds/update. Peak sampled driver is 43,090,886,656 bytes,
 zero swap growth and 29% minimum host free. Actual FP32 optimizer state is
 20,134,053,364 bytes. See [fused integration and performance](docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md).
-First-process checkpoints pass, but full-size native resume repeatedly exceeds
-the 512 MiB swap guard during optimizer-state restoration or the first resumed
-update. No native full-resume claim is made.
+First-process checkpoints and the repaired full-scope fresh-process resume pass
+the declared two-update smoke: exact resume-start hashes, restored scheduler/
+RNG/cursor, optimizer step 2 and all 381 tensors changed in each process. Peak
+sampled driver is 43,243,962,368 bytes with zero swap growth. Longer interrupted
+schedules, other scopes and learning-quality equivalence remain unqualified.
 
 Causal frozen-writer query refresh improves learned recovery from 36/240 to
 110/240 but fails correction, unaffected and unknown-abstention gates. It is a

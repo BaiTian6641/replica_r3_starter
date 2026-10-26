@@ -20,7 +20,9 @@ Focused results: **52 optimizer/resume tests** in the final targeted set, plus
 runs match weights, optimizer moments, scheduler/RNG, generation and reload for
 full, modules-only and full-augmented scopes. Nonfinite loss/gradient, missing
 and duplicate ownership, sparse gradients and incompatible states are rejected.
-These are software contracts, not native learning-quality evidence.
+These are software contracts, not native learning-quality evidence. The final
+resume-repair regression set passes **88 tests**, including exact tiny
+interrupted-versus-uninterrupted weights, moments and schedule state.
 
 ## Sustained native probe
 
@@ -55,15 +57,42 @@ The historical three-update fused/Muon comparison remains **2.57× faster**,
 but this sustained run does not establish universal speedup, convergence
 equivalence or retention. Its loss trace is not a quality evaluation.
 
-## Full-size native resume remains unqualified
+## Full-size native resume: bounded repair and qualification
 
-First-process full checkpoints complete within limits. Fresh-process full
-resume repeatedly fails the sustained 512 MiB swap-growth guard during large
-optimizer-state restoration or the first resumed update. One earlier device
-mismatch was fixed, but the resource failure persists. No further duplicate
-full-resume attempts were made after isolating the failure. This does not
-invalidate the successful fresh sustained run, and it does not qualify full
-native interrupted resume.
+The earlier loader repeatedly failed the sustained 512 MiB swap-growth guard
+during optimizer-state restoration or the first resumed update. Those failed
+guards and child logs remain preserved under `reports/fused_adamw_20261025/`
+and `runs/fused_adamw_20261025/`; they are not rewritten as passes.
 
-Failed guards and child logs are preserved under
-`reports/fused_adamw_20261025/` and `runs/fused_adamw_20261025/`.
+The repaired path constructs the architecture and optimizer on the meta device,
+restores the validated optimizer/RNG/scheduler/cursor state with explicit target
+device ownership, then loads the real checkpoint model and attaches the restored
+state by the validated parameter-group order. It does not migrate a second full
+CPU model copy. Declared base learning rates are captured before optimizer-state
+restoration. The same-device state handoff retains one moment allocation; no
+backend fallback is permitted.
+
+The predeclared two-update smoke passed in two fresh native processes on 26
+October 2026, using the sealed MiniCPM5 source and the unchanged protocol. The
+first process completed update 1 and retained one **30,211,387,008-byte**
+checkpoint. The second process started at step 1, matched all first-process
+final parameter hashes, completed update 2, and changed all **381 tensors /
+2,516,756,480 parameters**. Native optimizer state step values were `[2.0]`;
+checkpoint reload validation and resume-start hash validation passed. No final
+model was exported or promoted.
+
+| Native process | Guard wall time | Peak sampled driver | Swap growth | Minimum host free |
+|---|---:|---:|---:|---:|
+| First (`smoke_first03`) | 71.51 s | 40,886,763,520 B | 0 B | 57% |
+| Fresh resume (`smoke_resume03`) | 70.53 s | 43,243,962,368 B | 0 B | 50% |
+
+Evidence: `runs/fused_adamw_20261026_resume01/smoke_first03/run_report.json`,
+`runs/fused_adamw_20261026_resume01/smoke_resume03/run_report.json`, and the
+corresponding guard JSON/child/host logs under
+`reports/fused_adamw_20261026_resume01/`. Two earlier attempts in this new
+directory are retained as setup/code failures (`HF_DATASETS_OFFLINE` missing and
+a probe `base_path` regression); neither performed a model update.
+
+This qualifies only the bounded full-scope two-update interrupted smoke. It does
+not establish longer interrupted schedules, other model/optimizer scopes,
+convergence, retention, or learning-quality equivalence.

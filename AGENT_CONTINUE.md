@@ -1,6 +1,6 @@
 # Coding-agent continuation instruction
 
-**Current priority — analyze constant-output priors and caption alignment on fresh sealed data; no scaling. Full-size native resume remains unqualified on optimizer-state transfer memory.**
+**Current priority — analyze constant-output priors and caption alignment on fresh sealed data; no scaling. The bounded full-size two-update native resume now passes; longer resume schedules remain unqualified.**
 All four verification defects are fixed. Raw-page rebinding requires explicit
 record dependencies and fails closed on unknown provenance or contained
 revocation. Memory parity checks every fact and rejects duplicate/missing rows.
@@ -24,8 +24,11 @@ New training uses native `torch.optim.AdamW(fused=True)` through
 `NativeFusedAdamW`; historical Muon experiments remain unchanged. Sustained
 full-scope FP32 training passes 12 updates /381 tensors: 0.11781 updates/s,
 52.2464 steady processed tokens/s, 43,090,886,656-byte sampled driver peak,
-zero swap growth and 18.75 GiB optimizer state. Full-size native resume remains
-unqualified on optimizer-state transfer swap; do not claim it passed.
+zero swap growth and 18.75 GiB optimizer state. The repaired bounded native
+resume passes two fresh processes with exact start hashes, optimizer step 2,
+381 changed tensors per process, 43,243,962,368-byte peak sampled driver and
+zero swap growth. Longer interrupted schedules and other scopes remain
+unqualified; do not claim learning-quality equivalence.
 
 Causal frozen-writer query refresh improves learned recovery from36/240 to
 110/240 but fails correction, unaffected and unknown-abstention gates. It is a
