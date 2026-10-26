@@ -27,12 +27,6 @@ def _files(root):
             if p.is_file() and p.relative_to(root).as_posix() != "checkpoint_receipt.json"}
 
 
-def _optimizer_state_to(optimizer, device):
-    for state in optimizer.state.values():
-        for key, value in list(state.items()):
-            if isinstance(value, torch.Tensor):
-                state[key] = value.to(device)
-
 
 @contextmanager
 def _cpu_serialization_residency(model, optimizer):
@@ -44,7 +38,6 @@ def _cpu_serialization_residency(model, optimizer):
         yield
         return
     model.to("cpu")
-    _optimizer_state_to(optimizer, "cpu")
     gc.collect()
     if device.type == "mps":
         torch.mps.empty_cache()
@@ -54,7 +47,6 @@ def _cpu_serialization_residency(model, optimizer):
         yield
     finally:
         model.to(device)
-        _optimizer_state_to(optimizer, device)
 
 
 def save_training_checkpoint(model, tokenizer, optimizer, path, *, step,
