@@ -1,0 +1,366 @@
+{
+  "format": "replica.real_image_tranche.v1",
+  "declared_at_utc": "2026-10-26T00:00:00Z",
+  "status": "predeclared_candidate_not_admitted",
+  "purpose": "Bounded acquisition of real photographs and public-domain artwork derivatives for local image-input validation. No training or model-quality claim is authorized by this protocol.",
+  "jurisdiction": {
+    "intended": "US",
+    "basis": "The project host and this bounded intake operate in the United States. Federal-work and no-known-restrictions claims are evaluated for this jurisdiction; CC0 and old-author public-domain assets retain their broader declared bases. This is a provenance decision, not legal advice."
+  },
+  "acquisition": {
+    "download_authorized": true,
+    "bulk_download": false,
+    "derivative_width": 960,
+    "originals_downloaded": false,
+    "allowed_hosts": [
+      "thumb.wikimedia.org"
+    ],
+    "max_requests": 7,
+    "max_asset_bytes": 2097152,
+    "max_total_bytes": 8388608,
+    "timeout_seconds": 30,
+    "user_agent": "ReplicaResearch/1.0 (bounded provenance-checked image validation)"
+  },
+  "caps": {
+    "exact_assets": 7,
+    "exact_sources": 6,
+    "max_duplicate_rate": 0.0,
+    "train_basis_points": 7000,
+    "development_basis_points": 1500,
+    "audit_basis_points": 1500,
+    "require_nonempty_splits": [
+      "train",
+      "development",
+      "audit"
+    ]
+  },
+  "split_assignment": {
+    "method": "sha256_first_64_bits_mod_10000",
+    "salt": "sparkx-first-tranche-20261026",
+    "group_key_required": true,
+    "group_key_scope": "global",
+    "note": "Frozen before asset-byte acquisition. Group keys name genuine upstream collections or missions. The salt and group names were not changed after observing outcomes; a distinct National Archives collection was added because the initial six-candidate set had no development group.",
+    "expected_group_splits": {
+      "nasa_apollo": "train",
+      "loc_fsa_owi": "audit",
+      "rijksmuseum": "train",
+      "met_open_access": "audit",
+      "usgs": "train",
+      "us_national_archives": "development"
+    },
+    "expected_asset_counts": {
+      "train": 4,
+      "development": 1,
+      "audit": 2
+    }
+  },
+  "license_policy": {
+    "allow": [
+      "pd",
+      "cc0"
+    ],
+    "deny_prefixes": [
+      "cc-by-nc",
+      "cc-by-nc-sa",
+      "cc-by-nd",
+      "other"
+    ],
+    "deny_exact": [
+      "unknown",
+      "none",
+      "evaluation_only"
+    ],
+    "required_fields": [
+      "source_page",
+      "institutional_source",
+      "author",
+      "credit",
+      "license",
+      "rights_basis",
+      "revision_id",
+      "revision_timestamp",
+      "original_sha1"
+    ],
+    "note": "Per-asset rights and provenance are required. A repository, mirror, or annotation-card license alone is insufficient."
+  },
+  "dedup": {
+    "exact_sha256": true,
+    "duplicate_asset_id": "reject",
+    "duplicate_source_identity": "reject",
+    "note": "Exact byte deduplication is implemented. Perceptual or near-duplicate detection is not claimed."
+  },
+  "leakage": {
+    "excluded_source_ids": [
+      "mmlu",
+      "hellaswag",
+      "arc_easy",
+      "arc_challenge",
+      "winogrande",
+      "piqa",
+      "openbookqa",
+      "commonsenseqa",
+      "pixmo_points",
+      "pixmo_cap",
+      "pixmo_ask",
+      "mini_vw",
+      "text_vqa",
+      "vqav2",
+      "gqa",
+      "ok_vqa",
+      "science_qa"
+    ],
+    "excluded_source_id_fragments": [
+      "benchmark",
+      "mmlu",
+      "hellaswag",
+      "winogrande",
+      "openbookqa",
+      "vqav2",
+      "text_vqa",
+      "ok_vqa"
+    ],
+    "checks": [
+      "one group_key maps to exactly one split",
+      "declared split equals the computed split",
+      "evaluation-only and benchmark source ids are rejected",
+      "all source groups are disjoint across splits"
+    ],
+    "note": "These institutional archive assets are not sourced from the declared benchmark pools. Exact source and group exclusion is enforced; no claim of exhaustive semantic overlap detection is made."
+  },
+  "sources": [
+    {
+      "source_id": "nasa_apollo",
+      "group_key": "nasa_apollo",
+      "jurisdiction": "US",
+      "assets": [
+        {
+          "asset_id": "apollo17_blue_marble",
+          "title": "File:The Earth seen from Apollo 17.jpg",
+          "pageid": 43894484,
+          "revision_id": 1193076862,
+          "revision_timestamp": "2026-04-07T08:16:19Z",
+          "original_sha1": "229ec1e5d613a8c328a1d5955a7abc407e6968b1",
+          "original_bytes": 6511067,
+          "original_width": 3000,
+          "original_height": 3002,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/960px-The_Earth_seen_from_Apollo_17.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:The_Earth_seen_from_Apollo_17.jpg",
+          "institutional_source": "https://images.nasa.gov/details/as17-148-22727",
+          "provenance_evidence": [
+            "https://images-api.nasa.gov/search?q=as17-148-22727",
+            "https://www.nasa.gov/image-article/earth-full-view-from-apollo-17/"
+          ],
+          "author": "NASA / Apollo 17 crew",
+          "credit": "NASA, AS17-148-22727",
+          "license": "pd",
+          "license_short_name": "Public domain",
+          "license_url": null,
+          "attribution_required": false,
+          "copyrighted": false,
+          "restrictions": "",
+          "rights_basis": "NASA still imagery and U.S. federal-government work; Commons marks Public domain, PD NASA, Copyrighted=False and no restrictions. NASA's image API independently identifies AS17-148-22727 and the Apollo 17 crew provenance."
+        },
+        {
+          "asset_id": "apollo11_buzz_flag",
+          "title": "File:Buzz salutes the U.S. Flag.jpg",
+          "pageid": 137926,
+          "revision_id": 1202084977,
+          "revision_timestamp": "2026-04-23T06:27:51Z",
+          "original_sha1": "a5b625c89aa850cb838de0fbd96a5ac04515b565",
+          "original_bytes": 4681298,
+          "original_width": 3929,
+          "original_height": 3967,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Buzz_salutes_the_U.S._Flag.jpg/960px-Buzz_salutes_the_U.S._Flag.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Buzz_salutes_the_U.S._Flag.jpg",
+          "institutional_source": "https://images.nasa.gov/details/as11-40-5874",
+          "provenance_evidence": [
+            "https://images-api.nasa.gov/search?q=as11-40-5874",
+            "https://www.nasa.gov/history/alsj-and-afj/"
+          ],
+          "author": "Neil A. Armstrong / NASA",
+          "credit": "NASA, AS11-40-5874",
+          "license": "pd",
+          "license_short_name": "Public domain",
+          "license_url": null,
+          "attribution_required": false,
+          "copyrighted": false,
+          "restrictions": "",
+          "rights_basis": "NASA still imagery and U.S. federal-government work; Commons marks Public domain, PD NASA, Copyrighted=False and no restrictions. NASA's image API independently identifies AS11-40-5874, Neil Armstrong as photographer, and Buzz Aldrin beside the flag."
+        }
+      ]
+    },
+    {
+      "source_id": "loc_fsa_owi",
+      "group_key": "loc_fsa_owi",
+      "jurisdiction": "US",
+      "assets": [
+        {
+          "asset_id": "loc_migrant_mother",
+          "title": "File:Lange-MigrantMother02.jpg",
+          "pageid": 52734,
+          "revision_id": 1263514887,
+          "revision_timestamp": "2026-08-18T23:58:41Z",
+          "original_sha1": "afd61dd006bce3ffd26eaf872fef95d588088f73",
+          "original_bytes": 5835684,
+          "original_width": 6205,
+          "original_height": 8066,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Lange-MigrantMother02.jpg/960px-Lange-MigrantMother02.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Lange-MigrantMother02.jpg",
+          "institutional_source": "https://www.loc.gov/pictures/item/2017762891/",
+          "provenance_evidence": [
+            "https://www.loc.gov/pictures/item/2017762891/marc/",
+            "https://www.loc.gov/pictures/resource/fsa.8b29516/"
+          ],
+          "author": "Dorothea Lange / Farm Security Administration",
+          "credit": "Library of Congress, LC-DIG-fsa-8b29516",
+          "license": "pd",
+          "license_short_name": "Public domain",
+          "license_url": null,
+          "attribution_required": false,
+          "copyrighted": false,
+          "restrictions": "",
+          "rights_basis": "U.S. federal Farm Security Administration/Office of War Information photograph. The Library of Congress MARC record gives rights advisory 'No known restrictions' and identifier LC-DIG-fsa-8b29516; Commons marks Public domain, Copyrighted=False and no restrictions. Admission is for the declared U.S. jurisdiction."
+        }
+      ]
+    },
+    {
+      "source_id": "rijksmuseum",
+      "group_key": "rijksmuseum",
+      "jurisdiction": "US",
+      "assets": [
+        {
+          "asset_id": "rijksmuseum_night_watch",
+          "title": "File:The Nightwatch by Rembrandt - Rijksmuseum.jpg",
+          "pageid": 29589409,
+          "revision_id": 1228043161,
+          "revision_timestamp": "2026-06-08T18:21:01Z",
+          "original_sha1": "53db595a5a1bca243b152b175d65f0f2f1ab1ff8",
+          "original_bytes": 36661073,
+          "original_width": 14168,
+          "original_height": 11528,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg/960px-The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:The_Nightwatch_by_Rembrandt_-_Rijksmuseum.jpg",
+          "institutional_source": "https://hdl.handle.net/10934/RM0001.COLLECT.5216",
+          "provenance_evidence": [
+            "https://www.rijksmuseum.nl/nl/collectie/object/De-Nachtwacht--3137deb45cd7765f9a76084a16c99544"
+          ],
+          "author": "Rembrandt van Rijn (1606-1669)",
+          "credit": "Rijksmuseum, Amsterdam; on loan from the City of Amsterdam",
+          "license": "pd",
+          "license_short_name": "Public domain",
+          "license_url": null,
+          "attribution_required": false,
+          "copyrighted": false,
+          "restrictions": "",
+          "rights_basis": "The 1642 painting's author died in 1669, so the underlying work is public domain by age. The admitted asset is a photographic reproduction supplied by the Rijksmuseum; Commons marks Public domain, Copyrighted=False and no restrictions. The museum source record independently identifies the object and credit line."
+        }
+      ]
+    },
+    {
+      "source_id": "met_open_access",
+      "group_key": "met_open_access",
+      "jurisdiction": "US",
+      "assets": [
+        {
+          "asset_id": "met_neptune_columns",
+          "title": "File:“Columns of the Temple of Neptune at Paestum” by Constantin Hansen (Danish, Rome 1804–1880 Frederiksberg) via The Metropolitan Museum of Art is licensed under CC0 1.0.jpg",
+          "pageid": 56007251,
+          "revision_id": 1031305049,
+          "revision_timestamp": "2025-05-13T09:54:25Z",
+          "original_sha1": "a8feb6fe32074e4b47e1de4402851235869bcc6b",
+          "original_bytes": 2773317,
+          "original_width": 3085,
+          "original_height": 3862,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/%E2%80%9CColumns_of_the_Temple_of_Neptune_at_Paestum%E2%80%9D_by_Constantin_Hansen_%28Danish%2C_Rome_1804%E2%80%931880_Frederiksberg%29_via_The_Metropolitan_Museum_of_Art_is_licensed_under_CC0_1.0.jpg/960px-thumbnail.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:%E2%80%9CColumns_of_the_Temple_of_Neptune_at_Paestum%E2%80%9D_by_Constantin_Hansen_(Danish,_Rome_1804%E2%80%931880_Frederiksberg)_via_The_Metropolitan_Museum_of_Art_is_licensed_under_CC0_1.0.jpg",
+          "institutional_source": "https://www.metmuseum.org/art/collection/search/438949",
+          "provenance_evidence": [
+            "https://www.metmuseum.org/openaccess"
+          ],
+          "author": "Constantin Hansen (1804-1880)",
+          "credit": "The Metropolitan Museum of Art, object 438949",
+          "license": "cc0",
+          "license_short_name": "CC0",
+          "license_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "attribution_required": false,
+          "copyrighted": true,
+          "restrictions": "",
+          "rights_basis": "The Metropolitan Museum of Art Open Access asset is dedicated under CC0 1.0. Commons carries the CC0 template and machine-readable license URL; AttributionRequired=False and no restrictions. CC0 is accepted even though the generic Copyrighted metadata flag is true."
+        }
+      ]
+    },
+    {
+      "source_id": "usgs",
+      "group_key": "usgs",
+      "jurisdiction": "US",
+      "assets": [
+        {
+          "asset_id": "usgs_mameyes_landslide",
+          "title": "File:Landslide in Mameyes, Ponce, Puerto Rico, in 1985, photographed by USGS Jibson.jpg",
+          "pageid": 126407541,
+          "revision_id": 996690690,
+          "revision_timestamp": "2025-02-10T14:02:11Z",
+          "original_sha1": "4c3a4e2c3ee0f5c772ab969679b7728d3ee8fa46",
+          "original_bytes": 522236,
+          "original_width": 2157,
+          "original_height": 1452,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Landslide_in_Mameyes%2C_Ponce%2C_Puerto_Rico%2C_in_1985%2C_photographed_by_USGS_Jibson.jpg/960px-Landslide_in_Mameyes%2C_Ponce%2C_Puerto_Rico%2C_in_1985%2C_photographed_by_USGS_Jibson.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Landslide_in_Mameyes,_Ponce,_Puerto_Rico,_in_1985,_photographed_by_USGS_Jibson.jpg",
+          "institutional_source": "https://www.usgs.gov/media/images/catastrophic-landslide-0",
+          "provenance_evidence": [
+            "https://www.usgs.gov/media/images/catastrophic-landslide-0"
+          ],
+          "author": "Randall W. Jibson / U.S. Geological Survey",
+          "credit": "USGS, Mameyes, Puerto Rico landslide, 1985",
+          "license": "pd",
+          "license_short_name": "Public domain",
+          "license_url": null,
+          "attribution_required": false,
+          "copyrighted": false,
+          "restrictions": "",
+          "rights_basis": "U.S. Geological Survey federal work. The institutional USGS source page states 'Sources/Usage: Public Domain' and identifies the 1985 Mameyes landslide; Commons marks Public domain, Copyrighted=False and no restrictions."
+        }
+      ]
+    },
+    {
+      "source_id": "us_national_archives",
+      "group_key": "us_national_archives",
+      "jurisdiction": "US",
+      "assets": [
+        {
+          "asset_id": "nara_lbj_oath_1963",
+          "title": "File:Lyndon Baines Johnson takes Presidential Oath of Office. Jay Gildner, Judge Sarah Hughes, Jack Valenti, Congressman... - NARA - 194235.jpg",
+          "pageid": 16896452,
+          "revision_id": 1269297271,
+          "revision_timestamp": "2026-08-29T14:31:31Z",
+          "original_sha1": "cd64cbde71cc7d7b55620a9ea3ca33f0a090a978",
+          "original_bytes": 1292349,
+          "original_width": 3000,
+          "original_height": 2333,
+          "mime": "image/jpeg",
+          "thumb_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Lyndon_Baines_Johnson_takes_Presidential_Oath_of_Office._Jay_Gildner%2C_Judge_Sarah_Hughes%2C_Jack_Valenti%2C_Congressman..._-_NARA_-_194235.jpg/960px-Lyndon_Baines_Johnson_takes_Presidential_Oath_of_Office._Jay_Gildner%2C_Judge_Sarah_Hughes%2C_Jack_Valenti%2C_Congressman..._-_NARA_-_194235.jpg",
+          "source_page": "https://commons.wikimedia.org/wiki/File:Lyndon_Baines_Johnson_takes_Presidential_Oath_of_Office._Jay_Gildner,_Judge_Sarah_Hughes,_Jack_Valenti,_Congressman..._-_NARA_-_194235.jpg",
+          "institutional_source": "https://catalog.archives.gov/id/194235",
+          "provenance_evidence": [
+            "https://catalog.archives.gov/id/194235"
+          ],
+          "author": "Cecil W. Stoughton / The White House",
+          "credit": "U.S. National Archives and Records Administration, NAID 194235",
+          "license": "pd",
+          "license_short_name": "Public domain",
+          "license_url": null,
+          "attribution_required": false,
+          "copyrighted": false,
+          "restrictions": "",
+          "rights_basis": "Cecil Stoughton's official White House photograph is a U.S. federal-government work. Commons marks Public domain, PD US Government, Copyrighted=False and no restrictions, names NARA as credit, and binds the National Archives Identifier 194235 and Cecil Stoughton's White House Photographs series."
+        }
+      ]
+    }
+  ]
+}
