@@ -682,6 +682,10 @@ def test_download_then_verify_preserves_acquisition_evidence(tmp_path: Path) -> 
     assert verification["acquisition"]["requests"]["attempted"] == 7
     assert verification["acquisition"]["network_used"] is True
     assert verification["manifest"]["sha256"] == tranche.sha256_bytes(manifest_before)
+    assert verified["storage"]["assets_dir"] == tranche._display_path(assets_dir)
+    assert verification["storage"]["assets_dir"] == verified["storage"]["assets_dir"]
+    assert verification["geometry_policy"] == manifest["geometry_policy"]
+    assert verification["implementation_matches_manifest"] is True
     assert (report_dir / tranche.MANIFEST_NAME).read_bytes() == manifest_before
 
 
@@ -808,8 +812,7 @@ def test_acquisition_history_is_validated_fail_closed_or_excluded(tmp_path: Path
     )
     assert report["status"] == "admitted"
     acquisition_path = report_dir / tranche.ACQUISITION_NAME
-    acquisition_before = acquisition_path.read_bytes()
-    acquisition = json.loads(acquisition_before)
+    acquisition = json.loads(acquisition_path.read_bytes())
 
     tampered = copy.deepcopy(acquisition)
     tampered["requests"]["attempted"] = 6  # one fewer than the seven admitted assets
@@ -840,9 +843,38 @@ def test_acquisition_history_is_validated_fail_closed_or_excluded(tmp_path: Path
     assert failed_receipt["acquisition"] is None
     assert failed_receipt["requests"]["attempted"] == 0
 
+    # Deleting the receipt must not bypass the tampered-history failure.
+    acquisition_path.unlink()
+    missing = tranche.verify(config_path, assets_dir, report_dir)
+    assert missing["status"] == "verification_failed"
+    assert missing["verified"] is False
+    assert any(
+        failure["reason"] == "acquisition_missing"
+        for failure in missing["failures"]
+    )
+    assert missing["verification"]["acquisition_receipt"] == "missing"
+    assert missing["acquisition"] is None
+    assert missing["requests"]["attempted"] == 0
+    assert missing["network_used"] is False
+    assert missing["storage"]["assets_dir"] == tranche._display_path(assets_dir)
+    assert len(missing["asset_results"]) == 7
+    assert all(
+        all(entry["checks"].values()) for entry in missing["asset_results"]
+    ), "offline asset/hash QA must still run when acquisition history is missing"
+    assert not acquisition_path.exists(), "verify must not fabricate acquisition history"
+    missing_receipt = json.loads(
+        (report_dir / tranche.VERIFICATION_NAME).read_text()
+    )
+    assert missing_receipt["status"] == "verification_failed"
+    assert missing_receipt["acquisition"] is None
+    assert missing_receipt["verification"]["acquisition_receipt"] == "missing"
+    assert any(
+        failure["reason"] == "acquisition_missing"
+        for failure in missing_receipt["failures"]
+    )
+
     # A structurally valid but refused acquisition attempt is excluded from
     # the authoritative evidence and reported with an explicit warning.
-    acquisition_path.write_bytes(acquisition_before)
     failure_specs = _specs_for_plan(
         plan,
         {record["asset_id"]: b"<html>not a jpeg</html>" for record in plan.assets},

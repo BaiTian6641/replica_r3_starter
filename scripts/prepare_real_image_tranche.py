@@ -20,7 +20,10 @@ the current ``report.json``; offline verification writes a stable
 ``verification.json`` plus the current ``report.json`` and never rewrites the
 acquisition receipt.  Verification includes validated prior acquisition
 evidence separately, so the verify operation's own network/accounting remains
-zero while the download phase's request history is preserved.
+zero while the download phase's request history is preserved.  A missing,
+malformed, protocol/manifest-incompatible or tampered acquisition receipt
+fails verification closed; a structurally valid refused attempt is excluded
+with an explicit warning.
 
 The generated JSON is protocol evidence, not a training authorization.  No
 perceptual or near-duplicate detection is implemented or claimed.
@@ -1604,10 +1607,14 @@ def _build_verification_evidence(report: Mapping[str, Any]) -> dict:
         "implementation": report.get("implementation"),
         "manifest": manifest,
         "verification": verification,
+        "implementation_matches_manifest": verification.get(
+            "implementation_matches_manifest"
+        ),
         "acquisition": report.get("acquisition"),
         "admitted_count": report.get("admitted_count"),
         "asset_count": report.get("asset_count"),
         "verified": report.get("verified"),
+        "geometry_policy": report.get("geometry_policy"),
         "network_used": False,
         "requests": report.get("requests"),
         "bytes": report.get("bytes"),
@@ -2734,6 +2741,13 @@ def verify(
             "acquisition_invalid",
             f"acquisition receipt is not a regular file: {acquisition_path}",
         )
+    else:
+        acquisition_state = "missing"
+        fail(
+            "acquisition",
+            "acquisition_missing",
+            f"required acquisition receipt is missing: {acquisition_path}",
+        )
 
     if not assets_dir.is_dir() or assets_dir.is_symlink():
         fail(
@@ -3061,6 +3075,7 @@ def verify(
     )
     report["storage"].update(
         {
+            "assets_dir": _display_path(assets_dir),
             "asset_bytes": total_asset_bytes,
             "manifest_bytes": len(manifest_raw),
             "total_stored_bytes": total_asset_bytes + len(manifest_raw),
