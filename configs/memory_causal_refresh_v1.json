@@ -7,6 +7,12 @@
     "episodes_sha256": "48074931487e8215b7ca1491719953af05158604493688c48a1a5fd62f778bd1",
     "labels_sha256": "43af487341f7277815b2899c877b792992660ba57be788bab64b980cf16f151e"
   },
+  "numeric_policy": {
+    "torch_use_deterministic_algorithms": true,
+    "mps_fast_math": "disabled",
+    "dtype": "float32",
+    "rationale": "fresh-process byte parity must distinguish checkpoint corruption from backend nondeterminism"
+  },
   "source": {
     "model_path": "checkpoints/minicpm5_source",
     "model_lock": "configs/minicpm5_sealed_lock.local.json",

@@ -36,6 +36,12 @@ def execute(args):
 
     protocol_path = Path(args.protocol).resolve()
     protocol = json.loads(protocol_path.read_text())
+    numeric = protocol.get("numeric_policy", {})
+    if numeric.get("torch_use_deterministic_algorithms") is True:
+        torch.use_deterministic_algorithms(True)
+    if numeric.get("mps_fast_math") == "disabled":
+        if os.environ.get("PYTORCH_MPS_FAST_MATH") != "0":
+            raise RuntimeError("PYTORCH_MPS_FAST_MATH=0 is required by the protocol")
     protocol["protocol_sha256"] = _sha(protocol_path)
     if protocol.get("format") != "replica.memory_causal_refresh.protocol.v1":
         raise ValueError("Causal refresh protocol format differs")

@@ -42,6 +42,9 @@ def test_native_protocol_is_bounded_frozen_and_explicitly_hybrid():
     assert protocol["budget"]["policy_checkpoints_saved"] == 1
     assert protocol["resource_policy"]["driver_limit_bytes"] == 50 * 1024**3
     assert protocol["resource_policy"]["cpu_fallback"] is False
+    assert protocol["numeric_policy"]["torch_use_deterministic_algorithms"] is True
+    assert protocol["numeric_policy"]["mps_fast_math"] == "disabled"
+    assert protocol["numeric_policy"]["dtype"] == "float32"
     assert protocol["policy"]["forbidden_inputs"] == [
         "gold targets", "future queries", "undeclared source rereading",
         "evaluator expected answers"]
