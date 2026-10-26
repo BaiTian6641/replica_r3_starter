@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pytest
 
+from conftest import require_local_artifacts
 from replica_lab.memory_address_bank import _sha_file, _sha_text
 from replica_lab.memory_bank_readout_v2 import (
     EXPECTED_DEV_COUNTS,
@@ -702,6 +703,10 @@ def test_restart_accounting_reports_no_old_observation_encoding(
 # Real-artifact CPU replay (no model, no native job)
 # ---------------------------------------------------------------------------
 
+@require_local_artifacts(
+    "runs/memory_causal_fresh_20261026/native02",
+    "runs/memory_causal_fresh_20261026/restart02",
+)
 @pytest.mark.integration
 def test_fresh_process_checkpoint_verification():
     config = _config()
