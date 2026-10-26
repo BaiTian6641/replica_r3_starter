@@ -1,0 +1,52 @@
+{
+  "status": "stopped_or_failed",
+  "started_at_utc": "2026-10-26T05:19:47.112513+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_memory_causal_refresh.py",
+    "--device",
+    "mps",
+    "--output",
+    "runs/memory_causal_refresh_20261026/restart01",
+    "--resume-checkpoint",
+    "runs/memory_causal_refresh_20261026/native01/policy_checkpoint.pt",
+    "--baseline-report",
+    "runs/memory_causal_refresh_20261026/native01/run_report.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/memory_causal_refresh_20261026/restart01",
+  "child_log": "reports/memory_causal_refresh_20261026/restart01.guard.child.log",
+  "host_samples": "reports/memory_causal_refresh_20261026/restart01.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "202bdcd6be41805cc9e90890baeac7a0bed6b6be41f2f9d1bc60a2a66f771e1f",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 1,
+  "elapsed_seconds": 15.022094541694969,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 5152440320,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 8,
+    "driver_samples": 50,
+    "peak_driver_bytes": 10746265600,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 77.0,
+    "stop_reason": null
+  }
+}

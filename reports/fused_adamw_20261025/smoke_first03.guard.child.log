@@ -1,0 +1,24 @@
+W1025 23:44:35.340000 73119 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 85/381 [00:00<00:00, 832.50it/s]Loading weights:  44%|████▍     | 169/381 [00:00<00:00, 817.47it/s]Loading weights:  68%|██████▊   | 258/381 [00:00<00:00, 820.61it/s]Loading weights:  90%|████████▉ | 341/381 [00:00<00:00, 823.82it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 841.81it/s]
+{"mode": "smoke", "step": 1, "loss": 14.649566411972046, "seconds": 9.205811582971364}
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 338, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 321, in main
+    report = execute(args, profiler)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 231, in execute
+    receipt = save_training_checkpoint(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/checkpointing.py", line 73, in save_training_checkpoint
+    with _cpu_serialization_residency(model, optimizer):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/checkpointing.py", line 47, in _cpu_serialization_residency
+    _optimizer_state_to(optimizer, "cpu")
+  File "/Users/flare/replica_r3_starter/src/replica_lab/checkpointing.py", line 34, in _optimizer_state_to
+    state[key] = value.to(device)
+                 ^^^^^^^^^^^^^^^^
+KeyboardInterrupt

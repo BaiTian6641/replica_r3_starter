@@ -1,0 +1,33 @@
+W1025 23:49:03.055000 75179 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 14608.82it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 338, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 321, in main
+    report = execute(args, profiler)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 154, in execute
+    restored = load_runtime_state(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/training_state.py", line 193, in load_runtime_state
+    optimizer.load_state_dict(payload["optimizer"])
+  File "/Users/flare/replica_r3_starter/src/replica_lab/optimizers.py", line 407, in load_state_dict
+    super().load_state_dict(state_dict)
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/_compile.py", line 54, in inner
+    return disable_fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py", line 1548, in _fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 1024, in load_state_dict
+    state[param] = _cast(
+                   ^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 1000, in _cast
+    k: _cast(
+       ^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 994, in _cast
+    Optimizer._process_value_according_to_param_policy(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 820, in _process_value_according_to_param_policy
+    return value.to(dtype=param.dtype, device=param.device)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt

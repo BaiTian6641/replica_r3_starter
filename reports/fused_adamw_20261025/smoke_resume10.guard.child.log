@@ -1,0 +1,14 @@
+W1026 00:16:22.654000 86119 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 15652.53it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 348, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 331, in main
+    report = execute(args, profiler)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 175, in execute
+    optimizer_state_to(optimizer, "mps")
+  File "/Users/flare/replica_r3_starter/src/replica_lab/training_state.py", line 120, in optimizer_state_to
+    state[key] = value.to(device)
+                 ^^^^^^^^^^^^^^^^
+KeyboardInterrupt

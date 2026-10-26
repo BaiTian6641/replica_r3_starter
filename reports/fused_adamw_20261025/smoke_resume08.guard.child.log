@@ -1,0 +1,39 @@
+W1026 00:08:33.843000 82993 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 14698.45it/s]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/src/replica_lab/optimizers.py", line 310, in step
+    return super().step(closure)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 79, in _use_grad
+    ret = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/adam.py", line 248, in step
+    adam(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 157, in maybe_fallback
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/adam.py", line 970, in adam
+    func(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/adam.py", line 879, in _fused_adam
+    func(
+RuntimeError: params, grads, exp_avgs, and exp_avg_sqs must have same dtype, device, and layout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 343, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 326, in main
+    report = execute(args, profiler)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 210, in execute
+    optimizer.step()
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/optim/optimizer.py", line 549, in wrapper
+    out = func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/optimizers.py", line 312, in step
+    raise RuntimeError(
+RuntimeError: Native fused AdamW execution failed; no backend fallback is permitted

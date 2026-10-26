@@ -1,0 +1,54 @@
+{
+  "status": "stopped_or_failed",
+  "started_at_utc": "2026-10-26T04:49:00.499517+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py",
+    "--mode",
+    "smoke",
+    "--device",
+    "mps",
+    "--output",
+    "runs/fused_adamw_20261025/smoke_resume04",
+    "--resume-from",
+    "runs/fused_adamw_20261025/smoke_first04/resume_checkpoint",
+    "--resume-report",
+    "runs/fused_adamw_20261025/smoke_first04/run_report.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/fused_adamw_20261025/smoke_resume04",
+  "child_log": "reports/fused_adamw_20261025/smoke_resume04.guard.child.log",
+  "host_samples": "reports/fused_adamw_20261025/smoke_resume04.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "e366383e1b73c395470325b582d9bfe977cd16438b8fce494fb80392ac0723b4",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": -2,
+  "elapsed_seconds": 117.25669054221362,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 4009293250,
+      "memory_free_percent": 93.0
+    },
+    "host_samples": 52,
+    "driver_samples": 118,
+    "peak_driver_bytes": 30073552896,
+    "peak_swap_growth_bytes": 2423395451,
+    "minimum_observed_free_percent": 37.0,
+    "stop_reason": "sustained_host_swap_growth"
+  }
+}

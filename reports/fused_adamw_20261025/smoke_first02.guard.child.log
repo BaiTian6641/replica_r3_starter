@@ -1,0 +1,27 @@
+W1025 23:40:49.584000 71686 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  24%|██▍       | 91/381 [00:00<00:00, 878.95it/s]Loading weights:  47%|████▋     | 179/381 [00:00<00:00, 833.61it/s]Loading weights:  72%|███████▏  | 276/381 [00:00<00:00, 863.04it/s]Loading weights:  97%|█████████▋| 369/381 [00:00<00:00, 879.50it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 889.33it/s]
+{"mode": "smoke", "step": 1, "loss": 14.649566411972046, "seconds": 9.244020499754697}
+Writing model shards:   0%|          | 0/1 [00:00<?, ?it/s]Writing model shards: 100%|██████████| 1/1 [00:07<00:00,  7.09s/it]Writing model shards: 100%|██████████| 1/1 [00:07<00:00,  7.09s/it]
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 338, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 321, in main
+    report = execute(args, profiler)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py", line 231, in execute
+    receipt = save_training_checkpoint(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/checkpointing.py", line 43, in save_training_checkpoint
+    metadata = save_runtime_state(temporary / "runtime.pt", optimizer, step=step,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/training_state.py", line 149, in save_runtime_state
+    torch.save(payload, stream)
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/serialization.py", line 1003, in save
+    _save(
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/serialization.py", line 1310, in _save
+    storage = storage.cpu()
+              ^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/.venv/lib/python3.12/site-packages/torch/storage.py", line 273, in cpu
+    return torch.UntypedStorage(self.size()).copy_(self, False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
