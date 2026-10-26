@@ -1,0 +1,40 @@
+{
+  "format": "replica.vision_learnability_diagnostic.report.v1.summary",
+  "mode": "ablation",
+  "status": "spatial_contribution_observed",
+  "decision": {
+    "format": "replica.vision_learnability_diagnostic.decision.v1",
+    "decision": "spatial_contribution_observed",
+    "baseline_match": true,
+    "condition": {
+      "changed_pair_rows": 24,
+      "changed_pair_rows_min": 5,
+      "answer_gap_reduction_rows": 6,
+      "answer_gap_reduction_rows_min": 3,
+      "gap_reduction_threshold": 0.1,
+      "changed_pair_condition": true,
+      "gap_reduction_condition": true
+    },
+    "thresholds": {
+      "changed_pair_rows_min": 5,
+      "answer_gap_reduction_rows_min": 3,
+      "gap_reduction_threshold": 0.1
+    },
+    "precedence": [
+      "baseline_mismatch",
+      "spatial_contribution_observed",
+      "spatial_residual_not_established"
+    ],
+    "gradient_diagnostic_authorized": true,
+    "v0_authorized": false,
+    "v0_run": false,
+    "sequence": "gradient_diagnostic_only",
+    "reason": "paired greedy outputs changed on at least 5 sibling/shuffled rows or the opposite gap shrank on at least 3 rows",
+    "next_gate": "a separate predeclared gradient config/job only",
+    "no_automatic_retry": true,
+    "scope": "first-order ablation decision only; observed authorizes the gradient diagnostic and never V0"
+  },
+  "baseline_match": true,
+  "ablation_invariants_ok": true,
+  "report": "runs/vision_mean_only_ablation_v1_20261026_attempt09/report.json"
+}

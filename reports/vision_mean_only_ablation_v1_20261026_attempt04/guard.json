@@ -1,0 +1,56 @@
+{
+  "status": "stopped_or_failed",
+  "started_at_utc": "2026-10-26T21:09:19.575888+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-vision/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_vision_learnability_diagnostic.py",
+    "--mode",
+    "ablation",
+    "--config",
+    "configs/vision_mean_only_ablation_v1.json",
+    "--output",
+    "runs/vision_mean_only_ablation_v1_20261026_attempt04",
+    "--device",
+    "mps",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/vision_mean_only_ablation_v1_20261026_attempt04",
+  "child_log": "reports/vision_mean_only_ablation_v1_20261026_attempt04/guard.child.log",
+  "host_samples": "reports/vision_mean_only_ablation_v1_20261026_attempt04/guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "b461a7d42ee9ef5365f185b9a89af90a666968f4d5754f4b3791e14b1ea4b670",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 1,
+  "elapsed_seconds": 134.00651199975982,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 2937910722,
+      "memory_free_percent": 93.0
+    },
+    "host_samples": 66,
+    "driver_samples": 522,
+    "peak_driver_bytes": 11951472640,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 73.0,
+    "stop_reason": null
+  }
+}

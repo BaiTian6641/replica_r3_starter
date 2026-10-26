@@ -1,8 +1,9 @@
-# Vision Learnability Diagnostic (predeclared protocol)
+# MiniCPM5 vision learnability diagnostic — protocol and results
 
-Status: **predeclared, not yet run.** This page records the two protocols and
-their exact decision rules before execution. The parent appends results after
-the scheduled jobs; no measured value belongs in this predeclaration.
+Status: **executed; ablation spatial contribution observed, gradient
+engineering passed, train-fit learnability rejected.** The predeclaration is
+preserved below. Measured outcomes are appended under “Native results”; no
+development, held-out or new V0 alignment work was opened.
 
 Code:
 
@@ -296,8 +297,8 @@ Implemented before execution:
   per-role gates;
 - CPU-only tests covering these contracts.
 
-Measured: nothing in this predeclaration. Results must be appended by the parent
-after the jobs run in order (ablation first; gradient only if authorized).
+Measured before execution: nothing in this predeclaration. Results were appended
+after the jobs ran in order (ablation first; gradient only after authorization).
 
 Rejected: gradients or optimizer use in the ablation; a global-mean variant; a
 role-pure or alternate-seed gradient arm; reading any sealed split; V0
@@ -306,3 +307,108 @@ execution; automatic retry.
 Non-claims: these protocols do not promote learned quality, perception or
 semantic competence; they are bounded training-only diagnostics over one small
 procedural training set and one pinned checkpoint lineage.
+
+## Native results — 26 October 2026
+
+Selected receipts are
+[ablation attempt09](../../runs/vision_mean_only_ablation_v1_20261026_attempt09/report.json)
+and
+[gradient attempt02](../../runs/vision_gradient_learnability_v1_20261026_attempt02/report.json).
+Every earlier attempt and failure report remains preserved. Protocol execution
+corrections are `9e9f452`, `df7cdac`, `54226b7` and `8fedebd`.
+
+### Mean-only ablation attempt09
+
+Full-patch identity matches the preserved baseline for all 104 records: 98
+available rows, six unavailable sibling placeholders, 98 generations, 98
+teacher-forced cells, 72 comparison cells and 26 fit-contract rows. Projector,
+extension and sealed-base tensors remain unchanged. There are zero updates,
+optimizer steps, gradients, checkpoint writes, extension writes and sealed-
+evaluation accesses. Maximum residual spatial variance is `2.8952e-15`; the
+no-image generations are unchanged.
+
+| Paired generation effect | Changed / available |
+|---|---:|
+| Correct full vs mean-only | 14 / 26 |
+| Sibling full vs mean-only | 10 / 20 |
+| Shuffled full vs mean-only | 14 / 26 |
+| No-image full vs mean-only | 0 / 26 |
+| Sibling + shuffled decision rows | 24 / 46 |
+
+Across the 10 answer rows with an available opposite sibling, the mean
+opposite-token gap changes from `0.285691` with full patches to `-0.004986`
+with mean-only patches. Six rows meet the declared gap-reduction condition and
+two flip sign. The decision is `spatial_contribution_observed`, authorizing
+only the separate gradient diagnostic. It does not establish correct visual
+dependence, semantic quality or new V0 alignment eligibility.
+
+Attempt09 completed in 134.62 s. Sampled peak driver memory was
+11,951,472,640 bytes, swap growth zero and minimum observed host free memory
+74%. Its final artifact is 9,410,537 bytes: 9,408,395 across 12 listed files
+plus the 2,142-byte manifest. The profiler stops before the final data-byte
+snapshot, so recorded and on-disk totals cover the same files.
+
+### Gradient attempt02
+
+All seven updates, 28 update-backward calls and two backward-only probes
+complete: exactly 30 backward calls. All six projector tensors receive finite
+nonzero gradients and change on every update; the original backbone remains
+unchanged. Fit contracts and all 98 first-token prefill agreements pass. No
+extension or checkpoint is exported. The first and last scheduled batch losses
+are 10.964820 and 3.357999, but their rows differ, so this is not a convergence
+or learnability claim.
+
+| Train-fit metric | Result | Gate |
+|---|---:|---:|
+| Answer correct accuracy | 0/14 | ≥0.50 |
+| Answer prefill gold accuracy | 0.00 | ≥0.50 |
+| Answer margin vs no-image | -0.142857 | ≥0.15 |
+| Answer sibling-following accuracy | 0.00 | ≥0.50 |
+| Correct/sibling identical answers | 0.80 | ≤0.50 |
+| Correct/shuffled identical answers | 0.714286 | ≤0.50 |
+| Correct unique answer texts | 2 | ≥3 |
+| Caption token F1 | 0.035390 | ≥0.20 |
+| Caption semantic F1 | 0.00 | ≥0.50 |
+| Caption following accuracy | 0.00 | ≥0.50 |
+| Correct/sibling identical captions | 1.00 | ≤0.50 |
+| Correct unique caption texts | 2 | ≥3 |
+
+All nine answer gates fail. Ten caption gates fail; only the no-image loss
+margin (`1.381152`), no-image semantic-F1 ceiling and nonnegative dependence-
+F1 margin pass. The decision is `stopped_before_dev_heldout_v0`, with
+`learnability_pass=false`, `v0_planning_authorized=false`, and
+`next_gate=no further vision job from this result`.
+
+Attempt02 completed in 91.72 s. Sampled peak driver memory was
+12,037,570,560 bytes, swap growth zero and minimum observed host free memory
+73%. The final artifact is 506,111 bytes: 503,359 across 16 listed files plus
+the 2,752-byte manifest. Attempt01 completed the seven updates but failed the
+old report-byte check before its probes; it is an implementation failure, not
+a second scientific result.
+
+### Verification and final disposition
+
+The focused vision-learnability, vision-collapse and profiling suites pass
+**78 tests**. The ablation config and receipt retain their original runner
+hash; a focused test requires the historical ablation to refuse changed runner
+bytes rather than silently rerunning under a new implementation.
+
+Independent static/JSON/hash review confirmed the baseline identity, decision
+thresholds, terminal-EOS handling, exact artifact totals and historical-pin
+separation. It did not execute tests or native code. Full attempt02 logits were
+not retained, so baseline identity is scalar/generation identity. Guard and
+profiler telemetry are sampled. The gradient precondition pins the historical
+config hash rather than the report's byte hash; the reviewer separately checked
+the report against its artifact manifest.
+
+**Implemented and measured:** read-only mean ablation, mixed answer/caption
+training, exact gradient ownership, bounded decoding and train-only access.
+**Observed:** spatial residuals influence train04 outputs and opposite-token
+logits. **Rejected:** the fresh seven-update projector's declared train-fit
+learnability gates. **Not run:** development, held-out, semantic audit, new V0
+alignment, multimodal fine-tuning and any promotion. Historical interface-only
+V0 qualification is unchanged.
+
+No automatic retry, V0 planning run or further vision job is justified by this
+receipt. A future arm requires new evidence and a separate predeclaration; it
+must not open development or held-out data to tune this failed candidate.
