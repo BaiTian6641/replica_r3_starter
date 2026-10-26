@@ -1,0 +1,76 @@
+{
+  "format": "replica.fused_continuation_direct_restore.summary.v1",
+  "protocol": "configs/fused_continuation_direct_restore_v1.json",
+  "status": "stopped_before_ab_comparison",
+  "aa_evidence": {
+    "arms": [
+      "runs/fused_continuation_direct_restore_v1/uninterrupted_a/run_report.json",
+      "runs/fused_continuation_direct_restore_v1/uninterrupted_b/run_report.json"
+    ],
+    "protocol_identical": true,
+    "implementation_identical": true,
+    "update_1_loss_and_gradient_norm_exact": true,
+    "update_2": {
+      "uninterrupted_a_loss": 1.3497626800090075,
+      "uninterrupted_b_loss": 1.3497591875493526,
+      "uninterrupted_a_gradient_norm": 154.0165557861328,
+      "absolute_loss_delta": 0.0000034924596548080444,
+      "absolute_gradient_norm_delta": 0.0000457763672
+    },
+    "interpretation": "Fresh A/A variation exists. It cannot be used to qualify an A/B path that did not complete."
+  },
+  "first_process": {
+    "report": "runs/fused_continuation_direct_restore_v1/first/run_report.json",
+    "guard": "reports/fused_continuation_direct_restore_v1/first.guard.json",
+    "status": "completed",
+    "checkpoint": {
+      "path": "runs/fused_continuation_direct_restore_v1/first/resume_checkpoint",
+      "receipt_sha256": "c0fe9ff581f9e761b358db367b78fab82f54ddd701583fedddd6fea5d6297509",
+      "bytes": 30211671464,
+      "retained": true,
+      "final_model_export": false
+    },
+    "guard_elapsed_seconds": 99.32824858278036,
+    "peak_driver_bytes": 40962260992,
+    "peak_swap_growth_bytes": 0
+  },
+  "resume": {
+    "guard": "reports/fused_continuation_direct_restore_v1/resume.guard.json",
+    "failure_report": "runs/fused_continuation_direct_restore_v1/resume/failure_report.json",
+    "status": "stopped_or_failed",
+    "stop_reason": "sustained_host_swap_growth",
+    "failure_stage": "torch.load runtime optimizer state with map_location=mps",
+    "error_type": "KeyboardInterrupt",
+    "guard_elapsed_seconds": 51.60156370792538,
+    "peak_driver_bytes": 24034410496,
+    "peak_swap_growth_bytes": 579139011,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_observed_free_percent": 41.0,
+    "cpu_fallback": false
+  },
+  "ab_comparison": {
+    "status": "not_run",
+    "reason": "Resume did not produce a completed run_report; exact and numerical A/B checks cannot be evaluated.",
+    "exact_equality_qualified": false,
+    "aa_envelope_numerical_equivalence_qualified": false,
+    "direct_restore_resource_improvement_qualified": false
+  },
+  "resource_controls": {
+    "uninterrupted_a": {
+      "guard_elapsed_seconds": 61.34036333300173,
+      "peak_driver_bytes": 43178950656,
+      "peak_swap_growth_bytes": 0
+    },
+    "uninterrupted_b": {
+      "guard_elapsed_seconds": 64.64661683421582,
+      "peak_driver_bytes": 43053121536,
+      "peak_swap_growth_bytes": 0
+    }
+  },
+  "disposition": {
+    "next": "Do not repeat this resume or relax resource limits. Preserve the checkpoint and all raw evidence.",
+    "checkpoint_retention": "retain exactly one checkpoint and all reports/failures",
+    "no_muon_comparison": true,
+    "no_convergence_or_learning_claim": true
+  }
+}
