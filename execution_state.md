@@ -22,6 +22,15 @@ Pre-run software validation: `tests/test_full_training_profile.py`,
 2.76 s**. Native outcomes and the requested reports follow separately. Current
 vision-curriculum and other concurrent changes are outside this package.
 
+The protocol/harness was committed at `f25ea86`. Fresh reference Muon and fused
+AdamW both completed three updates with all 381 original tensors changed.
+The matched probe rates are 0.04344 versus 0.11175 updates/s (about 2.57×).
+Both passed the unchanged guard. The combined gradient-check/clipping phase
+takes about 5.5 seconds; an additive timing-only refinement separates its scope
+audit from norm clipping in the remaining predeclared batching/attention arms.
+It changes neither the updates nor the admission/resource policy. Initial
+worker-lock refusals are retained and caused no model load.
+
 **Current implementation — write-position interference isolated in memory; balanced image dependence supported on procedural holdouts; staged curriculum next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh

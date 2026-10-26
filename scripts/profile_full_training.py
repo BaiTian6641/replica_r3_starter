@@ -132,6 +132,7 @@ def execute(args, profiler):
         audit = model.gradient_audit()
         if audit["original"]["nonzero_gradient_tensors"] != 381:
             raise RuntimeError("Full-scope backward did not reach all original tensors")
+        audit_at = time.monotonic()
         torch.nn.utils.clip_grad_norm_(parameters, 1.0, error_if_nonfinite=True)
         profiler.mark("gradient_checks_complete", update=update)
         checks_at = time.monotonic()
@@ -140,6 +141,8 @@ def execute(args, profiler):
         ended = time.monotonic()
         record = {"update": update, "forward_backward_seconds": backward_at - started,
                   "gradient_checks_seconds": checks_at - backward_at,
+                  "gradient_audit_seconds": audit_at - backward_at,
+                  "gradient_clip_and_mark_seconds": checks_at - audit_at,
                   "optimizer_seconds": ended - checks_at,
                   "total_seconds": ended - started, "loss": loss_sum,
                   "original_nonzero_gradient_tensors": 381,
