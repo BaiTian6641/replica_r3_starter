@@ -1511,6 +1511,9 @@ def execute_gradient(args, config, pins):
                     path.name == "extensions.safetensors"
                     for path in output.rglob("*")),
                     "The gradient arm wrote an extension")
+                profiler.mark("report_ready")
+                summary = profiler.stop()
+                profiler_stopped = True
                 data_bytes = _data_bytes(output)
                 stop_report = learn.gradient_stop_conditions_report(
                     wall_seconds=time.monotonic() - started,
@@ -1530,9 +1533,6 @@ def execute_gradient(args, config, pins):
                     learn.require(False,
                                   "Gradient engineering invariants failed: "
                                   f"{engineering['violations']}")
-                profiler.mark("report_ready")
-                summary = profiler.stop()
-                profiler_stopped = True
                 report = {
                     "format": learn.REPORT_FORMAT,
                     "version": learn.VERSION,

@@ -25,6 +25,8 @@ from conftest import require_local_artifacts
 ROOT = Path(__file__).resolve().parents[1]
 ABLATION_CONFIG = ROOT / "configs/vision_mean_only_ablation_v1.json"
 GRADIENT_CONFIG = ROOT / "configs/vision_gradient_learnability_v1.json"
+ABLATION_RECEIPT = (ROOT / "runs/vision_mean_only_ablation_v1_20261026_attempt09/"
+                           "report.json")
 TRAINING = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
                    "training/alignment.jsonl")
 BATCHES = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
@@ -927,14 +929,22 @@ def test_config_rejects_a_gradient_field_in_ablation(tmp_path):
     "data/vision_balanced_alignment_v2_20261026/prepared04",
     "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
     "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+    "runs/vision_mean_only_ablation_v1_20261026_attempt09",
 )
-def test_static_pins_verify_without_a_model():
+def test_static_pins_verify_and_historical_ablation_refuses_drift():
     module = _runner_module()
     ablation = learn.load_config(ABLATION_CONFIG)
     gradient = learn.load_config(GRADIENT_CONFIG)
-    pins = module.verify_pins(ablation)
-    assert pins["pins"]["extension"]["base_saved"] is False
-    assert pins["pins"]["prepared"]["training_examples"] == 26
+    receipt = json.loads(ABLATION_RECEIPT.read_text())
+    runner = "scripts/run_vision_learnability_diagnostic.py"
+    historical_pin = receipt["pins"]["implementation"]["new_files"][runner]
+    assert ablation["implementation_pins"]["new_files"][runner] == (
+        historical_pin["pinned_sha256"])
+    assert module._sha(ABLATION_CONFIG) == receipt["config_sha256"]
+    assert gradient["precondition"]["config_sha256"] == receipt["config_sha256"]
+    with pytest.raises(learn.LearnabilityDiagnosticError,
+                       match="New implementation bytes differ"):
+        module.verify_pins(ablation)
     gradient_pins = module.verify_pins(gradient)
     assert gradient_pins["pins"]["source"]["model_revision"] == (
         "f97400052a43d642bbc6e9975e2397e3ae6a6b52")
