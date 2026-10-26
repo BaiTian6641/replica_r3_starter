@@ -15,6 +15,7 @@ numerical parity with a BF16 kernel, distributed support, or convergence.
 from __future__ import annotations
 
 import copy
+import gc
 import math
 from collections import defaultdict
 
@@ -359,7 +360,13 @@ class NativeFusedAdamW(torch.optim.AdamW):
         return result
 
     def load_state_dict(self, state_dict):
-        """Validate native fused v1 state before changing any live state."""
+        """Validate and restore native fused v1 state with bounded residency.
+
+        Group/metadata incompatibilities fail before mutation. During a valid
+        load, CPU-mapped moments are consumed one parameter at a time instead
+        of deep-copying the complete optimizer state. The input state mapping
+        is consumed; checkpoint bytes are unchanged.
+        """
         expected_metadata = {
             "format_version": 1, "name": self.optimizer_name,
             "optimizer_class": "torch.optim.AdamW",
@@ -384,27 +391,43 @@ class NativeFusedAdamW(torch.optim.AdamW):
                     raise ValueError(f"Optimizer checkpoint {key} differs")
             if len(old["params"]) != len(current["params"]):
                 raise ValueError("Optimizer checkpoint parameter counts differ")
-            for saved_id, parameter in zip(old["params"], current["params"]):
-                valid_ids.add(saved_id)
-                state = saved_state.get(saved_id, {})
-                if not state:
-                    continue
-                if set(state) != {"step", "exp_avg", "exp_avg_sq"}:
-                    raise ValueError("Invalid native fused AdamW checkpoint state")
-                step = state["step"]
-                if (not isinstance(step, Tensor) or step.dtype != torch.float32
-                        or step.ndim != 0 or not bool(torch.isfinite(step))
-                        or float(step) < 1):
-                    raise ValueError("Invalid native fused AdamW checkpoint step")
-                for key in ("exp_avg", "exp_avg_sq"):
-                    value = state[key]
-                    if (not isinstance(value, Tensor) or value.dtype != torch.float32
-                            or tuple(value.shape) != tuple(parameter.shape)
-                            or not bool(torch.isfinite(value).all())):
-                        raise ValueError("Invalid native fused AdamW checkpoint tensor")
+            valid_ids.update(old["params"])
         if not set(saved_state).issubset(valid_ids):
             raise ValueError("Optimizer checkpoint contains unowned state")
-        super().load_state_dict(state_dict)
+
+        previous_state, previous_groups = self.state, self.param_groups
+        restored_state = defaultdict(dict)
+        restored_groups = []
+        try:
+            for current, old in zip(self.param_groups, saved_groups):
+                restored_groups.append({**old, "params": current["params"]})
+                for saved_id, parameter in zip(old["params"], current["params"]):
+                    state = saved_state.pop(saved_id, {})
+                    if not state:
+                        continue
+                    if set(state) != {"step", "exp_avg", "exp_avg_sq"}:
+                        raise ValueError("Invalid native fused AdamW checkpoint state")
+                    step = state["step"]
+                    if (not isinstance(step, Tensor) or step.dtype != torch.float32
+                            or step.ndim != 0 or not bool(torch.isfinite(step))
+                            or float(step) < 1):
+                        raise ValueError("Invalid native fused AdamW checkpoint step")
+                    for key in ("exp_avg", "exp_avg_sq"):
+                        value = state[key]
+                        if (not isinstance(value, Tensor) or value.dtype != torch.float32
+                                or tuple(value.shape) != tuple(parameter.shape)
+                                or not bool(torch.isfinite(value).all())):
+                            raise ValueError("Invalid native fused AdamW checkpoint tensor")
+                    restored_state[parameter] = {
+                        key: value.to(parameter.device) if isinstance(value, Tensor) else value
+                        for key, value in state.items()}
+                    del state
+                    if len(restored_state) % 8 == 0:
+                        gc.collect()
+            self.__setstate__({"state": restored_state, "param_groups": restored_groups})
+        except BaseException:
+            self.__setstate__({"state": previous_state, "param_groups": previous_groups})
+            raise
         self._validate_groups()
 
 
