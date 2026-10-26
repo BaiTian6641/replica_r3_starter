@@ -1,0 +1,47 @@
+{
+  "format": "replica.memory_acceptance.receipt_manifest.v1",
+  "metric_version": "memory.acceptance.v2",
+  "updated": "2026-10-26",
+  "authoritative": {
+    "path": "native04_acceptance_v2_reconciled_uncertainty_20261026.json",
+    "status": "current",
+    "role": "sole current authoritative receipt",
+    "receipt_format": "replica.memory_acceptance.metrics.v2",
+    "metric_version": "memory.acceptance.v2",
+    "file_sha256": "f2c1d3f1c03c6669fee6ada1cc80beeafbf0a1419ec4114f8a864ca291d4b1ff",
+    "receipt_digest": "237f593734c41d5a9a36de0ead3058c817e84c596130ddca8b75766fc3e05c22",
+    "config_sha256": "e8f0c1cb058295d5fb99df012ea0b13964e7b80cd51990a523a16c507d40280f",
+    "source_sha256": "fa13b963346dd96f3e57042d3587502111d0661ea05e1fba4582a7fabbc558f5",
+    "uncertainty_note": "Recomputed with per-metric estimable-world bootstrap semantics. Supersedes native04_acceptance_v2_final.json only for uncertainty intervals; all count/rate metrics, gates and the rejected verdict are unchanged."
+  },
+  "receipts": [
+    {
+      "path": "native04_acceptance_v2_final.json",
+      "original_path": "native04_acceptance_v2_final.json",
+      "status": "superseded",
+      "superseded_by": "native04_acceptance_v2_reconciled_uncertainty_20261026.json",
+      "superseded_on": "2026-10-26",
+      "reason": "Predates the per-metric estimable-world uncertainty reset. Its count/rate metrics, gates and rejected verdict remain valid; its accepted-precision intervals used stale cross-metric values.",
+      "receipt_format": "replica.memory_acceptance.metrics.v2",
+      "metric_version": "memory.acceptance.v2",
+      "file_sha256": "e040d415f4e26f46ac22711052292ee2c27f2f3582948725a7a63c51ef47af66",
+      "receipt_digest": "5cc528b0c2f81717e61e5153c493f87591ada81e1053e056c250c80b8eeab883",
+      "config_sha256": "e8f0c1cb058295d5fb99df012ea0b13964e7b80cd51990a523a16c507d40280f",
+      "source_sha256": "fa13b963346dd96f3e57042d3587502111d0661ea05e1fba4582a7fabbc558f5"
+    },
+    {
+      "path": "native04_acceptance_v2_superseded_pre_value_arms.json",
+      "original_path": "native04_acceptance_v2.json",
+      "status": "superseded",
+      "superseded_by": "native04_acceptance_v2_final.json",
+      "superseded_on": "2026-10-26",
+      "reason": "Generated before VALUE_ARMS filtering; 606 query groups and 1212 readouts include non-value arms, contradicting the v2 value-readout denominator. Bytes preserved from the original path.",
+      "receipt_format": "replica.memory_acceptance.metrics.v2",
+      "metric_version": "memory.acceptance.v2",
+      "file_sha256": "f18cb97ccd6d89c70f95982aef3726b6db317c53789a4a44479f0889cb933c9c",
+      "receipt_digest": "6eddce32e25985e8c5aa1024bd7e931dde6734531df16a122a2121fcbf1e1e8a",
+      "config_sha256": "e8f0c1cb058295d5fb99df012ea0b13964e7b80cd51990a523a16c507d40280f",
+      "source_sha256": "fa13b963346dd96f3e57042d3587502111d0661ea05e1fba4582a7fabbc558f5"
+    }
+  ]
+}

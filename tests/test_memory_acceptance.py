@@ -1,14 +1,19 @@
 """Acceptance-aware memory metric tests with synthetic readouts."""
+import hashlib
 import json
 
 import pytest
 
 from replica_lab.memory_acceptance import (
-    VERSION, acceptance_metrics, evaluate_acceptance, rescore_ranking_file)
+    CONFIG_FORMAT, CURRENT_STATUS, MANIFEST_FORMAT, RECEIPT_FORMAT,
+    SUPERSEDED_STATUS, VERSION, acceptance_metrics, evaluate_acceptance,
+    load_current_receipt, load_receipt, receipt_digest, rescore_ranking_file,
+    validate_config, validate_receipt)
 
 
 def _config():
     return {
+        "format": CONFIG_FORMAT,
         "metric_version": VERSION,
         "candidate_variant": "causal",
         "oracle_variant": "oracle",
@@ -37,6 +42,22 @@ def _row(case="q1", layer=13, *, variant="causal", accepted=True, top1=True,
 
 def _metrics(rows):
     return acceptance_metrics(rows, resamples=100)
+
+
+def _receipt():
+    return {
+        "format": RECEIPT_FORMAT,
+        "metric_version": VERSION,
+        "source": {"path": "rankings.jsonl", "sha256": "a" * 64,
+                   "rows": 1, "original_bytes_unchanged": True},
+        "candidate_variant": "causal",
+        "oracle_variant": "oracle",
+        "metrics": {"causal": {"query": {"n": 1}},
+                    "oracle": {"query": {"n": 1}}},
+        "verdict": {"decision": "rejected", "checks": {}},
+        "generation": {"status": "not_measured", "accuracy": None},
+        "claims": {"raw_rankings_are_not_accepted_retrievals": True},
+    }
 
 
 def test_zero_vector_gets_raw_diagnostic_but_no_accepted_credit():
@@ -166,3 +187,99 @@ def test_rescore_preserves_source_bytes_and_separates_generation(tmp_path):
     assert receipt["metric_version"] == VERSION
     assert receipt["generation"]["status"] == "not_measured"
     assert receipt["claims"]["zero_and_ambiguous_tied_readouts_receive_no_credit"] is True
+
+
+def test_uncertainty_resets_estimable_worlds_per_metric():
+    metrics = acceptance_metrics([
+        _row(case="a1", world="a", accepted=True, top1=True),
+        _row(case="a2", world="a", accepted=True, top1=False),
+        _row(case="a3", world="a", accepted=True, top1=False),
+        _row(case="b1", world="b", accepted=False, top1=True),
+        _row(case="b2", world="b", accepted=False, top1=False),
+        _row(case="b3", world="b", accepted=False, top1=True),
+        _row(case="c1", world="c", kind="unknown", role="unknown",
+             accepted=True, top1=False),
+        _row(case="c2", world="c", kind="unknown", role="unknown",
+             accepted=False, top1=False),
+        _row(case="c3", world="c", kind="unknown", role="unknown",
+             accepted=False, top1=False),
+    ], bootstrap_seed=17, resamples=100)
+    uncertainty = metrics["causal"]["uncertainty"]
+    assert metrics["causal"]["by_world"]["b"]["accepted_precision"] is None
+    assert metrics["causal"]["by_world"]["c"]["accepted_correct_rate"] is None
+    assert uncertainty["accepted_correct_rate"]["clusters"] == 2
+    assert uncertainty["accepted_correct_rate"]["mean"] == pytest.approx(1 / 6)
+    assert uncertainty["accepted_precision"]["clusters"] == 2
+    assert uncertainty["accepted_precision"]["mean"] == pytest.approx(1 / 6)
+    assert uncertainty["acceptance_coverage"]["clusters"] == 3
+    assert uncertainty["acceptance_coverage"]["mean"] == pytest.approx(4 / 9)
+    assert uncertainty["acceptance_coverage"]["lower"] == pytest.approx(0.052777777777778034)
+    assert uncertainty["acceptance_coverage"]["upper"] == pytest.approx(0.7777777777777778)
+    assert uncertainty["unit"] == "world"
+    assert uncertainty["layer_readouts_are_not_independent"] is True
+
+
+def test_receipt_version_format_and_supersession_are_explicit(tmp_path):
+    receipt = _receipt()
+    assert validate_receipt(receipt, config=_config()) is receipt
+    with pytest.raises(ValueError, match="Unsupported acceptance metric version"):
+        validate_receipt({**receipt, "metric_version": "memory.acceptance.v1"},
+                         config=_config())
+    with pytest.raises(ValueError, match="Unsupported acceptance metric version"):
+        validate_receipt({**receipt, "metric_version": "memory.acceptance.v3"},
+                         config=_config())
+    with pytest.raises(ValueError, match="Unsupported acceptance receipt format"):
+        validate_receipt({**receipt, "format": "replica.memory_acceptance.metrics.v1"})
+    missing = _receipt()
+    del missing["source"]
+    with pytest.raises(ValueError, match="missing: source"):
+        validate_receipt(missing)
+    malformed = _receipt()
+    malformed["source"] = {"sha256": "short"}
+    with pytest.raises(ValueError, match="source hash is malformed"):
+        validate_receipt(malformed)
+    digest = receipt_digest(receipt)
+    assert validate_receipt(receipt, superseded={digest}) is receipt
+    with pytest.raises(ValueError, match="superseded"):
+        validate_receipt(receipt, superseded={digest}, require_current=True)
+
+    current_path = tmp_path / "current.json"
+    current_path.write_text(json.dumps(receipt))
+    stale = json.loads(json.dumps(receipt))
+    stale["verdict"] = {"decision": "accepted", "checks": {}}
+    stale_path = tmp_path / "stale.json"
+    stale_path.write_text(json.dumps(stale))
+    manifest = {
+        "format": MANIFEST_FORMAT,
+        "metric_version": VERSION,
+        "authoritative": {
+            "path": current_path.name,
+            "status": CURRENT_STATUS,
+            "file_sha256": hashlib.sha256(current_path.read_bytes()).hexdigest(),
+            "receipt_digest": digest,
+        },
+        "receipts": [{
+            "path": stale_path.name,
+            "status": SUPERSEDED_STATUS,
+            "receipt_digest": receipt_digest(stale),
+        }],
+    }
+    manifest_path = tmp_path / "receipt_manifest.json"
+    manifest_path.write_text(json.dumps(manifest))
+    assert load_current_receipt(manifest_path, config=_config()) == receipt
+    assert load_receipt(stale_path, manifest_path=manifest_path) == stale
+    with pytest.raises(ValueError, match="superseded"):
+        load_receipt(stale_path, manifest_path=manifest_path, require_current=True)
+    with pytest.raises(ValueError, match="requires a receipt manifest"):
+        load_receipt(stale_path, require_current=True)
+
+
+def test_config_version_and_format_are_validated_before_rescore():
+    config = _config()
+    config["metric_version"] = "memory.acceptance.v1"
+    with pytest.raises(ValueError, match="memory.acceptance.v2"):
+        validate_config(config)
+    config = _config()
+    config["format"] = "replica.memory_acceptance.config.v1"
+    with pytest.raises(ValueError, match="Unsupported acceptance config format"):
+        validate_config(config)

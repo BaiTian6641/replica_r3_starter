@@ -10,8 +10,16 @@ from .vision_curriculum import clustered_bootstrap
 
 VERSION = "memory.acceptance.v2"
 RECEIPT_FORMAT = "replica.memory_acceptance.metrics.v2"
+CONFIG_FORMAT = "replica.memory_acceptance.config.v2"
+MANIFEST_FORMAT = "replica.memory_acceptance.receipt_manifest.v1"
+CURRENT_STATUS = "current"
+SUPERSEDED_STATUS = "superseded"
 
 VALUE_ARMS = frozenset({"exact_key_value", "query_key_value"})
+
+_RECEIPT_KEYS = ("source", "candidate_variant", "oracle_variant", "metrics",
+                 "verdict", "generation", "claims")
+_BOOTSTRAP_KEYS = ("seed", "resamples", "confidence")
 
 
 def _sha(path):
@@ -25,6 +33,141 @@ def _require(condition, message):
 
 def _rate(numerator, denominator):
     return numerator / denominator if denominator else None
+
+
+def _require_v2_config(config, *, require_format=False):
+    _require(isinstance(config, Mapping), "Acceptance config must be an object")
+    if require_format or "format" in config:
+        _require(config.get("format") == CONFIG_FORMAT,
+                 "Unsupported acceptance config format")
+    _require(config.get("metric_version") == VERSION,
+             "Acceptance consumer must declare memory.acceptance.v2")
+
+
+def validate_config(config):
+    """Validate the explicit v2 config required by the rescore consumer."""
+    _require_v2_config(config, require_format=True)
+    for key in ("candidate_variant", "oracle_variant", "gates", "bootstrap"):
+        _require(key in config, f"Acceptance config is missing: {key}")
+    _require(isinstance(config["gates"], Mapping),
+             "Acceptance gates must be an object")
+    bootstrap = config["bootstrap"]
+    _require(isinstance(bootstrap, Mapping),
+             "Acceptance bootstrap must be an object")
+    for key in _BOOTSTRAP_KEYS:
+        _require(key in bootstrap, f"Acceptance bootstrap is missing: {key}")
+    return config
+
+
+def receipt_digest(receipt):
+    """Canonical digest used to identify a superseded receipt."""
+    return hashlib.sha256(json.dumps(
+        receipt, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")).hexdigest()
+
+
+def load_manifest(path):
+    """Load the explicit receipt manifest that names the current receipt."""
+    manifest = json.loads(Path(path).read_text())
+    _require(isinstance(manifest, Mapping), "Receipt manifest must be an object")
+    _require(manifest.get("format") == MANIFEST_FORMAT,
+             "Unsupported receipt manifest format")
+    _require(manifest.get("metric_version") == VERSION,
+             "Unsupported receipt manifest metric version")
+    authoritative = manifest.get("authoritative")
+    _require(isinstance(authoritative, Mapping),
+             "Receipt manifest is missing the authoritative receipt")
+    _require(authoritative.get("status") == CURRENT_STATUS,
+             "Receipt manifest has no current authoritative receipt")
+    return manifest
+
+
+def _manifest_superseded(manifest):
+    receipts = manifest.get("receipts")
+    _require(isinstance(receipts, list),
+             "Receipt manifest is missing the receipt list")
+    digests = set()
+    for entry in receipts:
+        _require(isinstance(entry, Mapping), "Malformed receipt manifest entry")
+        if entry.get("status") != SUPERSEDED_STATUS:
+            continue
+        digest = entry.get("receipt_digest")
+        _require(isinstance(digest, str) and digest,
+                 "Superseded receipt is missing its receipt digest")
+        digests.add(digest)
+    _require(manifest["authoritative"].get("receipt_digest") not in digests,
+             "The authoritative receipt is marked superseded")
+    return digests
+
+
+def validate_receipt(receipt, *, config=None, superseded=(), require_current=False):
+    """Validate a v2 receipt and optionally reject a superseded artifact."""
+    _require(isinstance(receipt, Mapping), "Acceptance receipt must be an object")
+    _require(receipt.get("format") == RECEIPT_FORMAT,
+             "Unsupported acceptance receipt format")
+    _require(receipt.get("metric_version") == VERSION,
+             "Unsupported acceptance metric version")
+    for key in _RECEIPT_KEYS:
+        _require(key in receipt, f"Acceptance receipt is missing: {key}")
+    source = receipt["source"]
+    _require(isinstance(source, Mapping), "Acceptance receipt source is malformed")
+    _require(isinstance(source.get("sha256"), str) and len(source["sha256"]) == 64,
+             "Acceptance receipt source hash is malformed")
+    _require(isinstance(receipt["metrics"], Mapping) and receipt["metrics"],
+             "Acceptance receipt metrics are malformed")
+    verdict = receipt["verdict"]
+    _require(isinstance(verdict, Mapping)
+             and verdict.get("decision") in {"accepted", "rejected"},
+             "Acceptance receipt verdict is malformed")
+    _require(isinstance(receipt["generation"], Mapping),
+             "Acceptance receipt generation is malformed")
+    _require(isinstance(receipt["claims"], Mapping),
+             "Acceptance receipt claims are malformed")
+    if config is not None:
+        _require_v2_config(config)
+        _require(config.get("candidate_variant") == receipt["candidate_variant"],
+                 "Receipt candidate variant does not match config")
+        _require(config.get("oracle_variant") == receipt["oracle_variant"],
+                 "Receipt oracle variant does not match config")
+    if require_current:
+        _require(receipt_digest(receipt) not in set(superseded),
+                 "Acceptance receipt is superseded")
+    return receipt
+
+
+def load_receipt(path, *, config=None, manifest_path=None,
+                 require_current=False):
+    """Load and validate a receipt, optionally rejecting superseded history."""
+    if require_current and manifest_path is None:
+        raise ValueError("Current receipt selection requires a receipt manifest")
+    superseded = ()
+    if manifest_path is not None:
+        manifest = load_manifest(manifest_path)
+        superseded = _manifest_superseded(manifest)
+    receipt = json.loads(Path(path).read_text())
+    return validate_receipt(receipt, config=config, superseded=superseded,
+                            require_current=require_current)
+
+
+def load_current_receipt(manifest_path, *, config=None):
+    """Select the sole current receipt named by a receipt manifest."""
+    manifest_path = Path(manifest_path)
+    manifest = load_manifest(manifest_path)
+    entry = manifest["authoritative"]
+    for key in ("path", "file_sha256", "receipt_digest"):
+        _require(isinstance(entry.get(key), str) and entry[key],
+                 f"Authoritative receipt is missing: {key}")
+    path = manifest_path.parent / entry["path"]
+    _require(path.is_file(), "Authoritative receipt path is missing")
+    _require(_sha(path) == entry["file_sha256"],
+             "Authoritative receipt bytes do not match the manifest")
+    receipt = json.loads(path.read_text())
+    validate_receipt(receipt, config=config,
+                     superseded=_manifest_superseded(manifest),
+                     require_current=True)
+    _require(receipt_digest(receipt) == entry["receipt_digest"],
+             "Authoritative receipt digest does not match the manifest")
+    return receipt
 
 
 def _classify(row):
@@ -118,10 +261,11 @@ def _groups(rows, key):
 
 
 def _uncertainty(query_rows, *, seed, resamples, confidence):
+    """Bootstrap each metric over only the worlds where it is estimable."""
     by_world = _groups(query_rows, lambda row: row["world_id"])
     result = {}
-    values = {}
     for metric in ("accepted_correct_rate", "accepted_precision", "acceptance_coverage"):
+        values = {}
         for world, rows in by_world.items():
             block = _block(rows)
             value = block[metric]
@@ -183,8 +327,7 @@ def acceptance_metrics(rankings, *, bootstrap_seed=17, resamples=2000,
 
 def evaluate_acceptance(metrics, config):
     """Apply only the explicitly versioned acceptance gates to a candidate."""
-    _require(config.get("metric_version") == VERSION,
-             "Acceptance consumer must declare memory.acceptance.v2")
+    _require_v2_config(config)
     candidate = config["candidate_variant"]
     oracle = config["oracle_variant"]
     _require(candidate in metrics and oracle in metrics,
@@ -229,6 +372,7 @@ def evaluate_acceptance(metrics, config):
 
 def rescore_ranking_file(path, config, *, generation_path=None):
     """Rescore immutable rankings into a new versioned receipt."""
+    config = validate_config(config)
     path = Path(path)
     original = path.read_bytes()
     rankings = [json.loads(line) for line in original.decode().splitlines() if line]
