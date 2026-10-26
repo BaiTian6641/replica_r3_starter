@@ -105,13 +105,14 @@ def tiny_source(tmp_path, monkeypatch):
     torch.set_num_threads(previous_threads)
 
 
-def arguments(source, output_name, *, stop_after=None, resume_from=None):
+def arguments(source, output_name, *, stop_after=None, resume_from=None,
+              optimizer="muon8bit"):
     output = source.root / output_name
     output.mkdir()
     return SimpleNamespace(
         model_path=source.source, model_lock=source.lock, data=source.train,
         dev=source.dev, output=output, regime="full", device="cpu", dtype="float32",
-        optimizer="muon8bit", steps=2, grad_accum=2, max_length=32,
+        optimizer=optimizer, steps=2, grad_accum=2, max_length=32,
         lr_base=1e-4, lr_new=1e-4, lr_muon_base=1e-4, lr_muon_new=1e-4,
         momentum=0.95, ns_steps=5, block_size=64, weight_decay=0.01, seed=17,
         memory_size=8, workspace_size=8, insertion_layer=-1,
@@ -331,3 +332,110 @@ def test_full_augmented_runner_resumes_all_scopes_sidecars_and_generation(tiny_s
                 assert value == expected
     for name, value in load_file(checkpoint / "sidecars.safetensors").items():
         torch.testing.assert_close(value, sidecars[name], rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("regime", ["full", "modules_only", "full_augmented"])
+def test_fused_adamw_resume_scope_weights_state_and_reload(tiny_source, regime):
+    def fused_arguments(name, **kwargs):
+        args = arguments(tiny_source, name, optimizer="adamw_fused", **kwargs)
+        args.regime = regime
+        return args
+
+    continuous_args = fused_arguments(f"{regime}-fused-continuous")
+    continuous, _ = execute(tiny_source, continuous_args)
+    first_args = fused_arguments(f"{regime}-fused-first", stop_after=1)
+    first, _ = execute(tiny_source, first_args)
+    resumed_args = fused_arguments(
+        f"{regime}-fused-resumed",
+        resume_from=first_args.output / "training_checkpoint_0001")
+    resumed, phases = execute(tiny_source, resumed_args)
+
+    assert continuous["run_contract"] == first["run_contract"] == resumed["run_contract"]
+    assert resumed["start_step"] == 1 and resumed["steps"] == continuous["steps"] == 2
+    assert any(name == "runtime_restored" and fields["completed_steps"] == 1
+               for name, fields in phases.phases)
+    assert continuous["generation_history"] == resumed["generation_history"]
+    assert continuous["dev_response_nll"] == resumed["dev_response_nll"]
+    for report in (continuous, first, resumed):
+        audit = report["optimizer"]
+        assert audit["optimizer_class"] == "torch.optim.AdamW"
+        assert audit["implementation"] == "native_fused" and audit["fused"] is True
+        assert audit["library_version"] == str(torch.__version__)
+        assert audit["state_dtypes"] == ["torch.float32"]
+        assert audit["state_tensor_bytes"] > 0
+        assert all(group["algorithm"] == "adamw_fused" and group["fused"] is True
+                   for group in audit["groups"])
+        assert report["reload_verification"]["status"] == "passed"
+        assert report["reload_verification"]["maximum_absolute_logit_difference"] == 0
+
+    for relative in ("base/model.safetensors", "sidecars.safetensors"):
+        expected_path = continuous_args.output / "checkpoint" / relative
+        actual_path = resumed_args.output / "checkpoint" / relative
+        if not expected_path.exists():
+            assert not actual_path.exists()
+            continue
+        expected = load_file(expected_path)
+        actual = load_file(actual_path)
+        assert expected.keys() == actual.keys()
+        for name in expected:
+            torch.testing.assert_close(actual[name], expected[name], rtol=0, atol=0)
+
+    original = load_file(tiny_source.source / "model.safetensors")
+    trained = load_file(resumed_args.output / "checkpoint/base/model.safetensors")
+    for name in original:
+        if regime == "modules_only":
+            assert torch.equal(original[name], trained[name]), name
+        else:
+            assert not torch.equal(original[name], trained[name]), name
+    if regime == "modules_only":
+        assert resumed["parameters"]["original"]["trainable"] == 0
+        assert resumed["first_update_gradient_audit"]["original"]["gradient_tensors"] == 0
+    else:
+        assert resumed["parameters"]["original"]["trainable"] == tiny_source.count
+        owned = {name for group in resumed["optimizer"]["groups"]
+                 for name in group["param_names"]}
+        assert any("embed_tokens" in name for name in owned)
+        assert any("lm_head" in name for name in owned)
+        assert any(name.endswith("model.norm.weight") for name in owned)
+
+    final_checkpoint = resumed_args.output / "training_checkpoint_0002"
+    receipt = validate_training_checkpoint(final_checkpoint, resumed["run_contract"])
+    assert receipt["completed_steps"] == 2
+    runtime = torch.load(final_checkpoint / "runtime.pt", map_location="cpu",
+                         weights_only=True)
+    metadata = runtime["optimizer"]["replica_optimizer"]
+    assert metadata == {
+        "format_version": 1, "name": "adamw_fused",
+        "optimizer_class": "torch.optim.AdamW", "implementation": "native_fused",
+        "fused": True, "torch_version": str(torch.__version__),
+    }
+    expected_runtime = torch.load(
+        continuous_args.output / "training_checkpoint_0002/runtime.pt",
+        map_location="cpu", weights_only=True)
+    assert runtime["metadata"]["schedule_state"] == expected_runtime["metadata"]["schedule_state"]
+    assert runtime["optimizer"]["state"].keys() == expected_runtime["optimizer"]["state"].keys()
+    for identity, state in runtime["optimizer"]["state"].items():
+        for key, value in state.items():
+            expected = expected_runtime["optimizer"]["state"][identity][key]
+            if isinstance(value, torch.Tensor):
+                assert value.dtype == expected.dtype
+                torch.testing.assert_close(value, expected, rtol=0, atol=0)
+            else:
+                assert value == expected
+
+
+def test_fused_adamw_rejects_nonfinite_loss_before_optimizer_step(
+        tiny_source, monkeypatch):
+    args = arguments(tiny_source, "fused-nonfinite-loss", optimizer="adamw_fused",
+                     stop_after=1)
+    original_forward = model_adapter.LlamaMemoryAdapter.forward
+
+    def nonfinite_forward(self, *forward_args, **forward_kwargs):
+        output = original_forward(self, *forward_args, **forward_kwargs)
+        output.loss = output.loss * torch.tensor(float("nan"), device=output.loss.device)
+        return output
+
+    monkeypatch.setattr(model_adapter.LlamaMemoryAdapter, "forward", nonfinite_forward)
+    with pytest.raises(RuntimeError, match="Nonfinite loss"):
+        TRAIN.execute(args, PhaseRecorder(), expected_original_parameters=tiny_source.count)
+    assert not (args.output / "checkpoint").exists()

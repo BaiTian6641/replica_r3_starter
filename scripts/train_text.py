@@ -92,7 +92,7 @@ def main():
     parser.add_argument("--device", choices=("cpu", "cuda", "mps"), default="mps" if sys.platform == "darwin" else "cuda")
     parser.add_argument("--dtype", choices=("float32", "bfloat16"), default="float32",
                         help="Compute dtype; resident parameters remain FP32")
-    parser.add_argument("--optimizer", choices=("muon8bit", "adamw"), default="muon8bit")
+    parser.add_argument("--optimizer", choices=("muon8bit", "adamw", "adamw_fused"), default="adamw_fused")
     parser.add_argument("--steps", type=int, default=100)
     parser.add_argument("--grad-accum", type=int, default=8)
     parser.add_argument("--max-length", type=int, default=512)
@@ -289,6 +289,9 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
         start_step = restored["step"]
         if start_step != resume_receipt["completed_steps"]:
             raise ValueError("Runtime completed step differs from the checkpoint receipt")
+        expected_schedule = {"completed_steps": start_step, "base_rates": base_rates}
+        if restored.get("schedule_state") != expected_schedule:
+            raise ValueError("Resume scheduler state differs from the declared base rates/step")
         state = restored["data_state"]
         if state.get("next_step") != start_step or state.get("batch_plan_sha256") != plan_sha:
             raise ValueError("Resume data cursor differs from the declared batch plan")

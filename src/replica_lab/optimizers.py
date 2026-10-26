@@ -80,7 +80,7 @@ def _check_hyperparameters(group: dict) -> None:
             raise ValueError("ns_steps must be in [1, 99]")
         if not isinstance(group["block_size"], int) or group["block_size"] < 1:
             raise ValueError("block_size must be positive")
-    elif group["algorithm"] == "adamw":
+    elif group["algorithm"] in {"adamw", "adamw_fused"}:
         if any(not math.isfinite(b) or not 0 <= b < 1 for b in group["betas"]):
             raise ValueError("AdamW betas must be in [0, 1)")
         if not math.isfinite(group["eps"]) or group["eps"] <= 0:
@@ -258,12 +258,162 @@ class ReplicaOptimizer(Optimizer):
         self.__setstate__({"state": restored_state, "param_groups": restored_groups})
 
 
+
+
+class NativeFusedAdamW(torch.optim.AdamW):
+    """Native ``torch.optim.AdamW(fused=True)`` with strict resume metadata.
+
+    There is no eager/custom fallback. FP32 residency, unique ownership and
+    finite dense gradients are checked before each update. Checkpoint loading
+    rejects custom AdamW/Muon states and unversioned native states.
+    """
+
+    def __init__(self, groups: list[dict], optimizer_name: str = "adamw_fused") -> None:
+        if optimizer_name != "adamw_fused":
+            raise ValueError("NativeFusedAdamW requires the adamw_fused selection")
+        for group in groups:
+            if group.get("algorithm") != "adamw_fused":
+                raise ValueError("Native fused groups must be explicitly routed")
+        super().__init__(groups, lr=1e-3, betas=(0.9, 0.999), eps=1e-8,
+                         weight_decay=0.0, fused=True)
+        self.optimizer_name = optimizer_name
+        self._validate_groups()
+
+    def _validate_groups(self) -> None:
+        seen = set()
+        if self.defaults.get("fused") is not True:
+            raise RuntimeError("Native fused AdamW lost its fused=True default")
+        for group in self.param_groups:
+            _check_hyperparameters(group)
+            if group.get("algorithm") != "adamw_fused" or group.get("fused") is not True:
+                raise ValueError("Native fused AdamW requires fused=True on every group")
+            for parameter in group["params"]:
+                if id(parameter) in seen:
+                    raise ValueError("Optimizer parameters must be unique")
+                seen.add(id(parameter))
+                if parameter.dtype != torch.float32 or not parameter.requires_grad:
+                    raise ValueError("Native fused AdamW requires trainable FP32 parameters")
+
+    @torch.no_grad()
+    def step(self, closure=None):
+        self._validate_groups()
+        for group in self.param_groups:
+            for parameter in group["params"]:
+                gradient = parameter.grad
+                if gradient is not None:
+                    if gradient.layout != torch.strided:
+                        raise ValueError("Native fused AdamW does not support sparse gradients")
+                    if not bool(torch.isfinite(gradient).all()):
+                        raise ValueError("Native fused AdamW requires finite dense gradients")
+        try:
+            return super().step(closure)
+        except RuntimeError as error:
+            raise RuntimeError(
+                "Native fused AdamW execution failed; no backend fallback is permitted") from error
+
+    def audit(self) -> dict:
+        """Return actual class/backend, groups, library and allocated state."""
+        dtype_bytes: dict[str, int] = defaultdict(int)
+        for state in self.state.values():
+            for value in state.values():
+                if isinstance(value, Tensor):
+                    dtype_bytes[str(value.dtype)] += value.numel() * value.element_size()
+        groups = []
+        for group in self.param_groups:
+            groups.append({
+                "group_name": group["group_name"], "scope": group["scope"],
+                "algorithm": group["algorithm"], "lr": group["lr"],
+                "weight_decay": group["weight_decay"],
+                "betas": list(group["betas"]), "eps": group["eps"],
+                "fused": group["fused"], "param_names": list(group["param_names"]),
+                "tensors": len(group["params"]),
+                "parameters": sum(parameter.numel() for parameter in group["params"]),
+            })
+        return {
+            "format_version": 1,
+            "optimizer": self.optimizer_name,
+            "optimizer_class": "torch.optim.AdamW",
+            "wrapper_class": "replica_lab.optimizers.NativeFusedAdamW",
+            "implementation": "native_fused",
+            "fused": True,
+            "library_version": str(torch.__version__),
+            "parameter_dtype": "float32",
+            "groups": groups,
+            "state_dtypes": sorted(dtype_bytes),
+            "state_tensor_bytes": sum(dtype_bytes.values()),
+            "state_bytes_by_dtype": dict(dtype_bytes),
+        }
+
+    metadata = audit
+
+    def state_dict(self):
+        result = super().state_dict()
+        result["replica_optimizer"] = {
+            "format_version": 1,
+            "name": self.optimizer_name,
+            "optimizer_class": "torch.optim.AdamW",
+            "implementation": "native_fused",
+            "fused": True,
+            "torch_version": str(torch.__version__),
+        }
+        return result
+
+    def load_state_dict(self, state_dict):
+        """Validate native fused v1 state before changing any live state."""
+        expected_metadata = {
+            "format_version": 1, "name": self.optimizer_name,
+            "optimizer_class": "torch.optim.AdamW",
+            "implementation": "native_fused", "fused": True,
+            "torch_version": str(torch.__version__),
+        }
+        if not isinstance(state_dict, dict) or state_dict.get("replica_optimizer") != expected_metadata:
+            raise ValueError("Incompatible native fused AdamW checkpoint")
+        saved_groups = state_dict.get("param_groups")
+        saved_state = state_dict.get("state")
+        if not isinstance(saved_groups, list) or not isinstance(saved_state, dict):
+            raise ValueError("Invalid native fused AdamW checkpoint payload")
+        if len(saved_groups) != len(self.param_groups):
+            raise ValueError("Optimizer checkpoint parameter groups differ")
+        valid_ids = set()
+        for current, old in zip(self.param_groups, saved_groups):
+            for key in ("group_name", "scope", "algorithm", "param_names",
+                        "betas", "eps", "weight_decay", "fused"):
+                current_value = list(current[key]) if key == "betas" else current[key]
+                old_value = list(old[key]) if key == "betas" else old.get(key)
+                if old_value != current_value:
+                    raise ValueError(f"Optimizer checkpoint {key} differs")
+            if len(old["params"]) != len(current["params"]):
+                raise ValueError("Optimizer checkpoint parameter counts differ")
+            for saved_id, parameter in zip(old["params"], current["params"]):
+                valid_ids.add(saved_id)
+                state = saved_state.get(saved_id, {})
+                if not state:
+                    continue
+                if set(state) != {"step", "exp_avg", "exp_avg_sq"}:
+                    raise ValueError("Invalid native fused AdamW checkpoint state")
+                step = state["step"]
+                if (not isinstance(step, Tensor) or step.dtype != torch.float32
+                        or step.ndim != 0 or not bool(torch.isfinite(step))
+                        or float(step) < 1):
+                    raise ValueError("Invalid native fused AdamW checkpoint step")
+                for key in ("exp_avg", "exp_avg_sq"):
+                    value = state[key]
+                    if (not isinstance(value, Tensor) or value.dtype != torch.float32
+                            or tuple(value.shape) != tuple(parameter.shape)
+                            or not bool(torch.isfinite(value).all())):
+                        raise ValueError("Invalid native fused AdamW checkpoint tensor")
+        if not set(saved_state).issubset(valid_ids):
+            raise ValueError("Optimizer checkpoint contains unowned state")
+        super().load_state_dict(state_dict)
+        self._validate_groups()
+
+
 def build_optimizer(model: nn.Module, optimizer_name: str = "muon8bit", *,
                     lr_base: float = 1e-5, lr_new: float = 1e-4,
                     lr_muon_base: float | None = None, lr_muon_new: float | None = None,
                     momentum: float = 0.95, ns_steps: int = 5,
                     block_size: int = 2048, weight_decay: float = 0.01
-                    ) -> ReplicaOptimizer | None:
+                    ) -> Optimizer | None:
     """Route every declared trainable parameter exactly once, preserving scope.
 
     Actual input/output embedding module IDs (including tied weights), latent
@@ -271,8 +421,8 @@ def build_optimizer(model: nn.Module, optimizer_name: str = "muon8bit", *,
     2D matrices use Muon8bit in that arm.
     The model's existing optimizer_groups method supplies original/new ownership.
     """
-    if optimizer_name not in {"muon8bit", "adamw"}:
-        raise ValueError("optimizer_name must be muon8bit or adamw")
+    if optimizer_name not in {"muon8bit", "adamw", "adamw_fused"}:
+        raise ValueError("optimizer_name must be muon8bit, adamw or adamw_fused")
     # This implementation uses the RMS-aligned 0.2*sqrt(max(shape)) update.
     # Unspecified Muon rates follow the corresponding AdamW scope; carrying
     # over stock original-scaled Muon's 1e-3 default can amplify full tuning.
@@ -296,6 +446,24 @@ def build_optimizer(model: nn.Module, optimizer_name: str = "muon8bit", *,
             excluded.update(id(p) for p in embedding.parameters())
     declared = model.optimizer_groups(lr_base, lr_new)
     groups = []
+    if optimizer_name == "adamw_fused":
+        for ownership in declared:
+            parameters = list(ownership["params"])
+            if not parameters:
+                continue
+            groups.append({
+                "params": parameters,
+                "param_names": [names[id(parameter)] for parameter in parameters],
+                "scope": ownership["group_name"],
+                "group_name": f"{ownership['group_name']}_adamw_fused",
+                "algorithm": "adamw_fused", "lr": ownership["lr"],
+                "weight_decay": weight_decay, "betas": (0.9, 0.999), "eps": 1e-8,
+            })
+        got = [id(parameter) for group in groups for parameter in group["params"]]
+        expected = {id(parameter) for parameter in model.parameters() if parameter.requires_grad}
+        if len(got) != len(set(got)) or set(got) != expected:
+            raise RuntimeError("Optimizer ownership is incomplete or duplicated")
+        return NativeFusedAdamW(groups) if groups else None
     for ownership in declared:
         scope = ownership["group_name"]
         for algorithm in ("muon8bit", "adamw"):

@@ -150,7 +150,7 @@ def test_final_profile_write_at_child_exit_enforces_declared_driver_limit(
 
 
 @pytest.mark.parametrize("entry_point", [None, "train_text.py", "qualify_architecture.py",
-                                        "run_replica_session.py"])
+                                        "probe_fused_adamw_sustained.py", "run_replica_session.py"])
 def test_allowlisted_entry_point_binds_child_command_and_guard_environment(
         monkeypatch, tmp_path, entry_point):
     """Exercise dispatch without executing a trainer or allocating GPU state."""

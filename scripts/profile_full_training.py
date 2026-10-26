@@ -98,8 +98,8 @@ def execute(args, profiler):
         optimizer = build_optimizer(model, "muon8bit", lr_base=1e-4, lr_new=1e-4,
                                     weight_decay=0.0)
     else:
-        optimizer = torch.optim.AdamW(parameters, lr=1e-4, betas=(0.9, 0.999),
-                                      eps=1e-8, weight_decay=0.0, fused=True)
+        optimizer = build_optimizer(model, "adamw_fused", lr_base=1e-4, lr_new=1e-4,
+                                    weight_decay=0.0)
     assert_full_scope(model, optimizer)
     profiler.mark("model_optimizer_loaded")
     before = parameter_hashes(model)
@@ -167,8 +167,8 @@ def execute(args, profiler):
                              "src/replica_lab/model_adapter.py", "src/replica_lab/optimizers.py",
                              "src/replica_lab/training_tools.py", "src/replica_lab/profiling.py")},
             "source_revision": lock["revision"], "data_sha256": hashlib.sha256(data_path.read_bytes()).hexdigest(),
-            "optimizer": args.optimizer, "attention": args.attention,
-            "checkpointing": args.checkpointing, "microbatch": args.microbatch,
+            "optimizer": args.optimizer, "optimizer_audit": optimizer.audit(),
+            "attention": args.attention,
             "effective_batch": 8, "sequence_length": 55, "device": "mps",
             "parameter_dtype": "float32", "compute_dtype": "float32",
             "torch_version": torch.__version__,

@@ -9,8 +9,9 @@ from torch import nn
 from transformers import LlamaConfig, LlamaForCausalLM
 
 from replica_lab.model_adapter import LlamaMemoryAdapter
-from replica_lab.optimizers import (build_optimizer, dequantize_blockwise,
-                                    orthogonalize_fp32, quantize_blockwise)
+from replica_lab.optimizers import (NativeFusedAdamW, build_optimizer,
+                                    dequantize_blockwise, orthogonalize_fp32,
+                                    quantize_blockwise)
 
 
 class MatrixModel(nn.Module):
@@ -224,3 +225,119 @@ def test_rejects_bad_precision_gradient_and_checkpoint_scope():
     saved["param_groups"][0]["param_names"] = ["wrong"]
     with pytest.raises(ValueError, match="param_names"):
         optimizer.load_state_dict(saved)
+
+
+def test_native_fused_matches_direct_torch_and_records_actual_state():
+    torch.manual_seed(61)
+    model = MatrixModel()
+    other = copy.deepcopy(model)
+    optimizer = build_optimizer(model, "adamw_fused", lr_base=0.002,
+                                weight_decay=0.03)
+    assert isinstance(optimizer, NativeFusedAdamW)
+    reference = torch.optim.AdamW(other.parameters(), lr=0.002,
+                                  weight_decay=0.03, fused=True)
+    for _ in range(3):
+        for parameter, expected in zip(model.parameters(), other.parameters()):
+            gradient = torch.randn_like(parameter)
+            parameter.grad = gradient
+            expected.grad = gradient.clone()
+        optimizer.step()
+        reference.step()
+    for parameter, expected in zip(model.parameters(), other.parameters()):
+        torch.testing.assert_close(parameter, expected, rtol=0, atol=0)
+    audit = optimizer.audit()
+    assert audit["optimizer_class"] == "torch.optim.AdamW"
+    assert audit["implementation"] == "native_fused"
+    assert audit["fused"] is True
+    assert audit["library_version"] == str(torch.__version__)
+    assert audit["state_dtypes"] == ["torch.float32"]
+    assert audit["state_tensor_bytes"] > 0
+    assert [(group["scope"], group["algorithm"], group["fused"])
+            for group in audit["groups"]] == [("original", "adamw_fused", True)]
+
+
+def test_native_fused_checkpoint_roundtrip_and_legacy_rejection():
+    torch.manual_seed(62)
+    model = MatrixModel()
+    optimizer = build_optimizer(model, "adamw_fused", lr_base=0.002)
+    for parameter in model.parameters():
+        parameter.grad = torch.randn_like(parameter)
+    optimizer.step()
+    stream = io.BytesIO()
+    torch.save(optimizer.state_dict(), stream)
+    stream.seek(0)
+    restored_model = copy.deepcopy(model)
+    restored = build_optimizer(restored_model, "adamw_fused", lr_base=0.002)
+    restored.load_state_dict(torch.load(stream, weights_only=True))
+    assert restored.audit() == optimizer.audit()
+    for parameter, expected in zip(model.parameters(), restored_model.parameters()):
+        gradient = torch.randn_like(parameter)
+        parameter.grad = gradient
+        expected.grad = gradient.clone()
+    optimizer.step()
+    restored.step()
+    for parameter, expected in zip(model.parameters(), restored_model.parameters()):
+        torch.testing.assert_close(parameter, expected, rtol=0, atol=0)
+
+    legacy = torch.optim.AdamW(model.parameters(), fused=True).state_dict()
+    before = copy.deepcopy(optimizer.state_dict())
+    with pytest.raises(ValueError, match="Incompatible native fused"):
+        optimizer.load_state_dict(legacy)
+    assert_nested = optimizer.state_dict()
+    assert_nested["state"].keys() == before["state"].keys()
+    assert_nested["param_groups"] == before["param_groups"]
+    custom = build_optimizer(MatrixModel(), "adamw").state_dict()
+    with pytest.raises(ValueError, match="Incompatible native fused"):
+        restored.load_state_dict(custom)
+
+
+def test_native_fused_rejects_missing_duplicate_and_nonfinite_ownership():
+    class DuplicateModel(MatrixModel):
+        def optimizer_groups(self, base_lr, new_lr):
+            return [{"params": [self.matrix], "lr": base_lr, "group_name": "original"},
+                    {"params": [self.matrix], "lr": base_lr, "group_name": "original"}]
+
+    class MissingModel(MatrixModel):
+        def optimizer_groups(self, base_lr, new_lr):
+            return [{"params": [self.matrix], "lr": base_lr, "group_name": "original"}]
+
+    with pytest.raises(RuntimeError, match="incomplete or duplicated"):
+        build_optimizer(DuplicateModel(), "adamw_fused")
+    with pytest.raises(RuntimeError, match="incomplete or duplicated"):
+        build_optimizer(MissingModel(), "adamw_fused")
+    with pytest.raises(ValueError, match="FP32"):
+        build_optimizer(MatrixModel().half(), "adamw_fused")
+
+    model = MatrixModel()
+    optimizer = build_optimizer(model, "adamw_fused")
+    before = model.matrix.detach().clone()
+    model.matrix.grad = torch.full_like(model.matrix, float("nan"))
+    with pytest.raises(ValueError, match="finite dense"):
+        optimizer.step()
+    torch.testing.assert_close(model.matrix, before, rtol=0, atol=0)
+    model.matrix.grad = None
+    model.bias.grad = torch.sparse_coo_tensor(
+        torch.tensor([[0]]), torch.tensor([1.0]), model.bias.shape)
+    with pytest.raises(ValueError, match="sparse"):
+        optimizer.step()
+    torch.testing.assert_close(model.matrix, before, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("regime", ["baseline", "full", "modules_only", "full_augmented"])
+def test_native_fused_preserves_declared_optimizer_scope(regime):
+    model = tiny(regime)
+    optimizer = build_optimizer(model, "adamw_fused", lr_base=1e-5, lr_new=2e-4)
+    if regime == "baseline":
+        assert optimizer is None
+        return
+    owned = [parameter for group in optimizer.param_groups for parameter in group["params"]]
+    expected = [parameter for parameter in model.parameters() if parameter.requires_grad]
+    assert len(owned) == len({id(parameter) for parameter in owned})
+    assert {id(parameter) for parameter in owned} == {id(parameter) for parameter in expected}
+    assert all(group["algorithm"] == "adamw_fused" and group["fused"] is True
+               for group in optimizer.param_groups)
+    if regime in {"full", "full_augmented"}:
+        names = {name for group in optimizer.param_groups for name in group["param_names"]}
+        assert any("embed_tokens" in name for name in names)
+        assert any("lm_head" in name for name in names)
+        assert any(name.endswith("model.norm.weight") for name in names)
