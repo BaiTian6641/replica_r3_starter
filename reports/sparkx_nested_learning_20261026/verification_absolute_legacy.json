@@ -1,0 +1,1477 @@
+{
+  "kind": "research_artifact_consistency_receipt_not_neural_qualification",
+  "verified_at_utc": "2026-10-26T15:13:53.089270+00:00",
+  "head_observed_at_verification": "9cf524928c4e83f0e181f4c83f8aa24f87f5e3b3",
+  "checks_total": 289,
+  "checks_failed": 0,
+  "verdict": "pass_document_source_arithmetic_checks_only",
+  "native_execution": false,
+  "training_admitted": false,
+  "artifact_sha256": {
+    "configs/sparkx_2_6_4b_nested_learning_v1.json": "1a594cd76401db654befe8bd368e7c45cb66b6411f697f2ad3dd23f70ee35eb7",
+    "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+    "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md": "bad93766962f4972f9cc4271e330722842b92f71dbfab0b0cc9298fa3cc911cb",
+    "docs/architecture/README.md": "c7b322e417412d88f5d4ef5712d859eea6f13c66cee2814c504e9982b909edb4",
+    "docs/datasets/20261026_MiniCPM_Dataset_Validation.md": "cb4c2ec859bff00b56593a65a3d119fa7c0eeed182a298942dc1f2885643e5c7",
+    "docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md": "37a899343a7623fd1dde2561e97bb3f03ce8b59e128cce5f7f71cc5790ce0f5a",
+    "docs/research/sparkx_intrinsic_learning_spine_20261026/README.md": "11aea87b98351a652650dfb02981881c454cc2456ad0115c00eee31d1f463b69",
+    "docs/research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md": "3c48bda2e85a60e0c3f91be276badc4cda9d5bdea46444107032ca6b3005aa2f",
+    "docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md": "926497e95f58fb6a03d38d9b7a557ce5066430028e0e2c8ede78a0ebf0a99995",
+    "docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md": "b79c4bf1346f3a4733201329a4f7796d215141baaa15b57d0dc91b3d28e296b3",
+    "docs/research/sparkx_nested_learning_20261026/README.md": "b905728a5d659b260766c0132136ee8b4deef64d6a61897c311785e5d3fc79ac",
+    "docs/research/sparkx_nested_learning_20261026/Research_Review.md": "6a6d07c5d773d1006b75e1f789e2fb750a484296125d2272ddfa5dcad81776c4",
+    "docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md": "8db796487d9a4e11de7fb81f96593e63440755f6d8c54eaf548cd3f303c10172",
+    "reports/sparkx_nested_learning_20261026/README.md": "a8a26534f740780f150a873c8a9a427e1a68ee8dda5ce1083f481db23bdc813f",
+    "reports/sparkx_nested_learning_20261026/analytical_costs.json": "d7b66404f6c4ff50c0657bb9077367a1754e278b2bfc4d2e4fb43ee894972bef",
+    "reports/sparkx_nested_learning_20261026/calculate_costs.py": "4c184e796c821be1f33a5526986ecec25088fdd09ef4a981b5980077ec4b5d20",
+    "reports/sparkx_nested_learning_20261026/evidence.json": "45a8a9fcba415d53fe882446e746e8e33e804e28fbb105e46bd064e87dc314d8",
+    "reports/sparkx_nested_learning_20261026/verify.py": "2a9de389932137e26bdbbde8040130edf5bee5442af73dea3fb21b3ab29ad8b6"
+  },
+  "checks": [
+    {
+      "name": "design_only",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "architecture_revision",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "fixed_original_backbone",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "full_multimodal_before_online_learning",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "spine_separate",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "expert_partition",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "two_active_experts",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "optimizer_policy",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "four_total_steps",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "slow_clock_exercised",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no_per_site_write",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "gradient_limitation_explicit",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "final_labels_excluded",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "moment_state_atomic",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "slot_not_identity",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no_hypothetical_learning_claim",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "contract_exists:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "contract_exists:docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "contract_exists:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:docs/datasets/20261026_MiniCPM_Dataset_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:docs/experiments/20261026_Vision_Balanced_Alignment.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:reports/sparkx_residency_20261026/residency_v2.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:reports/sparkx_first_tranche_20261026/tranche_receipt.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:reports/sparkx_dataset_validation_20261026/validation.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "input_snapshot_hash:pyproject.toml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "pre_edit_architecture_4_4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "evidence_count",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "evidence_unique",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "sixteen_papers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "nine_new_papers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:density_hope",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:density_hope",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:density_titans",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:density_titans",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:bridge_miras_arxiv",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:bridge_miras_arxiv",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:density_memt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:density_memt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:density_engram",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:density_engram",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:intrinsic_ttt_e2e",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:intrinsic_ttt_e2e",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:intrinsic_anml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:intrinsic_anml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_ttt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_ttt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_atlas",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_atlas",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_oml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_oml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_lamaml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_lamaml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_maml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_maml",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_uttt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_uttt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_hidden_forgetting",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_hidden_forgetting",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_benchmark",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_benchmark",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_multimodal_experience",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_multimodal_experience",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_adamw_code_pinned",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_adamw_code_pinned",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_hash:nested_adamw_docs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "source_sections:nested_adamw_docs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "pinned_optimizer_rejection",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "local_torch_pin",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "engram_version",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "cost_reproducible",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "plastic_parameters:minicpm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "moments_96_MiB:minicpm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "128_MiB_rejected:minicpm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "payload_below_candidate:minicpm",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "plastic_parameters:spark",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "moments_96_MiB:spark",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "128_MiB_rejected:spark",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "payload_below_candidate:spark",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "scalar_exact_gradient",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "scalar_approximation_differs",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "cost_not_native",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N01",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N02",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N03",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N04",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N05",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N06",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N07",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N08",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N09",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N10",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N11",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N12",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N13",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N14",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N15",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N16",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N17",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N18",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N19",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N20",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N21",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "issue:N22",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL0",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL1",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL2",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL3",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL4",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL5",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL6",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "stage:NL7",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:../../datasets/20261026_MiniCPM_Dataset_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:../../architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:../../experiments/20261026_Vision_Balanced_Alignment.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:../../../reports/sparkx_dataset_validation_20261026/validation.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:../../../reports/sparkx_first_tranche_20261026/tranche_receipt.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md:../../../reports/sparkx_residency_20261026/residency_v2.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:../../../reports/sparkx_nested_learning_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:../../../configs/sparkx_2_6_4b_nested_learning_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/README.md:../../architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Research_Review.md:../../../reports/sparkx_nested_learning_20261026/evidence.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Research_Review.md:Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Research_Review.md:Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md:../../architecture/22_State_Mechanism_and_RSI_Contracts.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md:../../../reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:evidence.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../docs/research/sparkx_nested_learning_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:repository_snapshot.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:architecture_v4_4_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:state_contract_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:calculate_costs.py",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../sparkx_residency_20261026/residency_v2.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../docs/research/sparkx_nested_learning_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../docs/research/sparkx_nested_learning_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../configs/sparkx_2_6_4b_nested_learning_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:../../docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:reports/sparkx_nested_learning_20261026/README.md:verification.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_port_density_20261026/Port_Density_Research_and_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_dynamic_memory_bridge_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_av_experience_20261026/architecture_v3_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_port_density_20261026/architecture_v4_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dynamic_memory_bridge_20261026/architecture_v4_1_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_intrinsic_learning_spine_20261026/architecture_v4_2_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_av_experience_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_av_experience_20261026/Native_Experience_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_av_experience_20261026/Validation_Addendum.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../configs/sparkx_2_6_4b_product_plan_v4.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_av_experience_20261026/evidence.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_av_experience_20261026/repository_snapshot.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_2_6_product_20261025/Research_Crosscheck.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_2_6_product_20261025/Validation_and_Release.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_2_6_product_20261025/Resources_and_Full_Finetuning.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_dynamic_memory_bridge_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_dynamic_memory_bridge_20261026/Unified_Bridge_and_Memory_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_dynamic_memory_bridge_20261026/MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../configs/sparkx_2_6_4b_dynamic_memory_bridge_study_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dynamic_memory_bridge_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_intrinsic_learning_spine_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../datasets/20261026_SparkX_Dataset_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../datasets/20261026_SparkX_Dataset_Catalog.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../datasets/20261026_MiniCPM_Dataset_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dataset_hunt_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dataset_hunt_20261026/architecture_v4_3_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_nested_learning_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_nested_learning_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_nested_learning_20261026/architecture_v4_4_snapshot.txt",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:22_State_Mechanism_and_RSI_Contracts.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_2_6_product_refinement_20261025/followup_snapshot.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_av_experience_20261026/repository_snapshot.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../experiments/20261025_Staged_Vision_Curriculum_Results.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../experiments/20261025_Vision_Dependence_Results.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../experiments/20261025_Memory_Update_Dynamics.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../experiments/20261025_M2_Ultra_Full_Training_Performance.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../AGENT_CONTINUE.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../src/replica_lab/architecture/core.py",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../src/replica_lab/architecture/heads.py",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/spark_repair_20261025/repair_record.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/vision_curriculum_20261025/finalize_receipts/audit_593dc5406ebea4a09403ef597f81b513ad143025d3823ae0c3e9f45904d505d5.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../maintenance/20261025_Vision_Score_Replay.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../runs/fused_adamw_20261025/sustained01/run_report.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../runs/memory_causal_refresh_20261026/native01/run_report.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../runs/memory_causal_refresh_20261026/restart01/failure_report.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../runs/memory_causal_refresh_20261026/restart04/run_report.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../runs/memory_causal_refresh_20261026/native04/run_report.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/vision_stage_diagnostic_20261026/final_disposition.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dynamic_memory_bridge_20261026/repository_snapshot.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../experiments/20261026_Vision_Balanced_Alignment.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dataset_validation_20261026/validation.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_first_tranche_20261026/tranche_receipt.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_port_density_20261026/Port_Density_Research_and_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../configs/sparkx_2_6_4b_port_density_study_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_port_density_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_av_experience_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_av_experience_20261026/Native_Experience_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../datasets/20261026_SparkX_Dataset_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../datasets/20261026_MiniCPM_Dataset_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_2_6_product_refinement_20261025/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_av_experience_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_dynamic_memory_bridge_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_intrinsic_learning_spine_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../../reports/sparkx_residency_20261026/residency_v2.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_2_6_product_20261025/Validation_and_Release.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_av_experience_20261026/Validation_Addendum.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md:21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md:19_Integrated_Memory_Learning_and_RSI_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md:../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md:../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md:../experiments/20261026_Vision_Balanced_Alignment.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/22_State_Mechanism_and_RSI_Contracts.md:../../reports/sparkx_nested_learning_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../research/sparkx_2_6_4b_20261024/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:17_Memory_Reliability_Recovery.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../../execution_state.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:19_Integrated_Memory_Learning_and_RSI_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:20_Spark_X2_6_FP8_Preparation_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../08_Dataset_Acquisition_and_Curriculum.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../research/sparkx_nested_learning_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:01_System_Blueprint.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:02_Backbone_Integration.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:03_Memory_and_Runtime_Compilation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:04_Semi_Cognition_Learning_and_Replica.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:05_Implementation_Sequence.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:06_Research_Decisions.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:15_Research_Crosscheck_and_Backbone_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:16_Loop_Agent_Instructions.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:17_Memory_Reliability_Recovery.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:18_MiniCPM5_Vision_Training_and_Continual_Learning.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:19_Integrated_Memory_Learning_and_RSI_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:20_Spark_X2_6_FP8_Preparation_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../08_Dataset_Acquisition_and_Curriculum.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../../diagrams/architecture_v1/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:../../configs/architecture_design_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:17_Memory_Reliability_Recovery.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:18_MiniCPM5_Vision_Training_and_Continual_Learning.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/architecture/README.md:16_Loop_Agent_Instructions.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/datasets/20261026_MiniCPM_Dataset_Validation.md:20261026_SparkX_Dataset_Plan.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/datasets/20261026_MiniCPM_Dataset_Validation.md:../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/datasets/20261026_MiniCPM_Dataset_Validation.md:../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/datasets/20261026_MiniCPM_Dataset_Validation.md:../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md:../sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md:../sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md:../sparkx_dynamic_memory_bridge_20261026/MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md:../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md:../../../reports/sparkx_intrinsic_learning_spine_20261026/repository_snapshot.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:../sparkx_nested_learning_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:Architecture_and_Spine.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:../../../configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/README.md:../../../reports/sparkx_intrinsic_learning_spine_20261026/README.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md:../sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md:Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md:Teaching_and_Validation.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md:../../../configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md:../sparkx_av_experience_20261026/Native_Experience_Design.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md:../../../reports/sparkx_intrinsic_learning_spine_20261026/analytical_costs.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md:../../../reports/sparkx_intrinsic_learning_spine_20261026/evidence.json",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md:../sparkx_2_6_product_20261025/Research_Crosscheck.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md:../sparkx_dynamic_memory_bridge_20261026/Research_Review.md",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "link:docs/research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md:../../../reports/sparkx_intrinsic_learning_spine_20261026/repository_snapshot.json",
+      "pass": true,
+      "detail": null
+    }
+  ]
+}

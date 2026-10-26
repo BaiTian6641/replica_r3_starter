@@ -57,6 +57,117 @@ INPUT_ROLES: list[tuple[str, str]] = [
         "declared encoder counts, revisions, projectors and memory-module scope",
     ),
     (
+        "configs/sparkx_residency_components_v1.json",
+        "versioned machine-readable residency component inventory",
+    ),
+    (
+        "reports/sparkx_residency_20261026/residency_v2_markdown_legacy.json",
+        "preserved prose-derived residency v2 legacy receipt",
+    ),
+    (
+        "configs/sparkx_2_6_4b_nested_learning_v1.json",
+        "revision 4.5 nested-learning research specification",
+    ),
+    (
+        "configs/sparkx_nested_learning_sources_v1.json",
+        "declared content-addressed nested source cache and provisioning policy",
+    ),
+    (
+        "configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json",
+        "intrinsic memory and optional spine research configuration",
+    ),
+    (
+        "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+        "state ownership, transaction and bounded-RSI contracts",
+    ),
+    (
+        "docs/architecture/README.md",
+        "architecture reading order and revision 4.5 entry point",
+    ),
+    (
+        "docs/research/sparkx_nested_learning_20261026/README.md",
+        "nested-learning reading guide and evidence boundary",
+    ),
+    (
+        "docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+        "nested-learning algorithm and integration contract",
+    ),
+    (
+        "docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md",
+        "NL0-NL7 validation ladder and open issue ledger",
+    ),
+    (
+        "docs/research/sparkx_nested_learning_20261026/Research_Review.md",
+        "nested-learning primary-source comparison and limits",
+    ),
+    (
+        "docs/research/sparkx_intrinsic_learning_spine_20261026/README.md",
+        "intrinsic-memory background and revision status",
+    ),
+    (
+        "docs/research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md",
+        "intrinsic memory and optional spine design",
+    ),
+    (
+        "docs/research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md",
+        "intrinsic learning validation requirements",
+    ),
+    (
+        "docs/research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md",
+        "intrinsic learning research review",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/README.md",
+        "nested-learning audit report and non-claims",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/evidence.json",
+        "nested-learning source manifest and provenance",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/analytical_costs.json",
+        "nested-learning analytical payload ledger",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/calculate_costs.py",
+        "nested-learning analytical cost generator",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/verify.py",
+        "nested-learning document and source-payload verifier",
+    ),
+    (
+        "scripts/provision_sparkx_nested_sources.py",
+        "offline nested source cache provisioner",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/verification.json",
+        "current strict nested source verification receipt",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/verification_absolute_legacy.json",
+        "preserved absolute-path nested verification legacy receipt",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/repository_snapshot.json",
+        "nested-learning repository observation and snapshot bindings",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/architecture_v4_4_snapshot.txt",
+        "preserved revision 4.4 architecture snapshot",
+    ),
+    (
+        "reports/sparkx_nested_learning_20261026/state_contract_snapshot.txt",
+        "preserved pre-revision state contract snapshot",
+    ),
+    *[
+        (
+            f"reports/sparkx_nested_learning_20261026/input_{index}_snapshot.txt",
+            "preserved nested-learning input snapshot",
+        )
+        for index in range(2, 10)
+    ],
+    (
         "reports/sparkx_residency_20261026/calculate_residency.py",
         "deterministic residency ledger generator",
     ),

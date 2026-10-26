@@ -34,6 +34,8 @@ separate optional pretrained reference/teacher. Spark needs a new width-2560
 connector and dedicated native adapter; its preparation does not wait for RSI,
 and its native/backend gates do not delay MiniCPM5.
 
+The current Spark product target is [revision 4.5](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md). Its [nested-learning reading guide](../research/sparkx_nested_learning_20261026/README.md) connects the backbone, multimodal training, dynamic memory, plastic knowledge and swappable vocabulary to explicit learning objectives and MiniCPM validation gates.
+
 ## Read in this order
 
 | Document | What it specifies |

@@ -1,8 +1,9 @@
 """Deterministic arithmetic tests for the SparkX residency ledger.
 
 These tests are self-contained: they import the calculator, recompute the
-ledger from committed indices and tamper with in-memory copies. They do not
-need ignored local artifacts, network access, a model or a native job.
+ledger from committed indices plus the versioned component inventory and
+tamper with in-memory copies. They do not need ignored local artifacts,
+network access, a model or a native job.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CALCULATOR = ROOT / "reports" / "sparkx_residency_20261026" / "calculate_residency.py"
 RECEIPT_V1 = ROOT / "reports" / "sparkx_residency_20261026" / "residency.json"
 RECEIPT_V2 = ROOT / "reports" / "sparkx_residency_20261026" / "residency_v2.json"
+COMPONENTS = ROOT / "configs" / "sparkx_residency_components_v1.json"
 
 _spec = importlib.util.spec_from_file_location("calculate_residency", CALCULATOR)
 assert _spec is not None and _spec.loader is not None
@@ -119,6 +121,160 @@ def test_projector_arithmetic_is_explicit(receipt: dict) -> None:
     assert rows["vision_projector"]["parameters"] == 768 * 1024 + 1024 + 1024 * 2560 + 2560
     assert rows["audio_projector"]["parameters"] == 512 * 1024 + 1024 + 1024 * 2560 + 2560
     assert rows["memory_reader_matrices"]["parameters"] == 2 * 4 * 2560 * 512
+
+
+def test_component_inventory_declares_all_arithmetic_sources() -> None:
+    inventory = calculator.load_component_inventory(ROOT)
+    components = {component["id"]: component for component in inventory["components"]}
+    assert inventory["schema_version"] == "replica.sparkx_residency_components.v1"
+    assert inventory["documentation"]["path"] == calculator.ARCHITECTURE_PATH
+    assert components["language_backbone"]["source"]["kind"] == "bf16_header"
+    for encoder_id, revision in (
+        ("vision_encoder", "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2"),
+        ("audio_encoder", "7447901d44bf265b3c304cc4ccf25ca741527b6c"),
+    ):
+        assert components[encoder_id]["source"]["revision"] == revision
+        assert components[encoder_id]["parameters"] > 0
+    assert components["memory_query_output"]["parameters"] == 3_276_800
+    for formula_id in (
+        "vision_projector",
+        "audio_projector",
+        "memory_reader_matrices",
+        "phrase_encoder",
+    ):
+        assert components[formula_id]["source"]["kind"] == "formula"
+        assert components[formula_id]["source"]["formula"]["kind"]
+
+
+def test_machine_inventory_drives_component_arithmetic() -> None:
+    inventory = calculator.load_component_inventory(ROOT)
+    widths = copy.deepcopy(inventory["widths"])
+    component = next(
+        row for row in inventory["components"] if row["id"] == "vision_projector"
+    )
+    assert calculator.component_parameters(component, widths) == 3_411_456
+    widths["bridge"] += 1
+    assert calculator.component_parameters(component, widths) == (
+        768 * 1025 + 1025 + 1025 * 2560 + 2560
+    )
+
+
+def test_machine_inventory_drives_total_arithmetic() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    query = next(
+        row for row in inventory["components"] if row["id"] == "memory_query_output"
+    )
+    query["parameters"] += 7
+    inventory["consistency"]["integrated_total_parameters"] += 7
+    bf16 = calculator.audit_bf16_header(
+        calculator.load_json(ROOT, calculator.BF16_HEADER_PATH)
+    )
+    rows = calculator.parameter_inventory(bf16, inventory)
+    assert rows["total_parameters"] == 4_320_804_619
+
+
+def test_receipt_hash_pins_inventory_and_documentation(receipt: dict) -> None:
+    inventory = receipt["component_inventory"]
+    assert inventory["path"] == calculator.COMPONENTS_PATH
+    assert inventory["sha256"] == calculator.sha256_file(COMPONENTS)
+    assert inventory["schema_version"] == "replica.sparkx_residency_components.v1"
+    validation = receipt["documentation_validation"]
+    assert validation["path"] == calculator.ARCHITECTURE_PATH
+    assert validation["sha256"] == calculator.sha256_file(
+        ROOT / calculator.ARCHITECTURE_PATH
+    )
+    assert validation["against_inventory"] == {
+        "path": inventory["path"],
+        "sha256": inventory["sha256"],
+    }
+    assert validation["checks"]
+    assert all(validation["checks"].values())
+
+
+def test_documentation_mismatch_is_rejected() -> None:
+    inventory = calculator.load_component_inventory(ROOT)
+    document = (ROOT / calculator.ARCHITECTURE_PATH).read_text(encoding="utf-8")
+    bf16 = calculator.audit_bf16_header(
+        calculator.load_json(ROOT, calculator.BF16_HEADER_PATH)
+    )
+    validation = calculator.validate_architecture_documentation(
+        document,
+        inventory,
+        bf16["unique_parameter_elements"],
+        4_320_804_612,
+    )
+    assert all(validation["checks"].values())
+    tampered = document.replace("92,884,224", "92,884,225", 1)
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_architecture_documentation(
+            tampered,
+            inventory,
+            bf16["unique_parameter_elements"],
+            4_320_804_612,
+        )
+
+
+def test_unknown_component_fails_closed() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    inventory["components"].append(
+        {
+            "id": "mystery_module",
+            "label": "not declared by the architecture",
+            "trainable": True,
+            "parameters": 1,
+            "source": {"kind": "declared_count"},
+        }
+    )
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_component_inventory(inventory)
+
+
+def test_unknown_formula_kind_fails_closed() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    component = next(
+        row for row in inventory["components"] if row["id"] == "vision_projector"
+    )
+    component["source"]["formula"]["kind"] = "mystery_formula"
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_component_inventory(inventory)
+
+
+def test_missing_component_fails_closed() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    inventory["components"] = [
+        component
+        for component in inventory["components"]
+        if component["id"] != "phrase_encoder"
+    ]
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_component_inventory(inventory)
+
+
+def test_missing_formula_field_fails_closed() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    component = next(
+        row for row in inventory["components"] if row["id"] == "vision_projector"
+    )
+    del component["source"]["formula"]["bridge_width"]
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_component_inventory(inventory)
+
+
+def test_inconsistent_component_fails_closed() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    audio = next(
+        row for row in inventory["components"] if row["id"] == "audio_encoder"
+    )
+    audio["parameters"] += 1
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_component_inventory(inventory)
+
+
+def test_inconsistent_declared_total_fails_closed() -> None:
+    inventory = copy.deepcopy(calculator.load_component_inventory(ROOT))
+    inventory["consistency"]["integrated_total_parameters"] += 1
+    with pytest.raises(calculator.ResidencyError):
+        calculator.validate_component_inventory(inventory)
 
 
 def test_projected_training_sums_every_bucket(receipt: dict) -> None:

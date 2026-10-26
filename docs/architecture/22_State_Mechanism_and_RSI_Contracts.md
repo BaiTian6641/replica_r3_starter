@@ -6,7 +6,7 @@ per-state mechanism matrix, the primary-source/deviation audit, the
 routing-versus-compilation admission rules, the bounded RSI gate sequence and the
 behavioral stability/correction protocol. It is compatible with the current
 product plan ([document 21](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md),
-revision 4.4) and the integrated design
+revision 4.5) and the integrated design
 ([document 19](19_Integrated_Memory_Learning_and_RSI_Design.md)). It reports no
 new training, no native execution and no capability result.
 
@@ -21,6 +21,8 @@ preparation is metadata/tokenizer only; native FP8 loading, adapters, gradients
 and training are **blocked**. No Titans, uTTT, HOPE, MemT, Mem-T or
 selective-plasticity mechanism in this repository has been trained, and no
 recursive-improvement cycle has run.
+
+**Revision 4.5 learning refinement:** the [nested-learning contract](../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md) specifies the `Pf/Ps` clocks, future-query objective, explicit first-order `P` meta-gradient and replay/causal schedule. Its [validation ledger](../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md) supplies the missing experiments without changing the authority rules below. The latest [vision train04](../experiments/20261026_Vision_Balanced_Alignment.md) remains rejected at 3/14 train-fit and 2/18 dev answers, stopping before audit; the earlier 6/24 result above is historical. No nested-learning or RSI capability is promoted.
 
 ### Status vocabulary
 
@@ -103,7 +105,7 @@ deviations.
 | `E` | `E_{t+1} = E_t ∪ {r_t}`; `r_t = (uid, span_hash, value, scope, t_obs, lineage)`; corrections add `supersedes` | None; no gradient | None; host transaction | Spark 4,096 records: ~7 MiB tensors + ≤2 MiB metadata; MiniCPM 1,024 records: ~1.75 MiB |
 | `F` | Linear control: `F_{t+1} = lambda_t ⊙ F_t + eta_t (v_t - F_t k_t) k_t^T`, normalized `k_t`, bounded learned `lambda_t,eta_t`. The current SGDN-2 primitive is a separate symmetric gated delta with learned erase/write coefficients | Associative reconstruction `squared_error(v_t - F_t k_t)` and/or later-query response; predictive targets come from observations, not unverified model claims | Through later reads in the declared truncated unroll; detached at the commit barrier | MiniCPM four 64×64 FP32 = 65,536 B; Spark three groups × eight experts × four 128×128 = 6 MiB FP32; snapshots/staging double respectively |
 | `A` | `A_{t+1} = A_t - eta * grad_A L_rank(q_t; R_t^+, R_t^-)` between decisions | Ranking/contrastive selection using training-only relevant IDs; answer loss alone may not reach hard-selected records | Address head only; stored keys and their encoder fixed within a representation version | Three 128×128 FP32 transforms = 49,152 scalars = 0.1875 MiB |
-| `P` | `P_{t+1} = P_t - eta * g_t ⊙ grad_P [L_teach(P_t) + lambda * L_replay(P_t)]` | Verified teaching pairs or observed successor events plus bounded replay/retention; `g_t` is a fixed or learned plasticity gate | Local cached-feature objective, or end-to-end through the frozen decoder with the full backward cost charged | Sixteen gated width-256/hidden-1024 experts = 12,582,912 parameters = 48 MiB FP32; `NativeFusedAdamW` moments +96 MiB; no Muon arm |
+| `P` | `(P,O)_{t+1} = NativeFusedAdamW((P,O)_t, grad_P L_verified)`; selected experts only, independent fast/slow clocks | Verified teaching pairs or observed successor events plus bounded replay/retention; fixed eligibility initially; learned plasticity is a later qualified arm | Local cached-feature objective, or end-to-end through the frozen decoder with the full backward cost charged | Sixteen gated width-256/hidden-1024 experts = 12,582,912 parameters = 48 MiB FP32; `NativeFusedAdamW` moments +96 MiB; no Muon arm |
 | `C` | `W_{k+1} = CoreBlock(W_k, sense ⊕ memory ⊕ task ⊕ identity)`, `k = 0,1` reference | Proposed supervised task/action transitions, grounding and evidence pointers; mask future outcomes | End-to-end training path required; detached audit heads do not train the core | Eight 256-wide slots plus up to 64 event slots = 18,432 BF16 elements = 36,864 B; two iterations per decision plus prefill |
 | `X` | No learning update. Sensor ingress: `available_at >= t_end + encoder_delay`; egress is a bounded read | No model loss; adapter training is a separate declared stage | Observer channel has no gradient and no state mutation; adapter gradients only in their own training stage | Nine-site, eight-slot width-512 readout = 72 KiB per decision; a full 36-layer/8192-position export is 1.40625 GiB per sequence and is not a default |
 
@@ -118,9 +120,11 @@ actually skip work to claim sparse cost.
   state, staging/snapshots, gradients, optimizer state, replay, raw evidence,
   caches and transport bytes. A parameter count is not a latency measurement.
 - **Staging is charged:** an update that keeps a previous snapshot, a candidate
-  and gradients uses more than the steady-state payload. The Spark `E/F/A/P/C`
-  illustration is 63.22265625 MiB live, at least 81.59765625 MiB with update
-  staging, plus 64 MiB replay and omitted activations/caches.
+  and gradients uses more than the steady-state payload. The earlier moment-free Spark `E/F/A/P/C`
+  illustration is 63.22265625 MiB live. The revision 4.5 resident-Adam candidate
+  includes `P/A` moments: approximately 159.60 MiB live and 190.39 MiB with
+  illustrated staging, plus 64 MiB replay and omitted activations/caches. See
+  the [current ledger](../../reports/sparkx_nested_learning_20261026/analytical_costs.json).
 - **Optimizer policy:** any executed candidate training, including new reader or
   `P` updates, uses `NativeFusedAdamW` (native `torch.optim.AdamW(fused=True)`
   with strict FP32 ownership, finite-gradient and resume checks). Archived Muon

@@ -1,5 +1,7 @@
 # Teaching a native learner: MiniCPM validation before Spark
 
+**Revision 4.5 refinement:** use the [nested-learning contract](../sparkx_nested_learning_20261026/Nested_Learning_Contract.md) and [NL0–NL7 ladder](../sparkx_nested_learning_20261026/Validation_and_Open_Issues.md) for concrete objectives, clocks, optimizer state, first-order gradients and joint validation. This companion retains the original storage-intervention definitions.
+
 26 October 2026. Proposed protocol extension, not run authorization. It refines the [prior MiniCPM bridge study](../sparkx_dynamic_memory_bridge_20261026/MiniCPM_Validation.md) and [consolidated product plan](../../architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md). Current repository execution/resource protocols still apply. **Full offline fine-tuning establishes multimodal perception and reasoning first. Online self-learning is tested only as knowledge/experience acquisition through those already-trained capabilities; it is not a substitute for multimodal training.**
 
 ## 1. Correct the learning claim before testing it
@@ -63,14 +65,14 @@ The following stages complement the existing F0–F6 product schedule:
 Define inner and outer objectives explicitly. A candidate inner loss combines a supervised local concept/evidence target or observed-transition target with sampled retention replay. The outer loss measures held-out future answers/grounding after adaptation, old-task retention and measured learning cost. Outer supervision can use labels; inference features and selector inputs cannot.
 
 ```text
-P_next = P - bounded_learning_rate * plasticity_gate * gradient(L_teach + lambda * L_replay)
+(P_next, optimizer_state_next) = NativeFusedAdamW(P, optimizer_state, gradient(L_verified))
 F_next = learned_causal_write(F, available_observation_features)
 outer_objective = L_future_after_updates + alpha * L_old_tasks + beta * measured_update_cost
 ```
 
 This is a proposed objective family, not a derivation of MemT or HOPE. During offline preparation, optimize the initialization and learning machinery for the outer objective. During deployed teaching, freeze `Theta`; only the declared dynamic subset changes. Use separate held-out task families to establish whether learning this procedure transfers. A gate multiplying a dense update does not imply sparse execution unless the implementation skips the inactive work.
 
-Begin with one to four inner updates, at most 256 model positions per step for the end-to-end control. The local-update candidate processes at most 128 cached feature vectors per step and two `P` experts per teaching event. Report both positions and vectors; these are not equivalent units of compute. Use SGD without momentum first; compare Adam only with all persistent moment storage charged. Maintain a replay-free control and a fixed replay-byte budget for other arms.
+Begin with one to four inner updates, at most 256 model positions per step for the end-to-end control. The local-update candidate processes at most 128 cached feature vectors per step and two `P` experts per teaching event. Report both positions and vectors; these are not equivalent units of compute. Use native fused AdamW under the current repository policy and charge all persistent moments, selected gradients and atomic candidate state. Maintain a replay-free control and a fixed replay-byte budget for other arms.
 
 For outer meta-learning, start with short unrolls of one to four teaching segments; record whether differentiation is exact, first-order or truncated. Test longer interference streams without resetting the persistent learner. Meta-training from a pretrained decoder is an adaptation hypothesis, not a demonstrated small-token substitute for MemT or TTT-E2E's training scale. Use tiny fixtures only to diagnose mechanics, then separate development and capability-scale budgets.
 

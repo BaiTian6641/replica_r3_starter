@@ -3,20 +3,115 @@ from __future__ import annotations
 
 import copy
 from functools import lru_cache
+import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
 import replica_lab.vision_balanced_alignment as vba
+from conftest import require_local_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "configs/vision_balanced_alignment_v2.json"
+FIXTURE_FORMAT = "replica.vision_balanced_alignment.evidence_fixture.v1"
+EVIDENCE_FIXTURE_PATH = (
+    ROOT / "reports/vision_balanced_alignment_20261026/"
+    "evidence_fixture_v1.json")
+RAW_RUN_REPORT_PATH = (
+    ROOT / "runs/vision_balanced_alignment_20261026/train01/run_report.json")
+RAW_RELOAD_REPORT_PATH = (
+    ROOT / "runs/vision_balanced_alignment_20261026/reload01/"
+    "reload_report.json")
+RAW_REPORT_REQUIREMENTS = (
+    "runs/vision_balanced_alignment_20261026/train01/run_report.json",
+    "runs/vision_balanced_alignment_20261026/reload01/reload_report.json")
+EXPECTED_COMPARISONS = (
+    "heldout_answer_generations.jsonl",
+    "heldout_caption_generations.jsonl",
+    "retention_after.jsonl")
 
 
 @lru_cache(maxsize=1)
 def _config():
     return vba.load_config(CONFIG_PATH)
+
+
+@lru_cache(maxsize=1)
+def _evidence_fixture():
+    return json.loads(EVIDENCE_FIXTURE_PATH.read_text())
+
+
+def _is_sha256(value):
+    return (isinstance(value, str) and len(value) == 64
+            and all(char in "0123456789abcdef" for char in value))
+
+
+def _validate_fixture_shape(fixture):
+    """The committed fixture is self-describing; reject structural drift."""
+    assert fixture["format"] == FIXTURE_FORMAT
+    assert fixture["schema_version"] == 1
+    assert set(fixture) == {
+        "format", "schema_version", "description", "source", "protocol",
+        "data", "run", "reload", "extension", "heldout_gates", "provenance"}
+    source = fixture["source"]
+    assert set(source) == {"run_report", "reload_report"}
+    for name in ("run_report", "reload_report"):
+        entry = source[name]
+        assert set(entry) == {"path", "format", "bytes", "sha256"}
+        assert entry["path"].startswith("runs/vision_balanced_alignment_")
+        assert entry["path"].endswith(".json")
+        assert entry["format"].startswith(
+            "replica.vision_balanced_alignment.")
+        assert isinstance(entry["bytes"], int) and entry["bytes"] > 0
+        assert _is_sha256(entry["sha256"])
+    assert _is_sha256(fixture["protocol"]["sha256"])
+    assert _is_sha256(fixture["data"]["manifest_sha256"])
+    assert _is_sha256(fixture["data"]["heldout_caption_case_ids_sha256"])
+    assert _is_sha256(fixture["data"]["heldout_answer_case_ids_sha256"])
+
+    run = fixture["run"]
+    assert run["status"] == "completed_pending_reload"
+    assert run["disposition"] == "diagnostic_only_no_promotion"
+    assert run["base_saved"] is False
+    assert run["promotion"] is False
+    assert run["trainable_scope"].endswith(".")
+    assert run["trainable_tensors"] > 0
+    assert run["updates"] == 10
+    assert run["total_examples"] >= run["unique_examples"] > 0
+
+    reload_ = fixture["reload"]
+    assert reload_["status"] == "completed"
+    assert reload_["bitwise_equal"] is True
+    assert reload_["zero_updates"] is True
+    assert reload_["run_report_sha256"] == source["run_report"]["sha256"]
+    assert reload_["protocol_sha256"] == fixture["protocol"]["sha256"]
+    assert set(reload_["comparisons"]) == set(EXPECTED_COMPARISONS)
+    assert all(reload_["comparisons"][name] is True
+               for name in EXPECTED_COMPARISONS)
+
+    extension = fixture["extension"]
+    assert extension["format"] == "replica.minicpm5.extensions.v4"
+    assert extension["label"] == "alignment"
+    assert _is_sha256(extension["weights_sha256"])
+    assert extension["bytes"] > 0
+    assert extension["base_saved"] is False
+
+    gates = fixture["heldout_gates"]
+    assert gates["label"] == "heldout"
+    assert gates["diagnostic_only"] is True
+    assert gates["promotion"] is False
+    assert gates["all_declared_gates_passed"] is False
+    assert gates["gate_failures"]
+    assert all(isinstance(name, str) and name
+               for name in gates["gate_failures"])
+
+    provenance = fixture["provenance"]
+    assert provenance["raw_reports_integration_only"] is True
+    assert provenance["raw_available_in_clean_checkout"] is False
+    assert tuple(provenance["requirements"]) == RAW_REPORT_REQUIREMENTS
+    assert provenance["requirements"] == [
+        source["run_report"]["path"], source["reload_report"]["path"]]
 
 
 @lru_cache(maxsize=1)
@@ -75,16 +170,74 @@ def test_v1_semantics_and_evidence_are_preserved():
     assert v1["format"] == vba.CONFIG_FORMAT
     assert v1["version"] == vba.VERSION
     assert v1["schedule"]["alignment"]["updates"] == 10
-    run_report = json.loads(
-        (ROOT / "runs/vision_balanced_alignment_20261026/train01/"
-         "run_report.json").read_text())
-    reload_report = json.loads(
-        (ROOT / "runs/vision_balanced_alignment_20261026/reload01/"
-         "reload_report.json").read_text())
-    assert run_report["status"] == "completed_pending_reload"
-    assert reload_report["status"] == "completed"
-    assert reload_report["bitwise_equal"] is True
-    assert run_report["heldout"]["gates"]["gate_failures"]
+    fixture = _evidence_fixture()
+    _validate_fixture_shape(fixture)
+    assert fixture["run"]["status"] == "completed_pending_reload"
+    assert fixture["reload"]["status"] == "completed"
+    assert fixture["reload"]["bitwise_equal"] is True
+    assert fixture["heldout_gates"]["gate_failures"]
+
+
+@require_local_artifacts(*RAW_REPORT_REQUIREMENTS)
+@pytest.mark.integration
+def test_raw_reports_match_committed_evidence_fixture():
+    """Integration-only: the ignored raw reports agree with the fixture."""
+    fixture = _evidence_fixture()
+    _validate_fixture_shape(fixture)
+    raw = {}
+    for name, path in (("run_report", RAW_RUN_REPORT_PATH),
+                       ("reload_report", RAW_RELOAD_REPORT_PATH)):
+        payload = path.read_bytes()
+        declared = fixture["source"][name]
+        assert hashlib.sha256(payload).hexdigest() == declared["sha256"]
+        assert len(payload) == declared["bytes"]
+        report = json.loads(payload)
+        assert report["format"] == declared["format"]
+        raw[name] = report
+    run_report = raw["run_report"]
+    reload_report = raw["reload_report"]
+
+    assert run_report["status"] == fixture["run"]["status"]
+    assert run_report["disposition"] == fixture["run"]["disposition"]
+    assert run_report["protocol_sha256"] == fixture["protocol"]["sha256"]
+    assert run_report["data_manifest_sha256"] == \
+        fixture["data"]["manifest_sha256"]
+    seals = run_report["data_seals"]
+    assert seals["heldout_caption_case_ids"] == \
+        fixture["data"]["heldout_caption_case_ids_sha256"]
+    assert seals["heldout_answer_case_ids"] == \
+        fixture["data"]["heldout_answer_case_ids_sha256"]
+    assert run_report["trainable_scope"] == fixture["run"]["trainable_scope"]
+    assert run_report["trainable_tensors"] == \
+        fixture["run"]["trainable_tensors"]
+    assert run_report["training"]["total_updates"] == fixture["run"]["updates"]
+    assert run_report["training"]["total_examples"] == \
+        fixture["run"]["total_examples"]
+    assert run_report["training"]["schedule"]["unique_examples"] == \
+        fixture["run"]["unique_examples"]
+    assert run_report["base_saved"] == fixture["run"]["base_saved"]
+    assert run_report["promotion"] == fixture["run"]["promotion"]
+
+    extension = run_report["extension"]
+    for key in ("format", "label", "weights_sha256", "bytes", "base_saved"):
+        assert extension[key] == fixture["extension"][key]
+    gates = run_report["heldout"]["gates"]
+    for key in ("label", "diagnostic_only", "promotion",
+                "all_declared_gates_passed"):
+        assert gates[key] == fixture["heldout_gates"][key]
+    assert gates["gate_failures"] == fixture["heldout_gates"]["gate_failures"]
+
+    assert reload_report["status"] == fixture["reload"]["status"]
+    assert reload_report["bitwise_equal"] == fixture["reload"][
+        "bitwise_equal"]
+    assert reload_report["zero_updates"] == fixture["reload"]["zero_updates"]
+    assert reload_report["run_report_sha256"] == \
+        fixture["reload"]["run_report_sha256"]
+    assert reload_report["protocol_sha256"] == \
+        fixture["reload"]["protocol_sha256"]
+    assert reload_report["extension_weights_sha256"] == \
+        fixture["extension"]["weights_sha256"]
+    assert reload_report["comparisons"] == fixture["reload"]["comparisons"]
 
 
 def test_caption_target_assignment_is_derived_and_image_bound():

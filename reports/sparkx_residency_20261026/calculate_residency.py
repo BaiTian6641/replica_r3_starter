@@ -3,9 +3,11 @@
 
 Standard library only. All figures are recomputed from committed evidence:
 the sealed BF16 tensor index, the sealed mixed-dtype FP8 adaptation index, the
-repository driver-guard policy and the declared component counts in the
-architecture document. No weights, loaders, tokenizer, dataset, model code or
-native job is required, downloaded or executed.
+repository driver-guard policy and the versioned machine-readable component
+inventory at configs/sparkx_residency_components_v1.json. The architecture
+document is cross-checked against that inventory but is never an arithmetic
+source. No weights, loaders, tokenizer, dataset, model code or native job is
+required, downloaded or executed.
 
 The ledger deliberately separates:
 
@@ -26,7 +28,7 @@ Usage:
   python3 reports/sparkx_residency_20261026/calculate_residency.py --check
 
 Writes (default): reports/sparkx_residency_20261026/residency_v2.json
-The historical v1 receipt at residency.json is never modified.
+The historical v1 receipt and prose-derived v2 legacy receipt are never modified.
 """
 
 from __future__ import annotations
@@ -55,12 +57,16 @@ FP8_HEADER_PATH = (
     "official_fp8_adaptation_base/tensor_index.json"
 )
 GUARD_PATH = "reports/fused_adamw_20261025/sustained01.guard.json"
+COMPONENTS_PATH = "configs/sparkx_residency_components_v1.json"
 ARCHITECTURE_PATH = (
     "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md"
 )
 CALCULATOR_PATH = "reports/sparkx_residency_20261026/calculate_residency.py"
 RECEIPT_PATH = "reports/sparkx_residency_20261026/residency_v2.json"
 SUPERSEDED_RECEIPT_PATH = "reports/sparkx_residency_20261026/residency.json"
+LEGACY_MARKDOWN_RECEIPT_PATH = (
+    "reports/sparkx_residency_20261026/residency_v2_markdown_legacy.json"
+)
 
 DRIVER_GUARD_GIB = 50  # repository policy, asserted against the committed guard
 
@@ -144,16 +150,30 @@ TRAINING_PLANS = [
     },
 ]
 
-# Declared architecture widths. The counts are recomputed from these constants
-# and cross-checked against the architecture document where it states a total.
-WIDTH = {
-    "backbone": 2560,
-    "vision_encoder": 768,
-    "audio_encoder": 512,
-    "bridge": 1024,
-    "phrase": 256,
-    "reader": 512,
-}
+# The component inventory owns every architecture width and formula used by the
+# fixed-parameter account. These identifiers make missing or unknown entries a
+# hard failure instead of an accidental fallback.
+COMPONENT_INVENTORY_SCHEMA = "replica.sparkx_residency_components.v1"
+COMPONENT_INVENTORY_KIND = "declared_analytical_component_inventory_not_measured"
+COMPONENT_IDS = (
+    "language_backbone",
+    "vision_encoder",
+    "audio_encoder",
+    "vision_projector",
+    "audio_projector",
+    "memory_query_output",
+    "memory_reader_matrices",
+    "phrase_encoder",
+)
+COMPONENT_WIDTH_KEYS = (
+    "backbone",
+    "vision_encoder",
+    "audio_encoder",
+    "bridge",
+    "phrase",
+    "reader",
+)
+
 LAYERS = 36
 FFN_WIDTH = 10240
 VOCAB = 131072
@@ -165,7 +185,6 @@ AUDIO_TOKENS = 40
 MICROBATCH_POSITIONS = 256  # declared product-plan cap, not a measured batch
 MEMORY_BANK_RECORDS = 4096
 MEMORY_BANK_ELEMENTS_PER_RECORD = 896
-MEMORY_READER_SITES = 2
 SUSTAINED_SWAP_LIMIT = 512 * MIB
 MINIMUM_FREE_PERCENT = 15
 
@@ -407,33 +426,407 @@ def audit_fp8_header(header: dict) -> dict:
     }
 
 
-def _parse_architecture(document: str) -> dict:
-    vision = re.search(r"`google/siglip2-base-patch16-224` revision `([0-9a-f]{40})`: ([\d,]+) encoder parameters", document)
-    audio = re.search(r"`marcoyang/spear-base-speech-audio-v2`[^\n]*official metadata ([\d,]+) parameters", document)
-    pair = re.search(r"SigLIP2/SPEAR pair alone adds ([\d,]+) parameters", document)
-    query_output = re.search(r"Two Spark query/output projections alone add ([\d,]+) weights", document)
-    if not all([vision, audio, pair, query_output]):
-        raise ResidencyError("declared encoder/projector/memory sentence missing from architecture document")
-    vision_parameters = int(vision.group(2).replace(",", ""))
-    audio_parameters = int(audio.group(1).replace(",", ""))
-    pair_parameters = int(pair.group(1).replace(",", ""))
-    qo_parameters = int(query_output.group(1).replace(",", ""))
-    checks = {
-        "vision_revision_pinned": bool(re.fullmatch(r"[0-9a-f]{40}", vision.group(1))),
-        "audio_revision_pinned": bool(
-            re.search(r"Pin SPEAR v2 at `([0-9a-f]{40})`", document)
-        ),
-        "pair_equals_component_sum": pair_parameters == vision_parameters + audio_parameters,
+def _positive_int(value, label: str) -> int:
+    if type(value) is not int or value <= 0:
+        raise ResidencyError(f"{label} must be a positive integer")
+    return value
+
+
+def _require_exact_keys(mapping: dict, expected: set[str], label: str) -> None:
+    missing = sorted(expected - set(mapping))
+    unknown = sorted(set(mapping) - expected)
+    if missing or unknown:
+        details = []
+        if missing:
+            details.append(f"missing {missing}")
+        if unknown:
+            details.append(f"unknown {unknown}")
+        raise ResidencyError(f"{label}: " + "; ".join(details))
+
+
+def _width(widths: dict, reference: str, label: str) -> int:
+    if not isinstance(reference, str) or reference not in widths:
+        raise ResidencyError(f"{label} references unknown width: {reference!r}")
+    return _positive_int(widths[reference], f"width {reference}")
+
+
+def component_parameters(component: dict, widths: dict) -> int:
+    """Compute one component from its versioned inventory descriptor."""
+    component_id = component.get("id", "<unknown>")
+    source = component.get("source")
+    if not isinstance(source, dict):
+        raise ResidencyError(f"{component_id} has no source descriptor")
+    kind = source.get("kind")
+    if kind == "bf16_header":
+        raise ResidencyError(
+            f"{component_id} is backed by the sealed BF16 header, not an inline count"
+        )
+    if kind in {"declared_encoder_count", "declared_count"}:
+        if "parameters" not in component:
+            raise ResidencyError(f"{component_id} is missing its declared count")
+        return _positive_int(component["parameters"], f"{component_id} parameters")
+    if kind != "formula":
+        raise ResidencyError(f"{component_id} has unknown source kind: {kind!r}")
+
+    formula = source.get("formula")
+    if not isinstance(formula, dict):
+        raise ResidencyError(f"{component_id} has no formula descriptor")
+    formula_kind = formula.get("kind")
+    if formula_kind == "two_stage_affine_with_bias":
+        _require_exact_keys(
+            formula,
+            {"kind", "source_width", "bridge_width", "target_width"},
+            f"{component_id} formula",
+        )
+        return _projector_parameters(
+            _width(widths, formula["source_width"], f"{component_id} source"),
+            _width(widths, formula["bridge_width"], f"{component_id} bridge"),
+            _width(widths, formula["target_width"], f"{component_id} target"),
+        )
+    if formula_kind == "qkvo_reader_matrices":
+        _require_exact_keys(
+            formula,
+            {"kind", "sites", "projections_per_site", "hidden_width", "head_width"},
+            f"{component_id} formula",
+        )
+        sites = _positive_int(formula["sites"], f"{component_id} sites")
+        projections = _positive_int(
+            formula["projections_per_site"], f"{component_id} projections"
+        )
+        return (
+            sites
+            * projections
+            * _width(widths, formula["hidden_width"], f"{component_id} hidden")
+            * _width(widths, formula["head_width"], f"{component_id} head")
+        )
+    if formula_kind == "compact_phrase_encoder":
+        _require_exact_keys(
+            formula,
+            {"kind", "layers", "matrix_terms_per_layer", "width", "hidden_width"},
+            f"{component_id} formula",
+        )
+        layers = _positive_int(formula["layers"], f"{component_id} layers")
+        terms = _positive_int(
+            formula["matrix_terms_per_layer"], f"{component_id} matrix terms"
+        )
+        width = _width(widths, formula["width"], f"{component_id} width")
+        hidden = _width(widths, formula["hidden_width"], f"{component_id} hidden")
+        return layers * terms * width**2 + width * hidden
+    raise ResidencyError(f"{component_id} has unknown formula kind: {formula_kind!r}")
+
+
+def _formula_expression(component: dict, widths: dict) -> str:
+    formula = component["source"]["formula"]
+    kind = formula["kind"]
+    if kind == "two_stage_affine_with_bias":
+        source = _width(widths, formula["source_width"], "formula source")
+        bridge = _width(widths, formula["bridge_width"], "formula bridge")
+        target = _width(widths, formula["target_width"], "formula target")
+        return f"{source}*{bridge}+{bridge} + {bridge}*{target}+{target}"
+    if kind == "qkvo_reader_matrices":
+        hidden = _width(widths, formula["hidden_width"], "formula hidden")
+        head = _width(widths, formula["head_width"], "formula head")
+        return f"sites * {formula['projections_per_site']} * {hidden} * {head}"
+    if kind == "compact_phrase_encoder":
+        width = _width(widths, formula["width"], "formula width")
+        hidden = _width(widths, formula["hidden_width"], "formula hidden")
+        return (
+            f"{formula['layers']}*{formula['matrix_terms_per_layer']}*"
+            f"{width}^2 + {width}*{hidden}"
+        )
+    raise ResidencyError(f"unknown formula kind: {kind!r}")
+
+
+def validate_component_inventory(inventory: dict, bf16: dict | None = None) -> None:
+    """Fail closed on missing, unknown or internally inconsistent components."""
+    if not isinstance(inventory, dict):
+        raise ResidencyError("component inventory must be a JSON object")
+
+    failures: list[str] = []
+
+    def check(condition: bool, name: str) -> None:
+        if not condition:
+            failures.append(name)
+
+    check(
+        inventory.get("schema_version") == COMPONENT_INVENTORY_SCHEMA,
+        "schema_version",
+    )
+    check(inventory.get("kind") == COMPONENT_INVENTORY_KIND, "kind")
+    check(bool(inventory.get("status")), "status")
+
+    documentation = inventory.get("documentation")
+    check(isinstance(documentation, dict), "documentation")
+    if isinstance(documentation, dict):
+        check(documentation.get("path") == ARCHITECTURE_PATH, "documentation.path")
+        check(bool(documentation.get("role")), "documentation.role")
+
+    widths = inventory.get("widths")
+    check(isinstance(widths, dict), "widths")
+    if isinstance(widths, dict):
+        check(set(widths) == set(COMPONENT_WIDTH_KEYS), "widths.keys")
+        for key in COMPONENT_WIDTH_KEYS:
+            if key in widths:
+                check(
+                    type(widths[key]) is int and widths[key] > 0,
+                    f"widths.{key}",
+                )
+
+    consistency = inventory.get("consistency")
+    consistency_keys = {
+        "backbone_parameters",
+        "encoder_pair_parameters",
+        "integrated_total_parameters",
     }
-    _fail("architecture declaration", [k for k, ok in checks.items() if not ok])
+    check(isinstance(consistency, dict), "consistency")
+    if isinstance(consistency, dict):
+        check(set(consistency) == consistency_keys, "consistency.keys")
+        for key in consistency_keys:
+            if key in consistency:
+                check(
+                    type(consistency[key]) is int and consistency[key] > 0,
+                    f"consistency.{key}",
+                )
+
+    components = inventory.get("components")
+    check(isinstance(components, list), "components")
+    if not isinstance(components, list):
+        _fail("component inventory", failures)
+        return
+
+    ids = [
+        component.get("id")
+        for component in components
+        if isinstance(component, dict)
+    ]
+    check(ids == list(COMPONENT_IDS), "component_ids_exact")
+    check(len(ids) == len(set(ids)), "component_ids_unique")
+
+    for component in components:
+        if not isinstance(component, dict):
+            failures.append("component_object")
+            continue
+        component_id = component.get("id", "<unknown>")
+        source = component.get("source")
+        check(
+            isinstance(component.get("label"), str) and bool(component["label"]),
+            f"{component_id}.label",
+        )
+        check(type(component.get("trainable")) is bool, f"{component_id}.trainable")
+        if not isinstance(source, dict):
+            failures.append(f"{component_id}.source")
+            continue
+        kind = source.get("kind")
+
+        if component_id == "language_backbone":
+            check(
+                set(component) == {"id", "label", "trainable", "source"},
+                f"{component_id}.keys",
+            )
+            check(kind == "bf16_header", f"{component_id}.source.kind")
+            check(
+                set(source) == {"kind", "path", "field", "tensor_count"},
+                f"{component_id}.source.keys",
+            )
+            check(
+                source.get("path") == BF16_HEADER_PATH,
+                f"{component_id}.source.path",
+            )
+            check(source.get("field") == "sum(shape)", f"{component_id}.source.field")
+            check(
+                type(source.get("tensor_count")) is int
+                and source.get("tensor_count", 0) > 0,
+                f"{component_id}.source.tensor_count",
+            )
+        elif component_id in {"vision_encoder", "audio_encoder"}:
+            check(
+                set(component)
+                == {"id", "label", "trainable", "parameters", "source"},
+                f"{component_id}.keys",
+            )
+            check(kind == "declared_encoder_count", f"{component_id}.source.kind")
+            check(
+                set(source) == {"kind", "repo_id", "revision"},
+                f"{component_id}.source.keys",
+            )
+            check(
+                isinstance(source.get("repo_id"), str) and bool(source["repo_id"]),
+                f"{component_id}.source.repo_id",
+            )
+            check(
+                bool(re.fullmatch(r"[0-9a-f]{40}", str(source.get("revision", "")))),
+                f"{component_id}.source.revision",
+            )
+        elif component_id == "memory_query_output":
+            check(
+                set(component)
+                == {"id", "label", "trainable", "parameters", "source"},
+                f"{component_id}.keys",
+            )
+            check(kind == "declared_count", f"{component_id}.source.kind")
+            check(set(source) == {"kind"}, f"{component_id}.source.keys")
+        else:
+            check(
+                set(component) == {"id", "label", "trainable", "source"},
+                f"{component_id}.keys",
+            )
+            check(kind == "formula", f"{component_id}.source.kind")
+            check(
+                set(source) == {"kind", "formula"},
+                f"{component_id}.source.keys",
+            )
+
+        try:
+            if component_id == "language_backbone":
+                if bf16 is not None:
+                    _positive_int(
+                        bf16.get("unique_parameter_elements"),
+                        "backbone parameter count",
+                    )
+            else:
+                component_parameters(
+                    component, widths if isinstance(widths, dict) else {}
+                )
+        except ResidencyError as error:
+            failures.append(f"{component_id}.parameters: {error}")
+
+    if isinstance(widths, dict) and isinstance(consistency, dict):
+        computed = {}
+        try:
+            for component in components:
+                component_id = component["id"]
+                if component_id == "language_backbone":
+                    computed[component_id] = (
+                        consistency["backbone_parameters"]
+                        if bf16 is None
+                        else bf16["unique_parameter_elements"]
+                    )
+                else:
+                    computed[component_id] = component_parameters(component, widths)
+        except (KeyError, TypeError, ResidencyError):
+            failures.append("component_consistency_computation")
+        else:
+            if {"vision_encoder", "audio_encoder"} <= set(computed):
+                check(
+                    computed["vision_encoder"] + computed["audio_encoder"]
+                    == consistency.get("encoder_pair_parameters"),
+                    "encoder_pair_parameters",
+                )
+            if len(computed) == len(COMPONENT_IDS):
+                check(
+                    sum(computed.values())
+                    == consistency.get("integrated_total_parameters"),
+                    "integrated_total_parameters",
+                )
+            if bf16 is not None and "language_backbone" in computed:
+                check(
+                    computed["language_backbone"]
+                    == consistency.get("backbone_parameters"),
+                    "backbone_parameters",
+                )
+                check(
+                    consistency.get("backbone_parameters")
+                    == bf16.get("unique_parameter_elements"),
+                    "backbone_header_parameters",
+                )
+                backbone_source = next(
+                    component["source"]
+                    for component in components
+                    if component.get("id") == "language_backbone"
+                )
+                check(
+                    backbone_source.get("tensor_count") == bf16.get("tensor_count"),
+                    "backbone_header_tensor_count",
+                )
+
+    _fail("component inventory", failures)
+
+
+def load_component_inventory(root: Path) -> dict:
+    inventory = load_json(root, COMPONENTS_PATH)
+    validate_component_inventory(inventory)
+    return inventory
+
+
+def validate_architecture_documentation(
+    document: str,
+    inventory: dict,
+    backbone_parameters: int,
+    integrated_total_parameters: int,
+) -> dict:
+    """Cross-check documentation prose against the machine inventory.
+
+    Only presence checks run here. No documented number is parsed out and used
+    as an arithmetic source; every component value comes from the inventory.
+    """
+    widths = inventory["widths"]
+    components = {component["id"]: component for component in inventory["components"]}
+    vision = components["vision_encoder"]
+    audio = components["audio_encoder"]
+    query = components["memory_query_output"]
+
+    checks = {
+        "backbone_unique_parameter_count_documented": (
+            f"**{backbone_parameters:,} unique parameters**" in document
+        ),
+        "backbone_f2_parameter_count_documented": (
+            f"**All {backbone_parameters:,} backbone parameters**" in document
+        ),
+        "vision_repository_documented": (
+            f"`{vision['source']['repo_id']}`" in document
+        ),
+        "vision_revision_pinned": (
+            f"`{vision['source']['revision']}`" in document
+        ),
+        "vision_parameter_count_documented": (
+            f"{vision['parameters']:,} encoder parameters" in document
+        ),
+        "audio_repository_documented": (
+            f"`{audio['source']['repo_id']}`" in document
+        ),
+        "audio_revision_pinned": (
+            f"Pin SPEAR v2 at `{audio['source']['revision']}`" in document
+        ),
+        "audio_parameter_count_documented": (
+            f"official metadata {audio['parameters']:,} parameters" in document
+        ),
+        "query_output_count_documented": (
+            "Two Spark query/output projections alone add "
+            f"{query['parameters']:,} weights" in document
+        ),
+        "integrated_total_documented": (
+            f"{integrated_total_parameters:,}-parameter integrated inventory"
+            in document
+        ),
+        "vision_projector_target_width_documented": (
+            f"width {widths['backbone']}" in document
+            and "spatial/temporal bridges" in document
+        ),
+        "audio_projector_width_documented": (
+            f"width-{widths['audio_encoder']} output" in document
+            and "spatial/temporal bridges" in document
+        ),
+        "memory_reader_width_documented": (
+            f"Width-{widths['reader']} Q/K/V/O reader matrices" in document
+        ),
+        "two_port_reader_baseline_documented": "two-port baseline" in document,
+        "phrase_encoder_width_documented": (
+            f"width {widths['phrase']}, two layers" in document
+        ),
+        "phrase_encoder_rows_documented": (
+            f"{widths['phrase']} active phrase rows" in document
+        ),
+    }
+    _fail(
+        "architecture documentation validation",
+        [name for name, matched in checks.items() if not matched],
+    )
     return {
-        "vision_revision": vision.group(1),
-        "audio_revision": re.search(r"Pin SPEAR v2 at `([0-9a-f]{40})`", document).group(1),
-        "vision_parameters": vision_parameters,
-        "audio_parameters": audio_parameters,
-        "pair_parameters": pair_parameters,
-        "query_output_parameters": qo_parameters,
         "checks": checks,
+        "scope": (
+            "presence cross-check only; every component value is owned by "
+            "the versioned component inventory"
+        ),
     }
 
 
@@ -447,117 +840,79 @@ def _projector_parameters(source_width: int, bridge_width: int, target_width: in
     )
 
 
-def parameter_inventory(root: Path, bf16: dict, arch: dict) -> dict:
-    """Explicit fixed-parameter inventory, one row per architecture component."""
-    vision_projector = _projector_parameters(
-        WIDTH["vision_encoder"], WIDTH["bridge"], WIDTH["backbone"]
-    )
-    audio_projector = _projector_parameters(
-        WIDTH["audio_encoder"], WIDTH["bridge"], WIDTH["backbone"]
-    )
-    reader = MEMORY_READER_SITES * 4 * WIDTH["backbone"] * WIDTH["reader"]
-    phrase = 2 * 12 * WIDTH["phrase"] ** 2 + WIDTH["phrase"] * WIDTH["backbone"]
-
-    components = [
-        {
-            "id": "language_backbone",
-            "label": "SparkX 2.6 4B language backbone (tied embedding/head)",
-            "parameters": bf16["unique_parameter_elements"],
-            "trainable": True,
-            "evidence": {
-                "path": BF16_HEADER_PATH,
-                "field": "sum(shape)",
+def parameter_inventory(bf16: dict, inventory: dict) -> dict:
+    """Explicit fixed-parameter inventory driven by the versioned JSON owner."""
+    validate_component_inventory(inventory, bf16=bf16)
+    widths = inventory["widths"]
+    rows = []
+    for component in inventory["components"]:
+        component_id = component["id"]
+        source = component["source"]
+        source_kind = source["kind"]
+        if component_id == "language_backbone":
+            parameters = bf16["unique_parameter_elements"]
+            evidence = {
+                "path": source["path"],
+                "field": source["field"],
                 "tensor_count": bf16["tensor_count"],
-            },
-        },
-        {
-            "id": "vision_encoder",
-            "label": "SigLIP2 base patch16-224 vision encoder",
-            "parameters": arch["vision_parameters"],
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
-                "revision": arch["vision_revision"],
+                "kind": "sealed_tensor_index",
+                "inventory_path": COMPONENTS_PATH,
+            }
+        elif source_kind == "declared_encoder_count":
+            parameters = _positive_int(
+                component["parameters"], f"{component_id} parameters"
+            )
+            evidence = {
+                "path": COMPONENTS_PATH,
                 "kind": "declared_encoder_count",
-            },
-        },
-        {
-            "id": "audio_encoder",
-            "label": "SPEAR base speech/audio v2 encoder",
-            "parameters": arch["audio_parameters"],
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
-                "revision": arch["audio_revision"],
-                "kind": "declared_encoder_count",
-            },
-        },
-        {
-            "id": "vision_projector",
-            "label": "Vision spatial bridge 768 -> 1024 -> 2560",
-            "parameters": vision_projector,
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
-                "kind": "explicit_two_stage_bias_formula",
-                "formula": "768*1024+1024 + 1024*2560+2560",
-            },
-        },
-        {
-            "id": "audio_projector",
-            "label": "Audio temporal bridge 512 -> 1024 -> 2560",
-            "parameters": audio_projector,
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
-                "kind": "explicit_two_stage_bias_formula",
-                "formula": "512*1024+1024 + 1024*2560+2560",
-            },
-        },
-        {
-            "id": "memory_query_output",
-            "label": "Spark memory query/output projections (two sites)",
-            "parameters": arch["query_output_parameters"],
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
+                "repo_id": source["repo_id"],
+                "revision": source["revision"],
+            }
+        elif source_kind == "declared_count":
+            parameters = _positive_int(
+                component["parameters"], f"{component_id} parameters"
+            )
+            evidence = {
+                "path": COMPONENTS_PATH,
                 "kind": "declared_analytical_projection_count",
-            },
-        },
-        {
-            "id": "memory_reader_matrices",
-            "label": "Two-site width-512 memory reader Q/K/V/O matrices",
-            "parameters": reader,
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
-                "kind": "explicit_formula_not_sealed",
-                "formula": "sites * 4 * 2560 * 512",
-            },
-        },
-        {
-            "id": "phrase_encoder",
-            "label": "Compact 256-row phrase encoder (two layers)",
-            "parameters": phrase,
-            "trainable": True,
-            "evidence": {
-                "path": ARCHITECTURE_PATH,
-                "kind": "explicit_formula_not_sealed",
-                "formula": "2*12*256^2 + 256*2560",
-            },
-        },
-    ]
+            }
+        else:
+            parameters = component_parameters(component, widths)
+            formula_kind = source["formula"]["kind"]
+            evidence = {
+                "path": COMPONENTS_PATH,
+                "kind": (
+                    "explicit_two_stage_bias_formula"
+                    if formula_kind == "two_stage_affine_with_bias"
+                    else "explicit_formula_not_sealed"
+                ),
+                "formula": _formula_expression(component, widths),
+            }
+        rows.append(
+            {
+                "id": component_id,
+                "label": component["label"],
+                "parameters": parameters,
+                "trainable": component["trainable"],
+                "evidence": evidence,
+            }
+        )
 
-    total = sum(row["parameters"] for row in components)
+    total = sum(row["parameters"] for row in rows)
+    encoder_parameters = sum(
+        row["parameters"]
+        for row in rows
+        if row["id"] in {"vision_encoder", "audio_encoder"}
+    )
     return {
         "scope": "fixed trainable parameters; dynamic memory state is a separate account",
-        "components": components,
+        "components": rows,
         "total_parameters": total,
         "backbone_parameters": bf16["unique_parameter_elements"],
-        "declared_encoder_parameters": arch["pair_parameters"],
+        "declared_encoder_parameters": encoder_parameters,
         "notes": [
-            "The two encoders are declared counts, not a fresh sealed tensor inventory.",
-            "Projector, reader and phrase counts are explicit analytical formulas, not measured modules.",
+            "The two encoders are declared counts in the versioned component inventory and are cross-checked against the architecture document.",
+            "Projector, reader and phrase counts are formula descriptors in the versioned component inventory, not measured modules.",
             "Dynamic fast/knowledge state and the bank tensor are excluded here and priced below.",
         ],
     }
@@ -654,14 +1009,14 @@ def training_plan_row(plan: dict, parameters: int) -> dict:
     }
 
 
-def activation_inventory() -> dict:
+def activation_inventory(widths: dict) -> dict:
     """Declared analytical activation/logit/temporary model.
 
     These are byte formulas over the declared workload, not measured peaks.
     They are included so the ledger is not a weights-only lower bound.
     """
     checkpoint_inputs = (
-        LAYERS * MICROBATCH_POSITIONS * WIDTH["backbone"] * DTYPE_BYTES["BF16"]
+        LAYERS * MICROBATCH_POSITIONS * widths["backbone"] * DTYPE_BYTES["BF16"]
     )
     attention_workspace = (
         2
@@ -674,9 +1029,9 @@ def activation_inventory() -> dict:
         2 * MICROBATCH_POSITIONS * FFN_WIDTH * DTYPE_BYTES["FP32"]
     )
     vision_workspace = (
-        3 * VISION_PATCHES * WIDTH["vision_encoder"] * DTYPE_BYTES["FP32"]
+        3 * VISION_PATCHES * widths["vision_encoder"] * DTYPE_BYTES["FP32"]
     )
-    audio_workspace = 3 * AUDIO_TOKENS * WIDTH["audio_encoder"] * DTYPE_BYTES["FP32"]
+    audio_workspace = 3 * AUDIO_TOKENS * widths["audio_encoder"] * DTYPE_BYTES["FP32"]
     activations = (
         checkpoint_inputs
         + attention_workspace
@@ -690,7 +1045,7 @@ def activation_inventory() -> dict:
     return {
         "workload": {
             "microbatch_positions": MICROBATCH_POSITIONS,
-            "hidden_width": WIDTH["backbone"],
+            "hidden_width": widths["backbone"],
             "ffn_width": FFN_WIDTH,
             "layers": LAYERS,
             "query_heads": QUERY_HEADS,
@@ -811,17 +1166,36 @@ def phase_peaks(parameters: int, source_bf16_bytes: int, source_fp8_bytes: int) 
     }
 
 
-def build_ledger(root: Path) -> dict:
+def build_ledger(root: Path, inventory: dict | None = None) -> dict:
     bf16_header = load_json(root, BF16_HEADER_PATH)
     fp8_header = load_json(root, FP8_HEADER_PATH)
     guard_receipt = load_json(root, GUARD_PATH)
-    architecture_text = (root / ARCHITECTURE_PATH).read_text(encoding="utf-8")
+    if inventory is None:
+        inventory = load_component_inventory(root)
+    else:
+        validate_component_inventory(inventory)
+
+    documentation_path = inventory["documentation"]["path"]
+    documentation_file = root / documentation_path
+    if not documentation_file.is_file():
+        raise ResidencyError(
+            f"required architecture documentation missing: {documentation_path}"
+        )
+    architecture_text = documentation_file.read_text(encoding="utf-8")
+    inventory_sha256 = sha256_file(root / COMPONENTS_PATH)
+    documentation_sha256 = sha256_file(documentation_file)
 
     bf16 = audit_bf16_header(bf16_header)
     fp8 = audit_fp8_header(fp8_header)
-    arch = _parse_architecture(architecture_text)
-    inventory = parameter_inventory(root, bf16, arch)
-    parameters = inventory["total_parameters"]
+    parameter_rows = parameter_inventory(bf16, inventory)
+    parameters = parameter_rows["total_parameters"]
+    documentation_validation = validate_architecture_documentation(
+        architecture_text,
+        inventory,
+        bf16["unique_parameter_elements"],
+        parameters,
+    )
+    widths = inventory["widths"]
     dynamic = dynamic_memory_state()
 
     guard = guard_receipt["guard"]["policy"]["driver_limit_bytes"]
@@ -849,7 +1223,7 @@ def build_ledger(root: Path) -> dict:
         ],
     )
 
-    activations = activation_inventory()
+    activations = activation_inventory(widths)
     temporary = temporary_buffers(parameters)
     peaks = phase_peaks(
         parameters,
@@ -886,6 +1260,17 @@ def build_ledger(root: Path) -> dict:
                 else None
             ),
             "historical_receipt_untouched": True,
+            "legacy_markdown_receipt": LEGACY_MARKDOWN_RECEIPT_PATH,
+            "legacy_markdown_sha256": (
+                sha256_file(root / LEGACY_MARKDOWN_RECEIPT_PATH)
+                if (root / LEGACY_MARKDOWN_RECEIPT_PATH).is_file()
+                else None
+            ),
+            "legacy_markdown_preserved": True,
+            "migration": (
+                "component counts and formulas moved from Markdown sentences "
+                "to the versioned machine-readable component inventory"
+            ),
             "reason": (
                 "v1 labelled the five-copy BF16-weight + FP32-master row as "
                 "16 bytes/parameter although its own formula was 2+4+4+4+4 = 18. "
@@ -941,12 +1326,25 @@ def build_ledger(root: Path) -> dict:
         },
         "bf16_header_audit": bf16,
         "fp8_header_audit": fp8,
-        "architecture_declaration": {
-            "path": ARCHITECTURE_PATH,
-            "sha256": sha256_file(root / ARCHITECTURE_PATH),
-            **arch,
+        "component_inventory": {
+            "path": COMPONENTS_PATH,
+            "sha256": inventory_sha256,
+            "schema_version": inventory["schema_version"],
+            "kind": inventory["kind"],
+            "status": inventory["status"],
+            "role": "sole arithmetic owner for declared component counts and widths",
         },
-        "parameter_inventory": inventory,
+        "documentation_validation": {
+            "path": documentation_path,
+            "sha256": documentation_sha256,
+            "against_inventory": {
+                "path": COMPONENTS_PATH,
+                "sha256": inventory_sha256,
+            },
+            "checks": documentation_validation["checks"],
+            "scope": documentation_validation["scope"],
+        },
+        "parameter_inventory": parameter_rows,
         "training_storage_plans": plans,
         "corrected_critical_rate": {
             "plan": corrected["id"],
@@ -963,7 +1361,7 @@ def build_ledger(root: Path) -> dict:
         "temporary_buffers": temporary,
         "phase_peaks": peaks,
         "projected_full_scope_training": {
-            "scope": inventory["scope"],
+            "scope": parameter_rows["scope"],
             "fixed_parameters": parameters,
             "training_plan": corrected["id"],
             "parameter_state_bytes": corrected["total_bytes"],
@@ -1006,20 +1404,23 @@ def build_ledger(root: Path) -> dict:
                 BF16_HEADER_PATH,
                 FP8_HEADER_PATH,
                 GUARD_PATH,
+                COMPONENTS_PATH,
                 ARCHITECTURE_PATH,
             ],
             "unprovisioned_local_inputs": [],
             "bundle_check_command": "python3 scripts/prepare_sparkx_research_bundle.py --check",
             "clean_checkout_replay": (
-                "all residency inputs are repository-tracked; run the bundle check "
-                "to verify their hashes before citing this receipt"
+                "all residency inputs, including the versioned component inventory, "
+                "are repository-tracked; this receipt pins the inventory SHA-256 "
+                "and the bundle check verifies the sealed inputs listed in its "
+                "manifest"
             ),
             "native_execution_required": False,
         },
         "non_claims": [
             "no Spark weight payload, tokenizer, dataset, media asset, model code or native runtime was downloaded, loaded or executed",
-            "encoder parameter counts are declared in the architecture document, not a fresh sealed encoder tensor index",
-            "projector, reader, phrase, activation, logit and temporary-buffer figures are analytical formulas, not measurements",
+            "encoder parameter counts are declared in the versioned component inventory and cross-checked against the architecture document, not a fresh sealed encoder tensor index",
+            "projector, reader and phrase figures are formula descriptors in the versioned component inventory; activation, logit and temporary-buffer figures are analytical formulas, not measurements",
             "the mixed-dtype FP8 source artifact does not demonstrate FP8 loading, dequantization, full backprop or backend support",
             "no MPS memory fit, allocator peak, throughput, convergence or training admission is established",
         ],

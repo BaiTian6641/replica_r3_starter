@@ -1,5 +1,7 @@
 # SparkX 2.6: intrinsic learning and a separate neural spine
 
+**Current refinement:** the [revision 4.5 nested-learning review](../sparkx_nested_learning_20261026/README.md) specifies learning clocks and credit, reconciles fused AdamW and corrects the resident-state budget. This pack remains the intrinsic-memory/spine background; its earlier receipts are historical.
+
 26 October 2026. Research and design update for architecture revision 4.3. No training, model execution or device operation was performed.
 
 The product has a stable language backbone trained to perceive, reason and learn, together with **permanent, plastic memory components inside its decoder computation**. The Unified Access Port (UAP) is a separate interface for additional sensors, action heads, other models and selected internal readouts. Intrinsic memory does not depend on a peripheral being attached. Full offline fine-tuning establishes multimodal capability; later self-learning acquires knowledge and experience using that trained capability.

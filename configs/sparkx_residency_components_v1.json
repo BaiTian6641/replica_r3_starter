@@ -1,0 +1,124 @@
+{
+  "schema_version": "replica.sparkx_residency_components.v1",
+  "kind": "declared_analytical_component_inventory_not_measured",
+  "status": "source_counts_and_formula_descriptors",
+  "documentation": {
+    "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+    "role": "cross-check only; no component value is read from Markdown"
+  },
+  "widths": {
+    "backbone": 2560,
+    "vision_encoder": 768,
+    "audio_encoder": 512,
+    "bridge": 1024,
+    "phrase": 256,
+    "reader": 512
+  },
+  "consistency": {
+    "backbone_parameters": 4112079360,
+    "encoder_pair_parameters": 186173700,
+    "integrated_total_parameters": 4320804612
+  },
+  "components": [
+    {
+      "id": "language_backbone",
+      "label": "SparkX 2.6 4B language backbone (tied embedding/head)",
+      "trainable": true,
+      "source": {
+        "kind": "bf16_header",
+        "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+        "field": "sum(shape)",
+        "tensor_count": 290
+      }
+    },
+    {
+      "id": "vision_encoder",
+      "label": "SigLIP2 base patch16-224 vision encoder",
+      "trainable": true,
+      "parameters": 92884224,
+      "source": {
+        "kind": "declared_encoder_count",
+        "repo_id": "google/siglip2-base-patch16-224",
+        "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2"
+      }
+    },
+    {
+      "id": "audio_encoder",
+      "label": "SPEAR base speech/audio v2 encoder",
+      "trainable": true,
+      "parameters": 93289476,
+      "source": {
+        "kind": "declared_encoder_count",
+        "repo_id": "marcoyang/spear-base-speech-audio-v2",
+        "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c"
+      }
+    },
+    {
+      "id": "vision_projector",
+      "label": "Vision spatial bridge 768 -> 1024 -> 2560",
+      "trainable": true,
+      "source": {
+        "kind": "formula",
+        "formula": {
+          "kind": "two_stage_affine_with_bias",
+          "source_width": "vision_encoder",
+          "bridge_width": "bridge",
+          "target_width": "backbone"
+        }
+      }
+    },
+    {
+      "id": "audio_projector",
+      "label": "Audio temporal bridge 512 -> 1024 -> 2560",
+      "trainable": true,
+      "source": {
+        "kind": "formula",
+        "formula": {
+          "kind": "two_stage_affine_with_bias",
+          "source_width": "audio_encoder",
+          "bridge_width": "bridge",
+          "target_width": "backbone"
+        }
+      }
+    },
+    {
+      "id": "memory_query_output",
+      "label": "Spark memory query/output projections (two sites)",
+      "trainable": true,
+      "parameters": 3276800,
+      "source": {
+        "kind": "declared_count"
+      }
+    },
+    {
+      "id": "memory_reader_matrices",
+      "label": "Two-site width-512 memory reader Q/K/V/O matrices",
+      "trainable": true,
+      "source": {
+        "kind": "formula",
+        "formula": {
+          "kind": "qkvo_reader_matrices",
+          "sites": 2,
+          "projections_per_site": 4,
+          "hidden_width": "backbone",
+          "head_width": "reader"
+        }
+      }
+    },
+    {
+      "id": "phrase_encoder",
+      "label": "Compact 256-row phrase encoder (two layers)",
+      "trainable": true,
+      "source": {
+        "kind": "formula",
+        "formula": {
+          "kind": "compact_phrase_encoder",
+          "layers": 2,
+          "matrix_terms_per_layer": 12,
+          "width": "phrase",
+          "hidden_width": "backbone"
+        }
+      }
+    }
+  ]
+}

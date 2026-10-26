@@ -5,7 +5,7 @@
   "regeneration": "deterministic; re-running the calculator reproduces this file byte for byte",
   "calculator": {
     "path": "reports/sparkx_residency_20261026/calculate_residency.py",
-    "sha256": "676ce637ee1555e2498bf7f7308087b7bbb09e565df8d0fb6e0fc74fbf2a959a",
+    "sha256": "187323e71d8277ae4005271ef2136b0508d39a7e3029e2889218a08455b1d25d",
     "language": "python3 standard library only",
     "invocation": "python3 reports/sparkx_residency_20261026/calculate_residency.py"
   },
@@ -13,6 +13,10 @@
     "supersedes": "reports/sparkx_residency_20261026/residency.json",
     "superseded_sha256": "f85215b2d39a5d3424d2111b14674d1a077e7eb4e58a4346feeb6709b23ed456",
     "historical_receipt_untouched": true,
+    "legacy_markdown_receipt": "reports/sparkx_residency_20261026/residency_v2_markdown_legacy.json",
+    "legacy_markdown_sha256": "38a379eaaa18592c886c543246cfe0c5d1e469d21e3a92acc31d26d703f0363b",
+    "legacy_markdown_preserved": true,
+    "migration": "component counts and formulas moved from Markdown sentences to the versioned machine-readable component inventory",
     "reason": "v1 labelled the five-copy BF16-weight + FP32-master row as 16 bytes/parameter although its own formula was 2+4+4+4+4 = 18. v1 also treated FP8 as parameters x 1 byte and omitted activations, logits, temporary buffers and phase peaks."
   },
   "driver_guard": {
@@ -139,20 +143,40 @@
       "bf16_category_payloads_sum": true
     }
   },
-  "architecture_declaration": {
+  "component_inventory": {
+    "path": "configs/sparkx_residency_components_v1.json",
+    "sha256": "001d76b7e5728302e6f62cb0dd9ce8197b6d09d8c80c09048f321283757dc731",
+    "schema_version": "replica.sparkx_residency_components.v1",
+    "kind": "declared_analytical_component_inventory_not_measured",
+    "status": "source_counts_and_formula_descriptors",
+    "role": "sole arithmetic owner for declared component counts and widths"
+  },
+  "documentation_validation": {
     "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
-    "sha256": "2837b9793410eab432e4115aa1af26630ec80b77022000bf3a60cfc4483e11b9",
-    "vision_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
-    "audio_revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
-    "vision_parameters": 92884224,
-    "audio_parameters": 93289476,
-    "pair_parameters": 186173700,
-    "query_output_parameters": 3276800,
+    "sha256": "a0285330d1157ecaabc7fd762112737fc7d9776170a06ef2fc37f3ffc00633b1",
+    "against_inventory": {
+      "path": "configs/sparkx_residency_components_v1.json",
+      "sha256": "001d76b7e5728302e6f62cb0dd9ce8197b6d09d8c80c09048f321283757dc731"
+    },
     "checks": {
+      "backbone_unique_parameter_count_documented": true,
+      "backbone_f2_parameter_count_documented": true,
+      "vision_repository_documented": true,
       "vision_revision_pinned": true,
+      "vision_parameter_count_documented": true,
+      "audio_repository_documented": true,
       "audio_revision_pinned": true,
-      "pair_equals_component_sum": true
-    }
+      "audio_parameter_count_documented": true,
+      "query_output_count_documented": true,
+      "integrated_total_documented": true,
+      "vision_projector_target_width_documented": true,
+      "audio_projector_width_documented": true,
+      "memory_reader_width_documented": true,
+      "two_port_reader_baseline_documented": true,
+      "phrase_encoder_width_documented": true,
+      "phrase_encoder_rows_documented": true
+    },
+    "scope": "presence cross-check only; every component value is owned by the versioned component inventory"
   },
   "parameter_inventory": {
     "scope": "fixed trainable parameters; dynamic memory state is a separate account",
@@ -165,7 +189,9 @@
         "evidence": {
           "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
           "field": "sum(shape)",
-          "tensor_count": 290
+          "tensor_count": 290,
+          "kind": "sealed_tensor_index",
+          "inventory_path": "configs/sparkx_residency_components_v1.json"
         }
       },
       {
@@ -174,9 +200,10 @@
         "parameters": 92884224,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
-          "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
-          "kind": "declared_encoder_count"
+          "path": "configs/sparkx_residency_components_v1.json",
+          "kind": "declared_encoder_count",
+          "repo_id": "google/siglip2-base-patch16-224",
+          "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2"
         }
       },
       {
@@ -185,9 +212,10 @@
         "parameters": 93289476,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
-          "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
-          "kind": "declared_encoder_count"
+          "path": "configs/sparkx_residency_components_v1.json",
+          "kind": "declared_encoder_count",
+          "repo_id": "marcoyang/spear-base-speech-audio-v2",
+          "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c"
         }
       },
       {
@@ -196,7 +224,7 @@
         "parameters": 3411456,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "path": "configs/sparkx_residency_components_v1.json",
           "kind": "explicit_two_stage_bias_formula",
           "formula": "768*1024+1024 + 1024*2560+2560"
         }
@@ -207,7 +235,7 @@
         "parameters": 3149312,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "path": "configs/sparkx_residency_components_v1.json",
           "kind": "explicit_two_stage_bias_formula",
           "formula": "512*1024+1024 + 1024*2560+2560"
         }
@@ -218,7 +246,7 @@
         "parameters": 3276800,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "path": "configs/sparkx_residency_components_v1.json",
           "kind": "declared_analytical_projection_count"
         }
       },
@@ -228,7 +256,7 @@
         "parameters": 10485760,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "path": "configs/sparkx_residency_components_v1.json",
           "kind": "explicit_formula_not_sealed",
           "formula": "sites * 4 * 2560 * 512"
         }
@@ -239,7 +267,7 @@
         "parameters": 2228224,
         "trainable": true,
         "evidence": {
-          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "path": "configs/sparkx_residency_components_v1.json",
           "kind": "explicit_formula_not_sealed",
           "formula": "2*12*256^2 + 256*2560"
         }
@@ -249,8 +277,8 @@
     "backbone_parameters": 4112079360,
     "declared_encoder_parameters": 186173700,
     "notes": [
-      "The two encoders are declared counts, not a fresh sealed tensor inventory.",
-      "Projector, reader and phrase counts are explicit analytical formulas, not measured modules.",
+      "The two encoders are declared counts in the versioned component inventory and are cross-checked against the architecture document.",
+      "Projector, reader and phrase counts are formula descriptors in the versioned component inventory, not measured modules.",
       "Dynamic fast/knowledge state and the bank tensor are excluded here and priced below."
     ]
   },
@@ -599,17 +627,18 @@
       "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
       "reports/spark_preparation_20261025/run_01/headers/official_fp8_adaptation_base/tensor_index.json",
       "reports/fused_adamw_20261025/sustained01.guard.json",
+      "configs/sparkx_residency_components_v1.json",
       "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md"
     ],
     "unprovisioned_local_inputs": [],
     "bundle_check_command": "python3 scripts/prepare_sparkx_research_bundle.py --check",
-    "clean_checkout_replay": "all residency inputs are repository-tracked; run the bundle check to verify their hashes before citing this receipt",
+    "clean_checkout_replay": "all residency inputs, including the versioned component inventory, are repository-tracked; this receipt pins the inventory SHA-256 and the bundle check verifies the sealed inputs listed in its manifest",
     "native_execution_required": false
   },
   "non_claims": [
     "no Spark weight payload, tokenizer, dataset, media asset, model code or native runtime was downloaded, loaded or executed",
-    "encoder parameter counts are declared in the architecture document, not a fresh sealed encoder tensor index",
-    "projector, reader, phrase, activation, logit and temporary-buffer figures are analytical formulas, not measurements",
+    "encoder parameter counts are declared in the versioned component inventory and cross-checked against the architecture document, not a fresh sealed encoder tensor index",
+    "projector, reader and phrase figures are formula descriptors in the versioned component inventory; activation, logit and temporary-buffer figures are analytical formulas, not measurements",
     "the mixed-dtype FP8 source artifact does not demonstrate FP8 loading, dequantization, full backprop or backend support",
     "no MPS memory fit, allocator peak, throughput, convergence or training admission is established"
   ]

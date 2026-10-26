@@ -1,0 +1,86 @@
+{
+  "format": "replica.vision_balanced_alignment.evidence_fixture.v1",
+  "schema_version": 1,
+  "description": "Compact committed summary of the ignored raw v1 balanced-alignment run and reload reports. Default tests read only this fixture; the raw reports stay local under runs/ and are checked by a separate integration test when provisioned.",
+  "source": {
+    "run_report": {
+      "path": "runs/vision_balanced_alignment_20261026/train01/run_report.json",
+      "format": "replica.vision_balanced_alignment.run.v1",
+      "bytes": 358257,
+      "sha256": "66539ebcd0915f187b7ee5bee3d5b95b0b5c8a18949fee571e9f4c38dd66c3a9"
+    },
+    "reload_report": {
+      "path": "runs/vision_balanced_alignment_20261026/reload01/reload_report.json",
+      "format": "replica.vision_balanced_alignment.reload.v1",
+      "bytes": 9776,
+      "sha256": "24ff1c8ba7ee6216b5693cc786d870540dbf25efeaf2d5a43226f0b7c89e1930"
+    }
+  },
+  "protocol": {
+    "sha256": "6a334e7337d0c0394c9a2237a1a510e20a0440d9895cf13e0f14ee9388ebaa5e"
+  },
+  "data": {
+    "manifest_sha256": "1bc1cbdf20b963f78688f1c4648286ff3405eadea2c5a9037892b0cf581df3a1",
+    "heldout_caption_case_ids_sha256": "ab9c065a713021c0ef523c15c2dafa38bf1a3828216b59d40419621bedc8943d",
+    "heldout_answer_case_ids_sha256": "75a118d5c18307b44e1b3c17e23533472875fb0bd0487fcaf0e0018b1466c362"
+  },
+  "run": {
+    "status": "completed_pending_reload",
+    "disposition": "diagnostic_only_no_promotion",
+    "base_saved": false,
+    "promotion": false,
+    "trainable_scope": "vision_projector.",
+    "trainable_tensors": 6,
+    "updates": 10,
+    "total_examples": 60,
+    "unique_examples": 46
+  },
+  "reload": {
+    "status": "completed",
+    "bitwise_equal": true,
+    "zero_updates": true,
+    "run_report_sha256": "66539ebcd0915f187b7ee5bee3d5b95b0b5c8a18949fee571e9f4c38dd66c3a9",
+    "protocol_sha256": "6a334e7337d0c0394c9a2237a1a510e20a0440d9895cf13e0f14ee9388ebaa5e",
+    "comparisons": {
+      "heldout_answer_generations.jsonl": true,
+      "heldout_caption_generations.jsonl": true,
+      "retention_after.jsonl": true
+    }
+  },
+  "extension": {
+    "format": "replica.minicpm5.extensions.v4",
+    "label": "alignment",
+    "weights_sha256": "ef92cd3bfd942ba80a11243c3ae3b520fde6098608eb88e6269117665a7d19a2",
+    "bytes": 65693060,
+    "base_saved": false
+  },
+  "heldout_gates": {
+    "label": "heldout",
+    "diagnostic_only": true,
+    "promotion": false,
+    "all_declared_gates_passed": false,
+    "gate_failures": [
+      "min_correct_accuracy",
+      "min_margin_wrong",
+      "min_margin_noimage",
+      "min_unknown_accuracy",
+      "max_false_answer_on_abstain",
+      "min_caption_token_f1",
+      "min_caption_semantic_descriptor_f1",
+      "min_caption_f1_margin_counterfactual",
+      "min_caption_loss_margin_counterfactual",
+      "min_caption_f1_margin_shuffled",
+      "min_caption_loss_margin_shuffled",
+      "min_caption_f1_margin_noimage"
+    ]
+  },
+  "provenance": {
+    "raw_reports_integration_only": true,
+    "raw_available_in_clean_checkout": false,
+    "note": "The raw run/reload reports live under the ignored runs/ tree and are absent from a clean checkout. This committed fixture is the default evidence. tests/test_vision_caption_v2.py::test_raw_reports_match_committed_evidence_fixture re-verifies the raw reports against this fixture only when they are provisioned; it is marked integration and never silently passes.",
+    "requirements": [
+      "runs/vision_balanced_alignment_20261026/train01/run_report.json",
+      "runs/vision_balanced_alignment_20261026/reload01/reload_report.json"
+    ]
+  }
+}

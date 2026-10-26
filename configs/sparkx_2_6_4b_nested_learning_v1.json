@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "kind": "research_specification_not_runtime_configuration",
+  "architecture_revision": "4.5",
+  "date": "2026-10-26",
+  "status": "design_only_unrun",
+  "training_admitted": false,
+  "native_execution": false,
+  "supersedes_selected_fields_in": "configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json",
+  "superseded_fields": [
+    "prospective_SGD_recipe",
+    "single_P_clock",
+    "128_MiB_Adam_candidate_illustration"
+  ],
+  "contracts": [
+    "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
+    "docs/research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md",
+    "docs/research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md"
+  ],
+  "invariants": {
+    "original_backbone_parameters": 4112079360,
+    "additional_parameters_allowed": true,
+    "multimodal_acquisition": "full_offline_finetuning_before_online_multimodal_learning",
+    "deployment_original_backbone_frozen": true,
+    "deployment_encoders_frozen": true,
+    "memory_intrinsic_to_decoder": true,
+    "spine_optional_and_separate": true,
+    "personality_description": "pending_user_input"
+  },
+  "profiles": {
+    "minicpm": {
+      "reader_sites": [
+        13,
+        27
+      ],
+      "integration": "existing_post_block_control_first",
+      "episodic_records": 1024,
+      "fast_groups": 1,
+      "fast_experts_per_group": 1,
+      "fast_heads": 4,
+      "fast_head_width": 64,
+      "address_matrices": 1
+    },
+    "spark": {
+      "reader_sites": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35
+      ],
+      "integration": "intrinsic_branch_requires_native_qualification",
+      "episodic_records": 4096,
+      "fast_groups": 3,
+      "fast_experts_per_group": 8,
+      "fast_heads": 4,
+      "fast_head_width": 128,
+      "address_matrices": 3
+    }
+  },
+  "shared_shapes": {
+    "record_elements": 896,
+    "record_value_bytes": 2,
+    "record_metadata_max_bytes": 512,
+    "workspace_slots": 8,
+    "event_slots": 64,
+    "workspace_width": 256,
+    "workspace_element_bytes": 2,
+    "address_width": 128,
+    "dynamic_parameter_bytes": 4
+  },
+  "plastic_bank": {
+    "experts": 16,
+    "fast_experts": 8,
+    "slow_experts": 8,
+    "width": 256,
+    "hidden_width": 1024,
+    "matrices_per_expert": 3,
+    "bias": false,
+    "active_read_experts_max": 2,
+    "active_write_experts_max": 2,
+    "fast_write_experts_max": 1,
+    "slow_write_experts_max": 1,
+    "weight_sharing": "global_across_sites_with_depth_identity",
+    "inactive_experts": "grad_None_no_optimizer_step_no_moment_decay"
+  },
+  "clocks": {
+    "F": "one_transition_per_sealed_observation_chunk",
+    "F_vectors_max_per_chunk": 32,
+    "Pf_every_eligible_teaching_events": 1,
+    "Ps_every_eligible_teaching_events": 16,
+    "teaching_event_counter_unit": "verified_eligible_transaction_not_tokens_or_wall_time",
+    "max_pending_slow_jobs": 1,
+    "reference_episode_eligible_teaching_events_min": 32,
+    "clock_phase_persisted": true,
+    "one_write_per_reader_site": false
+  },
+  "optimizer": {
+    "implementation": "NativeFusedAdamW",
+    "torch_pin": "2.14.1",
+    "dtype": "FP32",
+    "lr_candidate": 0.0001,
+    "development_lr_candidates": [
+      1e-05,
+      3e-05,
+      0.0001
+    ],
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "gradient_norm_max": 1.0,
+    "resident_moment_tensors": 2,
+    "steps_total_per_transaction_max": 4,
+    "fast_steps_max": 2,
+    "slow_steps_max": 2,
+    "weights_moments_and_counters_committed_atomically": true
+  },
+  "fast_memory": {
+    "rule": "F_next = rho*F + eta*(v-F*k)*transpose(k)",
+    "loss": "0.5*squared_norm(F*k-v)",
+    "key_normalization": true,
+    "rho_bounds": [
+      0.9,
+      1.0
+    ],
+    "eta_bounds": [
+      0.0,
+      1.0
+    ],
+    "outer_unroll_observations_max": 4,
+    "persistent_across_sessions": "explicit_scoped_arm",
+    "faithful_Titans_HOPE_MemT_ATLAS": false
+  },
+  "plastic_objectives": {
+    "reference": "verified_response_and_qualified_grounding_losses_through_frozen_decoder",
+    "fast_weights": {
+      "current": 1.0,
+      "replay": 0.25
+    },
+    "slow_weights": {
+      "recent_verified_window": 0.5,
+      "age_balanced_verified_replay": 0.5
+    },
+    "recent_window_events_max": 16,
+    "e2e_positions_per_step_max": 256,
+    "local_candidate": "1-cosine(P(x),z_verified)_plus_verified_replay",
+    "local_feature_vectors_per_step_max": 128,
+    "local_feature_producer": "qualified_release_path_with_dynamic_branches_disabled_and_fixed_projections",
+    "local_feature_producer_frozen_during_candidate_meta_training": true,
+    "model_prediction_alone_verifies_target": false
+  },
+  "meta_training": {
+    "objective": "future_query_plus_old_skill_retention_plus_grounding_retention",
+    "P_gradient_estimator": "first_order_identity_adaptation_Jacobian",
+    "P_learning_rate_learned_by_this_estimator": false,
+    "F_gradient_path": "differentiable_functional_recurrence_with_declared_truncation",
+    "fused_optimizer_exact_higher_order_supported": false,
+    "exact_reference": "mathematical_AdamW_short_unroll_requiring_separate_implementation_and_protocol_qualification",
+    "exact_reference_horizons": [
+      1,
+      2,
+      4
+    ],
+    "cost": "measured_constraint_not_unjustified_differentiable_wall_clock",
+    "final_test_labels_used_in_updates_or_acceptance": false
+  },
+  "addressing": {
+    "baseline": "fixed",
+    "adaptive_arm": "separate_verified_ranking_AdamW",
+    "stored_keys_fixed_within_representation_version": true
+  },
+  "transaction": {
+    "decision_state_immutable": true,
+    "exactly_once_event_ids": true,
+    "predict_before_reveal_for_future_targets": true,
+    "teacher_forced_answers_are_writable_observations": false,
+    "query_tokens_advance_teaching_clock": false,
+    "update_invalidate": [
+      "KV",
+      "read_projection_cache",
+      "dependent_phrase_vectors",
+      "compiled_state_derivatives"
+    ],
+    "rollback_includes": [
+      "weights",
+      "moments",
+      "step_counters",
+      "clock_phase",
+      "pending_work"
+    ]
+  },
+  "vocab": {
+    "immutable_base_ids": true,
+    "stable_concept_and_lexeme_ids": true,
+    "slot_generation_required": true,
+    "static_ngram_key": "canonical_base_token_expansion_not_recycled_phrase_slot",
+    "optimizer_state_keyed_only_by_slot": false
+  },
+  "resource_candidate": {
+    "mutable_peak_envelope_MiB": 256,
+    "replay_envelope_MiB": 64,
+    "raw_evidence_optional_MiB": 256,
+    "moment_offload_assumed": false,
+    "host_guard_changed": false,
+    "native_fit_measured": false,
+    "omissions": [
+      "activations",
+      "feature_extraction_buffers",
+      "KV",
+      "backend_temporaries",
+      "routing_workspace",
+      "serialization_overhead",
+      "inactive_tensor_gradient_accidents"
+    ]
+  },
+  "validation": {
+    "ladder": [
+      "NL0",
+      "NL1",
+      "NL2",
+      "NL3",
+      "NL4",
+      "NL5",
+      "NL6",
+      "NL7"
+    ],
+    "joint_factors": {
+      "M": "E_F_A_pathway",
+      "V": "swappable_phrase_rows",
+      "L": "P_updates"
+    },
+    "factorial_arms": 8,
+    "minimum_finalist_seeds": 3,
+    "task_order_profiles": 4,
+    "new_instance_gain_target_percentage_points": 10,
+    "legacy_drop_max_percentage_points": 2,
+    "local_noninferiority_margin_percentage_points": 2,
+    "paired_confidence_level": 0.95,
+    "warm_text_p95_overhead_target": 0.1,
+    "online_learning_duty_target": 0.05,
+    "av_real_time_factor_target_max": 1.0,
+    "claimed_lifelong_learning": false,
+    "recursive_policy_improvement": "later_separate_fresh_family_gate"
+  },
+  "router": {
+    "scores": "query_address_similarity_per_pool",
+    "offline_warmup": "dense_soft_routing_with_task_loss_and_declared_utilization_penalty",
+    "warmup_experts_evaluated": 16,
+    "qualification_and_deployment": "top_one_per_pool",
+    "deployed_router_frozen_initially": true,
+    "oracle_task_or_expert_ids_in_inference": false,
+    "missed_expert_counterfactual_gradient_claimed": false
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "replica.sparkx_nested_learning_sources.v1",
+  "kind": "content_addressed_source_cache_declaration",
+  "report": "reports/sparkx_nested_learning_20261026",
+  "evidence_manifest": "reports/sparkx_nested_learning_20261026/evidence.json",
+  "default_cache_root": "data/cache/sparkx_nested_learning_20261026",
+  "cache_root_env": "SPARKX_NESTED_LEARNING_SOURCE_CACHE",
+  "required_source_count": 18,
+  "network": {
+    "downloads_allowed": false,
+    "network_used_by_verification": false,
+    "network_used_by_provisioning": false
+  },
+  "status": {
+    "verified": "verified",
+    "missing": "unprovisioned",
+    "mismatched": "mismatched",
+    "invalid": "invalid"
+  },
+  "layout": {
+    "sources_dir": "sources",
+    "text_dir": "text",
+    "source_filename_template": "{sha256}{source_suffix}",
+    "text_filename_template": "{text_key}.txt",
+    "text_key_policy": "declared_text_sha256_else_source_sha256",
+    "allowed_source_suffixes": [
+      ".html",
+      ".pdf",
+      ".source"
+    ],
+    "staging_dir": ".staging"
+  },
+  "provisioning": {
+    "network": false,
+    "require_explicit_source_root": true,
+    "overwrite_existing": false,
+    "max_file_bytes": 16777216,
+    "max_total_write_bytes": 67108864,
+    "atomic_publication": true,
+    "accepted_root_kinds": [
+      "user_declared_directory",
+      "explicit_historical_scratch_root"
+    ]
+  },
+  "verification": {
+    "strict_requires_all_payloads": true,
+    "metadata_only_inspects_payloads": false,
+    "metadata_only_source_payload_status": "unprovisioned",
+    "historical_paths_are_provenance_only": true
+  }
+}

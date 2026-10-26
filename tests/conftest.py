@@ -24,6 +24,9 @@ PROVISIONING = {
     "data/cache/spark_sources/run_02": "scripts/prepare_spark_sources.py --plan configs/spark_source_preparation_v2.json "
                                        "--output data/cache/spark_sources/run_02 --export-header-bundle",
     "runs/minicpm5_vision_v0_20261025/score_restart_replay01/score_report.json": "copy the immutable V0 score replay from the provisioned native-evidence workspace; historical integration only",
+    "runs/vision_balanced_alignment_20261026/train01/run_report.json": "copy the immutable v1 train01 run report from the provisioned native-evidence workspace; optional integration only",
+    "runs/vision_balanced_alignment_20261026/reload01/reload_report.json": "copy the immutable v1 reload01 report from the provisioned native-evidence workspace; optional integration only",
+    "data/cache/sparkx_nested_learning_20261026": "python3 scripts/provision_sparkx_nested_sources.py --source-dir <verified-local-source-directory> (offline, hash-checked; optional source-payload integration)",
     "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json": "python3 scripts/prepare_sparkx_research_bundle.py --write (commit every listed input, then verify with --check without --allow-untracked)",
 }
 

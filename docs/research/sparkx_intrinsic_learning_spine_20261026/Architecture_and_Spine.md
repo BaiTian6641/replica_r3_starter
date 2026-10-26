@@ -1,5 +1,7 @@
 # Intrinsic memory architecture and a separate neural spine
 
+**Revision 4.5 refinement:** [the nested-learning contract](../sparkx_nested_learning_20261026/Nested_Learning_Contract.md) supersedes this companion's initial SGD recipe and 128 MiB illustration. It specifies two plastic clocks, native fused AdamW, an explicit first-order meta-gradient and a 256 MiB mutable-state research envelope. Earlier numerical receipts remain historical.
+
 26 October 2026 · proposed revision 4.3 design. [Research basis](Research_Review.md), [teaching/validation](Teaching_and_Validation.md), [configuration](../../../configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json).
 
 ## 1. Product boundary
@@ -87,7 +89,7 @@ Sparse routing is an optional computation optimization. MemT's MoS is not eviden
 1. **Observe.** Native encoders produce time/geometry-aware features. Update bounded event state from available observations, without a future query or answer.
 2. **Write recent experience.** Compute keys, values, novelty and overwrite/retention gates inside the model. Apply learned associative updates and propose explicit record revisions. Preserve observed evidence separately from inferred interpretation.
 3. **Reason/read.** Use one consistent memory/knowledge revision throughout a decision. A query can select relevant evidence; it cannot select a write using a future evaluation label.
-4. **Learn from teaching or outcomes.** Update nominated `P` experts and, in separate arms, `A`. Start with fixed, bounded SGD and replay; then learn the update policy. Small local objectives are the cheap candidate, with end-to-end adaptation as a costed comparator.
+4. **Learn from teaching or outcomes.** Update nominated `P` experts and, in separate arms, `A`. Start with fixed, bounded native fused AdamW and replay; qualify policy learning later. Behavioral end-to-end adaptation is the learning reference; local objectives must demonstrate comparable behavioral transfer at lower total cost.
 5. **Commit/checkpoint.** Commit once at a declared boundary, including versions and update provenance. Subsequent decisions see the new state. Save stable release identity separately from the dynamic state.
 
 A simple delta-rule `F` baseline and the existing SGDN-2 implementation remain different algorithms. A nonlinear memory must specify its objective, normalization, optimizer state, truncation horizon and projection parameters. Native mechanisms can use autograd; they need not modify the original 4B tensors.
@@ -144,9 +146,9 @@ Native inspection exports selected layer vectors, attention summaries, memory-ad
 The [reproducible cost ledger](../../../reports/sparkx_intrinsic_learning_spine_20261026/analytical_costs.json) is arithmetic, not a latency benchmark. An illustrative Spark candidate uses nine width-512 memory readers, three groups of eight four-head 128×128 `F` experts, three 128×128 address transforms, and a global bank of sixteen width-256/hidden-1024 gated `P` experts. Two `P` experts execute per active site; all sixteen remain stored. Shared experts receive depth identity, and a grouped-bank control tests interference.
 
 - Memory-reader matrices: 28,311,552 fixed parameters, 54 MiB in BF16; separate `P` input/output projections add 11,796,480 parameters, 22.5 MiB. Norms, gates, update controllers, encoders and the original backbone are additional.
-- `F`: 6 MiB FP32; `A`: 0.1875 MiB; `P`: 12,582,912 mutable parameters, 48 MiB FP32. `P` is full-rank, not LoRA. An Adam optimizer for the entire `P` bank would add 96 MiB of moments; the first candidate uses SGD without momentum.
+- `F`: 6 MiB FP32; `A`: 0.1875 MiB; `P`: 12,582,912 mutable parameters, 48 MiB FP32. `P` is full-rank, not LoRA. The current native fused AdamW candidate adds 96 MiB of resident moments; the original moment-free estimate is historical.
 - Spark's 4096 paired records occupy 7 MiB of tensors plus a proposed 2 MiB metadata cap. Workspace/events add 0.03515625 MiB in BF16. Together with `F/A/P`, this is 63.22265625 MiB before staging, gradients, replay and caches.
-- A boundary update with a second `F` snapshot, `A` staging and gradient, and two active `P` experts' snapshots and gradients reaches an illustrative 81.59765625 MiB. A separate 64 MiB replay budget makes 145.59765625 MiB before activations, indexes, lexical payloads, scratch and serialization. The 128 MiB mutable-state research profile is plausible only after all omitted state is measured; it is not automatic admission.
+- A boundary update with a second `F` snapshot, `A` staging and gradient, and two active `P` experts' snapshots and gradients reaches an illustrative 81.59765625 MiB. A separate 64 MiB replay budget makes 145.59765625 MiB before activations, indexes, lexical payloads, scratch and serialization. This is a historical moment-free illustration. It does not fit the current resident-Adam candidate under 128 MiB; use the revision 4.5 ledger and measured peaks before admission.
 - Two active `P` experts require 1,572,864 matrix MACs per processed vector. Nine token-level reads cost 14,155,776 MACs per decoder position before routing, projections and memory reads. Event-only execution is a cheaper alternative to test, not an equivalent capability assumed in advance.
 
 For capacity growth, 64 or 128 `P` experts use 192 or 384 MiB FP32 respectively, before gradients, snapshots and any optimizer state. The two-expert matrix work remains the same only if routing and execution are truly sparse; address search, resident storage and loading costs still grow. These variants require their own resource profiles and are not admitted under the illustrated 128 MiB mutable-state profile.
