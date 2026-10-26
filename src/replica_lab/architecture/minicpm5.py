@@ -5,7 +5,7 @@ This is a pinned Llama ABI integration, not an arbitrary Transformers adapter.
 The reference re-prefills with no KV cache. Every pass has local ownership.
 """
 from __future__ import annotations
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import hashlib
 import inspect
 import json
@@ -19,8 +19,10 @@ from transformers.models.llama import modeling_llama
 
 from .contracts import (ComponentManifest, CopyRead, CoreState, DecisionFrame,
                         FastMemoryRead, IdentityRead, InjectFrame, MemoryRead,
-                        PatternRead, PortSpec, RequestContext, SenseFrame, VisualInput, fingerprint)
+                        PatternRead, PlasticRead, PlasticSpec, PortSpec, RequestContext,
+                        SenseFrame, VisualInput, fingerprint)
 from .core import CognitiveCore, FeedForwardCore, SOURCES
+from .plastic import PlasticKnowledgePort, fixed_projection
 from .heads import TaskSuccessHead
 from .ports import (FastMemoryAccessPort, FastWriteEncoder, MemoryAccessPort,
                     PatternAccessPort, RecordCopyHead, RecordPointerHead,
@@ -68,6 +70,9 @@ class MiniCPM5Adapter(nn.Module):
             self.pattern_port = PatternAccessPort(
                 h, orders=spec.orders, heads=spec.heads, table_rows=spec.table_rows,
                 width=spec.width, sparse=spec.sparse)
+        self.plastic_ports = None
+        if manifest.plastic is not None:
+            self._install_plastic_ports(manifest.plastic)
         self.vision_projector = None
         if manifest.vision is not None:
             manifest.vision.validate()
@@ -108,6 +113,59 @@ class MiniCPM5Adapter(nn.Module):
                                                   manifest.identity.heads)
         self.set_regime(regime)
         self._original_identity = None  # recorded after final device placement
+
+    def _install_plastic_ports(self, spec: PlasticSpec) -> None:
+        if not isinstance(spec, PlasticSpec):
+            raise TypeError('Plastic manifest entry must be a PlasticSpec')
+        if not set(spec.sites) <= set(self.ports.injection_layers):
+            raise ValueError('Plastic sites must be declared injection layers')
+        hidden = self.base.config.hidden_size
+        decoder = fixed_projection(hidden, spec.width, spec.projection_seed)
+        self.plastic_ports = nn.ModuleDict({
+            str(site): PlasticKnowledgePort(hidden, spec.width,
+                                            decoder=decoder,
+                                            gain=spec.read_gain)
+            for site in spec.sites})
+        # ``install_plastic`` may run after the adapter was moved to MPS.
+        self.plastic_ports = self.plastic_ports.to(
+            self.base.get_input_embeddings().weight.device)
+
+    def install_plastic(self, spec: PlasticSpec) -> None:
+        """Attach the fixed read path after a loader that declared no plastic.
+
+        The decoder is a frozen buffer, so the native parameter stamp is
+        unchanged.  The manifest is extended in place (frozen dataclass is
+        replaced), and a second call with a different spec fails closed.
+        """
+        if not isinstance(spec, PlasticSpec):
+            raise TypeError('Plastic spec is required')
+        if self.manifest.plastic is not None:
+            if self.manifest.plastic != spec:
+                raise ValueError('Plastic path is already installed with another spec')
+            return
+        if getattr(self, 'plastic_ports', None) is not None:
+            raise ValueError('Plastic ports exist without a manifest entry')
+        self._install_plastic_ports(spec)
+        self.manifest = replace(self.manifest, plastic=spec)
+
+    def plastic_producer_key(self) -> str:
+        spec = self.manifest.plastic
+        if spec is None or self.plastic_ports is None:
+            raise ValueError('This adapter has no plastic read path')
+        digests = {site: getattr(self.plastic_ports[str(site)], 'decoder_digest')
+                   for site in spec.sites}
+        if len(set(digests.values())) != 1:
+            raise ValueError('Plastic decoder differs across declared sites')
+        return fingerprint({'manifest': self.manifest.digest,
+                            'plastic': spec.digest,
+                            'decoder': next(iter(digests.values()))})
+
+    def plastic_read_digest(self) -> str:
+        spec = self.manifest.plastic
+        if spec is None or self.plastic_ports is None:
+            raise ValueError('This adapter has no plastic read path')
+        return next(iter({getattr(self.plastic_ports[str(site)], 'decoder_digest')
+                          for site in spec.sites}))
 
     @property
     def _original_parameters(self):
@@ -455,7 +513,8 @@ class MiniCPM5Adapter(nn.Module):
         self._check_visual(visual)
         return self.vision_projector(visual.features).masked_fill(~visual.valid.unsqueeze(-1), 0)
 
-    def _native(self, ids, valid, *, frame=None, stop_layer=None, capture=False, visual=None):
+    def _native(self, ids, valid, *, frame=None, stop_layer=None, capture=False,
+                visual=None, site_capture=None):
         valid = self._inputs(ids, valid)
         if frame is not None:
             if visual is not None and visual is not frame.sense.visual:
@@ -484,6 +543,8 @@ class MiniCPM5Adapter(nn.Module):
             if capture and str(i) in self.sense_ports:
                 summary, _ = self.sense_ports[str(i)](hidden, valid)
                 summaries.append((i, summary))
+            if site_capture is not None and i in site_capture:
+                site_capture[i] = hidden
             if frame is not None and str(i) in self.memory_ports and frame.branch_enabled('memory'):
                 view = InjectFrame(frame, i)
                 memory = frame.memory
@@ -500,6 +561,12 @@ class MiniCPM5Adapter(nn.Module):
                 view = InjectFrame(frame, i)
                 hidden = hidden + self.fast_ports[str(i)](
                     hidden, frame.fast.for_layer(i), enabled=view.enabled)
+            if (frame is not None and frame.plastic is not None
+                    and frame.branch_enabled('plastic')
+                    and self.plastic_ports is not None
+                    and str(i) in self.plastic_ports):
+                hidden = hidden + self.plastic_ports[str(i)](
+                    hidden, frame.plastic.slot, enabled=True)
             if (frame is not None and frame.pattern is not None
                     and frame.branch_enabled('pattern')
                     and i == self.manifest.pattern.injection_layer):
@@ -520,10 +587,32 @@ class MiniCPM5Adapter(nn.Module):
         return SenseFrame(tuple(summaries), prompt_ids.clone(), prompt_mask.bool().clone(),
                           self.sense_producer_key(), visual)
 
+    def encode_sites(self, input_ids, valid, sites=None):
+        """Return post-block hidden states at the declared reader sites.
+
+        No frame, memory, target or label is supplied.  The caller decides
+        whether the pass runs under ``inference_mode``/``no_grad`` and must
+        detach the result before it leaves the native forward.  The pass stops
+        after the deepest requested site instead of computing the LM head.
+        """
+        requested = tuple(self.ports.injection_layers if sites is None else sites)
+        if (not requested or len(set(requested)) != len(requested)
+                or any(type(site) is not int or site not in self.ports.injection_layers
+                       for site in requested)):
+            raise ValueError('Requested sites must be declared injection layers')
+        capture = {site: None for site in requested}
+        self._native(input_ids, valid, stop_layer=max(requested),
+                     site_capture=capture)
+        missing = [site for site, value in capture.items() if value is None]
+        if missing:
+            raise RuntimeError(f'Native site capture missing layers {missing}')
+        return {site: capture[site] for site in requested}
+
     def make_frame(self, decision_id, evidence, memory: MemoryRead, sense: SenseFrame,
                    enabled_ports=None, core: CoreState | None = None,
                    enabled_branches=None, fast: FastMemoryRead | None = None,
-                   copy: CopyRead | None = None, pattern: PatternRead | None = None):
+                   copy: CopyRead | None = None, pattern: PatternRead | None = None,
+                   plastic: PlasticRead | None = None):
         if memory.slots.ndim != 4 or memory.slots.shape[0] != 1:
             raise ValueError('One owned request per bank; batch requests explicitly later')
         if memory.slots.shape[1:] != (len(memory.spans), self.ports.slots_per_unit, self.ports.memory_width):
@@ -580,6 +669,19 @@ class MiniCPM5Adapter(nn.Module):
                 raise ValueError('Pattern frame requires a pattern-memory manifest')
             if pattern.producer != self.pattern_producer_key():
                 raise ValueError('Pattern producer differs from current native/table parameters')
+        if plastic is not None:
+            spec = self.manifest.plastic
+            if self.plastic_ports is None or spec is None:
+                raise ValueError('Plastic frame requires a plastic read-bearing manifest')
+            if (tuple(plastic.slot.shape) != (1, spec.width)
+                    or plastic.expert_id >= spec.experts
+                    or len(plastic.route_permutation) != spec.experts
+                    or set(plastic.route_permutation) != set(range(spec.experts))):
+                raise ValueError('Plastic slot, expert or route permutation differs from the manifest')
+            if plastic.read_path_sha256 != self.plastic_read_digest():
+                raise ValueError('Plastic read path differs from the fixed decoder')
+            if plastic.producer != self.plastic_producer_key():
+                raise ValueError('Plastic producer differs from current native/read parameters')
         default_branches = ['memory']
         if core is not None:
             default_branches.append('workspace')
@@ -589,6 +691,8 @@ class MiniCPM5Adapter(nn.Module):
             default_branches.append('copy')
         if pattern is not None:
             default_branches.append('pattern')
+        if plastic is not None:
+            default_branches.append('plastic')
         branches = tuple(default_branches) if enabled_branches is None \
             else tuple(enabled_branches)
         if sense.visual is not None:
@@ -597,7 +701,8 @@ class MiniCPM5Adapter(nn.Module):
             cutoff = (min(evidence.as_of, evidence.snapshot_at)
                       if evidence.mode == 'source_snapshot' else evidence.as_of)
             if (enabled or branches != ('memory',) or core is not None or fast is not None
-                    or copy is not None or pattern is not None or memory.spans):
+                    or copy is not None or pattern is not None or plastic is not None
+                    or memory.spans):
                 raise ValueError('V0 visual frames require all memory/core/identity injections disabled')
             if ((visual.subject_id, visual.branch_id, visual.purpose) != (
                     evidence.subject_id, evidence.branch_id, evidence.purpose)
@@ -611,8 +716,11 @@ class MiniCPM5Adapter(nn.Module):
             raise ValueError('Copy branch requires an owned CopyRead')
         if 'pattern' in branches and pattern is None:
             raise ValueError('Pattern branch requires an owned PatternRead')
+        if 'plastic' in branches and plastic is None:
+            raise ValueError('Plastic branch requires an owned PlasticRead')
         return DecisionFrame(decision_id, evidence, memory, sense, self.manifest.digest,
-                             self.parameter_stamp(), enabled, core, fast, copy, pattern, branches)
+                             self.parameter_stamp(), enabled, core, fast, copy, pattern,
+                             branches, plastic)
 
     def pointer_scores(self, frame, candidate_ids, token_mask, candidate_mask):
         """Score exact source-token spans from the prompt's final hidden state."""

@@ -566,6 +566,107 @@ class PatternRead:
 
 
 @dataclass(frozen=True)
+class PlasticSpec:
+    """Declared selected-expert plastic bank plus its fixed read projection.
+
+    The bank geometry is metadata for the read path; bank weights, moments,
+    transactions and observation state are owned by
+    :mod:`replica_lab.nested_learning`, never by the native adapter.
+    """
+    experts: int = 16
+    width: int = 256
+    hidden_width: int = 1024
+    sites: tuple[int, ...] = (13, 27)
+    route_mode: str = 'fixed'
+    route_seed: int = 0
+    projection_seed: int = 0
+    read_gain: float = 0.1
+    feature_version: str = 'sites_masked_mean_projection.v1'
+    p_init: str = 'zero_read_down'
+
+    def __post_init__(self):
+        object.__setattr__(self, 'sites', tuple(self.sites))
+        for name in ('experts', 'width', 'hidden_width'):
+            value = getattr(self, name)
+            if type(value) is not int or value < 1:
+                raise ValueError(f'PlasticSpec.{name} must be a positive integer')
+        if (not self.sites or len(set(self.sites)) != len(self.sites)
+                or any(type(site) is not int or site < 0 for site in self.sites)):
+            raise ValueError('PlasticSpec.sites must be distinct nonnegative integers')
+        if self.route_mode not in {'fixed', 'shuffled'}:
+            raise ValueError("PlasticSpec.route_mode must be 'fixed' or 'shuffled'")
+        if type(self.route_seed) is not int:
+            raise ValueError('PlasticSpec.route_seed must be an integer')
+        if type(self.projection_seed) is not int:
+            raise ValueError('PlasticSpec.projection_seed must be an integer')
+        if (not isinstance(self.read_gain, (int, float))
+                or not torch.isfinite(torch.tensor(float(self.read_gain)))
+                or self.read_gain < 0):
+            raise ValueError('PlasticSpec.read_gain must be finite and nonnegative')
+        if self.feature_version != 'sites_masked_mean_projection.v1':
+            raise ValueError('Unsupported plastic feature projection version')
+        if self.p_init != 'zero_read_down':
+            raise ValueError("PlasticSpec.p_init must be 'zero_read_down'")
+
+    @property
+    def digest(self):
+        return fingerprint(asdict(self))
+
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class PlasticRead:
+    """One immutable selected-expert read value handed to a decision frame.
+
+    ``slot`` is the expert output in the declared plastic width.  The slot is
+    detached and carries no source, label or task identity.  The decoder and
+    gain are fixed by the model manifest; ``read_path_sha256`` proves the
+    adapter is using exactly that fixed map.
+    """
+    slot: torch.Tensor  # [1, width]
+    expert_id: int
+    producer: str
+    revision: int
+    route_mode: str
+    route_permutation: tuple[int, ...]
+    read_path_sha256: str
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if (self.slot.ndim != 2 or self.slot.shape[0] != 1
+                or not self.slot.is_floating_point() or self.slot.requires_grad
+                or not bool(torch.isfinite(self.slot).all())):
+            raise ValueError('Plastic slot must be detached finite [1, width]')
+        if type(self.expert_id) is not int or self.expert_id < 0:
+            raise ValueError('Plastic expert_id must be a nonnegative integer')
+        if not isinstance(self.producer, str) or not self.producer:
+            raise ValueError('Plastic producer identity required')
+        if type(self.revision) is not int or self.revision < 0:
+            raise ValueError('Plastic revision must be a nonnegative integer')
+        if self.route_mode not in {'fixed', 'shuffled'}:
+            raise ValueError('Plastic route mode must be fixed or shuffled')
+        object.__setattr__(self, 'route_permutation', tuple(self.route_permutation))
+        permutation = self.route_permutation
+        if (not permutation or len(set(permutation)) != len(permutation)
+                or any(type(item) is not int or item < 0 for item in permutation)):
+            raise ValueError('Plastic route permutation must be distinct nonnegative integers')
+        if (not isinstance(self.read_path_sha256, str)
+                or len(self.read_path_sha256) != 64
+                or any(char not in '0123456789abcdef' for char in self.read_path_sha256)):
+            raise ValueError('Plastic read path identity must be a SHA256')
+        object.__setattr__(self, '_tensor_stamps', (tensor_stamp(self.slot),))
+
+    def tensors(self):
+        return (self.slot,)
+
+    def assert_immutable(self):
+        if self._tensor_stamps != (tensor_stamp(self.slot),):
+            raise RuntimeError('PlasticRead tensor mutated; rebuild at a decision boundary')
+
+
+@dataclass(frozen=True)
 class PendingWrite:
     event_id: str
     record: Any
@@ -589,16 +690,17 @@ class ComponentManifest:
     identity: IdentitySpec | None = None
     pattern: PatternSpec | None = None
     vision: VisionSpec | None = None
+    plastic: PlasticSpec | None = None
 
     def shared_dict(self):
         """Manifest fields that identify the parent, excluding additive state."""
         return {key: value for key, value in self.to_dict().items()
-                if key not in ('core', 'fast_memory', 'copy', 'identity', 'pattern', 'vision')}
+                if key not in ('core', 'fast_memory', 'copy', 'identity', 'pattern', 'vision', 'plastic')}
 
     def to_dict(self):
         # Absent additive components preserve the exact parent manifest digest.
         value = asdict(self)
-        for name in ('core', 'fast_memory', 'copy', 'identity', 'pattern', 'vision'):
+        for name in ('core', 'fast_memory', 'copy', 'identity', 'pattern', 'vision', 'plastic'):
             if value.get(name) is None:
                 value.pop(name, None)
         if self.fast_memory is not None:
@@ -632,6 +734,7 @@ class DecisionFrame:
     copy: CopyRead | None = None
     pattern: PatternRead | None = None
     enabled_branches: tuple[str, ...] = ('memory',)
+    plastic: PlasticRead | None = None
     _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
 
     def tensors(self):
@@ -645,13 +748,15 @@ class DecisionFrame:
             owned = (*owned, *self.fast.tensors())
         if self.copy is not None:
             owned = (*owned, *self.copy.tensors())
+        if self.plastic is not None:
+            owned = (*owned, *self.plastic.tensors())
         return owned
 
     def __post_init__(self):
         if (not self.enabled_branches
                 or len(set(self.enabled_branches)) != len(self.enabled_branches)
-                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast', 'copy', 'pattern'}):
-            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast/copy/pattern')
+                or not set(self.enabled_branches) <= {'memory', 'workspace', 'fast', 'copy', 'pattern', 'plastic'}):
+            raise ValueError('Enabled branches must be a nonempty distinct subset of memory/workspace/fast/copy/pattern/plastic')
         if 'workspace' in self.enabled_branches and self.core is None:
             raise ValueError('Workspace branch requires an owned CoreState')
         if 'fast' in self.enabled_branches and self.fast is None:
@@ -660,6 +765,10 @@ class DecisionFrame:
             raise ValueError('Copy branch requires an owned CopyRead')
         if 'pattern' in self.enabled_branches and self.pattern is None:
             raise ValueError('Pattern branch requires an owned PatternRead')
+        if 'plastic' in self.enabled_branches and self.plastic is None:
+            raise ValueError('Plastic branch requires an owned PlasticRead')
+        if self.plastic is not None:
+            self.plastic.assert_immutable()
         if self.core is not None:
             self.core.assert_immutable()
         if self.fast is not None:

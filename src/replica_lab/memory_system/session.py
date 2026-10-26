@@ -13,7 +13,8 @@ from safetensors.torch import load_file, save_file
 from .ledger import EligibilityScope, RecordLedger
 from .index import RetrievalIndex, DenseRecordVector
 from ..architecture.contracts import (CopyRead, EvidencePin, MemoryRead, PendingWrite,
-                                     RequestContext, SourceSpan, TaskGraph, VisualInput, fingerprint)
+                                     PlasticRead, RequestContext, SourceSpan, TaskGraph,
+                                     VisualInput, fingerprint)
 
 
 @dataclass(frozen=True)
@@ -202,14 +203,21 @@ class MemorySession:
                 previous_core=None, core_impl='recurrent',
                 enabled_inputs=('sense','memory','task'), enabled_branches=None,
                 train_core=False, task_digest=None, revision=None, fast_state=None,
-                identity=None, identity_enabled=True, pattern=None, visual=None):
+                identity=None, identity_enabled=True, pattern=None, visual=None,
+                plastic=None):
+        if plastic is not None:
+            if not isinstance(plastic, PlasticRead):
+                raise TypeError('Plastic input must use the PlasticRead contract')
+            if self.adapter.manifest.plastic is None:
+                raise ValueError('Plastic input requires a plastic-bearing manifest')
+            plastic.assert_immutable()
         if visual is not None:
             if not isinstance(visual, VisualInput):
                 raise TypeError('Observed patches must use the VisualInput contract')
             if (core_impl != 'none' or enabled_ports is None or tuple(enabled_ports)
                     or enabled_branches is not None and tuple(enabled_branches) != ('memory',)
                     or identity is not None or fast_state is not None or pattern is not None
-                    or train_core or train_sense):
+                    or plastic is not None or train_core or train_sense):
                 raise ValueError('V0 visual requests require isolated memory/core/identity-disabled execution')
             if ((visual.task_id, visual.subject_id, visual.branch_id, visual.purpose) != (
                     task.task_id, scope.subject_id, scope.branch_id, scope.purpose)
@@ -298,7 +306,8 @@ class MemorySession:
                         identity=identity, identity_enabled=identity_enabled)
         frame = self.adapter.make_frame(uuid.uuid4().hex,pin,memory,sense,enabled_ports,
                                         core=core,enabled_branches=enabled_branches,
-                                        fast=fast_state, copy=copy_state, pattern=pattern)
+                                        fast=fast_state, copy=copy_state, pattern=pattern,
+                                        plastic=plastic)
         request = RequestContext(uuid.uuid4().hex,task,frame,selection)
         self.verify(request)
         return request
