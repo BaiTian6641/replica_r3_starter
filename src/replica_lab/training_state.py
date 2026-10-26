@@ -211,11 +211,12 @@ def load_runtime_state(path: str | Path, optimizer: Optimizer, *, run_contract: 
 def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
                              runtime_path, run_contract, device,
                              restore_rng=True, strict_rng=True):
-    """Restore optimizer state before materializing full model weights on device.
+    """Materialize a checkpoint and restore runtime state with bounded residency.
 
-    Meta-device construction owns the complete architecture and parameter names
-    without allocating model storage. The checkpoint optimizer is restored on
-    the target backend first, then full weights and any sidecars are materialized.
+    Meta-device construction owns architecture and parameter names without model
+    storage. CPU uses the normal checkpoint loader for exact fixtures. Native
+    resumes materialize device-resident weights first, then restore optimizer,
+    RNG, scheduler and cursor state directly into the real optimizer.
     """
     from safetensors.torch import load_file
     from transformers import AutoConfig, AutoModelForCausalLM
@@ -227,9 +228,6 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
         model = adapter_factory(base)
         optimizer = optimizer_factory(model)
     base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
-    restored = load_runtime_state(
-        runtime_path, optimizer, run_contract=run_contract,
-        restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
     if torch.device(device).type == "cpu":
         base = AutoModelForCausalLM.from_pretrained(
             base_path, local_files_only=True, trust_remote_code=False,
@@ -237,7 +235,9 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
         model = adapter_factory(base)
         model.to(device)
         actual_optimizer = optimizer_factory(model)
-        actual_optimizer.load_state_dict(optimizer.state_dict(), target_device=device)
+        restored = load_runtime_state(
+            runtime_path, actual_optimizer, run_contract=run_contract,
+            restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
         if getattr(model, "augmented", False):
             model.load_sidecars(base_path.parent / "sidecars.safetensors")
         return base, model, actual_optimizer, restored, base_rates
@@ -283,7 +283,9 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     model._apply(lambda tensor: tensor)
     del weights
     actual_optimizer = optimizer_factory(model)
-    actual_optimizer.load_state_dict(optimizer.state_dict(), target_device=device)
+    restored = load_runtime_state(
+        runtime_path, actual_optimizer, run_contract=run_contract,
+        restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
     if getattr(model, "augmented", False):
         model.load_sidecars(base_path.parent / "sidecars.safetensors")
     return base, model, actual_optimizer, restored, base_rates
