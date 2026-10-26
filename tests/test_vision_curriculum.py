@@ -904,6 +904,7 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
         "retention": {
             "policy": "component_nonregression.v1",
             "baseline_correct": 22, "baseline_cases": 32,
+            "before_correct": 22, "before_cases": 32,
             "measured_correct": 22, "measured_cases": 32,
             "measured_accuracy": 22 / 32,
             "overall_baseline_eligible": False,
@@ -916,6 +917,7 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "cases": protocol["splits"]["dev"]["procedural_rows"],
             "generations_sha256": "b" * 64,
             "cases_sha256": "3" * 64,
+            "case_ids_sha256": "8" * 64,
             "seal_sha256": protocol["splits"]["dev"]["seal_sha256"],
             "dataset_dev_cases_sha256": "4" * 64,
             "response_loss": 1.25,
@@ -935,7 +937,8 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "receipt_sha256": "d" * 64, "manifest_digest": "e" * 64,
             "tensor_names": sorted(PROJECTOR_TENSORS),
         },
-        "checks": {name: True for name in _required_run_checks()},
+        "checks": {name: True for name in _required_run_checks()}
+        | {"retention_baseline_matches_declared": True},
         "audit_scored": False,
         "external_final_consumed": False,
         "costs": {"downloads": 0, "workers": 1,
@@ -1151,6 +1154,7 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                    "seal_sha256"],
                "cases": prepared_protocol["splits"]["audit"]["rows"],
                "cases_sha256": "3" * 64,
+               "case_ids_sha256": audit_score["case_ids_sha256"],
                "generations_sha256": "1" * 64,
                "score": audit_score,
                "learned_quality_pass":
@@ -1162,18 +1166,24 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                         "rows": prepared_protocol["splits"]["external_final"]
                         ["rows"],
                         "cases_sha256": "4" * 64,
+                        "case_ids_sha256": fingerprint(
+                            [f"c{index}" for index in range(8)]),
                         "generations_sha256": "2" * 64,
                         "caption": {
                             "cases": 8, "loss_cases": 8,
+                            "case_ids": [f"c{index}" for index in range(8)],
+                            "case_ids_sha256": fingerprint(
+                                [f"c{index}" for index in range(8)]),
                             "token_f1": 1.0,
                             "teacher_forced_response_loss": 0.5,
                             "claim": "narrow_alignment_metric_only_no_"
                                      "semantic_quality_claim",
                             "rows": [
-                                {"generated": "a", "expected": "a",
+                                {"case_id": f"c{index}",
+                                 "generated": "a", "expected": "a",
                                  "token_f1": 1.0,
                                  "response_loss": 0.5}
-                                for _ in range(8)]}})
+                                for index in range(8)]}})
     validate_finalize_receipt(receipt, prepared_protocol, "a" * 64)
     written = write_finalize_receipt(paths, receipt)
     assert written["external_receipt"] == written["audit_receipt"]
@@ -1209,6 +1219,10 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
         validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
     bad = copy.deepcopy(receipt)
     bad["reservations"]["audit"]["sha256"] = "0" * 64
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["audit"]["case_ids_sha256"] = "0" * 64
     with pytest.raises(VisionCurriculumError):
         validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
     bad = copy.deepcopy(receipt)
@@ -1308,7 +1322,22 @@ def test_score_report_rejects_self_contradictory_acceptance(prepared_protocol):
         with pytest.raises(VisionCurriculumError):
             validate_score_report(bad, prepared_protocol)
     bad = copy.deepcopy(report)
+    bad["learned_quality"]["procedural_dev"]["case_ids"].pop()
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad, prepared_protocol)
+    bad = copy.deepcopy(report)
+    bad["learned_quality"]["procedural_dev"]["case_ids_sha256"] = "0" * 64
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad, prepared_protocol)
+    bad = copy.deepcopy(report)
     bad["learned_quality"]["procedural_dev"]["bootstrap"]["seed"] += 1
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad, prepared_protocol)
+    bad = copy.deepcopy(report)
+    forged = bad["learned_quality"]["procedural_dev"]["rows"][0]
+    forged["correct"] = True
+    forged["generated"] = "coordinated-forgery"
+    forged["unknown"] = False
     with pytest.raises(VisionCurriculumError):
         validate_score_report(bad, prepared_protocol)
     bad = copy.deepcopy(report)
@@ -1567,6 +1596,33 @@ def test_prepared_audit_seal_changes_when_audit_bytes_change(tmp_path):
     with pytest.raises(VisionCurriculumError):
         audit_dataset(root)
 
+
+
+def _runner_import(name):
+    import os
+    keys = ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE",
+            "PYTORCH_ENABLE_MPS_FALLBACK", "REPLICA_CAPACITY_GUARD")
+    saved = {key: os.environ.get(key) for key in keys}
+    try:
+        import scripts.run_vision_curriculum as runner
+        return getattr(runner, name)
+    finally:
+        for key, value in saved.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def test_external_final_preflight_resolves_external_root(prepared_protocol):
+    dataset = audit_dataset(PREPARED)
+    validate = _runner_import("validate_external_final_preflight")
+    rows = validate(prepared_protocol, dataset)
+    assert len(rows) == 8
+    assert {row["case_id"] for row in rows}.isdisjoint(
+        dataset.managed_case_ids())
+    assert {row["image_sha256"] for row in rows}.isdisjoint(
+        dataset.managed_image_hashes())
 
 def test_no_final_split_rows_copied_into_prepared_curriculum(prepared_protocol):
     external = load_config(ROOT / "configs/vision_curriculum_v1.json")[

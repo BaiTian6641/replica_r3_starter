@@ -48,7 +48,8 @@ from replica_lab.vision_curriculum import (  # noqa: E402
     UNKNOWN_ANSWER, VisionCurriculumError, _required_run_checks,
     answer_correct, assemble_score_report, assign_controls, audit_dataset,
     build_finalize_receipt, build_protocol, curriculum_prompt, dataset_pins,
-    finalize_receipt_paths, is_unknown_answer, load_config,
+    FINALIZE_RESERVATION_ROOT, finalize_receipt_paths, is_unknown_answer,
+    load_config,
     load_external_source, load_protocol, load_run_report,
     lr_probe_artifact_name, protocol_sha256,
     require_global_finalize_allowed,
@@ -1155,6 +1156,10 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                      for case in dataset.caption_cases()])
         dump(output / "lr_probe.json", lr_selection)
         dump(output / "backward_probe.json", probe)
+        guard.sample(index=0, event="train_end")
+        require(time.monotonic() - started
+                <= protocol["limits"]["max_seconds"],
+                "Training run exceeded the declared overall ceiling")
         driver_peak = guard.driver_peak
         token_parity = all(
             [row["generated_ids"] for row in retention_before["rows"]]
@@ -1242,6 +1247,7 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "measured_cases": retention_after["score"]["cases"],
                 "measured_accuracy": retention_after["score"]["accuracy"],
                 "before_correct": retention_before["score"]["correct"],
+                "before_cases": retention_before["score"]["cases"],
                 "before_accuracy": retention_before["score"]["accuracy"],
                 "token_parity": token_parity,
                 "baseline_matches_declared": baseline_matches,
@@ -1259,6 +1265,8 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "generations_sha256": sha256_file(
                     output / "dev_generations.jsonl"),
                 "cases_sha256": sha256_file(output / "dev_cases.jsonl"),
+                "case_ids_sha256": fingerprint(sorted(
+                    case["case_id"] for case in dev_cases)),
                 "seal_sha256": protocol["splits"]["dev"]["seal_sha256"],
                 "dataset_dev_cases_sha256": fingerprint(dev_cases),
                 "response_loss": dev_response_loss,
@@ -1335,10 +1343,6 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "started_at_utc": utc_now(),
             },
         }
-        guard.sample(index=0, event="train_end")
-        require(time.monotonic() - started
-                <= protocol["limits"]["max_seconds"],
-                "Training run exceeded the declared overall ceiling")
         # Drop the out-of-band hash before writing the report file.
         validate_run_report({**report, "_run_report_sha256": ""}, protocol)
         dump(output / "run_report.json", report)
@@ -1566,6 +1570,25 @@ def execute_score(args, protocol, protocol_sha, dataset):
             "Dev dataset hash differs from the frozen report")
     require(prior["dev"]["cases"] == len(dataset_dev),
             "Dev case count differs from the frozen report")
+    dataset_case_ids = sorted(case["case_id"] for case in dataset_dev)
+    require(prior["dev"]["case_ids_sha256"] == fingerprint(dataset_case_ids),
+            "Frozen dev case ids differ from the dataset")
+    scored_procedural = score_procedural(
+        dev_cases, generations,
+        controls=protocol["evaluation"]["controls"],
+        seed=int(protocol["seed"]),
+        bootstrap_resamples=int(
+            protocol["evaluation"]["bootstrap"]["resamples"]),
+        bootstrap_confidence=float(
+            protocol["evaluation"]["bootstrap"]["confidence"]),
+        gates=protocol["evaluation"]["gates"])
+    require(scored_procedural["case_ids"] == dataset_case_ids
+            and scored_procedural["case_ids_sha256"]
+            == fingerprint(dataset_case_ids),
+            "Dev score case ids differ from the sealed dataset")
+    require(prior["dev"]["generations_sha256"]
+            == sha256_file(run / "dev_generations.jsonl"),
+            "Dev generation artifact changed")
     dataset_caption = dataset.caption_cases()
     require(canonical_json(caption_cases) == canonical_json(dataset_caption),
             "Caption cases were substituted or truncated")
@@ -1614,16 +1637,8 @@ def execute_score(args, protocol, protocol_sha, dataset):
     validate_score_report(score, protocol)
     output = ensure_fresh_directory(args.output)
     dump(output / "score_report.json", score)
-    scored = score_procedural(
-        dev_cases, generations,
-        controls=protocol["evaluation"]["controls"],
-        seed=int(protocol["seed"]),
-        bootstrap_resamples=int(
-            protocol["evaluation"]["bootstrap"]["resamples"]),
-        bootstrap_confidence=float(
-            protocol["evaluation"]["bootstrap"]["confidence"]),
-        gates=protocol["evaluation"]["gates"])
-    write_jsonl(output / "procedural_rows.jsonl", scored["rows"])
+    write_jsonl(output / "procedural_rows.jsonl",
+                scored_procedural["rows"])
     return score
 
 
@@ -1636,21 +1651,30 @@ def load_external_final(protocol):
     """Read the sealed final rows only for the one-shot final evaluation."""
     from replica_lab.contracts import canonical_json
     final = protocol["external"]["final_sealed"]
-    manifest_path = resolve_project_path(protocol, final["path"])
+    external_root = resolve_project_path(
+        protocol, protocol["external"]["root"])
+    manifest_path = external_root / final["path"]
     require(manifest_path.is_file(), "Sealed final manifest is missing")
     require(sha256_file(manifest_path) == final["sha256"],
             "Sealed final manifest bytes changed")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    require(manifest.get("role") == "final_eval_untouched",
-            "Sealed final role differs")
+    require(manifest.get("role") == "final_eval_untouched"
+            and manifest.get("sealed") is True
+            and manifest.get("untouched") is True,
+            "Sealed final role/state differs")
+    require(manifest["counts"]["rows"] == len(manifest["rows"])
+            == int(protocol["splits"]["external_final"]["rows"]),
+            "Sealed final manifest counts differ")
+    _require_unique = {row["row_id"] for row in manifest["rows"]}
+    require(len(_require_unique) == len(manifest["rows"]),
+            "Sealed final manifest row ids repeat")
     derived_seal = _role_manifest_seal(manifest)
     require(derived_seal
             == protocol["external"]["final_sealed"]["seal_sha256"]
             == protocol["external"]["final_pointer"]["seal_sha256"]
             == protocol["splits"]["external_final"]["seal_sha256"],
             "Sealed final seal differs from the manifest-row derivation")
-    corpus_path = resolve_project_path(
-        protocol, protocol["external"]["corpus"]["path"])
+    corpus_path = external_root / protocol["external"]["corpus"]["path"]
     require(sha256_file(corpus_path)
             == protocol["external"]["corpus"]["sha256"],
             "External corpus bytes changed")
@@ -1659,7 +1683,9 @@ def load_external_final(protocol):
         protocol, protocol["external"]["root"]) / "raw/images"
     rows = []
     for entry in manifest["rows"]:
-        row = corpus[entry["row_id"]]
+        row = corpus.get(entry["row_id"])
+        require(row is not None,
+                f"Sealed final row is missing from the corpus: {entry['row_id']}")
         require(row["split"]["role"] == "final_eval_untouched",
                 "Sealed final row role differs")
         require(sha256_bytes(canonical_json(row).encode("utf-8"))
@@ -1696,10 +1722,12 @@ def authenticate_reservations(paths, reservation, verified_seals):
                      ".reserve.json"),
         "audit": f"audit_{verified_seals['audit']}.reserve.json",
     }
+    reservation_root = (ROOT / FINALIZE_RESERVATION_ROOT).resolve()
     for name in ("external", "audit"):
         path = Path(reservation[name]["path"])
-        require(Path(path).name == expected_names[name],
-                f"{name} reservation path is not seal-derived")
+        require(Path(path).name == expected_names[name]
+                and path.resolve().parent == reservation_root,
+                f"{name} reservation path is not in the seal-derived root")
         require(path.is_file(), f"{name} reservation file is missing")
         require(path.read_bytes() == expected,
                 f"{name} reservation bytes differ from the payload")
@@ -1766,6 +1794,7 @@ def _select_arm(reports, rule):
 
 def execute_finalize(args, protocol, protocol_sha, dataset):
     import torch
+    from replica_lab.contracts import fingerprint
     from replica_lab.architecture.loading import (exclusive_mps_worker,
                                                 load_local_mps)
     require(torch.backends.mps.is_available(), "MPS is unavailable; no fallback")
@@ -1784,6 +1813,8 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
             "Finalize requires exactly the two declared arms")
     primary_score = json.loads(Path(args.score_report).read_text())
     peer_score = json.loads(Path(args.peer_score_report).read_text())
+    sealed_dev_ids = sorted(case["case_id"]
+                            for case in dataset.generation_cases("dev"))
     for name, score, report, run_path in (
             ("primary", primary_score, primary, run),
             ("peer", peer_score, peer, peer_run)):
@@ -1796,6 +1827,13 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                 f"{name} score report used another data manifest")
         require(score["arm"] == report["arm"],
                 f"{name} score report arm differs from its run")
+        procedural = score["learned_quality"]["procedural_dev"]
+        require(procedural["case_ids"] == sealed_dev_ids
+                and procedural["case_ids_sha256"]
+                == fingerprint(sealed_dev_ids)
+                and report["dev"]["case_ids_sha256"]
+                == fingerprint(sealed_dev_ids),
+                f"{name} score case identities differ from the sealed dev split")
         require(score["engineering"]["pass"] is True,
                 f"{name} engineering checks must pass before finalize")
         require(score["eligibility"]["audit_scores_present"] is False,
@@ -1895,6 +1933,11 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
             bootstrap_confidence=float(protocol["evaluation"]["bootstrap"]
                                        ["confidence"]),
             gates=protocol["evaluation"]["gates"])
+        audit_case_ids = sorted(case["case_id"] for case in audit_cases)
+        require(audit_score["case_ids"] == audit_case_ids
+                and audit_score["case_ids_sha256"]
+                == fingerprint(audit_case_ids),
+                "Audit score case ids differ from the sealed audit cases")
         write_jsonl(output / "external_final_cases.jsonl",
                     [{"case_id": row["case_id"],
                       "image_sha256": row["image_sha256"]}
@@ -1935,6 +1978,7 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                    "seal_sha256": protocol["splits"]["audit"]["seal_sha256"],
                    "cases": len(audit_cases),
                    "cases_sha256": sha256_file(output / "audit_cases.jsonl"),
+                   "case_ids_sha256": audit_score["case_ids_sha256"],
                    "generations_sha256": sha256_file(
                        output / "audit_generations.jsonl"),
                    "score": audit_score,
@@ -1947,6 +1991,8 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                             "rows": len(final_cases),
                             "cases_sha256": sha256_file(
                                 output / "external_final_cases.jsonl"),
+                            "case_ids_sha256": final_caption[
+                                "case_ids_sha256"],
                             "generations_sha256": sha256_file(
                                 output / "external_final_generations.jsonl"),
                             "caption": final_caption})

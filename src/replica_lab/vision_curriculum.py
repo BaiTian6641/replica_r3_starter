@@ -3730,6 +3730,8 @@ def score_procedural(cases: Sequence[Mapping[str, Any]],
         "learned_quality_pass": not failures,
         "bootstrap": {"seed": seed, "resamples": bootstrap_resamples,
                       "confidence": bootstrap_confidence},
+        "case_ids": sorted(case_by_id),
+        "case_ids_sha256": fingerprint(sorted(case_by_id)),
         "rows": scored,
     }
 
@@ -3760,8 +3762,11 @@ def score_caption(labels: Sequence[Mapping[str, Any]],
                      "expected": expected[case_id], "token_f1": f1,
                      "response_loss": (None if loss is None else float(loss))})
     _require(seen == set(expected), "Caption generations are incomplete")
+    case_ids = sorted(seen)
     return {
         "cases": len(rows),
+        "case_ids": case_ids,
+        "case_ids_sha256": fingerprint(case_ids),
         "token_f1": sum(f1_values) / len(f1_values),
         "teacher_forced_response_loss": sum(losses) / len(losses),
         "loss_cases": len(losses),
@@ -3863,7 +3868,8 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
                            ("cases", "controls", "paired",
                             "correct_bootstrap", "unknown",
                             "gate_failures", "learned_quality_pass",
-                            "bootstrap", "rows")},
+                            "bootstrap", "rows", "case_ids",
+                            "case_ids_sha256")},
         "external_development_caption": caption,
         "retention": retention_result,
     }
@@ -3913,6 +3919,13 @@ def _validate_caption_metrics(caption: Mapping[str, Any],
     rows = caption.get("rows")
     _require(isinstance(rows, list) and len(rows) == cases,
              f"{name}.rows do not cover the cases")
+    case_ids = caption.get("case_ids")
+    _require(isinstance(case_ids, list)
+             and len(set(case_ids)) == len(case_ids) == cases
+             and {row["case_id"] for row in rows} == set(case_ids),
+             f"{name}.case_ids do not cover the rows")
+    _require(caption.get("case_ids_sha256") == fingerprint(case_ids),
+             f"{name}.case_ids_sha256 differs")
     f1_values = []
     losses = []
     for row in rows:
@@ -3941,6 +3954,37 @@ def _validate_procedural_metrics(score: Mapping[str, Any],
     rows = score.get("rows")
     _require(isinstance(rows, list) and rows,
              f"{name}.rows are missing")
+    case_ids = set(score.get("case_ids", ()))
+    _require(case_ids and len(case_ids) == len(score["case_ids"]),
+             f"{name}.case_ids are missing or duplicated")
+    _require(score.get("case_ids_sha256")
+             == fingerprint(score["case_ids"]),
+             f"{name}.case_ids_sha256 differs")
+    controls_declared = list(score["controls"])
+    seen_pairs = set()
+    for row in rows:
+        generated = str(row["generated"])
+        expected = str(row["expected"])
+        correct = answer_correct(generated, expected)
+        unknown = is_unknown_answer(generated)
+        abstain_case = normalise_answer(expected) == UNKNOWN_ANSWER
+        _require(row["correct"] == correct
+                 and row["unknown"] == unknown
+                 and row["abstain_case"] == abstain_case,
+                 f"{name} row evidence contradicts its text: {row['case_id']}")
+        pair = (row["control"], row["case_id"])
+        _require(pair not in seen_pairs,
+                 f"{name} duplicate raw row: {pair}")
+        seen_pairs.add(pair)
+        _require(row["case_id"] in case_ids,
+                 f"{name} raw row uses an undeclared case")
+    for control in controls_declared:
+        covered = {case for name_control, case in seen_pairs
+                   if name_control == control}
+        _require(covered == case_ids,
+                 f"{name}.{control} does not cover every sealed case")
+    _require(len(seen_pairs) == len(controls_declared) * len(case_ids),
+             f"{name} raw row matrix is incomplete")
     bootstrap_meta = score.get("bootstrap")
     _exact_keys(bootstrap_meta, {"seed", "resamples", "confidence"},
                 f"{name}.bootstrap")
@@ -4055,6 +4099,13 @@ def _validate_caption_metrics(caption: Mapping[str, Any],
     rows = caption.get("rows")
     _require(isinstance(rows, list) and len(rows) == cases,
              f"{name}.rows do not cover the cases")
+    case_ids = caption.get("case_ids")
+    _require(isinstance(case_ids, list)
+             and len(set(case_ids)) == len(case_ids) == cases
+             and {row["case_id"] for row in rows} == set(case_ids),
+             f"{name}.case_ids do not cover the rows")
+    _require(caption.get("case_ids_sha256") == fingerprint(case_ids),
+             f"{name}.case_ids_sha256 differs")
     f1_values = []
     losses = []
     for row in rows:
@@ -4502,6 +4553,8 @@ def validate_run_report(report: Mapping[str, Any],
     dev = report["dev"]
     _require(dev["cases"] == protocol["splits"]["dev"]["procedural_rows"],
              "Dev procedural case count differs from the sealed protocol split")
+    _require(_is_sha256(dev.get("case_ids_sha256")),
+             "Dev case identity hash is missing")
     _require(dev["cases"] > 0 and _is_sha256(dev["generations_sha256"]),
              "Dev generations pin is missing")
     response_loss = _finite(dev.get("response_loss"), "dev response loss",
@@ -4548,9 +4601,70 @@ def validate_run_report(report: Mapping[str, Any],
 
     checks = report["checks"]
     _require(isinstance(checks, Mapping), "Run checks must be a mapping")
-    missing = _required_run_checks() - set(checks)
-    _require(not missing, f"Run checks are missing: {sorted(missing)}")
-    failed = sorted(name for name, value in checks.items() if value is not True)
+    derived_checks = {
+        "protocol_pins_match": (
+            report["protocol_sha256"] == _protocol_sha(protocol)
+            and report["data_pins"] == protocol["data"]["manifest"]),
+        "data_seals_match": (
+            dev.get("seal_sha256")
+            == protocol["splits"]["dev"]["seal_sha256"]),
+        "implementations_match": (
+            report["implementation_sha256"]
+            == protocol["implementation_sha256"]),
+        "fresh_initialization": all(
+            item.get("init_sha256") == init["projector_init_sha256"]
+            for item in results),
+        "not_warm_start": (
+            init["projector_init_sha256"]
+            not in set(protocol["train"]["forbidden_parent_weights_sha256"])),
+        "projector_only_trainable": (
+            sorted(trainable["names"]) == sorted(PROJECTOR_TENSORS)
+            and trainable["parameter_count"] == PROJECTOR_PARAMETER_COUNT),
+        "nonprojector_gradients_absent": (
+            gradient["nonprojector_gradient_names"] == []),
+        "response_only_labels": (
+            training.get("response_only_labels") is True),
+        "backward_only_probe_labelled": (
+            gradient["backward_only_probe"] is True
+            and gradient["probe_applied_update"] is False
+            and gradient["probe_label"] == "backward_only_no_update"),
+        "schedule_matches_protocol": (
+            schedule["schedule_sha256"]
+            == protocol["schedule"]["schedule_sha256"]
+            and schedule["updates"] == protocol["schedule"]["updates"]
+            and schedule["examples"] == protocol["schedule"]["examples"]),
+        "equal_compute_within_arm": (
+            training["updates"] == protocol["schedule"]["updates"]
+            and training["examples"] == protocol["schedule"]["examples"]),
+        "strict_extension_export": (
+            extension["format"] == "replica.minicpm5.extensions.v4"),
+        "no_base_copy": extension["base_saved"] is False,
+        "dev_only_scored": (
+            dev["scored_splits"] == ["curriculum_dev", "diagnostic_dev",
+                                     "external_development"]
+            and dev["audit_touched"] is False
+            and report["audit_scored"] is False),
+        "retention_measured": (
+            _is_sha256(retention.get("pre_sha256"))
+            and _is_sha256(retention.get("post_sha256"))
+            and retention.get("measured_correct") is not None
+            and retention.get("measured_cases") == 32),
+        "retention_token_parity_checked": (
+            isinstance(retention.get("token_parity"), bool)),
+        "audit_untouched": report["audit_scored"] is False,
+        "external_final_untouched": (
+            report["external_final_consumed"] is False),
+        "retention_baseline_matches_declared": (
+            retention.get("before_correct") == 22
+            and retention.get("before_cases") == 32),
+    }
+    _require(set(checks) == set(derived_checks),
+             "Run checks differ from the evidence-derived set")
+    for name, value in derived_checks.items():
+        _require(checks[name] is value,
+                 f"Run check contradicts evidence: {name}")
+    failed = sorted(name for name, value in derived_checks.items()
+                    if value is not True)
     _require(not failed, f"Run checks failed: {failed}")
     costs = report["costs"]
     _require(costs.get("downloads") == 0, "Downloads are forbidden")
@@ -4955,7 +5069,9 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
         _require(item["sha256"] == expected_hash,
                  f"Finalize {name} reservation hash differs from its payload")
         _require(isinstance(item["path"], str) and item["path"]
-                 and Path(item["path"]).name == expected_names[name],
+                 and Path(item["path"]).name == expected_names[name]
+                 and Path(item["path"]).parent.as_posix().endswith(
+                     FINALIZE_RESERVATION_ROOT),
                  f"Finalize {name} reservation path is not seal-derived")
     payload = receipt["reservation_payload"]
     _require(isinstance(payload, Mapping)
@@ -5060,21 +5176,26 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
     _nonempty(checkpoint["frozen_at_utc"], "checkpoint frozen time")
     audit = _exact_keys(receipt["audit"], {
         "scored_once", "seal_sha256", "cases", "cases_sha256",
-        "generations_sha256", "score", "learned_quality_pass",
-        "gate_failures"}, "finalize_receipt.audit")
+        "case_ids_sha256", "generations_sha256", "score",
+        "learned_quality_pass", "gate_failures"},
+        "finalize_receipt.audit")
     _require(audit["scored_once"] is True
              and audit["seal_sha256"]
              == protocol["splits"]["audit"]["seal_sha256"]
              and audit["cases"] == protocol["splits"]["audit"]["rows"],
              "Audit evidence differs from the protocol")
     _require(_is_sha256(audit["generations_sha256"])
-             and _is_sha256(audit["cases_sha256"]),
+             and _is_sha256(audit["cases_sha256"])
+             and _is_sha256(audit["case_ids_sha256"]),
              "Audit artifact hashes are invalid")
     audit_score = audit["score"]
     _require(isinstance(audit_score, Mapping)
              and audit_score.get("cases") == audit["cases"],
              "Audit score coverage differs")
     _validate_procedural_metrics(audit_score, "audit")
+    _require(audit["case_ids_sha256"] == audit_score["case_ids_sha256"]
+             == fingerprint(audit_score["case_ids"]),
+             "Audit case identity differs from the scored rows")
     _require(audit_score["bootstrap"]["seed"] == protocol["seed"]
              and audit_score["bootstrap"]["resamples"]
              == protocol["evaluation"]["bootstrap"]["resamples"]
@@ -5117,7 +5238,7 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
              "Audit quality result contradicts its failures")
     external = _exact_keys(receipt["external_final"], {
         "consumed_once", "seal_sha256", "rows", "cases_sha256",
-        "generations_sha256", "caption"},
+        "case_ids_sha256", "generations_sha256", "caption"},
         "finalize_receipt.external_final")
     _require(external["consumed_once"] is True
              and external["seal_sha256"]
@@ -5125,12 +5246,15 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
              and external["rows"] == protocol["splits"]["external_final"]["rows"],
              "External final evidence differs from the protocol")
     _require(_is_sha256(external["generations_sha256"])
-             and _is_sha256(external["cases_sha256"]),
+             and _is_sha256(external["cases_sha256"])
+             and _is_sha256(external["case_ids_sha256"]),
              "External final artifact hashes are invalid")
     caption = external["caption"]
     _require(caption.get("cases") == external["rows"],
              "External final caption coverage differs")
     _validate_caption_metrics(caption, "finalize.external_final.caption")
+    _require(external["case_ids_sha256"] == caption["case_ids_sha256"],
+             "External final case identity differs from the caption rows")
     consumed = _exact_keys(receipt["consumed"], {
         "audit_scored", "external_final_consumed", "authenticated_by",
         "prepared_flags_unchanged"}, "finalize_receipt.consumed")
