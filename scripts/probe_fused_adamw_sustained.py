@@ -100,6 +100,12 @@ def execute(args, profiler):
 
     protocol_path = _protocol_path(args)
     protocol = json.loads(protocol_path.read_text())
+    numeric = protocol.get("numeric_policy", {})
+    if numeric.get("torch_use_deterministic_algorithms") is True:
+        torch.use_deterministic_algorithms(True)
+    if numeric.get("mps_fast_math") == "disabled":
+        if os.environ.get("PYTORCH_MPS_FAST_MATH") != "0":
+            raise RuntimeError("PYTORCH_MPS_FAST_MATH=0 is required by the protocol")
     mode = args.mode
     continuous = bool(getattr(args, "continuous", False))
     source = protocol["source"]

@@ -46,6 +46,12 @@
     "seed": 17,
     "checkpoint_format": "replica.native_fused_adamw.state.v1"
   },
+  "numeric_policy": {
+    "torch_use_deterministic_algorithms": true,
+    "mps_fast_math": "disabled",
+    "dtype": "float32",
+    "rationale": "Matched continuation must distinguish checkpoint/state defects from backend numerical nondeterminism; no CPU fallback or tolerance is substituted"
+  },
   "smoke": {
     "total_updates": 2,
     "first_process_updates": 1,
