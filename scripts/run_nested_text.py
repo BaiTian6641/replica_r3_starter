@@ -1022,18 +1022,20 @@ def main() -> int:
         parser.error("positive event/generation budgets are required")
     try:
         _fresh_output(args.output)
-        config = json.loads(args.protocol.read_text(encoding="utf-8"))
-        _require(config.get("format") == "replica.nested_text.nl1.v1",
-                 "unsupported nested-text protocol")
-        _require(config.get("one_clock_control_only") is True,
-                 "the baseline must remain one-clock only")
-        _require(config.get("replay_bytes") == 0,
-                 "the one-clock baseline forbids replay bytes")
-        if args.mode == "teach":
-            return run_teach(args, config)
-        if args.mode == "p-only-eval":
-            return run_p_only(args, config)
-        return run_resume(args, config)
+        from replica_lab.profiling import RunProfiler
+        with RunProfiler("mps", args.output) as profiler:
+            config = json.loads(args.protocol.read_text(encoding="utf-8"))
+            _require(config.get("format") == "replica.nested_text.nl1.v1",
+                     "unsupported nested-text protocol")
+            _require(config.get("one_clock_control_only") is True,
+                     "the baseline must remain one-clock only")
+            _require(config.get("replay_bytes") == 0,
+                     "the one-clock baseline forbids replay bytes")
+            if args.mode == "teach":
+                return run_teach(args, config)
+            if args.mode == "p-only-eval":
+                return run_p_only(args, config)
+            return run_resume(args, config)
     except BaseException as error:
         try:
             _write_json(args.output / "failure.json", {
