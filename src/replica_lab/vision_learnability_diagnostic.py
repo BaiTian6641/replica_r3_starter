@@ -683,7 +683,7 @@ def mean_only_projected_patches(projected, valid, *, tolerance: float = 1e-6):
         invalid_zero = bool((invalid == 0).all()) if invalid.numel() else True
         deviation = float((replaced - mean_patch).abs().max())
         spatial = float(replaced.var(dim=0, unbiased=False).mean())
-        preserved = float((replaced.mean(dim=0) - patches.mean(dim=0)).abs().max())
+        preserved = float((mean_patch - patches.mean(dim=0)).abs().max())
         finite = bool(torch.isfinite(replaced).all())
         within = (finite and invalid_zero
                   and deviation <= float(tolerance)
@@ -939,6 +939,23 @@ def verify_mean_preservation(
     """Compare stage-invariant projected-space geometry within tolerance."""
     violations: list[str] = []
     comparisons: dict[str, dict[str, Any]] = {}
+    for path in (("pca_content", "ratio"),
+                 ("sibling_cosine_distance", "mean"),
+                 ("cross_pair_cosine_distance", "mean")):
+        full_value = _nested(full_feature, path)
+        mean_value = _nested(mean_feature, path)
+        name = ".".join(path)
+        item = {"full": full_value, "mean_only": mean_value,
+                "delta": None, "within_tolerance": False}
+        if full_value is None or mean_value is None:
+            violations.append(name)
+        else:
+            delta = abs(float(full_value) - float(mean_value))
+            item["delta"] = delta
+            item["within_tolerance"] = delta <= float(tolerance)
+            if not item["within_tolerance"]:
+                violations.append(name)
+        comparisons[name] = item
     for name in ("projected_mean_vector_rms_mean",
                  "within_image_spatial_variance_mean"):
         full_value = float(full_feature[name])
@@ -1763,7 +1780,8 @@ def generation_hypothesis_report(rows: Sequence[Mapping[str, Any]], *,
             violations.append(f"empty_ids:{key}")
             continue
         text = row.get("generated_text")
-        if not isinstance(text, str) or not text.strip():
+        if not isinstance(text, str) or (
+                not text.strip() and any(token not in stop_tokens for token in ids)):
             violations.append(f"empty_text:{key}")
         declared = row.get("stop_tokens")
         if declared is None or sorted(int(value) for value in declared) != sorted(

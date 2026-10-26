@@ -881,9 +881,9 @@ def execute_ablation(args, config, pins):
                                      name: locals().get(name)
                                      for name in (
                                          "receipt_invariants", "image_invariants",
-                                         "mean_preservation", "full_generations",
-                                         "mean_generations", "baseline_identity",
-                                         "paired_ablation", "ablation_decision",
+                                         "preservation", "full_generations",
+                                         "mean_generations", "baseline",
+                                         "paired", "decision",
                                          "full_normalized", "mean_normalized")}})
         raise
 

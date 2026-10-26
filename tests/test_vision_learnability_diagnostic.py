@@ -582,6 +582,17 @@ def test_generation_evidence_requires_one_matching_greedy_hypothesis():
     assert learn.generation_hypothesis_report(budget)["ok"] is False
 
 
+def test_terminal_stop_only_generation_is_not_empty_output():
+    rows = _generation_rows()
+    rows[0]["generated_ids"] = [1]
+    rows[0]["generated_text"] = ""
+    assert learn.generation_hypothesis_report(rows)["ok"] is True
+    rows[0]["generated_ids"] = []
+    assert learn.generation_hypothesis_report(rows)["ok"] is False
+    rows[0]["generated_ids"] = [5]
+    assert learn.generation_hypothesis_report(rows)["ok"] is False
+
+
 # ---------------------------------------------------------------------------
 # Train-fit scoring and exact per-role gates
 # ---------------------------------------------------------------------------
