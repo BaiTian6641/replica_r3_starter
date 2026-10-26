@@ -56,6 +56,9 @@ def main(argv=None):
     output.mkdir(parents=True, exist_ok=True)
     write_stage_dataset(output, built)
     protocol_config = copy.deepcopy(config)
+    protocol_config["data_root"] = (
+        output.relative_to(project_root).as_posix()
+        if output.is_relative_to(project_root) else str(output))
     protocol_config["project_root"] = str(project_root)
     protocol = build_stage_protocol(protocol_config, built, parent_protocol)
     protocol_sha256 = write_stage_protocol(output / "protocol.json", protocol)
