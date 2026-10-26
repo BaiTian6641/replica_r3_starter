@@ -110,6 +110,7 @@ def execute(args, profiler):
             raise RuntimeError(f"{key}=1 is required")
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
+    from replica_lab import continuation_fixture
     from replica_lab.checkpointing import save_training_checkpoint, validate_training_checkpoint
     from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
     from replica_lab.optimizers import build_optimizer
@@ -138,15 +139,31 @@ def execute(args, profiler):
     source = protocol["source"]
     scope = protocol["scope"]
     optim = protocol["optimizer"]
-    model_path = ROOT / source["model_path"]
-    lock_path = ROOT / source["model_lock"]
+    fixture = (continuation_fixture.validate_fixture_protocol(
+        protocol, protocol_path=protocol_path, root=ROOT)
+        if continuation_fixture.is_fixture_protocol(protocol) else None)
     data_path = ROOT / source["data"]
-    if _sha(lock_path) != source["model_lock_sha256"] or _sha(data_path) != source["data_sha256"]:
-        raise ValueError("Sealed model lock or diagnostic data bytes differ")
-    lock = json.loads(lock_path.read_text())
-    validate_model_lock(model_path, lock)
-    if lock["revision"] != source["revision"]:
-        raise ValueError("Use the original sealed MiniCPM5 source")
+    if _sha(data_path) != source["data_sha256"]:
+        raise ValueError("Sealed diagnostic data bytes differ")
+    if fixture is None:
+        model_path = ROOT / source["model_path"]
+        lock_path = ROOT / source["model_lock"]
+        if _sha(lock_path) != source["model_lock_sha256"]:
+            raise ValueError("Sealed model lock bytes differ")
+        lock = json.loads(lock_path.read_text())
+        validate_model_lock(model_path, lock)
+        if lock["revision"] != source["revision"]:
+            raise ValueError("Use the original sealed MiniCPM5 source")
+        tokenizer_source = model_path
+        source_revision = lock["revision"]
+        production_scope = True
+    else:
+        model_path = None
+        lock = {"fixture_config_sha256": fixture["config_sha256"],
+                "tokenizer_lock_sha256": fixture["tokenizer_lock_sha256"]}
+        tokenizer_source = ROOT / fixture["tokenizer_path"]
+        source_revision = fixture["tokenizer_lock_sha256"]
+        production_scope = False
     implementation = {name: _sha(ROOT / name) for name in protocol["implementation_paths"]}
     total_steps = int(protocol[mode]["total_updates"])
     comparison = protocol.get("continuation_comparison", {})
@@ -164,7 +181,7 @@ def execute(args, profiler):
     random.seed(optim["seed"])
     torch.manual_seed(optim["seed"])
     tokenizer = AutoTokenizer.from_pretrained(
-        model_path, local_files_only=True, trust_remote_code=False)
+        tokenizer_source, local_files_only=True, trust_remote_code=False)
     rows = load_rows(data_path, "train")
     if len(rows) != source["examples"] or len({row["response"] for row in rows}) != source["distinct_responses"]:
         raise ValueError("Diagnostic example inventory differs")
@@ -175,7 +192,8 @@ def execute(args, profiler):
     plan_sha = hashlib.sha256(json.dumps(batch_plan).encode()).hexdigest()
     contract = {
         "format_version": 1,
-        "source_lock_sha256": source["model_lock_sha256"],
+        "source_lock_sha256": (fixture["config_sha256"] if fixture is not None
+                               else source["model_lock_sha256"]),
         "data_sha256": source["data_sha256"],
         "batch_plan_sha256": plan_sha,
         "settings": {
@@ -185,6 +203,9 @@ def execute(args, profiler):
                      for name in ("torch", "transformers", "safetensors")},
         "implementation_sha256": implementation,
     }
+    if fixture is not None:
+        contract["fixture_config_sha256"] = fixture["config_sha256"]
+        contract["tokenizer_lock_sha256"] = fixture["tokenizer_lock_sha256"]
     resume_receipt = (validate_training_checkpoint(args.resume_from, contract)
                       if args.resume_from else None)
     resume_report = (json.loads(Path(args.resume_report).read_text())
@@ -195,7 +216,8 @@ def execute(args, profiler):
                 or resume_report.get("steps") != 1):
             raise ValueError("Resume report is not the matching first smoke process")
 
-    base_path = Path(args.resume_from) / "base" if args.resume_from else model_path
+    base_path = (Path(args.resume_from) / "base" if args.resume_from
+                 else model_path)
     resume_accounting = {}
     boundary_fingerprint = None
     boundary_comparison = None
@@ -210,9 +232,13 @@ def execute(args, profiler):
             runtime_path=args.resume_from / "runtime.pt",
             run_contract=contract, device="mps", accounting=resume_accounting)
     else:
-        base = AutoModelForCausalLM.from_pretrained(
-            base_path, local_files_only=True, trust_remote_code=False,
-            dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
+        if fixture is not None:
+            base = continuation_fixture.build_fixture_model(
+                fixture["config"], seed=fixture["init_seed"])
+        else:
+            base = AutoModelForCausalLM.from_pretrained(
+                base_path, local_files_only=True, trust_remote_code=False,
+                dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
         model = LlamaMemoryAdapter(base, "full").to("mps").train()
         optimizer = build_optimizer(
             model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
@@ -220,8 +246,11 @@ def execute(args, profiler):
         base_rates = [group["lr"] for group in optimizer.param_groups]
     model.train()
     base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
-    assert_full_scope(model, optimizer, scope["trainable_parameters"],
-                      scope["trainable_tensors"])
+    if fixture is None:
+        assert_full_scope(model, optimizer, scope["trainable_parameters"],
+                          scope["trainable_tensors"])
+    else:
+        continuation_fixture.assert_fixture_scope(model, optimizer, fixture)
     for group in optimizer.param_groups:
         if group["betas"] != tuple(optim["betas"]) or group["eps"] != optim["eps"]:
             raise ValueError("Native optimizer hyperparameters differ")
@@ -249,6 +278,9 @@ def execute(args, profiler):
             data_state=boundary_state["data_state"])
         reference_boundary = (resume_report or {}).get("boundary_fingerprint")
         if reference_boundary is None:
+            if fixture is not None:
+                raise RuntimeError(
+                    "Fixture resume requires a first-process boundary fingerprint")
             boundary_comparison = {
                 "format": "replica.training_fingerprint_comparison.v1",
                 "status": "unavailable",
@@ -397,7 +429,24 @@ def execute(args, profiler):
                            "resume" if args.resume_from else "first"),
         "protocol_sha256": _sha(protocol_path),
         "implementation_sha256": implementation,
-        "source_revision": lock["revision"],
+        "source_revision": source_revision,
+        "source_kind": "fixture" if fixture is not None else "sealed_minicpm5",
+        "production_scope": production_scope,
+        "protocol_policy_sha256": (
+            fixture["protocol_policy_sha256"] if fixture is not None else None),
+        "expected_tensor_count": scope["trainable_tensors"],
+        "fixture": (None if fixture is None else {
+            "format": fixture["format"],
+            "config_sha256": fixture["config_sha256"],
+            "init_seed": fixture["init_seed"],
+            "tensor_count": fixture["tensor_count"],
+            "parameter_count": fixture["parameter_count"],
+            "tokenizer_path": fixture["tokenizer_path"],
+            "tokenizer_lock_sha256": fixture["tokenizer_lock_sha256"],
+            "claim_boundary": fixture["claim_boundary"],
+        }),
+        "claim_boundary": (fixture["claim_boundary"] if fixture is not None
+                           else protocol.get("claim_boundary")),
         "data_sha256": source["data_sha256"],
         "device": "mps",
         "cpu_fallback_enabled": False,
@@ -462,8 +511,11 @@ def main():
     parser.add_argument("--resume-from", type=Path)
     parser.add_argument("--resume-report", type=Path)
     args = parser.parse_args()
-    if args.output.exists() and any(args.output.iterdir()):
-        parser.error("Use fresh output")
+    from replica_lab import continuation_fixture
+    try:
+        continuation_fixture.require_fresh_output(args.output, what="probe output")
+    except FileExistsError as error:
+        parser.error(str(error))
     args.output.mkdir(parents=True, exist_ok=True)
     from replica_lab.architecture.loading import exclusive_mps_worker
     from replica_lab.profiling import RunProfiler
@@ -473,10 +525,24 @@ def main():
         try:
             report = execute(args, profiler)
         except BaseException as error:
-            failure = {"status": "failed", "error_type": type(error).__name__,
+            failure = {"status": "failed",
+                       "failure_class": continuation_fixture.classify_failure(error),
+                       "error_type": type(error).__name__,
                        "error": str(error), "traceback": traceback.format_exc(),
                        "selected_checkpoint_changed": False,
                        "profile": profiler.stop()}
+            try:
+                failure_protocol_path = _protocol_path(args)
+                failure_protocol = json.loads(failure_protocol_path.read_text())
+                failure["protocol_sha256"] = _sha(failure_protocol_path)
+                if continuation_fixture.is_fixture_protocol(failure_protocol):
+                    failure["production_scope"] = False
+                    failure["claim_boundary"] = failure_protocol["fixture"][
+                        "claim_boundary"]
+                    failure["failure_classes"] = list(
+                        continuation_fixture.FAILURE_CLASSES)
+            except (OSError, ValueError, KeyError, json.JSONDecodeError):
+                pass
             (args.output / "failure_report.json").write_text(
                 json.dumps(failure, indent=2) + "\n")
             raise

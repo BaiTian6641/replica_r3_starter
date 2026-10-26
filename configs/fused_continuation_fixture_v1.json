@@ -1,0 +1,207 @@
+{
+  "format": "replica.fused_continuation_fixture.protocol.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Restore-mechanics diagnostic only: two fresh uninterrupted A/A controls followed by one first process and one resume of a pinned 2-layer FP32 Llama fixture, using the sealed tokenizer and the unchanged direct-target-device runtime restore path. This protocol cannot claim production full-scope continuation.",
+  "production_scope": false,
+  "expected_tensor_count": 21,
+  "fixture": {
+    "format": "replica.continuation_fixture.v1",
+    "config": {
+      "model_type": "llama",
+      "architectures": ["LlamaForCausalLM"],
+      "hidden_size": 64,
+      "intermediate_size": 128,
+      "num_hidden_layers": 2,
+      "num_attention_heads": 4,
+      "num_key_value_heads": 4,
+      "head_dim": 16,
+      "max_position_embeddings": 128,
+      "rms_norm_eps": 1e-05,
+      "initializer_range": 0.02,
+      "vocab_size": 130560,
+      "tie_word_embeddings": false,
+      "attention_bias": false,
+      "mlp_bias": false,
+      "attention_dropout": 0.0,
+      "hidden_act": "silu",
+      "use_cache": false,
+      "torch_dtype": "float32"
+    },
+    "config_sha256": "8a3467c2e28abf7a032111e4f4b944a8fedd2e68ed90b2a7dedbb445b7669765",
+    "init_seed": 20261026,
+    "tensor_count": 21,
+    "parameter_count": 16793920,
+    "tokenizer": {
+      "path": "checkpoints/minicpm5_source",
+      "lock": "configs/minicpm5_sealed_lock.local.json",
+      "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+      "vocab_size": 130560
+    },
+    "claim_boundary": "Fixture restore-mechanics diagnostic only. It cannot establish, convert or replace production MiniCPM5 full-scope exact continuation, and it cannot turn the stopped 381-tensor direct-restore result into passed. No model-quality, throughput or production-resume claim is made."
+  },
+  "source": {
+    "data": "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+    "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+    "examples": 8,
+    "distinct_responses": 8
+  },
+  "scope": {
+    "regime": "full",
+    "trainable_tensors": 21,
+    "trainable_parameters": 16793920,
+    "includes_embeddings_output_head_and_final_norm": true,
+    "resident_dtype": "float32",
+    "tokenization_max_length": 256,
+    "compute_dtype": "float32",
+    "attention": "eager",
+    "activation_checkpointing": true,
+    "physical_microbatch": 1,
+    "effective_batch": 8,
+    "sequence_length": 55,
+    "response_only_labels": true,
+    "causal_shift": true,
+    "accumulation_weighting": "supervised_token_fraction_per_update",
+    "gradient_audit": "first_two_updates_per_process",
+    "max_grad_norm": 1.0,
+    "nonfinite_loss_and_gradient_policy": "reject_before_optimizer_step"
+  },
+  "optimizer": {
+    "selection": "adamw_fused",
+    "class": "torch.optim.AdamW",
+    "fused": true,
+    "fallback": false,
+    "lr": 0.0001,
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "schedule": "constant_after_warmup",
+    "warmup_updates": 2,
+    "seed": 17,
+    "checkpoint_format": "replica.native_fused_adamw.state.v1"
+  },
+  "smoke": {
+    "total_updates": 2,
+    "first_process_updates": 1,
+    "fresh_process_resume": true,
+    "resume_checkpoint": "one fixture model plus optimizer/RNG/scheduler/cursor checkpoint after update 1",
+    "final_export": false,
+    "max_seconds_per_process": 900,
+    "required": [
+      "checkpoint byte receipt and model/runtime reload",
+      "restored scheduler, RNG, optimizer moments and data cursor",
+      "resume-start parameter hashes equal the first-process final hashes",
+      "all 21 fixture tensors change in each process",
+      "native optimizer state step is 2 after resume",
+      "first and resume boundary fingerprints are present and exactly equal"
+    ]
+  },
+  "continuation_comparison": {
+    "enabled": true,
+    "restore_strategy": "direct_target_device",
+    "arms": [
+      {"id": "uninterrupted_a", "execution": "continuous", "updates": 2},
+      {"id": "uninterrupted_b", "execution": "continuous", "updates": 2},
+      {"id": "first", "execution": "first", "updates": 1},
+      {"id": "resume", "execution": "resume", "updates": 2}
+    ],
+    "aa_envelope": {
+      "name": "aa-envelope-v1",
+      "source": "the two fresh uninterrupted arms only",
+      "historical_envelope_allowed": false,
+      "extra_margin": 0.0,
+      "update_1_loss_and_gradient_norm_exact": true,
+      "boundary_fingerprint_exact": true,
+      "exact_parameter_hash_and_logits_bytes_reported_separately": true,
+      "permitted_nonexact_label": "failed_exact_within_declared_variation",
+      "pass_label_forbidden_unless_exact_status_passes": true,
+      "policy": {
+        "name": "aa-envelope-v1",
+        "declared": true,
+        "rule": "an A/B absolute delta is within the envelope only when it is less than or equal to the largest pairwise A/A delta for the same update and metric from independent uninterrupted arms",
+        "requires": [
+          "at least two uninterrupted arms with identical protocol and implementation",
+          "no differing implementation path outside resume-only code",
+          "update 1 exactly equal across all arms",
+          "first/resume boundary fingerprints exactly equal when present"
+        ],
+        "applies_to": ["scalar loss", "gradient norm", "output loss",
+                       "aggregate and per-tensor norm summaries"],
+        "excludes": ["exact parameter value hashes", "exact logits bytes"],
+        "does_not_alter": ["exact_status", "historical receipts", "probe behavior"]
+      },
+      "policy_sha256": "ce76abfac7b1a75f3b7c205e967eedd73ef46c63e8d6312e7538d89f32105fa8"
+    },
+    "required_accounting": {
+      "staged_cpu_optimizer_bytes": 0,
+      "restored_optimizer_bytes_positive": true,
+      "restore_strategy": "direct_target_device"
+    },
+    "stop_conditions": [
+      "any capacity-guard stop",
+      "any first/resume boundary fingerprint mismatch or missing boundary",
+      "any A/A protocol or implementation hash mismatch",
+      "any update-1 loss or pre-clip gradient-norm mismatch",
+      "direct restore reports nonzero CPU optimizer staging or zero restored bytes"
+    ]
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_native_worker": true,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15.0,
+    "sustained_host_samples": 3,
+    "native_jobs_at_once": 1,
+    "native_model_loads": 4,
+    "deterministic_algorithms": true,
+    "mps_fast_math": "disabled",
+    "downloads": 0
+  },
+  "numeric_policy": {
+    "torch_use_deterministic_algorithms": true,
+    "mps_fast_math": "disabled",
+    "dtype": "float32"
+  },
+  "storage_policy": {
+    "fixture_run_root": "runs/fused_continuation_fixture_v1",
+    "max_checkpoint_bytes": 2000000000,
+    "max_new_artifact_bytes_including_checkpoint": 2500000000,
+    "checkpoint_writes": 1,
+    "final_model_exports": 0,
+    "duplicate_base_saves": 0,
+    "retention": "retain exactly one fixture diagnostic checkpoint and all fixture run/failure/comparison reports; no automatic deletion and no promotion"
+  },
+  "retention": {
+    "fixture_checkpoint": "retain only runs/fused_continuation_fixture_v1/first/resume_checkpoint for inspection; no promotion and no duplicate final model export",
+    "retained_full_scope_checkpoint": "runs/fused_continuation_direct_restore_v1/first/resume_checkpoint",
+    "historical_evidence": "all prior full-scope protocols, run reports, comparison receipts, failure reports and guard logs are immutable evidence",
+    "preserve_historical": true,
+    "failures": "preserve failure reports, profiles and guard logs without relabeling"
+  },
+  "implementation_paths": [
+    "configs/fused_continuation_fixture_v1.json",
+    "scripts/probe_fused_adamw_sustained.py",
+    "scripts/compare_fused_continuation.py",
+    "scripts/train_text.py",
+    "scripts/profile_full_training.py",
+    "scripts/run_capacity_preflight.py",
+    "src/replica_lab/continuation_fixture.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/training_tools.py",
+    "src/replica_lab/training_state.py",
+    "src/replica_lab/checkpointing.py",
+    "src/replica_lab/checkpoint_storage.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/architecture/loading.py"
+  ],
+  "limitations": [
+    "This fixture is a restore-mechanics diagnostic, not production MiniCPM5 continuation.",
+    "It cannot convert the stopped 381-tensor direct-restore result into a pass.",
+    "It makes no model-quality, throughput, promotion or production-resume claim.",
+    "Heldout/dev data is not opened; only the pinned diagnostic train rows are used.",
+    "Exact hash/logits equality across independent processes is not assumed; the preregistered A/A envelope only labels bounded variation."
+  ]
+}

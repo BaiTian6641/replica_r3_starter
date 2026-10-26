@@ -20,6 +20,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from replica_lab.training_state import compare_training_fingerprints  # noqa: E402
+from replica_lab.continuation_fixture import (  # noqa: E402
+    accounting_gates,
+    policy_digest,
+    require_fresh_output,
+    validate_fixture_protocol,
+)
 
 
 UPDATE_FIELDS = (
@@ -57,6 +63,75 @@ def sha(path):
 
 def load(path):
     return json.loads(Path(path).read_text())
+
+
+def protocol_binding(protocol_path, *, root=None):
+    """Bind a protocol file to its hash, tensor count and declared policy.
+
+    Fixture protocols additionally require the exact boundary and
+    direct-target-device accounting gates. A production protocol keeps the
+    historical defaults and cannot acquire fixture gates by accident.
+    """
+    path = Path(protocol_path)
+    protocol = load(path)
+    protocol_sha = sha(path)
+    if protocol.get("production_scope") is not False:
+        return {
+            "format": "replica.fused_continuation_binding.v1",
+            "production_scope": True,
+            "protocol_sha256": protocol_sha,
+            "expected_tensor_count": protocol.get("expected_tensor_count"),
+            "expected_production_scope": True,
+            "require_boundary_fingerprint": False,
+            "require_direct_restore_accounting": False,
+            "aa_envelope_policy_sha256": None,
+            "claim_boundary": None,
+            "fixture": None,
+        }
+    fixture = validate_fixture_protocol(protocol, protocol_path=path, root=root)
+    digest = fixture["protocol_policy_sha256"]
+    if digest != policy_digest(AA_ENVELOPE_POLICY):
+        raise ValueError(
+            "Fixture protocol AA envelope policy differs from this comparator")
+    return {
+        "format": "replica.fused_continuation_fixture.binding.v1",
+        "production_scope": False,
+        "protocol_sha256": protocol_sha,
+        "expected_tensor_count": fixture["tensor_count"],
+        "expected_production_scope": False,
+        "require_boundary_fingerprint": True,
+        "require_direct_restore_accounting": True,
+        "aa_envelope_policy_sha256": digest,
+        "claim_boundary": fixture["claim_boundary"],
+        "fixture": {
+            "config_sha256": fixture["config_sha256"],
+            "tensor_count": fixture["tensor_count"],
+            "parameter_count": fixture["parameter_count"],
+            "init_seed": fixture["init_seed"],
+            "tokenizer_lock_sha256": fixture["tokenizer_lock_sha256"],
+        },
+    }
+
+
+def binding_gates(binding):
+    """Translate a validated protocol binding into ``compare_reports`` gates."""
+    if binding.get("production_scope") is False:
+        return {
+            "expected_tensor_count": binding["expected_tensor_count"],
+            "expected_production_scope": False,
+            "expected_protocol_sha256": binding["protocol_sha256"],
+            "expected_policy_sha256": binding["aa_envelope_policy_sha256"],
+            "require_boundary_fingerprint": True,
+            "require_direct_restore_accounting": True,
+            "minimum_uninterrupted_arms": 2,
+        }
+    gates = {
+        "require_boundary_fingerprint": False,
+        "require_direct_restore_accounting": False,
+    }
+    if binding.get("expected_tensor_count") is not None:
+        gates["expected_tensor_count"] = binding["expected_tensor_count"]
+    return gates
 
 
 def _nested(value, path):
@@ -440,7 +515,15 @@ def _accounting_summary(resume, resume_guard):
 
 def compare_reports(uninterrupted, first, resume, *,
                     uninterrupted_guards=(), first_guard=None, resume_guard=None,
-                    policy="none", reference_index=0, evidence=None):
+                    policy="none", reference_index=0, evidence=None,
+                    expected_tensor_count=381,
+                    expected_production_scope=None,
+                    expected_protocol_sha256=None,
+                    expected_policy_sha256=None,
+                    require_boundary_fingerprint=False,
+                    require_direct_restore_accounting=False,
+                    minimum_uninterrupted_arms=1,
+                    claim_boundary=None):
     uninterrupted = list(uninterrupted)
     if not uninterrupted:
         raise ValueError("At least one uninterrupted report is required")
@@ -455,24 +538,45 @@ def compare_reports(uninterrupted, first, resume, *,
         if not value:
             failures.append(name)
 
+    def check_report_identity(name, report):
+        if expected_production_scope is not None:
+            check(f"{name}_production_scope",
+                  report.get("production_scope") is expected_production_scope)
+        if expected_policy_sha256 is not None:
+            check(f"{name}_policy_hash_bound",
+                  report.get("protocol_policy_sha256") == expected_policy_sha256)
+
+    if len(uninterrupted) < minimum_uninterrupted_arms:
+        checks["uninterrupted_arm_count_sufficient"] = False
+        failures.append("uninterrupted_arm_count_sufficient")
+    else:
+        checks["uninterrupted_arm_count_sufficient"] = True
+
     for index, report in enumerate(uninterrupted):
         check(f"uninterrupted_{index}_completed", report.get("status") == "completed")
         check(f"uninterrupted_{index}_execution_mode",
               report.get("execution_mode") == "continuous")
         check(f"uninterrupted_{index}_changed_tensors",
-              report.get("changed_tensors") == 381)
+              report.get("changed_tensors") == expected_tensor_count)
         check(f"uninterrupted_{index}_not_exported",
               report.get("model_exported") is False)
+        check_report_identity(f"uninterrupted_{index}", report)
     for name, report, mode in (("interrupted_first", first, "first"),
                                ("interrupted_resume", resume, "resume")):
         check(f"{name}_completed", report.get("status") == "completed")
         check(f"{name}_execution_mode", report.get("execution_mode") == mode)
-        check(f"{name}_changed_tensors", report.get("changed_tensors") == 381)
+        check(f"{name}_changed_tensors",
+              report.get("changed_tensors") == expected_tensor_count)
         check(f"{name}_not_exported", report.get("model_exported") is False)
+        check_report_identity(name, report)
 
     all_reports = uninterrupted + [first, resume]
     check("protocol_identical",
           len({report.get("protocol_sha256") for report in all_reports}) == 1)
+    if expected_protocol_sha256 is not None:
+        check("protocol_hash_matches_declared",
+              all(report.get("protocol_sha256") == expected_protocol_sha256
+                  for report in all_reports))
     check("implementation_identical",
           len({json.dumps(report.get("implementation_sha256"), sort_keys=True)
                for report in all_reports}) == 1)
@@ -516,13 +620,18 @@ def compare_reports(uninterrupted, first, resume, *,
     reference_boundary = first.get("boundary_fingerprint")
     resume_boundary = resume.get("boundary_fingerprint")
     if reference_boundary is not None and resume_boundary is not None:
+        if require_boundary_fingerprint:
+            check("boundary_fingerprint_present", True)
         boundary = compare_training_fingerprints(reference_boundary, resume_boundary)
         boundary["status"] = "matched" if boundary["matched"] else "mismatched"
         check("boundary_fingerprint_identical", boundary["matched"])
     else:
         boundary = {"status": "unavailable",
                     "reason": "first or resume report has no boundary fingerprint"}
-        checks["boundary_fingerprint_identical"] = None
+        if require_boundary_fingerprint:
+            check("boundary_fingerprint_present", False)
+        else:
+            checks["boundary_fingerprint_identical"] = None
 
     guard_summaries = []
     if len(uninterrupted_guards) != len(uninterrupted):
@@ -574,6 +683,12 @@ def compare_reports(uninterrupted, first, resume, *,
             ab["within_aa_envelope"] = False
             ab["exceeding_fields"].append("uninterrupted_update_1_loss")
 
+    accounting = _accounting_summary(resume, resume_guard or {})
+    if require_direct_restore_accounting:
+        gates = accounting_gates(resume.get("resume_accounting") or {})["gates"]
+        for name, satisfied in gates.items():
+            check(f"resume_accounting_{name}", satisfied)
+
     exact_status = "passed" if not failures else "failed"
     if not aa.get("available"):
         variation_status = "unqualified"
@@ -589,16 +704,30 @@ def compare_reports(uninterrupted, first, resume, *,
     else:
         status = "failed"
 
-    accounting = _accounting_summary(resume, resume_guard or {})
     return {
         "format": "replica.fused_adamw_continuation_comparison.receipt.v2",
         "status": status,
         "exact_status": exact_status,
         "variation_status": variation_status,
+        "production_scope": expected_production_scope,
+        "claim_boundary": claim_boundary,
+        "scope_binding": {
+            "expected_tensor_count": expected_tensor_count,
+            "expected_production_scope": expected_production_scope,
+            "expected_protocol_sha256": expected_protocol_sha256,
+            "expected_policy_sha256": expected_policy_sha256,
+            "rulebook_policy_sha256": policy_digest(AA_ENVELOPE_POLICY),
+            "require_boundary_fingerprint": bool(require_boundary_fingerprint),
+            "require_direct_restore_accounting": bool(
+                require_direct_restore_accounting),
+            "minimum_uninterrupted_arms": minimum_uninterrupted_arms,
+        },
         "policy": {
             "name": policy,
             "applied": policy_applied,
             "definition": AA_ENVELOPE_POLICY if policy_applied else None,
+            "definition_sha256": policy_digest(AA_ENVELOPE_POLICY),
+            "bound_sha256": expected_policy_sha256,
             "does_not_relax_exact_status": True,
         },
         "checks": checks,
@@ -637,7 +766,7 @@ def compare_reports(uninterrupted, first, resume, *,
 
 def compare(continuous_paths, first_path, resume_path, *,
             continuous_guard_paths=(), first_guard_path=None,
-            resume_guard_path=None, policy="none", reference_index=0):
+            resume_guard_path=None, policy="none", reference_index=0, **gates):
     uninterrupted = [load(path) for path in continuous_paths]
     guards = [load(path) for path in continuous_guard_paths]
     evidence = {}
@@ -659,7 +788,7 @@ def compare(continuous_paths, first_path, resume_path, *,
         uninterrupted_guards=guards,
         first_guard=(load(first_guard_path) if first_guard_path is not None else None),
         resume_guard=(load(resume_guard_path) if resume_guard_path is not None else None),
-        policy=policy, reference_index=reference_index, evidence=evidence)
+        policy=policy, reference_index=reference_index, evidence=evidence, **gates)
 
 
 def main():
@@ -678,26 +807,59 @@ def main():
     parser.add_argument("--reference-index", type=int, default=0)
     parser.add_argument("--variation-policy", choices=("none", "aa-envelope-v1"),
                         default="none")
+    parser.add_argument("--protocol", type=Path,
+                        help="Pinned protocol; derives tensor count, gates and policy hash")
+    parser.add_argument("--expected-tensor-count", type=int)
+    parser.add_argument("--require-boundary-fingerprint", action="store_true")
+    parser.add_argument("--require-direct-restore-accounting", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     uninterrupted = args.uninterrupted + args.continuous
     uninterrupted_guards = args.uninterrupted_guard + args.continuous_guard
     if not uninterrupted:
         parser.error("At least one --uninterrupted report is required")
-    if args.output.exists():
-        parser.error("Use a fresh comparison receipt path")
+    try:
+        require_fresh_output(args.output, what="comparison receipt")
+    except FileExistsError as error:
+        parser.error(str(error))
+    gates = {
+        "require_boundary_fingerprint": args.require_boundary_fingerprint,
+        "require_direct_restore_accounting": args.require_direct_restore_accounting,
+    }
+    if args.expected_tensor_count is not None:
+        gates["expected_tensor_count"] = args.expected_tensor_count
+    policy = args.variation_policy
+    binding = None
+    if args.protocol is not None:
+        binding = protocol_binding(args.protocol, root=ROOT)
+        gates.update(binding_gates(binding))
+        if binding.get("claim_boundary"):
+            gates["claim_boundary"] = binding["claim_boundary"]
+        if binding.get("production_scope") is False:
+            if args.variation_policy != "aa-envelope-v1":
+                parser.error(
+                    "Fixture protocol requires --variation-policy aa-envelope-v1")
+            policy = "aa-envelope-v1"
     result = compare(
         uninterrupted, args.first, args.resume,
         continuous_guard_paths=uninterrupted_guards,
         first_guard_path=args.first_guard,
         resume_guard_path=args.resume_guard,
-        policy=args.variation_policy,
-        reference_index=args.reference_index)
+        policy=policy,
+        reference_index=args.reference_index, **gates)
+    if binding is not None:
+        result["evidence"]["protocol"] = {
+            "path": str(args.protocol), "sha256": binding["protocol_sha256"]}
+        result["protocol_binding"] = binding
+    if args.output.exists():
+        # A concurrent writer must not be overwritten.
+        parser.error("Comparison receipt path already exists")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
     print(json.dumps({"status": result["status"],
                       "exact_status": result["exact_status"],
                       "variation_status": result["variation_status"],
+                      "production_scope": result.get("production_scope"),
                       "failures": result["failures"],
                       "output": str(args.output)}, sort_keys=True))
     return 0 if result["exact_status"] == "passed" else 1
