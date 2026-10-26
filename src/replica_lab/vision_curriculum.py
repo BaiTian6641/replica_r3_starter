@@ -238,6 +238,7 @@ def _write_exact(path: Path, data: bytes) -> None:
         raise VisionCurriculumError(str(error)) from error
     _require(Path(path).read_bytes() == data,
              f"Completed artifact bytes differ: {path}")
+    _fsync_parent(Path(path))
 
 
 def _safe_relative(root: Path, value: str) -> Path:
@@ -1186,7 +1187,7 @@ def _abstain_scene(pool: Sequence[tuple[str, str]], layout: str, index: int,
         cells = _grid_cells(width, height)
         front_cell = order[(index // 3) % len(order)]
         remaining = [cell for cell in order if cell != front_cell]
-        distractor_cell = remaining[(index + variant) % len(remaining)]
+        distractor_cell = remaining[index % len(remaining)]
         front_center = list(cells[front_cell])
         hidden_center = [front_center[0] + (-6 if variant == 0 else 6),
                          front_center[1]]
@@ -1432,11 +1433,21 @@ def _materialize_world(config: Mapping[str, Any], split: str, task: str,
                  f"Answer-changing pairs must differ: {pair_id}")
         _require(UNKNOWN_ANSWER not in answers.values(),
                  f"Answer tasks must not produce unknown: {pair_id}")
-    _require(side_records[0]["png"] != side_records[1]["png"],
-             f"Pair images must render differently: {pair_id}")
-    _require(scene_digest(side_records[0]["scene"])
-             != scene_digest(side_records[1]["scene"]),
-             f"Pair scenes must differ: {pair_id}")
+    if task == "abstain" and spec["kind"] == "occluded_relation":
+        # Declared identical-pixel control: the hidden object moves left/right
+        # behind a full occluder, so the two images must be byte-identical while
+        # the verifier scenes differ in the hidden object's true position.
+        _require(side_records[0]["png"] == side_records[1]["png"],
+                 f"Occlusion control images must be identical: {pair_id}")
+        _require(scene_digest(side_records[0]["scene"])
+                 != scene_digest(side_records[1]["scene"]),
+                 f"Occlusion control scenes must differ: {pair_id}")
+    else:
+        _require(side_records[0]["png"] != side_records[1]["png"],
+                 f"Pair images must render differently: {pair_id}")
+        _require(scene_digest(side_records[0]["scene"])
+                 != scene_digest(side_records[1]["scene"]),
+                 f"Pair scenes must differ: {pair_id}")
     declared = set(_pool(config, split))
     for record in side_records:
         for obj in record["scene"]["objects"]:
@@ -2783,9 +2794,7 @@ def audit_dataset(root: str | Path) -> CurriculumDataset:
         stage_b_rows, stage_b_labels, procedural_rows, procedural_cases)
     dataset.manifest = dict(manifest)
     dataset.manifest["_manifest_sha256"] = sha256_file(manifest_path)
-    dataset.seal_receipts = {"train": recomputed["train_seal_sha256"],
-                             "dev": recomputed["dev_seal_sha256"],
-                             "audit": recomputed["audit_seal_sha256"]}
+    dataset.seal_receipts = dict(recomputed)
     return dataset
 
 
@@ -3687,6 +3696,8 @@ def score_procedural(cases: Sequence[Mapping[str, Any]],
         },
         "gate_failures": failures,
         "learned_quality_pass": not failures,
+        "bootstrap": {"seed": seed, "resamples": bootstrap_resamples,
+                      "confidence": bootstrap_confidence},
         "rows": scored,
     }
 
@@ -3819,7 +3830,8 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
         "procedural_dev": {key: score[key] for key in
                            ("cases", "controls", "paired",
                             "correct_bootstrap", "unknown",
-                            "gate_failures", "learned_quality_pass")},
+                            "gate_failures", "learned_quality_pass",
+                            "bootstrap", "rows")},
         "external_development_caption": caption,
         "retention": retention_result,
     }
@@ -3860,6 +3872,148 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
     }
     validate_score_report(report)
     return report
+
+
+def _validate_caption_metrics(caption: Mapping[str, Any],
+                              name: str = "caption") -> None:
+    cases = caption["cases"]
+    _positive_int(cases, f"{name}.cases")
+    rows = caption.get("rows")
+    _require(isinstance(rows, list) and len(rows) == cases,
+             f"{name}.rows do not cover the cases")
+    f1_values = []
+    losses = []
+    for row in rows:
+        f1 = caption_token_f1(str(row["generated"]), str(row["expected"]))
+        _require(abs(float(row["token_f1"]) - f1) <= 1e-9,
+                 f"{name} row F1 differs from raw text")
+        f1_values.append(f1)
+        loss = _finite(row["response_loss"], f"{name} row loss",
+                       minimum=0.0)
+        losses.append(loss)
+    _require(abs(caption["token_f1"] - sum(f1_values) / cases) <= 1e-9,
+             f"{name}.token_f1 differs from raw rows")
+    _require(caption["loss_cases"] == cases,
+             f"{name}.loss_cases does not cover the cases")
+    _require(abs(caption["teacher_forced_response_loss"]
+                 - sum(losses) / cases) <= 1e-9,
+             f"{name} response loss differs from raw rows")
+    _require(caption["claim"]
+             == "narrow_alignment_metric_only_no_semantic_quality_claim",
+             f"{name} claim boundary differs")
+
+
+def _validate_procedural_metrics(score: Mapping[str, Any],
+                                 name: str = "procedural") -> None:
+    """Recompute all aggregates from the retained raw rows."""
+    rows = score.get("rows")
+    _require(isinstance(rows, list) and rows,
+             f"{name}.rows are missing")
+    bootstrap_meta = score.get("bootstrap")
+    _exact_keys(bootstrap_meta, {"seed", "resamples", "confidence"},
+                f"{name}.bootstrap")
+    _nonnegative_int(bootstrap_meta["seed"], f"{name}.bootstrap.seed")
+    _positive_int(bootstrap_meta["resamples"],
+                  f"{name}.bootstrap.resamples")
+    _finite(bootstrap_meta["confidence"], f"{name}.bootstrap.confidence",
+            minimum=0.5, maximum=0.999999)
+    controls = list(score["controls"])
+    _require(set(controls) == {row["control"] for row in rows},
+             f"{name} controls do not cover the raw rows")
+    case_ids = {row["case_id"] for row in rows}
+    _require(score["cases"] == len(case_ids),
+             f"{name}.cases differs from the raw case ids")
+    for control in controls:
+        selected = [row for row in rows if row["control"] == control]
+        _require(selected, f"{name}.{control} has no raw rows")
+        count = len(selected)
+        correct = sum(bool(row["correct"]) for row in selected)
+        unknown = sum(bool(row["unknown"]) for row in selected)
+        expected = {
+            "available": True, "cases": count, "correct": correct,
+            "accuracy": correct / count, "unknown": unknown,
+            "unknown_rate": unknown / count,
+            "unique_worlds": len({row["world_id"] for row in selected}),
+        }
+        actual = dict(score["controls"][control])
+        for key, value in expected.items():
+            _require(actual.get(key) == value,
+                     f"{name}.{control}.{key} differs from raw rows")
+        per_task = defaultdict(list)
+        per_world = defaultdict(list)
+        for row in selected:
+            per_task[row["task"]].append(float(row["correct"]))
+            per_world[row["world_id"]].append(float(row["correct"]))
+        expected_tasks = {task: {"cases": len(values),
+                                 "accuracy": sum(values) / len(values)}
+                          for task, values in sorted(per_task.items())}
+        expected_worlds = {world: {"cases": len(values),
+                                   "accuracy": sum(values) / len(values)}
+                           for world, values in sorted(per_world.items())}
+        _require(actual["per_task"] == expected_tasks
+                 and actual["per_world"] == expected_worlds,
+                 f"{name}.{control} task/world aggregates differ")
+    by_control = {control: {row["case_id"]: row for row in rows
+                            if row["control"] == control}
+                  for control in controls}
+    correct_rows = by_control["correct"]
+    for control in controls:
+        if control == "correct":
+            continue
+        shared = sorted(set(correct_rows) & set(by_control[control]))
+        _require(shared, f"{name}.{control} has no paired raw rows")
+        margins = {case_id: float(correct_rows[case_id]["correct"])
+                   - float(by_control[control][case_id]["correct"])
+                   for case_id in shared}
+        correct_accuracy = sum(correct_rows[case_id]["correct"]
+                               for case_id in shared) / len(shared)
+        control_accuracy = sum(by_control[control][case_id]["correct"]
+                               for case_id in shared) / len(shared)
+        item = score["paired"][control]
+        _require(item["cases"] == len(shared)
+                 and abs(item["correct_accuracy"] - correct_accuracy) <= 1e-9
+                 and abs(item["control_accuracy"] - control_accuracy) <= 1e-9
+                 and abs(item["correct_margin"]
+                         - (correct_accuracy - control_accuracy)) <= 1e-9,
+                 f"{name}.paired.{control} differs from raw rows")
+        by_world = defaultdict(list)
+        for case_id, value in margins.items():
+            by_world[correct_rows[case_id]["world_id"]].append(value)
+        expected_bootstrap = clustered_bootstrap(
+            by_world, resamples=bootstrap_meta["resamples"],
+            confidence=bootstrap_meta["confidence"],
+            seed=bootstrap_meta["seed"] + 101 * controls.index(control))
+        _require(item["margin_bootstrap"] == expected_bootstrap,
+                 f"{name}.paired.{control} bootstrap differs from raw rows")
+    correct_list = list(correct_rows.values())
+    answerable = [row for row in correct_list if not row["abstain_case"]]
+    abstain = [row for row in correct_list if row["abstain_case"]]
+    _require(abstain and answerable,
+             f"{name}.unknown case split is empty")
+    unknown_accuracy = sum(bool(row["unknown"]) for row in abstain) / len(abstain)
+    false_abstention = (sum(bool(row["unknown"]) for row in answerable)
+                        / len(answerable))
+    expected_unknown = {
+        "abstain_cases": len(abstain),
+        "answerable_cases": len(answerable),
+        "abstention_accuracy": unknown_accuracy,
+        "false_answer_on_abstain": 1.0 - unknown_accuracy,
+        "false_abstention_on_answerable": false_abstention,
+    }
+    for key, value in expected_unknown.items():
+        _require(score["unknown"].get(key) == value,
+                 f"{name}.unknown.{key} differs from raw rows")
+    accuracy_by_world = defaultdict(list)
+    for row in correct_list:
+        accuracy_by_world[row["world_id"]].append(float(row["correct"]))
+    expected_correct = clustered_bootstrap(
+        accuracy_by_world, resamples=bootstrap_meta["resamples"],
+        confidence=bootstrap_meta["confidence"], seed=bootstrap_meta["seed"])
+    _require(score["correct_bootstrap"] == expected_correct,
+             f"{name}.correct_bootstrap differs from raw rows")
+    failures = list(score["gate_failures"])
+    _require(score["learned_quality_pass"] == (not failures),
+             f"{name}.pass contradicts its failures")
 
 
 def _validate_caption_metrics(caption: Mapping[str, Any],
@@ -3958,7 +4112,8 @@ def _validate_procedural_metrics(score: Mapping[str, Any],
              f"{name}.pass contradicts its failures")
 
 
-def validate_score_report(report: Mapping[str, Any]) -> None:
+def validate_score_report(report: Mapping[str, Any],
+                          protocol: Mapping[str, Any] | None = None) -> None:
     _exact_keys(report, {
         "format", "version", "stage", "arm", "protocol_sha256",
         "run_report_sha256", "data_pins", "engineering", "learned_quality",
@@ -4044,6 +4199,11 @@ def validate_score_report(report: Mapping[str, Any]) -> None:
     _validate_caption_metrics(caption, "score.caption")
     retention = learned["retention"]
     gates = retention["gates"]
+    if protocol is not None:
+        _require(gates == protocol["evaluation"]["gates"],
+                 "Learned retention gates differ from protocol gates")
+        _require(retention["policy"] == protocol["retention"]["policy"],
+                 "Retention policy differs from the protocol")
     _require(retention["policy"] == "component_nonregression.v1"
              and retention["baseline_correct"] == 22
              and retention["baseline_cases"] == 32,
@@ -4296,6 +4456,9 @@ def validate_run_report(report: Mapping[str, Any],
     _require(selection.get("probe_case_ids")
              == protocol["schedule"]["dev_probe_case_ids"],
              "LR probe cases differ from the protocol")
+    _require(len({float(item["lr"]) for item in results})
+             == len(results),
+             "LR probe candidate LRs are not unique")
     probe_updates = protocol["schedule"]["probe"]["updates_per_candidate"]
     probe_batch = protocol["schedule"]["probe"]["batch"]
     for item in results:
@@ -4309,17 +4472,29 @@ def validate_run_report(report: Mapping[str, Any],
                  and item.get("examples") == probe_updates * probe_batch
                  and item.get("trace_rows") == probe_updates,
                  "LR probe update/example/trace accounting differs")
+        probe_losses = item.get("dev_losses")
+        _require(isinstance(probe_losses, list)
+                 and len(probe_losses) == len(selection["probe_case_ids"]),
+                 "LR probe dev losses do not cover the protocol probe cases")
+        for value in probe_losses:
+            _finite(value, "LR probe per-case loss", minimum=0.0)
+        _require(abs(item["dev_loss"]
+                     - sum(probe_losses) / len(probe_losses)) <= 1e-9,
+                 "LR probe dev loss differs from its per-case losses")
         name = lr_probe_artifact_name(item["lr"])
         _require(item.get("trace_sha256")
                  == report["artifacts"].get(name),
                  "LR probe trace hash differs from its artifact")
         _require(_is_sha256(item.get("trace_sha256")),
                  "LR probe trace hash is invalid")
-    _require(selection["selected_lr"] == min(
+    selected_result = min(
         (item for item in results
          if item["dev_loss"] == min(entry["dev_loss"] for entry in results)),
-        key=lambda item: item["lr"])["lr"],
-        "Selected LR does not follow the declared selection rule")
+        key=lambda item: item["lr"])
+    _require(selection["selected_lr"] == selected_result["lr"]
+             and selection.get("selected_dev_loss")
+             == selected_result["dev_loss"],
+             "Selected LR/loss does not follow the declared selection rule")
 
     training = report["training"]
     _require(training["updates"] == schedule["updates"],
@@ -4548,6 +4723,19 @@ def _utc_now() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
+def _fsync_parent(path: Path) -> None:
+    try:
+        descriptor = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except OSError:
+        # Directory fsync is not available on every filesystem; the file itself
+        # is always fsynced and read back.
+        return
+
+
 def _atomic_create(path: Path, payload: bytes) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
@@ -4560,10 +4748,38 @@ def _atomic_create(path: Path, payload: bytes) -> str:
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
+    _fsync_parent(path)
     completed = path.read_bytes()
     _require(completed == payload,
              f"Atomic artifact differs after write: {path}")
     return sha256_bytes(completed)
+
+
+def verified_finalize_seals(protocol: Mapping[str, Any],
+                           dataset_seals: Mapping[str, Any],
+                           recomputed_seals: Mapping[str, Any]
+                           ) -> dict[str, str]:
+    """One-shot keys must come from verified data, never a bare protocol field."""
+    checks = (
+        ("audit", "audit_seal_sha256", "audit"),
+        ("external_final", "external_final_seal_sha256", "external_final"),
+    )
+    result = {}
+    for protocol_name, dataset_name, split_name in checks:
+        data_value = protocol["data"]["seals"][protocol_name]
+        split_value = protocol["splits"][split_name]["seal_sha256"]
+        verified = dataset_seals[dataset_name]
+        recomputed = recomputed_seals[dataset_name]
+        _require(verified == recomputed,
+                 f"Dataset {protocol_name} seal differs from recomputed bytes")
+        _require(data_value == split_value == verified,
+                 f"Protocol {protocol_name} seal differs from verified data")
+        result[protocol_name] = verified
+    _require(protocol["data"]["seals"]["external_final_pointer"]
+             == recomputed_seals["external_final_pointer_sha256"]
+             == dataset_seals["external_final_pointer_sha256"],
+             "External final pointer seal differs from verified data")
+    return result
 
 
 def finalize_receipt_paths(project_root: str | Path,
@@ -4601,12 +4817,15 @@ def _seal_paths(protocol: Mapping[str, Any], project_root: str | Path
 
 def reserve_finalize(protocol: Mapping[str, Any], protocol_sha256: str, *,
                      project_root: str | Path,
+                     verified_seals: Mapping[str, str],
                      comparison: Mapping[str, Any],
                      selected_arm: str,
                      dev_report_sha256: str,
                      score_report_sha256: str) -> dict[str, Any]:
     """Atomically reserve both one-shot namespaces before any scoring."""
-    paths = _seal_paths(protocol, project_root)
+    paths = finalize_receipt_paths(project_root,
+                                   verified_seals["external_final"],
+                                   verified_seals["audit"])
     for name in ("external_receipt", "audit_receipt",
                  "external_reservation", "audit_reservation"):
         _require(not paths[name].exists(),
@@ -4620,9 +4839,8 @@ def reserve_finalize(protocol: Mapping[str, Any], protocol_sha256: str, *,
         "version": VERSION,
         "protocol_sha256": protocol_sha256,
         "data_manifest_sha256": protocol["data"]["manifest"]["sha256"],
-        "audit_seal_sha256": protocol["splits"]["audit"]["seal_sha256"],
-        "external_final_seal_sha256": protocol["splits"]["external_final"]
-        ["seal_sha256"],
+        "audit_seal_sha256": verified_seals["audit"],
+        "external_final_seal_sha256": verified_seals["external_final"],
         "arm_comparison": dict(comparison),
         "selected_arm": selected_arm,
         "dev_report_sha256": dev_report_sha256,
@@ -4663,10 +4881,12 @@ def build_finalize_receipt(*, protocol: Mapping[str, Any],
                            audit: Mapping[str, Any],
                            external_final: Mapping[str, Any],
                            dev_report_sha256: str,
-                           score_report_sha256: str) -> dict[str, Any]:
+                           score_report_sha256: str,
+                           guard_report_sha256: str) -> dict[str, Any]:
     _require(selected_arm in ARMS, "Unknown finalize arm")
     _require(_is_sha256(dev_report_sha256)
-             and _is_sha256(score_report_sha256),
+             and _is_sha256(score_report_sha256)
+             and _is_sha256(guard_report_sha256),
              "Finalize report hashes are invalid")
     _require(_is_sha256(reservation["id"])
              and _is_sha256(reservation["external"]["sha256"])
@@ -4702,11 +4922,14 @@ def build_finalize_receipt(*, protocol: Mapping[str, Any],
         "reservations": {"id": reservation["id"],
                          "external": dict(reservation["external"]),
                          "audit": dict(reservation["audit"])},
+        "reservation_payload": bool(reservation.get("payload")) and
+        dict(reservation["payload"]),
         "arm_comparison": dict(comparison),
         "selected_arm": selected_arm,
         "selected_checkpoint": dict(selected_checkpoint),
         "dev_report_sha256": dev_report_sha256,
         "score_report_sha256": score_report_sha256,
+        "guard_report_sha256": guard_report_sha256,
         "audit": dict(audit),
         "external_final": dict(external_final),
         "consumed": {"audit_scored": True,
@@ -4730,8 +4953,10 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
                               dev_report_sha256: str) -> None:
     _exact_keys(receipt, {
         "format", "version", "protocol_sha256", "data_pins", "reservations",
-        "arm_comparison", "selected_arm", "selected_checkpoint",
-        "dev_report_sha256", "score_report_sha256", "audit",
+        "reservation_payload", "arm_comparison", "selected_arm",
+        "selected_checkpoint",
+        "dev_report_sha256", "score_report_sha256", "guard_report_sha256",
+        "audit",
         "external_final", "consumed", "scored_once",
         "repeat_finalize_refused", "claims"}, "finalize_receipt")
     _require(receipt["format"] == FINALIZE_RECEIPT_FORMAT,
@@ -4751,6 +4976,25 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
                  f"Finalize {name} reservation hash is invalid")
         _require(isinstance(item["path"], str) and item["path"],
                  f"Finalize {name} reservation path is missing")
+    payload = receipt["reservation_payload"]
+    _require(isinstance(payload, Mapping)
+             and fingerprint(payload) == reservations["id"],
+             "Reservation payload hash differs from the reservation id")
+    _require(payload.get("format") == FINALIZE_RESERVATION_FORMAT
+             and payload.get("protocol_sha256") == receipt["protocol_sha256"]
+             and payload.get("data_manifest_sha256")
+             == receipt["data_pins"]["sha256"]
+             and payload.get("arm_comparison") == receipt["arm_comparison"]
+             and payload.get("selected_arm") == receipt["selected_arm"]
+             and payload.get("dev_report_sha256")
+             == receipt["dev_report_sha256"]
+             and payload.get("score_report_sha256")
+             == receipt["score_report_sha256"]
+             and payload.get("audit_seal_sha256")
+             == protocol["splits"]["audit"]["seal_sha256"]
+             and payload.get("external_final_seal_sha256")
+             == protocol["splits"]["external_final"]["seal_sha256"],
+             "Reservation payload differs from the receipt evidence")
     _require(receipt["selected_arm"] in ARMS,
              "Finalize selected arm is invalid")
     comparison = receipt["arm_comparison"]
@@ -4822,6 +5066,8 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
              and receipt["score_report_sha256"]
              == selected["score_report_sha256"],
              "Finalize selected score report hash differs")
+    _require(_is_sha256(receipt["guard_report_sha256"]),
+             "Finalize guard snapshot hash is invalid")
     checkpoint = _exact_keys(receipt["selected_checkpoint"], {
         "weights_sha256", "frozen_at_utc", "frozen_before_audit"},
         "finalize_receipt.selected_checkpoint")
@@ -4923,11 +5169,18 @@ def write_finalize_receipt(paths: Mapping[str, str | Path],
                            receipt: Mapping[str, Any]) -> dict[str, str]:
     payload = _json_bytes(receipt)
     written = {}
-    for name in ("external_receipt", "audit_receipt"):
-        path = Path(paths[name])
-        _require(not path.exists(),
-                 "Finalize receipt already exists; repeat finalize is refused")
-        written[name] = _atomic_create(path, payload)
+    external = Path(paths["external_receipt"])
+    audit = Path(paths["audit_receipt"])
+    _require(not external.exists() and not audit.exists(),
+             "Finalize receipt already exists; repeat finalize is refused")
+    try:
+        written["external_receipt"] = _atomic_create(external, payload)
+        written["audit_receipt"] = _atomic_create(audit, payload)
+    except BaseException:
+        if external.exists() and not audit.exists():
+            external.unlink()
+            _fsync_parent(external)
+        raise
     _require(written["external_receipt"] == written["audit_receipt"],
              "Audit and external final receipts differ")
     return written

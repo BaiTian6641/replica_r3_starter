@@ -54,9 +54,9 @@ def _summary(config, dataset, data_root, protocol_path, protocol):
         "unknown_coverage": manifest["unknown_coverage"],
         "abstention_kinds": list(ABSTAIN_KINDS),
         "seals": {
-            "train": seals["train"],
-            "dev": seals["dev"],
-            "audit": seals["audit"],
+            "train": seals["train_seal_sha256"],
+            "dev": seals["dev_seal_sha256"],
+            "audit": seals["audit_seal_sha256"],
             "audit_manifest": audit_manifest["seal_sha256"],
             "external_final": pins["seals"]["external_final"],
             "external_final_consumed": False,

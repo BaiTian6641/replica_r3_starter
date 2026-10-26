@@ -57,7 +57,7 @@ from replica_lab.vision_curriculum import (  # noqa: E402
     validate_generation_rows, validate_lr_reports, validate_reload_report,
     validate_run_report, validate_score_report, verify_data_pins,
     verify_implementation_pins, verify_retention_pins,
-    write_finalize_receipt,
+    verified_finalize_seals, write_finalize_receipt,
 )
 from replica_lab.capacity_guard import (  # noqa: E402
     CapacityGuard, CapacityPolicy, parse_host_readings,
@@ -69,10 +69,28 @@ def require(condition: bool, message: str) -> None:
         raise VisionCurriculumError(message)
 
 
+def _fsync_path(path):
+    import os
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def _write_verified(path, text):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8")
+    _fsync_path(path)
+    try:
+        descriptor = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except OSError:
+        pass
     completed = path.read_text(encoding="utf-8")
     require(completed == text,
             f"Completed artifact differs after write: {path}")
@@ -1486,6 +1504,40 @@ def find_reload_report(run: Path) -> Path:
         f"A fresh-process reload report is required: {run}")
 
 
+def validate_control_provenance(cases, generations, *, seed_offset,
+                                controls, token_budget):
+    assignment = assign_controls(cases, seed_offset=seed_offset)
+    case_by_id = {case["case_id"]: case for case in cases}
+    expected_controls = list(controls)
+    seen = set()
+    for row in generations:
+        control = row["control"]
+        case_id = row["case_id"]
+        require(control in expected_controls,
+                f"Undeclared generation control: {control}")
+        require(row.get("max_new_tokens") == token_budget,
+                f"Control token budget differs: {control}/{case_id}")
+        if control == "correct":
+            donor = case_id
+        elif control == "wrong":
+            donor = assignment["wrong"][case_id]
+        elif control == "shuffled":
+            donor = assignment["shuffled"][case_id]
+        else:
+            donor = None
+        require(row.get("image_case_id") == donor,
+                f"Control donor differs from the declared assignment: {control}/{case_id}")
+        expected_hash = (None if donor is None
+                         else case_by_id[donor]["image_sha256"])
+        require(row.get("image_sha256") == expected_hash,
+                f"Control image metadata differs: {control}/{case_id}")
+        seen.add((control, case_id))
+    for control in expected_controls:
+        require({case for name, case in seen if name == control}
+                == set(case_by_id),
+                f"Control {control} does not cover every case")
+
+
 def execute_score(args, protocol, protocol_sha, dataset):
     run = Path(args.run)
     report_path = run / "run_report.json"
@@ -1527,6 +1579,11 @@ def execute_score(args, protocol, protocol_sha, dataset):
     validate_generation_rows(generations, {case["case_id"]
                                            for case in dev_cases},
                              protocol["evaluation"]["controls"])
+    validate_control_provenance(
+        dev_cases, generations,
+        seed_offset=int(protocol["evaluation"]["shuffle_seed_offset"]),
+        controls=protocol["evaluation"]["controls"],
+        token_budget=int(protocol["evaluation"]["max_new_tokens"]))
     score_dev = read_jsonl(run / "dev_generations.jsonl")
     require(len(score_dev) == len(dev_cases)
             * len(protocol["evaluation"]["controls"]),
@@ -1550,6 +1607,7 @@ def execute_score(args, protocol, protocol_sha, dataset):
         caption_generations=caption_generations,
         retention={"measured_correct": retention["correct"],
                    "token_parity": token_parity})
+    validate_score_report(score, protocol)
     output = ensure_fresh_directory(args.output)
     dump(output / "score_report.json", score)
     scored = score_procedural(
@@ -1673,7 +1731,7 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
     for name, score, report, run_path in (
             ("primary", primary_score, primary, run),
             ("peer", peer_score, peer, peer_run)):
-        validate_score_report(score)
+        validate_score_report(score, protocol)
         require(score["run_report_sha256"] == report["_run_report_sha256"],
                 f"{name} score report belongs to another run")
         require(score["protocol_sha256"] == protocol_sha,
@@ -1746,12 +1804,15 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
         service = feature_service(protocol, "mps")
         guard.sample(index=0, event="feature_service")
         before = adapter.parameter_stamp(original_only=True)
+        final_cases = load_external_final(protocol)
         # Admission is complete before either irreversible receipt is created.
+        verified_seals = verified_finalize_seals(
+            protocol, dataset.seals, dataset.seal_receipts)
         paths = require_global_finalize_allowed(
-            ROOT, protocol["splits"]["external_final"]["seal_sha256"],
-            protocol["splits"]["audit"]["seal_sha256"])
+            ROOT, verified_seals["external_final"], verified_seals["audit"])
         reservation = reserve_finalize(
             protocol, protocol_sha, project_root=ROOT,
+            verified_seals=verified_seals,
             comparison=comparison, selected_arm=selected_arm,
             dev_report_sha256=dev_report_sha256,
             score_report_sha256=score_report_sha256)
@@ -1773,7 +1834,6 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
             bootstrap_confidence=float(protocol["evaluation"]["bootstrap"]
                                        ["confidence"]),
             gates=protocol["evaluation"]["gates"])
-        final_cases = load_external_final(protocol)
         write_jsonl(output / "external_final_cases.jsonl",
                     [{"case_id": row["case_id"],
                       "image_sha256": row["image_sha256"]}
@@ -1795,12 +1855,16 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
         require(time.monotonic() - started
                 <= protocol["limits"]["max_seconds"],
                 "Finalize exceeded the declared wall-time ceiling")
+        guard.sample(index=1, event="finalize_end")
+        dump(output / "guard.json", guard.report())
+        guard_sha256 = sha256_file(output / "guard.json")
         final_receipt = build_finalize_receipt(
             protocol=protocol, comparison=comparison,
             reservation=reservation, selected_arm=selected_arm,
             selected_checkpoint=selected_checkpoint,
             dev_report_sha256=dev_report_sha256,
             score_report_sha256=score_report_sha256,
+            guard_report_sha256=guard_sha256,
             audit={"scored_once": True,
                    "seal_sha256": protocol["splits"]["audit"]["seal_sha256"],
                    "cases": len(audit_cases),
@@ -1820,14 +1884,12 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                             "generations_sha256": sha256_file(
                                 output / "external_final_generations.jsonl"),
                             "caption": final_caption})
+        dump(output / "arm_comparison.json", comparison)
         written = write_finalize_receipt(paths, final_receipt)
         require(sha256_file(paths["external_receipt"])
                 == written["external_receipt"]
                 == sha256_file(paths["audit_receipt"]),
                 "Final receipt write differs")
-        guard.sample(index=1, event="finalize_end")
-        dump(output / "guard.json", guard.report())
-        dump(output / "arm_comparison.json", comparison)
         session.ledger.close()
         return final_receipt
 

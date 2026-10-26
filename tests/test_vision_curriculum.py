@@ -40,8 +40,8 @@ from replica_lab.vision_curriculum import (  # noqa: E402
     validate_generation_rows, validate_lr_reports, validate_protocol,
     validate_reload_report, validate_run_report, validate_score_claims,
     validate_score_report, verify_data_pins, verify_implementation_pins,
-    verify_retention_pins, write_curriculum, write_finalize_receipt,
-    write_protocol,
+    verify_retention_pins, verified_finalize_seals, write_curriculum,
+    write_finalize_receipt, write_protocol,
 )
 
 BASE_CONFIG = json.loads(
@@ -575,6 +575,63 @@ def test_control_assignment_is_deterministic_and_deranged():
             case["world_id"]
 
 
+
+def test_control_provenance_requires_donors_and_null_noimage():
+    import os
+    keys = ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE",
+            "PYTORCH_ENABLE_MPS_FALLBACK", "REPLICA_CAPACITY_GUARD")
+    saved = {key: os.environ.get(key) for key in keys}
+    try:
+        from scripts.run_vision_curriculum import validate_control_provenance
+    finally:
+        for key, value in saved.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+    cases = [
+        {"case_id": f"w{world}-p0-{side}", "world_id": f"w{world}",
+         "task": "spatial", "image_sha256": f"{world}{0 if side == 'a' else 1}"
+         * 64 if False else (f"{world}{0 if side == 'a' else 1}" * 32)}
+        for world in range(4) for side in ("a", "b")]
+    assignment = assign_controls(cases, seed_offset=7919)
+    case_by = {case["case_id"]: case for case in cases}
+    rows = []
+    for case in cases:
+        for control in CONTROLS:
+            if control == "correct":
+                donor = case["case_id"]
+            elif control == "wrong":
+                donor = assignment["wrong"][case["case_id"]]
+            elif control == "shuffled":
+                donor = assignment["shuffled"][case["case_id"]]
+            else:
+                donor = None
+            rows.append({"control": control, "case_id": case["case_id"],
+                         "generated_text": "yes", "max_new_tokens": 8,
+                         "image_case_id": donor,
+                         "image_sha256": (None if donor is None else
+                                          case_by[donor]["image_sha256"])})
+    validate_control_provenance(cases, rows, seed_offset=7919,
+                                controls=CONTROLS, token_budget=8)
+    bad = copy.deepcopy(rows)
+    bad[0]["max_new_tokens"] = 32
+    with pytest.raises(VisionCurriculumError):
+        validate_control_provenance(cases, bad, seed_offset=7919,
+                                    controls=CONTROLS, token_budget=8)
+    bad = copy.deepcopy(rows)
+    noimage = next(row for row in bad if row["control"] == "noimage")
+    noimage["image_sha256"] = case_by[noimage["case_id"]]["image_sha256"]
+    with pytest.raises(VisionCurriculumError):
+        validate_control_provenance(cases, bad, seed_offset=7919,
+                                    controls=CONTROLS, token_budget=8)
+    bad = copy.deepcopy(rows)
+    wrong = next(row for row in bad if row["control"] == "wrong")
+    wrong["image_case_id"] = wrong["case_id"]
+    with pytest.raises(VisionCurriculumError):
+        validate_control_provenance(cases, bad, seed_offset=7919,
+                                    controls=CONTROLS, token_budget=8)
+
 # ---------------------------------------------------------------------------
 # Procedural scoring, unknown accuracy and caption metric
 # ---------------------------------------------------------------------------
@@ -809,10 +866,11 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "arm": arm, "split": "procedural_dev",
             "measure": "mean_dev_response_loss",
             "candidates": [0.0001, 0.0003],
-            "selected_lr": 0.0001,
+            "selected_lr": 0.0001, "selected_dev_loss": 1.0001,
             "results": [
                 {"lr": candidate, "dev_loss": 1.0 + candidate,
-                 "init_sha256": init_hash, "dev_losses": [1.0],
+                 "init_sha256": init_hash,
+                 "dev_losses": [1.0 + candidate] * 24,
                  "route": [], "optimizer_audit": {},
                  "updates": 16, "examples": 32, "trace_rows": 16,
                  "trace_sha256": "9" * 64}
@@ -1025,17 +1083,42 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
     audit_seal = prepared_protocol["splits"]["audit"]["seal_sha256"]
     paths = require_global_finalize_allowed(project, external_seal, audit_seal)
     comparison = _comparison(prepared_protocol)
+    verified = {"external_final": external_seal, "audit": audit_seal}
     reservation = reserve_finalize(
         prepared_protocol, protocol_sha, project_root=project,
-        comparison=comparison, selected_arm="muon8bit",
+        verified_seals=verified, comparison=comparison,
+        selected_arm="muon8bit",
         dev_report_sha256="a" * 64, score_report_sha256="f" * 64)
     with pytest.raises(VisionCurriculumError):
         require_global_finalize_allowed(project, external_seal, audit_seal)
     with pytest.raises(VisionCurriculumError):
         reserve_finalize(
             prepared_protocol, protocol_sha, project_root=project,
-            comparison=comparison, selected_arm="muon8bit",
+            verified_seals=verified, comparison=comparison,
+            selected_arm="muon8bit",
             dev_report_sha256="a" * 64, score_report_sha256="f" * 64)
+    audit_cases = []
+    for index in range(prepared_protocol["splits"]["audit"]["rows"]):
+        answerable = index % 2 == 0
+        audit_cases.append({
+            "case_id": f"a{index}", "world_id": f"aw{index}",
+            "task": "spatial" if answerable else "abstain",
+            "kind": None if answerable else "occluded_relation",
+            "label": "yes" if answerable else UNKNOWN_ANSWER})
+    audit_generations = []
+    for case in audit_cases:
+        for control in CONTROLS:
+            if control == "correct":
+                text = case["label"]
+            else:
+                text = "no"
+            audit_generations.append({"control": control,
+                                      "case_id": case["case_id"],
+                                      "generated_text": text})
+    audit_score = score_procedural(
+        audit_cases, audit_generations, controls=CONTROLS, seed=1,
+        bootstrap_resamples=10, bootstrap_confidence=0.9,
+        gates=prepared_protocol["evaluation"]["gates"])
     receipt = build_finalize_receipt(
         protocol=prepared_protocol, comparison=comparison,
         reservation=reservation, selected_arm="muon8bit",
@@ -1043,44 +1126,17 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                              "frozen_at_utc": "2026-10-25T00:00:00Z",
                              "frozen_before_audit": True},
         dev_report_sha256="a" * 64, score_report_sha256="f" * 64,
+        guard_report_sha256="7" * 64,
         audit={"scored_once": True,
                "seal_sha256": prepared_protocol["splits"]["audit"][
                    "seal_sha256"],
                "cases": prepared_protocol["splits"]["audit"]["rows"],
                "cases_sha256": "3" * 64,
                "generations_sha256": "1" * 64,
-               "score": {
-                   "cases": prepared_protocol["splits"]["audit"]["rows"],
-                   "controls": {"correct": {
-                       "available": True,
-                       "cases": prepared_protocol["splits"]["audit"]["rows"],
-                       "correct": 0, "accuracy": 0.0,
-                       "unknown": 60, "unknown_rate": 0.5,
-                       "unique_worlds": 1}},
-                   "unknown": {"abstain_cases": 60, "answerable_cases": 60,
-                               "false_abstention_on_answerable": 0.0,
-                               "abstention_accuracy": 0.0,
-                               "false_answer_on_abstain": 1.0},
-                   "correct_bootstrap": {"mean": 0.0, "lower": 0.0,
-                                          "upper": 0.0},
-                   "paired": {
-                       control: {"cases": 120, "correct_accuracy": 0.0,
-                                 "control_accuracy": 0.0,
-                                 "correct_margin": 0.0}
-                       for control in ("wrong", "shuffled", "noimage")},
-                   "learned_quality_pass": False,
-                   "gate_failures": [
-                       "min_correct_accuracy", "min_unique_families",
-                       "min_correct_margin_wrong",
-                       "min_correct_margin_shuffled",
-                       "min_correct_margin_noimage", "min_unknown_accuracy",
-                       "max_false_answer_on_abstain"]},
-               "learned_quality_pass": False,
-               "gate_failures": [
-                   "min_correct_accuracy", "min_unique_families",
-                   "min_correct_margin_wrong", "min_correct_margin_shuffled",
-                   "min_correct_margin_noimage", "min_unknown_accuracy",
-                   "max_false_answer_on_abstain"]},
+               "score": audit_score,
+               "learned_quality_pass":
+                   audit_score["learned_quality_pass"],
+               "gate_failures": audit_score["gate_failures"]},
         external_final={"consumed_once": True,
                         "seal_sha256": prepared_protocol["splits"]
                         ["external_final"]["seal_sha256"],
@@ -1116,6 +1172,15 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
         validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
     bad = copy.deepcopy(receipt)
     bad["audit"]["cases"] = 4
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["reservation_payload"]["arm_comparison"]["selected_arm"] = \
+        "adamw_control"
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    del bad["guard_report_sha256"]
     with pytest.raises(VisionCurriculumError):
         validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
 
@@ -1185,6 +1250,12 @@ def test_score_report_rejects_self_contradictory_acceptance(prepared_protocol):
     bad["learned_quality"]["external_development_caption"]["loss_cases"] = 0
     with pytest.raises(VisionCurriculumError):
         validate_score_report(bad)
+    validate_score_report(report, prepared_protocol)
+    bad = copy.deepcopy(report)
+    bad["learned_quality"]["retention"]["gates"][
+        "min_correct_accuracy"] = 0.0
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad, prepared_protocol)
 
 
 def _fake_generation_session():
@@ -1306,6 +1377,42 @@ def test_retention_pin_verification_detects_changed_bytes(tmp_path):
         stream.write(b"\n")
     with pytest.raises(VisionCurriculumError):
         verify_retention_pins(value, tmp_path)
+
+
+def test_prepared_occlusion_pairs_are_identical_unknown_controls():
+    manifest = json.loads((PREPARED / "procedural/manifest.json").read_text())
+    assets = {asset["asset_id"]: asset for asset in manifest["assets"]}
+    occluded = [pair for pair in manifest["pairs"]
+                if pair["kind"] == "occluded_relation"]
+    assert len(occluded) == 12
+    for pair in occluded:
+        left = (PREPARED / "procedural" /
+                assets[pair["sides"]["a"]["asset_id"]]["path"]).read_bytes()
+        right = (PREPARED / "procedural" /
+                 assets[pair["sides"]["b"]["asset_id"]]["path"]).read_bytes()
+        assert left == right
+        assert pair["answers"] == {"a": UNKNOWN_ANSWER, "b": UNKNOWN_ANSWER}
+        assert not answer_correct("yes", UNKNOWN_ANSWER)
+        assert not answer_correct("no", UNKNOWN_ANSWER)
+        assert answer_correct(UNKNOWN_ANSWER, UNKNOWN_ANSWER)
+
+
+def test_protocol_split_seals_must_match_verified_dataset_seals():
+    dataset = audit_dataset(PREPARED)
+    protocol = json.loads((PREPARED / "protocol.json").read_text())
+    verified = verified_finalize_seals(
+        protocol, dataset.seals, dataset.seal_receipts)
+    assert verified["audit"] == dataset.seals["audit_seal_sha256"]
+    tampered = copy.deepcopy(protocol)
+    tampered["splits"]["audit"]["seal_sha256"] = "0" * 64
+    with pytest.raises(VisionCurriculumError):
+        verified_finalize_seals(
+            tampered, dataset.seals, dataset.seal_receipts)
+    tampered = copy.deepcopy(protocol)
+    tampered["data"]["seals"]["external_final"] = "0" * 64
+    with pytest.raises(VisionCurriculumError):
+        verified_finalize_seals(
+            tampered, dataset.seals, dataset.seal_receipts)
 
 # ---------------------------------------------------------------------------
 # Prepared protocol and data pins (repository deliverable)
