@@ -815,7 +815,8 @@ def build_model_generator_v2(config, baseline_info, *, profiler=None,
     from .memory_system.ledger import RecordLedger
     from .memory_system.session import MemorySession
 
-    source = (baseline_info.get("source") or {}).get("source_pins")
+    baseline = baseline_info.get("first_process") or baseline_info
+    source = (baseline.get("source") or {}).get("source_pins")
     _require(isinstance(source, dict) and source.get("model_path")
              and source.get("model_lock"),
              "Sealed source pins are required for native generation")
