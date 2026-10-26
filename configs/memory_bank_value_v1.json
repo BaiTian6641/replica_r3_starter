@@ -1,0 +1,234 @@
+{
+  "format": "replica.memory_bank_value.config.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Selected-record literal-value exactness followed by a bounded MiniCPM readout, with dev-first fail-closed gating and no bank-plus-compressed hybrid.",
+  "classification": {
+    "package": "selected_record_literal_value_and_model_readout",
+    "native": false,
+    "model_execution": false,
+    "tokenizer_load": false,
+    "generation": false,
+    "persistent_learning": false,
+    "calibrated": false,
+    "learned_selector": false,
+    "bank_plus_compressed_arm": false,
+    "compressed_value_comparison": "referenced_v4_only",
+    "compressed_arm": "separate_reference_not_combined",
+    "oracle": "diagnostic_only_not_executed",
+    "checkpoint_state_role": "validated_only_not_consumed_by_generation",
+    "answer_source": "sealed_minicpm5_greedy_readout"
+  },
+  "prepared": {
+    "root": "data/memory_causal_fresh_20261026/prepared04",
+    "selection_inputs": [
+      "episodes.json",
+      "revocations.json"
+    ],
+    "scoring_only_inputs": [
+      "labels.json"
+    ],
+    "formats": {
+      "episodes": "replica.memory_causal_fresh.episodes.v2",
+      "revocations": "replica.memory_causal_fresh.revocations.v2",
+      "labels": "replica.memory_causal_fresh.labels.v2",
+      "manifest": "replica.memory_causal_fresh.prepared.v2"
+    },
+    "pins": {
+      "episodes_sha256": "aaf77d0aa4b6f1fd861b760aaf06c4d699641bbea6b7114c6c876564b3ca02c9",
+      "revocations_sha256": "7037d34fe3ec9b5c20fabf78082f8bc07729652d2d0b483a460e76a6515ee130",
+      "labels_sha256": "2cb282284c223802bc691b512474a4e051074d5490af5fb1db5748f63f81049c",
+      "manifest_sha256": "3a3395db16f3dcc3332c6e4e309dcadf77e1685d22c3738a0ab0d6c1ef7579da"
+    },
+    "manifest_requirements": {
+      "native_computation": false,
+      "model_loaded": false,
+      "tokenizer_loaded": false
+    }
+  },
+  "baseline": {
+    "root": "runs/memory_causal_fresh_20261026/native02",
+    "checkpoint": "runs/memory_causal_fresh_20261026/native02/policy_checkpoint.pt",
+    "checkpoint_sha256": "6e680c62aa848c95864d3fe8a4c979c6241b9a05af226c921c7af454197b6db3",
+    "report": "runs/memory_causal_fresh_20261026/native02/run_report.json",
+    "report_sha256": "85ed826c39bfc87d6fcd092d2970c0adae50673cff5ba9dbbd03451b3da4addc",
+    "ledger": "runs/memory_causal_fresh_20261026/native02/ledger.json",
+    "ledger_sha256": "d842e32c611ac0661882309f7b348ff0853f9ad0f2b9833ee131940f09f2d1f0",
+    "report_format": "replica.memory_causal_fresh.run.v2",
+    "checkpoint_format": "replica.memory_causal_fresh.checkpoint.v3",
+    "ledger_format": "replica.memory_causal_fresh.ledger.v2",
+    "phase": "first_process",
+    "resumed": false,
+    "episodes": 12,
+    "split_episode_counts": {
+      "train": 4,
+      "dev": 4,
+      "heldout": 4
+    },
+    "protocol_sha256": "0c301903e0a512e48a882ad2f980ead5044282d253db03e4fa33a222d7a3570b"
+  },
+  "bank": {
+    "address_key": [
+      "entity",
+      "attribute"
+    ],
+    "match": "exact",
+    "state_views": "memory_matched.episode_states then memory_matched._record_views",
+    "decision_unit": "episode/state/phase/query",
+    "phase_order": [
+      "first_process",
+      "restart",
+      "revocation"
+    ],
+    "phase_query_fields": {
+      "first_process": "queries",
+      "restart": "restart_queries",
+      "revocation": "revocation_queries"
+    },
+    "scope": "episode_world",
+    "duplicate_record_id": "dedupe_if_identical_else_reject",
+    "duplicate_address": "abstain_ambiguous",
+    "abstain_reasons": [
+      "abstain_no_address",
+      "abstain_ambiguous_address",
+      "abstain_superseded_only_address",
+      "abstain_revoked_only_address"
+    ],
+    "revocation": {
+      "scope": "view_only",
+      "cached_history_retained": true,
+      "applies_at_phase_map": {
+        "post_restart": [
+          "restart",
+          "revocation"
+        ],
+        "revocation_only": [
+          "revocation"
+        ],
+        "all": [
+          "first_process",
+          "restart",
+          "revocation"
+        ]
+      }
+    },
+    "value_comparison": true
+  },
+  "reader": {
+    "declared_source_layers": [
+      "selected_record_value"
+    ],
+    "decision_count_multiplier": 1,
+    "rule": "one decision per episode/state/phase/query; reader layers never multiply or alter a decision"
+  },
+  "endpoint": {
+    "split": "dev",
+    "dev_literal_fact_value_min": 0.85,
+    "dev_literal_unknown_selections_max": 0,
+    "dev_literal_revoked_selections_max": 0,
+    "dev_model_exact_answer_min": 0.85,
+    "dev_model_correction_min": 0.6,
+    "dev_model_unaffected_min": 0.7,
+    "dev_model_unknown_correct_min": 0.9,
+    "dev_model_revoked_correct_min": 0.9,
+    "heldout": "evaluate_after_dev_pass_only",
+    "tuning": "forbidden"
+  },
+  "generation": {
+    "model": "sealed MiniCPM5 source from the pinned baseline source pins",
+    "device": "mps",
+    "max_new_tokens": 8,
+    "max_prompt_tokens": 256,
+    "max_decisions_per_split": 152,
+    "wall_budget_seconds": 1200,
+    "artifact_cap_bytes": 67108864,
+    "stop_token_ids": [
+      1,
+      130073
+    ],
+    "enabled_ports": [],
+    "enabled_branches": [],
+    "core_impl": "none",
+    "empty_ledger": true,
+    "training": false,
+    "record_memory": false,
+    "workspace": false,
+    "model_loads": 1,
+    "prompt_format": "replica.memory_bank_value.prompt.v1",
+    "answer_normalization": "strip+collapse_whitespace+casefold",
+    "prompt_fields": [
+      "query_text",
+      "selected_record_value",
+      "runtime_status"
+    ]
+  },
+  "roles": {
+    "train": {
+      "role": "descriptive_only",
+      "endpoint": false,
+      "requires_dev_pass": false
+    },
+    "dev": {
+      "role": "primary_endpoint_gate",
+      "endpoint": true,
+      "requires_dev_pass": false
+    },
+    "heldout": {
+      "role": "post_freeze_confirmation",
+      "endpoint": false,
+      "requires_dev_pass": true
+    }
+  },
+  "reporting": {
+    "groups": [
+      "split",
+      "cohort",
+      "world",
+      "phase",
+      "state",
+      "complexity"
+    ],
+    "raw_output_policy": {
+      "fresh_output_required": true,
+      "immutable_first_write": true,
+      "files": [
+        "decisions_dev.jsonl",
+        "decisions_train.jsonl",
+        "decisions_heldout.jsonl",
+        "generations_dev.jsonl",
+        "generations_heldout.jsonl",
+        "report.json"
+      ],
+      "heldout_file_only_after_dev_pass": true,
+      "train_file_only_after_dev_pass": true
+    }
+  },
+  "budget": {
+    "model_loads": 1,
+    "tokenizer_loads": 1,
+    "optimizer_updates": 0,
+    "gradients": 0,
+    "checkpoints_written": 0,
+    "base_export": 0,
+    "extension_export": 0,
+    "downloads": 0,
+    "native_jobs": 1,
+    "fallback": "disabled"
+  },
+  "compressed_reference": {
+    "path": "reports/memory_acceptance_20261026/causal_fresh_native02_acceptance_v4.json",
+    "sha256": "d348e476b15886f68cd3373a65cf4a8e80072b93d5589cd150368a1ad7629afe",
+    "role": "referenced_only_not_combined",
+    "metric_version": "memory.acceptance.v4"
+  },
+  "limitations": [
+    "Literal value exactness is exact runtime-record string equality, not semantic or learned retrieval.",
+    "The bank selects records; the literal value is read from the selected runtime record and is never a label input.",
+    "Generation is a bounded greedy MiniCPM readout of a prompt that contains only the query, an authorized selected value and a runtime status.",
+    "The generated-answer rates are readout evidence, not calibrated confidence, open-ended answering or a persistent-learning claim.",
+    "No optimizer, gradient, checkpoint write, base export or extension export occurs; the native02 checkpoint is read only.",
+    "The compressed-vector arm is referenced from its existing v4 receipt and is never combined with this bank arm.",
+    "Unknown and revoked answers are evaluated separately and never enter the literal fact denominator.",
+    "Heldout evidence is reported only after the predeclared development literal and model endpoints pass; no threshold is tuned.",
+    "Train evidence is descriptive only and is produced only after both development gates pass."
+  ]
+}
