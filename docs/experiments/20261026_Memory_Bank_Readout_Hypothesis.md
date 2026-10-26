@@ -1,6 +1,6 @@
 # Prompt-v2 selected-record readout hypothesis
 
-**26 October 2026 · predeclared · no native execution yet.**
+**26 October 2026 · H1 evaluated · first, restart and one-shot heldout passed.**
 This document is complete before the first native job. It declares one
 hypothesis, its exact prompt contract, its exact gate denominators, the
 role-sealed label order, the two fresh-process jobs, the resource stop policy
@@ -9,9 +9,9 @@ and the acceptance evidence. The implementation is
 `configs/memory_bank_readout_v2.json`, and the CPU contracts are
 `tests/test_memory_bank_readout_v2.py`.
 
-No native job, model load, tokenizer load or heldout read has been performed
-for this protocol. The parent runs the CPU suite and the two guarded native
-jobs. This file records only what is implemented and predeclared.
+The predeclaration was committed before native execution. The guarded
+`first02` and fresh-process `restart02` jobs completed; role-sealed heldout was
+opened exactly once after every development gate passed. Results are below.
 
 ## Evidence basis
 
@@ -355,28 +355,56 @@ Reused unchanged: `build_split_decisions`, `annotate_decision_values`,
 `evaluate_dev_literal_gate`, `_labels_map`, `_target`,
 `load_fresh_checkpoint`, `_unpack_cache`.
 
-## Status
+## Native results
 
-- **Implemented:** prompt v2, 32-token cap, role sealing and pinned loader,
-  phase/state/accounting gates, two-job runner, CPU tests.
-- **Measured:** CPU contracts only — 20 non-integration tests and 1
-  integration checkpoint-verification test. No model output, no native job, no
-  heldout read.
-- **Rejected / not run:** every v2 semantic gate is unmeasured until the native
-  jobs run; heldout remains sealed; few-shot and structured decoding are not
-  implemented.
-- **Non-claims:** no persistent-learning, retention, calibrated-confidence,
-  learned-selector or compressed-memory claim; no claim that a failing gate
-  refutes exact bank selection.
+| Evidence | Correct / rows | Rate | Gate |
+|---|---:|---:|---|
+| First-process exact answers | 72/72 | 100% | Pass |
+| First correction | 8/8 | 100% | Pass |
+| First unaffected | 20/20 | 100% | Pass |
+| First unknown | 8/8 | 100% | Pass |
+| Restart exact answers | 68/72 | 94.44% | Pass |
+| Restart correction | 8/8 | 100% | Pass |
+| Restart unaffected / retention | 20/20 | 100% | Pass |
+| Restart unknown | 8/8 | 100% | Pass |
+| Revocation exact `revoked` | 8/8 | 100% | Pass |
+| Initial-state exact answers | 62/64 | 96.875% | Pass |
+| Corrected-state exact answers | 62/64 | 96.875% | Pass |
+| Heldout, one shot | **148/152** | **97.37%** | Post-freeze confirmation |
 
-## Blockers / parent actions
+All generated rows are single-line and end at EOS with zero 32-token cap hits
+and zero control false values. Restart texts are 100% disjoint from first-
+process texts; old observations and old first-process queries are not
+regenerated. Heldout was opened only after heldout decisions and generations
+were written without labels, and was not retried or tuned.
 
-1. The parent must add `run_memory_bank_readout_v2.py` to the capacity-guard
-   `--entry-point` choices before native execution; this slice is not allowed
-   to edit `scripts/run_capacity_preflight.py`.
-2. The parent runs the CPU suite, native jobs, independent replay and the
-   commit. The role files already exist at the pinned hashes; if they are
-   re-sealed, update the three role pins and the manifest pin in
-   `configs/memory_bank_readout_v2.json`.
-3. No other blocker: prepared04, native02 and restart02 pins are verified by
-   the CPU integration test.
+The four heldout misses are the predeclared bank abstentions in two episodes ×
+two states. The runtime answer is `revoked`, matching runtime status; the
+scorer keeps those fact rows as misses rather than relabeling them. No false
+value was generated.
+
+## Resources and independent verification
+
+The first guard took 70.94 s and the restart guard 205.86 s. Each loaded the
+sealed model once. Sampled peak driver memory was 10,763,255,808 bytes, with
+zero swap growth and no CPU fallback, gradients, optimizer updates, downloads,
+checkpoint writes or extension exports. Artifacts are 424,576 bytes for first
+and 1,217,677 bytes for restart.
+
+The focused suite passes **21 tests**, including real checkpoint verification.
+Independent replay validated all 456 decision identities and all 232 dev plus
+152 heldout generations, recomputed every phase/state/heldout metric and
+verified every raw hash. `first02` and `restart02` bind the same implementation
+hashes. The initial `first` failure was only a baseline source-shape mismatch;
+its preserved receipt remains separate from `first02`.
+
+## Status and non-claims
+
+- **Implemented and measured:** H1 response grammar, role sealing, first and
+  fresh-process restart execution, exact/correction/unaffected/unknown/revoked
+  gates, and one-shot heldout confirmation.
+- **Passed:** the predeclared useful post-restart readout endpoint on this
+  synthetic fixture.
+- **Not claimed:** persistent learning, learned-selector quality, compressed
+  memory, calibrated confidence, general personal-memory competence or broad
+  generalization. This is an exact selected-record readout contract only.
