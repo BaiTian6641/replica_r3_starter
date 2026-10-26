@@ -1,0 +1,106 @@
+{
+  "sources": [
+    {
+      "id": "apple_host",
+      "title": "Mac Studio (2023) technical specifications",
+      "url": "https://support.apple.com/en-us/111835",
+      "facts": {
+        "m2_ultra_gpu_cores": 60,
+        "configured_unified_memory_gib": 64,
+        "published_memory_bandwidth_GB_s": 800
+      },
+      "limits": "Host configuration independently confirmed by reports/hardware_macos_m2_ultra.json; page does not publish a matched training benchmark or FP32 peak.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "pytorch_adamw",
+      "title": "PyTorch 2.14 AdamW",
+      "url": "https://docs.pytorch.org/docs/2.14/generated/torch.optim.AdamW.html",
+      "facts": {
+        "fused_implementation_documented": true,
+        "prototype_mps_dtypes": [
+          "float32",
+          "float16"
+        ]
+      },
+      "limits": "MPS support does not establish full-model fit or convergence parity with Muon.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "rtx4060ti",
+      "title": "NVIDIA GeForce RTX 4060 Ti specifications",
+      "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4060-4060ti/",
+      "facts": {
+        "fp32_shader_peak_TFLOPS": 22,
+        "max_memory_GB": 16,
+        "ideal_NS_arithmetic_seconds_lower_bound_not_benchmark": 4.438610768989091
+      },
+      "limits": "Published rounded shader peak; not measured training throughput.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "rtxpro4000sff",
+      "title": "NVIDIA RTX PRO 4000 Blackwell SFF",
+      "url": "https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-4000-sff/",
+      "facts": {
+        "fp32_shader_peak_TFLOPS": 24,
+        "memory_GB": 24,
+        "memory_bandwidth_GB_s": 432,
+        "max_power_W": 70,
+        "ideal_NS_arithmetic_seconds_lower_bound_not_benchmark": 4.06872653824
+      },
+      "limits": "SFF model specifically; do not substitute non-SFF specifications or FP4 sparse AI TOPS.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "rtx4090",
+      "title": "NVIDIA GeForce RTX 4090 specifications",
+      "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/rtx-4090/",
+      "facts": {
+        "fp32_shader_peak_TFLOPS": 83,
+        "memory_GB": 24,
+        "ideal_NS_arithmetic_seconds_lower_bound_not_benchmark": 1.176499239973012
+      },
+      "limits": "Published rounded shader peak; not a matched CUDA training measurement.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "rtx5090",
+      "title": "NVIDIA GeForce RTX 5090 specifications",
+      "url": "https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/",
+      "facts": {
+        "cuda_cores": 21760,
+        "boost_clock_GHz": 2.41,
+        "memory_GB": 32,
+        "calculated_fp32_peak_TFLOPS": 104.88320000000002,
+        "ideal_NS_arithmetic_seconds_lower_bound_not_benchmark": 0.93103029768123
+      },
+      "limits": "FP32 figure is explicitly calculated as cores * boost * 2 operations, using rounded published boost. It is not advertised sparse FP4 AI TOPS or measured throughput.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "rtx6000ada",
+      "title": "NVIDIA RTX 6000 Ada Generation specifications",
+      "url": "https://www.nvidia.com/en-us/products/workstations/rtx-6000/",
+      "facts": {
+        "fp32_shader_peak_TFLOPS": 91.1,
+        "memory_GB": 48,
+        "ideal_NS_arithmetic_seconds_lower_bound_not_benchmark": 1.0718928311499452
+      },
+      "limits": "Ada generation specifically, not RTX A6000 or RTX PRO 6000 Blackwell.",
+      "retrieved_on_local": "2026-10-25"
+    },
+    {
+      "id": "mlx_full_scope",
+      "title": "Official MLX-LM fine-tuning implementation",
+      "url": "https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/lora.py",
+      "facts": {
+        "full_mode_exists": true,
+        "training_path_calls_model_freeze_before_layer_unfreeze": true
+      },
+      "limits": "Stock full mode still requires explicit verification that embeddings, output head and final norm are trainable; its name alone does not establish the repository full-scope contract. No MLX implementation or benchmark was run.",
+      "retrieved_on_local": "2026-10-25"
+    }
+  ],
+  "scope": "Official primary sources only. Product facts are independent from local measured throughput; no prices or gaming/inference benchmarks used."
+}

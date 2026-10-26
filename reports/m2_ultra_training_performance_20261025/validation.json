@@ -1,0 +1,32 @@
+{
+  "format": "replica.m2_ultra.training_performance_validation.v1",
+  "validated_at_utc": "2026-10-26T02:43:12.670160+00:00",
+  "source_commit_before_report_commit": "42b7a3364d14654d2e71579589f801a1088ee562",
+  "offline_evidence_checks": [
+    "All evidence JSON and JSONL parses",
+    "Analysis and profile scripts parse",
+    "Cached phase analysis, source hashes, arithmetic and memory inventory reproduce exactly",
+    "Both native arms: historical implementation pins, original tensor inventory, 381 gradient/changed hashes, throughput and unchanged guards verified",
+    "Matched initial weights, source data, first loss, environment, batch, precision and 2.572637x speedup verified",
+    "Both requested reports: local evidence links resolve and code fences balance"
+  ],
+  "reused_focused_test_evidence": {
+    "pre_run_command": ".venv/bin/python -m pytest tests/test_full_training_profile.py tests/test_optimizers.py tests/test_capacity_guard.py -q -p no:cacheprovider",
+    "pre_run_result": "40 passed in 2.76s",
+    "timing_refinement_command": ".venv/bin/python -m pytest tests/test_full_training_profile.py -q -p no:cacheprovider",
+    "timing_refinement_result": "2 passed in 1.18s",
+    "note": "Already executed for the committed harness; unchanged contracts reused, not rerun here."
+  },
+  "native_evidence": {
+    "completed_arms": 2,
+    "total_optimizer_updates": 6,
+    "all_original_tensors_changed_per_arm": 381,
+    "sampled_guard_passed_both_arms": true
+  },
+  "unqualified": [
+    "Sustained throughput",
+    "AdamW/Muon convergence or retention equivalence",
+    "Batching/SDPA performance",
+    "CUDA-equivalent performance"
+  ]
+}

@@ -31,6 +31,23 @@ audit from norm clipping in the remaining predeclared batching/attention arms.
 It changes neither the updates nor the admission/resource policy. Initial
 worker-lock refusals are retained and caused no model load.
 
+The completed [performance report](docs/experiments/20261025_M2_Ultra_Full_Training_Performance.md)
+and [market GPU comparison](docs/research/m2_ultra_training_performance_20261025/GPU_Comparison.md)
+include the [native evidence summary](reports/m2_ultra_training_performance_20261025/native_summary.json).
+Mean update times are 23.021 s for Muon and 8.949 s for fused AdamW; sampled
+driver peaks are 30.08 and 40.03 GiB. All initial tensor hashes, tokenized data
+and the first loss match, and both arms change all 381 tensors. The 5.5 s phase
+combines exhaustive gradient auditing with clipping; the timing split has not
+run natively. Batch-4/SDPA arms are deferred because the shared worker was busy.
+The production trainer's AdamW option remains custom eager AdamW; the measured
+native fused path is profiling-only. No default or checkpoint is promoted.
+Persistent FP32 state is at least 24.586 GiB for current Muon and 37.503 GiB
+for all-AdamW, before activations/temporaries. Exact CUDA equivalence remains
+unmeasured. The timing refinement's two scope/collation tests also pass in 1.18 s.
+Final offline [evidence validation](reports/m2_ultra_training_performance_20261025/validation.json)
+reproduces the cached analysis and verifies native provenance, matched initial
+conditions, six updates, all changed tensors, resource limits and report links.
+
 **Current implementation — write-position interference isolated in memory; balanced image dependence supported on procedural holdouts; staged curriculum next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
