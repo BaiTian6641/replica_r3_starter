@@ -49,8 +49,9 @@ from replica_lab.vision_curriculum import (  # noqa: E402
     answer_correct, assemble_score_report, assign_controls, audit_dataset,
     build_finalize_receipt, build_protocol, curriculum_prompt, dataset_pins,
     finalize_receipt_paths, is_unknown_answer, load_config,
-    load_external_source, load_protocol, load_run_report, protocol_sha256,
-    require_finalize_allowed, require_global_finalize_allowed,
+    load_external_source, load_protocol, load_run_report,
+    lr_probe_artifact_name, protocol_sha256,
+    require_global_finalize_allowed,
     reserve_finalize, retention_policy, score_caption, score_procedural,
     sha256_bytes, sha256_file, validate_config, validate_finalize_receipt,
     validate_generation_rows, validate_lr_reports, validate_reload_report,
@@ -68,14 +69,21 @@ def require(condition: bool, message: str) -> None:
         raise VisionCurriculumError(message)
 
 
+def _write_verified(path, text):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    completed = path.read_text(encoding="utf-8")
+    require(completed == text,
+            f"Completed artifact differs after write: {path}")
+
+
 def dump(path, value):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    Path(path).write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+    _write_verified(path, json.dumps(value, indent=2, allow_nan=False) + "\n")
 
 
 def write_jsonl(path, rows):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    Path(path).write_text("".join(json.dumps(row, allow_nan=False) + "\n"
+    _write_verified(path, "".join(json.dumps(row, allow_nan=False) + "\n"
                                   for row in rows))
 
 
@@ -565,6 +573,8 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
         write_jsonl(trace_path, trace)
         if update_index % 8 == 0:
             guard.sample(index=update_index, event="train")
+    require(time.monotonic() - start_time <= max_seconds,
+            "Training phase exceeded the preregistered train budget")
     return {"trace": trace, "completed": completed,
             "examples": total_examples}
 
@@ -624,13 +634,20 @@ def backward_only_probe(adapter, session, tokenizer, service, protocol, scope,
             "projector_gradients_nonzero": nonzero}
 
 
-def dev_loss(adapter, session, tokenizer, service, protocol, scope, cases):
+def dev_loss(adapter, session, tokenizer, service, protocol, scope, cases,
+             *, guard=None, start_time=None):
     import torch
     total = 0.0
     losses = []
     adapter.eval()
+    started = time.monotonic() if start_time is None else start_time
     with torch.no_grad():
-        for case in cases:
+        for position, case in enumerate(cases, 1):
+            require(time.monotonic() - started
+                    <= protocol["train"]["max_seconds"],
+                    "Dev loss exceeded the training budget")
+            if guard is not None and position % 10 == 0:
+                guard.sample(index=position, event="dev_loss")
             visual = observe(service, image_path=case["image_path"],
                              image_sha256=case["image_sha256"],
                              case_id=case["case_id"], scope=scope,
@@ -676,19 +693,35 @@ def select_learning_rate(adapter, session, tokenizer, service, protocol, scope,
                                                   config)
         adapter._initial_base_stamp = adapter.parameter_stamp(
             original_only=True)
-        Path(trace_dir).mkdir(parents=True, exist_ok=True)
-        run_updates(adapter, session, tokenizer, service, protocol, scope,
-                    probe_batches, optimizer, guard,
-                    Path(trace_dir) / f"probe_{candidate}.jsonl",
-                    label=f"probe_{candidate}",
-                    max_seconds=protocol["train"]["max_seconds"],
-                    start_time=start_time)
+        trace_path = Path(trace_dir) / lr_probe_artifact_name(candidate).split(
+            "/", 1)[1]
+        trace_path.parent.mkdir(parents=True, exist_ok=True)
+        probe_run = run_updates(
+            adapter, session, tokenizer, service, protocol, scope,
+            probe_batches, optimizer, guard, trace_path,
+            label=f"probe_{candidate}",
+            max_seconds=protocol["train"]["max_seconds"],
+            start_time=start_time)
+        require(probe_run["completed"]
+                == protocol["schedule"]["probe"]["updates_per_candidate"],
+                "LR probe did not complete the declared updates")
+        require(probe_run["examples"]
+                == (protocol["schedule"]["probe"]["updates_per_candidate"]
+                    * protocol["schedule"]["probe"]["batch"]),
+                "LR probe did not complete the declared examples")
         mean_loss, losses = dev_loss(adapter, session, tokenizer, service,
-                                     protocol, scope, probe_cases)
+                                     protocol, scope, probe_cases, guard=guard,
+                                     start_time=start_time)
+        require(time.monotonic() - start_time
+                <= protocol["train"]["max_seconds"],
+                "Probe plus dev-loss exceeded the preregistered train budget")
         results.append({"lr": candidate, "dev_loss": mean_loss,
                         "dev_losses": losses, "init_sha256": init_hash,
-                        "route": route, "optimizer_audit": audit})
-        results[-1]["pass"] = True
+                        "route": route, "optimizer_audit": audit,
+                        "updates": probe_run["completed"],
+                        "examples": probe_run["examples"],
+                        "trace_rows": len(probe_run["trace"]),
+                        "trace_sha256": sha256_file(trace_path)})
     best = min(results, key=lambda item: (item["dev_loss"], item["lr"]))
     return {"arm": arm, "split": "procedural_dev",
             "measure": "mean_dev_response_loss",
@@ -805,10 +838,12 @@ def caption_evaluation(adapter, session, tokenizer, service, protocol, scope,
     adapter.eval()
     started = time.monotonic() if start_time is None else start_time
     with torch.no_grad():
-        for case in cases:
+        for position, case in enumerate(cases, 1):
             require(time.monotonic() - started
                     <= protocol["limits"]["max_seconds"],
                     "Caption evaluation exceeded the wall-time ceiling")
+            if guard is not None and position % 2 == 0:
+                guard.sample(index=position, event="caption")
             visual = observe(service, image_path=case["image_path"],
                              image_sha256=case["image_sha256"],
                              case_id=case["case_id"], scope=scope,
@@ -872,7 +907,7 @@ def load_retention(protocol):
 
 
 def evaluate_retention(adapter, session, tokenizer, protocol, output_path,
-                       *, label):
+                       *, label, guard=None, start_time=None):
     from replica_lab.vision_qualification import score_retention
     prompts, labels = load_retention(protocol)
     maximum_prompt = protocol["limits"]["max_prompt_tokens"]
@@ -881,7 +916,13 @@ def evaluate_retention(adapter, session, tokenizer, protocol, output_path,
             "Retention must use the declared 8-token budget")
     rows = []
     adapter.eval()
-    for prompt in prompts:
+    started = time.monotonic() if start_time is None else start_time
+    for position, prompt in enumerate(prompts, 1):
+        require(time.monotonic() - started
+                <= protocol["limits"]["max_seconds"],
+                "Retention exceeded the declared wall-time ceiling")
+        if guard is not None and position % 8 == 0:
+            guard.sample(index=position, event="retention")
         ids = prompt_ids(tokenizer, prompt["prompt"], session.device,
                          maximum_prompt)
         mask = __import__("torch").ones_like(ids, dtype=__import__("torch").bool)
@@ -997,6 +1038,7 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
     with exclusive_mps_worker(ROOT):
         adapter, tokenizer, lock_loaded = load_local_mps(
             args.model_path, args.model_lock, vision=spec)
+        guard.sample(index=0, event="model_loaded")
         require(adapter.manifest.vision is not None
                 and adapter.manifest.vision.digest == spec.digest,
                 "Loaded manifest lacks the pinned vision spec")
@@ -1013,17 +1055,20 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
         session = make_session(adapter, tokenizer, output)
         ledger = session.ledger
         service = feature_service(protocol, "mps")
+        guard.sample(index=0, event="feature_service")
         encoder_audit = service.frozen_audit()
 
         retention_before = evaluate_retention(
             adapter, session, tokenizer, protocol,
-            output / "retention_pre.jsonl", label="before_updates")
+            output / "retention_pre.jsonl", label="before_updates",
+            guard=guard, start_time=started)
         train_started = time.monotonic()
         probe_example = {**probe_cases[0],
                          "response": probe_cases[0]["label"]}
         probe = backward_only_probe(
             adapter, session, tokenizer, service, protocol, scope,
             probe_example)
+        guard.sample(index=0, event="backward_probe")
         initialize_projector(adapter.vision_projector,
                              config["train"]["init_seed"])
         lr_selection = select_learning_rate(
@@ -1060,14 +1105,20 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "Only projector extension tensors may change")
         extension = export_extension(adapter, output / "extension", protocol,
                                      label=f"{args.arm}_final")
+        guard.sample(index=0, event="extension_exported")
         retention_after = evaluate_retention(
             adapter, session, tokenizer, protocol,
-            output / "retention_post.jsonl", label="after_updates")
+            output / "retention_post.jsonl", label="after_updates",
+            guard=guard, start_time=started)
         dev_cases = dev_cases_all
         require(len(dev_cases) <= protocol["limits"]["max_eval_cases"],
                 "Dev case count exceeds the evaluation limit")
         dev_response_loss, dev_losses = dev_loss(
-            adapter, session, tokenizer, service, protocol, scope, dev_cases)
+            adapter, session, tokenizer, service, protocol, scope, dev_cases,
+            guard=guard, start_time=train_started)
+        require(time.monotonic() - train_started
+                <= protocol["train"]["max_seconds"],
+                "Training plus dev-loss exceeded the preregistered train budget")
         dev_rows = evaluate_generations(
             adapter, session, tokenizer, service, protocol, scope, dev_cases,
             output / "dev_generations.jsonl",
@@ -1210,6 +1261,9 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "lr_probe.json": sha256_file(output / "lr_probe.json"),
                 "backward_probe.json": sha256_file(
                     output / "backward_probe.json"),
+                **{lr_probe_artifact_name(candidate):
+                   sha256_file(output / lr_probe_artifact_name(candidate))
+                   for candidate in config["lr_probe"]["candidates"][args.arm]},
                 "dev_cases.jsonl": sha256_file(output / "dev_cases.jsonl"),
                 "dev_generations.jsonl": sha256_file(
                     output / "dev_generations.jsonl"),
@@ -1259,6 +1313,7 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "started_at_utc": utc_now(),
             },
         }
+        guard.sample(index=0, event="train_end")
         require(time.monotonic() - started
                 <= protocol["limits"]["max_seconds"],
                 "Training run exceeded the declared overall ceiling")
@@ -1327,6 +1382,7 @@ def execute_reload(args, protocol, protocol_sha, dataset):
     with exclusive_mps_worker(ROOT):
         adapter, tokenizer, lock = load_local_mps(
             args.model_path, args.model_lock, vision=spec)
+        guard.sample(index=0, event="model_loaded")
         freeze_projector_only(adapter)
         adapter._initial_base_stamp = adapter.parameter_stamp(
             original_only=True)
@@ -1336,10 +1392,12 @@ def execute_reload(args, protocol, protocol_sha, dataset):
                 "Reloaded extension hash differs")
         session = make_session(adapter, tokenizer, output)
         service = feature_service(protocol, "mps")
+        guard.sample(index=0, event="feature_service")
         before_stamp = adapter.parameter_stamp(original_only=True)
         retention = evaluate_retention(
             adapter, session, tokenizer, protocol,
-            output / "retention.jsonl", label="reload")
+            output / "retention.jsonl", label="reload",
+            guard=guard, start_time=started)
         dev_cases = read_jsonl(run / "dev_cases.jsonl")
         rows = evaluate_generations(
             adapter, session, tokenizer, service, protocol, scope, dev_cases,
@@ -1411,25 +1469,33 @@ def execute_reload(args, protocol, protocol_sha, dataset):
 # ---------------------------------------------------------------------------
 
 
+def verify_run_artifacts(run: Path, report: Mapping[str, Any]) -> None:
+    for name, expected in report["artifacts"].items():
+        path = Path(run) / name
+        require(path.is_file(), f"Run artifact is missing: {name}")
+        require(sha256_file(path) == expected,
+                f"Run artifact hash changed: {name}")
+
+
+def find_reload_report(run: Path) -> Path:
+    for candidate in (run / "reload_report/reload_report.json",
+                      run / "reload_report.json"):
+        if candidate.is_file():
+            return candidate
+    raise VisionCurriculumError(
+        f"A fresh-process reload report is required: {run}")
+
+
 def execute_score(args, protocol, protocol_sha, dataset):
     run = Path(args.run)
     report_path = run / "run_report.json"
     prior = load_run_report(report_path)
     validate_run_report(prior, protocol)
-    reload_path = run / "reload_report/reload_report.json"
-    if not reload_path.is_file():
-        reload_path = run / "reload_report.json"
-    require(reload_path.is_file(),
-            "A fresh-process reload report is required before scoring")
+    reload_path = find_reload_report(run)
     reload_report = json.loads(reload_path.read_text())
     validate_reload_report(reload_report, prior, protocol)
     from replica_lab.contracts import canonical_json, fingerprint
-    for name, expected in prior["artifacts"].items():
-        path = run / name
-        require(path.is_file(),
-                f"Run artifact is missing: {name}")
-        require(sha256_file(path) == expected,
-                f"Run artifact hash changed: {name}")
+    verify_run_artifacts(run, prior)
     dev_cases = read_jsonl(run / "dev_cases.jsonl")
     generations = read_jsonl(run / "dev_generations.jsonl")
     caption_cases = read_jsonl(run / "caption_cases.jsonl")
@@ -1561,6 +1627,8 @@ def _arm_report_summary(report):
         "probe_updates_per_candidate":
             report["schedule"]["probe_updates_per_candidate"],
         "training_max_seconds": report["training"]["max_seconds"],
+        "dev_cases": report["dev"]["cases"],
+        "dev_losses": list(report["dev"]["losses"]),
         "dev_response_loss": float(report["dev"]["response_loss"]),
     }
 
@@ -1602,22 +1670,36 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
             "Finalize requires exactly the two declared arms")
     primary_score = json.loads(Path(args.score_report).read_text())
     peer_score = json.loads(Path(args.peer_score_report).read_text())
-    for name, score, report in (
-            ("primary", primary_score, primary),
-            ("peer", peer_score, peer)):
+    for name, score, report, run_path in (
+            ("primary", primary_score, primary, run),
+            ("peer", peer_score, peer, peer_run)):
         validate_score_report(score)
         require(score["run_report_sha256"] == report["_run_report_sha256"],
                 f"{name} score report belongs to another run")
+        require(score["protocol_sha256"] == protocol_sha,
+                f"{name} score report used another protocol")
+        require(score["data_pins"] == protocol["data"]["manifest"],
+                f"{name} score report used another data manifest")
+        require(score["arm"] == report["arm"],
+                f"{name} score report arm differs from its run")
         require(score["engineering"]["pass"] is True,
                 f"{name} engineering checks must pass before finalize")
         require(score["eligibility"]["audit_scores_present"] is False,
                 f"{name} score report already contains audit scores")
+        verify_run_artifacts(run_path, report)
+        reload_report = json.loads(find_reload_report(run_path).read_text())
+        validate_reload_report(reload_report, report, protocol)
     scores = {primary["arm"]: primary_score, peer["arm"]: peer_score}
+    score_paths = {primary["arm"]: Path(args.score_report),
+                   peer["arm"]: Path(args.peer_score_report)}
     rule = {"measure": protocol["schedule"]["arm_selection"]["measure"],
             "tie_break": protocol["schedule"]["arm_selection"]["tie_break"],
             "both_arms_required": True,
             "order": list(ARMS)}
     selected_arm, comparison = _select_arm(reports, rule)
+    for arm in ARMS:
+        comparison["reports"][arm]["score_report_sha256"] = sha256_file(
+            score_paths[arm])
     selected_run = run if primary["arm"] == selected_arm else peer_run
     selected = reports[selected_arm]
     selected_score = scores[selected_arm]
@@ -1636,17 +1718,15 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
     # Reserve the global audit/final scoring for this protocol and both arms
     # BEFORE any model load or scoring. The reservation and receipt live outside
     # the data root, so every output directory and both arms share one gate.
-    paths = require_global_finalize_allowed(
-        protocol_sha, project_root=ROOT,
-        data_manifest_sha256=protocol["data"]["manifest"]["sha256"])
-    reservation = reserve_finalize(
-        protocol, protocol_sha, project_root=ROOT,
-        comparison=comparison, selected_arm=selected_arm,
-        dev_report_sha256=dev_report_sha256,
-        score_report_sha256=score_report_sha256)
+    require(sha256_file(args.model_lock) == protocol["model"]["lock_sha256"],
+            "Model lock bytes differ from the protocol pin")
+    lock = json.loads(args.model_lock.read_text())
+    require(lock.get("revision") == protocol["model"]["revision"],
+            "Model revision differs from the protocol pin")
     with exclusive_mps_worker(ROOT):
         adapter, tokenizer, lock = load_local_mps(
             args.model_path, args.model_lock, vision=spec)
+        guard.sample(index=0, event="model_loaded")
         freeze_projector_only(adapter)
         adapter._initial_base_stamp = adapter.parameter_stamp(
             original_only=True)
@@ -1664,7 +1744,17 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
         }
         session = make_session(adapter, tokenizer, output)
         service = feature_service(protocol, "mps")
+        guard.sample(index=0, event="feature_service")
         before = adapter.parameter_stamp(original_only=True)
+        # Admission is complete before either irreversible receipt is created.
+        paths = require_global_finalize_allowed(
+            ROOT, protocol["splits"]["external_final"]["seal_sha256"],
+            protocol["splits"]["audit"]["seal_sha256"])
+        reservation = reserve_finalize(
+            protocol, protocol_sha, project_root=ROOT,
+            comparison=comparison, selected_arm=selected_arm,
+            dev_report_sha256=dev_report_sha256,
+            score_report_sha256=score_report_sha256)
         audit_cases = dataset.generation_cases("audit")
         require(len(audit_cases) <= protocol["limits"]["max_eval_cases"],
                 "Audit case count exceeds the limit")
@@ -1730,8 +1820,10 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                             "generations_sha256": sha256_file(
                                 output / "external_final_generations.jsonl"),
                             "caption": final_caption})
-        receipt_sha = write_finalize_receipt(paths["receipt"], final_receipt)
-        require(sha256_file(paths["receipt"]) == receipt_sha,
+        written = write_finalize_receipt(paths, final_receipt)
+        require(sha256_file(paths["external_receipt"])
+                == written["external_receipt"]
+                == sha256_file(paths["audit_receipt"]),
                 "Final receipt write differs")
         guard.sample(index=1, event="finalize_end")
         dump(output / "guard.json", guard.report())
@@ -1822,8 +1914,8 @@ def main(argv=None):
                       "selected_arm": receipt["selected_arm"],
                       "audit_learned_quality_pass":
                           receipt["audit"]["learned_quality_pass"],
-                      "receipt": receipt["reservation"]["path"].replace(
-                          ".reservation.json", ".json")}))
+                      "external_receipt":
+                          receipt["reservations"]["external"]["path"]}))
     return 0
 
 

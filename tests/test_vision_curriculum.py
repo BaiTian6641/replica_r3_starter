@@ -19,20 +19,23 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from replica_lab.contracts import fingerprint  # noqa: E402
+from replica_lab.visual_data import render_scene_png  # noqa: E402
 from replica_lab.vision_curriculum import (  # noqa: E402
     ABSTAIN_KINDS, ARMS, AUDIT_FORBIDDEN_V2_DESCRIPTORS, CONTROLS,
     DIAGNOSTIC_FINAL_DESCRIPTORS,
     PROCEDURAL_PARAMETERS_SANITY, PROJECTOR_1D_TENSORS, PROJECTOR_2D_TENSORS,
     PROJECTOR_PARAMETER_COUNT, PROJECTOR_TENSORS, RUN_REPORT_FORMAT,
     SCORE_REPORT_FORMAT, SPLIT_TASKS, SPLITS, UNKNOWN_ANSWER,
-    VisionCurriculumError, _question_leaks, _required_run_checks,
+    VisionCurriculumError, _grid_cells, _occluded_descriptors, _question_leaks,
+    _required_run_checks, _scene, _verify_check,
     answer_correct, assemble_score_report, assign_controls, audit_dataset,
     build_arm_declarations, build_curriculum, build_finalize_receipt,
     build_procedural, build_protocol, build_training_plan, caption_token_f1,
     dataset_pins, finalize_receipt_paths, is_unknown_answer, load_config,
     load_run_report, normalise_answer, protocol_sha256,
-    require_finalize_allowed, require_global_finalize_allowed,
-    reserve_finalize, retention_policy, score_caption, score_procedural,
+    require_global_finalize_allowed,
+    reserve_finalize, retention_policy, run_artifact_names,
+    lr_probe_artifact_name, score_caption, score_procedural,
     sha256_bytes, sha256_file, validate_config, validate_finalize_receipt,
     validate_generation_rows, validate_lr_reports, validate_protocol,
     validate_reload_report, validate_run_report, validate_score_claims,
@@ -200,6 +203,78 @@ def test_procedural_model_rows_are_label_free(procedural):
         assert not _question_leaks(row["question"],
                                    answers[row["case_id"]])
 
+
+
+def test_occluded_relation_is_visually_undecidable():
+    config = small_config()
+    pool = [tuple(item) for item in
+            config["procedural"]["descriptor_pools"]["audit"]]
+    front, hidden, distractor = _occluded_descriptors(pool, 2)
+    cells = _grid_cells(128, 96)
+    cell = 0
+    center = cells[cell]
+    check = {"kind": "abstain", "reason": "occluded_relation",
+             "occluded_id": "hidden", "visible_id": "front"}
+    images = []
+    for offset in (-6, 6):
+        scene = _scene(
+            "occlusion", 128, 96, "row_major",
+            [
+                {"id": "hidden", "role": "occluded", "shape": hidden[1],
+                 "color": hidden[0], "cell": cell, "size": 5,
+                 "center": [center[0] + offset, center[1]]},
+                {"id": "distractor", "role": "distractor",
+                 "shape": distractor[1], "color": distractor[0],
+                 "cell": 7, "size": 8},
+                {"id": "front", "role": "target", "shape": front[1],
+                 "color": front[0], "cell": cell, "size": 13},
+            ],
+            allow_overlap=True)
+        assert _verify_check(check, scene) == UNKNOWN_ANSWER
+        images.append(render_scene_png(scene))
+    # Moving the fully occluded object left/right changes no visible pixel.
+    assert images[0] == images[1]
+    # The sealed label does not reward either visible-side answer.
+    assert not answer_correct("yes", UNKNOWN_ANSWER)
+    assert not answer_correct("no", UNKNOWN_ANSWER)
+    assert answer_correct("unknown", UNKNOWN_ANSWER)
+
+
+def test_prompt_isolation_and_no_absent_text_shortcut(procedural):
+    manifest = procedural["manifest"]
+    worlds = {split: [world for world in manifest["worlds"]
+                      if world["split"] == split] for split in SPLITS}
+    pairs = {pair["world_id"]: pair for pair in manifest["pairs"]}
+    prompt_sets = {}
+    prompt_answer_sets = {}
+    for split in SPLITS:
+        questions = {world["world_id"]: pairs[world["world_id"]]["question"]
+                     for world in worlds[split]}
+        assert len(set(questions.values())) == len(questions)
+        answers = {world["world_id"]: pairs[world["world_id"]]["answers"]["a"]
+                   for world in worlds[split]}
+        prompt_sets[split] = set(questions.values())
+        prompt_answer_sets[split] = {
+            (questions[world_id], answers[world_id]) for world_id in questions}
+        assert len(prompt_answer_sets[split]) == len(questions)
+        for question in questions.values():
+            lowered = question.casefold()
+            assert "unknown" not in lowered
+            assert "absent" not in lowered and "occluded" not in lowered
+    assert prompt_sets["audit"].isdisjoint(prompt_sets["dev"])
+    assert prompt_sets["audit"].isdisjoint(prompt_sets["train"])
+    assert prompt_sets["dev"].isdisjoint(prompt_sets["train"])
+    assert prompt_answer_sets["audit"].isdisjoint(prompt_answer_sets["dev"])
+    abstain = [pair for pair in manifest["pairs"]
+               if pair["task"] == "abstain" and pair["kind"] == "absent_referent"]
+    assert abstain
+    for pair in abstain:
+        assert "in the image" not in pair["question"].casefold()
+        assert pair["question"].startswith(
+            ("", "Image question: ", "Visual question: ", "Picture question: ",
+             "Scene question: ", "Dev image question: ", "Picture check: ",
+             "Scene check: ", "Audit image question: ", "Audit scene: ",
+             "Held-out scene: ", "Final image question: "))
 
 # ---------------------------------------------------------------------------
 # Curriculum build, splits, seals and the untouched final pointer
@@ -573,6 +648,18 @@ def test_score_procedural_rejects_incomplete_or_success_rows():
                          bootstrap_confidence=0.9)
 
 
+def test_empty_generation_is_not_a_correct_abstention():
+    cases = _synthetic_cases()
+    generations = _synthetic_generations(cases)
+    for row in generations:
+        if row["control"] == "correct" and row["case_id"] in ("c3", "c4"):
+            row["generated_text"] = ""
+    score = score_procedural(cases, generations, seed=1, bootstrap_resamples=20,
+                             bootstrap_confidence=0.9)
+    assert score["unknown"]["abstention_accuracy"] == 0.0
+    assert score["unknown"]["false_answer_on_abstain"] == 1.0
+
+
 def test_answer_normalisation_and_unknown_detection():
     assert answer_correct(" yes. ", "yes")
     assert answer_correct("Unknown", "unknown")
@@ -582,6 +669,9 @@ def test_answer_normalisation_and_unknown_detection():
     assert is_unknown_answer("Unknown.")
     assert is_unknown_answer("cannot determine")
     assert not is_unknown_answer("3")
+    assert not is_unknown_answer("")
+    assert not is_unknown_answer("...")
+    assert not answer_correct("", "unknown")
 
 
 def test_caption_token_f1_and_loss_aggregation():
@@ -723,10 +813,12 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "results": [
                 {"lr": candidate, "dev_loss": 1.0 + candidate,
                  "init_sha256": init_hash, "dev_losses": [1.0],
-                 "route": [], "optimizer_audit": {}}
+                 "route": [], "optimizer_audit": {},
+                 "updates": 16, "examples": 32, "trace_rows": 16,
+                 "trace_sha256": "9" * 64}
                 for candidate in (0.0001, 0.0003)
             ],
-            "probe_case_ids": [],
+            "probe_case_ids": protocol["schedule"]["dev_probe_case_ids"],
         },
         "training": {
             "updates": protocol["schedule"]["updates"],
@@ -749,12 +841,13 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "post_sha256": "2" * 64,
         },
         "dev": {
-            "cases": protocol["splits"]["dev"]["rows"],
+            "cases": protocol["splits"]["dev"]["procedural_rows"],
             "generations_sha256": "b" * 64,
             "cases_sha256": "3" * 64,
             "seal_sha256": protocol["splits"]["dev"]["seal_sha256"],
             "dataset_dev_cases_sha256": "4" * 64,
             "response_loss": 1.25,
+            "losses": [1.25] * protocol["splits"]["dev"]["procedural_rows"],
             "caption_cases_sha256": "5" * 64,
             "caption_labels_sha256": "6" * 64,
             "caption_generations_sha256": "7" * 64,
@@ -763,14 +856,7 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "audit_touched": False,
         },
         "artifacts": {name: "9" * 64
-                      for name in (
-                          "training_trace.jsonl", "lr_probe.json",
-                          "backward_probe.json", "dev_cases.jsonl",
-                          "dev_generations.jsonl", "caption_cases.jsonl",
-                          "caption_labels.jsonl", "caption_generations.jsonl",
-                          "retention_pre.jsonl", "retention_post.jsonl",
-                          "extension/manifest.json",
-                          "extension/extensions.safetensors")},
+                      for name in run_artifact_names(protocol)},
         "extension": {
             "label": "final", "format": "replica.minicpm5.extensions.v4",
             "base_saved": False, "weights_sha256": "c" * 64,
@@ -911,6 +997,7 @@ def _comparison(protocol, *, losses=None):
     for position, arm in enumerate(ARMS):
         reports[arm] = {
             "run_report_sha256": ("a" if arm == "muon8bit" else "b") * 64,
+            "score_report_sha256": ("f" if arm == "muon8bit" else "0") * 64,
             "extension_weights_sha256": ("c" if arm == "muon8bit" else "d") * 64,
             "projector_init_sha256": "e" * 64,
             "schedule_sha256": protocol["schedule"]["schedule_sha256"],
@@ -919,6 +1006,9 @@ def _comparison(protocol, *, losses=None):
             "probe_updates_per_candidate":
                 protocol["schedule"]["probe"]["updates_per_candidate"],
             "training_max_seconds": protocol["train"]["max_seconds"],
+            "dev_cases": protocol["splits"]["dev"]["procedural_rows"],
+            "dev_losses": [losses[arm]]
+            * protocol["splits"]["dev"]["procedural_rows"],
             "dev_response_loss": losses[arm],
         }
     return {"rule": {"measure": "mean_dev_response_loss",
@@ -931,17 +1021,16 @@ def _comparison(protocol, *, losses=None):
 def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
     project = tmp_path / "project"
     protocol_sha = protocol_sha256(prepared_protocol)
-    data_sha = prepared_protocol["data"]["manifest"]["sha256"]
-    paths = require_global_finalize_allowed(
-        protocol_sha, project_root=project, data_manifest_sha256=data_sha)
+    external_seal = prepared_protocol["splits"]["external_final"]["seal_sha256"]
+    audit_seal = prepared_protocol["splits"]["audit"]["seal_sha256"]
+    paths = require_global_finalize_allowed(project, external_seal, audit_seal)
     comparison = _comparison(prepared_protocol)
     reservation = reserve_finalize(
         prepared_protocol, protocol_sha, project_root=project,
         comparison=comparison, selected_arm="muon8bit",
         dev_report_sha256="a" * 64, score_report_sha256="f" * 64)
     with pytest.raises(VisionCurriculumError):
-        require_global_finalize_allowed(
-            protocol_sha, project_root=project, data_manifest_sha256=data_sha)
+        require_global_finalize_allowed(project, external_seal, audit_seal)
     with pytest.raises(VisionCurriculumError):
         reserve_finalize(
             prepared_protocol, protocol_sha, project_root=project,
@@ -962,15 +1051,23 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                "generations_sha256": "1" * 64,
                "score": {
                    "cases": prepared_protocol["splits"]["audit"]["rows"],
-                   "controls": {"correct": {"accuracy": 0.0,
-                                            "unique_worlds": 1}},
-                   "unknown": {"false_abstention_on_answerable": 0.0,
+                   "controls": {"correct": {
+                       "available": True,
+                       "cases": prepared_protocol["splits"]["audit"]["rows"],
+                       "correct": 0, "accuracy": 0.0,
+                       "unknown": 60, "unknown_rate": 0.5,
+                       "unique_worlds": 1}},
+                   "unknown": {"abstain_cases": 60, "answerable_cases": 60,
+                               "false_abstention_on_answerable": 0.0,
                                "abstention_accuracy": 0.0,
                                "false_answer_on_abstain": 1.0},
+                   "correct_bootstrap": {"mean": 0.0, "lower": 0.0,
+                                          "upper": 0.0},
                    "paired": {
-                       "wrong": {"correct_margin": 0.0},
-                       "shuffled": {"correct_margin": 0.0},
-                       "noimage": {"correct_margin": 0.0}},
+                       control: {"cases": 120, "correct_accuracy": 0.0,
+                                 "control_accuracy": 0.0,
+                                 "correct_margin": 0.0}
+                       for control in ("wrong", "shuffled", "noimage")},
                    "learned_quality_pass": False,
                    "gate_failures": [
                        "min_correct_accuracy", "min_unique_families",
@@ -991,16 +1088,24 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                         ["rows"],
                         "cases_sha256": "4" * 64,
                         "generations_sha256": "2" * 64,
-                        "caption": {"cases": 8, "loss_cases": 8,
-                                    "token_f1": 0.5,
-                                    "teacher_forced_response_loss": 1.0}})
+                        "caption": {
+                            "cases": 8, "loss_cases": 8,
+                            "token_f1": 1.0,
+                            "teacher_forced_response_loss": 0.5,
+                            "claim": "narrow_alignment_metric_only_no_"
+                                     "semantic_quality_claim",
+                            "rows": [
+                                {"generated": "a", "expected": "a",
+                                 "token_f1": 1.0,
+                                 "response_loss": 0.5}
+                                for _ in range(8)]}})
     validate_finalize_receipt(receipt, prepared_protocol, "a" * 64)
-    write_finalize_receipt(paths["receipt"], receipt)
+    written = write_finalize_receipt(paths, receipt)
+    assert written["external_receipt"] == written["audit_receipt"]
     with pytest.raises(VisionCurriculumError):
-        write_finalize_receipt(paths["receipt"], receipt)
+        write_finalize_receipt(paths, receipt)
     with pytest.raises(VisionCurriculumError):
-        require_global_finalize_allowed(
-            protocol_sha, project_root=project, data_manifest_sha256=data_sha)
+        require_global_finalize_allowed(project, external_seal, audit_seal)
     bad = copy.deepcopy(receipt)
     bad["selected_arm"] = "adamw_control"
     with pytest.raises(VisionCurriculumError):
@@ -1064,6 +1169,16 @@ def test_score_report_rejects_self_contradictory_acceptance(prepared_protocol):
         validate_score_report(bad)
     bad = copy.deepcopy(report)
     bad["learned_quality"]["retention"]["measured_accuracy"] = 0.9
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad)
+    bad = copy.deepcopy(report)
+    bad["learned_quality"]["procedural_dev"]["controls"]["correct"][
+        "accuracy"] += 0.1
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad)
+    bad = copy.deepcopy(report)
+    bad["learned_quality"]["procedural_dev"]["paired"]["wrong"][
+        "correct_margin"] = -1.0
     with pytest.raises(VisionCurriculumError):
         validate_score_report(bad)
     bad = copy.deepcopy(report)
@@ -1226,6 +1341,9 @@ def test_prepared_protocol_preregisters_every_required_field(
     assert protocol["schedule"]["probe"]["updates_per_candidate"] == 16
     assert protocol["schedule"]["probe"]["total_probe_updates"] == 64
     assert protocol["schedule"]["probe"]["total_probe_examples"] == 128
+    assert protocol["splits"]["dev"]["procedural_rows"] == 240
+    assert protocol["splits"]["dev"]["external_caption_rows"] == 7
+    assert protocol["splits"]["dev"]["rows"] == 247
     assert protocol["schedule"]["arm_selection"]["both_arms_required"] is True
     assert protocol["splits"]["audit"]["usage"] == "scored_once_after_freeze"
     assert protocol["splits"]["external_final"]["rows"] == 8
@@ -1252,6 +1370,9 @@ def test_prepared_data_pins_and_implementation_pins(prepared_protocol):
     assert manifest["status"] == "staged_not_admitted"
     assert manifest["counts"]["audit_cases"] == 120
     assert manifest["counts"]["dev_cases"] == 240
+    assert manifest["counts"]["dev_procedural_rows"] == 240
+    assert manifest["counts"]["external_caption_rows"] == 7
+    assert manifest["counts"]["dev_procedural_rows"] == 240
     assert manifest["counts"]["train_examples"] == 279
     assert manifest["unknown_coverage"]["audit"] == {
         kind: 8 for kind in ABSTAIN_KINDS}

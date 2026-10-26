@@ -69,7 +69,7 @@ SPLIT_TASKS = {
     "dev": ("spatial", "count", "presence", "color", "abstain"),
     "audit": ("spatial", "count", "presence", "color", "abstain"),
 }
-ABSTAIN_KINDS = ("absent_referent", "ambiguous_referent", "undecidable_relation")
+ABSTAIN_KINDS = ("absent_referent", "ambiguous_referent", "occluded_relation")
 UNKNOWN_ANSWER = "unknown"
 UNKNOWN_ANSWERS = frozenset({"unknown", "i don't know", "i dont know",
                              "cannot determine", "can't determine",
@@ -97,6 +97,15 @@ DIAGNOSTIC_FINAL_DESCRIPTORS = frozenset({
     ("green", "square"), ("yellow", "square"), ("purple", "square"),
     ("orange", "square"), ("green", "rectangle"), ("orange", "rectangle"),
 })
+PROMPT_PREFIXES = {
+    "train": ("", "Image question: ", "Visual question: ", "Picture question: "),
+    "dev": ("Scene question: ", "Dev image question: ", "Picture check: ",
+            "Scene check: "),
+    "audit": ("Audit image question: ", "Audit scene: ", "Held-out scene: ",
+              "Final image question: "),
+}
+PROMPT_SUFFIXES = ("", " Answer with one word.", " Reply with the answer only.")
+
 AUDIT_FORBIDDEN_V2_DESCRIPTORS = frozenset({
     ("red", "circle"), ("blue", "circle"), ("green", "circle"),
     ("yellow", "circle"), ("purple", "circle"), ("orange", "circle"),
@@ -124,6 +133,20 @@ RUN_ARTIFACTS = (
     "retention_pre.jsonl", "retention_post.jsonl",
     "extension/manifest.json", "extension/extensions.safetensors",
 )
+
+
+def lr_probe_artifact_name(lr: float) -> str:
+    return f"lr_probe/probe_{format(float(lr), '.0e')}.jsonl"
+
+
+def run_artifact_names(protocol: Mapping[str, Any]) -> tuple[str, ...]:
+    candidates = protocol["arms"]["arms"]["muon8bit"]["lr_probe_candidates"]
+    names = list(RUN_ARTIFACTS)
+    for lr in candidates:
+        name = lr_probe_artifact_name(lr)
+        if name not in names:
+            names.append(name)
+    return tuple(sorted(names))
 PROCEDURAL_PARAMETERS_SANITY = {
     "projector_hidden": PROJECTOR_HIDDEN,
     "projector_parameter_count": PROJECTOR_PARAMETER_COUNT,
@@ -213,6 +236,8 @@ def _write_exact(path: Path, data: bytes) -> None:
         _visual_write_exact(path, data)
     except VisualDataError as error:
         raise VisionCurriculumError(str(error)) from error
+    _require(Path(path).read_bytes() == data,
+             f"Completed artifact bytes differ: {path}")
 
 
 def _safe_relative(root: Path, value: str) -> Path:
@@ -562,6 +587,9 @@ def validate_config(config: Mapping[str, Any]) -> dict[str, Any]:
     _require([float(v) for v in probe_candidates["adamw_control"]]
              == [float(v) for v in candidates],
              "Probe and control LR candidates differ")
+    _require([float(v) for v in probe_candidates["muon8bit"]]
+             == [float(v) for v in probe_candidates["adamw_control"]],
+             "Both arms must share the symmetric probe candidate set")
 
     evaluation = _exact_keys(config["evaluation"], {
         "controls", "max_new_tokens", "caption_max_new_tokens", "greedy",
@@ -900,16 +928,19 @@ def _dimensions(config: Mapping[str, Any]) -> tuple[int, int]:
 
 
 def _scene(asset_id: str, width: int, height: int, layout: str,
-           objects: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+           objects: Sequence[Mapping[str, Any]], *,
+           allow_overlap: bool = False) -> dict[str, Any]:
     cells = _grid_cells(width, height)
     built = []
     used_cells = set()
     for item in objects:
         cell = int(item["cell"])
         _require(0 <= cell < len(cells), "Cell index is outside the grid")
-        _require(cell not in used_cells, "Objects must occupy distinct cells")
+        if not allow_overlap:
+            _require(cell not in used_cells, "Objects must occupy distinct cells")
         used_cells.add(cell)
-        center = cells[cell]
+        center = (list(item["center"]) if "center" in item
+                  else list(cells[cell]))
         bbox = _object_bbox(item["shape"], center, int(item["size"]))
         _require(0 <= bbox[0] and bbox[2] < width
                  and 0 <= bbox[1] and bbox[3] < height,
@@ -943,6 +974,16 @@ def _distinct_descriptor(pool: Sequence[tuple[str, str]],
     options = [item for item in pool if item not in excluded]
     _require(options, "Descriptor pool lacks a distinct distractor")
     return options[0]
+
+
+def _colour_task_shape(pool: Sequence[tuple[str, str]]) -> str:
+    by_shape: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for descriptor in pool:
+        by_shape[descriptor[1]].append(descriptor)
+    shapes = sorted(shape for shape, items in by_shape.items()
+                    if len(items) >= 2)
+    _require(bool(shapes), "Colour task needs two colours of one shape")
+    return shapes[0]
 
 
 def _colour_pair(by_shape: Mapping[str, list[tuple[str, str]]], shape: str,
@@ -1033,9 +1074,7 @@ def _color_scene(pool: Sequence[tuple[str, str]], layout: str, index: int,
     by_shape: dict[str, list[tuple[str, str]]] = defaultdict(list)
     for descriptor in pool:
         by_shape[descriptor[1]].append(descriptor)
-    shapes = sorted(shape for shape, items in by_shape.items() if len(items) >= 2)
-    _require(bool(shapes), "Colour task needs two colours of one shape")
-    shape = shapes[index % len(shapes)]
+    shape = _colour_task_shape(pool)
     pair = _colour_pair(by_shape, shape, index)
     _require(len({item[0] for item in pair}) == 2,
              "Colour pair must have distinct colours")
@@ -1085,15 +1124,36 @@ def _shape_scene(pool: Sequence[tuple[str, str]], layout: str, index: int,
     return _scene("shape", width, height, layout, specs)
 
 
+def _absent_shape(pool: Sequence[tuple[str, str]], index: int) -> str:
+    used = {pool[0][1], _colour_task_shape(pool)}
+    absent_shapes = sorted(shape for shape in SHAPES if shape not in used)
+    _require(bool(absent_shapes), "No absent shape remains")
+    return absent_shapes[(index // 3) % len(absent_shapes)]
+
+
+def _occluded_descriptors(pool: Sequence[tuple[str, str]], index: int
+                          ) -> tuple[tuple[str, str], tuple[str, str],
+                                     tuple[str, str]]:
+    rectangles = [item for item in pool if item[1] == "rectangle"]
+    _require(bool(rectangles),
+             "Occluded relation needs a rectangle occluder")
+    front = sorted(rectangles)[index % len(rectangles)]
+    other_rectangles = [item for item in rectangles if item != front]
+    if other_rectangles:
+        hidden = other_rectangles[0]
+    else:
+        hidden = next(item for item in pool if item != front)
+    distractor = next(item for item in pool
+                      if item not in {front, hidden})
+    return front, hidden, distractor
+
+
 def _abstain_scene(pool: Sequence[tuple[str, str]], layout: str, index: int,
                    salt: int, kind: str, variant: int, width: int,
                    height: int) -> dict[str, Any]:
     order = list(GRID_LAYOUTS[layout])
     if kind == "absent_referent":
-        used_shapes = {pool[0][1]}
-        absent_shapes = sorted(shape for shape in SHAPES
-                               if shape not in used_shapes)
-        absent = absent_shapes[0]
+        absent = _absent_shape(pool, index)
         base_count = 1 + (index % 3)
         count = base_count + variant
         size = 7 + (((index // 3) + salt) % 6)
@@ -1121,20 +1181,27 @@ def _abstain_scene(pool: Sequence[tuple[str, str]], layout: str, index: int,
              "cell": 4 * row + 2, "size": size},
         ]
         return _scene(f"abstain-ambiguous-{shape}", width, height, layout, specs)
-    if kind == "undecidable_relation":
-        first, second = pool[0], pool[1]
-        column = index % 4
-        size = 7 + (((index // 4) + salt) % 6)
-        top, bottom = column, 4 + column
-        if variant == 1:
-            top, bottom = bottom, top
+    if kind == "occluded_relation":
+        front, hidden, distractor = _occluded_descriptors(pool, index)
+        cells = _grid_cells(width, height)
+        front_cell = order[(index // 3) % len(order)]
+        remaining = [cell for cell in order if cell != front_cell]
+        distractor_cell = remaining[(index + variant) % len(remaining)]
+        front_center = list(cells[front_cell])
+        hidden_center = [front_center[0] + (-6 if variant == 0 else 6),
+                         front_center[1]]
         specs = [
-            {"id": "a", "role": "target", "shape": first[1],
-             "color": first[0], "cell": top, "size": size},
-            {"id": "b", "role": "target", "shape": second[1],
-             "color": second[0], "cell": bottom, "size": size},
+            {"id": "hidden", "role": "occluded", "shape": hidden[1],
+             "color": hidden[0], "cell": front_cell, "size": 5,
+             "center": hidden_center},
+            {"id": "distractor", "role": "distractor",
+             "shape": distractor[1], "color": distractor[0],
+             "cell": distractor_cell, "size": 8},
+            {"id": "front", "role": "target", "shape": front[1],
+             "color": front[0], "cell": front_cell, "size": 13},
         ]
-        return _scene("abstain-undecidable", width, height, layout, specs)
+        return _scene("abstain-occluded", width, height, layout, specs,
+                      allow_overlap=True)
     raise VisionCurriculumError(f"Unknown abstention kind: {kind}")
 
 
@@ -1147,7 +1214,8 @@ _SCENE_BUILDERS = {
 }
 
 
-def _answer_question(task: str, params: Mapping[str, Any]) -> str:
+def _answer_question(task: str, params: Mapping[str, Any],
+                    index: int = 0) -> str:
     if task == "count":
         target = params["target"]
         return f"How many {target[0]} {target[1]} objects are in the image?"
@@ -1159,21 +1227,24 @@ def _answer_question(task: str, params: Mapping[str, Any]) -> str:
         return (f"Is the {first[0]} {first[1]} to the left of the "
                 f"{second[0]} {second[1]}?")
     if task == "color":
-        return f"What color is the {params['shape']}?"
+        word = "What" if index % 2 == 0 else "Which"
+        return f"{word} color is the {params['shape']}?"
     if task == "shape":
         return f"What shape is the {params['color']} object?"
     raise VisionCurriculumError(f"Unknown task question: {task}")
 
 
-def _abstain_question(kind: str, params: Mapping[str, Any]) -> str:
+def _abstain_question(kind: str, params: Mapping[str, Any],
+                      index: int) -> str:
     if kind == "absent_referent":
-        return f"What color is the {params['absent_shape']} in the image?"
+        return f"What color is the {params['absent_shape']}?"
     if kind == "ambiguous_referent":
-        return f"What color is the {params['shape']}?"
-    if kind == "undecidable_relation":
-        first, second = params["first"], params["second"]
-        return (f"Is the {first[0]} {first[1]} to the left of the "
-                f"{second[0]} {second[1]}?")
+        word = "Which" if index % 2 == 0 else "What"
+        return f"{word} color is the {params['shape']}?"
+    if kind == "occluded_relation":
+        hidden, front = params["hidden"], params["visible"]
+        return (f"Is the {hidden[0]} {hidden[1]} to the left of the "
+                f"{front[0]} {front[1]}?")
     raise VisionCurriculumError(f"Unknown abstention question: {kind}")
 
 
@@ -1209,14 +1280,30 @@ def _verify_check(check: Mapping[str, Any], scene: Mapping[str, Any]) -> str:
             found = [obj for obj in objects if obj["shape"] == check["shape"]]
             _require(len({obj["color"] for obj in found}) >= 2,
                      "Ambiguity check lacks two candidate colours")
-        elif reason == "undecidable_relation":
-            first, second = by_id[check["first_id"]], by_id[check["second_id"]]
-            _require(first["center"][0] == second["center"][0],
-                     "Undecidable relation expects the same column")
+        elif reason == "occluded_relation":
+            order = {obj["id"]: position for position, obj in enumerate(objects)}
+            hidden = by_id[check["occluded_id"]]
+            front = by_id[check["visible_id"]]
+            _require(order[hidden["id"]] < order[front["id"]],
+                     "Occluded object must be drawn before the occluder")
+            hx0, hy0, hx1, hy1 = hidden["bbox"]
+            fx0, fy0, fx1, fy1 = front["bbox"]
+            _require(fx0 <= hx0 and fy0 <= hy0
+                     and hx1 <= fx1 and hy1 <= fy1,
+                     "Occluded object is not fully covered by the occluder")
+            _require(hidden["center"][0] != front["center"][0],
+                     "Occluded relation needs a left/right candidate")
         else:
             raise VisionCurriculumError(f"Unknown abstention reason: {reason}")
         return UNKNOWN_ANSWER
     raise VisionCurriculumError(f"Unknown verifier check: {kind}")
+
+
+def _style_question(split: str, index: int, core: str) -> str:
+    prefixes = PROMPT_PREFIXES[split]
+    prefix = prefixes[index % len(prefixes)]
+    suffix = PROMPT_SUFFIXES[(index // len(prefixes)) % len(PROMPT_SUFFIXES)]
+    return f"{prefix}{core}{suffix}"
 
 
 def _spec(config: Mapping[str, Any], split: str, task: str, index: int,
@@ -1232,21 +1319,21 @@ def _spec(config: Mapping[str, Any], split: str, task: str, index: int,
                   for variant in (0, 1)]
         check = {"kind": "count",
                  "filter": {"color": target[0], "shape": target[1]}}
-        question = _answer_question(task, params)
+        question = _answer_question(task, params, index)
     elif task == "presence":
         target = pool[0]
         params = {"target": list(target)}
         scenes = [_presence_scene(pool, layout, index, salt, variant, width,
                                   height) for variant in (0, 1)]
         check = {"kind": "presence", "color": target[0], "shape": target[1]}
-        question = _answer_question(task, params)
+        question = _answer_question(task, params, index)
     elif task == "spatial":
         first, second = pool[0], pool[1]
         params = {"first": list(first), "second": list(second)}
         scenes = [_spatial_scene(pool, layout, index, salt, variant, width,
                                  height) for variant in (0, 1)]
         check = {"kind": "spatial", "first_id": "a", "second_id": "b"}
-        question = _answer_question(task, params)
+        question = _answer_question(task, params, index)
     elif task == "color":
         by_shape: dict[str, list[tuple[str, str]]] = defaultdict(list)
         for descriptor in pool:
@@ -1259,7 +1346,7 @@ def _spec(config: Mapping[str, Any], split: str, task: str, index: int,
         scenes = [_color_scene(pool, layout, index, salt, variant, width,
                                height) for variant in (0, 1)]
         check = {"kind": "color", "object_id": "target"}
-        question = _answer_question(task, params)
+        question = _answer_question(task, params, index)
     elif task == "shape":
         by_color: dict[str, list[tuple[str, str]]] = defaultdict(list)
         for descriptor in pool:
@@ -1274,13 +1361,11 @@ def _spec(config: Mapping[str, Any], split: str, task: str, index: int,
         scenes = [_shape_scene(pool, layout, index, salt, variant, width,
                                height) for variant in (0, 1)]
         check = {"kind": "shape", "object_id": "target"}
-        question = _answer_question(task, params)
+        question = _answer_question(task, params, index)
     elif task == "abstain":
         kind = ABSTAIN_KINDS[index % len(ABSTAIN_KINDS)]
         if kind == "absent_referent":
-            used = {pool[0][1]}
-            absent = sorted(shape for shape in SHAPES
-                            if shape not in used)[0]
+            absent = _absent_shape(pool, index)
             params = {"absent_shape": absent, "kind": kind}
             check = {"kind": "abstain", "reason": kind, "shape": absent}
         elif kind == "ambiguous_referent":
@@ -1292,15 +1377,17 @@ def _spec(config: Mapping[str, Any], split: str, task: str, index: int,
             params = {"shape": shape, "kind": kind}
             check = {"kind": "abstain", "reason": kind, "shape": shape}
         else:
-            params = {"first": list(pool[0]), "second": list(pool[1]),
+            front, hidden, _ = _occluded_descriptors(pool, index)
+            params = {"hidden": list(hidden), "visible": list(front),
                       "kind": kind}
             check = {"kind": "abstain", "reason": kind,
-                     "first_id": "a", "second_id": "b"}
+                     "occluded_id": "hidden", "visible_id": "front"}
         scenes = [_abstain_scene(pool, layout, index, salt, kind, variant,
                                  width, height) for variant in (0, 1)]
-        question = _abstain_question(kind, params)
+        question = _abstain_question(kind, params, index)
     else:
         raise VisionCurriculumError(f"Unknown curriculum task: {task}")
+    question = _style_question(split, index, question)
     return {"split": split, "task": task, "index": index, "layout": layout,
             "params": params, "scenes": scenes, "question": question,
             "check": check, "kind": params.get("kind")}
@@ -1489,6 +1576,40 @@ def build_procedural(config: Mapping[str, Any]) -> dict[str, Any]:
                 _require(combinations[left].isdisjoint(combinations[right]),
                          f"World combinations overlap across {left}/{right}")
 
+    prompt_sets: dict[str, set[str]] = {}
+    prompt_answer_sets: dict[str, set[str]] = {}
+    world_question: dict[str, str] = {}
+    for pair in pairs:
+        world_question[pair["world_id"]] = pair["question"]
+    for split in SPLITS:
+        questions = [world_question[world["world_id"]]
+                     for world in worlds if world["split"] == split]
+        _require(len(set(questions)) == len(questions),
+                 f"{split} worlds duplicate a prompt")
+        prompt_sets[split] = set(questions)
+        answers = {}
+        for pair in pairs:
+            if pair["split"] == split:
+                answers[pair["question"]] = pair["answers"]["a"]
+        _require(len(answers) == len(prompt_sets[split]),
+                 f"{split} prompt/answer pairs are not one-to-one")
+        prompt_answer_sets[split] = {
+            canonical_json([question, answer])
+            for question, answer in answers.items()}
+    for left in SPLITS:
+        for right in SPLITS:
+            if left < right:
+                _require(prompt_sets[left].isdisjoint(prompt_sets[right]),
+                         f"{left}/{right} prompts are duplicated")
+                _require(prompt_answer_sets[left].isdisjoint(
+                    prompt_answer_sets[right]),
+                    f"{left}/{right} prompt+answer pairs are duplicated")
+    for pair in pairs:
+        _require("unknown" not in pair["question"].casefold()
+                 and "absent" not in pair["question"].casefold()
+                 and "occluded" not in pair["question"].casefold(),
+                 "Prompt text exposes the abstention shortcut")
+
     pools = {split: _pool(config, split) for split in SPLITS}
     audit_descriptors = set(pools["audit"])
     _require(audit_descriptors.isdisjoint(set(pools["train"] + pools["dev"])),
@@ -1582,6 +1703,14 @@ def build_procedural(config: Mapping[str, Any]) -> dict[str, Any]:
         "label_coverage": coverage,
         "unknown_coverage": unknown_coverage,
         "unknown_label": UNKNOWN_ANSWER,
+        "prompt_policy": {
+            "unique_prompt_per_world": True,
+            "unique_prompt_answer_pair_per_world": True,
+            "cross_split_prompt_disjoint": True,
+            "pair_sides_share_prompt": True,
+            "split_specific_styles": {split: list(PROMPT_PREFIXES[split])
+                                      for split in SPLITS},
+        },
         "worlds": worlds,
         "pairs": pairs,
         "assets": assets,
@@ -2243,6 +2372,8 @@ def build_curriculum(config: Mapping[str, Any], project_root: str | Path
         "stage_b_examples": len(stage_b),
         "train_examples": len(stage_a) + len(stage_b),
         "dev_cases": len(dev_cases),
+        "dev_procedural_rows": len(dev_cases),
+        "external_caption_rows": len(external["development"]),
         "audit_cases": len(audit_entries["cases"]),
         "schedule_updates": schedule["updates"],
         "schedule_examples": schedule["examples"],
@@ -2824,7 +2955,12 @@ def build_protocol(config: Mapping[str, Any], *, root: str | Path,
                               "diagnostic_final_as_development",
                               "curriculum_procedural_dev"],
                     "seal_sha256": seals["dev_seal_sha256"],
-                    "rows": manifest["counts"]["dev_cases"],
+                    "procedural_rows": manifest["counts"][
+                        "dev_procedural_rows"],
+                    "external_caption_rows": manifest["counts"][
+                        "external_caption_rows"],
+                    "rows": (manifest["counts"]["dev_procedural_rows"]
+                             + manifest["counts"]["external_caption_rows"]),
                     "usage": "bounded_selection_only"},
             "audit": {"roles": ["curriculum_procedural_audit"],
                       "seal_sha256": seals["audit_seal_sha256"],
@@ -3035,6 +3171,14 @@ def validate_protocol(protocol: Mapping[str, Any]) -> None:
         _require(_is_sha256(splits[name]["seal_sha256"]),
                  f"Split seal is invalid: {name}")
         _positive_int(splits[name]["rows"], f"protocol.splits.{name}.rows")
+    _positive_int(splits["dev"].get("procedural_rows"),
+                  "protocol.splits.dev.procedural_rows")
+    _positive_int(splits["dev"].get("external_caption_rows"),
+                  "protocol.splits.dev.external_caption_rows")
+    _require(splits["dev"]["rows"]
+             == splits["dev"]["procedural_rows"]
+             + splits["dev"]["external_caption_rows"],
+             "Dev split rows do not equal procedural + external caption rows")
 
     groups = _exact_keys(protocol["trainable_groups"], {
         "scope", "tensors", "parameter_count", "muon8bit", "adamw_aux",
@@ -3269,7 +3413,9 @@ def normalise_answer(value: str) -> str:
 
 def is_unknown_answer(value: str) -> bool:
     normalised = normalise_answer(value)
-    return (not normalised or normalised in UNKNOWN_ANSWERS
+    if not normalised:
+        return False
+    return (normalised in UNKNOWN_ANSWERS
             or "unknown" in normalised.split()
             or normalised.startswith("cannot determine"))
 
@@ -3672,7 +3818,8 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
         "failures": list(score["gate_failures"]),
         "procedural_dev": {key: score[key] for key in
                            ("cases", "controls", "paired",
-                            "correct_bootstrap", "unknown")},
+                            "correct_bootstrap", "unknown",
+                            "gate_failures", "learned_quality_pass")},
         "external_development_caption": caption,
         "retention": retention_result,
     }
@@ -3713,6 +3860,102 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
     }
     validate_score_report(report)
     return report
+
+
+def _validate_caption_metrics(caption: Mapping[str, Any],
+                              name: str = "caption") -> None:
+    cases = caption["cases"]
+    _positive_int(cases, f"{name}.cases")
+    rows = caption.get("rows")
+    _require(isinstance(rows, list) and len(rows) == cases,
+             f"{name}.rows do not cover the cases")
+    f1_values = []
+    losses = []
+    for row in rows:
+        f1 = caption_token_f1(str(row["generated"]), str(row["expected"]))
+        _require(abs(float(row["token_f1"]) - f1) <= 1e-9,
+                 f"{name} row F1 differs from raw text")
+        f1_values.append(f1)
+        loss = _finite(row["response_loss"], f"{name} row loss",
+                       minimum=0.0)
+        losses.append(loss)
+    _require(abs(caption["token_f1"] - sum(f1_values) / cases) <= 1e-9,
+             f"{name}.token_f1 differs from raw rows")
+    _require(caption["loss_cases"] == cases,
+             f"{name}.loss_cases does not cover the cases")
+    _require(abs(caption["teacher_forced_response_loss"]
+                 - sum(losses) / cases) <= 1e-9,
+             f"{name} response loss differs from raw rows")
+    _require(caption["claim"]
+             == "narrow_alignment_metric_only_no_semantic_quality_claim",
+             f"{name} claim boundary differs")
+
+
+def _validate_procedural_metrics(score: Mapping[str, Any],
+                                 name: str = "procedural") -> None:
+    """Recompute every reported rate from its own counts/ranges."""
+    cases = score["cases"]
+    _positive_int(cases, f"{name}.cases")
+    controls = score["controls"]
+    _require(isinstance(controls, Mapping) and controls,
+             f"{name}.controls is missing")
+    for control, metrics in controls.items():
+        if metrics.get("available") is not True:
+            continue
+        count = metrics["cases"]
+        _positive_int(count, f"{name}.{control}.cases")
+        correct = metrics["correct"]
+        unknown = metrics["unknown"]
+        _require(type(correct) is int and 0 <= correct <= count,
+                 f"{name}.{control}.correct is impossible")
+        _require(type(unknown) is int and 0 <= unknown <= count,
+                 f"{name}.{control}.unknown is impossible")
+        _require(abs(metrics["accuracy"] - correct / count) <= 1e-9,
+                 f"{name}.{control}.accuracy != correct/cases")
+        _require(abs(metrics["unknown_rate"] - unknown / count) <= 1e-9,
+                 f"{name}.{control}.unknown_rate != unknown/cases")
+        _require(metrics["unique_worlds"] > 0,
+                 f"{name}.{control}.unique_worlds is empty")
+    paired = score["paired"]
+    correct_accuracy = controls["correct"]["accuracy"]
+    for control, item in paired.items():
+        _require(item["cases"] > 0, f"{name}.paired.{control}.cases is empty")
+        _require(0.0 <= item["correct_accuracy"] <= 1.0
+                 and 0.0 <= item["control_accuracy"] <= 1.0,
+                 f"{name}.paired.{control} accuracies are outside [0, 1]")
+        _require(abs(item["correct_margin"]
+                     - (item["correct_accuracy"]
+                        - item["control_accuracy"])) <= 1e-9,
+                 f"{name}.paired.{control}.margin != correct - control")
+        _require(abs(item["correct_accuracy"] - correct_accuracy) <= 1e-9,
+                 f"{name}.paired.{control} correct accuracy differs")
+        if control in controls:
+            _require(abs(item["control_accuracy"]
+                         - controls[control]["accuracy"]) <= 1e-9,
+                     f"{name}.paired.{control} control accuracy differs")
+    unknown = score["unknown"]
+    abstain = unknown["abstain_cases"]
+    answerable = unknown["answerable_cases"]
+    _require(abstain > 0 and answerable > 0,
+             f"{name}.unknown case split is empty")
+    _require(abstain + answerable == cases,
+             f"{name}.unknown case split does not cover the cases")
+    abstention = unknown["abstention_accuracy"]
+    false_answer = unknown["false_answer_on_abstain"]
+    false_abstention = unknown["false_abstention_on_answerable"]
+    for value in (abstention, false_answer, false_abstention):
+        _require(0.0 <= value <= 1.0,
+                 f"{name}.unknown rate is outside [0, 1]")
+    _require(abs(abstention + false_answer - 1.0) <= 1e-9,
+             f"{name}.unknown abstention/false-answer rates are inconsistent")
+    bootstrap = score["correct_bootstrap"]
+    _require(bootstrap["lower"] <= bootstrap["mean"] <= bootstrap["upper"],
+             f"{name}.bootstrap interval is inconsistent")
+    _require(abs(bootstrap["mean"] - correct_accuracy) <= 1e-9,
+             f"{name}.bootstrap mean differs from accuracy")
+    failures = list(score["gate_failures"])
+    _require(score["learned_quality_pass"] == (not failures),
+             f"{name}.pass contradicts its failures")
 
 
 def validate_score_report(report: Mapping[str, Any]) -> None:
@@ -3757,6 +4000,7 @@ def validate_score_report(report: Mapping[str, Any]) -> None:
     _require(learned["pass"] == (not learned["failures"]),
              "Learned-quality pass contradicts its failures")
     procedural = learned["procedural_dev"]
+    _validate_procedural_metrics(procedural, "score.procedural_dev")
     unknown = procedural["unknown"]
     paired = procedural["paired"]
     gates = learned["retention"]["gates"]
@@ -3797,23 +4041,31 @@ def validate_score_report(report: Mapping[str, Any]) -> None:
              == (unknown["abstain_cases"] + unknown["answerable_cases"]),
              "Procedural case counts are inconsistent")
     caption = learned["external_development_caption"]
-    _require(caption["loss_cases"] == caption["cases"]
-             and caption["cases"] > 0,
-             "Caption response loss does not cover every caption case")
-    _require(math.isfinite(float(caption["teacher_forced_response_loss"])),
-             "Caption response loss is not finite")
+    _validate_caption_metrics(caption, "score.caption")
     retention = learned["retention"]
     gates = retention["gates"]
     _require(retention["policy"] == "component_nonregression.v1"
              and retention["baseline_correct"] == 22
              and retention["baseline_cases"] == 32,
              "Retention policy or baseline differs")
-    baseline_accuracy = retention["baseline_correct"] / retention["baseline_cases"]
-    measured_accuracy = (None if retention["measured_correct"] is None
-                         else retention["measured_correct"]
-                         / retention["measured_cases"])
-    _require(retention["measured_cases"] == retention["baseline_cases"],
+    _require(type(retention["measured_cases"]) is int
+             and retention["measured_cases"] == retention["baseline_cases"],
              "Retention case counts differ")
+    measured_correct = retention["measured_correct"]
+    _require(measured_correct is None
+             or (type(measured_correct) is int
+                 and 0 <= measured_correct <= retention["measured_cases"]),
+             "Retention measured correct count is impossible")
+    baseline_accuracy = retention["baseline_correct"] / retention["baseline_cases"]
+    measured_accuracy = (None if measured_correct is None
+                         else measured_correct
+                         / retention["measured_cases"])
+    _require(0.0 <= baseline_accuracy <= 1.0
+             and (measured_accuracy is None
+                  or 0.0 <= measured_accuracy <= 1.0),
+             "Retention accuracy is outside [0, 1]")
+    _require(isinstance(retention["token_parity"], bool),
+             "Retention token parity is not boolean")
     _require(retention["measured_accuracy"] == measured_accuracy,
              "Retention measured accuracy is inconsistent")
     _require(retention["baseline_accuracy"] == baseline_accuracy,
@@ -4037,6 +4289,15 @@ def validate_run_report(report: Mapping[str, Any],
     _require(isinstance(results, list)
              and len(results) == len(selection["candidates"]),
              "LR probe results do not cover the declared candidates")
+    _require(sorted(selection["candidates"])
+             == sorted(protocol["arms"]["arms"][report["arm"]]
+                       ["lr_probe_candidates"]),
+             "LR probe candidates differ from the protocol")
+    _require(selection.get("probe_case_ids")
+             == protocol["schedule"]["dev_probe_case_ids"],
+             "LR probe cases differ from the protocol")
+    probe_updates = protocol["schedule"]["probe"]["updates_per_candidate"]
+    probe_batch = protocol["schedule"]["probe"]["batch"]
     for item in results:
         _require(item.get("lr") in selection["candidates"],
                  "LR probe result used an undeclared LR")
@@ -4044,6 +4305,16 @@ def validate_run_report(report: Mapping[str, Any],
         _require(item.get("init_sha256")
                  == init["projector_init_sha256"],
                  "LR probe initialization differs from the final initialization")
+        _require(item.get("updates") == probe_updates
+                 and item.get("examples") == probe_updates * probe_batch
+                 and item.get("trace_rows") == probe_updates,
+                 "LR probe update/example/trace accounting differs")
+        name = lr_probe_artifact_name(item["lr"])
+        _require(item.get("trace_sha256")
+                 == report["artifacts"].get(name),
+                 "LR probe trace hash differs from its artifact")
+        _require(_is_sha256(item.get("trace_sha256")),
+                 "LR probe trace hash is invalid")
     _require(selection["selected_lr"] == min(
         (item for item in results
          if item["dev_loss"] == min(entry["dev_loss"] for entry in results)),
@@ -4082,13 +4353,19 @@ def validate_run_report(report: Mapping[str, Any],
                  f"Retention {name} pin is missing")
 
     dev = report["dev"]
-    _require(dev["cases"] == protocol["splits"]["dev"]["rows"],
-             "Dev case count differs from the sealed protocol split")
+    _require(dev["cases"] == protocol["splits"]["dev"]["procedural_rows"],
+             "Dev procedural case count differs from the sealed protocol split")
     _require(dev["cases"] > 0 and _is_sha256(dev["generations_sha256"]),
              "Dev generations pin is missing")
-    _require(_finite(dev.get("response_loss"), "dev response loss",
-                     minimum=0.0) >= 0.0,
-             "Dev response loss is missing")
+    response_loss = _finite(dev.get("response_loss"), "dev response loss",
+                            minimum=0.0)
+    losses = dev.get("losses")
+    _require(isinstance(losses, list) and len(losses) == dev["cases"],
+             "Dev per-case losses do not cover the dev cases")
+    for value in losses:
+        _finite(value, "dev per-case loss", minimum=0.0)
+    _require(abs(response_loss - sum(losses) / len(losses)) <= 1e-9,
+             "Dev response loss differs from its per-case evidence")
     _require(dev.get("seal_sha256")
              == protocol["splits"]["dev"]["seal_sha256"],
              "Dev case seal differs from the protocol")
@@ -4102,7 +4379,7 @@ def validate_run_report(report: Mapping[str, Any],
              "Dev evaluation may not touch the audit split")
     artifacts = report["artifacts"]
     _require(isinstance(artifacts, Mapping)
-             and set(artifacts) == set(RUN_ARTIFACTS),
+             and set(artifacts) == set(run_artifact_names(protocol)),
              "Run artifact inventory differs from the declared inventory")
     for name, value in artifacts.items():
         _require(_is_sha256(value), f"Run artifact hash is invalid: {name}")
@@ -4171,6 +4448,14 @@ def validate_lr_reports(report_a: Mapping[str, Any],
                         report_b: Mapping[str, Any]) -> None:
     _require(report_a["arm"] != report_b["arm"],
              "Equal-compute comparison needs the two distinct arms")
+    for report in (report_a, report_b):
+        losses = report["dev"].get("losses")
+        _require(isinstance(losses, list)
+                 and len(losses) == report["dev"]["cases"],
+                 "Arm comparison lacks per-case dev losses")
+        _require(abs(report["dev"]["response_loss"]
+                     - sum(losses) / len(losses)) <= 1e-9,
+                 "Arm comparison response loss differs from per-case evidence")
     for key in ("projector_init_sha256",):
         _require(report_a["initialization"][key]
                  == report_b["initialization"][key],
@@ -4263,32 +4548,55 @@ def _utc_now() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def finalize_receipt_paths(project_root: str | Path, protocol_sha256: str,
-                           data_manifest_sha256: str | None = None
-                           ) -> dict[str, Path]:
-    """One receipt namespace per prepared data manifest (protocol-bound payload).
-
-    Keying by the data manifest prevents a regenerated protocol from bypassing
-    an existing finalize for the same prepared audit/final evidence.
-    """
-    _require(_is_sha256(protocol_sha256), "Protocol hash is invalid")
-    key = data_manifest_sha256 or protocol_sha256
-    _require(_is_sha256(key), "Data manifest hash is invalid")
-    root = Path(project_root) / FINALIZE_RESERVATION_ROOT
-    return {"root": root,
-            "reservation": root / f"{key}.reservation.json",
-            "receipt": root / f"{key}.json"}
-
-
 def _atomic_create(path: Path, payload: bytes) -> str:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     try:
-        os.write(descriptor, payload)
+        view = memoryview(payload)
+        while view:
+            written = os.write(descriptor, view)
+            _require(written > 0, f"Atomic write stalled: {path}")
+            view = view[written:]
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
-    return sha256_file(path)
+    completed = path.read_bytes()
+    _require(completed == payload,
+             f"Atomic artifact differs after write: {path}")
+    return sha256_bytes(completed)
+
+
+def finalize_receipt_paths(project_root: str | Path,
+                           external_final_seal_sha256: str,
+                           audit_seal_sha256: str) -> dict[str, Path]:
+    """Separate one-shot namespaces keyed only by the immutable final seals.
+
+    The external-final namespace deliberately ignores the curriculum manifest
+    and protocol hash so a future manifest cannot re-score the same sealed
+    external final. The procedural audit keeps its own namespace.
+    """
+    _require(_is_sha256(external_final_seal_sha256),
+             "External final seal is invalid")
+    _require(_is_sha256(audit_seal_sha256), "Audit seal is invalid")
+    root = Path(project_root) / FINALIZE_RESERVATION_ROOT
+    return {
+        "root": root,
+        "external_reservation":
+            root / f"external_final_{external_final_seal_sha256}.reserve.json",
+        "external_receipt":
+            root / f"external_final_{external_final_seal_sha256}.json",
+        "audit_reservation":
+            root / f"audit_{audit_seal_sha256}.reserve.json",
+        "audit_receipt": root / f"audit_{audit_seal_sha256}.json",
+    }
+
+
+def _seal_paths(protocol: Mapping[str, Any], project_root: str | Path
+                ) -> dict[str, Path]:
+    return finalize_receipt_paths(
+        project_root,
+        protocol["splits"]["external_final"]["seal_sha256"],
+        protocol["splits"]["audit"]["seal_sha256"])
 
 
 def reserve_finalize(protocol: Mapping[str, Any], protocol_sha256: str, *,
@@ -4297,14 +4605,12 @@ def reserve_finalize(protocol: Mapping[str, Any], protocol_sha256: str, *,
                      selected_arm: str,
                      dev_report_sha256: str,
                      score_report_sha256: str) -> dict[str, Any]:
-    """Atomically reserve the one global audit/final scoring for this protocol."""
-    paths = finalize_receipt_paths(
-        project_root, protocol_sha256,
-        protocol["data"]["manifest"]["sha256"])
-    _require(not paths["receipt"].exists(),
-             "Final receipt already exists; repeat finalize is refused")
-    _require(not paths["reservation"].exists(),
-             "Finalize is already reserved; repeat finalize is refused")
+    """Atomically reserve both one-shot namespaces before any scoring."""
+    paths = _seal_paths(protocol, project_root)
+    for name in ("external_receipt", "audit_receipt",
+                 "external_reservation", "audit_reservation"):
+        _require(not paths[name].exists(),
+                 f"Finalize namespace already used: {paths[name].name}")
     _require(selected_arm in ARMS, "Selected arm is invalid")
     _require(_is_sha256(dev_report_sha256)
              and _is_sha256(score_report_sha256),
@@ -4325,33 +4631,28 @@ def reserve_finalize(protocol: Mapping[str, Any], protocol_sha256: str, *,
         "scoring_started": False,
     }
     value = _json_bytes(payload)
-    digest = _atomic_create(paths["reservation"], value)
-    return {"path": str(paths["reservation"]),
-            "sha256": digest,
+    external_sha = _atomic_create(paths["external_reservation"], value)
+    audit_sha = _atomic_create(paths["audit_reservation"], value)
+    return {"external": {"path": str(paths["external_reservation"]),
+                         "sha256": external_sha},
+            "audit": {"path": str(paths["audit_reservation"]),
+                      "sha256": audit_sha},
             "id": fingerprint(payload),
             "payload": payload}
 
 
-def require_global_finalize_allowed(protocol_sha256: str, *,
-                                    project_root: str | Path,
-                                    data_manifest_sha256: str | None = None
+def require_global_finalize_allowed(project_root: str | Path,
+                                    external_final_seal_sha256: str,
+                                    audit_seal_sha256: str
                                     ) -> dict[str, Path]:
-    paths = finalize_receipt_paths(project_root, protocol_sha256,
-                                   data_manifest_sha256)
-    _require(not paths["receipt"].exists(),
-             "Final receipt already exists; repeat finalize is refused")
-    _require(not paths["reservation"].exists(),
-             "Finalize is already reserved; repeat finalize is refused")
+    paths = finalize_receipt_paths(project_root,
+                                   external_final_seal_sha256,
+                                   audit_seal_sha256)
+    for name in ("external_receipt", "audit_receipt",
+                 "external_reservation", "audit_reservation"):
+        _require(not paths[name].exists(),
+                 f"Finalize namespace already used: {paths[name].name}")
     return paths
-
-
-def require_finalize_allowed(receipt_path: str | Path,
-                             dev_report_sha256: str) -> None:
-    _require(_is_sha256(dev_report_sha256),
-             "Frozen dev report hash must be a SHA256")
-    path = Path(receipt_path)
-    _require(not path.exists(),
-             "Audit was already finalized once; repeat finalize is refused")
 
 
 def build_finalize_receipt(*, protocol: Mapping[str, Any],
@@ -4367,8 +4668,10 @@ def build_finalize_receipt(*, protocol: Mapping[str, Any],
     _require(_is_sha256(dev_report_sha256)
              and _is_sha256(score_report_sha256),
              "Finalize report hashes are invalid")
-    _require(_is_sha256(reservation["sha256"]),
-             "Finalize reservation hash is invalid")
+    _require(_is_sha256(reservation["id"])
+             and _is_sha256(reservation["external"]["sha256"])
+             and _is_sha256(reservation["audit"]["sha256"]),
+             "Finalize reservation hashes are invalid")
     _require(audit.get("scored_once") is True,
              "Audit must be scored exactly once")
     _require(external_final.get("consumed_once") is True,
@@ -4388,14 +4691,17 @@ def build_finalize_receipt(*, protocol: Mapping[str, Any],
              "Selected checkpoint was not frozen before audit")
     _require(comparison["selected_arm"] == selected_arm,
              "Comparison selected another arm")
+    _require(comparison["reports"][selected_arm].get(
+        "score_report_sha256") == score_report_sha256,
+        "Selected score report hash differs from the comparison")
     receipt = {
         "format": FINALIZE_RECEIPT_FORMAT,
         "version": VERSION,
         "protocol_sha256": protocol_sha256(protocol),
         "data_pins": dict(protocol["data"]["manifest"]),
-        "reservation": {"id": reservation["id"],
-                        "path": reservation["path"],
-                        "sha256": reservation["sha256"]},
+        "reservations": {"id": reservation["id"],
+                         "external": dict(reservation["external"]),
+                         "audit": dict(reservation["audit"])},
         "arm_comparison": dict(comparison),
         "selected_arm": selected_arm,
         "selected_checkpoint": dict(selected_checkpoint),
@@ -4405,7 +4711,9 @@ def build_finalize_receipt(*, protocol: Mapping[str, Any],
         "external_final": dict(external_final),
         "consumed": {"audit_scored": True,
                       "external_final_consumed": True,
-                      "authenticated_by": reservation["sha256"],
+                      "authenticated_by": {
+                          "external_final": reservation["external"]["sha256"],
+                          "audit": reservation["audit"]["sha256"]},
                       "prepared_flags_unchanged": True},
         "scored_once": True,
         "repeat_finalize_refused": True,
@@ -4421,7 +4729,7 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
                               protocol: Mapping[str, Any],
                               dev_report_sha256: str) -> None:
     _exact_keys(receipt, {
-        "format", "version", "protocol_sha256", "data_pins", "reservation",
+        "format", "version", "protocol_sha256", "data_pins", "reservations",
         "arm_comparison", "selected_arm", "selected_checkpoint",
         "dev_report_sha256", "score_report_sha256", "audit",
         "external_final", "consumed", "scored_once",
@@ -4432,11 +4740,17 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
              "Finalize protocol hash differs")
     _require(receipt["data_pins"] == protocol["data"]["manifest"],
              "Finalize data pin differs")
-    reservation = _exact_keys(receipt["reservation"], {
-        "id", "path", "sha256"}, "finalize_receipt.reservation")
-    _require(_is_sha256(reservation["sha256"])
-             and _is_sha256(reservation["id"]),
-             "Finalize reservation hashes are invalid")
+    reservations = _exact_keys(receipt["reservations"], {
+        "id", "external", "audit"}, "finalize_receipt.reservations")
+    _require(_is_sha256(reservations["id"]),
+             "Finalize reservation hash is invalid")
+    for name in ("external", "audit"):
+        item = _exact_keys(reservations[name], {"path", "sha256"},
+                           f"finalize_receipt.reservations.{name}")
+        _require(_is_sha256(item["sha256"]),
+                 f"Finalize {name} reservation hash is invalid")
+        _require(isinstance(item["path"], str) and item["path"],
+                 f"Finalize {name} reservation path is missing")
     _require(receipt["selected_arm"] in ARMS,
              "Finalize selected arm is invalid")
     comparison = receipt["arm_comparison"]
@@ -4457,12 +4771,14 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
     losses = {}
     for arm in ARMS:
         item = _exact_keys(comparison["reports"][arm], {
-            "run_report_sha256", "extension_weights_sha256",
-            "projector_init_sha256", "schedule_sha256", "updates",
-            "examples", "probe_updates_per_candidate",
-            "training_max_seconds", "dev_response_loss"},
+            "run_report_sha256", "score_report_sha256",
+            "extension_weights_sha256", "projector_init_sha256",
+            "schedule_sha256", "updates", "examples",
+            "probe_updates_per_candidate", "training_max_seconds",
+            "dev_cases", "dev_losses", "dev_response_loss"},
             f"arm comparison {arm}")
         _require(_is_sha256(item["run_report_sha256"])
+                 and _is_sha256(item["score_report_sha256"])
                  and _is_sha256(item["extension_weights_sha256"])
                  and _is_sha256(item["projector_init_sha256"]),
                  f"Arm comparison hashes are invalid: {arm}")
@@ -4475,6 +4791,18 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
                  f"Arm comparison compute differs: {arm}")
         losses[arm] = _finite(item["dev_response_loss"],
                               f"{arm} dev response loss", minimum=0.0)
+        _require(item["dev_cases"] == protocol["splits"]["dev"][
+            "procedural_rows"],
+                 f"Arm comparison dev case count differs: {arm}")
+        arm_losses = item["dev_losses"]
+        _require(isinstance(arm_losses, list)
+                 and len(arm_losses) == item["dev_cases"],
+                 f"Arm comparison dev losses are incomplete: {arm}")
+        for value in arm_losses:
+            _finite(value, f"{arm} comparison dev loss", minimum=0.0)
+        _require(abs(losses[arm]
+                     - sum(arm_losses) / len(arm_losses)) <= 1e-9,
+                 f"Arm comparison response loss differs from raw losses: {arm}")
     _require(len({comparison["reports"][arm]["projector_init_sha256"]
                   for arm in ARMS}) == 1,
              "Arms do not share one initialization")
@@ -4490,8 +4818,10 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
     _require(receipt["dev_report_sha256"] == selected["run_report_sha256"]
              == dev_report_sha256,
              "Finalize dev report hash differs")
-    _require(_is_sha256(receipt["score_report_sha256"]),
-             "Finalize score report hash is invalid")
+    _require(_is_sha256(receipt["score_report_sha256"])
+             and receipt["score_report_sha256"]
+             == selected["score_report_sha256"],
+             "Finalize selected score report hash differs")
     checkpoint = _exact_keys(receipt["selected_checkpoint"], {
         "weights_sha256", "frozen_at_utc", "frozen_before_audit"},
         "finalize_receipt.selected_checkpoint")
@@ -4517,6 +4847,7 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
     _require(isinstance(audit_score, Mapping)
              and audit_score.get("cases") == audit["cases"],
              "Audit score coverage differs")
+    _validate_procedural_metrics(audit_score, "audit")
     gates = protocol["evaluation"]["gates"]
     controls = audit_score["controls"]
     unknown = audit_score["unknown"]
@@ -4564,19 +4895,19 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
              and _is_sha256(external["cases_sha256"]),
              "External final artifact hashes are invalid")
     caption = external["caption"]
-    _require(caption.get("cases") == external["rows"]
-             and caption.get("loss_cases") == caption.get("cases"),
-             "External final caption coverage/loss differs")
-    _finite(caption.get("token_f1"), "external final token F1",
-            minimum=0.0, maximum=1.0)
-    _finite(caption.get("teacher_forced_response_loss"),
-            "external final response loss", minimum=0.0)
+    _require(caption.get("cases") == external["rows"],
+             "External final caption coverage differs")
+    _validate_caption_metrics(caption, "finalize.external_final.caption")
     consumed = _exact_keys(receipt["consumed"], {
         "audit_scored", "external_final_consumed", "authenticated_by",
         "prepared_flags_unchanged"}, "finalize_receipt.consumed")
+    authenticated = _exact_keys(consumed["authenticated_by"], {
+        "external_final", "audit"}, "finalize_receipt.consumed.authenticated_by")
     _require(consumed["audit_scored"] is True
              and consumed["external_final_consumed"] is True
-             and consumed["authenticated_by"] == reservation["sha256"]
+             and authenticated["external_final"]
+             == reservations["external"]["sha256"]
+             and authenticated["audit"] == reservations["audit"]["sha256"]
              and consumed["prepared_flags_unchanged"] is True,
              "Final evidence consumption is not receipt-authenticated")
     _require(receipt["scored_once"] is True
@@ -4588,9 +4919,15 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
              "Finalize claims exceed the boundary")
 
 
-def write_finalize_receipt(path: str | Path,
-                           receipt: Mapping[str, Any]) -> str:
-    path = Path(path)
-    _require(not path.exists(),
-             "Finalize receipt already exists; repeat finalize is refused")
-    return _atomic_create(path, _json_bytes(receipt))
+def write_finalize_receipt(paths: Mapping[str, str | Path],
+                           receipt: Mapping[str, Any]) -> dict[str, str]:
+    payload = _json_bytes(receipt)
+    written = {}
+    for name in ("external_receipt", "audit_receipt"):
+        path = Path(paths[name])
+        _require(not path.exists(),
+                 "Finalize receipt already exists; repeat finalize is refused")
+        written[name] = _atomic_create(path, payload)
+    _require(written["external_receipt"] == written["audit_receipt"],
+             "Audit and external final receipts differ")
+    return written
