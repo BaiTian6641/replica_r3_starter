@@ -1,0 +1,365 @@
+{
+  "format": "replica.memory_bank_readout.config.v2",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Predeclared prompt-v2 readout contract: exact selected-record value or explicit status word, single-line EOS output at max_new_tokens=32, evaluated in a first process and in genuinely new post-restart query forms with role-sealed heldout labels.",
+  "classification": {
+    "package": "selected_record_literal_value_and_model_readout_v2",
+    "native": false,
+    "model_execution": false,
+    "tokenizer_load": false,
+    "generation": false,
+    "persistent_learning": false,
+    "calibrated": false,
+    "learned_selector": false,
+    "bank_plus_compressed_arm": false,
+    "compressed_arm": "separate_reference_not_combined",
+    "oracle": "diagnostic_only_not_executed",
+    "checkpoint_state_role": "validated_only_not_consumed_by_generation",
+    "answer_source": "sealed_minicpm5_greedy_readout"
+  },
+  "hypothesis": {
+    "identifier": "H1",
+    "statement": "The v1 readout failure is an answer-format and completion-budget failure, not a wrong-record-selection failure; a static one-line contract that requires exactly the shown value or the shown status word, with max_new_tokens=32, passes the predeclared exact/correction/unaffected/unknown/revoked gates in a first process and in new post-restart query forms with zero control false values.",
+    "interventions": [
+      "static prompt-v2 response grammar",
+      "max_new_tokens=32",
+      "explicit status vocabulary"
+    ],
+    "excluded_interventions": [
+      "few-shot exemplars",
+      "structured or grammar-constrained decoding",
+      "host-selected candidate answers",
+      "retries",
+      "post-hoc trailing-value extraction"
+    ],
+    "claim_boundary": "readout contract only; not persistent learning, retention of learned memory or calibrated confidence"
+  },
+  "prepared": {
+    "root": "data/memory_causal_fresh_20261026/prepared04",
+    "selection_inputs": [
+      "episodes.json",
+      "revocations.json"
+    ],
+    "scoring_only_inputs": [
+      "labels.json"
+    ],
+    "formats": {
+      "episodes": "replica.memory_causal_fresh.episodes.v2",
+      "revocations": "replica.memory_causal_fresh.revocations.v2",
+      "labels": "replica.memory_causal_fresh.labels.v2",
+      "manifest": "replica.memory_causal_fresh.prepared.v2"
+    },
+    "pins": {
+      "episodes_sha256": "aaf77d0aa4b6f1fd861b760aaf06c4d699641bbea6b7114c6c876564b3ca02c9",
+      "revocations_sha256": "7037d34fe3ec9b5c20fabf78082f8bc07729652d2d0b483a460e76a6515ee130",
+      "labels_sha256": "2cb282284c223802bc691b512474a4e051074d5490af5fb1db5748f63f81049c",
+      "manifest_sha256": "3a3395db16f3dcc3332c6e4e309dcadf77e1685d22c3738a0ab0d6c1ef7579da"
+    },
+    "manifest_requirements": {
+      "native_computation": false,
+      "model_loaded": false,
+      "tokenizer_loaded": false
+    }
+  },
+  "role_labels": {
+    "root": "data/memory_causal_fresh_20261026/prepared04_roles",
+    "format": "replica.memory_bank_readout.roles.v1",
+    "manifest_format": "replica.memory_bank_readout.role_manifest.v1",
+    "source_labels_sha256": "2cb282284c223802bc691b512474a4e051074d5490af5fb1db5748f63f81049c",
+    "files": {
+      "dev": "labels_dev.json",
+      "heldout": "labels_heldout.json",
+      "train": "labels_train.json"
+    },
+    "pins": {
+      "dev": "bc90652586365ee0f3da39e997e773a22b5fa437e394760984c4f0c8bef87309",
+      "heldout": "7443ee457ee644eabbd9db7a7595d8b5d341e37925a76a913110021c45281252",
+      "train": "b37da1908d437e910b24374d2a94de042d85779ed8577c7b5bad649d98039c16",
+      "manifest": "17c6f8dc01f7d4142fc6d6c2cad8cbfebfa1c658c35be2f95aec17dc81244bc3"
+    },
+    "seal_command": ".venv/bin/python scripts/seal_memory_bank_roles.py --prepared data/memory_causal_fresh_20261026/prepared04 --output data/memory_causal_fresh_20261026/prepared04_roles",
+    "open_order": [
+      "dev",
+      "heldout",
+      "train"
+    ],
+    "heldout_requires": "every development phase, state and accounting gate passes"
+  },
+  "baseline": {
+    "first_process": {
+      "root": "runs/memory_causal_fresh_20261026/native02",
+      "checkpoint": "runs/memory_causal_fresh_20261026/native02/policy_checkpoint.pt",
+      "checkpoint_sha256": "6e680c62aa848c95864d3fe8a4c979c6241b9a05af226c921c7af454197b6db3",
+      "report": "runs/memory_causal_fresh_20261026/native02/run_report.json",
+      "report_sha256": "85ed826c39bfc87d6fcd092d2970c0adae50673cff5ba9dbbd03451b3da4addc",
+      "ledger": "runs/memory_causal_fresh_20261026/native02/ledger.json",
+      "ledger_sha256": "d842e32c611ac0661882309f7b348ff0853f9ad0f2b9833ee131940f09f2d1f0",
+      "report_format": "replica.memory_causal_fresh.run.v2",
+      "checkpoint_format": "replica.memory_causal_fresh.checkpoint.v3",
+      "ledger_format": "replica.memory_causal_fresh.ledger.v2",
+      "phase": "first_process",
+      "resumed": false,
+      "episodes": 12,
+      "split_episode_counts": {
+        "train": 4,
+        "dev": 4,
+        "heldout": 4
+      },
+      "protocol_sha256": "0c301903e0a512e48a882ad2f980ead5044282d253db03e4fa33a222d7a3570b",
+      "role": "read_only_procedural_anchor_not_a_generation_input"
+    },
+    "restart": {
+      "root": "runs/memory_causal_fresh_20261026/restart02",
+      "checkpoint": "runs/memory_causal_fresh_20261026/restart02/policy_checkpoint_restart.pt",
+      "checkpoint_sha256": "af3d96048647109b087be9a963e0d120566476f5c28f061b0ae94ad3e044fe89",
+      "loaded_checkpoint_sha256": "6e680c62aa848c95864d3fe8a4c979c6241b9a05af226c921c7af454197b6db3",
+      "report": "runs/memory_causal_fresh_20261026/restart02/run_report.json",
+      "report_sha256": "9a127525ab0134a236d7d37346bd0ad139a3de5a5efd859b00826fe9402a50b1",
+      "ledger": "runs/memory_causal_fresh_20261026/restart02/ledger.json",
+      "ledger_sha256": "d842e32c611ac0661882309f7b348ff0853f9ad0f2b9833ee131940f09f2d1f0",
+      "report_format": "replica.memory_causal_fresh.run.v2",
+      "checkpoint_format": "replica.memory_causal_fresh.checkpoint.v3",
+      "ledger_format": "replica.memory_causal_fresh.ledger.v2",
+      "phase": "restart",
+      "resumed": true,
+      "episodes": 12,
+      "split_episode_counts": {
+        "train": 4,
+        "dev": 4,
+        "heldout": 4
+      },
+      "old_observations_reencoded": 0,
+      "old_queries_reencoded": 0,
+      "restart_new_queries": 216,
+      "fresh_process_parity": true,
+      "role": "read_only_procedural_anchor_not_a_generation_input"
+    }
+  },
+  "bank": {
+    "address_key": [
+      "entity",
+      "attribute"
+    ],
+    "match": "exact",
+    "state_views": "memory_matched.episode_states then memory_matched._record_views",
+    "decision_unit": "episode/state/phase/query",
+    "phase_order": [
+      "first_process",
+      "restart",
+      "revocation"
+    ],
+    "phase_query_fields": {
+      "first_process": "queries",
+      "restart": "restart_queries",
+      "revocation": "revocation_queries"
+    },
+    "scope": "episode_world",
+    "duplicate_record_id": "dedupe_if_identical_else_reject",
+    "duplicate_address": "abstain_ambiguous",
+    "abstain_reasons": [
+      "abstain_no_address",
+      "abstain_ambiguous_address",
+      "abstain_superseded_only_address",
+      "abstain_revoked_only_address"
+    ],
+    "revocation": {
+      "scope": "view_only",
+      "cached_history_retained": true,
+      "applies_at_phase_map": {
+        "post_restart": [
+          "restart",
+          "revocation"
+        ],
+        "revocation_only": [
+          "revocation"
+        ],
+        "all": [
+          "first_process",
+          "restart",
+          "revocation"
+        ]
+      }
+    },
+    "value_comparison": true,
+    "decisions_changed_by_v2": false
+  },
+  "reader": {
+    "declared_source_layers": [
+      "selected_record_value"
+    ],
+    "decision_count_multiplier": 1,
+    "rule": "one decision per episode/state/phase/query; reader layers never multiply or alter a decision"
+  },
+  "generation": {
+    "prompt_format": "replica.memory_bank_readout.prompt.v2",
+    "max_new_tokens": 32,
+    "max_prompt_tokens": 256,
+    "max_decisions_per_split": 152,
+    "wall_budget_seconds_per_job": 1200,
+    "artifact_cap_bytes": 67108864,
+    "stop_token_ids": [
+      1,
+      130073
+    ],
+    "status_vocabulary": [
+      "unknown",
+      "revoked",
+      "ambiguous",
+      "superseded"
+    ],
+    "answer_normalization": "strip+collapse_whitespace+casefold",
+    "single_line_required": true,
+    "eos_required": true,
+    "cap_hits_max": 0,
+    "model_loads_per_job": 1,
+    "enabled_ports": [],
+    "frame_branches": [
+      "memory"
+    ],
+    "core_impl": "none",
+    "training": false,
+    "record_memory": false,
+    "workspace": false,
+    "few_shot": false,
+    "structured_decoding": false,
+    "host_selected_answer": false,
+    "greedy": true
+  },
+  "endpoint": {
+    "split": "dev",
+    "literal_fact_value_min": 0.85,
+    "literal_unknown_selections_max": 0,
+    "literal_revoked_selections_max": 0,
+    "first_process_exact_min": 0.85,
+    "restart_exact_min": 0.85,
+    "correction_min": 0.6,
+    "unaffected_min": 0.7,
+    "unknown_min": 0.9,
+    "revoked_min": 0.9,
+    "control_false_value_max": 0,
+    "initial_fact_exact_min": 0.85,
+    "corrected_fact_exact_min": 0.85,
+    "single_line_rate_min": 1.0,
+    "ended_by_eos_rate_min": 1.0,
+    "cap_hits_max": 0,
+    "query_text_disjoint_min": 1.0,
+    "old_query_regeneration_max": 0,
+    "expected_dev_counts": {
+      "decision_rows": 152,
+      "fact_rows": 128,
+      "unknown_rows": 16,
+      "revoked_rows": 8,
+      "first_process_rows": 72,
+      "first_process_fact_rows": 64,
+      "first_process_unknown_rows": 8,
+      "first_process_correction_rows": 8,
+      "first_process_unaffected_rows": 20,
+      "restart_rows": 72,
+      "restart_fact_rows": 64,
+      "restart_unknown_rows": 8,
+      "restart_correction_rows": 8,
+      "restart_unaffected_rows": 20,
+      "restart_revoked_status_rows": 4,
+      "revocation_rows": 8,
+      "initial_fact_rows": 64,
+      "corrected_fact_rows": 64,
+      "total_generated_rows": 152
+    },
+    "heldout": "evaluate_after_all_dev_gates_pass_only",
+    "tuning": "forbidden",
+    "retries": "forbidden",
+    "relabeling": "forbidden"
+  },
+  "jobs": {
+    "order": [
+      "first",
+      "restart"
+    ],
+    "phases": {
+      "first": [
+        "first_process"
+      ],
+      "restart": [
+        "restart",
+        "revocation"
+      ]
+    },
+    "first_process_gate_before_restart": true,
+    "restart_revocation_gate_before_heldout": true,
+    "native_jobs": 2,
+    "model_loads_total": 2,
+    "one_mps_worker": true,
+    "sequential": true
+  },
+  "roles": {
+    "train": {
+      "role": "descriptive_only",
+      "endpoint": false,
+      "requires_dev_pass": false
+    },
+    "dev": {
+      "role": "primary_endpoint_gate",
+      "endpoint": true,
+      "requires_dev_pass": false
+    },
+    "heldout": {
+      "role": "post_freeze_confirmation",
+      "endpoint": false,
+      "requires_dev_pass": true
+    }
+  },
+  "reporting": {
+    "groups": [
+      "split",
+      "cohort",
+      "world",
+      "phase",
+      "state",
+      "complexity"
+    ],
+    "raw_output_policy": {
+      "fresh_output_required": true,
+      "immutable_first_write": true,
+      "files": [
+        "decisions_dev.jsonl",
+        "generations_dev_first_process.jsonl",
+        "generations_dev_restart.jsonl",
+        "generations_dev_revocation.jsonl",
+        "decisions_heldout.jsonl",
+        "generations_heldout.jsonl",
+        "decisions_train.jsonl",
+        "report.json"
+      ],
+      "heldout_file_only_after_dev_pass": true,
+      "train_file_only_after_dev_pass": true,
+      "failure_report": "failure_report.json",
+      "raw_failure_preserved": true
+    }
+  },
+  "budget": {
+    "model_loads": 2,
+    "tokenizer_loads": 2,
+    "optimizer_updates": 0,
+    "gradients": 0,
+    "checkpoints_written": 0,
+    "base_export": 0,
+    "extension_export": 0,
+    "downloads": 0,
+    "fallback": "disabled",
+    "native_jobs": 2,
+    "max_wall_seconds_per_job": 1200,
+    "artifact_cap_bytes": 67108864,
+    "prompt_tokens_max": 256
+  },
+  "limitations": [
+    "The hypothesis is a readout-contract hypothesis; it is not a persistent-learning, retention or calibrated-confidence claim.",
+    "The bank selection layer is unchanged; prompt v2 changes only the response grammar and the completion budget.",
+    "The prompt contains only the runtime query text, one authorized selected value or one runtime status word, and the static contract; it never contains an evaluation label.",
+    "Heldout labels are role-sealed and opened only after every predeclared development gate passes; a failure opens no heldout label or heldout artifact.",
+    "The four bank abstentions among the 128 dev fact rows remain misses in the fact denominator and are never relabeled.",
+    "The restart02 checkpoint is a procedural post-restart anchor that is verified read-only; it is not an input to generation.",
+    "No few-shot exemplars, structured decoding, host-selected candidates, retries or post-hoc answer extraction are used.",
+    "Train is descriptive only, uses literal metrics only and is read after both development gates pass.",
+    "No gradient, optimizer update, checkpoint write, base export, extension export or download occurs."
+  ]
+}
