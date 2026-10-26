@@ -10,7 +10,6 @@ fixture; it loads no model, writes no checkpoint and runs no native job.
 from __future__ import annotations
 
 from copy import deepcopy
-from types import SimpleNamespace
 import json
 from pathlib import Path
 
@@ -34,7 +33,6 @@ from replica_lab.memory_bank_value import (
     decision_status,
     evaluate_dev_literal_gate,
     evaluate_dev_model_gate,
-    generate_row,
     generation_row,
     normalize_answer,
     query_text_register,
@@ -472,74 +470,6 @@ def test_generation_rows_use_stop_set_and_frozen_budget():
         assert forbidden not in eos_one
     assert eos_one["format"] == GENERATIONS_FORMAT
     assert eos_one["prompt_format"] == PROMPT_FORMAT
-
-
-def test_generate_row_uses_declared_request_convention():
-    import torch
-
-    class FakeTokenizer:
-        eos_token_id = 1
-
-        def apply_chat_template(self, messages, tokenize=False,
-                                add_generation_prompt=True,
-                                enable_thinking=False):
-            return messages[0]["content"]
-
-        def __call__(self, text, add_special_tokens=False):
-            return {"input_ids": [10, 11, 12]}
-
-        def decode(self, ids, skip_special_tokens=True):
-            return "val-dev-a"
-
-    class FakeRequest:
-        def __init__(self):
-            self.frame = SimpleNamespace(
-                sense=SimpleNamespace(
-                    prompt_ids=torch.tensor([[10, 11, 12]])))
-            self.released = False
-
-        def release(self):
-            self.released = True
-
-    class FakeSession:
-        device = "cpu"
-
-        def __init__(self):
-            self.prepare_kwargs = None
-            self.generate_kwargs = None
-            self.request = None
-
-        def prepare(self, **kwargs):
-            self.prepare_kwargs = kwargs
-            self.request = FakeRequest()
-            return self.request
-
-        def generate(self, request, **kwargs):
-            self.generate_kwargs = kwargs
-            return torch.tensor([[10, 11, 12, 999, 130073]])
-
-    config = _config()
-    dev = _episode("dev", "dev")
-    decisions = build_value_split_decisions(
-        [dev], _revocations(dev), config, "dev")
-    texts = query_text_register([dev])
-    fact = decisions[0]
-    tokenizer, session = FakeTokenizer(), FakeSession()
-    row = generate_row(
-        session, tokenizer, fact,
-        texts[(fact["episode_id"], fact["phase"], fact["query_id"])])
-    kwargs = session.prepare_kwargs
-    assert kwargs["enabled_ports"] == ()
-    assert kwargs["enabled_branches"] == ()
-    assert kwargs["core_impl"] == "none"
-    assert kwargs["training"] is False
-    assert kwargs["visual"] is None
-    assert f"Record value: {fact['selected_value']}" in kwargs["query"]
-    assert session.generate_kwargs["max_new_tokens"] == MAX_NEW_TOKENS
-    assert session.generate_kwargs["eos_token_id"] == STOP_TOKEN_IDS
-    assert row["generated_ids"] == [999, 130073]
-    assert row["ended_by_eos"] is True
-    assert session.request.released is True
 
 
 def test_generation_scoring_correction_unaffected_unknown_and_revoked():

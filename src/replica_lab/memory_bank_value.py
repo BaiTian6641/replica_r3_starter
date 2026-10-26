@@ -918,8 +918,8 @@ def generate_row(session, tokenizer, decision, query_text, *,
                  maximum_new=MAX_NEW_TOKENS):
     """Generate one readout using the native ``generate_row`` convention.
 
-    The request enables no port and no record-memory/workspace branch and the
-    session ledger is empty, so the prompt is the only observable input.
+    The request uses the empty-memory frame convention with no enabled ports
+    and no record/workspace state; the prompt is the only observable input.
     """
     import torch
     from .architecture.contracts import TaskGraph
@@ -939,7 +939,7 @@ def generate_row(session, tokenizer, decision, query_text, *,
     request = session.prepare(
         prompt_ids=ids, prompt_mask=mask, query=prompt, scope=scope,
         task=task, training=False, visual=None, enabled_ports=(),
-        core_impl="none", enabled_branches=())
+        core_impl="none", enabled_branches=("memory",))
     try:
         token_ids = session.generate(
             request, max_new_tokens=maximum_new,
