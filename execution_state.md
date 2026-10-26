@@ -149,6 +149,25 @@ constant-output priors and abstention before any larger training arm; do not
 enlarge the connector or claim optimizer causality.
 The final full suite passes **1,863 tests +21 subtests in 228.22 s**.
 
+## Verified learning and visual-memory preparation — contracts complete, evidence gated
+
+The transaction and payload-binding work is complete: proposal/world/code/identity
+authentication, coordinated publish/rollback, durable recovery and CLI recovery
+all pass focused tests and an actual procedure cycle. Verified-learning contracts
+separate demonstration recall from unseen rule transfer, matched feed-forward
+and recurrence controls, frozen-vs-updated policy accounting and personality
+fidelity. The CPU fixture reports demonstration 1.0 but transfer 0.0625 and
+inconclusive policy comparison; it is not verified-learning or RSI evidence.
+Full memory/vocabulary/learning factorial work remains deferred.
+
+The delayed visual-memory corpus has 12 episodes, 24 images and 96 queries with
+object/region identity, coordinates, timestamps and provenance. CPU contracts
+pass: memory and exact/full-context each 64/64, shuffled 20/64, zero/disabled/
+context-removed 16/64 (expected-unknown abstentions). Native visual-memory
+evaluation remains blocked: V1 perception is rejected and matched memory-use
+fails exact-key retention. Balanced frozen-feature information does not remove
+that gate. Verified-learning evidence and visual-memory quality remain unproven.
+
 ## Isolated V0 source and native preregistration — 25 October 2026
 
 The production adapter/session/frame path now supports one source-owned image,

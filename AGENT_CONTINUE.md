@@ -21,6 +21,13 @@ Query-derived addressing remains invariant at 232/240. See
 Do not start another blind writer arm or promote per-depth; validate only an
 order-aware/refresh policy with identical sources, candidates, vectors and scoring.
 
+Verified-learning contracts now separate rule transfer from learning-policy
+improvement, with matched recurrence/feed-forward controls and exact resource
+accounting; the CPU fixture is inconclusive, not verified-learning or RSI evidence.
+Transaction and recovery work is complete. The delayed visual-memory corpus has
+12 episodes /24 images /96 queries and passes CPU contracts, but native visual-
+memory evaluation remains blocked because perception and memory-use gates fail.
+The full factorial and any promotion remain deferred.
 The staged curriculum is rejected on learned quality: AdamW correct 99/240 and
 audit 37/120, with all accuracy/control and abstention gates failing. External
 captions have token-F1 0 on all 8. Engineering, reload and independent scoring
