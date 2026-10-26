@@ -1,0 +1,25 @@
+{
+  "format": "replica.vision_curriculum.preflight_pin_migration.v1",
+  "migrated_at_utc": "2026-10-26",
+  "protocol_path": "data/vision_curriculum_20261025/protocol_next_v2.json",
+  "parent_protocol_sha256": "03ee4e1e05b07685d9e0e4cccb3653a09189c61c06788db0740c1f2325ed18bc",
+  "migrated_protocol_sha256": "f881b518e58c89e4ddb965b602d5a6a59cf1c19b993ba86d348fb8d1e22bffc2",
+  "changed_implementation": {
+    "scripts/run_capacity_preflight.py": {
+      "parent_sha256": "b391d92349166c44a96001ecb137c94bea0b3338b14b95ec5cdf3bff12cda386",
+      "migrated_sha256": "b387e846769e40b3725ec0634e1aecea31a517e5c148291061cb1471e7984825"
+    },
+    "src/replica_lab/optimizers.py": {
+      "parent_sha256": "b4889c5af62b388dd322f56cd65868e7ba4ac917802861e8fda5a2fafeb28862",
+      "migrated_sha256": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb"
+    }
+  },
+  "reason": "Register balanced visual/fresh causal entry points and device-targeted optimizer restoration. These implementation-only migrations preserve prepared data, labels, targets, scoring, source lineage and historical native reports.",
+  "validation": {
+    "data_and_labels_changed": false,
+    "scoring_changed": false,
+    "native_baseline_changed": false,
+    "historical_protocols_preserved": true,
+    "old_stage_protocols_not_rewritten": true
+  }
+}

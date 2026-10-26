@@ -42,7 +42,7 @@
     "src/replica_lab/infrastructure_scoring.py": "0ad38111bbc3c4a247015f889f2b829047dcc2dda2f238116e8d372befe3ec1a",
     "src/replica_lab/episodes.py": "da2140ac838273ccd02309b691d359a1eadb19183bb4daa6805ddac428838e46",
     "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
-    "scripts/train_text.py": "5748ec15fc4743fdd3c1d1e11c2a7fce76eec8687e2ccf5d7a43d81ba77aa193",
+    "scripts/train_text.py": "6097a187eb1524ea27f4bac8c891f567e9eccdd8a37eb4f503cc3ca71efaf5a1",
     "scripts/evaluate_text.py": "010f33197f83b1691d443e11e7b0af51954f3752bf6f1ec69657b2068d7b8ad4",
     "scripts/run_generation_preflight.py": "d1a7eded584886716df89715f485027d2f3897598cb45c2cdb621d6b5f1e0641",
     "configs/infrastructure_slice_v2_design.json": "500ca42865dac6bab5243639343e4b5bee2c5cce032faf2966a18359c7c5cb25",
@@ -55,16 +55,16 @@
     "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
     "scripts/validate_d2_experiment.py": "fbd6da1e16cf50f06462195ae838ccc6c7b990a5cd299e031752601a4727de7f"
   },
-  "scope": "Frozen original B1 evidence-matched descriptive dev preflight, 16 distinct worlds/4 families; all mechanisms shared, no training or promotion. Raw backend's legacy XOR descriptions superseded by release-aware rescoring. M3 migration changes only declared neural and migration-aware preparation implementation pins; cases, evidence, answers and native baseline are preserved.",
+  "scope": "Frozen original B1 evidence-matched descriptive dev preflight, 16 distinct worlds/4 families; all mechanisms shared, no training or promotion. Raw backend's legacy XOR descriptions superseded by release-aware rescoring. M3 migration changes only declared neural and migration-aware preparation implementation pins; the 2026-10-26 native resume/entry-point changes are implementation-only and preserve cases, evidence, answers and native baseline.",
   "selection_rule": "First sorted dev world per family/scenario: laterquery for correction/lateask, earlierquery for lateunknown/tombstone; 8answer/4ask/4unknown.",
   "m3_pin_migration": {
-    "migrated_at_utc": "2026-10-24",
+    "migrated_at_utc": "2026-10-26",
     "parent_spec_path": "reports/infrastructure_preflight_v3_20261024/evaluation_spec.json",
     "parent_spec_sha256": "8ef8de970f3811b1aa90d0adb3ad85405776e2c20ca1240c4838381db3db7919",
     "changed_implementation": {
       "scripts/train_text.py": {
         "parent_sha256": "e98b3807048f4deeb69e697dd6f960f712523c7ab8351252e0f8879d8521be3a",
-        "migrated_sha256": "5748ec15fc4743fdd3c1d1e11c2a7fce76eec8687e2ccf5d7a43d81ba77aa193"
+        "migrated_sha256": "6097a187eb1524ea27f4bac8c891f567e9eccdd8a37eb4f503cc3ca71efaf5a1"
       },
       "src/replica_lab/neural.py": {
         "parent_sha256": "9b3f1cd95823f6e20e055d61c08083cc33c653b13934e4e12385e48e8122d418",
@@ -75,6 +75,6 @@
         "migrated_sha256": "7f93ad1e8dba13e3ab8115f63ec0ccfb77865d0183573c733de2e4d41180cb70"
       }
     },
-    "reason": "Additive M3 SGDN-2 reducer and explicit lineage-aware response preparation; no response-contract data, target, scoring or native-baseline change"
+    "reason": "Additive M3 SGDN-2 reducer and explicit lineage-aware response preparation; the 2026-10-26 native resume/entry-point changes are implementation-only and preserve response-contract data, targets, scoring and native baseline"
   }
 }
