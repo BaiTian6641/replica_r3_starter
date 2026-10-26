@@ -381,7 +381,7 @@ def test_v2_runner_imports_and_uses_corrected_target_contract():
 def test_prepared_v2_roles_load_separately_with_bound_assignments():
     import importlib.util
     protocol, manifest, implementation, data_root = vba.load_prepared(
-        ROOT / "data/vision_balanced_alignment_v2_20261026/prepared01/"
+        ROOT / "data/vision_balanced_alignment_v2_20261026/prepared03/"
         "protocol.json", ROOT)
     assert protocol["format"] == vba.PROTOCOL_FORMAT_V2
     spec = importlib.util.spec_from_file_location(
@@ -412,3 +412,35 @@ def test_prepared_v2_roles_load_separately_with_bound_assignments():
         assert "sealed_answer" in row["wrong"]
         assert "sealed_answer" in row["shuffled"]
     assert manifest["format"] == vba.MANIFEST_FORMAT_V2
+
+
+def test_fit_tensor_contract_allows_shared_eos_pad_but_rejects_interior_pad():
+    import importlib.util
+    from types import SimpleNamespace
+    import torch
+
+    spec = importlib.util.spec_from_file_location(
+        "vision_balanced_runner_fit",
+        ROOT / "scripts/run_vision_balanced_alignment.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    tokenizer = SimpleNamespace(eos_token_id=2, pad_token_id=2)
+    protocol = {
+        "fit_contract": {
+            "caption_template": "Describe the image briefly.",
+            "loss": "mean_response_nll",
+            "pad_tokens_forbidden": True,
+        },
+        "limits": {"max_sequence_tokens": 8},
+    }
+    row = {"kind": "answer", "question": "q", "response": "ok"}
+    prompt = torch.tensor([[7]])
+    input_ids = torch.tensor([[7, 11, 2]])
+    labels = torch.tensor([[-100, 11, 2]])
+    receipt = module._verify_fit_tensor_contract(
+        tokenizer, row, prompt, input_ids, labels, protocol)
+    assert receipt["pad_free_response"] is True
+    with pytest.raises(RuntimeError, match="before the final EOS"):
+        module._verify_fit_tensor_contract(
+            tokenizer, row, prompt, torch.tensor([[7, 2, 2]]),
+            labels, protocol)

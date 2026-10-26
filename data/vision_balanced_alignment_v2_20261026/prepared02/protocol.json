@@ -1,0 +1,551 @@
+{
+  "checkpoint_policy": {
+    "base_copies": 0,
+    "export": "strict extension only; no base copy and no optimizer state export",
+    "keep_all_trajectories": true,
+    "promotion": false,
+    "reload": "fresh process, zero updates, bitwise held-out generation and retention equality",
+    "stage_checkpoints": [
+      "alignment"
+    ]
+  },
+  "claims": {
+    "overall_baseline_eligible": false,
+    "perception_quality": false,
+    "promotion": false,
+    "scope": "bounded balanced projector overfit-alignment diagnostic only; the prior stage rejection stands",
+    "semantic_quality": false
+  },
+  "config_sha256": "67b0602e9c2c61cdb0b1a12ad042a1abe5cd5164c788b3c8ae705c1904f5ab13",
+  "data": {
+    "balance": {
+      "dev": {
+        "answer_cases": 27,
+        "answer_histogram_selected": {
+          "task=abstain|answer=unknown": 3,
+          "task=color|answer=blue": 3,
+          "task=color|answer=orange": 3,
+          "task=count|answer=2": 3,
+          "task=count|answer=3": 3,
+          "task=presence|answer=no": 3,
+          "task=presence|answer=yes": 3,
+          "task=spatial|answer=no": 3,
+          "task=spatial|answer=yes": 3
+        },
+        "answers": {
+          "task=abstain|answer=unknown": 24,
+          "task=color|answer=blue": 12,
+          "task=color|answer=orange": 12,
+          "task=count|answer=2": 12,
+          "task=count|answer=3": 12,
+          "task=presence|answer=no": 12,
+          "task=presence|answer=yes": 12,
+          "task=spatial|answer=no": 12,
+          "task=spatial|answer=yes": 12
+        },
+        "caption_cases": 12,
+        "caption_histogram_selected": {
+          "objects=1": 2,
+          "objects=2": 2,
+          "objects=3": 2,
+          "objects=4": 2,
+          "objects=5": 2,
+          "objects=6": 2
+        },
+        "captions": {
+          "objects=1": 6,
+          "objects=2": 11,
+          "objects=3": 27,
+          "objects=4": 7,
+          "objects=5": 6,
+          "objects=6": 3
+        }
+      },
+      "heldout": {
+        "answer_cases": 18,
+        "answer_histogram_selected": {
+          "task=abstain|answer=unknown": 2,
+          "task=color|answer=purple": 2,
+          "task=color|answer=yellow": 2,
+          "task=count|answer=2": 2,
+          "task=count|answer=3": 2,
+          "task=presence|answer=no": 2,
+          "task=presence|answer=yes": 2,
+          "task=spatial|answer=no": 2,
+          "task=spatial|answer=yes": 2
+        },
+        "answers": {
+          "task=abstain|answer=unknown": 24,
+          "task=color|answer=purple": 12,
+          "task=color|answer=yellow": 12,
+          "task=count|answer=2": 12,
+          "task=count|answer=3": 12,
+          "task=presence|answer=no": 12,
+          "task=presence|answer=yes": 12,
+          "task=spatial|answer=no": 12,
+          "task=spatial|answer=yes": 12
+        },
+        "caption_cases": 12,
+        "caption_histogram_selected": {
+          "objects=1": 2,
+          "objects=2": 2,
+          "objects=3": 2,
+          "objects=4": 2,
+          "objects=5": 2,
+          "objects=6": 2
+        },
+        "captions": {
+          "objects=1": 9,
+          "objects=2": 13,
+          "objects=3": 27,
+          "objects=4": 6,
+          "objects=5": 7,
+          "objects=6": 4
+        }
+      },
+      "train": {
+        "answer_cases": 28,
+        "answer_histogram_selected": {
+          "task=abstain|answer=unknown": 2,
+          "task=color|answer=blue": 2,
+          "task=color|answer=orange": 2,
+          "task=color|answer=purple": 2,
+          "task=color|answer=red": 2,
+          "task=color|answer=yellow": 2,
+          "task=count|answer=2": 2,
+          "task=count|answer=3": 2,
+          "task=presence|answer=no": 2,
+          "task=presence|answer=yes": 2,
+          "task=shape|answer=circle": 2,
+          "task=shape|answer=square": 2,
+          "task=spatial|answer=no": 2,
+          "task=spatial|answer=yes": 2
+        },
+        "answers": {
+          "task=abstain|answer=unknown": 24,
+          "task=color|answer=blue": 5,
+          "task=color|answer=orange": 6,
+          "task=color|answer=purple": 5,
+          "task=color|answer=red": 4,
+          "task=color|answer=yellow": 4,
+          "task=count|answer=2": 12,
+          "task=count|answer=3": 12,
+          "task=presence|answer=no": 12,
+          "task=presence|answer=yes": 12,
+          "task=shape|answer=circle": 12,
+          "task=shape|answer=square": 12,
+          "task=spatial|answer=no": 12,
+          "task=spatial|answer=yes": 12
+        },
+        "caption_cases": 18,
+        "caption_histogram_selected": {
+          "objects=1": 3,
+          "objects=2": 3,
+          "objects=3": 3,
+          "objects=4": 3,
+          "objects=5": 3,
+          "objects=6": 3
+        },
+        "captions": {
+          "objects=1": 8,
+          "objects=2": 13,
+          "objects=3": 42,
+          "objects=4": 6,
+          "objects=5": 7,
+          "objects=6": 4
+        }
+      }
+    },
+    "consumed_stage_result_preserved": true,
+    "counts": {
+      "assets": 185,
+      "dev_answers": 27,
+      "dev_captions": 12,
+      "heldout_answers": 18,
+      "heldout_captions": 12,
+      "procedural_worlds": 192,
+      "semantic_audit_cases": 185,
+      "train_answers": 28,
+      "train_captions": 18,
+      "train_examples": 46,
+      "train_examples_scheduled": 60,
+      "train_updates": 10
+    },
+    "fresh_evaluation": true,
+    "freshness": {
+      "all_used_cases": {
+        "case_overlap": 0,
+        "cases": 185,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "all_used_prior_assets": {
+        "geometry": {
+          "height": 120,
+          "width": 160
+        },
+        "image_overlap": 0,
+        "images": 185,
+        "policy": "all used images are newly rendered at the declared geometry, not just disjoint from prior evaluation"
+      },
+      "dev": {
+        "case_overlap": 0,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "heldout": {
+        "case_overlap": 0,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "namespace": "vba1",
+      "namespace_disjoint_from_prior": true,
+      "policy": "every train/dev/held-out case, control donor and counterfactual sibling excludes prior evaluation case ids, image hashes and scene hashes; all used images are newly rendered at fresh geometry and are disjoint from every prior prepared asset; the prior rejected stage result is preserved and not rerun",
+      "prior": {
+        "counts": {
+          "all_manifest_assets": 521,
+          "cases": 48,
+          "images": 48,
+          "scenes": 48
+        },
+        "files": [
+          {
+            "path": "evaluation/dev_cases.jsonl",
+            "rows": 24,
+            "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+          },
+          {
+            "path": "evaluation/audit_cases.jsonl",
+            "rows": 24,
+            "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+          },
+          {
+            "path": "evaluation/caption_dev_cases.jsonl",
+            "rows": 24,
+            "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+          },
+          {
+            "path": "evaluation/caption_audit_cases.jsonl",
+            "rows": 24,
+            "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+          }
+        ],
+        "manifest_sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1",
+        "namespaces": [
+          "vc2"
+        ],
+        "protocol_sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7"
+      },
+      "prior_namespaces": [
+        "vc2"
+      ],
+      "train": {
+        "case_overlap": 0,
+        "image_overlap": 0,
+        "scene_overlap": 0
+      },
+      "train_overlap_with_all_prior_assets": 0
+    },
+    "manifest": {
+      "path": "manifest.json",
+      "sha256": "1bc1cbdf20b963f78688f1c4648286ff3405eadea2c5a9037892b0cf581df3a1"
+    },
+    "root": "data/vision_balanced_alignment_v2_20261026/prepared02",
+    "seals": {
+      "dev_answer_case_ids": "5c379c588f3a6256b0e20fdb77a944d705332150ff4d60e469b5c8560780e4ed",
+      "dev_answer_cases_payload": "7d585456104c600fd0056c3478d09b50afc196730ceaf732689caf183f92f50e",
+      "dev_answer_controls_payload": "0a1afb61bbf66b3b8032206046e786c8e8038ca2583dab5d32bc8856545fc87e",
+      "dev_answer_labels_payload": "6e37272e96dca8281e21f9c3cdc835b595a8a94e3b014c7c269c574c87404d23",
+      "dev_caption_case_ids": "b769789c923747f7ff0c349ca9b34ac21a412ec5a202688868ead17bff3c46d2",
+      "dev_caption_cases_payload": "ead1b0b91222f8e472286b301e63f76e3f9b93077af34e297567b04e607737dc",
+      "dev_caption_controls_payload": "7a4910308daac3ce83a434c9058a5e0746015dd745768c7e4d94a76c2be5d902",
+      "dev_caption_labels_payload": "16dd11e0c5a3a557a476b88f4675b410fba71b62603a101e510ee960efdd740c",
+      "heldout_answer_case_ids": "75a118d5c18307b44e1b3c17e23533472875fb0bd0487fcaf0e0018b1466c362",
+      "heldout_answer_cases_payload": "c715cd5c075e961f1db438c1cb903929736d78a78a1f06ed6f6e2ce056723baa",
+      "heldout_answer_controls_payload": "63e91ed07115d905a927c96550d54e93863be358b6159d30c0eb2d86ce7e389e",
+      "heldout_answer_labels_payload": "44f65c999ca974513154425e428aa6600ccd486add2068c158a71386825a7dfd",
+      "heldout_caption_case_ids": "ab9c065a713021c0ef523c15c2dafa38bf1a3828216b59d40419621bedc8943d",
+      "heldout_caption_cases_payload": "a4e7d016b29591d290ec10f81651c8ac3bcd8c000357e38027f53afe19391003",
+      "heldout_caption_controls_payload": "39ad36111160656d67d689c923c7edcd3fed5b0895615064ab88178fe3d4dfa7",
+      "heldout_caption_labels_payload": "5cbf6895fc8bc537685f613f53c0f4fb72f9f51dbfa7448556b42f5a213f877a",
+      "semantic_audit_payload": "aa56df710c3d1b9d514b2ab575ad6311a750ccc168ec798c0560cdd721fa485c",
+      "train_alignment_payload": "9bde2066be6eee084c94ef2ebc6b24babaec4e972d421ad7092fded71a5b55a5",
+      "train_batches_payload": "14f40b028e45055231ef9dc15a9527472368373f1a2fa0b23a68c89b36ad49bc",
+      "train_caption_labels_payload": "2b6fb3e70a5d0b2ed5cf1c0c26c1dd780713a07fe8b6b0df751c996d16ebf700",
+      "train_example_ids": "f0cb9ae164b94d0cdf0f0c5c26f155ed0b4a5eb3281e627ccfff46be051ba503"
+    },
+    "semantic_audit": {
+      "all_passed": true,
+      "cases_checked": 185,
+      "format": "replica.vision_balanced_alignment.semantic_audit.v1",
+      "occluded_centres_hidden": 6,
+      "occluded_pixels_inspected": 6,
+      "visible_pixels_verified": 554
+    }
+  },
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "evaluation": {
+    "audit_policy": "held-out cases and labels are not read during training; scored once after the alignment extension is exported; a fresh-process reload must reproduce the same raw generations bitwise",
+    "bootstrap": {
+      "cluster": "world",
+      "confidence": 0.95,
+      "resamples": 1000
+    },
+    "caption_controls": [
+      "correct",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "caption_dependence_policy": "correct image is compared with its semantically different sibling image, a deterministic shuffled donor and no image; teacher-forced loss and generated descriptor agreement are kept separate",
+    "caption_max_new_tokens": 32,
+    "caption_metric": "normalized_token_f1_and_response_mean_nll",
+    "caption_question": "Describe the image briefly.",
+    "counterfactual_policy": "sealed sibling image from the same procedural pair; for answer tasks the sibling answer differs by construction; answerable-only margin because abstain has no answer-changing counterfactual",
+    "dev_answer_controls": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage"
+    ],
+    "gates": {
+      "max_false_abstention_on_answerable": 0.5,
+      "max_false_answer_on_abstain": 0.5,
+      "max_unknown_rate": 0.5,
+      "min_correct_accuracy": 0.5,
+      "min_correct_margin_noimage": 0.15,
+      "min_correct_margin_shuffled": 0.1,
+      "min_correct_margin_wrong": 0.1,
+      "min_unique_families": 8,
+      "min_unknown_accuracy": 0.5
+    },
+    "gates_scope": "diagnostic only; failures are reported verbatim and never trigger promotion",
+    "heldout_answer_controls": [
+      "correct",
+      "wrong",
+      "counterfactual",
+      "shuffled",
+      "noimage"
+    ],
+    "max_false_abstention_on_answerable": 0.5,
+    "max_false_answer_on_abstain": 0.5,
+    "max_new_tokens": 8,
+    "min_caption_dependence_f1_margin": 0.1,
+    "min_caption_dependence_loss_margin": 0.1,
+    "min_caption_semantic_descriptor_f1": 0.5,
+    "min_caption_token_f1": 0.2,
+    "min_correct_accuracy": 0.5,
+    "min_counterfactual_margin_answerable": 0.1,
+    "min_margin_noimage": 0.15,
+    "min_margin_shuffled": 0.1,
+    "min_margin_wrong": 0.1,
+    "min_unknown_accuracy": 0.5,
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "semantic_metric": "descriptor_multiset_precision_recall_f1_from_generated_caption_against_verifier_scene",
+    "train_probe_controls": [
+      "correct"
+    ]
+  },
+  "format": "replica.vision_balanced_alignment.protocol.v1",
+  "implementation_sha256": {
+    "scripts/prepare_vision_balanced_alignment.py": "649e08e2497347182c3578d722ac111e8048f029adc34efb0fb6dcc866b977bd",
+    "scripts/run_vision_balanced_alignment.py": "ffac8361428abb38468bde404bb1d9498febc557d19cffc20167b39b0f91d12e",
+    "scripts/run_vision_curriculum.py": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/architecture/vision.py": "c83a57b3511a9ea6c9c5e8d50a0215e3f141d41e2a13a77b76b9c4a1242827f5",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/optimizers.py": "e51d91b9007681fd15827224c3b57e8657550d88590ef3a995dcdf76b5c82adb",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/vision_balanced_alignment.py": "531dede551fe90d6f394bd3c9dac06eabb65475d3c5f599e15889e0adfa0bf00",
+    "src/replica_lab/vision_curriculum.py": "6a6f708ef5e644f70bb28253f977b01133ef30f7ea0a2728e01ec6941054e386",
+    "src/replica_lab/vision_qualification.py": "0958f87d789631938f47c1800c649d482bd8af59958ec9a1c503461e5c958439",
+    "src/replica_lab/vision_stage_data.py": "977d5eff454dd1b6f65f6078402276ba84347f29246e9a2230c9c7279efd4c15",
+    "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397"
+  },
+  "limitations": [
+    "Procedural scenes and owned captions are not real-image or broad perception evidence.",
+    "Positive trained-set fit and held-out counterfactual margins demonstrate a bounded projector diagnostic, not convergence, capability or semantic quality.",
+    "The balanced sets are small by design; confidence intervals are world-clustered but cannot compensate for limited worlds.",
+    "The held-out counterfactual split is scored once after export; it cannot justify further candidate selection or a V2 retry.",
+    "No base weights are saved, no optimizer state is exported, no backbone tensor is trained and the preserved rejected stage result is unchanged."
+  ],
+  "limits": {
+    "caption_max_new_tokens": 32,
+    "max_bootstrap_resamples": 1000,
+    "max_cache_bytes": 8388608,
+    "max_control_pool": 384,
+    "max_driver_bytes": 53687091200,
+    "max_eval_cases": 240,
+    "max_export_bytes": 134217728,
+    "max_new_tokens": 8,
+    "max_probe_updates": 64,
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 32,
+    "max_rollout_steps": 1,
+    "max_rows": 4096,
+    "max_seconds": 1800,
+    "max_sequence_tokens": 288,
+    "max_tool_calls": 0,
+    "max_updates": 10,
+    "min_free_disk_bytes": 5368709120
+  },
+  "model": {
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "parent": {
+    "data_config": "configs/vision_curriculum_v1.json",
+    "data_config_sha256": "f0db805f216bb2d21a3d861b84a09d19e9329828760cb9e46a89aa7c6a85414c",
+    "protocol": "data/vision_curriculum_20261025/protocol.json",
+    "protocol_sha256": "43a6d0f9130a1599d0dd7132cad328ee56fbebebd5ae5a2951311a3a5e7da044",
+    "role": "Sealed source, preprocessing, optimizer and retention contracts only; no warm start and no reused parent weights."
+  },
+  "prior_consumed": {
+    "data_root": "data/vision_stage_diagnostic_20261026/prepared01",
+    "manifest": {
+      "path": "data/vision_stage_diagnostic_20261026/prepared01/manifest.json",
+      "sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1"
+    },
+    "protocol": {
+      "path": "data/vision_stage_diagnostic_20261026/prepared01/protocol.json",
+      "sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7"
+    },
+    "role": "The rejected stage result is preserved unchanged. Only its evaluation case IDs, image hashes and scene hashes are read, for freshness exclusion and lineage; its run outputs and labels are never reused as targets."
+  },
+  "purpose": "Balanced caption/answer projector overfit-alignment diagnostic with semantic image-caption verification and fresh sealed held-out counterfactual evaluation. It reuses the existing sealed vision source, preprocessor, projector-only fused AdamW path and retention policy. It is a diagnostic only: no promotion, no scaling, no backbone unfreezing and no claim over the preserved rejected stage result.",
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "initial_free_admission": true,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "sustained_swap_growth_bytes": 536870912,
+    "workers": 1
+  },
+  "retention": {
+    "baseline": {
+      "accuracy": 0.6875,
+      "cases": 32,
+      "correct": 22,
+      "source": "execution_state.md#measured-projector-only-v1-disposition-and-wide-arm"
+    },
+    "labels": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+      "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+    },
+    "max_cases": 32,
+    "policy": "component_nonregression.v1",
+    "prompts": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+      "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+    },
+    "require_token_parity": true,
+    "role": "Reported separately from component nonregression; the declared 22/32 baseline stays overall ineligible."
+  },
+  "root": "/Users/flare/replica_r3_starter",
+  "schedule": {
+    "alignment": {
+      "answer_per_batch": 3,
+      "batch": 6,
+      "caption_per_batch": 3,
+      "policy": "deterministic_epoch_cycle",
+      "role": "balanced caption and answer projector alignment overfit probe",
+      "updates": 10
+    },
+    "batches": {
+      "path": "training/batches.jsonl",
+      "sha256": "14f40b028e45055231ef9dc15a9527472368373f1a2fa0b23a68c89b36ad49bc"
+    },
+    "response_only_labels": true,
+    "total_examples": 60,
+    "total_updates": 10,
+    "unique_examples": 46
+  },
+  "seed": 20261027,
+  "stopping": {
+    "audit_after_export": true,
+    "early_stopping": false,
+    "fail_fast_on_budget_exhaustion": true,
+    "fail_fast_on_nonfinite_loss": true,
+    "fail_fast_on_nonprojector_gradient": true,
+    "reload_must_be_bitwise": true,
+    "updates": 10,
+    "wall_seconds": 1800
+  },
+  "train": {
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ],
+    "fused": true,
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "init_seed": 17,
+    "lr": 0.0001,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1800,
+    "optimizer": "adamw_fused",
+    "optimizer_class": "torch.optim.AdamW",
+    "response_only_labels": true,
+    "seed": 17,
+    "warm_start": null,
+    "weight_decay": 0.01
+  },
+  "trainable_scope": {
+    "backbone": "frozen",
+    "names": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "parameters": 11542016,
+    "tensor_count": 6,
+    "warm_start": null
+  },
+  "version": "replica.vision_balanced_alignment.v1",
+  "vision": {
+    "compute_dtype": "float32",
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "encoder_width": 768,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "image_size": 224,
+    "max_visual_tokens": 196,
+    "patch_size": 16,
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "projector_hidden": 4096
+  },
+  "vision_digest": "71209159fe9c26a44be4a84e3d630d3f69f27588049868edcb955a1f5b5747fe",
+  "vision_source": {
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "scope": {
+      "as_of": 0,
+      "branch_id": "curriculum-run01",
+      "mode": "parallel_replica",
+      "purpose": "staged_vision_curriculum",
+      "snapshot_at": null,
+      "subject_id": "owned-curriculum-v1"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1"
+  }
+}

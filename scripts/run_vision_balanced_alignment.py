@@ -382,8 +382,8 @@ def _verify_fit_tensor_contract(tokenizer, row, prompt_tensor, input_ids,
              "Input response does not end with EOS")
     pad = getattr(tokenizer, "pad_token_id", None)
     if fit["pad_tokens_forbidden"] and pad is not None:
-        _require(int(pad) not in response_ids,
-                 "A pad token appears in the supervised response")
+        _require(int(pad) not in response_ids[:-1],
+                 "A pad token appears before the final EOS")
     _require(input_ids.shape[1] <= int(protocol["limits"][
         "max_sequence_tokens"]), "Fit example exceeds the token budget")
     if row.get("kind") == "caption":
