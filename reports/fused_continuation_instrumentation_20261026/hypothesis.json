@@ -1,0 +1,78 @@
+{
+  "format": "replica.fused_continuation_instrumentation.hypothesis.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "id": "H1-direct-device-optimizer-restore",
+  "kind": "resource",
+  "status": "declared only; not implemented, not scheduled, no native run requested by this ticket",
+  "observation": {
+    "failure_stage": "native_resume_staged_optimizer_migration",
+    "comparison10": {
+      "stop_reason": "sustained_host_swap_growth",
+      "peak_swap_growth_bytes": 2823815168,
+      "peak_driver_bytes": 31147294720,
+      "minimum_observed_free_percent": 38.0
+    },
+    "comparison11": {
+      "stop_reason": "sustained_host_swap_growth",
+      "peak_swap_growth_bytes": 1019677245,
+      "peak_driver_bytes": 25124945920,
+      "minimum_observed_free_percent": 36.0,
+      "deterministic_algorithms": true,
+      "mps_fast_math": "disabled"
+    },
+    "mechanism": "runtime optimizer state is loaded into a full CPU staging copy before per-tensor migration to MPS while the model is already device resident",
+    "comparison09_resume": {
+      "peak_swap_growth_bytes": 143791227,
+      "peak_driver_bytes": 43473207296,
+      "minimum_observed_free_percent": 41.0
+    },
+    "checkpoint_state_bytes_observed": "final native state 20,134,053,364 bytes (18.75 GiB), all FP32"
+  },
+  "hypothesis": "Loading runtime optimizer state directly onto the MPS device and releasing each CPU reference as its tensor is adopted, without changing model residency, NativeFusedAdamW semantics, clipping, schedule, RNG or the two-update plan, will keep sampled host swap growth during resume at or below the predeclared 512 MiB limit and will preserve an exact boundary fingerprint.",
+  "why_bounded": "Only checkpoint materialization/migration changes. The sealed source, data, two-update plan, optimizer, clipping and numerical policy stay fixed. A single resource-guard trip ends the experiment; there is no tuning loop.",
+  "experiment": {
+    "arms": [
+      "one fresh uninterrupted two-update control",
+      "one fresh first process with update 1 and one retained checkpoint",
+      "one fresh resume process with update 2 from that checkpoint"
+    ],
+    "samples": 1,
+    "updates_per_arm": 2,
+    "native_jobs_at_once": 1,
+    "backend": "mps",
+    "cpu_fallback": false,
+    "optimizer": "NativeFusedAdamW (adamw_fused, fused=True)",
+    "checkpoint_policy": "only the first process writes a checkpoint; no final model export",
+    "instrumentation_required": [
+      "boundary fingerprint before checkpoint and after restore",
+      "per-update parameter, pre-clip gradient and optimizer-moment norms",
+      "model-copy, staged-optimizer, temporary-tensor and swap accounting",
+      "A/A variation from at least two uninterrupted arms before interpreting A/B"
+    ]
+  },
+  "acceptance": {
+    "resource": [
+      "peak swap growth less than or equal to 536870912 bytes",
+      "no guard stop reason",
+      "peak driver bytes less than or equal to 53687091200",
+      "minimum observed host free percent greater than or equal to 15.0"
+    ],
+    "state": [
+      "boundary fingerprint exactly equal at first-process boundary and after restore",
+      "checkpoint receipt, model-start hashes, data cursor, scheduler and RNG validate",
+      "update 1 loss and gradient norm exactly equal across all arms"
+    ],
+    "numerical": [
+      "A/B scalar deltas lie within the separately predeclared aa-envelope-v1 A/A envelope",
+      "no exact parameter-hash or logits-byte equality claim is made"
+    ],
+    "stop": "one resource-guard trip or one boundary mismatch stops the experiment; do not retry with looser limits or a different reference arm"
+  },
+  "explicit_non_goals": [
+    "no tolerance applied to historical receipts",
+    "no change to exact_status",
+    "no Muon benchmarking",
+    "no long schedule, convergence, retention or learning-quality claim",
+    "no CPU fallback or non-fused optimizer"
+  ]
+}

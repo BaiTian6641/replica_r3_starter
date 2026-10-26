@@ -35,7 +35,10 @@ def _synchronize(torch):
 
 
 def _summary(records):
-    seconds = sum(row["total_seconds"] for row in records)
+    def training_seconds(row):
+        return row.get("training_seconds", row["total_seconds"])
+
+    seconds = sum(training_seconds(row) for row in records)
     processed = sum(row["processed_tokens"] for row in records)
     supervised = sum(row["supervised_tokens"] for row in records)
     phases = ("forward_backward_seconds", "gradient_audit_seconds",
@@ -49,6 +52,8 @@ def _summary(records):
         "supervised_tokens": supervised,
         "processed_tokens_per_second": processed / seconds if seconds else None,
         "supervised_tokens_per_second": supervised / seconds if seconds else None,
+        "instrumentation_seconds": sum(row.get("instrumentation_seconds", 0.0)
+                                       for row in records),
         "mean_seconds_by_phase": {
             name: sum(row[name] for row in records) / len(records) if records else None
             for name in phases
@@ -80,6 +85,21 @@ def _require_full_gradient_audit(audit, expected_tensors):
         raise RuntimeError("Full-scope gradient audit failed")
 
 
+def _require_boundary_match(comparison, label):
+    if not comparison.get("matched"):
+        raise RuntimeError(
+            f"{label} boundary fingerprint mismatch: "
+            f"{json.dumps(comparison.get('earliest_divergence'), sort_keys=True)}")
+
+
+def _boundary_state(step, plan_sha, update_reports, base_rates):
+    return {
+        "data_state": {"next_step": step, "batch_plan_sha256": plan_sha,
+                       "update_reports": update_reports},
+        "schedule_state": {"completed_steps": step, "base_rates": base_rates},
+    }
+
+
 def execute(args, profiler):
     if os.environ.get("REPLICA_CAPACITY_GUARD") != "1":
         raise RuntimeError("Use the capacity guard")
@@ -93,7 +113,14 @@ def execute(args, profiler):
     from replica_lab.checkpointing import save_training_checkpoint, validate_training_checkpoint
     from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
     from replica_lab.optimizers import build_optimizer
-    from replica_lab.training_state import load_runtime_state
+    from replica_lab.training_state import (
+        capture_training_fingerprint,
+        compare_training_fingerprints,
+        load_runtime_state,
+        summarize_gradient_norms,
+        summarize_optimizer_norms,
+        summarize_parameter_norms,
+    )
     from replica_lab.training_tools import apply_learning_rates, response_statistics
     from profile_full_training import assert_full_scope, parameter_hashes
     from train_text import encode_row, load_rows
@@ -169,6 +196,9 @@ def execute(args, profiler):
             raise ValueError("Resume report is not the matching first smoke process")
 
     base_path = Path(args.resume_from) / "base" if args.resume_from else model_path
+    resume_accounting = {}
+    boundary_fingerprint = None
+    boundary_comparison = None
     if args.resume_from:
         from replica_lab.training_state import materialize_resume_model
         base, model, optimizer, restored, base_rates = materialize_resume_model(
@@ -178,7 +208,7 @@ def execute(args, profiler):
                 model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
                 weight_decay=optim["weight_decay"]),
             runtime_path=args.resume_from / "runtime.pt",
-            run_contract=contract, device="mps")
+            run_contract=contract, device="mps", accounting=resume_accounting)
     else:
         base = AutoModelForCausalLM.from_pretrained(
             base_path, local_files_only=True, trust_remote_code=False,
@@ -213,6 +243,23 @@ def execute(args, profiler):
         update_reports = state.get("update_reports", [])
         if len(update_reports) != 1:
             raise ValueError("Resume update history is incomplete")
+        boundary_state = _boundary_state(1, plan_sha, update_reports, base_rates)
+        boundary_fingerprint = capture_training_fingerprint(
+            model, optimizer, schedule_state=boundary_state["schedule_state"],
+            data_state=boundary_state["data_state"])
+        reference_boundary = (resume_report or {}).get("boundary_fingerprint")
+        if reference_boundary is None:
+            boundary_comparison = {
+                "format": "replica.training_fingerprint_comparison.v1",
+                "status": "unavailable",
+                "reason": "first-process report has no boundary fingerprint",
+            }
+        else:
+            boundary_comparison = compare_training_fingerprints(
+                reference_boundary, boundary_fingerprint)
+            boundary_comparison["status"] = (
+                "matched" if boundary_comparison["matched"] else "mismatched")
+            _require_boundary_match(boundary_comparison, "resume")
         profiler.mark("runtime_restored", completed_steps=1)
 
     profiler.mark("model_optimizer_loaded", start_step=start_step)
@@ -240,7 +287,13 @@ def execute(args, profiler):
             loss_sum += float(loss.detach())
             model.release_context()
         _synchronize(torch)
+        backward_done = time.monotonic()
+        gradient_instrumentation_started = time.monotonic()
+        gradient_norms = summarize_gradient_norms(model)
+        _synchronize(torch)
         backward_at = time.monotonic()
+        gradient_instrumentation_seconds = (
+            backward_at - gradient_instrumentation_started)
         gradient_audit = None
         if step < start_step + 2:
             gradient_audit = model.gradient_audit()
@@ -254,19 +307,33 @@ def execute(args, profiler):
         optimizer.step()
         _synchronize(torch)
         ended = time.monotonic()
+        post_step_instrumentation_started = time.monotonic()
+        parameter_norms = summarize_parameter_norms(model)
+        optimizer_moment_norms = summarize_optimizer_norms(optimizer, model)
+        post_step_instrumentation_seconds = (
+            time.monotonic() - post_step_instrumentation_started)
+        instrumentation_seconds = (
+            gradient_instrumentation_seconds + post_step_instrumentation_seconds)
         record = {
             "step": step + 1,
             "lr_factor": lr_factor,
             "learning_rates": [group["lr"] for group in optimizer.param_groups],
             "loss": loss_sum,
-            "forward_backward_seconds": backward_at - update_started,
+            "forward_backward_seconds": backward_done - update_started,
             "gradient_audit_seconds": audit_at - backward_at,
             "gradient_clip_seconds": clip_at - audit_at,
             "optimizer_seconds": ended - clip_at,
             "total_seconds": ended - update_started,
+            "training_seconds": (ended - update_started) - gradient_instrumentation_seconds,
+            "instrumentation_seconds": instrumentation_seconds,
+            "gradient_norm_instrumentation_seconds": gradient_instrumentation_seconds,
+            "post_step_instrumentation_seconds": post_step_instrumentation_seconds,
             "processed_tokens": sum(batch["input_ids"].numel() for batch in encoded),
             "supervised_tokens": supervised,
             "gradient_norm_before_clipping": float(grad_norm),
+            "gradient_norms_pre_clip": gradient_norms,
+            "parameter_norms": parameter_norms,
+            "optimizer_moment_norms": optimizer_moment_norms,
             "gradient_audit": gradient_audit,
         }
         update_reports.append(record)
@@ -277,13 +344,16 @@ def execute(args, profiler):
         if mode == "smoke" and not continuous and args.resume_from is None and step + 1 == 1:
             profiler.mark("resume_checkpoint_start", step=1)
             checkpoint_path = args.output / "resume_checkpoint"
+            boundary_state = _boundary_state(1, plan_sha, update_reports, base_rates)
             receipt = save_training_checkpoint(
                 model, tokenizer, optimizer, checkpoint_path, step=1,
-                data_state={"next_step": 1, "batch_plan_sha256": plan_sha,
-                            "update_reports": update_reports},
-                schedule_state={"completed_steps": 1, "base_rates": base_rates},
+                data_state=boundary_state["data_state"],
+                schedule_state=boundary_state["schedule_state"],
                 run_contract=contract,
                 manifest={"model_lock": lock, "run_contract": contract})
+            boundary_fingerprint = capture_training_fingerprint(
+                model, optimizer, schedule_state=boundary_state["schedule_state"],
+                data_state=boundary_state["data_state"])
             checkpoint_record = {
                 **receipt,
                 "bytes": sum(path.stat().st_size for path in checkpoint_path.rglob("*")
@@ -295,6 +365,16 @@ def execute(args, profiler):
         if time.monotonic() - started > max_seconds:
             raise RuntimeError("Probe exceeded its declared wall budget")
 
+    final_schedule_state = {"completed_steps": end_step, "base_rates": base_rates}
+    final_data_state = {"next_step": end_step, "batch_plan_sha256": plan_sha,
+                        "update_reports": update_reports}
+    if (boundary_fingerprint is not None and not continuous
+            and args.resume_from is None and end_step == 1):
+        final_fingerprint = boundary_fingerprint
+    else:
+        final_fingerprint = capture_training_fingerprint(
+            model, optimizer, schedule_state=final_schedule_state,
+            data_state=final_data_state)
     output_receipt = (_output_fingerprint(model, encoded, torch)
                       if comparison.get("enabled") and mode == "smoke" else None)
     after = parameter_hashes(model)
@@ -307,7 +387,8 @@ def execute(args, profiler):
         raise RuntimeError("Native optimizer state step differs from completed updates")
     optimizer.zero_grad(set_to_none=True)
     profiler.mark("changed_tensor_hashes_verified", changed_tensors=len(changed))
-    process_seconds = sum(row["total_seconds"] for row in process_records)
+    process_seconds = sum(row.get("training_seconds", row["total_seconds"])
+                          for row in process_records)
     return {
         "format": "replica.fused_adamw_sustained_probe.run.v1",
         "status": "completed",
@@ -337,6 +418,21 @@ def execute(args, profiler):
         "updates": update_reports,
         "process_updates": process_records,
         "process_training_seconds": process_seconds,
+        "instrumentation": {
+            "format": "replica.probe_instrumentation.v1",
+            "per_update": [
+                "parameter_norms", "gradient_norms_pre_clip",
+                "optimizer_moment_norms", "training_seconds",
+            ],
+            "boundary": "replica.training_fingerprint.v1",
+            "gradient_norm_source": "direct pre-clipping gradient tensors",
+            "fingerprint_tensor_scope": "value bytes, dtype, device, shape, storage, norms",
+            "performance_excludes_instrumentation": True,
+        },
+        "boundary_fingerprint": boundary_fingerprint,
+        "boundary_comparison": boundary_comparison,
+        "final_fingerprint": final_fingerprint,
+        "resume_accounting": resume_accounting or None,
         "performance": {
             "process": _summary(process_records),
             "warmup": _summary(process_records[:2]),

@@ -1,0 +1,476 @@
+{
+  "format": "replica.fused_continuation_instrumentation.historical_failures.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Preserve every exact continuation-comparison failure without rewriting historical receipts.",
+  "receipts_unchanged": true,
+  "comparisons": [
+    {
+      "comparison": "comparison01",
+      "receipt": "reports/fused_adamw_20261026_comparison01/comparison.json",
+      "receipt_sha256": "8f1e183de967bb87d7d07113cc6c1be479e3c670f6c2dc6344e78d6289044b7a",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "final_parameter_hashes_identical",
+        "update_losses_rates_and_counts_identical",
+        "final_logits_and_loss_identical"
+      ],
+      "final_parameter_hash_difference_count": 381,
+      "update_differences": [
+        "update_2.loss",
+        "update_2.gradient_norm_before_clipping"
+      ],
+      "continuous_output_fingerprint": {
+        "example_index": 0,
+        "logits_shape": [
+          1,
+          55,
+          130560
+        ],
+        "logits_dtype": "torch.float32",
+        "logits_sha256": "69fff513b4471204ffd76c3f44ee3bc048b6ebaab6fed8db2a976b032084ae7c",
+        "loss": 3.1678786277770996,
+        "source": "fixed encoded train row 0 after final update"
+      },
+      "resumed_output_fingerprint": {
+        "example_index": 0,
+        "logits_shape": [
+          1,
+          55,
+          130560
+        ],
+        "logits_dtype": "torch.float32",
+        "logits_sha256": "aa1a4cf9ae118e72c5002c761bbfb35c829f002d13e1709d1588857391cb863d",
+        "loss": 3.167861223220825,
+        "source": "fixed encoded train row 0 after final update"
+      },
+      "guard_summary": [
+        {
+          "arm": "continuous",
+          "peak_driver_bytes": 43103453184,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 27.0,
+          "elapsed_seconds": 34.97068191692233
+        },
+        {
+          "arm": "interrupted_first",
+          "peak_driver_bytes": 41914368000,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 30.0,
+          "elapsed_seconds": 66.98162199975923
+        },
+        {
+          "arm": "interrupted_resume",
+          "peak_driver_bytes": 43321556992,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 28.0,
+          "elapsed_seconds": 63.28500858321786
+        }
+      ],
+      "scope": "CPU comparison of raw native reports; no model execution or quality claim"
+    },
+    {
+      "comparison": "comparison02",
+      "receipt": "reports/fused_adamw_20261026_comparison02/comparison.json",
+      "receipt_sha256": "107d5d0e3a45fe35893bf75e6aa7b7f3fcec0ddeecc0837b025cf4dfff7bd85e",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "final_parameter_hash_difference_count": null,
+      "failure_stage": "native_resume_model_materialization",
+      "resume_guard": {
+        "child_exit_code": -2,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 23626924032,
+        "peak_swap_growth_bytes": 4626642371,
+        "minimum_observed_free_percent": 38.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "continuous_output_fingerprint": null,
+      "resumed_output_fingerprint": null,
+      "scope": "Failed native comparison due to resource guard during resume model materialization; no final equivalence or quality claim. Subsequent direct-device loader work must use a fresh comparison.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 43.09991558268666,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 614465536,
+          "rss_peak_sampled_bytes": 614006784,
+          "mps_allocated_peak_sampled_bytes": 21241445632,
+          "mps_driver_peak_sampled_bytes": 23626924032
+        }
+      }
+    },
+    {
+      "comparison": "comparison03",
+      "receipt": "reports/fused_adamw_20261026_comparison03/comparison.json",
+      "receipt_sha256": "d4b677f69b64d4f4c7f52fb4fb46e4d9a3a5754d13b9d9e418bc19a88e01239a",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "checkpoint_tensor_device_comparison_rejected_mps_default_index"
+      ],
+      "failure_stage": "native_resume_device_validation_before_update",
+      "resume_guard": {
+        "child_exit_code": 1,
+        "stop_reason": null,
+        "peak_driver_bytes": 41247834112,
+        "peak_swap_growth_bytes": 0,
+        "minimum_observed_free_percent": 53.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "Direct MPS loading reached the checkpoint with zero swap growth, but the validation expression incorrectly distinguished mps from mps:0. No resumed update or final equivalence claim occurred.",
+      "resume_failure": {
+        "error_type": "RuntimeError",
+        "error": "Checkpoint tensor device differs from requested resume device",
+        "profile_elapsed_seconds": 47.69969004113227,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 20506460160,
+          "rss_peak_sampled_bytes": 19751092224,
+          "mps_allocated_peak_sampled_bytes": 30226342144,
+          "mps_driver_peak_sampled_bytes": 41247834112
+        }
+      }
+    },
+    {
+      "comparison": "comparison04",
+      "receipt": "reports/fused_adamw_20261026_comparison04/comparison.json",
+      "receipt_sha256": "958945c24503fb8701231582aec5d4e8fddcb0bcf4035fd9a3f8936298be4e20",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "failure_stage": "native_resume_safetensors_dlpack_materialization",
+      "resume_guard": {
+        "child_exit_code": -2,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 32250396672,
+        "peak_swap_growth_bytes": 3177311109,
+        "minimum_observed_free_percent": 38.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "Direct MPS weight loading still exceeded the swap guard while optimizer moments were resident. No resumed update or final equivalence claim occurred. The next loader restores runtime state only after real model materialization.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 48.37076799990609,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 2344665088,
+          "rss_peak_sampled_bytes": 1278181376,
+          "mps_allocated_peak_sampled_bytes": 30226342144,
+          "mps_driver_peak_sampled_bytes": 32250396672
+        }
+      }
+    },
+    {
+      "comparison": "comparison05",
+      "receipt": "reports/fused_adamw_20261026_comparison05/comparison.json",
+      "receipt_sha256": "51d9fe213ae92b0b19ff7e8b87913346327416a78aecdd62d73d4592c99b3546",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "final_parameter_hashes_identical",
+        "update_losses_rates_and_counts_identical",
+        "final_logits_and_loss_identical"
+      ],
+      "final_parameter_hash_difference_count": 381,
+      "update_differences": [
+        "update_2.loss",
+        "update_2.gradient_norm_before_clipping"
+      ],
+      "continuous_output_fingerprint": {
+        "example_index": 0,
+        "logits_shape": [
+          1,
+          55,
+          130560
+        ],
+        "logits_dtype": "torch.float32",
+        "logits_sha256": "bf183640e442b63945c89ab79097a4b3b54740272847a1aba17db5b70d4f376a",
+        "loss": 3.1678953170776367,
+        "source": "fixed encoded train row 0 after final update"
+      },
+      "resumed_output_fingerprint": {
+        "example_index": 0,
+        "logits_shape": [
+          1,
+          55,
+          130560
+        ],
+        "logits_dtype": "torch.float32",
+        "logits_sha256": "d62b1b823c269f74f9948e7b665cf50696d18126f3738c9e3b9ed5381c0cb3bb",
+        "loss": 3.1678624153137207,
+        "source": "fixed encoded train row 0 after final update"
+      },
+      "guard_summary": [
+        {
+          "arm": "continuous",
+          "peak_driver_bytes": 44122669056,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 27.0,
+          "elapsed_seconds": 34.5297663747333
+        },
+        {
+          "arm": "interrupted_first",
+          "peak_driver_bytes": 40838004736,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 59.0,
+          "elapsed_seconds": 69.56654291693121
+        },
+        {
+          "arm": "interrupted_resume",
+          "peak_driver_bytes": 43506761728,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 41.0,
+          "elapsed_seconds": 60.171889666933566
+        }
+      ],
+      "scope": "CPU comparison of raw native reports; no model execution or quality claim"
+    },
+    {
+      "comparison": "comparison06",
+      "receipt": "reports/fused_adamw_20261026_comparison06/comparison.json",
+      "receipt_sha256": "1ea009c2a2fa1adc2c4b651278ff7be90a0dd0d0fd71b49bf888a8f5989eb323",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "failure_stage": "native_resume_optimizer_state_restoration",
+      "resume_guard": {
+        "child_exit_code": -15,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 29403119616,
+        "peak_swap_growth_bytes": 2092370493,
+        "minimum_observed_free_percent": 39.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "The reordered eager-attention loader reached optimizer-state restoration but exceeded the swap guard before the resumed update. No final equivalence or quality claim occurred. A cache-release boundary is the next isolated change.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 52.611528125125915,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 20599832576,
+          "rss_peak_sampled_bytes": 10007543808,
+          "mps_allocated_peak_sampled_bytes": 18003443712,
+          "mps_driver_peak_sampled_bytes": 29403119616
+        }
+      }
+    },
+    {
+      "comparison": "comparison07",
+      "receipt": "reports/fused_adamw_20261026_comparison07/comparison.json",
+      "receipt_sha256": "6cd5b5aef4d8d5aa0185a90cb353b70bd5108d8b2dcaa9d5f37b8ec52133d1a3",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "failure_stage": "native_resume_optimizer_state_transfer",
+      "resume_guard": {
+        "child_exit_code": -2,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 30476861440,
+        "peak_swap_growth_bytes": 4909107773,
+        "minimum_observed_free_percent": 38.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "Cache cleanup did not prevent swap growth during explicit CPU-to-MPS optimizer-state transfer. No resumed update or final equivalence claim occurred. Direct map_location=MPS is the next isolated change.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 43.6163933747448,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 20601225216,
+          "rss_peak_sampled_bytes": 10656497664,
+          "mps_allocated_peak_sampled_bytes": 19077185792,
+          "mps_driver_peak_sampled_bytes": 30476861440
+        }
+      }
+    },
+    {
+      "comparison": "comparison08",
+      "receipt": "reports/fused_adamw_20261026_comparison08/comparison.json",
+      "receipt_sha256": "557df404eaccaeadae35bcc6ac5747264b7a0ab36b941705ed762bbdccf91a9a",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "failure_stage": "native_resume_torch_load_mps_deserialize",
+      "resume_guard": {
+        "child_exit_code": -2,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 27255635968,
+        "peak_swap_growth_bytes": 3970632253,
+        "minimum_observed_free_percent": 36.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "Direct map_location=MPS also exceeded the swap guard during storage deserialization before the resumed update. No final equivalence or quality claim occurred. Staged CPU restore with per-tensor migration is the next isolated change.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 69.96179591724649,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 20599488512,
+          "rss_peak_sampled_bytes": 10079387648,
+          "mps_allocated_peak_sampled_bytes": 16568836096,
+          "mps_driver_peak_sampled_bytes": 27255635968
+        }
+      }
+    },
+    {
+      "comparison": "comparison09",
+      "receipt": "reports/fused_adamw_20261026_comparison09/comparison.json",
+      "receipt_sha256": "fb7b64526ebb99e9c540614583f2abc313d72ae8a4ed75acf8c0309683baaff9",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "final_parameter_hashes_identical",
+        "update_losses_rates_and_counts_identical",
+        "final_logits_and_loss_identical"
+      ],
+      "final_parameter_hash_difference_count": 381,
+      "update_differences": [
+        "update_2.loss",
+        "update_2.gradient_norm_before_clipping"
+      ],
+      "continuous_output_fingerprint": {
+        "example_index": 0,
+        "logits_shape": [
+          1,
+          55,
+          130560
+        ],
+        "logits_dtype": "torch.float32",
+        "logits_sha256": "7a220eae31f12b9a76268760c2cf19630d3ff365d7c6e0e1bbec859af80a1174",
+        "loss": 3.1678714752197266,
+        "source": "fixed encoded train row 0 after final update"
+      },
+      "resumed_output_fingerprint": {
+        "example_index": 0,
+        "logits_shape": [
+          1,
+          55,
+          130560
+        ],
+        "logits_dtype": "torch.float32",
+        "logits_sha256": "ab2dc45f4762ab3bced888442dd42ec9d080b4ba00b5b5a2034522a7c068079c",
+        "loss": 3.1678595542907715,
+        "source": "fixed encoded train row 0 after final update"
+      },
+      "guard_summary": [
+        {
+          "arm": "continuous",
+          "peak_driver_bytes": 43111841792,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 29.0,
+          "elapsed_seconds": 35.041907749604434
+        },
+        {
+          "arm": "interrupted_first",
+          "peak_driver_bytes": 40886763520,
+          "peak_swap_growth_bytes": 0,
+          "minimum_observed_free_percent": 59.0,
+          "elapsed_seconds": 69.68342399969697
+        },
+        {
+          "arm": "interrupted_resume",
+          "peak_driver_bytes": 43473207296,
+          "peak_swap_growth_bytes": 143791227,
+          "minimum_observed_free_percent": 41.0,
+          "elapsed_seconds": 206.07388683315367
+        }
+      ],
+      "scope": "CPU comparison of raw native reports; no model execution or quality claim"
+    },
+    {
+      "comparison": "comparison10",
+      "receipt": "reports/fused_adamw_20261026_comparison10/comparison.json",
+      "receipt_sha256": "f4a05f44645c73c4a12c0755ff44a5a878c329dd0e4b5df1396327255cb97d5c",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "failure_stage": "native_resume_staged_optimizer_migration",
+      "resume_guard": {
+        "child_exit_code": -2,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 31147294720,
+        "peak_swap_growth_bytes": 2823815168,
+        "minimum_observed_free_percent": 38.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "Normal eager model loading before staged optimizer migration still exceeded the swap guard during migration. No resumed update or final equivalence claim occurred. Deterministic numeric controls are evaluated separately from this resource failure.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 216.69253441737965,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 22584623104,
+          "rss_peak_sampled_bytes": 17064558592,
+          "mps_allocated_peak_sampled_bytes": 29152599808,
+          "mps_driver_peak_sampled_bytes": 31147294720
+        }
+      }
+    },
+    {
+      "comparison": "comparison11",
+      "receipt": "reports/fused_adamw_20261026_comparison11/comparison.json",
+      "receipt_sha256": "4747c9f4ded1281eab3410741ef4049f56f8941fa20deeb9499d8e8c0c1127e6",
+      "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+      "status": "failed",
+      "failures": [
+        "interrupted_resume_did_not_complete",
+        "sustained_host_swap_growth"
+      ],
+      "failure_stage": "native_resume_staged_optimizer_migration",
+      "resume_guard": {
+        "child_exit_code": -2,
+        "stop_reason": "sustained_host_swap_growth",
+        "peak_driver_bytes": 25124945920,
+        "peak_swap_growth_bytes": 1019677245,
+        "minimum_observed_free_percent": 36.0,
+        "driver_limit_bytes": 53687091200,
+        "swap_growth_limit_bytes": 536870912
+      },
+      "scope": "Deterministic algorithms and disabled MPS fast math did not prevent swap growth during staged optimizer migration. No deterministic continuous control or final equivalence comparison was possible. Further fused retries are stopped; native exact continuation remains unqualified.",
+      "resume_failure": {
+        "error_type": "KeyboardInterrupt",
+        "error": "",
+        "profile_elapsed_seconds": 53.38494466710836,
+        "profile_memory": {
+          "rss_peak_process_lifetime_bytes": 32764149760,
+          "rss_peak_sampled_bytes": 28135931904,
+          "mps_allocated_peak_sampled_bytes": 14454696704,
+          "mps_driver_peak_sampled_bytes": 25124945920
+        }
+      }
+    }
+  ],
+  "retry_stop": {
+    "stopped": true,
+    "reason": "comparison09 A/B scalar differences are inside measured uninterrupted A/A variation while exact hashes/logits differ; repeating the identical native comparison is uninformative.",
+    "blocked_numerical_work": "comparison10/11 stopped in staged CPU optimizer migration on swap growth before a continuous control could run.",
+    "allowed_next_step": "only a separately predeclared bounded replacement experiment is justified; no silent tolerance and no immediate native rerun."
+  }
+}

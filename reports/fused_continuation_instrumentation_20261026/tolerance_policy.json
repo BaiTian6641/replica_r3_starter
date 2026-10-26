@@ -1,0 +1,64 @@
+{
+  "format": "replica.fused_continuation_instrumentation.policy.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "name": "aa-envelope-v1",
+  "status": "predeclared; explicit opt-in only",
+  "justification": {
+    "reason": "Three uninterrupted arms under the same protocol and the same non-resume execution code already differ at update 2, in every final parameter hash and in every final logits receipt. Exact cross-process hash or logits equality is therefore not a valid restore criterion; the measured uninterrupted spread is the only observed noise envelope.",
+    "evidence_receipt": "reports/fused_continuation_instrumentation_20261026/comparison_aa_ab.json",
+    "aa_arms": [
+      "runs/fused_adamw_20261026_comparison02/continuous/run_report.json",
+      "runs/fused_adamw_20261026_comparison05/continuous/run_report.json",
+      "runs/fused_adamw_20261026_comparison09/continuous/run_report.json"
+    ],
+    "matched_ab_arm": "runs/fused_adamw_20261026_comparison09/interrupted_resume/run_report.json",
+    "aa_update_1_loss_pairwise_max_abs_delta": 0.0,
+    "aa_update_1_gradient_norm_pairwise_max_abs_delta": 0.0,
+    "aa_update_2_loss_pairwise_max_abs_delta": 1.905485987663269e-06,
+    "aa_update_2_gradient_norm_pairwise_max_abs_delta": 0.0011749267578125,
+    "aa_output_loss_pairwise_max_abs_delta": 4.100799560546875e-05,
+    "aa_final_parameter_hash_differences": "381 of 381 in every pair",
+    "aa_final_logits_sha256": "all three differ",
+    "ab_update_2_loss_delta": 4.842877388000488e-07,
+    "ab_update_2_gradient_norm_delta": 0.0004425048828125,
+    "ab_output_loss_delta": 1.1920928955078125e-05,
+    "ab_final_parameter_hash_differences": "381 of 381",
+    "conclusion": "Every A/B scalar difference is smaller than the corresponding A/A pairwise maximum. Exact hashes and logits differ in A/A as well."
+  },
+  "rule": {
+    "comparison_unit": "update step and metric",
+    "within_envelope": "absolute A/B delta is less than or equal to the largest pairwise absolute A/A delta for the same step and metric",
+    "zero_envelope": "if the A/A envelope is zero, the A/B delta must be exactly zero",
+    "reference": "the uninterrupted arm from the same comparison run as the resumed arm; not an arbitrary other arm",
+    "mandatory_exact_conditions": [
+      "update 1 loss and gradient norm are exactly equal across all arms",
+      "the first/resume boundary fingerprint is exactly equal when both arms emit it",
+      "the resumed checkpoint receipt, model-start hashes and data/schedule cursor validate"
+    ],
+    "applies_to": [
+      "update loss",
+      "global gradient norm before clipping",
+      "aggregate parameter, gradient and optimizer-moment norm summaries",
+      "per-tensor parameter, buffer and moment norm summaries when instrumented",
+      "fixed-output loss"
+    ],
+    "excludes": [
+      "exact parameter value hashes",
+      "exact final logits bytes",
+      "resource-guard limits",
+      "checkpoint byte receipt checks",
+      "boundary fingerprint equality"
+    ],
+    "no_implicit_margin": true,
+    "no_absolute_float_tolerance": true,
+    "no_retry_until_pass": true
+  },
+  "effect": {
+    "exact_status": "unchanged and authoritative",
+    "historical_receipts": "unchanged",
+    "probe_behavior": "unchanged",
+    "permitted_label": "failed_exact_within_declared_variation",
+    "forbidden_label": "passed",
+    "note": "The policy can qualify a future bounded resource/numerical experiment, but it cannot turn a historical exact failure into a pass."
+  }
+}
