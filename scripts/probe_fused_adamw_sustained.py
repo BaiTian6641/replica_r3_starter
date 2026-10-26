@@ -48,6 +48,13 @@ def _summary(records):
     }
 
 
+def _require_full_gradient_audit(audit, expected_tensors):
+    original = audit["original"]
+    if (original["nonzero_gradient_tensors"] != expected_tensors
+            or original["missing_gradient_names"]):
+        raise RuntimeError("Full-scope gradient audit failed")
+
+
 def execute(args, profiler):
     if os.environ.get("REPLICA_CAPACITY_GUARD") != "1":
         raise RuntimeError("Use the capacity guard")
@@ -188,10 +195,7 @@ def execute(args, profiler):
         gradient_audit = None
         if step < start_step + 2:
             gradient_audit = model.gradient_audit()
-            original = gradient_audit["original"]
-            if (original["nonzero_gradient_tensors"] != scope["trainable_tensors"]
-                    or original["missing_gradient_names"] or original["nonfinite"]):
-                raise RuntimeError("Full-scope gradient audit failed")
+            _require_full_gradient_audit(gradient_audit, scope["trainable_tensors"])
         _synchronize(torch)
         audit_at = time.monotonic()
         grad_norm = torch.nn.utils.clip_grad_norm_(

@@ -65,3 +65,13 @@ def test_execute_refuses_to_run_without_capacity_guard(monkeypatch):
     monkeypatch.delenv("REPLICA_CAPACITY_GUARD", raising=False)
     with pytest.raises(RuntimeError, match="capacity guard"):
         PROBE.execute(SimpleNamespace(mode="sustained"), profiler=None)
+
+
+def test_gradient_audit_matches_actual_adapter_contract():
+    valid = {"original": {"nonzero_gradient_tensors": 2,
+                          "missing_gradient_names": []}}
+    PROBE._require_full_gradient_audit(valid, 2)
+    with pytest.raises(RuntimeError, match="gradient audit"):
+        PROBE._require_full_gradient_audit(
+            {"original": {"nonzero_gradient_tensors": 1,
+                          "missing_gradient_names": ["head"]}}, 2)
