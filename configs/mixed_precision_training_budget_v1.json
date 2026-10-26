@@ -1,0 +1,40 @@
+{
+  "format": "replica.mixed_precision_training_budget_assumptions.v1",
+  "date_local": "2026-10-26",
+  "kind": "planning_scenarios_not_measured_CUDA_rates_or_training_protocol",
+  "evidence_directory": "reports/mixed_precision_budget_20261026",
+  "positions": [100000000, 1000000000, 5000000000],
+  "sequence_length": 2048,
+  "positions_per_update": 32768,
+  "elapsed_allowance": [1.25, 1.5],
+  "elapsed_allowance_includes": ["modality warmup", "evaluation and retention", "checkpoint IO", "data stalls", "bounded recovery"],
+  "campaign_schedule_equivalents": 3,
+  "position_accounting": "Total computed positions across all epochs, replay, modalities, padding and inner/outer backbone passes. Every visit is charged. Frozen-backbone inner work is conservatively priced as full training. These are processed-position budgets, not raw data sizes or quality guarantees.",
+  "models": [
+    {"id": "minicpm_current", "label": "MiniCPM5 current 2.5168B backbone", "backbone": "minicpm", "planning_parameters": 2516756480, "extension_flops_per_position": 0, "full_architecture_projection": false},
+    {"id": "minicpm_integrated", "label": "MiniCPM5 with full proposed modules, 2.8B planning envelope", "backbone": "minicpm", "planning_parameters": 2800000000, "extension_flops_per_position": 5000000000, "full_architecture_projection": true},
+    {"id": "spark_integrated", "label": "SparkX2.6 with full proposed modules, 4.4B planning envelope", "backbone": "spark", "planning_parameters": 4400000000, "extension_flops_per_position": 5000000000, "full_architecture_projection": true}
+  ],
+  "optimizer": {
+    "candidate": "Five-round BF16 Muon on backbone hidden matrices; fused AdamW on embeddings/head/norms/gates and every proposed extension, including sensory encoders and P inner updates",
+    "titan_variant": "FP16 Muon GEMMs with FP32 normalization and FP32 momentum; FP16 model with loss scaling. Unqualified; FP32 Muon fallback is also calculated.",
+    "ns_steps": 5,
+    "all_original_parameters_trainable": true,
+    "numerical_and_convergence_equivalence_claimed": false,
+    "residency_profile": "Main range allows selective offload. BF16 momentum/master profile is a tighter optional residency candidate; no-master profile is sensitivity only. FSDP/ZeRO must preserve whole-matrix Muon semantics."
+  },
+  "hardware": [
+    {"id": "h200", "label": "DigitalOcean H200", "gpus": 1, "model_TFLOPS": [40, 120], "muon_TFLOPS": [40, 120], "other_seconds_per_update_at_4_4B": [0.2, 1.0], "price_per_gpu_hour": 4.47, "qualification_gpu_hours": [8, 16]},
+    {"id": "h100", "label": "DigitalOcean H100", "gpus": 1, "model_TFLOPS": [32, 100], "muon_TFLOPS": [32, 100], "other_seconds_per_update_at_4_4B": [0.2, 1.0], "price_per_gpu_hour": 4.41, "qualification_gpu_hours": [8, 16]},
+    {"id": "l40s", "label": "DigitalOcean L40S with selective offload", "gpus": 1, "model_TFLOPS": [12, 32], "muon_TFLOPS": [16, 48], "other_seconds_per_update_at_4_4B": [1, 5], "price_per_gpu_hour": 1.57, "qualification_gpu_hours": [12, 24]},
+    {"id": "rtx3090ti_stock", "label": "Two RTX 3090 Ti, stock", "gpus": 2, "model_TFLOPS": [12, 32], "muon_TFLOPS": [20, 60], "other_seconds_per_update_at_4_4B": [2, 6], "price_per_gpu_hour": null, "qualification_gpu_hours": [16, 40]},
+    {"id": "rtx3090ti_unlocked", "label": "Two RTX 3090 Ti, qualified unlock", "gpus": 2, "model_TFLOPS": [12, 32], "muon_TFLOPS": [20, 60], "other_seconds_per_update_at_4_4B": [2, 6], "price_per_gpu_hour": null, "qualification_gpu_hours": [24, 56], "unlock": true},
+    {"id": "titan", "label": "Two TITAN RTX, native FP16", "gpus": 2, "model_TFLOPS": [12, 32], "spark_model_TFLOPS": [6, 18], "muon_TFLOPS": [16, 48], "other_seconds_per_update_at_4_4B": [3, 10], "price_per_gpu_hour": null, "qualification_gpu_hours": [16, 40], "spark_dense_attention": true}
+  ],
+  "hardware_rate_basis": "Assumed achieved equivalent FLOP/s for the whole job, not per GPU. Model phase includes forward/backward kernel, launch and parameter-sharding inefficiency. Muon rate covers its counted GEMMs; other time covers clipping, auxiliary AdamW, remaining optimizer work, gradient synchronization and selective offload. No matched CUDA benchmark exists. Bounds pair faster phases with lower overhead and slower phases with higher overhead.",
+  "unlock": {"reported_bf16_before_TFLOPS": 87.50, "reported_bf16_after_TFLOPS": 157.41, "accelerable_model_time_fraction": [0.60, 0.85], "basis": "Project-author 8192-cubed dense GEMM, one RTX3090Ti, 450 W, FP32 accumulation; assumed transferable ratio, not a measured training speedup. Matrix shapes, kernel coverage, cooling and dual-card power can reduce the gain."},
+  "rtx3090ti_previous_delivery_fallback_TFLOPS": [6, 18],
+  "m2": {"bf16_GEMM_speed_sensitivity": [1.0, 1.5], "basis": "FP32 MiniCPM measured forward/backward phase and Muon optimizer phase. The 1.5x upper factor is an explicit what-if assumption, not a benchmark or guarantee of BF16 acceleration. Measured clipping is retained and scaled by parameters.", "bf16_execution_qualified": false, "driver_guard_GiB": 50, "physical_memory_GiB": 64, "qualification_device_hours": [8, 24]},
+  "pipeline": {"backbone_hardware": "rtx3090ti_unlocked", "encoder_hardware": "titan", "gpus": 4, "encoder_and_bridge_parameters": 192736004, "encoder_flops_per_processed_position": 1000000000, "encoder_TFLOPS": [16, 48], "encoder_optimizer_seconds": [0.1, 0.5], "bubble_and_transfer_factor": [1.10, 1.30], "qualification_gpu_hours": [40, 96], "basis": "Conditional synchronous autograd pipeline: vision/audio encoders and bridges on TITAN pair, backbone plus memory/core/P/vocabulary on 3090Ti pair. Same example versions and joint optimizer boundary. Values are placement assumptions, not implementation or automatic memory pooling."},
+  "exclusions": ["unbounded retries or quality targets", "external large teacher training/generation", "new unspecified model/device adapters", "data acquisition and CPU preparation", "local electricity, cloud storage, taxes and idle rental time"]
+}

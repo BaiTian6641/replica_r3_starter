@@ -1,0 +1,4125 @@
+{
+  "format": "replica.mixed_precision_training_budget.v1",
+  "kind": "planning_scenarios_not_measured_CUDA_rates_or_training_protocol",
+  "config_sha256": "3c9edc7336be2470e48f0166210b21fc3527c0d0c472725cc537c236d1c8062c",
+  "calculator_sha256": "9bd1cc143279b43123e99687cd591c7f9d666ab854e810889167b3c5c32b0ec4",
+  "input_manifest_sha256": "b52646a79c397a45467b0ce51cd4a9064fd60ff4ec5bdfad378ec01920c1d6bf",
+  "backbone_inventories": {
+    "minicpm": {
+      "backbone": "minicpm",
+      "parameters": 2516756480,
+      "hidden_muon_parameters": 1981808640,
+      "auxiliary_parameters": 534947840,
+      "hidden_matrices": 294,
+      "ns_flops_per_update": 97649436917760,
+      "routing": "Hidden backbone matrices only; g_proj and all other gates/norms/embeddings/heads use auxiliary AdamW."
+    },
+    "spark": {
+      "backbone": "spark",
+      "parameters": 4112079360,
+      "hidden_muon_parameters": 3774873600,
+      "auxiliary_parameters": 337205760,
+      "hidden_matrices": 180,
+      "ns_flops_per_update": 223472517120000,
+      "routing": "Hidden backbone matrices only; g_proj and all other gates/norms/embeddings/heads use auxiliary AdamW."
+    }
+  },
+  "m2_measured_calibration": {
+    "samples": [
+      {
+        "case": "full_55",
+        "positions": 440,
+        "forward_backward_seconds": 2.197613260592334,
+        "equivalent_TFLOPS": 4.046338982502871
+      },
+      {
+        "case": "full_256",
+        "positions": 2048,
+        "forward_backward_seconds": 4.705951082985848,
+        "equivalent_TFLOPS": 8.915539480582012
+      },
+      {
+        "case": "full_512",
+        "positions": 4096,
+        "forward_backward_seconds": 7.6807129790540785,
+        "equivalent_TFLOPS": 11.112938940997111
+      }
+    ],
+    "model_equivalent_TFLOPS": [
+      4.046338982502871,
+      11.112938940997111
+    ],
+    "muon_optimizer_equivalent_TFLOPS": [
+      7.3561347291489305,
+      8.142897592770519
+    ],
+    "steady_fused": {
+      "updates": 10,
+      "update_indices": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "seconds": 84.2163066258654,
+      "updates_per_second": 0.118741849419085,
+      "processed_tokens": 4400,
+      "supervised_tokens": 160,
+      "processed_tokens_per_second": 52.2464137443974,
+      "supervised_tokens_per_second": 1.89986959070536,
+      "mean_seconds_by_phase": {
+        "forward_backward_seconds": 2.084305512579158,
+        "gradient_audit_seconds": 1.0082032531499862e-06,
+        "gradient_clip_seconds": 5.424994729086757,
+        "optimizer_seconds": 0.9123294127173722
+      }
+    }
+  },
+  "models": [
+    {
+      "model": {
+        "id": "minicpm_current",
+        "label": "MiniCPM5 current 2.5168B backbone",
+        "backbone": "minicpm",
+        "planning_parameters": 2516756480,
+        "extension_flops_per_position": 0,
+        "full_architecture_projection": false
+      },
+      "memory": {
+        "hidden_muon_parameters": 1981808640,
+        "auxiliary_adamw_parameters": 534947840,
+        "persistent_GiB": {
+          "all_fp32_adamw": 37.502593994140625,
+          "bf16_adamw_fp32_master_bf16_gradient": 37.502593994140625,
+          "bf16_adamw_fp32_master_fp32_gradient": 42.1904182434082,
+          "bf16_muon_fp32_master_and_momentum": 30.119781494140625,
+          "bf16_muon_fp32_master_momentum_and_gradient": 34.8076057434082,
+          "bf16_muon_fp32_master_bf16_momentum": 26.428375244140625,
+          "bf16_muon_no_master_fp32_momentum": 20.74413299560547,
+          "fp32_muon8bit_hypothesis": 24.58627700805664
+        },
+        "excludes": "Activations, KV/state histories, gathered matrices, casts, logits, optimizer scratch, allocator, checkpoint/reload duplication and host OS; no fit certification."
+      },
+      "hardware": [
+        {
+          "id": "h200",
+          "label": "DigitalOcean H200",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 0
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 6.267596561885867,
+              "muon_seconds": 0.813745307648,
+              "other_seconds": 0.11439802181818182,
+              "total_seconds": 7.195739891352049,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 18.8027896856576,
+              "muon_seconds": 2.441235922944,
+              "other_seconds": 0.5719901090909091,
+              "total_seconds": 21.81601571769251,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            7.195739891352049,
+            21.81601571769251
+          ],
+          "processed_positions_per_second_slow_fast": [
+            1502.015786201766,
+            4553.805514757571
+          ],
+          "updates_per_second_slow_fast": [
+            0.045837884100395694,
+            0.13897111556267
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                7.624880357691499,
+                27.740498501704543
+              ],
+              "gpu_hours": [
+                7.624880357691499,
+                27.740498501704543
+              ],
+              "continuous_wall_days": [
+                0.3177033482371458,
+                1.1558541042376893
+              ],
+              "campaign_gpu_hours": [
+                30.874641073074496,
+                99.22149550511364
+              ],
+              "gpu_compute_USD": [
+                34.083215198881,
+                124.0000283026193
+              ],
+              "campaign_gpu_compute_USD": [
+                138.009645596643,
+                443.52008490785795
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                76.24880357691498,
+                277.4049850170454
+              ],
+              "gpu_hours": [
+                76.24880357691498,
+                277.4049850170454
+              ],
+              "continuous_wall_days": [
+                3.1770334823714577,
+                11.558541042376893
+              ],
+              "campaign_gpu_hours": [
+                236.74641073074494,
+                848.2149550511363
+              ],
+              "gpu_compute_USD": [
+                340.8321519888099,
+                1240.0002830261928
+              ],
+              "campaign_gpu_compute_USD": [
+                1058.25645596643,
+                3791.520849078579
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                381.244017884575,
+                1387.024925085227
+              ],
+              "gpu_hours": [
+                381.244017884575,
+                1387.024925085227
+              ],
+              "continuous_wall_days": [
+                15.88516741185729,
+                57.79270521188446
+              ],
+              "campaign_gpu_hours": [
+                1151.732053653725,
+                4177.074775255682
+              ],
+              "gpu_compute_USD": [
+                1704.1607599440501,
+                6200.001415130965
+              ],
+              "campaign_gpu_compute_USD": [
+                5148.24227983215,
+                18671.524245392895
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 0
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 8.576570980215466,
+                "muon_seconds": 0.813745307648,
+                "other_seconds": 0.11439802181818182,
+                "total_seconds": 9.504714309681649,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 25.7297129406464,
+                "muon_seconds": 2.441235922944,
+                "other_seconds": 0.5719901090909091,
+                "total_seconds": 28.74293897268131,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              9.504714309681649,
+              28.74293897268131
+            ],
+            "processed_positions_per_second_slow_fast": [
+              1140.0365157906888,
+              3447.552333753157
+            ],
+            "updates_per_second_slow_fast": [
+              0.03479115343599514,
+              0.10521094768533805
+            ]
+          }
+        },
+        {
+          "id": "h100",
+          "label": "DigitalOcean H100",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 0
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 7.52111587426304,
+              "muon_seconds": 0.9764943691776,
+              "other_seconds": 0.11439802181818182,
+              "total_seconds": 8.612008265258822,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 23.503487107072,
+              "muon_seconds": 3.05154490368,
+              "other_seconds": 0.5719901090909091,
+              "total_seconds": 27.12702211984291,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            8.612008265258822,
+            27.12702211984291
+          ],
+          "processed_positions_per_second_slow_fast": [
+            1207.9468161022667,
+            3804.9197110257537
+          ],
+          "updates_per_second_slow_fast": [
+            0.03686361133124593,
+            0.11611693454058086
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                9.12561232806187,
+                34.49379236837121
+              ],
+              "gpu_hours": [
+                9.12561232806187,
+                34.49379236837121
+              ],
+              "continuous_wall_days": [
+                0.3802338470025779,
+                1.4372413486821338
+              ],
+              "campaign_gpu_hours": [
+                35.37683698418561,
+                119.48137710511364
+              ],
+              "gpu_compute_USD": [
+                40.24395036675285,
+                152.11762434451705
+              ],
+              "campaign_gpu_compute_USD": [
+                156.01185110025853,
+                526.9128730335511
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                91.25612328061868,
+                344.93792368371214
+              ],
+              "gpu_hours": [
+                91.25612328061868,
+                344.93792368371214
+              ],
+              "continuous_wall_days": [
+                3.8023384700257785,
+                14.372413486821339
+              ],
+              "campaign_gpu_hours": [
+                281.76836984185604,
+                1050.8137710511364
+              ],
+              "gpu_compute_USD": [
+                402.4395036675284,
+                1521.1762434451705
+              ],
+              "campaign_gpu_compute_USD": [
+                1242.5985110025852,
+                4634.088730335512
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                456.28061640309346,
+                1724.6896184185607
+              ],
+              "gpu_hours": [
+                456.28061640309346,
+                1724.6896184185607
+              ],
+              "continuous_wall_days": [
+                19.011692350128893,
+                71.86206743410669
+              ],
+              "campaign_gpu_hours": [
+                1376.8418492092803,
+                5190.068855255682
+              ],
+              "gpu_compute_USD": [
+                2012.1975183376421,
+                7605.881217225853
+              ],
+              "campaign_gpu_compute_USD": [
+                6071.872555012927,
+                22888.20365167756
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 0
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 10.29188517625856,
+                "muon_seconds": 0.9764943691776,
+                "other_seconds": 0.11439802181818182,
+                "total_seconds": 11.382777567254342,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 32.162141175808,
+                "muon_seconds": 3.05154490368,
+                "other_seconds": 0.5719901090909091,
+                "total_seconds": 35.78567618857891,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              11.382777567254342,
+              35.78567618857891
+            ],
+            "processed_positions_per_second_slow_fast": [
+              915.6736295081658,
+              2878.734984180493
+            ],
+            "updates_per_second_slow_fast": [
+              0.027944141525517757,
+              0.08785201978089884
+            ]
+          }
+        },
+        {
+          "id": "l40s",
+          "label": "DigitalOcean L40S with selective offload",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 0
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 23.503487107072,
+              "muon_seconds": 2.03436326912,
+              "other_seconds": 0.5719901090909091,
+              "total_seconds": 26.10984048528291,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 62.67596561885867,
+              "muon_seconds": 6.10308980736,
+              "other_seconds": 2.8599505454545455,
+              "total_seconds": 71.63900597167321,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            26.10984048528291,
+            71.63900597167321
+          ],
+          "processed_positions_per_second_slow_fast": [
+            457.4044482548627,
+            1255.0057522745126
+          ],
+          "updates_per_second_slow_fast": [
+            0.013958875984340292,
+            0.038299736092361834
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                27.666982529198233,
+                91.09370673074494
+              ],
+              "gpu_hours": [
+                27.666982529198233,
+                91.09370673074494
+              ],
+              "continuous_wall_days": [
+                1.152790938716593,
+                3.795571113781039
+              ],
+              "campaign_gpu_hours": [
+                95.0009475875947,
+                297.2811201922348
+              ],
+              "gpu_compute_USD": [
+                43.437162570841224,
+                143.01711956726956
+              ],
+              "campaign_gpu_compute_USD": [
+                149.15148771252368,
+                466.7313587018087
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                276.6698252919823,
+                910.9370673074495
+              ],
+              "gpu_hours": [
+                276.6698252919823,
+                910.9370673074495
+              ],
+              "continuous_wall_days": [
+                11.527909387165929,
+                37.9557111378104
+              ],
+              "campaign_gpu_hours": [
+                842.0094758759469,
+                2756.8112019223486
+              ],
+              "gpu_compute_USD": [
+                434.37162570841224,
+                1430.1711956726958
+              ],
+              "campaign_gpu_compute_USD": [
+                1321.9548771252366,
+                4328.193587018088
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1383.3491264599115,
+                4554.685336537248
+              ],
+              "gpu_hours": [
+                1383.3491264599115,
+                4554.685336537248
+              ],
+              "continuous_wall_days": [
+                57.63954693582965,
+                189.778555689052
+              ],
+              "campaign_gpu_hours": [
+                4162.047379379735,
+                13688.056009611744
+              ],
+              "gpu_compute_USD": [
+                2171.858128542061,
+                7150.85597836348
+              ],
+              "campaign_gpu_compute_USD": [
+                6534.4143856261835,
+                21490.24793509044
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 0
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 32.162141175808,
+                "muon_seconds": 2.03436326912,
+                "other_seconds": 0.5719901090909091,
+                "total_seconds": 34.768494554018915,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 85.76570980215466,
+                "muon_seconds": 6.10308980736,
+                "other_seconds": 2.8599505454545455,
+                "total_seconds": 94.72875015496922,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              34.768494554018915,
+              94.72875015496922
+            ],
+            "processed_positions_per_second_slow_fast": [
+              345.91399069864195,
+              942.4624338879327
+            ],
+            "updates_per_second_slow_fast": [
+              0.01055645723567633,
+              0.028761670956052632
+            ]
+          }
+        },
+        {
+          "id": "rtx3090ti_stock",
+          "label": "Two RTX 3090 Ti, stock",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 0
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 23.503487107072,
+              "muon_seconds": 1.627490615296,
+              "other_seconds": 1.1439802181818182,
+              "total_seconds": 26.274957940549818,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 62.67596561885867,
+              "muon_seconds": 4.882471845888,
+              "other_seconds": 3.4319406545454547,
+              "total_seconds": 70.99037811929213,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            26.274957940549818,
+            70.99037811929213
+          ],
+          "processed_positions_per_second_slow_fast": [
+            461.58368032547594,
+            1247.1190277122976
+          ],
+          "updates_per_second_slow_fast": [
+            0.014086416025557737,
+            0.03805905235938408
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                27.841947280618683,
+                90.26893376578285
+              ],
+              "gpu_hours": [
+                55.683894561237366,
+                180.5378675315657
+              ],
+              "continuous_wall_days": [
+                1.160081136692445,
+                3.7612055735742853
+              ],
+              "campaign_gpu_hours": [
+                183.0516836837121,
+                581.6136025946971
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                278.4194728061869,
+                902.6893376578284
+              ],
+              "gpu_hours": [
+                556.8389456123738,
+                1805.378675315657
+              ],
+              "continuous_wall_days": [
+                11.600811366924454,
+                37.61205573574285
+              ],
+              "campaign_gpu_hours": [
+                1686.5168368371214,
+                5456.136025946971
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1392.0973640309342,
+                4513.446688289142
+              ],
+              "gpu_hours": [
+                2784.1947280618683,
+                9026.893376578284
+              ],
+              "continuous_wall_days": [
+                58.004056834622254,
+                188.06027867871424
+              ],
+              "campaign_gpu_hours": [
+                8368.584184185605,
+                27120.68012973485
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 0
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 32.162141175808,
+                "muon_seconds": 1.627490615296,
+                "other_seconds": 1.1439802181818182,
+                "total_seconds": 34.93361200928582,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 85.76570980215466,
+                "muon_seconds": 4.882471845888,
+                "other_seconds": 3.4319406545454547,
+                "total_seconds": 94.08012230258812,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              34.93361200928582,
+              94.08012230258812
+            ],
+            "processed_positions_per_second_slow_fast": [
+              348.2988669445911,
+              938.0077843450551
+            ],
+            "updates_per_second_slow_fast": [
+              0.01062923788283054,
+              0.028625725840608372
+            ]
+          }
+        },
+        {
+          "id": "rtx3090ti_unlocked",
+          "label": "Two RTX 3090 Ti, qualified unlock",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 0
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 14.630737814732932,
+              "muon_seconds": 0.9046784120348136,
+              "other_seconds": 1.1439802181818182,
+              "total_seconds": 16.679396444949564,
+              "unlock_model_phase_factor": 0.6224922177752367
+            },
+            {
+              "model_seconds": 45.97431989210277,
+              "muon_seconds": 2.714035236104441,
+              "other_seconds": 3.4319406545454547,
+              "total_seconds": 52.12029578275267,
+              "unlock_model_phase_factor": 0.7335239184295788
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            16.679396444949564,
+            52.12029578275267
+          ],
+          "processed_positions_per_second_slow_fast": [
+            628.699425202483,
+            1964.579480327778
+          ],
+          "updates_per_second_slow_fast": [
+            0.01918638382575937,
+            0.05995420777367486
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                17.674124447451234,
+                66.27438326867761
+              ],
+              "gpu_hours": [
+                35.34824889490247,
+                132.54876653735522
+              ],
+              "continuous_wall_days": [
+                0.7364218519771347,
+                2.7614326361949004
+              ],
+              "campaign_gpu_hours": [
+                130.0447466847074,
+                453.64629961206566
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                176.74124447451234,
+                662.7438326867762
+              ],
+              "gpu_hours": [
+                353.4824889490247,
+                1325.4876653735523
+              ],
+              "continuous_wall_days": [
+                7.364218519771348,
+                27.614326361949008
+              ],
+              "campaign_gpu_hours": [
+                1084.447466847074,
+                4032.462996120657
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                883.7062223725617,
+                3313.7191634338806
+              ],
+              "gpu_hours": [
+                1767.4124447451234,
+                6627.438326867761
+              ],
+              "continuous_wall_days": [
+                36.82109259885674,
+                138.071631809745
+              ],
+              "campaign_gpu_hours": [
+                5326.23733423537,
+                19938.31498060328
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 0
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 20.02068258892898,
+                "muon_seconds": 0.9046784120348136,
+                "other_seconds": 1.1439802181818182,
+                "total_seconds": 22.06934121914561,
+                "unlock_model_phase_factor": 0.6224922177752367
+              },
+              {
+                "model_seconds": 62.91119952097062,
+                "muon_seconds": 2.714035236104441,
+                "other_seconds": 3.4319406545454547,
+                "total_seconds": 69.05717541162052,
+                "unlock_model_phase_factor": 0.7335239184295788
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              22.06934121914561,
+              69.05717541162052
+            ],
+            "processed_positions_per_second_slow_fast": [
+              474.5053617482015,
+              1484.7747232061954
+            ],
+            "updates_per_second_slow_fast": [
+              0.014480754447882126,
+              0.04531172861347032
+            ]
+          }
+        },
+        {
+          "id": "titan",
+          "label": "Two TITAN RTX, native FP16",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 0
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 23.503487107072,
+              "muon_seconds": 2.03436326912,
+              "other_seconds": 1.7159703272727274,
+              "total_seconds": 27.25382070346473,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 62.67596561885867,
+              "muon_seconds": 6.10308980736,
+              "other_seconds": 5.719901090909091,
+              "total_seconds": 74.49895651712775,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            27.25382070346473,
+            74.49895651712775
+          ],
+          "processed_positions_per_second_slow_fast": [
+            439.8450868565715,
+            1202.3268354383158
+          ],
+          "updates_per_second_slow_fast": [
+            0.013423006801042832,
+            0.03669210313227282
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                28.8791875875947,
+                94.73032190593435
+              ],
+              "gpu_hours": [
+                57.7583751751894,
+                189.4606438118687
+              ],
+              "continuous_wall_days": [
+                1.2032994828164458,
+                3.947096746080598
+              ],
+              "campaign_gpu_hours": [
+                189.2751255255682,
+                608.381931435606
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                288.79187587594697,
+                947.3032190593433
+              ],
+              "gpu_hours": [
+                577.5837517518939,
+                1894.6064381186866
+              ],
+              "continuous_wall_days": [
+                12.032994828164457,
+                39.47096746080597
+              ],
+              "campaign_gpu_hours": [
+                1748.7512552556818,
+                5723.81931435606
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1443.9593793797349,
+                4736.516095296716
+              ],
+              "gpu_hours": [
+                2887.9187587594697,
+                9473.032190593432
+              ],
+              "continuous_wall_days": [
+                60.16497414082229,
+                197.35483730402984
+              ],
+              "campaign_gpu_hours": [
+                8679.75627627841,
+                28459.096571780297
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 0
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 32.162141175808,
+                "muon_seconds": 2.03436326912,
+                "other_seconds": 1.7159703272727274,
+                "total_seconds": 35.91247477220073,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 85.76570980215466,
+                "muon_seconds": 6.10308980736,
+                "other_seconds": 5.719901090909091,
+                "total_seconds": 97.58870070042376,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              35.91247477220073,
+              97.58870070042376
+            ],
+            "processed_positions_per_second_slow_fast": [
+              335.7765782802118,
+              912.4405992027367
+            ],
+            "updates_per_second_slow_fast": [
+              0.010247087960211542,
+              0.02784547727059133
+            ]
+          }
+        }
+      ],
+      "h200_fused_adamw_same_phase_assumptions": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 20134051840,
+          "attention_flops_per_position": 2818572288,
+          "extension_reserve_per_position": 0
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 6.267596561885867,
+            "muon_seconds": 0,
+            "other_seconds": 0.11439802181818182,
+            "total_seconds": 6.381994583704048,
+            "unlock_model_phase_factor": 1.0
+          },
+          {
+            "model_seconds": 18.8027896856576,
+            "muon_seconds": 0,
+            "other_seconds": 0.5719901090909091,
+            "total_seconds": 19.37477979474851,
+            "unlock_model_phase_factor": 1.0
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          6.381994583704048,
+          19.37477979474851
+        ],
+        "processed_positions_per_second_slow_fast": [
+          1691.2708349274603,
+          5134.444971744518
+        ],
+        "updates_per_second_slow_fast": [
+          0.05161348983543275,
+          0.15669082555372674
+        ],
+        "limitation": "Removes Muon GEMMs only, keeps other allowance; actual AdamW memory/step overhead differs. H200 has residency headroom; not a quality-equivalence assertion.",
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              6.762604802135943,
+              24.636306501704546
+            ],
+            "gpu_hours": [
+              6.762604802135943,
+              24.636306501704546
+            ],
+            "continuous_wall_days": [
+              0.28177520008899765,
+              1.026512770904356
+            ],
+            "campaign_gpu_hours": [
+              28.28781440640783,
+              89.90891950511363
+            ],
+            "gpu_compute_USD": [
+              30.228843465547662,
+              110.12429006261931
+            ],
+            "campaign_gpu_compute_USD": [
+              126.44653039664298,
+              401.8928701878579
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              67.62604802135942,
+              246.36306501704541
+            ],
+            "gpu_hours": [
+              67.62604802135942,
+              246.36306501704541
+            ],
+            "continuous_wall_days": [
+              2.817752000889976,
+              10.26512770904356
+            ],
+            "campaign_gpu_hours": [
+              210.87814406407827,
+              755.0891950511362
+            ],
+            "gpu_compute_USD": [
+              302.2884346554766,
+              1101.242900626193
+            ],
+            "campaign_gpu_compute_USD": [
+              942.6253039664298,
+              3375.2487018785787
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              338.13024010679715,
+              1231.8153250852272
+            ],
+            "gpu_hours": [
+              338.13024010679715,
+              1231.8153250852272
+            ],
+            "continuous_wall_days": [
+              14.088760004449881,
+              51.3256385452178
+            ],
+            "campaign_gpu_hours": [
+              1022.3907203203914,
+              3711.4459752556813
+            ],
+            "gpu_compute_USD": [
+              1511.442173277383,
+              5506.214503130966
+            ],
+            "campaign_gpu_compute_USD": [
+              4570.08651983215,
+              16590.163509392896
+            ]
+          }
+        ]
+      },
+      "titan_fp32_muon_fallback": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 20134051840,
+          "attention_flops_per_position": 2818572288,
+          "extension_reserve_per_position": 0
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 23.503487107072,
+            "muon_seconds": 8.13745307648,
+            "other_seconds": 1.7159703272727274,
+            "total_seconds": 33.356910510824726,
+            "unlock_model_phase_factor": 1.0
+          },
+          {
+            "model_seconds": 62.67596561885867,
+            "muon_seconds": 24.41235922944,
+            "other_seconds": 5.719901090909091,
+            "total_seconds": 92.80822593920776,
+            "unlock_model_phase_factor": 1.0
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          33.356910510824726,
+          92.80822593920776
+        ],
+        "processed_positions_per_second_slow_fast": [
+          353.07215140028694,
+          982.345172205513
+        ],
+        "updates_per_second_slow_fast": [
+          0.010774906964120085,
+          0.02997879553849832
+        ],
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              35.34625425426136,
+              118.01176190593435
+            ],
+            "gpu_hours": [
+              70.69250850852272,
+              236.0235238118687
+            ],
+            "continuous_wall_days": [
+              1.4727605939275568,
+              4.917156746080598
+            ],
+            "campaign_gpu_hours": [
+              228.07752552556815,
+              748.0705714356061
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              353.4625425426136,
+              1180.1176190593435
+            ],
+            "gpu_hours": [
+              706.9250850852272,
+              2360.235238118687
+            ],
+            "continuous_wall_days": [
+              14.727605939275568,
+              49.17156746080598
+            ],
+            "campaign_gpu_hours": [
+              2136.7752552556817,
+              7120.705714356061
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              1767.312712713068,
+              5900.588095296717
+            ],
+            "gpu_hours": [
+              3534.625425426136,
+              11801.176190593435
+            ],
+            "continuous_wall_days": [
+              73.63802969637784,
+              245.85783730402989
+            ],
+            "campaign_gpu_hours": [
+              10619.876276278408,
+              35443.528571780305
+            ]
+          }
+        ]
+      },
+      "unlocked_3090ti_previous_delivery_fallback": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 20134051840,
+          "attention_flops_per_position": 2818572288,
+          "extension_reserve_per_position": 0
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 26.01020055952521,
+            "muon_seconds": 0.9046784120348136,
+            "other_seconds": 1.1439802181818182,
+            "total_seconds": 28.05885918974184,
+            "unlock_model_phase_factor": 0.6224922177752367
+          },
+          {
+            "model_seconds": 91.94863978420554,
+            "muon_seconds": 2.714035236104441,
+            "other_seconds": 3.4319406545454547,
+            "total_seconds": 98.09461567485543,
+            "unlock_model_phase_factor": 0.7335239184295788
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          28.05885918974184,
+          98.09461567485543
+        ],
+        "processed_positions_per_second_slow_fast": [
+          334.04483798186095,
+          1167.8308009036873
+        ],
+        "updates_per_second_slow_fast": [
+          0.010194239440364409,
+          0.0356393677033596
+        ],
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              29.73223706324031,
+              124.73375406246879
+            ],
+            "gpu_hours": [
+              59.46447412648062,
+              249.46750812493758
+            ],
+            "continuous_wall_days": [
+              1.2388432109683463,
+              5.197239752602866
+            ],
+            "campaign_gpu_hours": [
+              202.39342237944186,
+              804.4025243748127
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              297.322370632403,
+              1247.3375406246876
+            ],
+            "gpu_hours": [
+              594.644741264806,
+              2494.675081249375
+            ],
+            "continuous_wall_days": [
+              12.388432109683459,
+              51.97239752602865
+            ],
+            "campaign_gpu_hours": [
+              1807.9342237944181,
+              7540.025243748125
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              1486.6118531620154,
+              6236.687703123438
+            ],
+            "gpu_hours": [
+              2973.223706324031,
+              12473.375406246876
+            ],
+            "continuous_wall_days": [
+              61.94216054841731,
+              259.86198763014323
+            ],
+            "campaign_gpu_hours": [
+              8943.671118972092,
+              37476.126218740625
+            ]
+          }
+        ]
+      },
+      "m2_bf16_muon_what_if": {
+        "measured": false,
+        "execution_qualified": false,
+        "executable_budget": null,
+        "seconds_per_update_fast_slow": [
+          58.53891867078339,
+          204.57413974922648
+        ],
+        "positions_per_second_slow_fast": [
+          160.17664813435394,
+          559.764354109165
+        ],
+        "conditional_scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              62.03007027391156,
+              260.12947050632033
+            ],
+            "gpu_hours": [
+              62.03007027391156,
+              260.12947050632033
+            ],
+            "continuous_wall_days": [
+              2.5845862614129818,
+              10.838727937763347
+            ],
+            "campaign_gpu_hours": [
+              194.09021082173467,
+              804.388411518961
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              620.3007027391156,
+              2601.294705063203
+            ],
+            "gpu_hours": [
+              620.3007027391156,
+              2601.294705063203
+            ],
+            "continuous_wall_days": [
+              25.845862614129818,
+              108.38727937763345
+            ],
+            "campaign_gpu_hours": [
+              1868.902108217347,
+              7827.884115189609
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              3101.5035136955785,
+              13006.473525316014
+            ],
+            "gpu_hours": [
+              3101.5035136955785,
+              13006.473525316014
+            ],
+            "continuous_wall_days": [
+              129.2293130706491,
+              541.9363968881672
+            ],
+            "campaign_gpu_hours": [
+              9312.510541086736,
+              39043.42057594804
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "model": {
+        "id": "minicpm_integrated",
+        "label": "MiniCPM5 with full proposed modules, 2.8B planning envelope",
+        "backbone": "minicpm",
+        "planning_parameters": 2800000000,
+        "extension_flops_per_position": 5000000000,
+        "full_architecture_projection": true
+      },
+      "memory": {
+        "hidden_muon_parameters": 1981808640,
+        "auxiliary_adamw_parameters": 818191360,
+        "persistent_GiB": {
+          "all_fp32_adamw": 41.72325134277344,
+          "bf16_adamw_fp32_master_bf16_gradient": 41.72325134277344,
+          "bf16_adamw_fp32_master_fp32_gradient": 46.93865776062012,
+          "bf16_muon_fp32_master_and_momentum": 34.34043884277344,
+          "bf16_muon_fp32_master_momentum_and_gradient": 39.55584526062012,
+          "bf16_muon_fp32_master_bf16_momentum": 30.649032592773438,
+          "bf16_muon_no_master_fp32_momentum": 23.909626007080078,
+          "fp32_muon8bit_hypothesis": 28.806934356689453
+        },
+        "excludes": "Activations, KV/state histories, gathered matrices, casts, logits, optimizer scratch, allocator, checkpoint/reload duplication and host OS; no fit certification."
+      },
+      "hardware": [
+        {
+          "id": "h200",
+          "label": "DigitalOcean H200",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 7.6329298952192,
+              "muon_seconds": 0.813745307648,
+              "other_seconds": 0.12727272727272726,
+              "total_seconds": 8.573947930139926,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 22.8987896856576,
+              "muon_seconds": 2.441235922944,
+              "other_seconds": 0.6363636363636364,
+              "total_seconds": 25.976389244965237,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            8.573947930139926,
+            25.976389244965237
+          ],
+          "processed_positions_per_second_slow_fast": [
+            1261.4532255036606,
+            3821.81000712763
+          ],
+          "updates_per_second_slow_fast": [
+            0.038496497360341206,
+            0.11663238547142425
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                9.08528214575442,
+                33.030687007859854
+              ],
+              "gpu_hours": [
+                9.08528214575442,
+                33.030687007859854
+              ],
+              "continuous_wall_days": [
+                0.3785534227397675,
+                1.376278625327494
+              ],
+              "campaign_gpu_hours": [
+                35.25584643726326,
+                115.09206102357956
+              ],
+              "gpu_compute_USD": [
+                40.61121119152225,
+                147.64717092513354
+              ],
+              "campaign_gpu_compute_USD": [
+                157.59363357456675,
+                514.4615127754006
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                90.85282145754418,
+                330.3068700785985
+              ],
+              "gpu_hours": [
+                90.85282145754418,
+                330.3068700785985
+              ],
+              "continuous_wall_days": [
+                3.785534227397674,
+                13.762786253274937
+              ],
+              "campaign_gpu_hours": [
+                280.55846437263256,
+                1006.9206102357955
+              ],
+              "gpu_compute_USD": [
+                406.11211191522244,
+                1476.4717092513351
+              ],
+              "campaign_gpu_compute_USD": [
+                1254.0963357456674,
+                4500.935127754005
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                454.2641072877209,
+                1651.5343503929923
+              ],
+              "gpu_hours": [
+                454.2641072877209,
+                1651.5343503929923
+              ],
+              "continuous_wall_days": [
+                18.92767113698837,
+                68.81393126637468
+              ],
+              "campaign_gpu_hours": [
+                1370.7923218631627,
+                4970.603051178977
+              ],
+              "gpu_compute_USD": [
+                2030.5605595761122,
+                7382.358546256675
+              ],
+              "campaign_gpu_compute_USD": [
+                6127.441678728337,
+                22218.595638770024
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 9.9419043135488,
+                "muon_seconds": 0.813745307648,
+                "other_seconds": 0.12727272727272726,
+                "total_seconds": 10.882922348469528,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 29.8257129406464,
+                "muon_seconds": 2.441235922944,
+                "other_seconds": 0.6363636363636364,
+                "total_seconds": 32.90331249995403,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              10.882922348469528,
+              32.90331249995403
+            ],
+            "processed_positions_per_second_slow_fast": [
+              995.8875721113423,
+              3010.9559685141176
+            ],
+            "updates_per_second_slow_fast": [
+              0.03039207678562446,
+              0.09188708400006462
+            ]
+          }
+        },
+        {
+          "id": "h100",
+          "label": "DigitalOcean H100",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 9.15951587426304,
+              "muon_seconds": 0.9764943691776,
+              "other_seconds": 0.12727272727272726,
+              "total_seconds": 10.263282970713366,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 28.623487107072,
+              "muon_seconds": 3.05154490368,
+              "other_seconds": 0.6363636363636364,
+              "total_seconds": 32.31139564711563,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            10.263282970713366,
+            32.31139564711563
+          ],
+          "processed_positions_per_second_slow_fast": [
+            1014.1313720357706,
+            3192.7405776012047
+          ],
+          "updates_per_second_slow_fast": [
+            0.03094883337511507,
+            0.09743471000980239
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                10.87536596797664,
+                41.08606420785984
+              ],
+              "gpu_hours": [
+                10.87536596797664,
+                41.08606420785984
+              ],
+              "continuous_wall_days": [
+                0.4531402486656933,
+                1.71191934199416
+              ],
+              "campaign_gpu_hours": [
+                40.62609790392992,
+                139.25819262357953
+              ],
+              "gpu_compute_USD": [
+                47.960363918776984,
+                181.1895431566619
+              ],
+              "campaign_gpu_compute_USD": [
+                179.16109175633093,
+                614.1286294699858
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                108.7536596797664,
+                410.86064207859846
+              ],
+              "gpu_hours": [
+                108.7536596797664,
+                410.86064207859846
+              ],
+              "continuous_wall_days": [
+                4.531402486656933,
+                17.119193419941602
+              ],
+              "campaign_gpu_hours": [
+                334.2609790392992,
+                1248.5819262357954
+              ],
+              "gpu_compute_USD": [
+                479.60363918776983,
+                1811.8954315666192
+              ],
+              "campaign_gpu_compute_USD": [
+                1474.0909175633094,
+                5506.2462946998585
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                543.7682983988319,
+                2054.3032103929922
+              ],
+              "gpu_hours": [
+                543.7682983988319,
+                2054.3032103929922
+              ],
+              "continuous_wall_days": [
+                22.657012433284663,
+                85.595967099708
+              ],
+              "campaign_gpu_hours": [
+                1639.3048951964956,
+                6178.909631178976
+              ],
+              "gpu_compute_USD": [
+                2398.0181959388487,
+                9059.477157833096
+              ],
+              "campaign_gpu_compute_USD": [
+                7229.3345878165455,
+                27248.991473499285
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 11.93028517625856,
+                "muon_seconds": 0.9764943691776,
+                "other_seconds": 0.12727272727272726,
+                "total_seconds": 13.034052272708886,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 37.282141175808,
+                "muon_seconds": 3.05154490368,
+                "other_seconds": 0.6363636363636364,
+                "total_seconds": 40.97004971585164,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              13.034052272708886,
+              40.97004971585164
+            ],
+            "processed_positions_per_second_slow_fast": [
+              799.8037646344812,
+              2514.0301200579565
+            ],
+            "updates_per_second_slow_fast": [
+              0.024408073871901893,
+              0.07672211059747182
+            ]
+          }
+        },
+        {
+          "id": "l40s",
+          "label": "DigitalOcean L40S with selective offload",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 28.623487107072,
+              "muon_seconds": 2.03436326912,
+              "other_seconds": 0.6363636363636364,
+              "total_seconds": 31.294214012555635,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 76.329298952192,
+              "muon_seconds": 6.10308980736,
+              "other_seconds": 3.1818181818181817,
+              "total_seconds": 85.61420694137018,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            31.294214012555635,
+            85.61420694137018
+          ],
+          "processed_positions_per_second_slow_fast": [
+            382.74021532944863,
+            1047.0945199918765
+          ],
+          "updates_per_second_slow_fast": [
+            0.011680304422895771,
+            0.031954788818111465
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                33.16054239543875,
+                108.8640937059659
+              ],
+              "gpu_hours": [
+                33.16054239543875,
+                108.8640937059659
+              ],
+              "continuous_wall_days": [
+                1.3816892664766147,
+                4.536003904415246
+              ],
+              "campaign_gpu_hours": [
+                111.48162718631626,
+                350.5922811178977
+              ],
+              "gpu_compute_USD": [
+                52.062051560838846,
+                170.91662711836648
+              ],
+              "campaign_gpu_compute_USD": [
+                175.02615468251653,
+                550.4298813550994
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                331.6054239543876,
+                1088.6409370596589
+              ],
+              "gpu_hours": [
+                331.6054239543876,
+                1088.6409370596589
+              ],
+              "continuous_wall_days": [
+                13.81689266476615,
+                45.36003904415245
+              ],
+              "campaign_gpu_hours": [
+                1006.8162718631629,
+                3289.9228111789766
+              ],
+              "gpu_compute_USD": [
+                520.6205156083886,
+                1709.1662711836645
+              ],
+              "campaign_gpu_compute_USD": [
+                1580.701546825166,
+                5165.178813550993
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1658.027119771938,
+                5443.204685298296
+              ],
+              "gpu_hours": [
+                1658.027119771938,
+                5443.204685298296
+              ],
+              "continuous_wall_days": [
+                69.08446332383075,
+                226.80019522076233
+              ],
+              "campaign_gpu_hours": [
+                4986.081359315815,
+                16353.614055894886
+              ],
+              "gpu_compute_USD": [
+                2603.1025780419427,
+                8545.831355918324
+              ],
+              "campaign_gpu_compute_USD": [
+                7828.147734125829,
+                25675.17406775497
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 37.282141175808,
+                "muon_seconds": 2.03436326912,
+                "other_seconds": 0.6363636363636364,
+                "total_seconds": 39.95286808129163,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 99.419043135488,
+                "muon_seconds": 6.10308980736,
+                "other_seconds": 3.1818181818181817,
+                "total_seconds": 108.70395112466619,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              39.95286808129163,
+              108.70395112466619
+            ],
+            "processed_positions_per_second_slow_fast": [
+              301.44258475407486,
+              820.166400402778
+            ],
+            "updates_per_second_slow_fast": [
+              0.009199297630434413,
+              0.02502949219979181
+            ]
+          }
+        },
+        {
+          "id": "rtx3090ti_stock",
+          "label": "Two RTX 3090 Ti, stock",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 28.623487107072,
+              "muon_seconds": 1.627490615296,
+              "other_seconds": 1.2727272727272727,
+              "total_seconds": 31.523704995095272,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 76.329298952192,
+              "muon_seconds": 4.882471845888,
+              "other_seconds": 3.8181818181818183,
+              "total_seconds": 85.02995261626182,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            31.523704995095272,
+            85.02995261626182
+          ],
+          "processed_positions_per_second_slow_fast": [
+            385.3700842088107,
+            1039.4717246941095
+          ],
+          "updates_per_second_slow_fast": [
+            0.011760561651880209,
+            0.03172215956708098
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                33.403719790877524,
+                108.12117591382577
+              ],
+              "gpu_hours": [
+                66.80743958175505,
+                216.24235182765153
+              ],
+              "continuous_wall_days": [
+                1.39182165795323,
+                4.505048996409407
+              ],
+              "campaign_gpu_hours": [
+                216.42231874526516,
+                688.7270554829546
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                334.0371979087752,
+                1081.2117591382575
+              ],
+              "gpu_hours": [
+                668.0743958175505,
+                2162.423518276515
+              ],
+              "continuous_wall_days": [
+                13.9182165795323,
+                45.05048996409406
+              ],
+              "campaign_gpu_hours": [
+                2020.2231874526515,
+                6527.270554829545
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1670.185989543876,
+                5406.058795691289
+              ],
+              "gpu_hours": [
+                3340.371979087752,
+                10812.117591382577
+              ],
+              "continuous_wall_days": [
+                69.59108289766151,
+                225.25244982047036
+              ],
+              "campaign_gpu_hours": [
+                10037.115937263257,
+                32476.35277414773
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 37.282141175808,
+                "muon_seconds": 1.627490615296,
+                "other_seconds": 1.2727272727272727,
+                "total_seconds": 40.18235906383127,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 99.419043135488,
+                "muon_seconds": 4.882471845888,
+                "other_seconds": 3.8181818181818183,
+                "total_seconds": 108.11969679955781,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              40.18235906383127,
+              108.11969679955781
+            ],
+            "processed_positions_per_second_slow_fast": [
+              303.07151212926834,
+              815.4822355737435
+            ],
+            "updates_per_second_slow_fast": [
+              0.009249008548866832,
+              0.024886542833671373
+            ]
+          }
+        },
+        {
+          "id": "rtx3090ti_unlocked",
+          "label": "Two RTX 3090 Ti, qualified unlock",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 17.81789796974214,
+              "muon_seconds": 0.9046784120348136,
+              "other_seconds": 1.2727272727272727,
+              "total_seconds": 19.995303654504227,
+              "unlock_model_phase_factor": 0.6224922177752367
+            },
+            {
+              "model_seconds": 55.98936645839462,
+              "muon_seconds": 2.714035236104441,
+              "other_seconds": 3.8181818181818183,
+              "total_seconds": 62.521583512680884,
+              "unlock_model_phase_factor": 0.7335239184295788
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            19.995303654504227,
+            62.521583512680884
+          ],
+          "processed_positions_per_second_slow_fast": [
+            524.1070068763352,
+            1638.7848149842196
+          ],
+          "updates_per_second_slow_fast": [
+            0.01599447652820847,
+            0.05001174362134459
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                21.187786160049676,
+                79.50030455612294
+              ],
+              "gpu_hours": [
+                42.37557232009935,
+                159.00060911224588
+              ],
+              "continuous_wall_days": [
+                0.8828244233354031,
+                3.312512689838456
+              ],
+              "campaign_gpu_hours": [
+                151.12671696029804,
+                533.0018273367376
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                211.8778616004968,
+                795.0030455612296
+              ],
+              "gpu_hours": [
+                423.7557232009936,
+                1590.006091122459
+              ],
+              "continuous_wall_days": [
+                8.828244233354033,
+                33.125126898384565
+              ],
+              "campaign_gpu_hours": [
+                1295.2671696029809,
+                4826.018273367377
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1059.389308002484,
+                3975.015227806148
+              ],
+              "gpu_hours": [
+                2118.778616004968,
+                7950.030455612296
+              ],
+              "continuous_wall_days": [
+                44.14122116677017,
+                165.62563449192282
+              ],
+              "campaign_gpu_hours": [
+                6380.3358480149045,
+                23906.09136683689
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 23.20784274393819,
+                "muon_seconds": 0.9046784120348136,
+                "other_seconds": 1.2727272727272727,
+                "total_seconds": 25.385248428700276,
+                "unlock_model_phase_factor": 0.6224922177752367
+              },
+              {
+                "model_seconds": 72.92624608726247,
+                "muon_seconds": 2.714035236104441,
+                "other_seconds": 3.8181818181818183,
+                "total_seconds": 79.45846314154872,
+                "unlock_model_phase_factor": 0.7335239184295788
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              25.385248428700276,
+              79.45846314154872
+            ],
+            "processed_positions_per_second_slow_fast": [
+              412.39156540979786,
+              1290.8284152520985
+            ],
+            "updates_per_second_slow_fast": [
+              0.012585191815484554,
+              0.039392957008425857
+            ]
+          }
+        },
+        {
+          "id": "titan",
+          "label": "Two TITAN RTX, native FP16",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 20134051840,
+            "attention_flops_per_position": 2818572288,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 28.623487107072,
+              "muon_seconds": 2.03436326912,
+              "other_seconds": 1.9090909090909092,
+              "total_seconds": 32.56694128528291,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 76.329298952192,
+              "muon_seconds": 6.10308980736,
+              "other_seconds": 6.363636363636363,
+              "total_seconds": 88.79602512318836,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            32.56694128528291,
+            88.79602512318836
+          ],
+          "processed_positions_per_second_slow_fast": [
+            369.02552737625757,
+            1006.1737058127701
+          ],
+          "updates_per_second_slow_fast": [
+            0.011261765361824267,
+            0.030705984674461978
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                34.50917274187184,
+                112.90998474526515
+              ],
+              "gpu_hours": [
+                69.01834548374369,
+                225.8199694905303
+              ],
+              "continuous_wall_days": [
+                1.4378821975779934,
+                4.704582697719381
+              ],
+              "campaign_gpu_hours": [
+                223.05503645123105,
+                717.4599084715909
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                345.09172741871845,
+                1129.0998474526514
+              ],
+              "gpu_hours": [
+                690.1834548374369,
+                2258.1996949053027
+              ],
+              "continuous_wall_days": [
+                14.378821975779935,
+                47.045826977193805
+              ],
+              "campaign_gpu_hours": [
+                2086.550364512311,
+                6814.599084715908
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1725.4586370935922,
+                5645.499237263257
+              ],
+              "gpu_hours": [
+                3450.9172741871844,
+                11290.998474526514
+              ],
+              "continuous_wall_days": [
+                71.89410987889967,
+                235.22913488596905
+              ],
+              "campaign_gpu_hours": [
+                10368.751822561553,
+                33912.995423579545
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 20134051840,
+              "attention_flops_per_position": 11274289152,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 37.282141175808,
+                "muon_seconds": 2.03436326912,
+                "other_seconds": 1.9090909090909092,
+                "total_seconds": 41.22559535401891,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 99.419043135488,
+                "muon_seconds": 6.10308980736,
+                "other_seconds": 6.363636363636363,
+                "total_seconds": 111.88576930648436,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              41.22559535401891,
+              111.88576930648436
+            ],
+            "processed_positions_per_second_slow_fast": [
+              292.87013177019753,
+              794.8460105575065
+            ],
+            "updates_per_second_slow_fast": [
+              0.008937687126776048,
+              0.02425677522453328
+            ]
+          }
+        }
+      ],
+      "h200_fused_adamw_same_phase_assumptions": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 20134051840,
+          "attention_flops_per_position": 2818572288,
+          "extension_reserve_per_position": 5000000000
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 7.6329298952192,
+            "muon_seconds": 0,
+            "other_seconds": 0.12727272727272726,
+            "total_seconds": 7.760202622491927,
+            "unlock_model_phase_factor": 1.0
+          },
+          {
+            "model_seconds": 22.8987896856576,
+            "muon_seconds": 0,
+            "other_seconds": 0.6363636363636364,
+            "total_seconds": 23.535153322021237,
+            "unlock_model_phase_factor": 1.0
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          7.760202622491927,
+          23.535153322021237
+        ],
+        "processed_positions_per_second_slow_fast": [
+          1392.3002562018505,
+          4222.570156225852
+        ],
+        "updates_per_second_slow_fast": [
+          0.04248963184209749,
+          0.1288626146309159
+        ],
+        "limitation": "Removes Muon GEMMs only, keeps other allowance; actual AdamW memory/step overhead differs. H200 has residency headroom; not a quality-equivalence assertion.",
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              8.223006590198864,
+              29.92649500785985
+            ],
+            "gpu_hours": [
+              8.223006590198864,
+              29.92649500785985
+            ],
+            "continuous_wall_days": [
+              0.34262527459161934,
+              1.2469372919941604
+            ],
+            "campaign_gpu_hours": [
+              32.66901977059659,
+              105.77948502357955
+            ],
+            "gpu_compute_USD": [
+              36.75683945818892,
+              133.7714326851335
+            ],
+            "campaign_gpu_compute_USD": [
+              146.03051837456675,
+              472.83429805540055
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              82.23006590198864,
+              299.2649500785985
+            ],
+            "gpu_hours": [
+              82.23006590198864,
+              299.2649500785985
+            ],
+            "continuous_wall_days": [
+              3.426252745916193,
+              12.469372919941604
+            ],
+            "campaign_gpu_hours": [
+              254.69019770596591,
+              913.7948502357954
+            ],
+            "gpu_compute_USD": [
+              367.5683945818892,
+              1337.714326851335
+            ],
+            "campaign_gpu_compute_USD": [
+              1138.4651837456677,
+              4084.662980554005
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              411.1503295099431,
+              1496.3247503929924
+            ],
+            "gpu_hours": [
+              411.1503295099431,
+              1496.3247503929924
+            ],
+            "continuous_wall_days": [
+              17.13126372958096,
+              62.34686459970802
+            ],
+            "campaign_gpu_hours": [
+              1241.4509885298294,
+              4504.974251178977
+            ],
+            "gpu_compute_USD": [
+              1837.8419729094455,
+              6688.571634256676
+            ],
+            "campaign_gpu_compute_USD": [
+              5549.285918728337,
+              20137.234902770026
+            ]
+          }
+        ]
+      },
+      "titan_fp32_muon_fallback": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 20134051840,
+          "attention_flops_per_position": 2818572288,
+          "extension_reserve_per_position": 5000000000
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 28.623487107072,
+            "muon_seconds": 8.13745307648,
+            "other_seconds": 1.9090909090909092,
+            "total_seconds": 38.6700310926429,
+            "unlock_model_phase_factor": 1.0
+          },
+          {
+            "model_seconds": 76.329298952192,
+            "muon_seconds": 24.41235922944,
+            "other_seconds": 6.363636363636363,
+            "total_seconds": 107.10529454526836,
+            "unlock_model_phase_factor": 1.0
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          38.6700310926429,
+          107.10529454526836
+        ],
+        "processed_positions_per_second_slow_fast": [
+          305.94192508523014,
+          847.3745449414499
+        ],
+        "updates_per_second_slow_fast": [
+          0.009336606600501408,
+          0.02585981887638702
+        ],
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              40.976239408538504,
+              136.19142474526515
+            ],
+            "gpu_hours": [
+              81.95247881707701,
+              272.3828494905303
+            ],
+            "continuous_wall_days": [
+              1.7073433086891043,
+              5.674642697719381
+            ],
+            "campaign_gpu_hours": [
+              261.857436451231,
+              857.1485484715909
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              409.762394085385,
+              1361.9142474526516
+            ],
+            "gpu_hours": [
+              819.52478817077,
+              2723.828494905303
+            ],
+            "continuous_wall_days": [
+              17.07343308689104,
+              56.74642697719381
+            ],
+            "campaign_gpu_hours": [
+              2474.57436451231,
+              8211.48548471591
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              2048.811970426925,
+              6809.571237263257
+            ],
+            "gpu_hours": [
+              4097.62394085385,
+              13619.142474526514
+            ],
+            "continuous_wall_days": [
+              85.36716543445522,
+              283.73213488596906
+            ],
+            "campaign_gpu_hours": [
+              12308.871822561552,
+              40897.427423579546
+            ]
+          }
+        ]
+      },
+      "unlocked_3090ti_previous_delivery_fallback": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 20134051840,
+          "attention_flops_per_position": 2818572288,
+          "extension_reserve_per_position": 5000000000
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 31.676263057319364,
+            "muon_seconds": 0.9046784120348136,
+            "other_seconds": 1.2727272727272727,
+            "total_seconds": 33.85366874208145,
+            "unlock_model_phase_factor": 0.6224922177752367
+          },
+          {
+            "model_seconds": 111.97873291678924,
+            "muon_seconds": 2.714035236104441,
+            "other_seconds": 3.8181818181818183,
+            "total_seconds": 118.51094997107549,
+            "unlock_model_phase_factor": 0.7335239184295788
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          33.85366874208145,
+          118.51094997107549
+        ],
+        "processed_positions_per_second_slow_fast": [
+          276.49765703504664,
+          967.9305439433239
+        ],
+        "updates_per_second_slow_fast": [
+          0.008438038849946492,
+          0.029538895994364132
+        ],
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              35.87263821716463,
+              150.69446560042763
+            ],
+            "gpu_hours": [
+              71.74527643432926,
+              301.38893120085527
+            ],
+            "continuous_wall_days": [
+              1.4946932590485262,
+              6.2789360666844845
+            ],
+            "campaign_gpu_hours": [
+              239.23582930298778,
+              960.1667936025658
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              358.7263821716462,
+              1506.944656004276
+            ],
+            "gpu_hours": [
+              717.4527643432924,
+              3013.889312008552
+            ],
+            "continuous_wall_days": [
+              14.94693259048526,
+              62.789360666844836
+            ],
+            "campaign_gpu_hours": [
+              2176.358293029877,
+              9097.667936025657
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              1793.6319108582313,
+              7534.723280021381
+            ],
+            "gpu_hours": [
+              3587.2638217164626,
+              15069.446560042761
+            ],
+            "continuous_wall_days": [
+              74.7346629524263,
+              313.94680333422417
+            ],
+            "campaign_gpu_hours": [
+              10785.791465149388,
+              45264.33968012828
+            ]
+          }
+        ]
+      },
+      "m2_bf16_muon_what_if": {
+        "measured": false,
+        "execution_qualified": false,
+        "executable_budget": null,
+        "seconds_per_update_fast_slow": [
+          68.97824739300978,
+          245.6756083097585
+        ],
+        "positions_per_second_slow_fast": [
+          133.37913448324377,
+          475.04831216283833
+        ],
+        "conditional_scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              73.09198103269976,
+              312.3926904166647
+            ],
+            "gpu_hours": [
+              73.09198103269976,
+              312.3926904166647
+            ],
+            "continuous_wall_days": [
+              3.0454992096958233,
+              13.016362100694364
+            ],
+            "campaign_gpu_hours": [
+              227.27594309809928,
+              961.1780712499942
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              730.9198103269978,
+              3123.9269041666475
+            ],
+            "gpu_hours": [
+              730.9198103269978,
+              3123.9269041666475
+            ],
+            "continuous_wall_days": [
+              30.45499209695824,
+              130.16362100694366
+            ],
+            "campaign_gpu_hours": [
+              2200.7594309809933,
+              9395.780712499942
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              3654.599051634989,
+              15619.634520833237
+            ],
+            "gpu_hours": [
+              3654.599051634989,
+              15619.634520833237
+            ],
+            "continuous_wall_days": [
+              152.2749604847912,
+              650.8181050347182
+            ],
+            "campaign_gpu_hours": [
+              10971.797154904967,
+              46882.90356249971
+            ]
+          }
+        ]
+      },
+      "four_gpu_joint_pipeline": {
+        "measured": false,
+        "implemented": false,
+        "seconds_per_update_fast_slow": [
+          20.988310942830964,
+          76.45165951932701
+        ],
+        "backbone_pair_memory": {
+          "hidden_muon_parameters": 1981808640,
+          "auxiliary_adamw_parameters": 625455356,
+          "persistent_GiB": {
+            "all_fp32_adamw": 38.85126107931137,
+            "bf16_adamw_fp32_master_bf16_gradient": 38.85126107931137,
+            "bf16_adamw_fp32_master_fp32_gradient": 43.70766871422529,
+            "bf16_muon_fp32_master_and_momentum": 31.46844857931137,
+            "bf16_muon_fp32_master_momentum_and_gradient": 36.32485621422529,
+            "bf16_muon_fp32_master_bf16_momentum": 27.77704232931137,
+            "bf16_muon_no_master_fp32_momentum": 21.755633309483528,
+            "fp32_muon8bit_hypothesis": 25.934944093227386
+          },
+          "excludes": "Activations, KV/state histories, gathered matrices, casts, logits, optimizer scratch, allocator, checkpoint/reload duplication and host OS; no fit certification."
+        },
+        "encoder_pair_persistent_GiB_fp16_master_adamw": 2.8719902634620667,
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              22.240014545473485,
+              97.21331217362342
+            ],
+            "gpu_hours": [
+              88.96005818189394,
+              388.8532486944937
+            ],
+            "continuous_wall_days": [
+              0.9266672727280619,
+              4.050554673900976
+            ],
+            "campaign_gpu_hours": [
+              306.8801745456818,
+              1262.559746083481
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              222.40014545473483,
+              972.1331217362342
+            ],
+            "gpu_hours": [
+              889.6005818189393,
+              3888.532486944937
+            ],
+            "continuous_wall_days": [
+              9.266672727280618,
+              40.50554673900976
+            ],
+            "campaign_gpu_hours": [
+              2708.801745456818,
+              11761.597460834811
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              1112.000727273674,
+              4860.665608681171
+            ],
+            "gpu_hours": [
+              4448.002909094696,
+              19442.662434724683
+            ],
+            "continuous_wall_days": [
+              46.333363636403085,
+              202.5277336950488
+            ],
+            "campaign_gpu_hours": [
+              13384.00872728409,
+              58423.98730417405
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "model": {
+        "id": "spark_integrated",
+        "label": "SparkX2.6 with full proposed modules, 4.4B planning envelope",
+        "backbone": "spark",
+        "planning_parameters": 4400000000,
+        "extension_flops_per_position": 5000000000,
+        "full_architecture_projection": true
+      },
+      "memory": {
+        "hidden_muon_parameters": 3774873600,
+        "auxiliary_adamw_parameters": 625126400,
+        "persistent_GiB": {
+          "all_fp32_adamw": 65.56510925292969,
+          "bf16_adamw_fp32_master_bf16_gradient": 65.56510925292969,
+          "bf16_adamw_fp32_master_fp32_gradient": 73.7607479095459,
+          "bf16_muon_fp32_master_and_momentum": 51.50260925292969,
+          "bf16_muon_fp32_master_momentum_and_gradient": 59.6982479095459,
+          "bf16_muon_fp32_master_bf16_momentum": 44.47135925292969,
+          "bf16_muon_no_master_fp32_momentum": 35.111331939697266,
+          "fp32_muon8bit_hypothesis": 40.96260070800781
+        },
+        "excludes": "Activations, KV/state histories, gathered matrices, casts, logits, optimizer scratch, allocator, checkpoint/reload duplication and host OS; no fit certification."
+      },
+      "hardware": [
+        {
+          "id": "h200",
+          "label": "DigitalOcean H200",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 32896634880,
+            "attention_flops_per_position": 2113929216,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 10.925551369147733,
+              "muon_seconds": 1.862270976,
+              "other_seconds": 0.2,
+              "total_seconds": 12.987822345147732,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 32.7766541074432,
+              "muon_seconds": 5.586812928,
+              "other_seconds": 1.0,
+              "total_seconds": 39.3634670354432,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            12.987822345147732,
+            39.3634670354432
+          ],
+          "processed_positions_per_second_slow_fast": [
+            832.4469989011744,
+            2522.9787665090885
+          ],
+          "updates_per_second_slow_fast": [
+            0.02540426632388838,
+            0.07699520161465724
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                13.762391774016201,
+                50.053236688541666
+              ],
+              "gpu_hours": [
+                13.762391774016201,
+                50.053236688541666
+              ],
+              "continuous_wall_days": [
+                0.5734329905840084,
+                2.085551528689236
+              ],
+              "campaign_gpu_hours": [
+                49.287175322048604,
+                166.159710065625
+              ],
+              "gpu_compute_USD": [
+                61.51789122985242,
+                223.73796799778123
+              ],
+              "campaign_gpu_compute_USD": [
+                220.31367368955725,
+                742.7339039933437
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                137.62391774016203,
+                500.53236688541665
+              ],
+              "gpu_hours": [
+                137.62391774016203,
+                500.53236688541665
+              ],
+              "continuous_wall_days": [
+                5.7343299058400845,
+                20.85551528689236
+              ],
+              "campaign_gpu_hours": [
+                420.8717532204861,
+                1517.59710065625
+              ],
+              "gpu_compute_USD": [
+                615.1789122985242,
+                2237.3796799778124
+              ],
+              "campaign_gpu_compute_USD": [
+                1881.2967368955726,
+                6783.659039933437
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                688.1195887008101,
+                2502.6618344270832
+              ],
+              "gpu_hours": [
+                688.1195887008101,
+                2502.6618344270832
+              ],
+              "continuous_wall_days": [
+                28.671649529200423,
+                104.2775764344618
+              ],
+              "campaign_gpu_hours": [
+                2072.3587661024303,
+                7523.98550328125
+              ],
+              "gpu_compute_USD": [
+                3075.894561492621,
+                11186.898399889062
+              ],
+              "campaign_gpu_compute_USD": [
+                9263.443684477863,
+                33632.21519966719
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 32896634880,
+              "attention_flops_per_position": 5737807872,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 11.915111834146133,
+                "muon_seconds": 1.862270976,
+                "other_seconds": 0.2,
+                "total_seconds": 13.977382810146132,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 35.7453355024384,
+                "muon_seconds": 5.586812928,
+                "other_seconds": 1.0,
+                "total_seconds": 42.3321484304384,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              13.977382810146132,
+              42.3321484304384
+            ],
+            "processed_positions_per_second_slow_fast": [
+              774.0689101533666,
+              2344.358771959356
+            ],
+            "updates_per_second_slow_fast": [
+              0.02362270843973897,
+              0.07154415197629871
+            ]
+          }
+        },
+        {
+          "id": "h100",
+          "label": "DigitalOcean H100",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 32896634880,
+            "attention_flops_per_position": 2113929216,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 13.11066164297728,
+              "muon_seconds": 2.2347251712,
+              "other_seconds": 0.2,
+              "total_seconds": 15.54538681417728,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 40.970817634304,
+              "muon_seconds": 6.98351616,
+              "other_seconds": 1.0,
+              "total_seconds": 48.954333794304,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            15.54538681417728,
+            48.954333794304
+          ],
+          "processed_positions_per_second_slow_fast": [
+            669.358511499398,
+            2107.8922249857314
+          ],
+          "updates_per_second_slow_fast": [
+            0.02042720066831659,
+            0.06432776565508214
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                16.472484603645835,
+                62.248654421875
+              ],
+              "gpu_hours": [
+                16.472484603645835,
+                62.248654421875
+              ],
+              "continuous_wall_days": [
+                0.6863535251519098,
+                2.5936939342447918
+              ],
+              "campaign_gpu_hours": [
+                57.4174538109375,
+                202.745963265625
+              ],
+              "gpu_compute_USD": [
+                72.64365710207814,
+                274.51656600046874
+              ],
+              "campaign_gpu_compute_USD": [
+                253.2109713062344,
+                894.1096980014063
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                164.72484603645836,
+                622.48654421875
+              ],
+              "gpu_hours": [
+                164.72484603645836,
+                622.48654421875
+              ],
+              "continuous_wall_days": [
+                6.863535251519099,
+                25.936939342447918
+              ],
+              "campaign_gpu_hours": [
+                502.1745381093751,
+                1883.45963265625
+              ],
+              "gpu_compute_USD": [
+                726.4365710207813,
+                2745.1656600046877
+              ],
+              "campaign_gpu_compute_USD": [
+                2214.5897130623443,
+                8306.056980014064
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                823.6242301822916,
+                3112.43272109375
+              ],
+              "gpu_hours": [
+                823.6242301822916,
+                3112.43272109375
+              ],
+              "continuous_wall_days": [
+                34.31767625759549,
+                129.68469671223957
+              ],
+              "campaign_gpu_hours": [
+                2478.8726905468748,
+                9353.29816328125
+              ],
+              "gpu_compute_USD": [
+                3632.182855103906,
+                13725.828300023437
+              ],
+              "campaign_gpu_compute_USD": [
+                10931.828565311718,
+                41248.044900070316
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 32896634880,
+              "attention_flops_per_position": 5737807872,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 14.29813420097536,
+                "muon_seconds": 2.2347251712,
+                "other_seconds": 0.2,
+                "total_seconds": 16.73285937217536,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 44.681669378048,
+                "muon_seconds": 6.98351616,
+                "other_seconds": 1.0,
+                "total_seconds": 52.665185538048,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              16.73285937217536,
+              52.665185538048
+            ],
+            "processed_positions_per_second_slow_fast": [
+              622.1947129821983,
+              1958.3024796400946
+            ],
+            "updates_per_second_slow_fast": [
+              0.01898787576239619,
+              0.05976264891479781
+            ]
+          }
+        },
+        {
+          "id": "l40s",
+          "label": "DigitalOcean L40S with selective offload",
+          "measured": false,
+          "gpus": 1,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 32896634880,
+            "attention_flops_per_position": 2113929216,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 40.970817634304,
+              "muon_seconds": 4.65567744,
+              "other_seconds": 1.0,
+              "total_seconds": 46.626495074303996,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 109.25551369147733,
+              "muon_seconds": 13.96703232,
+              "other_seconds": 5.0,
+              "total_seconds": 128.22254601147733,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            46.626495074303996,
+            128.22254601147733
+          ],
+          "processed_positions_per_second_slow_fast": [
+            255.5556804890374,
+            702.7763924305464
+          ],
+          "updates_per_second_slow_fast": [
+            0.007798940444611737,
+            0.021447033460404857
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                49.40721201822917,
+                163.04339855381946
+              ],
+              "gpu_hours": [
+                49.40721201822917,
+                163.04339855381946
+              ],
+              "continuous_wall_days": [
+                2.058633834092882,
+                6.793474939742477
+              ],
+              "campaign_gpu_hours": [
+                160.2216360546875,
+                513.1301956614584
+              ],
+              "gpu_compute_USD": [
+                77.56932286861979,
+                255.97813572949656
+              ],
+              "campaign_gpu_compute_USD": [
+                251.5479686058594,
+                805.6144071884897
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                494.0721201822916,
+                1630.4339855381945
+              ],
+              "gpu_hours": [
+                494.0721201822916,
+                1630.4339855381945
+              ],
+              "continuous_wall_days": [
+                20.586338340928815,
+                67.93474939742477
+              ],
+              "campaign_gpu_hours": [
+                1494.2163605468747,
+                4915.301956614583
+              ],
+              "gpu_compute_USD": [
+                775.6932286861978,
+                2559.7813572949653
+              ],
+              "campaign_gpu_compute_USD": [
+                2345.9196860585935,
+                7717.024071884895
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                2470.3606009114583,
+                8152.169927690973
+              ],
+              "gpu_hours": [
+                2470.3606009114583,
+                8152.169927690973
+              ],
+              "continuous_wall_days": [
+                102.9316917046441,
+                339.6737469871239
+              ],
+              "campaign_gpu_hours": [
+                7423.081802734375,
+                24480.50978307292
+              ],
+              "gpu_compute_USD": [
+                3878.4661434309896,
+                12798.906786474829
+              ],
+              "campaign_gpu_compute_USD": [
+                11654.23843029297,
+                38434.400359424486
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 32896634880,
+              "attention_flops_per_position": 5737807872,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 44.681669378048,
+                "muon_seconds": 4.65567744,
+                "other_seconds": 1.0,
+                "total_seconds": 50.337346818048,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 119.15111834146133,
+                "muon_seconds": 13.96703232,
+                "other_seconds": 5.0,
+                "total_seconds": 138.11815066146133,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              50.337346818048,
+              138.11815066146133
+            ],
+            "processed_positions_per_second_slow_fast": [
+              237.2461536957369,
+              650.9679605968294
+            ],
+            "updates_per_second_slow_fast": [
+              0.007240178030265408,
+              0.01986596559438566
+            ]
+          }
+        },
+        {
+          "id": "rtx3090ti_stock",
+          "label": "Two RTX 3090 Ti, stock",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 32896634880,
+            "attention_flops_per_position": 2113929216,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 40.970817634304,
+              "muon_seconds": 3.724541952,
+              "other_seconds": 2.0,
+              "total_seconds": 46.695359586304,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 109.25551369147733,
+              "muon_seconds": 11.173625856,
+              "other_seconds": 6.0,
+              "total_seconds": 126.42913954747733,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            46.695359586304,
+            126.42913954747733
+          ],
+          "processed_positions_per_second_slow_fast": [
+            259.18075625038,
+            701.7399649624077
+          ],
+          "updates_per_second_slow_fast": [
+            0.007909568977367554,
+            0.02141540420417504
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                49.48018348090278,
+                160.76296430902778
+              ],
+              "gpu_hours": [
+                98.96036696180556,
+                321.52592861805556
+              ],
+              "continuous_wall_days": [
+                2.0616743117042824,
+                6.698456846209491
+              ],
+              "campaign_gpu_hours": [
+                312.8811008854167,
+                1004.5777858541667
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                494.8018348090278,
+                1607.629643090278
+              ],
+              "gpu_hours": [
+                989.6036696180556,
+                3215.259286180556
+              ],
+              "continuous_wall_days": [
+                20.616743117042827,
+                66.98456846209491
+              ],
+              "campaign_gpu_hours": [
+                2984.811008854167,
+                9685.777858541667
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                2474.009174045139,
+                8038.148215451389
+              ],
+              "gpu_hours": [
+                4948.018348090278,
+                16076.296430902778
+              ],
+              "continuous_wall_days": [
+                103.08371558521412,
+                334.92284231047455
+              ],
+              "campaign_gpu_hours": [
+                14860.055044270834,
+                48268.889292708336
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 32896634880,
+              "attention_flops_per_position": 5737807872,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 44.681669378048,
+                "muon_seconds": 3.724541952,
+                "other_seconds": 2.0,
+                "total_seconds": 50.406211330048,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 119.15111834146133,
+                "muon_seconds": 11.173625856,
+                "other_seconds": 6.0,
+                "total_seconds": 136.3247441974613,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              50.406211330048,
+              136.3247441974613
+            ],
+            "processed_positions_per_second_slow_fast": [
+              240.3672216141244,
+              650.0786140311727
+            ],
+            "updates_per_second_slow_fast": [
+              0.00733542546429823,
+              0.019838824891088035
+            ]
+          }
+        },
+        {
+          "id": "rtx3090ti_unlocked",
+          "label": "Two RTX 3090 Ti, qualified unlock",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 32896634880,
+            "attention_flops_per_position": 2113929216,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 25.50401513324267,
+              "muon_seconds": 2.070373043643987,
+              "other_seconds": 2.0,
+              "total_seconds": 29.574388176886657,
+              "unlock_model_phase_factor": 0.6224922177752367
+            },
+            {
+              "model_seconds": 80.14153251300894,
+              "muon_seconds": 6.211119130931961,
+              "other_seconds": 6.0,
+              "total_seconds": 92.3526516439409,
+              "unlock_model_phase_factor": 0.7335239184295788
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            29.574388176886657,
+            92.3526516439409
+          ],
+          "processed_positions_per_second_slow_fast": [
+            354.8138512182054,
+            1107.9857275157176
+          ],
+          "updates_per_second_slow_fast": [
+            0.01082805942438371,
+            0.033813041000845874
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                31.338149364139408,
+                117.43246923311986
+              ],
+              "gpu_hours": [
+                62.676298728278816,
+                234.86493846623972
+              ],
+              "continuous_wall_days": [
+                1.3057562235058087,
+                4.893019551379994
+              ],
+              "campaign_gpu_hours": [
+                212.02889618483644,
+                760.5948153987192
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                313.38149364139406,
+                1174.3246923311985
+              ],
+              "gpu_hours": [
+                626.7629872827881,
+                2348.649384662397
+              ],
+              "continuous_wall_days": [
+                13.057562235058086,
+                48.93019551379994
+              ],
+              "campaign_gpu_hours": [
+                1904.2889618483644,
+                7101.948153987191
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                1566.9074682069704,
+                5871.623461655992
+              ],
+              "gpu_hours": [
+                3133.814936413941,
+                11743.246923311985
+              ],
+              "continuous_wall_days": [
+                65.28781117529043,
+                244.65097756899968
+              ],
+              "campaign_gpu_hours": [
+                9425.444809241822,
+                35285.740769935954
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 32896634880,
+              "attention_flops_per_position": 5737807872,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 27.813991465040978,
+                "muon_seconds": 2.070373043643987,
+                "other_seconds": 2.0,
+                "total_seconds": 31.884364508684964,
+                "unlock_model_phase_factor": 0.6224922177752367
+              },
+              {
+                "model_seconds": 87.40019521109517,
+                "muon_seconds": 6.211119130931961,
+                "other_seconds": 6.0,
+                "total_seconds": 99.61131434202713,
+                "unlock_model_phase_factor": 0.7335239184295788
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              31.884364508684964,
+              99.61131434202713
+            ],
+            "processed_positions_per_second_slow_fast": [
+              328.9586149570041,
+              1027.71375578379
+            ],
+            "updates_per_second_slow_fast": [
+              0.010039020231842166,
+              0.03136333483226898
+            ]
+          }
+        },
+        {
+          "id": "titan",
+          "label": "Two TITAN RTX, native FP16",
+          "measured": false,
+          "gpus": 2,
+          "work": {
+            "checkpointed_parameter_flops_per_position": 32896634880,
+            "attention_flops_per_position": 4831838208,
+            "extension_reserve_per_position": 5000000000
+          },
+          "sequence_length": 2048,
+          "phases_fast_slow": [
+            {
+              "model_seconds": 77.78481145264355,
+              "muon_seconds": 4.65567744,
+              "other_seconds": 3.0,
+              "total_seconds": 85.44048889264356,
+              "unlock_model_phase_factor": 1.0
+            },
+            {
+              "model_seconds": 233.35443435793067,
+              "muon_seconds": 13.96703232,
+              "other_seconds": 10.0,
+              "total_seconds": 257.32146667793063,
+              "unlock_model_phase_factor": 1.0
+            }
+          ],
+          "seconds_per_update_fast_slow": [
+            85.44048889264356,
+            257.32146667793063
+          ],
+          "processed_positions_per_second_slow_fast": [
+            127.34265983728893,
+            383.5184047363443
+          ],
+          "updates_per_second_slow_fast": [
+            0.003886189570229765,
+            0.011704052878916757
+          ],
+          "scenarios": [
+            {
+              "positions": 100000000,
+              "wall_hours": [
+                90.5359998201196,
+                327.2011651076389
+              ],
+              "gpu_hours": [
+                181.0719996402392,
+                654.4023302152777
+              ],
+              "continuous_wall_days": [
+                3.7723333258383165,
+                13.633381879484952
+              ],
+              "campaign_gpu_hours": [
+                559.2159989207175,
+                2003.2069906458332
+              ]
+            },
+            {
+              "positions": 1000000000,
+              "wall_hours": [
+                905.359998201196,
+                3272.0116510763883
+              ],
+              "gpu_hours": [
+                1810.719996402392,
+                6544.0233021527765
+              ],
+              "continuous_wall_days": [
+                37.72333325838317,
+                136.33381879484952
+              ],
+              "campaign_gpu_hours": [
+                5448.159989207176,
+                19672.06990645833
+              ]
+            },
+            {
+              "positions": 5000000000,
+              "wall_hours": [
+                4526.79999100598,
+                16360.05825538194
+              ],
+              "gpu_hours": [
+                9053.59998201196,
+                32720.11651076388
+              ],
+              "continuous_wall_days": [
+                188.61666629191583,
+                681.6690939742475
+              ],
+              "campaign_gpu_hours": [
+                27176.799946035877,
+                98200.34953229164
+              ]
+            }
+          ],
+          "length_8192_sensitivity": {
+            "work": {
+              "checkpointed_parameter_flops_per_position": 32896634880,
+              "attention_flops_per_position": 19327352832,
+              "extension_reserve_per_position": 5000000000
+            },
+            "sequence_length": 8192,
+            "phases_fast_slow": [
+              {
+                "model_seconds": 104.17309051926756,
+                "muon_seconds": 4.65567744,
+                "other_seconds": 3.0,
+                "total_seconds": 111.82876795926757,
+                "unlock_model_phase_factor": 1.0
+              },
+              {
+                "model_seconds": 312.51927155780265,
+                "muon_seconds": 13.96703232,
+                "other_seconds": 10.0,
+                "total_seconds": 336.48630387780264,
+                "unlock_model_phase_factor": 1.0
+              }
+            ],
+            "seconds_per_update_fast_slow": [
+              111.82876795926757,
+              336.48630387780264
+            ],
+            "processed_positions_per_second_slow_fast": [
+              97.38286409392737,
+              293.0194135013219
+            ],
+            "updates_per_second_slow_fast": [
+              0.0029718891630226858,
+              0.00894224284366827
+            ]
+          }
+        }
+      ],
+      "h200_fused_adamw_same_phase_assumptions": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 32896634880,
+          "attention_flops_per_position": 2113929216,
+          "extension_reserve_per_position": 5000000000
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 10.925551369147733,
+            "muon_seconds": 0,
+            "other_seconds": 0.2,
+            "total_seconds": 11.125551369147733,
+            "unlock_model_phase_factor": 1.0
+          },
+          {
+            "model_seconds": 32.7766541074432,
+            "muon_seconds": 0,
+            "other_seconds": 1.0,
+            "total_seconds": 33.7766541074432,
+            "unlock_model_phase_factor": 1.0
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          11.125551369147733,
+          33.7766541074432
+        ],
+        "processed_positions_per_second_slow_fast": [
+          970.1375362925327,
+          2945.2922298187345
+        ],
+        "updates_per_second_slow_fast": [
+          0.02960624805580239,
+          0.08988318572444869
+        ],
+        "limitation": "Removes Muon GEMMs only, keeps other allowance; actual AdamW memory/step overhead differs. H200 has residency headroom; not a quality-equivalence assertion.",
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              11.789058440682869,
+              42.94923668854167
+            ],
+            "gpu_hours": [
+              11.789058440682869,
+              42.94923668854167
+            ],
+            "continuous_wall_days": [
+              0.4912107683617862,
+              1.789551528689236
+            ],
+            "campaign_gpu_hours": [
+              43.36717532204861,
+              144.847710065625
+            ],
+            "gpu_compute_USD": [
+              52.69709122985242,
+              191.98308799778124
+            ],
+            "campaign_gpu_compute_USD": [
+              193.85127368955727,
+              647.4692639933437
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              117.89058440682868,
+              429.4923668854167
+            ],
+            "gpu_hours": [
+              117.89058440682868,
+              429.4923668854167
+            ],
+            "continuous_wall_days": [
+              4.912107683617862,
+              17.895515286892362
+            ],
+            "campaign_gpu_hours": [
+              361.67175322048604,
+              1304.47710065625
+            ],
+            "gpu_compute_USD": [
+              526.9709122985241,
+              1919.8308799778124
+            ],
+            "campaign_gpu_compute_USD": [
+              1616.6727368955726,
+              5831.012639933438
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              589.4529220341435,
+              2147.4618344270834
+            ],
+            "gpu_hours": [
+              589.4529220341435,
+              2147.4618344270834
+            ],
+            "continuous_wall_days": [
+              24.560538418089312,
+              89.47757643446181
+            ],
+            "campaign_gpu_hours": [
+              1776.3587661024305,
+              6458.38550328125
+            ],
+            "gpu_compute_USD": [
+              2634.8545614926215,
+              9599.154399889063
+            ],
+            "campaign_gpu_compute_USD": [
+              7940.323684477864,
+              28868.983199667186
+            ]
+          }
+        ]
+      },
+      "titan_fp32_muon_fallback": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 32896634880,
+          "attention_flops_per_position": 4831838208,
+          "extension_reserve_per_position": 5000000000
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 77.78481145264355,
+            "muon_seconds": 18.62270976,
+            "other_seconds": 3.0,
+            "total_seconds": 99.40752121264356,
+            "unlock_model_phase_factor": 1.0
+          },
+          {
+            "model_seconds": 233.35443435793067,
+            "muon_seconds": 55.86812928,
+            "other_seconds": 10.0,
+            "total_seconds": 299.22256363793065,
+            "unlock_model_phase_factor": 1.0
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          99.40752121264356,
+          299.22256363793065
+        ],
+        "processed_positions_per_second_slow_fast": [
+          109.51045804035815,
+          329.6330056345099
+        ],
+        "updates_per_second_slow_fast": [
+          0.003341993958751164,
+          0.010059601002029721
+        ],
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              105.33599982011961,
+              380.48116510763884
+            ],
+            "gpu_hours": [
+              210.67199964023922,
+              760.9623302152777
+            ],
+            "continuous_wall_days": [
+              4.388999992504984,
+              15.853381879484951
+            ],
+            "campaign_gpu_hours": [
+              648.0159989207177,
+              2322.886990645833
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              1053.359998201196,
+              3804.811651076389
+            ],
+            "gpu_hours": [
+              2106.719996402392,
+              7609.623302152778
+            ],
+            "continuous_wall_days": [
+              43.889999925049835,
+              158.53381879484954
+            ],
+            "campaign_gpu_hours": [
+              6336.159989207176,
+              22868.869906458334
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              5266.799991005981,
+              19024.058255381944
+            ],
+            "gpu_hours": [
+              10533.599982011961,
+              38048.11651076389
+            ],
+            "continuous_wall_days": [
+              219.4499996252492,
+              792.6690939742476
+            ],
+            "campaign_gpu_hours": [
+              31616.799946035884,
+              114184.34953229167
+            ]
+          }
+        ]
+      },
+      "unlocked_3090ti_previous_delivery_fallback": {
+        "work": {
+          "checkpointed_parameter_flops_per_position": 32896634880,
+          "attention_flops_per_position": 2113929216,
+          "extension_reserve_per_position": 5000000000
+        },
+        "sequence_length": 2048,
+        "phases_fast_slow": [
+          {
+            "model_seconds": 45.34047134798697,
+            "muon_seconds": 2.070373043643987,
+            "other_seconds": 2.0,
+            "total_seconds": 49.41084439163096,
+            "unlock_model_phase_factor": 0.6224922177752367
+          },
+          {
+            "model_seconds": 160.28306502601788,
+            "muon_seconds": 6.211119130931961,
+            "other_seconds": 6.0,
+            "total_seconds": 172.49418415694984,
+            "unlock_model_phase_factor": 0.7335239184295788
+          }
+        ],
+        "seconds_per_update_fast_slow": [
+          49.41084439163096,
+          172.49418415694984
+        ],
+        "processed_positions_per_second_slow_fast": [
+          189.96582499375685,
+          663.1742566526576
+        ],
+        "updates_per_second_slow_fast": [
+          0.0057972969053270524,
+          0.02023847218788628
+        ],
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              52.35761472027139,
+              219.33769754657726
+            ],
+            "gpu_hours": [
+              104.71522944054279,
+              438.6753950931545
+            ],
+            "continuous_wall_days": [
+              2.181567280011308,
+              9.139070731107386
+            ],
+            "campaign_gpu_hours": [
+              338.14568832162837,
+              1372.0261852794636
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              523.5761472027139,
+              2193.3769754657724
+            ],
+            "gpu_hours": [
+              1047.1522944054277,
+              4386.753950931545
+            ],
+            "continuous_wall_days": [
+              21.815672800113077,
+              91.39070731107385
+            ],
+            "campaign_gpu_hours": [
+              3165.456883216283,
+              13216.261852794634
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              2617.8807360135693,
+              10966.884877328863
+            ],
+            "gpu_hours": [
+              5235.761472027139,
+              21933.769754657726
+            ],
+            "continuous_wall_days": [
+              109.07836400056539,
+              456.9535365553693
+            ],
+            "campaign_gpu_hours": [
+              15731.284416081417,
+              65857.30926397318
+            ]
+          }
+        ]
+      },
+      "m2_bf16_muon_what_if": {
+        "measured": false,
+        "execution_qualified": false,
+        "executable_budget": null,
+        "seconds_per_update_fast_slow": [
+          111.77410418854758,
+          385.88655089606596
+        ],
+        "positions_per_second_slow_fast": [
+          84.91614938097617,
+          293.16271633655754
+        ],
+        "conditional_scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              118.44010267103785,
+              490.68012351489506
+            ],
+            "gpu_hours": [
+              118.44010267103785,
+              490.68012351489506
+            ],
+            "continuous_wall_days": [
+              4.93500427795991,
+              20.445005146453962
+            ],
+            "campaign_gpu_hours": [
+              363.32030801311356,
+              1496.0403705446852
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              1184.4010267103786,
+              4906.801235148951
+            ],
+            "gpu_hours": [
+              1184.4010267103786,
+              4906.801235148951
+            ],
+            "continuous_wall_days": [
+              49.35004277959911,
+              204.4500514645396
+            ],
+            "campaign_gpu_hours": [
+              3561.2030801311357,
+              14744.403705446852
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              5922.005133551893,
+              24534.006175744755
+            ],
+            "gpu_hours": [
+              5922.005133551893,
+              24534.006175744755
+            ],
+            "continuous_wall_days": [
+              246.75021389799554,
+              1022.2502573226981
+            ],
+            "campaign_gpu_hours": [
+              17774.015400655677,
+              73626.01852723426
+            ]
+          }
+        ]
+      },
+      "four_gpu_joint_pipeline": {
+        "measured": false,
+        "implemented": false,
+        "seconds_per_update_fast_slow": [
+          31.336007181563446,
+          113.52837746697136
+        ],
+        "backbone_pair_memory": {
+          "hidden_muon_parameters": 3774873600,
+          "auxiliary_adamw_parameters": 432390396,
+          "persistent_GiB": {
+            "all_fp32_adamw": 62.69311898946762,
+            "bf16_adamw_fp32_master_bf16_gradient": 62.69311898946762,
+            "bf16_adamw_fp32_master_fp32_gradient": 70.52975886315107,
+            "bf16_muon_fp32_master_and_momentum": 48.63061898946762,
+            "bf16_muon_fp32_master_momentum_and_gradient": 56.46725886315107,
+            "bf16_muon_fp32_master_bf16_momentum": 41.59936898946762,
+            "bf16_muon_no_master_fp32_momentum": 32.957339242100716,
+            "fp32_muon8bit_hypothesis": 38.090610444545746
+          },
+          "excludes": "Activations, KV/state histories, gathered matrices, casts, logits, optimizer scratch, allocator, checkpoint/reload duplication and host OS; no fit certification."
+        },
+        "encoder_pair_persistent_GiB_fp16_master_adamw": 2.8719902634620667,
+        "scenarios": [
+          {
+            "positions": 100000000,
+            "wall_hours": [
+              33.2048280308654,
+              144.35879703136618
+            ],
+            "gpu_hours": [
+              132.8193121234616,
+              577.4351881254647
+            ],
+            "continuous_wall_days": [
+              1.3835345012860583,
+              6.0149498763069245
+            ],
+            "campaign_gpu_hours": [
+              438.4579363703848,
+              1828.3055643763942
+            ]
+          },
+          {
+            "positions": 1000000000,
+            "wall_hours": [
+              332.048280308654,
+              1443.5879703136618
+            ],
+            "gpu_hours": [
+              1328.193121234616,
+              5774.351881254647
+            ],
+            "continuous_wall_days": [
+              13.835345012860584,
+              60.14949876306924
+            ],
+            "campaign_gpu_hours": [
+              4024.579363703848,
+              17419.055643763942
+            ]
+          },
+          {
+            "positions": 5000000000,
+            "wall_hours": [
+              1660.24140154327,
+              7217.93985156831
+            ],
+            "gpu_hours": [
+              6640.96560617308,
+              28871.75940627324
+            ],
+            "continuous_wall_days": [
+              69.17672506430291,
+              300.7474938153462
+            ],
+            "campaign_gpu_hours": [
+              19962.896818519243,
+              86711.27821881972
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

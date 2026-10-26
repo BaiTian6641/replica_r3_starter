@@ -1,0 +1,18 @@
+{
+  "checked_date_local": "2026-10-26",
+  "timezone": "America/Chicago",
+  "sources": [
+    {"url": "https://github.com/Zagitta/gpu-unlock", "type": "implementation_author", "observation": "3090 Ti dense BF16 GEMM with FP32 accumulation: 87.50 to 157.41 TFLOP/s; FP16 87.46 to 118.39. Linux Ampere issue-rate modification. Author/community measurements, not our workload or a vendor guarantee."},
+    {"url": "https://github.com/Zagitta/gpu-unlock/issues/1", "type": "original_hardware_report", "observation": "Initial report 18 October 2026; independent stock-driver confirmation and upstream-support closure follow. Board, power, driver and kernel details differ across reports."},
+    {"url": "https://www.nvidia.com/content/PDF/nvidia-ampere-ga-102-gpu-architecture-whitepaper-v2.1.pdf", "type": "vendor_specification", "location": "Table 9, printed page 44, PDF index 43", "observation": "TITAN RTX already lists 130.5 TFLOP/s FP16 with FP32 accumulation; BF16 is NA. No additional 2x TITAN unlock credit is justified."},
+    {"url": "https://images.nvidia.com/aem-dam/Solutions/geforce/ada/nvidia-ada-gpu-architecture.pdf", "type": "vendor_specification", "location": "Appendix A", "observation": "Stock 3090 Ti dense BF16/FP16 with FP32 accumulation is 80 TFLOP/s per card; distinguish FP16 accumulation and structured sparsity columns."},
+    {"url": "https://raw.githubusercontent.com/KellerJordan/Muon/master/muon.py", "type": "optimizer_author_source", "observation": "Newton-Schulz explicitly casts its matrix to BF16; momentum follows parameter storage via zeros_like. BF16 GEMMs alone do not prove BF16 persistent optimizer state."},
+    {"url": "https://github.com/KellerJordan/Muon", "type": "optimizer_author_documentation", "observation": "Hidden matrices use Muon; embeddings, output heads and gains/biases use auxiliary AdamW. The reference algorithm is not identical to the repository's no-Nesterov quantized-momentum variant."},
+    {"url": "https://github.com/ssiu/flash-attention-turing", "type": "kernel_author", "observation": "Forward/backward, causal GQA, head sizes 64/96/128; no local mask. MiniCPM's 128-head geometry is potentially compatible; Spark's 256/local geometry requires another exact implementation."},
+    {"url": "https://github.com/Dao-AILab/flash-attention", "type": "kernel_author", "observation": "CUDA low-precision attention support and architecture/head-dimension constraints must be checked before claiming a compatible backend."},
+    {"url": "https://docs.pytorch.org/docs/main/notes/cuda.html", "type": "framework_documentation", "observation": "FP16-only accumulation is a separate numerical setting; it is not equivalent to the reported unlock's FP32 accumulation."},
+    {"url": "https://www.digitalocean.com/pricing/gpu-droplets", "type": "provider_pricing", "observation": "On-demand H200 141 GB at $4.47/GPU-hour, H100 80 GB at $4.41, L40S 48 GB at $1.57. Rates do not establish account quota or inventory."}
+  ],
+  "unavailable_reads": ["Pinned Spark LlamaFactory example URL did not fetch in this review; its intended BF16/Muon path is recorded in the pinned local architecture document and is not treated as a successfully inspected implementation."],
+  "no_installation_or_gpu_unlock_performed": true
+}
