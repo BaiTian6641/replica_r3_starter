@@ -632,6 +632,11 @@ def pca_content_ratio(vectors: Sequence[Sequence[float]], *,
     is a fixed sine pattern; an all-ones start can be exactly orthogonal to the
     leading feature direction, so it is not used.  No optimizer, random seed or
     fitted model is involved.
+
+    ``converged`` is true only when a consecutive Rayleigh-quotient change met
+    ``tolerance``.  If the declared iteration budget is spent first,
+    ``converged`` is false, ``budget_exhausted`` is true and ``delta`` retains
+    the last measured change; the ratio itself is never adjusted.
     """
     require(len(vectors) >= 2, "PCA requires at least two vectors")
     require(type(iterations) is int and iterations >= 1,
@@ -644,13 +649,18 @@ def pca_content_ratio(vectors: Sequence[Sequence[float]], *,
     centred = [[row[index] - centre[index] for index in range(width)] for row in rows]
     total = sum(value * value for row in centred for value in row)
     if total <= 0:
-        return {"ratio": None, "top_singular_squared": 0.0, "total_singular_squared": 0.0,
-                "iterations": 0, "converged": False}
+        return {"ratio": None, "top_singular_squared": 0.0,
+                "total_singular_squared": 0.0, "iterations": 0,
+                "converged": False, "budget_exhausted": False,
+                "delta": None, "tolerance": 0.0}
+    tolerance = 1e-12 * max(1.0, total)
     pattern = [math.sin((index + 1) * 1.618033988749895)
                for index in range(width)]
     pattern_norm = math.sqrt(sum(value * value for value in pattern))
     direction = [value / pattern_norm for value in pattern]
     top = 0.0
+    delta = None
+    converged = False
     for step in range(int(iterations)):
         projected = [sum(row[index] * direction[index] for index in range(width))
                      for row in centred]
@@ -662,18 +672,26 @@ def pca_content_ratio(vectors: Sequence[Sequence[float]], *,
         if norm <= 0:
             return {"ratio": 0.0, "top_singular_squared": 0.0,
                     "total_singular_squared": total,
-                    "iterations": step + 1, "converged": False}
+                    "iterations": step + 1, "converged": False,
+                    "budget_exhausted": False, "delta": delta,
+                    "tolerance": tolerance}
         direction = [value / norm for value in combined]
         next_top = sum(value * value for value in projected)
-        if step and abs(next_top - top) <= 1e-12 * max(1.0, total):
-            top = next_top
-            break
+        if step:
+            delta = abs(next_top - top)
+            if delta <= tolerance:
+                top = next_top
+                converged = True
+                break
         top = next_top
     return {"ratio": min(1.0, max(0.0, top / total)),
             "top_singular_squared": top,
             "total_singular_squared": total,
             "iterations": step + 1,
-            "converged": True}
+            "converged": converged,
+            "budget_exhausted": not converged,
+            "delta": delta,
+            "tolerance": tolerance}
 
 
 def _cosine_or_none(left: Sequence[float], right: Sequence[float]) -> float | None:
@@ -1034,30 +1052,62 @@ def require_fit_coverage(report: Mapping[str, Any],
 
 
 def control_summary(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-    """First-order per-control counts; no gate, verdict or promotion."""
+    """First-order per-control evidence; no gate, verdict or promotion.
+
+    ``declared_rows`` counts every scheduled row for the control, including
+    unavailable placeholders.  ``scored_rows`` is the denominator for the
+    first-token, response-NLL, unique-generation and stop-token metrics.
+    """
     require(rows, "A control summary requires rows")
     grouped: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
     for row in rows:
+        require("control" in row, "A control row lacks its control name")
         grouped[str(row["control"])].append(row)
     summary: dict[str, Any] = {}
     for control in sorted(grouped):
         items = grouped[control]
+        placeholders = [item for item in items
+                        if item.get("available") is False]
+        scored = [item for item in items
+                  if item.get("first_token") and item.get("positions")]
+        require(len(scored) + len(placeholders) == len(items),
+                f"Control {control} has rows without evidence that are not "
+                "marked available:false")
         first_ranks = [float(item["first_token"]["gold_rank"])
-                       for item in items if item.get("first_token")]
-        nlls = [float(item["positions"]["mean_nll"]) for item in items
-                if item.get("positions")]
-        ended = sum(bool(item["generation"]["ended_by_eos"]) for item in items
-                    if item.get("generation"))
+                       for item in scored]
+        nlls = [float(item["positions"]["mean_nll"]) for item in scored]
+        generations = [item["generation"] for item in scored
+                       if item.get("generation")]
+        require(len(first_ranks) == len(nlls) == len(scored),
+                f"Control {control} first-token/NLL denominators differ "
+                "from scored_rows")
+        require(len(generations) == len(scored),
+                f"Control {control} scored rows lack a generation")
+        unique_ids = {tuple(int(value) for value in generation["generated_ids"])
+                      for generation in generations}
+        unique_texts = {str(generation["generated_text"])
+                        for generation in generations}
+        ended = sum(bool(generation["ended_by_eos"])
+                    for generation in generations)
         summary[control] = {
-            "rows": len(items),
+            "declared_rows": len(items),
+            "scored_rows": len(scored),
+            "first_token_rows": len(first_ranks),
+            "nll_rows": len(nlls),
+            "generation_rows": len(generations),
             "first_token_gold_accuracy": (
                 sum(rank == 1 for rank in first_ranks) / len(first_ranks)
                 if first_ranks else None),
             "first_token_mean_gold_rank": (
                 sum(first_ranks) / len(first_ranks) if first_ranks else None),
             "response_mean_nll": (sum(nlls) / len(nlls) if nlls else None),
+            "unique_generated_ids": len(unique_ids),
+            "unique_generated_texts": len(unique_texts),
             "generation_ended_by_stop": ended,
-            "generation_rows": sum(1 for item in items if item.get("generation")),
+            "metric_scope": (
+                "first-token, response-NLL, unique-generation and stop-token "
+                "metrics use scored_rows; declared_rows also counts "
+                "unavailable placeholders; generation_rows equals scored_rows"),
         }
     return summary
 

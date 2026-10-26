@@ -824,6 +824,112 @@ def _changed(before, after):
                   if not torch.equal(before[name], after[name]))
 
 
+ARTIFACT_SCOPE = (
+    "stop_conditions.artifact_bytes counts the data payloads present before "
+    "report.json is written; artifact_bytes_estimate_including_report is the "
+    "fixed-point data-plus-report total, calculated excluding manifest.json; "
+    "manifest.json.total_bytes sums its listed files, excluding manifest.json, "
+    "and equals that data-plus-report total; "
+    "manifest.json.final_artifact_bytes adds the exact manifest size and is "
+    "the artifact-limit total."
+)
+MANIFEST_SCOPE = (
+    "total_bytes sums the listed files excluding manifest.json; "
+    "final_artifact_bytes adds manifest.json's exact size and is the "
+    "artifact-limit total."
+)
+
+
+class LoadAccounting:
+    """Completed model/extension loads used by success and failure receipts."""
+
+    def __init__(self):
+        self.model_loads = 0
+        self.extension_loads = 0
+
+    def record_model_load(self):
+        self.model_loads += 1
+
+    def record_extension_load(self):
+        self.extension_loads += 1
+
+    def counts(self):
+        return {"model_loads": self.model_loads,
+                "extension_loads": self.extension_loads}
+
+
+def _accounted_load(loader, accounting, kind):
+    """Run one load and count it only after the loader returns successfully."""
+    require(isinstance(accounting, LoadAccounting),
+            "Load accounting must be a LoadAccounting instance")
+    require(kind in {"model", "extension"}, f"Unknown load kind: {kind}")
+    value = loader()
+    if kind == "model":
+        accounting.record_model_load()
+    else:
+        accounting.record_extension_load()
+    return value
+
+
+def _stop_report(*, started, limits, guard, accounting, artifact_bytes):
+    """Build the stop-condition receipt from completed load counters."""
+    require(isinstance(accounting, LoadAccounting),
+            "Load accounting must be a LoadAccounting instance")
+    return stop_conditions_report(
+        wall_seconds=time.monotonic() - started,
+        wall_limit_seconds=limits["max_seconds"],
+        artifact_bytes=int(artifact_bytes),
+        artifact_limit_bytes=limits["artifact_bytes"],
+        updates=0, optimizer_steps=0, gradients_computed=0,
+        checkpoint_writes=0, extension_writes=0, downloads=0,
+        cpu_fallback=False, sealed_evaluation_access=0,
+        guard_stop_reason=(guard.report().get("stop_reason")
+                           if guard is not None else None),
+        **accounting.counts())
+
+
+def _artifact_manifest(output, *, limit_bytes, generated_at_utc=None):
+    """Build the manifest with self-consistent listed and final byte totals."""
+    output = Path(output)
+    files = {
+        str(path.relative_to(output)): {
+            "bytes": path.stat().st_size,
+            "sha256": _sha(path),
+        }
+        for path in sorted(output.rglob("*"))
+        if path.is_file() and path.name != "manifest.json"
+    }
+    listed = sum(entry["bytes"] for entry in files.values())
+    manifest = {
+        "format": REPORT_FORMAT + ".artifacts",
+        "generated_at_utc": generated_at_utc or _now(),
+        "total_bytes": listed,
+        "listed_files": len(files),
+        "files_exclude": "manifest.json",
+        "limit_bytes": int(limit_bytes),
+        "manifest_bytes": 0,
+        "final_artifact_bytes": listed,
+        "scope": MANIFEST_SCOPE,
+        "files": files,
+    }
+    payload = ""
+    for _ in range(8):
+        payload = json.dumps(manifest, indent=2, allow_nan=False) + "\n"
+        measured = len(payload.encode())
+        if measured == manifest["manifest_bytes"]:
+            break
+        manifest["manifest_bytes"] = measured
+        manifest["final_artifact_bytes"] = listed + measured
+    require(len(payload.encode()) == manifest["manifest_bytes"],
+            "Manifest byte size did not stabilize")
+    require(manifest["final_artifact_bytes"]
+            == manifest["total_bytes"] + manifest["manifest_bytes"],
+            "Manifest final total is inconsistent")
+    require(manifest["total_bytes"] == listed,
+            "Manifest total_bytes must exclude manifest.json")
+    return manifest, payload
+
+
 def _failure_report(output, exc, *, stop_report=None):
     payload = {
         "format": REPORT_FORMAT + ".failure",
@@ -854,21 +960,22 @@ def execute(args, config, pins):
 
     protocol = pins["protocol"]
     output = Path(args.output)
-    require(Path(args.model_path).resolve()
-            == (ROOT / config["source"]["model_path"]).resolve(),
-            "CLI model path differs from the pinned sealed source")
-    require(Path(args.model_lock).resolve()
-            == (ROOT / config["source"]["model_lock"]).resolve(),
-            "CLI model lock differs from the pinned lock")
-    rows, layout = load_training_rows(config, pins)
-    plan = control_plan(rows)
     limits = config["limits"]
     started = time.monotonic()
     guard = None
+    accounting = LoadAccounting()
     (output / "config.json").write_text(
         json.dumps(config, indent=2, allow_nan=False) + "\n")
     (output / "protocol.json").write_bytes(pins["protocol_path"].read_bytes())
     try:
+        require(Path(args.model_path).resolve()
+                == (ROOT / config["source"]["model_path"]).resolve(),
+                "CLI model path differs from the pinned sealed source")
+        require(Path(args.model_lock).resolve()
+                == (ROOT / config["source"]["model_lock"]).resolve(),
+                "CLI model lock differs from the pinned lock")
+        rows, layout = load_training_rows(config, pins)
+        plan = control_plan(rows)
         guard = Guard(protocol)
         scope = protocol_scope(protocol)
         with exclusive_mps_worker(ROOT):
@@ -876,9 +983,10 @@ def execute(args, config, pins):
             profiler.start()
             try:
                 _, spec, _ = verify_source_and_spec(protocol, "mps")
-                adapter, tokenizer, _ = load_local_mps(
-                    args.model_path, args.model_lock, vision=spec,
-                    profiler=profiler)
+                adapter, tokenizer, _ = _accounted_load(
+                    lambda: load_local_mps(
+                        args.model_path, args.model_lock, vision=spec,
+                        profiler=profiler), accounting, "model")
                 guard.sample(index=0, event="model_loaded")
                 profiler.mark("model_loaded")
                 stops, stop_source = resolve_stop_tokens(
@@ -956,7 +1064,9 @@ def execute(args, config, pins):
                 require(receipt["weights_sha256"]
                         == config["extension"]["weights_sha256"],
                         "Validated extension weights differ")
-                adapter.load_extension(pins["extension_path"])
+                _accounted_load(
+                    lambda: adapter.load_extension(pins["extension_path"]),
+                    accounting, "extension")
                 extension_snapshot = _snapshot_new_parameters(adapter)
                 extension_projector_sha = projector_state_sha256(
                     adapter.vision_projector)
@@ -989,7 +1099,9 @@ def execute(args, config, pins):
                     len(extension_snapshot) - len(fresh_changed))
 
                 # Stage B: reload the pinned extension bitwise.
-                adapter.load_extension(pins["extension_path"])
+                _accounted_load(
+                    lambda: adapter.load_extension(pins["extension_path"]),
+                    accounting, "extension")
                 reload_snapshot = _snapshot_new_parameters(adapter)
                 require(not _changed(extension_snapshot, reload_snapshot),
                         "The pinned extension reload is not bitwise")
@@ -1066,16 +1178,12 @@ def execute(args, config, pins):
 
         data_bytes = sum(path.stat().st_size for path in output.rglob("*")
                          if path.is_file())
-        stop_report = stop_conditions_report(
-            wall_seconds=time.monotonic() - started,
-            wall_limit_seconds=limits["max_seconds"],
-            artifact_bytes=data_bytes,
-            artifact_limit_bytes=limits["artifact_bytes"],
-            updates=0, optimizer_steps=0, gradients_computed=0,
-            checkpoint_writes=0, extension_writes=0, model_loads=1,
-            extension_loads=2, downloads=0, cpu_fallback=False,
-            sealed_evaluation_access=0,
-            guard_stop_reason=guard.report().get("stop_reason"))
+        require(accounting.counts() == {"model_loads": 1,
+                                        "extension_loads": 2},
+                f"Completed load counts differ: {accounting.counts()}")
+        stop_report = _stop_report(
+            started=started, limits=limits, guard=guard,
+            accounting=accounting, artifact_bytes=data_bytes)
         require_stop_conditions(stop_report)
         report = {
             "format": REPORT_FORMAT,
@@ -1158,64 +1266,69 @@ def execute(args, config, pins):
             "claims": claims_block(),
             "limitations": config["limitations"],
         }
-        # Stabilize the recorded artifact-byte estimate to include this report.
-        for _ in range(3):
-            candidate = json.dumps(report, indent=2, allow_nan=False) + "\n"
-            total = data_bytes + len(candidate.encode())
+        # Fixed-point the data-plus-report byte total.  At convergence the
+        # written report's own size produces the total recorded inside it.
+        previous_size = None
+        for _ in range(8):
+            payload = json.dumps(report, indent=2, allow_nan=False) + "\n"
+            size = len(payload.encode())
+            if previous_size == size:
+                break
+            previous_size = size
+            total = data_bytes + size
             report["artifact_bytes_estimate_including_report"] = total
+            report["artifact_accounting"] = {
+                "data_bytes_before_report": data_bytes,
+                "data_plus_report_bytes": total,
+                "estimate_excludes_manifest": True,
+                "manifest_total_bytes_scope": (
+                    "listed files excluding manifest.json"),
+                "manifest_final_total_scope": (
+                    "total_bytes plus the exact manifest.json size"),
+                "final_artifact_bytes_source": "manifest.json",
+                "scope": ARTIFACT_SCOPE,
+            }
             report["stop_conditions"] = {
                 **report["stop_conditions"],
                 "artifact_bytes_estimate_including_report": total,
-                "artifact_bytes_scope": (
-                    "data payloads plus this report; manifest.json records the "
-                    "final total including itself"),
+                "artifact_bytes_estimate_excludes_manifest": True,
+                "artifact_bytes_scope": ARTIFACT_SCOPE,
             }
-        (output / "report.json").write_text(
-            json.dumps(report, indent=2, allow_nan=False) + "\n")
+        else:
+            raise DiagnosticError("Report byte total did not stabilize")
+        (output / "report.json").write_text(payload)
         total = sum(path.stat().st_size for path in output.rglob("*")
                     if path.is_file())
+        require(total == report["artifact_bytes_estimate_including_report"],
+                f"Data-plus-report bytes {total} differ from the recorded "
+                f"total {report['artifact_bytes_estimate_including_report']}")
         if total > int(limits["artifact_bytes"]):
             raise DiagnosticError(
                 f"Artifact bytes {total} exceed the declared "
                 f"{limits['artifact_bytes']} ceiling")
-        manifest = {
-            "format": REPORT_FORMAT + ".artifacts",
-            "generated_at_utc": _now(),
-            "total_bytes": total,
-            "files_exclude": "manifest.json",
-            "limit_bytes": limits["artifact_bytes"],
-            "files": {
-                str(path.relative_to(output)): {
-                    "bytes": path.stat().st_size,
-                    "sha256": _sha(path),
-                }
-                for path in sorted(output.rglob("*"))
-                if path.is_file() and path.name != "manifest.json"
-            },
-        }
-        _write_json(output / "manifest.json", manifest)
+        manifest, manifest_payload = _artifact_manifest(
+            output, limit_bytes=limits["artifact_bytes"])
+        require(manifest["total_bytes"] == total,
+                "Manifest listed total differs from the data-plus-report total")
+        (output / "manifest.json").write_text(manifest_payload)
         final_bytes = sum(path.stat().st_size for path in output.rglob("*")
                           if path.is_file())
+        require(final_bytes == manifest["final_artifact_bytes"],
+                f"Final artifact bytes {final_bytes} differ from the "
+                "manifest final_artifact_bytes "
+                f"{manifest['final_artifact_bytes']}")
         if final_bytes > int(limits["artifact_bytes"]):
             raise DiagnosticError(
                 f"Final artifact bytes {final_bytes} exceed the declared "
                 f"{limits['artifact_bytes']} ceiling")
         return report
     except BaseException as exc:
-        elapsed = time.monotonic() - started
-        stop_report = stop_conditions_report(
-            wall_seconds=elapsed,
-            wall_limit_seconds=limits["max_seconds"],
+        stop_report = _stop_report(
+            started=started, limits=limits, guard=guard,
+            accounting=accounting,
             artifact_bytes=sum(path.stat().st_size
                                for path in Path(args.output).rglob("*")
-                               if path.is_file()),
-            artifact_limit_bytes=limits["artifact_bytes"],
-            updates=0, optimizer_steps=0, gradients_computed=0,
-            checkpoint_writes=0, extension_writes=0, model_loads=1,
-            extension_loads=2, downloads=0, cpu_fallback=False,
-            sealed_evaluation_access=0,
-            guard_stop_reason=(guard.report().get("stop_reason")
-                               if guard is not None else None))
+                               if path.is_file()))
         _failure_report(output, exc, stop_report=stop_report)
         raise
 
@@ -1257,12 +1370,20 @@ def main():
                                  or any(args.output.iterdir())):
         parser.error("Use fresh output")
     args.output.mkdir(parents=True, exist_ok=True)
+    started = time.monotonic()
     try:
         pins = verify_pins(config)
         execute(args, config, pins)
     except BaseException as exc:
         if not (args.output / "failure_report.json").exists():
-            _failure_report(args.output, exc)
+            accounting = LoadAccounting()
+            stop_report = _stop_report(
+                started=started, limits=config["limits"], guard=None,
+                accounting=accounting,
+                artifact_bytes=sum(path.stat().st_size
+                                   for path in args.output.rglob("*")
+                                   if path.is_file()))
+            _failure_report(args.output, exc, stop_report=stop_report)
         raise
 
 

@@ -12,6 +12,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+import time
 
 import pytest
 
@@ -415,10 +416,36 @@ def test_pca_content_ratio_recovers_rank_one_structure():
     assert result["ratio"] == pytest.approx(1.0, abs=1e-6)
     assert result["top_singular_squared"] <= result[
         "total_singular_squared"] + 1e-9
+    assert result["converged"] is True
+    assert result["budget_exhausted"] is False
+    assert result["delta"] <= result["tolerance"]
     assert result == diagnostic.pca_content_ratio(rank_one)
     identical = [[1.0, 2.0, 3.0]] * 4
     flat = diagnostic.pca_content_ratio(identical)
     assert flat["ratio"] is None and flat["total_singular_squared"] == 0.0
+    assert flat["converged"] is False and flat["budget_exhausted"] is False
+
+
+def test_pca_distinguishes_tolerance_convergence_from_budget_exhaustion():
+    rank_one = [[float(index), 0.0, 0.0] for index in range(5)]
+    exhausted = diagnostic.pca_content_ratio(rank_one, iterations=2)
+    assert exhausted["converged"] is False
+    assert exhausted["budget_exhausted"] is True
+    assert exhausted["iterations"] == 2
+    assert exhausted["delta"] > exhausted["tolerance"]
+    assert exhausted["ratio"] == pytest.approx(
+        exhausted["top_singular_squared"]
+        / exhausted["total_singular_squared"])
+    converged = diagnostic.pca_content_ratio(rank_one, iterations=3)
+    assert converged["converged"] is True
+    assert converged["budget_exhausted"] is False
+    assert converged["iterations"] == 3
+    assert converged["delta"] <= converged["tolerance"]
+    assert converged["ratio"] == pytest.approx(exhausted["ratio"])
+    one_iteration = diagnostic.pca_content_ratio(rank_one, iterations=1)
+    assert one_iteration["budget_exhausted"] is True
+    assert one_iteration["converged"] is False
+    assert one_iteration["delta"] is None
 
 
 def test_feature_summary_records_fully_collapsed_projections():
@@ -635,3 +662,144 @@ def test_training_rows_reject_sealed_evaluation_paths():
     mutated[0]["response"] = ""
     with pytest.raises(diagnostic.DiagnosticError, match="response is missing"):
         module.validate_rows(mutated, config, prepared)
+
+
+# ---------------------------------------------------------------------------
+# Reporting corrections from the independent review
+# ---------------------------------------------------------------------------
+
+
+def _summary_row(control, index, *, available=True, rank=1, nll=1.0,
+                 ids=(1, 2), text="a"):
+    record = {"control": control, "case_id": f"{control}-{index}",
+              "available": available}
+    if available:
+        record["first_token"] = {"gold_rank": rank}
+        record["positions"] = {"mean_nll": nll}
+        record["generation"] = {"generated_ids": list(ids),
+                                "generated_text": text,
+                                "ended_by_eos": True}
+    return record
+
+
+def test_control_summary_publishes_declared_and_scored_denominators():
+    records = []
+    for index in range(20):
+        records.append(_summary_row(
+            "sibling", index, rank=1 if index < 3 else 2,
+            nll=float(index + 1), ids=(index % 3,), text=f"t{index % 3}"))
+    for index in range(20, 26):
+        records.append(_summary_row("sibling", index, available=False))
+    for index in range(26):
+        records.append(_summary_row(
+            "correct", index, rank=2, nll=2.0, ids=(7,), text="c"))
+    summary = diagnostic.control_summary(records)
+    sibling = summary["sibling"]
+    assert "rows" not in sibling
+    assert sibling["declared_rows"] == 26
+    assert sibling["scored_rows"] == 20
+    assert sibling["first_token_rows"] == 20
+    assert sibling["nll_rows"] == 20
+    assert sibling["generation_rows"] == 20
+    assert sibling["first_token_gold_accuracy"] == pytest.approx(3 / 20)
+    assert sibling["first_token_mean_gold_rank"] == pytest.approx(
+        (3 + 17 * 2) / 20)
+    assert sibling["response_mean_nll"] == pytest.approx(10.5)
+    assert sibling["unique_generated_ids"] == 3
+    assert sibling["unique_generated_texts"] == 3
+    assert sibling["generation_ended_by_stop"] == 20
+    assert "scored_rows" in sibling["metric_scope"]
+    correct = summary["correct"]
+    assert correct["declared_rows"] == 26
+    assert correct["scored_rows"] == 26
+    assert correct["generation_rows"] == 26
+    assert correct["unique_generated_ids"] == 1
+
+
+def test_control_summary_requires_explicit_unavailable_placeholders():
+    rows = [
+        _summary_row("sibling", 0, available=False),
+        {"control": "sibling", "case_id": "unmarked"},
+    ]
+    with pytest.raises(diagnostic.DiagnosticError,
+                       match="available:false"):
+        diagnostic.control_summary(rows)
+
+
+def test_failure_receipt_counts_only_completed_loads(tmp_path):
+    module = _runner_module()
+    accounting = module.LoadAccounting()
+    limits = {"max_seconds": 1200.0, "artifact_bytes": 134217728}
+
+    def boom():
+        raise RuntimeError("injected load failure")
+
+    def receipt():
+        return module._stop_report(
+            started=time.monotonic(), limits=limits, guard=None,
+            accounting=accounting, artifact_bytes=0)
+
+    with pytest.raises(RuntimeError, match="injected"):
+        module._accounted_load(boom, accounting, "model")
+    assert accounting.counts() == {"model_loads": 0, "extension_loads": 0}
+    before_model = receipt()
+    assert (before_model["model_loads"],
+            before_model["extension_loads"]) == (0, 0)
+    assert before_model["single_model_load"] is False
+
+    module._accounted_load(
+        lambda: ("adapter", "tokenizer", "lock"), accounting, "model")
+    with pytest.raises(RuntimeError, match="injected"):
+        module._accounted_load(boom, accounting, "extension")
+    assert accounting.counts() == {"model_loads": 1, "extension_loads": 0}
+    failed_first_extension = receipt()
+    assert (failed_first_extension["model_loads"],
+            failed_first_extension["extension_loads"]) == (1, 0)
+
+    module._accounted_load(lambda: None, accounting, "extension")
+    stage_a_failure = receipt()
+    assert (stage_a_failure["model_loads"],
+            stage_a_failure["extension_loads"]) == (1, 1)
+    assert stage_a_failure["extension_loads"] != 2
+
+    module._accounted_load(lambda: None, accounting, "extension")
+    success = receipt()
+    assert (success["model_loads"], success["extension_loads"]) == (1, 2)
+    assert success["single_model_load"] is True
+    with pytest.raises(diagnostic.DiagnosticError, match="Unknown load kind"):
+        module._accounted_load(lambda: None, accounting, "optimizer")
+
+
+def test_artifact_manifest_reports_listed_and_final_byte_totals(tmp_path):
+    module = _runner_module()
+    (tmp_path / "a.bin").write_bytes(b"a" * 100)
+    (tmp_path / "report.json").write_text("{\"ok\": true}\n")
+    (tmp_path / "manifest.json").write_text("stale")
+    listed = sum(path.stat().st_size for path in tmp_path.iterdir()
+                 if path.name != "manifest.json")
+    manifest, payload = module._artifact_manifest(
+        tmp_path, limit_bytes=4096,
+        generated_at_utc="2026-10-26T00:00:00+00:00")
+    assert manifest["total_bytes"] == listed
+    assert manifest["listed_files"] == 2
+    assert manifest["files_exclude"] == "manifest.json"
+    assert manifest["manifest_bytes"] == len(payload.encode())
+    assert manifest["final_artifact_bytes"] == (
+        listed + manifest["manifest_bytes"])
+    assert "including itself" not in manifest["scope"].lower()
+    assert "excluding manifest.json" in manifest["scope"]
+    (tmp_path / "manifest.json").write_text(payload)
+    final = sum(path.stat().st_size for path in tmp_path.iterdir())
+    assert final == manifest["final_artifact_bytes"]
+
+
+def test_artifact_scope_wording_names_both_byte_totals():
+    module = _runner_module()
+    artifact_scope = module.ARTIFACT_SCOPE
+    manifest_scope = module.MANIFEST_SCOPE
+    for scope in (artifact_scope, manifest_scope):
+        assert "including itself" not in scope.lower()
+        assert "excluding manifest.json" in scope
+        assert "final_artifact_bytes" in scope
+    assert "artifact_bytes_estimate_including_report" in artifact_scope
+    assert "artifact_bytes" in artifact_scope
