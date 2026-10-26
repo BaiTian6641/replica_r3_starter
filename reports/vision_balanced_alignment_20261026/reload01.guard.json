@@ -1,0 +1,58 @@
+{
+  "status": "completed_within_declared_sampled_limits",
+  "started_at_utc": "2026-10-26T10:16:05.182851+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-vision/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py",
+    "--mode",
+    "reload",
+    "--protocol",
+    "data/vision_balanced_alignment_20261026/prepared01/protocol.json",
+    "--device",
+    "mps",
+    "--run",
+    "runs/vision_balanced_alignment_20261026/train01",
+    "--output",
+    "runs/vision_balanced_alignment_20261026/reload01",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/vision_balanced_alignment_20261026/reload01",
+  "child_log": "reports/vision_balanced_alignment_20261026/reload01.guard.child.log",
+  "host_samples": "reports/vision_balanced_alignment_20261026/reload01.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "b387e846769e40b3725ec0634e1aecea31a517e5c148291061cb1471e7984825",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 0,
+  "elapsed_seconds": 106.83379641594365,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 5711006269,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 52,
+    "driver_samples": 398,
+    "peak_driver_bytes": 10834673664,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 76.0,
+    "stop_reason": null
+  }
+}
