@@ -1,0 +1,298 @@
+{
+  "asset_qa": {
+    "authorized": false,
+    "samples_reviewed": 0,
+    "status": "not_run"
+  },
+  "asset_qa_not_run": true,
+  "authorization": {
+    "asset_download_authorized": false,
+    "asset_qa_authorized": false,
+    "note": "Prospective planning record only. It is not an ingestion manifest, download approval, asset-QA pass or training admission.",
+    "registry_admission_authorized": false,
+    "training_authorized": false
+  },
+  "blocking_unknowns": [
+    "rights clearance not performed for any of the 36 source families",
+    "four evidence requests unresolved (see source_validation.unresolved_records)",
+    "no asset-level inventory or media-byte hashes exist",
+    "duplicate/source-overlap graph documented but not executed",
+    "split keys recorded but not materialized or enforced",
+    "runtime registry admission not requested",
+    "no native execution or dataset-loader run occurred"
+  ],
+  "duplicate_graph": {
+    "documented_edges_only": true,
+    "exact_media_matches_measured": 0,
+    "status": "not_executed"
+  },
+  "explicitly_not_claimed": [
+    "this is not an ingestion manifest",
+    "no dataset, subset or media asset has been admitted or downloaded",
+    "no asset QA, rights clearance, deduplication or split-safety pass occurred",
+    "no model training, fine-tuning, native learning or dataset-loader execution occurred",
+    "the 25 GiB ceiling is prospective and confers no authorization",
+    "publisher counts are not unique, licensed or training-ready asset counts"
+  ],
+  "free_space_check": "not_run",
+  "kind": "prospective_intake_manifest",
+  "limitations": [
+    "Metadata, card, paper and provenance-audit text only; no image, audio or video bytes, decoded waveforms, labels or model behavior were inspected.",
+    "No asset QA, rights clearance, license compatibility review, redistribution review or intended-use determination was performed.",
+    "Source-overlap/duplicate graphs are documented as requirements, not executed; no perceptual or exact-media deduplication was run.",
+    "Split keys are recorded requirements; no split was materialized or enforced.",
+    "Hugging Face revisions pin repository files, not bytes served by external media URLs; publisher row counts are not counts of unique or licensed assets.",
+    "Evidence SHA-256 pins are checked for format, coverage, uniqueness and cross-consistency with the metadata snapshot; the originally retrieved bytes live in a temporary cache outside this repository and were not re-hashed by this clean-export verifier.",
+    "The earlier 426-check documentation report is retained as an input and checked only for internal arithmetic consistency; its generator/verifier was not retained, so it is not clean-export replay evidence.",
+    "Four evidence requests are unresolved and recorded; missing cards or API responses are not treated as permission.",
+    "The runtime registry was read only to verify its pinned hash and quarantine policy; it was not modified and no entry was admitted.",
+    "The repository snapshot head was not re-verified against git history; snapshot-pin drift for mutable documents is reported, not repaired.",
+    "The 25 GiB asset ceiling and the 50 GiB native RAM guard are prospective planning constraints, not authorization to download or execute anything.",
+    "A passing verdict is not dataset quality, rights, split-safety or training-admission validation."
+  ],
+  "media_assets_downloaded": 0,
+  "metadata_only_not_an_ingestion_manifest": true,
+  "native_execution_not_run": true,
+  "native_ram_guard_gib": 50,
+  "native_ram_guard_status": "separate_constraint_not_asset_budget",
+  "next_bounded_asset_audit": {
+    "authorized": false,
+    "distinct_source_groups_per_selected_source": 100,
+    "prerequisites": [
+      {
+        "id": "explicit_authorization",
+        "requirement": "Obtain explicit authorization for a named manifest and byte ceiling; this prospective record is not that authorization."
+      },
+      {
+        "id": "unresolved_evidence",
+        "requirement": "Re-resolve or permanently record the four unresolved evidence requests without substituting an unverified mirror."
+      },
+      {
+        "id": "rights_source_map",
+        "requirement": "Resolve per-source annotation, media, redistribution and intended-use terms; no gate may be accepted implicitly."
+      },
+      {
+        "id": "free_space_and_accounting",
+        "requirement": "Run a free-space check against the proposed 25 GiB ceiling and account separately for checkpoints, resampling, feature caches and backups; the 50 GiB native RAM guard is a distinct limit."
+      },
+      {
+        "id": "immutable_media_manifest",
+        "requirement": "Choose explicit immutable revisions and record independent media-byte hashes; URL-string hashes do not establish media integrity."
+      },
+      {
+        "id": "duplicate_graph_execution",
+        "requirement": "Execute exact-media and provenance overlap checks across the documented source lineages before sampling any asset."
+      },
+      {
+        "id": "bounded_asset_qa",
+        "requirement": "Sample approximately 100 distinct source groups per selected source, stratified by task and difficulty, and review label correctness, asset availability and modality necessity."
+      },
+      {
+        "id": "asset_qa_report",
+        "requirement": "Record QA outcomes in a new asset-QA report; do not retroactively convert this prospective manifest into an ingestion manifest."
+      },
+      {
+        "id": "registry_admission",
+        "requirement": "Seek runtime registry admission separately; the registry remains quarantined, unchanged and hash-pinned."
+      }
+    ],
+    "scope_note": "The ~100-source-group sample is the plan's suggested first scope, stratified by task and difficulty; it is not a run authorization.",
+    "status": "not_started"
+  },
+  "proposed_asset_ceiling_gib": 25,
+  "proposed_ceiling_status": "prospective_not_authorization",
+  "proposed_review_scope": {
+    "families": [
+      {
+        "id": "pixmo_points",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "allenai/pixmo-points"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "PixMo-Points",
+        "training_admitted": false
+      },
+      {
+        "id": "pixmo_cap",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "allenai/pixmo-cap"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "PixMo-Cap",
+        "training_admitted": false
+      },
+      {
+        "id": "molmo2_videopoint",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "allenai/Molmo2-VideoPoint"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "Molmo2-VideoPoint",
+        "training_admitted": false
+      },
+      {
+        "id": "molmo2_videotrack",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "allenai/Molmo2-VideoTrack"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "Molmo2-VideoTrack",
+        "training_admitted": false
+      },
+      {
+        "id": "molmo2_ama",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "allenai/Molmo2-AskModelAnything"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "Molmo2-AskModelAnything",
+        "training_admitted": false
+      },
+      {
+        "id": "fsd50k",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "Fhrozen/FSD50k"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "FSD50K",
+        "training_admitted": false
+      },
+      {
+        "id": "nsynth",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "jg583/NSynth"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "NSynth",
+        "training_admitted": false
+      },
+      {
+        "id": "librispeech",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "openslr/librispeech_asr"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "LibriSpeech",
+        "training_admitted": false
+      },
+      {
+        "id": "cremad",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "myleslinder/crema-d"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "CREMA-D",
+        "training_admitted": false
+      },
+      {
+        "id": "musiccaps",
+        "media_audited": false,
+        "priority": "P1_conditional",
+        "repositories": [
+          "google/MusicCaps"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "MusicCaps",
+        "training_admitted": false
+      },
+      {
+        "id": "audiomcq_strong",
+        "media_audited": false,
+        "priority": "P1_component_review",
+        "repositories": [
+          "Harland/AudioMCQ-StrongAC-GeminiCoT"
+        ],
+        "rights_status": "unresolved_at_metadata_stage",
+        "title": "AudioMCQ-StrongAC-GeminiCoT",
+        "training_admitted": false
+      }
+    ],
+    "note": "P1 families are listed only as candidate review order. Listing is not selection, clearance, download approval or training admission.",
+    "status": "proposed_not_selected_or_authorized"
+  },
+  "registry": {
+    "admitted_entries": 0,
+    "changed": false,
+    "entries": 13,
+    "path": "configs/dataset_registry.json",
+    "sha256": "45b812da965ebc605f6d63abc7250b91730fbc6f96d0e309e2776ea6503b13c4",
+    "status": "research_catalog_not_an_ingestion_manifest"
+  },
+  "registry_unchanged": true,
+  "review_date": "2026-10-26",
+  "rights_resolution": {
+    "cleared_family_count": 0,
+    "restricted_family_ids": [
+      "afthink",
+      "audiocaps",
+      "audioskills",
+      "clotho",
+      "longaudio",
+      "longvale",
+      "mfskills",
+      "musicavqa",
+      "musicnet",
+      "ravdess",
+      "slakh",
+      "wavcaps"
+    ],
+    "status": "not_started",
+    "unresolved_family_count": 36
+  },
+  "schema_version": 1,
+  "source_validation": {
+    "evidence_records": 125,
+    "evidence_unresolved": 4,
+    "repositories_inspected": 42,
+    "source_family_count": 36,
+    "unresolved_records": [
+      {
+        "error": "HTTP Error 401: Unauthorized",
+        "name": "dataset_api_nvidia__MF-Think",
+        "url": "https://huggingface.co/api/datasets/nvidia/MF-Think"
+      },
+      {
+        "error": "HTTP Error 404: Not Found",
+        "name": "dataset_card_DreamyWanderer__MusicNet",
+        "url": "https://huggingface.co/datasets/DreamyWanderer/MusicNet/resolve/15078b3037afe83bdcacb9cea14232e4debffd2b/README.md"
+      },
+      {
+        "error": "HTTP Error 404: Not Found",
+        "name": "dataset_card_UnFaZeD07__Music-AVQA",
+        "url": "https://huggingface.co/datasets/UnFaZeD07/Music-AVQA/resolve/42b81bee385ecfcd541a2676103ea59fe0cf6fa5/README.md"
+      },
+      {
+        "error": "HTTP Error 404: Not Found",
+        "name": "dataset_card_confit__clotho",
+        "url": "https://huggingface.co/datasets/confit/clotho/resolve/936048ec57d077785549472c8394fe1a36e4fdd0/README.md"
+      }
+    ],
+    "validation_report": "reports/sparkx_dataset_validation_20261026/validation.json",
+    "validation_report_sha256": "e6b4a1929b9aaea4a313c5f71d3eac73013e0da7c983489eaa4fc746cf95bbb1",
+    "validation_verdict": "pass_metadata_only"
+  },
+  "split_validation": {
+    "enforced_splits": 0,
+    "status": "requirements_only"
+  },
+  "status": "metadata_only_prospective_not_an_ingestion_manifest",
+  "training_admitted": false
+}
