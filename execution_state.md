@@ -3,62 +3,88 @@
 
 ## Integrated repairs and diagnostics — 26 October 2026
 
-**Current work — memory scoring, visual/causal diagnostics and offline Spark
-preparation are committed; learned visual quality and causal memory quality are
-rejected; exact native fused continuation and Spark runtime/asset qualification
-remain blocked.** Native fused AdamW and historical Muon evidence stay separate.
+**Current work — memory v2, vision v2, fused continuation instrumentation and
+offline Spark preparation are committed. Mechanical acceptance is separate
+from learned quality. Memory and vision quality remain rejected; exact native
+fused continuation, external asset admission and native Spark remain open.**
+The protected untracked `src/replica_lab/runtime_pilot.py` is unchanged.
 
-Acceptance-aware memory scoring now has explicit v2 config/receipt validation,
-supersession manifests and per-metric estimable-world uncertainty. The sole
-current receipt is `native04_acceptance_v2_reconciled_uncertainty_20261026.json`;
-both historical receipts and all 6,060 immutable ranking rows are preserved.
-Twelve focused tests pass, current-receipt selection rejects superseded history,
-and the rejected quality verdict is unchanged. See
-[memory scoring](docs/experiments/20261026_Memory_Acceptance_Scoring.md).
+Latest focused commits: `edcf1d47` memory refresh, `73f6cb64` caption target
+identity, `c5e57b01` fused boundary instrumentation and `5c6577e9` Spark
+residency/tranche replay. All native jobs used the sealed MiniCPM5 source,
+MPS with CPU fallback disabled, one exclusive worker and the declared
+50 GiB driver / 512 MiB swap-growth / 15% host-free policy.
 
-The sustained sealed-MiniCPM5 FP32 probe completes 12 updates with all 381
-tensors changed: 0.11781 updates/s, 52.2464 steady processed tokens/s and
-8.4216 steady seconds/update. Peak sampled driver is 43,090,886,656 bytes,
-zero swap growth and 29% minimum host free. Actual FP32 optimizer state is
-20,134,053,364 bytes. Synchronized clipping remains global-norm with nonfinite
-rejection; its measured total is 5.42425 s/update. See
-[fused integration and performance](docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md).
-The bounded two-update checkpoint resume passes, but the matched uninterrupted
-comparison does not pass: comparison09 differs in all 381 final parameter hashes
-and final logits, while comparison11 stops with 1,019,677,245 B swap growth
-before comparison. Robust repeated residency and exact native continuation are
-therefore open; further fused retries are stopped.
+### Memory v2 native result
 
-The balanced visual/projector diagnostic completes protocol admission, 10
-projector-only updates, all six-gradient checks, extension export and bitwise
-fresh-process reload. Held-out answer accuracy is 7/18 and generated descriptor
-semantic F1 is 0; all 12 overall quality gates fail. Retention is unchanged at
-22/32. Engineering/reload acceptance passes; learned visual quality is rejected.
-See [balanced visual results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
+`native02` and `restart02` under `runs/memory_causal_fresh_20261026/` completed
+the prepared04 v2 protocol. The restart encoded 216 new queries, re-encoded
+zero old observations/queries and passed byte-identical same-query parity.
+There were 72 observation commits, zero durable refresh commits and 1,056
+query-local applied refreshes; all 144 shuffled pairs perturbed state/value
+outputs while durable state stayed unchanged. Mechanical gates, checkpoint
+bindings, revocation/stale enforcement and resource limits pass.
 
-Fresh causal evaluation adds disjoint paraphrase/distractor/correction/unknown
-episodes and genuinely new post-restart queries. Exactly-once writes, live
-revocation, representation binding, same-query parity, zero old-observation/
-old-query re-encodes and cached-history cost accounting pass. Restart-held-out
-accepted correctness is only 2/128 with 5.71% accepted precision and every
-quality gate fails. It remains a hybrid retrieval+neural-refresh diagnostic,
-not useful learned memory. See [fresh causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
+The immutable restart rankings replay through `memory.acceptance.v3` into
+`reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json`
+and `receipt_manifest_v3.native02.json`. All 17,520 rows validate. Candidate
+quality is rejected: 21/384 accepted-correct, 15.22% accepted precision and
+30.26% coverage; restart-held-out is 2/64 accepted-correct at 15.38% precision.
+The full-cohort oracle diagnostic is 384/456 raw top-1 (84.21%), below its 0.85
+bound, so the native disposition remains `inconclusive`, not accepted. No
+learned selector or useful-memory claim is made. Crash-injection recovery is
+not separately tested; this is planned checkpoint continuation evidence.
+See [causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
 
-Spark residency is recalculated for the combined backbone plus declared
-SigLIP2/SPEAR scope (4,298,253,060 parameters): 64.049 GiB at 16 bytes/parameter
-and 48.037 GiB at the optimistic 12-byte rate, before excluded work. Full-scope
-local admission is not inferred. Offline dataset validation replays 36 families,
-42 repositories and 125 records with zero media assets or admissions. The Spark
-adapter remains design-only, official weight payloads and asset QA are absent,
-and MPS FP8 backend admission is blocked. See
-[residency](docs/experiments/20261026_Spark_Residency_Reconciliation.md) and
-[dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md).
+### Vision v2 native result
 
-The first clean export exposed 12 stale implementation-pin failures. After the
-declared response/vision migrations at `8ebf045`, the final clean `git archive`
-export passes **1,900 tests +21 subtests in 230.93 s**, with 40 explicit
-provisioning skips and no failures or errors. The earlier failed XML and final
-summary are retained at `reports/clean_export_20261026/summary.json`.
+Train02 exposed the donor/target case-binding defect; `73f6cb64` fixes it and
+adds a runner regression. Train03 was only an invocation failure from omitted
+fallback-disabled environment. Train04 then completed 24 projector-only
+updates with six trainable tensors and finite nonzero backward-only gradients.
+The scorer positive/negative contracts pass, but train-fit answers are 3/14
+and dev answers 2/18; caption semantic F1 and following accuracy are zero.
+The run stopped at `stopped_before_audit`; held-out was never read and reload
+was not authorized. Retention stayed 22/32. Raw outputs and the unpromoted
+diagnostic extension remain under
+`runs/vision_balanced_alignment_v2_20261026/train04/`.
+See [vision results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
+
+### Fused continuation and Spark preparation
+
+The fused boundary instrumentation passes 33 training-state/fused tests and 25
+optimizer tests. A/A variation is reported separately from A/B exact failure;
+historical comparison09/10/11 failures and resource stops remain unchanged.
+No new native continuation or replacement run was authorized.
+
+Spark residency v2 explicitly separates 12-, 14-, 16- and 18-byte plans, the
+mixed FP8/BF16 source inventory and unqualified backend/dequantization gates.
+The calculator and strict receipt check pass. The 32-input research bundle
+verifies with Git tracking enforced and no network or payload copy. Only six
+owned synthetic protocol fixtures are admitted; external media, rights
+clearance, asset QA and native Spark are not completed.
+See [residency](docs/experiments/20261026_Spark_Residency_Reconciliation.md)
+and [dataset preparation](docs/experiments/20261026_Spark_Dataset_Preparation.md).
+
+### Verification and next bounded work
+
+| Verification | Result |
+|---|---:|
+| Memory fresh + v3 + v2 acceptance suites | 32 passed |
+| Visual caption + balanced alignment suites | 27 passed |
+| Training-state + fused continuation suites | 33 passed |
+| Optimizer suite | 25 passed |
+| Spark residency + first-tranche suites | 35 passed |
+| Spark residency receipt / strict bundle | both verified |
+
+The next justified work is a separate crash-injection recovery fixture, a
+predeclared visual learnability hypothesis only if the failed fit/dev analysis
+supports it, and explicitly authorized external asset/right clearance before
+any real tranche. Do not open the sealed visual audit after the failed gates,
+do not tune against it, and do not infer native Spark or exact fused-resume
+success from software receipts. A full clean-export regression run remains a
+separate integration check, not a capability claim.
+
 
 ## Full-scope training performance investigation — 25 October 2026
 

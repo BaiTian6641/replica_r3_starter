@@ -1,12 +1,27 @@
 # Coding-agent continuation instruction
 
-**Current priority — preserve completed evidence; exact native fused continuation and Spark runtime/asset prerequisites remain blocked. No scaling or promotion.**
-All four verification defects are fixed. Raw-page rebinding requires explicit
-record dependencies and fails closed on unknown provenance or contained
-revocation. Memory parity checks every fact and rejects duplicate/missing rows.
-The old frozen-feature conclusion replays as `inconclusive_visual_contribution`.
-Bounded-RSI units are self-contained. See
-[verification repairs](docs/experiments/20261025_Verification_Repairs.md).
+**Current priority — 26 October 2026:** preserve completed evidence; do not
+promote rejected quality or open sealed evaluation roles early. The latest
+focused commits are `edcf1d47` (memory v2 native refresh and v3 receipt),
+`73f6cb64` (caption target identity), `c5e57b01` (fused boundary
+instrumentation) and `5c6577e9` (Spark residency and strict research bundle).
+
+Memory native02/restart02 passes mechanical, refresh-intervention and
+fresh-process parity gates. The v3 receipt rejects quality: 21/384
+accepted-correct at 15.22% precision; no useful learned memory is claimed.
+Read [fresh causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
+Crash-injection recovery remains a separate unrun check.
+
+Vision train04 completes 24 projector-only updates and passes scorer
+contracts, but train-fit/dev gates fail (3/14 and 2/18 answers; caption
+semantic F1 0). It stopped before held-out access; no reload or promotion is
+authorized. Read [balanced visual results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
+
+Fused instrumentation passes 33 boundary/resume tests and 25 optimizer tests;
+historical exact continuation failures remain failures. Spark residency is
+analytical only; strict 32-input bundle replay passes with owned synthetic
+fixtures only. External media rights, asset QA and native Spark remain
+prerequisites, not completed work. Earlier evidence below is historical.
 
 The balanced diagnostic supports narrow procedural image dependence: primary
 71/120 dev and 75/120 final versus question-only 36/120 and shuffled 50/120 and

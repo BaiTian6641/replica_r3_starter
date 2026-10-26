@@ -1,0 +1,57 @@
+W1026 09:05:07.569000 6744 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Loading weights:   0%|          | 0/381 [00:00<?, ?it/s]Loading weights:  22%|██▏       | 85/381 [00:00<00:00, 837.41it/s]Loading weights:  49%|████▉     | 186/381 [00:00<00:00, 919.83it/s]Loading weights:  73%|███████▎  | 278/381 [00:00<00:00, 893.90it/s]Loading weights:  98%|█████████▊| 374/381 [00:00<00:00, 917.03it/s]Loading weights: 100%|██████████| 381/381 [00:00<00:00, 922.73it/s]
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 21419.48it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: /Users/flare/replica_r3_starter/checkpoints/siglip2_base_patch16_224_source
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py", line 1721, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py", line 1713, in main
+    execute_train(args)
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py", line 1311, in execute_train
+    return _execute_train_v2(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py", line 948, in _execute_train_v2
+    dev = _evaluate_and_score_v2(
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py", line 797, in _evaluate_and_score_v2
+    caption_bundle = _score_bundle_v2(
+                     ^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_balanced_alignment.py", line 748, in _score_bundle_v2
+    result["caption"] = score_caption_controls_v2(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_balanced_alignment.py", line 2670, in score_caption_controls_v2
+    _validate_caption_generation_v2(generation, spec)
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_balanced_alignment.py", line 2564, in _validate_caption_generation_v2
+    _require(generation.get("target_case_id")
+  File "/Users/flare/replica_r3_starter/src/replica_lab/vision_balanced_alignment.py", line 87, in _require
+    raise ValueError(message)
+ValueError: Caption generation target case was altered

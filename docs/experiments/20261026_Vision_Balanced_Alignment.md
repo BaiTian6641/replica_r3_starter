@@ -134,18 +134,54 @@ also pass.
   `completed_pending_reload` is resolved to `completed_reload_verified`;
   otherwise no terminal disposition is written.
 
-No native v2 execution, quality claim or promotion is made here. Preparation may
-generate sealed v2 data and a `scorer_contracts.json` receipt; the parent
-schedules any native train/reload run after review.
-
-The prepared v2 set is `data/vision_balanced_alignment_v2_20261026/prepared01`
-(protocol SHA-256
-`bf5e8c40de4453383e1ef49692b092e4453c11ead994b6bb6ca009a69af4198b`, manifest
-SHA-256 `12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227`).
+The prepared v2 set is sealed under
+`data/vision_balanced_alignment_v2_20261026/prepared04/` (protocol SHA-256
+`3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77`,
+manifest SHA-256 `12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227`).
 It has 14 answer plus 12 caption training examples, 18 answer plus 12 caption
 development cases, and 18 answer plus 12 caption sealed held-out cases across
 146 verified assets. The prepared positive controls passed every intended gate,
 while the constant, image-ignoring, shuffled and malformed/tampering negatives
-failed or raised as declared. `reports/vision_balanced_alignment_v2_20261026/`
-holds the preparation and scorer-contract receipts; native execution has not
-yet occurred.
+failed or raised as declared.
+
+## V2 native train04 outcome
+
+The first native v2 attempt, train02, reached development scoring and exposed a
+runner contract bug: donor image identity was being used as `target_case_id`.
+The target is now always bound to the original sealed case; the fix and a
+runner regression are committed at `73f6cb64`. Train03 was an invocation-only
+failure because the required fallback-disabled environment was omitted. Both
+failure records and their guard logs are preserved.
+
+Train04 used the corrected prepared04 protocol, frozen backbone/encoder and
+six trainable projector tensors (11,542,016 parameters) for 24 fused-AdamW
+updates. The backward-only probe reached all six projector tensors with finite,
+nonzero gradients and no non-projector gradients. Token/template/mask/EOS and
+response-loss contracts were enforced. A 62.6 MiB diagnostic extension was
+exported, but no candidate was promoted.
+
+| Cohort | Correct answers | Caption token F1 | Generated semantic F1 | Following accuracy |
+|---|---:|---:|---:|---:|
+| Train fit | 3/14 = 21.43% | 0.125 | 0.0 | 0.0 |
+| Development | 2/18 = 11.11% | 0.0625 | 0.0 | 0.0 |
+
+The synthetic scorer preflight passed its perfect-following positive control
+and all declared negative controls. The actual train-fit gate failed
+`min_train_fit_answer_accuracy` and `min_train_fit_caption_following_accuracy`;
+the development gate failed accuracy, margin, unknown, caption and dependence
+checks. The run therefore stopped at `stopped_before_audit` with
+`diagnostic_only_no_promotion`. The sealed held-out role was never read, and
+the fresh-process reload was not authorized or run. Retention remained 22/32
+before and after training; this is not a retention-quality claim.
+
+The guarded train04 process completed in 145.72 s with a 13,570,654,208-byte
+sampled driver peak, zero swap growth and 72% minimum observed host free. Raw
+generations, unsuccessful trajectories, scores, gates and the diagnostic
+extension remain under `runs/vision_balanced_alignment_v2_20261026/train04/`.
+Guard/child/host evidence is under
+`reports/vision_balanced_alignment_v2_20261026/`.
+
+The focused visual suites pass 27 tests, including the original-case target
+identity regression. Engineering and scorer contracts pass; learned visual
+quality is rejected and a fresh sealed held-out audit remains gated. No larger
+projector, backbone unfreezing or scaling follows.
