@@ -1,6 +1,8 @@
 """Publish complete local model/runtime checkpoints with a byte receipt."""
 from __future__ import annotations
 
+from contextlib import contextmanager
+import gc
 import hashlib
 import json
 import os
@@ -25,6 +27,36 @@ def _files(root):
             if p.is_file() and p.relative_to(root).as_posix() != "checkpoint_receipt.json"}
 
 
+def _optimizer_state_to(optimizer, device):
+    for state in optimizer.state.values():
+        for key, value in list(state.items()):
+            if isinstance(value, torch.Tensor):
+                state[key] = value.to(device)
+
+
+@contextmanager
+def _cpu_serialization_residency(model, optimizer):
+    """Avoid simultaneous device residency and serializer-owned CPU copies."""
+    parameters = getattr(model, "parameters", None)
+    device = (next(model.parameters()).device if callable(parameters)
+              else optimizer.param_groups[0]["params"][0].device)
+    if device.type == "cpu":
+        yield
+        return
+    model.to("cpu")
+    _optimizer_state_to(optimizer, "cpu")
+    gc.collect()
+    if device.type == "mps":
+        torch.mps.empty_cache()
+    elif device.type == "cuda":
+        torch.cuda.empty_cache()
+    try:
+        yield
+    finally:
+        model.to(device)
+        _optimizer_state_to(optimizer, device)
+
+
 def save_training_checkpoint(model, tokenizer, optimizer, path, *, step,
                              data_state, schedule_state, run_contract, manifest):
     """Rename a complete model + optimizer/RNG/cursor directory into place.
@@ -38,16 +70,17 @@ def save_training_checkpoint(model, tokenizer, optimizer, path, *, step,
         raise FileExistsError("Use a new checkpoint directory")
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = Path(tempfile.mkdtemp(prefix=f".{destination.name}-", dir=destination.parent))
-    model.save_pretrained(temporary, manifest=manifest)
-    tokenizer.save_pretrained(temporary / "base")
-    metadata = save_runtime_state(temporary / "runtime.pt", optimizer, step=step,
-                                  data_state=data_state, schedule_state=schedule_state,
-                                  run_contract=run_contract)
-    receipt = {"format_version": 1, "completed_steps": step,
-               "run_contract": run_contract, "contract_sha256": metadata["contract_sha256"],
-               "files_sha256": {name: file_digest(p) for name, p in sorted(_files(temporary).items())}}
-    (temporary / "checkpoint_receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
-    os.replace(temporary, destination)
+    with _cpu_serialization_residency(model, optimizer):
+        model.save_pretrained(temporary, manifest=manifest)
+        tokenizer.save_pretrained(temporary / "base")
+        metadata = save_runtime_state(temporary / "runtime.pt", optimizer, step=step,
+                                      data_state=data_state, schedule_state=schedule_state,
+                                      run_contract=run_contract)
+        receipt = {"format_version": 1, "completed_steps": step,
+                   "run_contract": run_contract, "contract_sha256": metadata["contract_sha256"],
+                   "files_sha256": {name: file_digest(p) for name, p in sorted(_files(temporary).items())}}
+        (temporary / "checkpoint_receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+        os.replace(temporary, destination)
     return {"path": str(destination), "step": step,
             "receipt_sha256": file_digest(destination / "checkpoint_receipt.json")}
 
