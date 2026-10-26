@@ -64,6 +64,7 @@ from replica_lab.external_intake import _role_manifest_seal  # noqa: E402
 from replica_lab.capacity_guard import (  # noqa: E402
     CapacityGuard, CapacityPolicy, parse_host_readings,
 )
+from replica_lab.profiling import RunProfiler  # noqa: E402
 
 
 def require(condition: bool, message: str) -> None:
@@ -1053,9 +1054,10 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                    dataset.schedule["dev_probe_case_ids"]]
     scope = protocol_scope(protocol)
     started = time.monotonic()
-    ledger = None
     from replica_lab.architecture.loading import exclusive_mps_worker
+    profiler = RunProfiler("mps", output)
     with exclusive_mps_worker(ROOT):
+        profiler.start()
         adapter, tokenizer, lock_loaded = load_local_mps(
             args.model_path, args.model_lock, vision=spec)
         guard.sample(index=0, event="model_loaded")
@@ -1157,10 +1159,13 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
         dump(output / "lr_probe.json", lr_selection)
         dump(output / "backward_probe.json", probe)
         guard.sample(index=0, event="train_end")
+        profile_summary = profiler.stop()
+        dump(output / "profile_summary.json", profile_summary)
         require(time.monotonic() - started
                 <= protocol["limits"]["max_seconds"],
                 "Training run exceeded the declared overall ceiling")
-        driver_peak = guard.driver_peak
+        driver_peak = max(guard.driver_peak,
+                          profile_summary["memory"]["mps_driver_peak_sampled_bytes"])
         token_parity = all(
             [row["generated_ids"] for row in retention_before["rows"]]
             == [row["generated_ids"] for row in retention_after["rows"]])
@@ -1406,6 +1411,8 @@ def execute_reload(args, protocol, protocol_sha, dataset):
     prior_dev = read_jsonl(run / "dev_generations.jsonl")
     prior_retention = read_jsonl(run / "retention_post.jsonl")
     with exclusive_mps_worker(ROOT):
+        profiler = RunProfiler("mps", output)
+        profiler.start()
         adapter, tokenizer, lock = load_local_mps(
             args.model_path, args.model_lock, vision=spec)
         guard.sample(index=0, event="model_loaded")
@@ -1461,6 +1468,8 @@ def execute_reload(args, protocol, protocol_sha, dataset):
         require(sha256_file(output / "retention.jsonl")
                 == prior["retention"]["post_sha256"],
                 "Reload retention generations differ from the frozen run")
+        profile_summary = profiler.stop()
+        dump(output / "profile_summary.json", profile_summary)
         report = {
             "format": RELOAD_REPORT_FORMAT,
             "version": protocol["version"],
@@ -1876,6 +1885,8 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
     require(lock.get("revision") == protocol["model"]["revision"],
             "Model revision differs from the protocol pin")
     with exclusive_mps_worker(ROOT):
+        profiler = RunProfiler("mps", output)
+        profiler.start()
         adapter, tokenizer, lock = load_local_mps(
             args.model_path, args.model_lock, vision=spec)
         guard.sample(index=0, event="model_loaded")
@@ -1960,6 +1971,8 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                 <= protocol["limits"]["max_seconds"],
                 "Finalize exceeded the declared wall-time ceiling")
         guard.sample(index=1, event="finalize_end")
+        profile_summary = profiler.stop()
+        dump(output / "profile_summary.json", profile_summary)
         dump(output / "guard.json", guard.report())
         guard_sha256 = sha256_file(output / "guard.json")
         authenticated = authenticate_reservations(paths, reservation,
