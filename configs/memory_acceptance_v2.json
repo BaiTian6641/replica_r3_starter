@@ -1,0 +1,23 @@
+{
+  "format": "replica.memory_acceptance.config.v2",
+  "metric_version": "memory.acceptance.v2",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "candidate_variant": "shared_mean/causal_query_refresh",
+  "oracle_variant": "shared_mean/oracle_target_refresh_last",
+  "gates": {
+    "accepted_correct_rate_min": 0.85,
+    "accepted_precision_min": 0.95,
+    "correction_accepted_correct_rate_min": 0.6,
+    "unaffected_accepted_correct_rate_min": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "oracle_raw_top1_rate_min": 0.85
+  },
+  "acceptance_coverage_policy": "report_only",
+  "bootstrap": {
+    "seed": 17,
+    "resamples": 2000,
+    "confidence": 0.95,
+    "unit": "world; layers are not independent examples"
+  },
+  "interpretation": "Raw top-one is diagnostic only. Accepted correct retrievals use all layers for query correctness, any layer for coverage, and require nonzero, unambiguous readouts. Historical metrics are not reinterpreted."
+}
