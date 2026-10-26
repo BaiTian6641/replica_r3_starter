@@ -415,12 +415,14 @@ class NativeFusedAdamW(torch.optim.AdamW):
                     for key in ("exp_avg", "exp_avg_sq"):
                         value = state[key]
                         if (not isinstance(value, Tensor) or value.dtype != torch.float32
-                                or tuple(value.shape) != tuple(parameter.shape)
-                                or not bool(torch.isfinite(value).all())):
+                                or tuple(value.shape) != tuple(parameter.shape)):
                             raise ValueError("Invalid native fused AdamW checkpoint tensor")
                     restored_state[parameter] = {
                         key: value.to(parameter.device) if isinstance(value, Tensor) else value
                         for key, value in state.items()}
+                    for key in ("exp_avg", "exp_avg_sq"):
+                        if not bool(torch.isfinite(restored_state[parameter][key]).all()):
+                            raise ValueError("Nonfinite native fused AdamW checkpoint tensor")
                     del state
                     if len(restored_state) % 8 == 0:
                         gc.collect()
