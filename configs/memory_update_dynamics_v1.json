@@ -1,0 +1,139 @@
+{
+  "format": "replica.memory_update_dynamics.config.v1",
+  "declared_at_utc": "2026-10-25T00:00:00+00:00",
+  "purpose": "Localise whether exact-key last-write dominance on prepared02 comes from the shared-depth convex mean, write position/recency, erase/decay/gate dynamics or downstream value readout, without training the frozen rejected writer.",
+  "hypothesis": "Holding prepared02 observations, candidate identity, candidate vectors and scoring fixed, per-depth proposals or a declared write-position/gate control will recover exact observed-key value recovery only if that update dynamic is the first cause. Query-derived addressing is scored separately and is not expected to explain stored-value loss.",
+  "source_prepared": {
+    "path": "data/memory_matched_20261025/prepared02",
+    "episodes_sha256": "48074931487e8215b7ca1491719953af05158604493688c48a1a5fd62f778bd1",
+    "labels_sha256": "43af487341f7277815b2899c877b792992660ba57be788bab64b980cf16f151e"
+  },
+  "variant_names": [
+    "shared_mean/full",
+    "per_depth/full",
+    "shared_mean/reversed",
+    "per_depth/reversed",
+    "shared_mean/target_only",
+    "shared_mean/prefix_through_target",
+    "shared_mean/target_and_later",
+    "per_depth/target_only",
+    "per_depth/prefix_through_target",
+    "per_depth/target_and_later",
+    "shared_mean/no_erase",
+    "shared_mean/no_decay",
+    "shared_mean/full_gate",
+    "shared_mean/no_forget",
+    "per_depth/no_erase",
+    "per_depth/no_decay",
+    "per_depth/full_gate",
+    "per_depth/no_forget",
+    "shared_mean/target_refresh_last",
+    "per_depth/target_refresh_last"
+  ],
+  "arms": [
+    "exact_key_value",
+    "query_key_value",
+    "query_key_address",
+    "context_removed"
+  ],
+  "layers": [
+    13,
+    27
+  ],
+  "representation": "fact_binding_key_value.v1",
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "required_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "writer_extension": {
+    "path": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+    "role": "frozen rejected writer diagnostic artifact; no optimizer and no weight update may run"
+  },
+  "engine": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true
+  },
+  "thresholds": {
+    "match_cosine_floor": 0.5,
+    "match_margin_floor": 0.05,
+    "address_cosine_floor": 0.5,
+    "address_margin_floor": 0.05,
+    "exact_key_top1_floor": 0.85,
+    "exact_key_mean_rank_max": 1.2,
+    "exact_key_margin_floor": 0.02,
+    "exact_key_false_recall_max": 0.05,
+    "address_top1_floor": 0.6,
+    "address_mean_rank_max": 1.5,
+    "address_margin_mean_floor": 0.01,
+    "address_false_recall_max": 0.3,
+    "correction_top1_floor": 0.6,
+    "unaffected_top1_floor": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "mechanism_top1_delta": 0.25,
+    "mechanism_rank_delta": 0.5,
+    "mechanism_margin_delta": 0.02,
+    "production_parity_atol": 1e-06
+  },
+  "limits": {
+    "max_rows": 24000,
+    "max_episodes": 64,
+    "max_states": 160,
+    "max_state_builds": 4096,
+    "max_queries": 24000,
+    "max_layers": 2,
+    "max_preserved_failures": 1000,
+    "native_jobs": 1,
+    "driver_gib": 50,
+    "minimum_free_percent": 15
+  },
+  "budget": {
+    "optimizer_updates": 0,
+    "gradient_examples": 0,
+    "native_training_jobs": 0,
+    "native_diagnostic_jobs": 1,
+    "checkpoints_saved": 0,
+    "model_loads_per_job": 1,
+    "extension_reloads_per_job": 1,
+    "max_wall_seconds": 900
+  },
+  "guard": {
+    "entry_point": "scripts/run_memory_update_dynamics.py",
+    "guard_env": "REPLICA_CAPACITY_GUARD=1",
+    "fallback_env": "PYTORCH_ENABLE_MPS_FALLBACK=0",
+    "offline_env": [
+      "HF_HUB_OFFLINE=1",
+      "TRANSFORMERS_OFFLINE=1",
+      "HF_DATASETS_OFFLINE=1"
+    ],
+    "cpu_fallback": false,
+    "exclusive": "exclusive_mps_worker",
+    "compatibility": "Uses the existing exclusive MPS worker and fallback-off 50 GiB capacity guard unchanged; the parent guard must list this entry point."
+  },
+  "decision_rule": {
+    "order": [
+      "mechanical validity",
+      "shared depth reduction",
+      "write position or recency",
+      "erase/decay/gate",
+      "downstream value readout"
+    ],
+    "first_failure": "An earlier isolated control cannot be skipped for a later one; mechanical failure invalidates the run instead of selecting a mechanism.",
+    "isolation": "A mechanism is named only when its control passes the exact-key upper-bound gate and improves over shared_mean/full by at least the declared top1, rank or margin delta.",
+    "no_repair_without_evidence": "The report names only the smallest next diagnostic change; no writer, reader or addressing training is justified by this package."
+  },
+  "limitations": [
+    "Exact observed-key recovery is a storage upper bound, not addressing capability.",
+    "Query-derived addressing is scored separately and does not validate useful memory or generation.",
+    "Write-position ablations are evaluator-side interventions on observed records, not new writer inputs or training examples.",
+    "Reversed order is valid only inside observation-day groups; corrections remain last so supersession semantics are preserved.",
+    "The frozen rejected v5 writer remains rejected; no optimizer, checkpoint or capability claim is made.",
+    "CPU tiny-adapter tests establish contracts and scoring, not native model quality.",
+    "The capacity guard entry-point allowlist is owned by the main integration agent."
+  ]
+}
