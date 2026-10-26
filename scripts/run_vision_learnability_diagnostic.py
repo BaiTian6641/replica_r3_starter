@@ -650,8 +650,9 @@ def execute_ablation(args, config, pins):
                     expected_valid_tokens=int(
                         config["expectations"]["valid_patches_per_image"]),
                     tolerance=tolerance)
+                full_normalized = _normalised_generation_rows(full_stage["records"])
                 full_generations = learn.generation_hypothesis_report(
-                    _normalised_generation_rows(full_stage["records"]),
+                    full_normalized,
                     answer_max_new_tokens=int(limits["max_new_tokens"]),
                     caption_max_new_tokens=int(
                         limits["caption_max_new_tokens"]))
@@ -670,7 +671,7 @@ def execute_ablation(args, config, pins):
                     if report.get("ok") is not True:
                         violations.append(f"{name}:{report.get('violations')}")
                 if not any(record["prefill_argmax_matches_first_token"]
-                           for record in full_stage["records"]
+                           for record in full_normalized
                            if record.get("available")):
                     violations.append("full_stage_prefill")
                 learn.require(not violations,
