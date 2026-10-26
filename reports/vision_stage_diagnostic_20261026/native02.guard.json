@@ -1,0 +1,55 @@
+{
+  "status": "stopped_or_failed",
+  "started_at_utc": "2026-10-26T05:51:50.707921+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv-vision/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/run_vision_stage_diagnostic.py",
+    "train",
+    "--protocol",
+    "data/vision_stage_diagnostic_20261026/prepared01/protocol.json",
+    "--device",
+    "mps",
+    "--output",
+    "runs/vision_stage_diagnostic_20261026/native02",
+    "--model-path",
+    "checkpoints/minicpm5_source",
+    "--model-lock",
+    "configs/minicpm5_sealed_lock.local.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/vision_stage_diagnostic_20261026/native02",
+  "child_log": "reports/vision_stage_diagnostic_20261026/native02.guard.child.log",
+  "host_samples": "reports/vision_stage_diagnostic_20261026/native02.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "b391d92349166c44a96001ecb137c94bea0b3338b14b95ec5cdf3bff12cda386",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 1,
+  "elapsed_seconds": 2.565373375080526,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 3995336704,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 2,
+    "driver_samples": 0,
+    "peak_driver_bytes": 0,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 93.0,
+    "stop_reason": "mps_driver_telemetry_missing"
+  }
+}

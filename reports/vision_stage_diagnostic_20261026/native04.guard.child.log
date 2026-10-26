@@ -1,0 +1,12 @@
+W1026 00:58:38.235000 99472 torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+Traceback (most recent call last):
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_stage_diagnostic.py", line 484, in <module>
+    main()
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_stage_diagnostic.py", line 476, in main
+    execute_train(args)
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_stage_diagnostic.py", line 246, in execute_train
+    protocol, manifest, implementation = _verify_prepared(protocol_path)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/flare/replica_r3_starter/scripts/run_vision_stage_diagnostic.py", line 39, in _verify_prepared
+    raise ValueError("Prepared manifest bytes differ")
+ValueError: Prepared manifest bytes differ

@@ -32,8 +32,9 @@ def _files(root):
 def _cpu_serialization_residency(model, optimizer):
     """Avoid simultaneous device residency and serializer-owned CPU copies."""
     parameters = getattr(model, "parameters", None)
+    groups = getattr(optimizer, "param_groups", None)
     device = (next(model.parameters()).device if callable(parameters)
-              else optimizer.param_groups[0]["params"][0].device)
+              else groups[0]["params"][0].device if groups else torch.device("cpu"))
     if device.type == "cpu":
         yield
         return

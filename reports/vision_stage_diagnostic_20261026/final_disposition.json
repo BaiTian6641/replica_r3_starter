@@ -1,0 +1,96 @@
+{
+  "format": "replica.vision_stage_diagnostic.disposition.v1",
+  "disposition": "rejected_learned_quality_engineering_recovered",
+  "protocol_sha256": "ea940d5e7ce572c033b7a9d7e6755a3637cfbfa153a08600cf33ef260c7e3309",
+  "run_report": "runs/vision_stage_diagnostic_20261026/native05/run_report.json",
+  "reload_report": "runs/vision_stage_diagnostic_20261026/reload06/reload_report.json",
+  "reload_report_sha256": "87a16bbea1b1edbbceeb8c9a7d370ab2ac432c6c20f621286c497dca1d886bad",
+  "extension_weights_sha256": "6bb8ee64fe15f7d802c8bd21f7c9db292dc1b50a7fdb9f64c7fcd386f7dd290e",
+  "optimizer": {
+    "selection": "adamw_fused",
+    "class": "torch.optim.AdamW",
+    "implementation": "native_fused",
+    "fused": true,
+    "state_audit_recovered": false,
+    "reason": "Original process stopped during final report assembly"
+  },
+  "training": {
+    "stage_a_updates": 16,
+    "stage_b_updates": 16,
+    "examples": 128,
+    "trainable_tensors": 6,
+    "trainable_scope": "vision_projector.",
+    "base_saved": false,
+    "original_guard_child_exit_code": 1,
+    "original_failure": "max_caption_f1_forgetting_drop",
+    "recovery": "offline assembly from completed artifacts; zero native updates rerun"
+  },
+  "quality": {
+    "stage_a_development_correct": 0,
+    "stage_a_development_cases": 24,
+    "stage_b_development_correct": 9,
+    "stage_b_development_cases": 24,
+    "audit_correct": 6,
+    "audit_cases": 24,
+    "stage_a_development_paired_margins": {
+      "wrong": 0.0,
+      "shuffled": 0.0,
+      "noimage": -0.3333333333333333
+    },
+    "stage_b_development_paired_margins": {
+      "wrong": 0.0,
+      "shuffled": 0.08333333333333333,
+      "noimage": 0.041666666666666664
+    },
+    "audit_paired_margins": {
+      "wrong": 0.0,
+      "shuffled": 0.0,
+      "noimage": 0.0
+    },
+    "stage_a_caption_token_f1": 0.0,
+    "stage_b_caption_token_f1": 0.0,
+    "audit_caption_token_f1": 0.0,
+    "audit_abstention_accuracy": 0.0,
+    "audit_correct_answer_histogram": {
+      "yes": 24
+    },
+    "all_quality_gates_failed": true,
+    "caption_useful": false,
+    "image_dependent_answers": false,
+    "scaling_allowed": false
+  },
+  "forgetting": {
+    "caption_token_f1_delta": 0.0,
+    "caption_response_loss_delta": 0.3796710471312208,
+    "procedural_accuracy_delta": 0.375,
+    "text_retention_drop": 0.0,
+    "caption_behavior_destroyed": false,
+    "note": "Caption alignment never became useful; later procedural gains do not establish image dependence"
+  },
+  "retention": {
+    "before_correct": 22,
+    "before_cases": 32,
+    "after_correct": 22,
+    "after_cases": 32,
+    "drop": 0.0,
+    "baseline_eligible": false
+  },
+  "reload": {
+    "zero_updates": true,
+    "bitwise_equal": true,
+    "audit_generation_equal": true,
+    "caption_generation_equal": true,
+    "retention_equal": true
+  },
+  "resources": {
+    "training_guard_elapsed_seconds": 265.8561938754283,
+    "training_peak_driver_bytes": 13600210944,
+    "training_peak_swap_growth_bytes": 0,
+    "training_minimum_free_percent": 71.0,
+    "reload_guard_elapsed_seconds": 63.68059279117733,
+    "reload_peak_driver_bytes": 10834657280,
+    "reload_peak_swap_growth_bytes": 0,
+    "reload_minimum_free_percent": 76.0
+  },
+  "next": "Do not enlarge the projector, unfreeze the backbone or start a larger arm. Analyze constant-output priors and caption alignment with fresh data; preserve the failed evidence."
+}
