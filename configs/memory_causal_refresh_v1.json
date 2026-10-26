@@ -1,0 +1,143 @@
+{
+  "format": "replica.memory_causal_refresh.protocol.v1",
+  "declared_at_utc": "2026-10-25T00:00:00+00:00",
+  "purpose": "Test a frozen-writer order-aware refresh using only current-query and cached-observation information; separate learned memory, hybrid refresh and gold-target oracle bounds.",
+  "source_prepared": {
+    "path": "data/memory_matched_20261025/prepared02",
+    "episodes_sha256": "48074931487e8215b7ca1491719953af05158604493688c48a1a5fd62f778bd1",
+    "labels_sha256": "43af487341f7277815b2899c877b792992660ba57be788bab64b980cf16f151e"
+  },
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "required_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "writer_extension": {
+    "path": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+    "manifest_sha256": "337e6856246b3e553e112f72f369643f811e09760a10ad28aa8f73b1c12b8c95",
+    "manifest_digest": "9d8de79a6c3bcb5cfb1b9f71ad1c288731c462ae8d1df93ea931d4c90b540f60",
+    "role": "frozen rejected writer diagnostic artifact; zero updates and no promotion"
+  },
+  "layers": [13, 27],
+  "engine": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true,
+    "reducer": "shared_mean"
+  },
+  "variants": [
+    "shared_mean/full",
+    "shared_mean/causal_query_refresh",
+    "shared_mean/causal_query_refresh_shuffled_values",
+    "shared_mean/disabled",
+    "shared_mean/oracle_target_refresh_last"
+  ],
+  "policy": {
+    "decision_time": "immediately before each current query readout",
+    "allowed_inputs": ["current query text/vector", "cached observed records and writer vectors"],
+    "forbidden_inputs": ["gold targets", "future queries", "undeclared source rereading", "evaluator expected answers"],
+    "accepted_refresh": "append the selected cached observation once after full observed history",
+    "unaccepted_refresh": "abstain with zero memory readout",
+    "correction_scope": "live current records only; superseded/negative records are not candidates",
+    "hybrid_classification": "query-addressed cached-observation retrieval plus neural refresh, reported separately from full-history learned memory"
+  },
+  "thresholds": {
+    "match_cosine_floor": 0.5,
+    "match_margin_floor": 0.05,
+    "address_cosine_floor": 0.5,
+    "address_margin_floor": 0.05,
+    "exact_key_top1_floor": 0.85,
+    "exact_key_mean_rank_max": 1.2,
+    "exact_key_margin_floor": 0.02,
+    "exact_key_false_recall_max": 0.05,
+    "address_top1_floor": 0.6,
+    "address_mean_rank_max": 1.5,
+    "address_margin_mean_floor": 0.01,
+    "address_false_recall_max": 0.3,
+    "correction_top1_floor": 0.6,
+    "unaffected_top1_floor": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "mechanism_top1_delta": 0.25,
+    "mechanism_rank_delta": 0.5,
+    "mechanism_margin_delta": 0.02,
+    "production_parity_atol": 1e-06,
+    "causal_top1_floor": 0.85,
+    "oracle_exact_top1_floor": 0.85
+  },
+  "evaluation": {
+    "metrics": ["all facts after successive writes", "dated corrections", "unaffected retention", "unknown abstention", "save/reload and fresh-process continuation"],
+    "full_history_baseline": "shared_mean/full with no refresh",
+    "learned_causal_refresh": "shared_mean/causal_query_refresh",
+    "shuffled_control": "same keys and refresh decisions with cyclically deranged value vectors",
+    "disabled_control": "zero memory state and zero value readout",
+    "oracle_bound": "shared_mean/oracle_target_refresh_last; uses gold target only in evaluator and is not deployable",
+    "acceptance": "causal top1 >=0.85, correction >=0.60, unaffected >=0.70, unknown false recall <=0.10, oracle exact top1 >=0.85, frozen writer and restart contracts pass",
+    "resume_parity": "decisions, readouts, rankings and codebooks are byte-identical; zero old-observation encodes"
+  },
+  "reused_generation_controls": {
+    "run_report": "runs/memory_matched_20261025/native03/run_report.json",
+    "run_report_sha256": "4782a9b925d8176ca58956ba5b8a8eba145d5f6efdc140c8033400e70735ec6e",
+    "guard_report": "reports/memory_matched_20261025/native03.guard.json",
+    "guard_report_sha256": "14a54b1b2b1a036dddacc7db4d94fa4965bafa7fee56f687fd4732200fd863d3",
+    "rerun": false,
+    "exact_source_correct": 162,
+    "full_context_correct": 160,
+    "memory_correct": 0,
+    "context_removed_correct": 42,
+    "cases_per_arm": 162,
+    "classification": "exact retrieval/full-context hybrid controls, not learned-memory quality"
+  },
+  "budget": {
+    "optimizer_updates": 0,
+    "gradient_examples": 0,
+    "native_training_jobs": 0,
+    "native_diagnostic_jobs": 2,
+    "model_loads": 2,
+    "extension_reloads": 2,
+    "policy_checkpoints_saved": 1,
+    "max_wall_seconds_per_job": 900
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_native_worker": true,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15.0,
+    "sustained_host_samples": 3,
+    "downloads": 0
+  },
+  "implementation_paths": [
+    "scripts/run_memory_causal_refresh.py",
+    "scripts/run_capacity_preflight.py",
+    "src/replica_lab/memory_causal_refresh.py",
+    "src/replica_lab/memory_update_dynamics.py",
+    "src/replica_lab/memory_matched.py",
+    "src/replica_lab/memory_diagnosis.py",
+    "src/replica_lab/memory_reliability.py",
+    "src/replica_lab/neural.py",
+    "src/replica_lab/architecture/loading.py",
+    "src/replica_lab/architecture/minicpm5.py",
+    "src/replica_lab/architecture/contracts.py",
+    "src/replica_lab/architecture/ports.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/runtime/persistent_fast_memory.py",
+    "src/replica_lab/runtime/fast_memory.py",
+    "src/replica_lab/runtime/fact_memory.py",
+    "src/replica_lab/runtime/memory_representation.py"
+  ],
+  "limitations": [
+    "The frozen rejected writer remains rejected; this is a zero-update storage/refresh diagnostic.",
+    "Causal refresh uses cached observed-record retrieval and is therefore hybrid even when neural readout improves.",
+    "Exact observed-key recovery is a diagnostic upper bound, not natural-language task success.",
+    "The oracle target-refresh arm is not a legal deployable policy.",
+    "Reused exact-source/full-context generation controls are not rerun or presented as new generation evidence."
+  ]
+}

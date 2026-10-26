@@ -76,6 +76,7 @@ def main():
                                                  "run_memory_matched.py",
                                                  "run_vision_curriculum.py",
                                                  "run_memory_update_dynamics.py",
+                                                 "run_memory_causal_refresh.py",
                                                  "run_m3_restart.py",
                                                  "eval_m3_retention.py",
                                                  "run_vision_overfit.py",
