@@ -1,0 +1,56 @@
+{
+  "status": "stopped_or_failed",
+  "started_at_utc": "2026-10-26T09:13:02.133306+00:00",
+  "command": [
+    "/Users/flare/replica_r3_starter/.venv/bin/python",
+    "/Users/flare/replica_r3_starter/scripts/probe_fused_adamw_sustained.py",
+    "--mode",
+    "smoke",
+    "--device",
+    "mps",
+    "--protocol",
+    "configs/fused_adamw_continuation_comparison_v1.json",
+    "--output",
+    "runs/fused_adamw_20261026_comparison03/interrupted_resume",
+    "--resume-from",
+    "runs/fused_adamw_20261026_comparison03/interrupted_first/resume_checkpoint",
+    "--resume-report",
+    "runs/fused_adamw_20261026_comparison03/interrupted_first/run_report.json"
+  ],
+  "output": "/Users/flare/replica_r3_starter/runs/fused_adamw_20261026_comparison03/interrupted_resume",
+  "child_log": "reports/fused_adamw_20261026_comparison03/interrupted_resume.guard.child.log",
+  "host_samples": "reports/fused_adamw_20261026_comparison03/interrupted_resume.guard.host.jsonl",
+  "host_poll_seconds": 2,
+  "profile_poll_seconds": 0.25,
+  "missing_driver_sample_timeout_seconds": 30,
+  "implementation_sha256": {
+    "scripts/run_capacity_preflight.py": "b391d92349166c44a96001ecb137c94bea0b3338b14b95ec5cdf3bff12cda386",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6"
+  },
+  "notes": [
+    "Sampled limits can miss transients and cannot guarantee no OOM",
+    "Host swap/pressure are system-wide, not attributable to this process",
+    "MPS driver and RSS counters overlap; do not add them",
+    "CPU fallback and OS/allocator safeguards are unchanged"
+  ],
+  "child_exit_code": 1,
+  "elapsed_seconds": 50.97822779091075,
+  "guard": {
+    "policy": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15.0,
+      "sustained_host_samples": 3
+    },
+    "baseline": {
+      "swap_used_bytes": 4661570437,
+      "memory_free_percent": 94.0
+    },
+    "host_samples": 25,
+    "driver_samples": 115,
+    "peak_driver_bytes": 41247834112,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 53.0,
+    "stop_reason": null
+  }
+}

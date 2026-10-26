@@ -1,0 +1,33 @@
+{
+  "format": "replica.fused_adamw_continuation_comparison.receipt.v1",
+  "status": "failed",
+  "checks": {
+    "continuous_completed": null,
+    "interrupted_first_completed": true,
+    "interrupted_resume_completed": false,
+    "final_parameter_hashes_identical": null,
+    "update_losses_rates_and_counts_identical": null,
+    "final_logits_and_loss_identical": null
+  },
+  "failures": [
+    "interrupted_resume_did_not_complete",
+    "checkpoint_tensor_device_comparison_rejected_mps_default_index"
+  ],
+  "failure_stage": "native_resume_device_validation_before_update",
+  "resume_guard": {
+    "child_exit_code": 1,
+    "stop_reason": null,
+    "peak_driver_bytes": 41247834112,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 53.0,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912
+  },
+  "evidence": {
+    "interrupted_first": "runs/fused_adamw_20261026_comparison03/interrupted_first/run_report.json",
+    "interrupted_resume_failure": "runs/fused_adamw_20261026_comparison03/interrupted_resume/failure_report.json",
+    "interrupted_first_guard": "reports/fused_adamw_20261026_comparison03/interrupted_first.guard.json",
+    "interrupted_resume_guard": "reports/fused_adamw_20261026_comparison03/interrupted_resume.guard.json"
+  },
+  "scope": "Direct MPS loading reached the checkpoint with zero swap growth, but the validation expression incorrectly distinguished mps from mps:0. No resumed update or final equivalence claim occurred."
+}

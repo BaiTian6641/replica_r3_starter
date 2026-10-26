@@ -272,7 +272,10 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
             raise ValueError("Duplicate checkpoint tensor names")
         weights.update(shard)
     expected_device = torch.device(device)
-    if any(value.device != expected_device for value in weights.values()):
+    if any(value.device.type != expected_device.type
+           or (expected_device.index is not None
+               and value.device.index != expected_device.index)
+           for value in weights.values()):
         raise RuntimeError("Checkpoint tensor device differs from requested resume device")
     base.load_state_dict(weights, assign=True, strict=True)
     # Assignment preserves checkpoint storage but replaces Parameter objects;
