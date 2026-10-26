@@ -41,6 +41,13 @@ offline sources and the unchanged 50 GiB / 512 MiB / 15% guard.
   all 123 affected tests pass. No gradients or answer/caption-mixing arm were
   run by this diagnostic.
 
+The [final clean-clone suite](reports/clean_export_20261026_final/summary.json)
+at `f25670a` passes **2,133 tests plus 21 subtests**, with 37 explicit
+provisioning/decode skips and no failures in 345.04 s. The exact clone also
+verifies all 89 strict-bundle inputs and all seven JPEGs read-only. The first
+archive run's eight environment/provisioning failures are preserved; user
+changes were excluded and restored, not committed or discarded.
+
 The next justified experiment is a predeclared **read-only mean-only
 projected-patch ablation** on the same sealed training rows and pinned train04
 stage, comparing opposite-token gaps and greedy swap-invariance against

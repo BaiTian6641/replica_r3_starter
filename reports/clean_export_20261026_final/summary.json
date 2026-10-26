@@ -1,0 +1,79 @@
+{
+  "format": "replica.clean_export_verification.v1",
+  "date": "2026-10-26",
+  "head_commit": "f25670a",
+  "head_commit_full": "f25670a2de46425e66352e71dad20cf286401c9b",
+  "source": "Exact local `git clone --no-hardlinks .` of HEAD with .git metadata; no uncommitted files in the tested clone",
+  "first_attempt": {
+    "head": "510f6dd",
+    "source": "git archive HEAD (no .git metadata)",
+    "junit_xml": "reports/clean_export_20261026_final/tests.xml",
+    "passed": 2127,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 34,
+    "subtests_passed": 21,
+    "seconds": 310.57,
+    "failure_scope": [
+      "raw-archive Git metadata made all required bundle inputs appear untracked",
+      "nested document verification treated optional ignored runs/ links as required inputs",
+      "three vision diagnostic tests lacked explicit local-artifact provisioning skips",
+      "the rebuilt manifest initially included an unstaged user edit to Spark_Residency_Reconciliation.md"
+    ],
+    "preserved": true
+  },
+  "intermediate_fixes": {
+    "6252c0e": "Excluded resolved runs/ links only from document checks, added explicit vision artifact provisioning, and kept all other document/config/source checks strict",
+    "aed1723": "Refreshed status documents and next gates without changing execution behavior",
+    "f25670a": "Rejected unstaged required bundle inputs while allowing intentional staged updates; rebuilt the manifest from HEAD bytes and restored the user document via scoped stash"
+  },
+  "final_attempt": {
+    "head": "f25670a",
+    "clone": "/tmp/replica_clean_export_20261026_f25670a",
+    "junit_xml": "reports/clean_export_20261026_final/tests_final.xml",
+    "passed": 2133,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 37,
+    "subtests_passed": 21,
+    "warnings": 1,
+    "warning_scope": "PyTorch sparse-invariant performance warning in test_m4_pattern; no failure",
+    "seconds": 345.04,
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/clean_export_20261026_final/tests_final.xml"
+  },
+  "strict_bundle": {
+    "verified": true,
+    "input_count": 89,
+    "total_input_bytes": 3957650,
+    "bundle_digest": "a0c36993ba77528b0890523f6df159e2aba19f0742f890a1dab1dc1be8ad16e4",
+    "clean_checkout_ready": true,
+    "focused_bundle_tests": "39 passed in the provisioned workspace"
+  },
+  "real_image_clone_check": {
+    "jpeg_assets": 7,
+    "pillow_decode_and_sha256_verified": true,
+    "receipt_writes": 0,
+    "note": "Read-only verification in the exact clean clone"
+  },
+  "skip_provisioning": {
+    "total": 37,
+    "by_reason": {
+      "sealed MiniCPM source absent": 15,
+      "Pillow decode fixture generation unavailable in base environment": 7,
+      "vision diagnostic model/encoder/train04 extension absent": 3,
+      "memory reliability candidate extension absent": 3,
+      "external caption tranche absent": 2,
+      "other optional native/raw evidence artifacts": 7
+    },
+    "policy": "Every skip is explicit in tests_final.xml with the test name and provisioning reason; no hidden test deletion or fallback. The alternate .venv-vision run in the provisioned workspace covered the seven Pillow decode branches.",
+    "network_downloads": 0,
+    "native_model_jobs_in_clean_suite": 0
+  },
+  "scope": "Clean-clone software verification only. Native model results and their guard receipts were produced separately in the provisioned workspace and are not claimed by this suite.",
+  "preservation": {
+    "first_failed_xml_retained": true,
+    "unrelated_uncommitted_user_files_excluded_and_preserved": true,
+    "residency_document_restored_after_scoped_stash": true,
+    "protected_runtime_pilot_not_touched": true
+  }
+}

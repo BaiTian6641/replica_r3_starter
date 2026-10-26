@@ -27,9 +27,10 @@ unchanged. Attempt02 passes independent engineering review and preserves
 native01; no held-out claim or V0 promotion follows. Next is a read-only mean-
 only projected-patch ablation on the same sealed rows.
 
-The final integration suite passed 2016 tests plus 21 subtests with one
-explicit skip in 292.73 s; see `reports/regression_20261026/full_suite.log`
-and `full_suite.xml`.
+The final clean-clone suite at `f25670a` passed **2,133 tests plus 21
+subtests**, with 37 explicit skips in 345.04 s; see
+`reports/clean_export_20261026_final/summary.json` and `tests_final.xml`.
+The first archive run's eight provisioning failures are preserved separately.
 
 The balanced diagnostic supports narrow procedural image dependence: primary
 71/120 dev and 75/120 final versus question-only 36/120 and shuffled 50/120 and
