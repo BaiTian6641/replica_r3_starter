@@ -151,8 +151,6 @@ def main():
 
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
-    from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
-    from replica_lab.contracts import audit_splits
     from replica_lab.optimizers import build_optimizer
     from replica_lab.profiling import RunProfiler
 
@@ -285,7 +283,16 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
     base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
     start_step = 0
     if args.resume_from:
+        if args.device != "cpu":
+            model.to("cpu")
+            gc.collect()
+            if args.device == "mps":
+                torch.mps.empty_cache()
+            elif args.device == "cuda":
+                torch.cuda.empty_cache()
         restored = load_runtime_state(args.resume_from / "runtime.pt", optimizer, run_contract=contract)
+        if args.device != "cpu":
+            model.to(args.device)
         start_step = restored["step"]
         if start_step != resume_receipt["completed_steps"]:
             raise ValueError("Runtime completed step differs from the checkpoint receipt")

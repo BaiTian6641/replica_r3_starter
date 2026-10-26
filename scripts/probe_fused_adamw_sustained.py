@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import gc
 import importlib.metadata
 import json
 import os
@@ -151,8 +152,12 @@ def execute(args, profiler):
     start_step = 0
     update_reports = []
     if args.resume_from:
+        model.to("cpu")
+        gc.collect()
+        torch.mps.empty_cache()
         restored = load_runtime_state(
             Path(args.resume_from) / "runtime.pt", optimizer, run_contract=contract)
+        model.to("mps")
         start_step = restored["step"]
         if start_step != 1 or start_step != resume_receipt["completed_steps"]:
             raise ValueError("Smoke resume must continue exactly update 1")
