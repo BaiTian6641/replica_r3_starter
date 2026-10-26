@@ -656,8 +656,9 @@ def execute_ablation(args, config, pins):
                     answer_max_new_tokens=int(limits["max_new_tokens"]),
                     caption_max_new_tokens=int(
                         limits["caption_max_new_tokens"]))
+                mean_normalized = _normalised_generation_rows(mean_stage["records"])
                 mean_generations = learn.generation_hypothesis_report(
-                    _normalised_generation_rows(mean_stage["records"]),
+                    mean_normalized,
                     answer_max_new_tokens=int(limits["max_new_tokens"]),
                     caption_max_new_tokens=int(
                         limits["caption_max_new_tokens"]))
