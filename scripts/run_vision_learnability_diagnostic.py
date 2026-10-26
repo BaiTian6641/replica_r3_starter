@@ -453,7 +453,8 @@ def _write_report_fixed_point(output, report, limits, data_bytes):
     total = sum(path.stat().st_size for path in output.rglob("*")
                 if path.is_file())
     learn.require(total == report["artifact_bytes_estimate_including_report"],
-                  "Data-plus-report bytes differ from the recorded total")
+                  f"Data-plus-report bytes differ: recorded "
+                  f"{report['artifact_bytes_estimate_including_report']} actual {total}")
     learn.require(total <= int(limits["artifact_bytes"]),
                   "Artifact bytes exceed the declared ceiling")
     manifest, manifest_payload = _artifact_manifest(
