@@ -300,7 +300,18 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
         torch.cuda.empty_cache()
     restored = load_runtime_state(
         runtime_path, actual_optimizer, run_contract=run_contract,
-        restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
+        restore_rng=restore_rng, strict_rng=strict_rng, target_device="cpu")
+    gc.collect()
+    for index, state in enumerate(actual_optimizer.state.values()):
+        for key, value in list(state.items()):
+            if isinstance(value, torch.Tensor):
+                state[key] = value.to(device)
+        if index % 8 == 0:
+            gc.collect()
+            if torch.device(device).type == "mps":
+                torch.mps.empty_cache()
+            elif torch.device(device).type == "cuda":
+                torch.cuda.empty_cache()
     if getattr(model, "augmented", False):
         model.load_sidecars(base_path.parent / "sidecars.safetensors")
     return base, model, actual_optimizer, restored, base_rates
