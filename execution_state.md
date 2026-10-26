@@ -1,6 +1,6 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — verification defects repaired; balanced image dependence supported on procedural holdouts; both V1 connector arms rejected; matched-memory localization next.**
+**Current implementation — matched exact-key retention fails first with last-write dominance; balanced image dependence supported on procedural holdouts; staged curriculum next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -46,6 +46,27 @@ remain on 12/72 rows, pair-twin donors occur, and lexical diversity is limited.
 Peak sampled driver is 11,815,763,968 bytes with zero swap growth and 76%
 minimum free. The full suite passes **1,706 tests +21 subtests in 207.54 s**.
 Next run matched-episode memory localization before any new projector arm.
+
+## Matched-episode memory localization — exact-key retention fails first
+
+The [matched-memory results](docs/experiments/20261025_Matched_Memory_Localization.md)
+use identical episodes across exact observed-key retrieval, query addressing,
+candidate/value discrimination and native generation. The first failing stage is
+exact-key stored-value retention/readout: top1 **18/120**, mean rank 3.275,
+margin −0.0219221. Query-derived addressing passes **116/120**, mean rank 1.0333,
+but does not establish stored-value recovery. Candidate/value discrimination
+fails with the same 18/120 top1.
+
+The failure is last-write dominated: **18/18 final-write targets top1 versus
+0/102 non-final-write targets**. Corrected targets are 12/12; unaffected retained
+facts are 0/30. Native03 audits and applies a 12-token answer budget, removing
+native02's truncation confound: exact source is 162/162, full context 160/162,
+memory 0/162 and context-removed 42/162. Source-grounded generation works;
+learned-memory generation does not. Save/reload is 42/42 equal with zero updates.
+Guard elapsed is 543.251 s, peak driver 10,765,336,576 bytes, zero swap growth
+and 74% minimum free. Independent CPU recomputation and outcome review confirm
+the localization. Next compare update dynamics on the same episodes before any
+writer/reader change or new training arm; the staged vision curriculum follows.
 
 ## Isolated V0 source and native preregistration — 25 October 2026
 
