@@ -1,0 +1,275 @@
+{
+  "format": "replica.memory_causal_fresh.config.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Fresh, disjoint paraphrase/distractor/correction/unknown selector comparison for the frozen-writer causal arm with exactly-once writes, live revocation, full checkpoint representation binding, post-restart new-query evaluation and cached-history cost accounting. Zero updates; no learned-memory or generation claim.",
+  "seed": 20261027,
+  "base_generator": {
+    "families_per_split": {
+      "train": 1,
+      "dev": 1,
+      "heldout": 1
+    },
+    "complexities": [
+      "correction",
+      "interference"
+    ],
+    "variants": 2
+  },
+  "query_plan": {
+    "first_process_forms": [
+      0,
+      1
+    ],
+    "restart_forms": [
+      2,
+      3
+    ],
+    "distractor_forms": {
+      "first_process": 2,
+      "restart": 3
+    },
+    "unknown_forms": {
+      "first_process": 3,
+      "restart": 0
+    },
+    "revocation_query_source": "first_process_distractor_text",
+    "restart_unknown_address": "fresh_opaque",
+    "phases": [
+      "first_process",
+      "restart",
+      "revocation"
+    ]
+  },
+  "revocation": {
+    "target": "episode.distractors[0]",
+    "applies_at": "post_restart",
+    "scope": "view_only",
+    "cached_history_retained": true,
+    "history_record_ids_must_not_change": true,
+    "blocked_acceptance_kinds": [
+      "revoked",
+      "stale"
+    ],
+    "revoked_acceptance_max": 0,
+    "live_reference": "first_process_distractor_query"
+  },
+  "restart": {
+    "new_query_encodes_required": true,
+    "old_observation_encodes_allowed": 0,
+    "old_query_encodes_allowed": 0,
+    "same_query_parity": "byte_identical_first_process_rows",
+    "first_process_checkpoint": "policy_checkpoint.pt",
+    "restart_checkpoint": "policy_checkpoint_restart.pt"
+  },
+  "layers": [
+    13,
+    27
+  ],
+  "engine": {
+    "heads": 4,
+    "key_size": 64,
+    "value_size": 64,
+    "update_rule": "sgdn2",
+    "depth_mode": "shared",
+    "depth_writers": true,
+    "reducer": "shared_mean"
+  },
+  "representation": {
+    "name": "fact_binding_key_value.v1",
+    "observation_renderer": "fact_source_text.v1",
+    "query_renderer": "render_fact_query.v1",
+    "query_pooling": "masked_mean",
+    "key_space": "writer_key",
+    "value_space": "writer_value",
+    "key_inputs": [
+      "entity",
+      "attribute"
+    ],
+    "value_inputs": [
+      "value"
+    ]
+  },
+  "numeric_policy": {
+    "torch_use_deterministic_algorithms": true,
+    "mps_fast_math": "disabled",
+    "dtype": "float32",
+    "rationale": "fresh-process byte parity must distinguish checkpoint corruption from backend nondeterminism"
+  },
+  "variant_names": [
+    "shared_mean/full",
+    "shared_mean/causal_query_refresh",
+    "shared_mean/causal_query_refresh_shuffled_values",
+    "shared_mean/disabled",
+    "shared_mean/oracle_target_refresh_last"
+  ],
+  "selector": {
+    "decision_time": "immediately before each current-query readout",
+    "allowed_inputs": [
+      "current query vector",
+      "cached live observation writes"
+    ],
+    "forbidden_inputs": [
+      "gold targets",
+      "future queries",
+      "undeclared source rereading",
+      "evaluator expected answers",
+      "revoked records"
+    ],
+    "accepted_refresh": "commit the selected observation through the write ledger; an already-committed record is rejected as duplicate replay",
+    "unaccepted_refresh": "abstain with zero memory readout",
+    "candidate_scope": "live observed records minus revoked records",
+    "hybrid_classification": "query-addressed cached-observation retrieval plus neural refresh, reported separately from full-history learned memory"
+  },
+  "thresholds": {
+    "match_cosine_floor": 0.5,
+    "match_margin_floor": 0.05,
+    "address_cosine_floor": 0.5,
+    "address_margin_floor": 0.05
+  },
+  "acceptance": {
+    "format": "replica.memory_acceptance.config.v2",
+    "metric_version": "memory.acceptance.v2",
+    "candidate_variant": "shared_mean/causal_query_refresh",
+    "oracle_variant": "shared_mean/oracle_target_refresh_last",
+    "gates": {
+      "accepted_correct_rate_min": 0.85,
+      "accepted_precision_min": 0.9,
+      "correction_accepted_correct_rate_min": 0.6,
+      "unaffected_accepted_correct_rate_min": 0.7,
+      "unknown_false_recall_max": 0.1,
+      "oracle_raw_top1_rate_min": 0.85
+    },
+    "bootstrap": {
+      "seed": 17,
+      "resamples": 2000,
+      "confidence": 0.95
+    },
+    "decisive_cohort": "restart_heldout"
+  },
+  "limits": {
+    "max_wall_seconds_per_process": 1200,
+    "max_observation_encodes": 512,
+    "max_query_encodes_per_process": 1024,
+    "max_state_rebuilds_per_process": 256,
+    "max_readout_rows_per_process": 40000,
+    "max_checkpoint_bytes": 268435456,
+    "max_duplicate_observe_commits": 0,
+    "max_accepted_refresh_applied": 0
+  },
+  "stop_conditions": [
+    "abort_on_duplicate_observe_commit",
+    "abort_on_accepted_refresh_applied",
+    "abort_on_revoked_acceptance",
+    "abort_on_stale_acceptance",
+    "abort_on_checkpoint_binding_mismatch",
+    "abort_on_restart_old_observation_encode",
+    "abort_on_restart_same_query_parity_mismatch",
+    "abort_on_limit_exceeded",
+    "never_promote_quality_without_oracle_bound"
+  ],
+  "budget": {
+    "optimizer_updates": 0,
+    "gradient_examples": 0,
+    "native_training_jobs": 0,
+    "native_diagnostic_jobs": 2,
+    "model_loads": 2,
+    "extension_reloads": 2,
+    "checkpoints_saved": 2,
+    "max_wall_seconds_per_job": 1200
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_native_worker": true,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15.0,
+    "sustained_host_samples": 3,
+    "downloads": 0
+  },
+  "checkpoint_policy": {
+    "format": "replica.memory_causal_fresh.checkpoint.v2",
+    "first_process_checkpoint": "policy_checkpoint.pt",
+    "restart_checkpoint": "policy_checkpoint_restart.pt",
+    "overwrite": false,
+    "retention": "retain_both",
+    "reject_on_mismatch": true,
+    "bindings": [
+      "protocol_sha256",
+      "fixture",
+      "source",
+      "writer",
+      "representation",
+      "implementation",
+      "engine"
+    ]
+  },
+  "raw_output_policy": {
+    "fresh_output_required": true,
+    "immutable_first_write": true,
+    "forbidden_keys_in_decisions_and_readouts": [
+      "expected",
+      "expected_answer",
+      "gold_answer"
+    ],
+    "evaluator_answers_only_in_report_metrics": true,
+    "preserved_rows": [
+      "decisions.jsonl",
+      "readouts.jsonl",
+      "rankings.jsonl",
+      "codebooks.json",
+      "ledger.json"
+    ],
+    "no_generation_claims": true
+  },
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "required_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "writer_extension": {
+    "path": "runs/memory_reliability_v5_attempt01/candidate_extension",
+    "weights_sha256": "ff339867647a1fa934203dcafc91339afe182186567f99116b767b9f00c11f49",
+    "manifest_sha256": "337e6856246b3e553e112f72f369643f811e09760a10ad28aa8f73b1c12b8c95",
+    "manifest_digest": "9d8de79a6c3bcb5cfb1b9f71ad1c288731c462ae8d1df93ea931d4c90b540f60",
+    "role": "frozen rejected writer diagnostic artifact; zero updates and no promotion"
+  },
+  "disjoint_from": {
+    "path": "data/memory_matched_20261025/prepared02",
+    "episodes_sha256": "48074931487e8215b7ca1491719953af05158604493688c48a1a5fd62f778bd1",
+    "labels_sha256": "43af487341f7277815b2899c877b792992660ba57be788bab64b980cf16f151e"
+  },
+  "implementation_paths": [
+    "configs/memory_causal_fresh_v1.json",
+    "scripts/prepare_memory_causal_fresh.py",
+    "scripts/run_memory_causal_fresh.py",
+    "src/replica_lab/memory_causal_fresh.py",
+    "src/replica_lab/memory_causal_refresh.py",
+    "src/replica_lab/memory_acceptance.py",
+    "src/replica_lab/memory_matched.py",
+    "src/replica_lab/memory_update_dynamics.py",
+    "src/replica_lab/memory_diagnosis.py",
+    "src/replica_lab/memory_reliability.py",
+    "src/replica_lab/neural.py",
+    "src/replica_lab/architecture/contracts.py",
+    "src/replica_lab/architecture/loading.py",
+    "src/replica_lab/architecture/minicpm5.py",
+    "src/replica_lab/architecture/ports.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/runtime/fact_memory.py",
+    "src/replica_lab/runtime/memory_representation.py",
+    "src/replica_lab/vision_curriculum.py"
+  ],
+  "limitations": [
+    "The frozen rejected writer remains rejected; this is a zero-update storage/refresh diagnostic.",
+    "Causal refresh uses cached observed-record retrieval and is therefore hybrid even when neural readout improves.",
+    "Accepted refresh of an already-observed record is duplicate replay and is rejected, so the causal arm is expected to collapse to full history unless a genuinely uncommitted observation exists.",
+    "Exact observed-key recovery is a diagnostic upper bound, not natural-language task success.",
+    "The oracle target-refresh arm is not a legal deployable policy.",
+    "Generation is not executed or claimed; only retrieval/readout rows are scored.",
+    "No learned selector or useful-memory claim follows from any metric in this protocol."
+  ]
+}
