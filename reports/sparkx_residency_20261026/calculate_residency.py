@@ -1,19 +1,37 @@
 #!/usr/bin/env python3
-"""Analytical residency lower bounds for full-scope Spark X2.6 4B training.
+"""Deterministic analytical residency ledger for the SparkX 2.6 4B revision.
 
-Standard library only. Every total is recomputed from the pinned official BF16
-safetensors tensor index; no weights, assets, tokenizers, model code or native
-run is required, downloaded or executed. All byte figures are analytical lower
-bounds over the declared tensors and declared per-parameter byte rates. They are
-not a native memory fit, a measured allocator peak, a throughput prediction, a
-convergence claim or an admission decision.
+Standard library only. All figures are recomputed from committed evidence:
+the sealed BF16 tensor index, the sealed mixed-dtype FP8 adaptation index, the
+repository driver-guard policy and the declared component counts in the
+architecture document. No weights, loaders, tokenizer, dataset, model code or
+native job is required, downloaded or executed.
 
-Usage:  python3 reports/sparkx_residency_20261026/calculate_residency.py
-Writes: reports/sparkx_residency_20261026/residency.json
+The ledger deliberately separates:
+
+* source artifact storage (BF16 checkpoint, mixed-dtype FP8 checkpoint),
+* training storage (model copies, gradients, masters, moments),
+* memory-module state (bank tensors, dynamic fast/knowledge state),
+* analytical activation / logit / temporary-buffer budgets,
+* restore and export peaks.
+
+The corrected five-copy mixed-precision rate is 18 bytes/parameter:
+BF16 weights 2 + FP32 master 4 + FP32 gradients 4 + two FP32 moments 4+4.
+A separate all-FP32 rate is 16 bytes/parameter. That is a different storage
+plan, not the same one with different rounding. FP8 artifact storage is a
+third, source-only account and does not establish FP8 training capability.
+
+Usage:
+  python3 reports/sparkx_residency_20261026/calculate_residency.py
+  python3 reports/sparkx_residency_20261026/calculate_residency.py --check
+
+Writes (default): reports/sparkx_residency_20261026/residency_v2.json
+The historical v1 receipt at residency.json is never modified.
 """
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import math
@@ -22,57 +40,148 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent
 
 GIB = 2**30
 MIB = 2**20
+KIB = 2**10
 
-HEADER_PATH = "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json"
-MINICPM_RUN_PATH = "runs/fused_adamw_20261025/sustained01/run_report.json"
-MINICPM_GUARD_PATH = "reports/fused_adamw_20261025/sustained01.guard.json"
-ARCHITECTURE_DOC_PATH = (
+BF16_HEADER_PATH = (
+    "reports/spark_preparation_20261025/run_01/headers/"
+    "official_bf16_control/tensor_index.json"
+)
+FP8_HEADER_PATH = (
+    "reports/spark_preparation_20261025/run_01/headers/"
+    "official_fp8_adaptation_base/tensor_index.json"
+)
+GUARD_PATH = "reports/fused_adamw_20261025/sustained01.guard.json"
+ARCHITECTURE_PATH = (
     "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md"
 )
-PRODUCT_PLAN_PATH = "configs/sparkx_2_6_4b_product_plan_v4.json"
-SIGLIP_MANIFEST_PATH = (
-    "checkpoints/siglip2_base_patch16_224_source/source_manifest.json"
-)
 CALCULATOR_PATH = "reports/sparkx_residency_20261026/calculate_residency.py"
-RECEIPT_PATH = "reports/sparkx_residency_20261026/residency.json"
+RECEIPT_PATH = "reports/sparkx_residency_20261026/residency_v2.json"
+SUPERSEDED_RECEIPT_PATH = "reports/sparkx_residency_20261026/residency.json"
 
-# Repository guard policy: 50 GiB sampled driver limit, unchanged since 23 Oct 2026.
-# The committed receipt below is used to supply the policy value; it is asserted
-# to equal this constant rather than trusted blindly.
-DRIVER_GUARD_GIB = 50
+DRIVER_GUARD_GIB = 50  # repository policy, asserted against the committed guard
 
-DTYPE_BYTES = {"BF16": 2, "FP16": 2, "F32": 4, "FP32": 4, "F8_E4M3": 1, "F8_E5M2": 1}
+DTYPE_BYTES = {
+    "BF16": 2,
+    "F16": 2,
+    "F32": 4,
+    "FP32": 4,
+    "F8_E4M3": 1,
+    "F8_E5M2": 1,
+}
+
+# The four candidate training storage plans. Only the first two are asserted
+# as live options; the others keep the optimistic bounds traceable. The key
+# correction in this revision is that a coexisting BF16 weight and FP32 master
+# cost 2 + 4, so the full AdamW copy set is 18 bytes/parameter, never 16.
+TRAINING_PLANS = [
+    {
+        "id": "all_fp32",
+        "label": "FP32 weights, FP32 gradients, two FP32 Adam moments",
+        "copies": [
+            ("weights_fp32", "FP32", 1),
+            ("gradients_fp32", "FP32", 1),
+            ("moment1_fp32", "FP32", 1),
+            ("moment2_fp32", "FP32", 1),
+        ],
+        "note": (
+            "The FP32 weight tensor is itself the master. This is 16 "
+            "bytes/parameter: 4 + 4 + 4 + 4."
+        ),
+    },
+    {
+        "id": "bf16_weights_fp32_master_fp32_gradients_two_fp32_moments",
+        "label": (
+            "BF16 stored weights plus FP32 master weights, FP32 gradients, "
+            "two FP32 Adam moments"
+        ),
+        "copies": [
+            ("weights_bf16", "BF16", 1),
+            ("master_weights_fp32", "FP32", 1),
+            ("gradients_fp32", "FP32", 1),
+            ("moment1_fp32", "FP32", 1),
+            ("moment2_fp32", "FP32", 1),
+        ],
+        "note": (
+            "The five-copy mixed-precision shape required for faithful AdamW "
+            "updates from BF16 storage. It is 18 bytes/parameter: "
+            "2 + 4 + 4 + 4 + 4. It must not be called 16."
+        ),
+    },
+    {
+        "id": "bf16_weights_fp32_gradients_two_fp32_moments_no_master",
+        "label": (
+            "BF16 stored weights, FP32 accumulated gradients, two FP32 Adam "
+            "moments, no FP32 master copy"
+        ),
+        "copies": [
+            ("weights_bf16", "BF16", 1),
+            ("gradients_fp32", "FP32", 1),
+            ("moment1_fp32", "FP32", 1),
+            ("moment2_fp32", "FP32", 1),
+        ],
+        "note": "14 bytes/parameter: 2 + 4 + 4 + 4. The update has no master.",
+    },
+    {
+        "id": "bf16_weights_bf16_gradients_two_fp32_moments_no_master",
+        "label": (
+            "BF16 stored weights and BF16 gradients, two FP32 Adam moments, "
+            "no FP32 master copy"
+        ),
+        "copies": [
+            ("weights_bf16", "BF16", 1),
+            ("gradients_bf16", "BF16", 1),
+            ("moment1_fp32", "FP32", 1),
+            ("moment2_fp32", "FP32", 1),
+        ],
+        "note": (
+            "12 bytes/parameter: 2 + 2 + 4 + 4. BF16 gradient accumulation is "
+            "an optimistic lower bound; autocast usually accumulates FP32."
+        ),
+    },
+]
+
+# Declared architecture widths. The counts are recomputed from these constants
+# and cross-checked against the architecture document where it states a total.
+WIDTH = {
+    "backbone": 2560,
+    "vision_encoder": 768,
+    "audio_encoder": 512,
+    "bridge": 1024,
+    "phrase": 256,
+    "reader": 512,
+}
+LAYERS = 36
+FFN_WIDTH = 10240
+VOCAB = 131072
+QUERY_HEADS = 16
+KV_HEADS = 4
+HEAD_DIM = 256
+VISION_PATCHES = 196
+AUDIO_TOKENS = 40
+MICROBATCH_POSITIONS = 256  # declared product-plan cap, not a measured batch
+MEMORY_BANK_RECORDS = 4096
+MEMORY_BANK_ELEMENTS_PER_RECORD = 896
+MEMORY_READER_SITES = 2
+SUSTAINED_SWAP_LIMIT = 512 * MIB
+MINIMUM_FREE_PERCENT = 15
 
 EXCLUSIONS = [
-    "activations, attention workspace and retained graphs, including activation checkpointing peaks",
-    "full logits and the vocabulary projection over 131,072 rows",
-    "gradient clipping reduction buffers and temporary copies",
-    "optimizer temporaries: fused-kernel scratch, foreach lists, step/scalar buffers, block scales and dequantization buffers",
-    "allocator, caching-allocator fragmentation, compiler and MPS driver overhead",
-    "data loaders, raw media, replay buffers, KV cache and long-context state",
-    "per-session or per-worker replication of any of the above",
-    "checkpoint serialization peaks and export copies",
+    "allocator fragmentation, caching-allocator slack, compiler workspace and MPS driver overhead",
+    "autograd graph metadata, Python object overhead and per-tensor bookkeeping",
+    "per-worker or per-session replication of model, optimizer, activation or memory state",
+    "checkpoint I/O buffers beyond the declared export staging copy",
+    "raw media, tokenized corpora, replay buffers and data-loader prefetch",
+    "per-camera/per-microphone encoder streaming queues beyond the declared temporary budget",
+    "teacher models, evaluation harnesses and any training-only auxiliary network not listed in the component inventory",
 ]
 
-COMBINED_EXCLUSIONS = [
-    "spatial/temporal bridges and the SigLIP2 projector/resampler: width 768 -> 1024 and 1024 -> 2560 stages are not counted here",
-    "lexical/core encoder, vocabulary extensions, native memory machinery and spine attachments",
-    "fast/expert plastic state from the revision 4.2 and 4.3 ledgers, including update staging and replay",
-    "encoder streaming transients, feature queues and per-camera/per-microphone session state",
-    "every item excluded from the backbone-only figures, which applies unchanged",
-]
 
-HISTORICAL_NOTE = (
-    "Historical/unselected. These rows are the expressions from the earlier "
-    "reports/sparkx_2_6_product_refinement_20261025/estimate_costs.py inventory. "
-    "The selected optimizer is now NativeFusedAdamW (torch.optim.AdamW(fused=True)); "
-    "Muon/int8 was never measured on Spark and is not a candidate here. They are "
-    "reported only so the superseded numbers stay traceable."
-)
+class ResidencyError(RuntimeError):
+    """Raised when committed evidence contradicts the declared arithmetic."""
 
 
 def sha256_file(path: Path) -> str:
@@ -83,611 +192,878 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def load_json(rel: str) -> dict:
-    path = ROOT / rel
+def load_json(root: Path, relative: str) -> dict:
+    path = root / relative
     if not path.is_file():
-        raise SystemExit(f"required evidence file missing: {rel}")
-    return json.loads(path.read_text())
+        raise ResidencyError(f"required committed input missing: {relative}")
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
-def elements(shape):
-    return math.prod(shape)
+def elements(shape) -> int:
+    return math.prod(int(value) for value in shape)
 
 
-def audit_header(header: dict) -> dict:
+def gib(value: int) -> float:
+    return round(value / GIB, 6)
+
+
+def mib(value: int) -> float:
+    return round(value / MIB, 6)
+
+
+def _fail(scope: str, failures) -> None:
+    actual = sorted({failure for failure in failures if failure})
+    if actual:
+        raise ResidencyError(f"{scope} failed validation: {actual}")
+
+
+def audit_bf16_header(header: dict) -> dict:
+    """Audit the sealed BF16 checkpoint and return its parameter inventory."""
     tensors = header["tensors"]
     shards = header["shard_headers"]
+    names = [tensor["name"] for tensor in tensors]
+    duplicates = sorted(name for name, count in Counter(names).items() if count > 1)
+    dtype_counts = Counter(tensor["dtype"] for tensor in tensors)
+    unknown = sorted(dtype for dtype in dtype_counts if dtype not in DTYPE_BYTES)
 
-    names = [t["name"] for t in tensors]
-    duplicates = sorted({n for n, c in Counter(names).items() if c > 1})
-    dtypes = Counter(t["dtype"] for t in tensors)
-    unknown = sorted(d for d in dtypes if d not in DTYPE_BYTES)
-
-    parameters = sum(elements(t["shape"]) for t in tensors)
+    parameters = sum(elements(tensor["shape"]) for tensor in tensors)
     payload = sum(t["data_offsets"][1] - t["data_offsets"][0] for t in tensors)
-    shard_payload = sum(s["payload_bytes"] for s in shards)
-    shard_tensors = sum(s["tensor_count"] for s in shards)
-
+    shard_payload = sum(shard["payload_bytes"] for shard in shards)
+    shard_tensors = sum(shard["tensor_count"] for shard in shards)
     offset_mismatches = [
-        t["name"]
-        for t in tensors
-        if t["data_offsets"][1] - t["data_offsets"][0]
-        != elements(t["shape"]) * DTYPE_BYTES.get(t["dtype"], -1)
+        tensor["name"]
+        for tensor in tensors
+        if tensor["data_offsets"][1] - tensor["data_offsets"][0]
+        != elements(tensor["shape"]) * DTYPE_BYTES.get(tensor["dtype"], -1)
     ]
-    shard_names = sorted({t["shard"] for t in tensors})
-    head_tensors = [t["name"] for t in tensors if "lm_head" in t["name"]]
-    embedding_tensors = [t["name"] for t in tensors if "embedding.weight" in t["name"]]
+    embedding = [t["name"] for t in tensors if t["name"] == "model.embedding.weight"]
+    head = [t["name"] for t in tensors if "lm_head" in t["name"]]
 
     checks = {
-        "all_tensor_dtype_supported": not unknown,
-        "all_tensors_bf16": set(dtypes) == {"BF16"},
+        "all_tensor_dtypes_known": not unknown,
+        "all_tensors_bf16": set(dtype_counts) == {"BF16"},
         "no_duplicate_tensor_names": not duplicates,
         "offsets_match_shape_and_dtype": not offset_mismatches,
         "tensor_count_matches_shards": len(tensors) == shard_tensors,
         "payload_matches_shards": payload == shard_payload,
         "payload_equals_parameters_times_two": payload == parameters * 2,
-        "shards_referenced_are_indexed": sorted(s["filename"] for s in shards) == shard_names,
-        "language_head_not_serialized_separately": not head_tensors,
-        "single_embedding_matrix_present": len(embedding_tensors) == 1,
+        "shards_referenced_are_indexed": sorted(s["filename"] for s in shards)
+        == sorted({t["shard"] for t in tensors}),
+        "language_head_not_serialized_separately": not head,
+        "single_tied_embedding_present": embedding
+        == ["model.embedding.weight"],
     }
-    failed = sorted(k for k, ok in checks.items() if not ok)
-    if failed:
-        raise SystemExit(f"tensor index audit failed: {failed}")
+    _fail("BF16 tensor index audit", [k for k, ok in checks.items() if not ok])
 
     return {
-        "tensors": len(tensors),
-        "shards": len(shards),
-        "unique_parameters": parameters,
+        "role": "sealed BF16 source checkpoint; the only parameter inventory treated as complete",
+        "tensor_count": len(tensors),
+        "shard_count": len(shards),
+        "unique_parameter_elements": parameters,
         "serialized_payload_bytes": payload,
-        "dtype_element_counts": dict(sorted(dtypes.items())),
-        "embedding_tensors": embedding_tensors,
-        "language_head": (
-            "not serialized as a separate tensor; the language head is tied to "
-            f"{embedding_tensors[0]}, so the tied head adds no parameters and no bytes"
-        ),
+        "dtype_tensor_counts": dict(sorted(dtype_counts.items())),
+        "dtype_payload_bytes": {"BF16": payload},
         "checks": checks,
-        "auxiliary_parameters_historical_definition": sum(
-            elements(t["shape"])
-            for t in tensors
-            if len(t["shape"]) != 2 or t["name"] == "model.embedding.weight"
-        ),
+        "tied_embedding": embedding[0],
     }
 
 
-def encoder_scope() -> dict:
-    """Parse the revision's declared encoder pair and validate it against sources.
+def audit_fp8_header(header: dict) -> dict:
+    """Audit the sealed mixed-dtype FP8 adaptation checkpoint.
 
-    The declaration in the architecture document is scope metadata for the current
-    revision: it is not a tensor inventory of the encoders and not a native
-    measurement. Its parameter total is required to equal the sum of the two
-    component declarations and its rounded GiB claim is required to match the
-    16-byte recomputation.
+    This artifact is *not* an all-FP8 weight dump. It stores 180 F8_E4M3
+    matrices, their 180 BF16 scale tensors, a BF16 tied embedding, BF16 layer
+    norms and BF16 attention gates. The audit therefore supports an explicit
+    per-dtype artifact inventory instead of the superseded hypothetical
+    "parameters x 1 byte" FP8 row.
     """
-    doc_text = (ROOT / ARCHITECTURE_DOC_PATH).read_text()
-    declaration = re.search(
-        r"SigLIP2/SPEAR pair alone adds ([\d,]+) parameters and roughly "
-        r"([\d.]+) GiB",
-        doc_text,
-    )
-    if declaration is None:
-        raise SystemExit("encoder declaration sentence not found in the architecture document")
-    doc_revision = re.search(
-        r"`google/siglip2-base-patch16-224` revision `([0-9a-f]{40})`", doc_text
-    )
-    if doc_revision is None:
-        raise SystemExit("SigLIP2 revision pin not found in the architecture document")
-    doc_audio = re.search(
-        r"spear-base-speech-audio-v2`[^\n]*official metadata ([\d,]+) parameters",
-        doc_text,
-    )
-    if doc_audio is None:
-        raise SystemExit("SPEAR parameter declaration not found in the architecture document")
-    doc_audio_parameters = int(doc_audio.group(1).replace(",", ""))
+    tensors = header["tensors"]
+    shards = header["shard_headers"]
+    names = [tensor["name"] for tensor in tensors]
+    duplicates = sorted(name for name, count in Counter(names).items() if count > 1)
+    dtype_counts = Counter(tensor["dtype"] for tensor in tensors)
+    unknown = sorted(dtype for dtype in dtype_counts if dtype not in DTYPE_BYTES)
 
-    declared_parameters = int(declaration.group(1).replace(",", ""))
-    declared_GiB = float(declaration.group(2))
-    declared_line = doc_text[: declaration.start()].count("\n") + 1
+    payload_by_dtype = Counter()
+    tensor_count_by_dtype = Counter()
+    parameter_elements_by_dtype = Counter()
+    for tensor in tensors:
+        size = tensor["data_offsets"][1] - tensor["data_offsets"][0]
+        payload_by_dtype[tensor["dtype"]] += size
+        tensor_count_by_dtype[tensor["dtype"]] += 1
+        parameter_elements_by_dtype[tensor["dtype"]] += elements(tensor["shape"])
 
-    plan = load_json(PRODUCT_PLAN_PATH)["vision"]
-    plan_audio = load_json(PRODUCT_PLAN_PATH)["audio"]["candidate"]
-    manifest = load_json(SIGLIP_MANIFEST_PATH)
-    inventory = manifest["tensor_inventory"]
+    payload = sum(payload_by_dtype.values())
+    shard_payload = sum(shard["payload_bytes"] for shard in shards)
+    shard_tensors = sum(shard["tensor_count"] for shard in shards)
+    offset_mismatches = [
+        tensor["name"]
+        for tensor in tensors
+        if tensor["data_offsets"][1] - tensor["data_offsets"][0]
+        != elements(tensor["shape"]) * DTYPE_BYTES.get(tensor["dtype"], -1)
+    ]
 
-    vision_parameters = plan["encoder_parameters_observed"]
-    audio_parameters = plan_audio["parameters_metadata"]
-    combined = vision_parameters + audio_parameters
-    recomputed_16_GiB = combined * 16 / GIB
+    f8_tensors = [t for t in tensors if t["dtype"] == "F8_E4M3"]
+    scale_tensors = [t for t in tensors if t["name"].endswith("weight_scale")]
+    scale_names = {t["name"] for t in scale_tensors}
+    missing_scales = sorted(
+        tensor["name"]
+        for tensor in f8_tensors
+        if tensor["name"].replace(".weight", ".weight_scale") not in scale_names
+    )
+    orphan_scales = sorted(
+        name
+        for name in scale_names
+        if name.replace(".weight_scale", ".weight") not in set(names)
+    )
+    scales_are_bf16 = {t["dtype"] for t in scale_tensors} == {"BF16"}
+
+    bf16_non_scale = [t for t in tensors if t["dtype"] == "BF16" and t not in scale_tensors]
+    embedding = [t["name"] for t in bf16_non_scale if t["name"] == "model.embedding.weight"]
+    final_norm = [t["name"] for t in bf16_non_scale if t["name"] == "model.norm.weight"]
+    layer_norms = [
+        t["name"]
+        for t in bf16_non_scale
+        if ".input_layernorm.weight" in t["name"]
+        or ".post_attention_layernorm.weight" in t["name"]
+    ]
+    gates = [t["name"] for t in bf16_non_scale if ".self_attn.g_proj.weight" in t["name"]]
+    accounted = (
+        len(embedding)
+        + len(final_norm)
+        + len(layer_norms)
+        + len(gates)
+        + len(scale_tensors)
+    )
 
     checks = {
-        "declaration_equals_component_sum": declared_parameters == combined,
-        "declaration_GiB_matches_16_byte_recomputation": abs(
-            declared_GiB - recomputed_16_GiB
-        )
-        <= 0.01,
-        "product_plan_matches_sealed_vision_inventory": vision_parameters
-        == inventory["vision_parameter_elements"],
-        "product_plan_matches_sealed_vision_revision": plan["revision"]
-        == manifest["revision"],
-        "architecture_doc_matches_sealed_vision_revision": doc_revision.group(1)
-        == manifest["revision"],
-        "component_revisions_are_pinned": all(
-            re.fullmatch(r"[0-9a-f]{40}", value)
-            for value in (plan["revision"], plan_audio["revision"])
-        ),
-        "architecture_doc_matches_audio_metadata": doc_audio_parameters
-        == audio_parameters,
+        "all_tensor_dtypes_known": not unknown,
+        "mixed_dtype_artifact": set(dtype_counts) == {"BF16", "F8_E4M3"},
+        "no_duplicate_tensor_names": not duplicates,
+        "offsets_match_shape_and_dtype": not offset_mismatches,
+        "tensor_count_matches_shards": len(tensors) == shard_tensors,
+        "payload_matches_shards": payload == shard_payload,
+        "f8_matrices_have_bf16_scales": not missing_scales,
+        "no_orphan_scale_tensors": not orphan_scales,
+        "scale_tensors_are_bf16": scales_are_bf16,
+        "one_scale_per_f8_matrix": len(scale_tensors) == len(f8_tensors),
+        "tied_embedding_is_bf16": embedding == ["model.embedding.weight"],
+        "final_norm_is_bf16": final_norm == ["model.norm.weight"],
+        "all_layer_norms_are_bf16": len(layer_norms) == LAYERS * 2,
+        "all_attention_gates_are_bf16": len(gates) == LAYERS,
+        "bf16_tensors_accounted": accounted == len(bf16_non_scale) + len(scale_tensors),
     }
-    failed = sorted(k for k, ok in checks.items() if not ok)
-    if failed:
-        raise SystemExit(f"encoder scope declaration failed validation: {failed}")
+    scale_payload = sum(
+        t["data_offsets"][1] - t["data_offsets"][0] for t in scale_tensors
+    )
+
+    def payload_bytes_of(tensor_list):
+        return sum(t["data_offsets"][1] - t["data_offsets"][0] for t in tensor_list)
+
+    embedding_payload = payload_bytes_of(
+        [t for t in bf16_non_scale if t["name"] == "model.embedding.weight"]
+    )
+    norm_payload = payload_bytes_of(
+        [
+            t
+            for t in bf16_non_scale
+            if t["name"] == "model.norm.weight"
+            or "layernorm.weight" in t["name"]
+        ]
+    )
+    gate_payload = payload_bytes_of(
+        [t for t in bf16_non_scale if ".self_attn.g_proj.weight" in t["name"]]
+    )
+    bf16_payload = payload_by_dtype["BF16"]
+    checks["bf16_category_payloads_sum"] = (
+        embedding_payload + norm_payload + gate_payload + scale_payload
+        == bf16_payload
+    )
+    _fail("FP8 tensor index audit", [k for k, ok in checks.items() if not ok])
 
     return {
         "role": (
-            "declared scope metadata for the current revision; not a fresh encoder "
-            "tensor inventory, not a compiled model, and not a native measurement"
+            "sealed mixed-dtype FP8 adaptation artifact; source storage only, "
+            "not an FP8 training or backend capability record"
         ),
-        "declaration": {
-            "path": ARCHITECTURE_DOC_PATH,
-            "sha256": sha256_file(ROOT / ARCHITECTURE_DOC_PATH),
-            "line": declared_line,
-            "text": declaration.group(0),
-            "declared_parameters": declared_parameters,
-            "declared_GiB_at_16_bytes": declared_GiB,
-            "recomputed_GiB_at_16_bytes": round(recomputed_16_GiB, 6),
+        "tensor_count": len(tensors),
+        "shard_count": len(shards),
+        "serialized_payload_bytes": payload,
+        "dtype_tensor_counts": dict(sorted(tensor_count_by_dtype.items())),
+        "dtype_payload_bytes": dict(sorted(payload_by_dtype.items())),
+        "dtype_parameter_elements": dict(
+            sorted(parameter_elements_by_dtype.items())
+        ),
+        "f8_matrix_count": len(f8_tensors),
+        "scale_tensor_count": len(scale_tensors),
+        "scale_payload_bytes": scale_payload,
+        "bf16_category_payload_bytes": {
+            "tied_embedding": embedding_payload,
+            "layer_and_final_norms": norm_payload,
+            "attention_gates": gate_payload,
+            "scale_tensors": scale_payload,
         },
-        "components": [
-            {
-                "name": "SigLIP2 base patch16-224 vision encoder",
-                "repo_id": plan["repo_id"],
-                "revision": plan["revision"],
-                "parameters": vision_parameters,
-                "evidence": {
-                    "path": PRODUCT_PLAN_PATH,
-                    "field": "vision.encoder_parameters_observed",
-                    "sha256": sha256_file(ROOT / PRODUCT_PLAN_PATH),
-                },
-                "sealed_inventory": {
-                    "path": SIGLIP_MANIFEST_PATH,
-                    "field": "tensor_inventory.vision_parameter_elements",
-                    "sha256": sha256_file(ROOT / SIGLIP_MANIFEST_PATH),
-                    "seal_digest": manifest.get("seal_digest"),
-                    "vision_tensor_count": inventory.get("vision_tensor_count"),
-                    "note": (
-                        "sealed source manifest reports the vision tower only "
-                        f"({inventory.get('vision_tensor_count')} of "
-                        f"{inventory.get('tensor_count')} tensors); the text tower and "
-                        "the paired projector are not part of this declared scope"
-                    ),
-                },
-            },
-            {
-                "name": "SPEAR base speech/audio v2 encoder",
-                "repo_id": plan_audio["repo_id"],
-                "revision": plan_audio["revision"],
-                "parameters": audio_parameters,
-                "evidence": {
-                    "path": PRODUCT_PLAN_PATH,
-                    "field": "audio.candidate.parameters_metadata",
-                    "sha256": sha256_file(ROOT / PRODUCT_PLAN_PATH),
-                    "note": (
-                        "official repository metadata count; no sealed tensor index "
-                        "for this candidate exists in the repository"
-                    ),
-                },
-            },
-        ],
-        "combined_parameters": combined,
         "checks": checks,
     }
 
 
-def bounds(parameters: int) -> dict:
+def _parse_architecture(document: str) -> dict:
+    vision = re.search(r"`google/siglip2-base-patch16-224` revision `([0-9a-f]{40})`: ([\d,]+) encoder parameters", document)
+    audio = re.search(r"`marcoyang/spear-base-speech-audio-v2`[^\n]*official metadata ([\d,]+) parameters", document)
+    pair = re.search(r"SigLIP2/SPEAR pair alone adds ([\d,]+) parameters", document)
+    query_output = re.search(r"Two Spark query/output projections alone add ([\d,]+) weights", document)
+    if not all([vision, audio, pair, query_output]):
+        raise ResidencyError("declared encoder/projector/memory sentence missing from architecture document")
+    vision_parameters = int(vision.group(2).replace(",", ""))
+    audio_parameters = int(audio.group(1).replace(",", ""))
+    pair_parameters = int(pair.group(1).replace(",", ""))
+    qo_parameters = int(query_output.group(1).replace(",", ""))
+    checks = {
+        "vision_revision_pinned": bool(re.fullmatch(r"[0-9a-f]{40}", vision.group(1))),
+        "audio_revision_pinned": bool(
+            re.search(r"Pin SPEAR v2 at `([0-9a-f]{40})`", document)
+        ),
+        "pair_equals_component_sum": pair_parameters == vision_parameters + audio_parameters,
+    }
+    _fail("architecture declaration", [k for k, ok in checks.items() if not ok])
     return {
-        "fp8_weights_only": parameters * 1,
-        "bf16_weights_only": parameters * 2,
-        "fp32_weights_only": parameters * 4,
+        "vision_revision": vision.group(1),
+        "audio_revision": re.search(r"Pin SPEAR v2 at `([0-9a-f]{40})`", document).group(1),
+        "vision_parameters": vision_parameters,
+        "audio_parameters": audio_parameters,
+        "pair_parameters": pair_parameters,
+        "query_output_parameters": qo_parameters,
+        "checks": checks,
     }
 
 
-def state_scenario(key, label, bytes_per_parameter, formula, note, parameters, guard):
-    total = parameters * bytes_per_parameter
-    headroom = guard - total
+def _projector_parameters(source_width: int, bridge_width: int, target_width: int) -> int:
+    """Two affine stages with bias: source->bridge and bridge->target."""
+    return (
+        source_width * bridge_width
+        + bridge_width
+        + bridge_width * target_width
+        + target_width
+    )
+
+
+def parameter_inventory(root: Path, bf16: dict, arch: dict) -> dict:
+    """Explicit fixed-parameter inventory, one row per architecture component."""
+    vision_projector = _projector_parameters(
+        WIDTH["vision_encoder"], WIDTH["bridge"], WIDTH["backbone"]
+    )
+    audio_projector = _projector_parameters(
+        WIDTH["audio_encoder"], WIDTH["bridge"], WIDTH["backbone"]
+    )
+    reader = MEMORY_READER_SITES * 4 * WIDTH["backbone"] * WIDTH["reader"]
+    phrase = 2 * 12 * WIDTH["phrase"] ** 2 + WIDTH["phrase"] * WIDTH["backbone"]
+
+    components = [
+        {
+            "id": "language_backbone",
+            "label": "SparkX 2.6 4B language backbone (tied embedding/head)",
+            "parameters": bf16["unique_parameter_elements"],
+            "trainable": True,
+            "evidence": {
+                "path": BF16_HEADER_PATH,
+                "field": "sum(shape)",
+                "tensor_count": bf16["tensor_count"],
+            },
+        },
+        {
+            "id": "vision_encoder",
+            "label": "SigLIP2 base patch16-224 vision encoder",
+            "parameters": arch["vision_parameters"],
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "revision": arch["vision_revision"],
+                "kind": "declared_encoder_count",
+            },
+        },
+        {
+            "id": "audio_encoder",
+            "label": "SPEAR base speech/audio v2 encoder",
+            "parameters": arch["audio_parameters"],
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "revision": arch["audio_revision"],
+                "kind": "declared_encoder_count",
+            },
+        },
+        {
+            "id": "vision_projector",
+            "label": "Vision spatial bridge 768 -> 1024 -> 2560",
+            "parameters": vision_projector,
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "kind": "explicit_two_stage_bias_formula",
+                "formula": "768*1024+1024 + 1024*2560+2560",
+            },
+        },
+        {
+            "id": "audio_projector",
+            "label": "Audio temporal bridge 512 -> 1024 -> 2560",
+            "parameters": audio_projector,
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "kind": "explicit_two_stage_bias_formula",
+                "formula": "512*1024+1024 + 1024*2560+2560",
+            },
+        },
+        {
+            "id": "memory_query_output",
+            "label": "Spark memory query/output projections (two sites)",
+            "parameters": arch["query_output_parameters"],
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "kind": "declared_analytical_projection_count",
+            },
+        },
+        {
+            "id": "memory_reader_matrices",
+            "label": "Two-site width-512 memory reader Q/K/V/O matrices",
+            "parameters": reader,
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "kind": "explicit_formula_not_sealed",
+                "formula": "sites * 4 * 2560 * 512",
+            },
+        },
+        {
+            "id": "phrase_encoder",
+            "label": "Compact 256-row phrase encoder (two layers)",
+            "parameters": phrase,
+            "trainable": True,
+            "evidence": {
+                "path": ARCHITECTURE_PATH,
+                "kind": "explicit_formula_not_sealed",
+                "formula": "2*12*256^2 + 256*2560",
+            },
+        },
+    ]
+
+    total = sum(row["parameters"] for row in components)
     return {
-        "id": key,
-        "label": label,
+        "scope": "fixed trainable parameters; dynamic memory state is a separate account",
+        "components": components,
+        "total_parameters": total,
+        "backbone_parameters": bf16["unique_parameter_elements"],
+        "declared_encoder_parameters": arch["pair_parameters"],
+        "notes": [
+            "The two encoders are declared counts, not a fresh sealed tensor inventory.",
+            "Projector, reader and phrase counts are explicit analytical formulas, not measured modules.",
+            "Dynamic fast/knowledge state and the bank tensor are excluded here and priced below.",
+        ],
+    }
+
+
+def dynamic_memory_state() -> dict:
+    """Explicit dynamic-memory state, not fixed trainable parameters."""
+    bank_bytes = (
+        MEMORY_BANK_RECORDS
+        * MEMORY_BANK_ELEMENTS_PER_RECORD
+        * DTYPE_BYTES["BF16"]
+    )
+    metadata_bytes = 2 * MIB
+    f_parameters = (6 * MIB) // DTYPE_BYTES["FP32"]
+    a_parameters = int(0.1875 * MIB) // DTYPE_BYTES["FP32"]
+    p_parameters = 12_582_912
+    p_bytes = p_parameters * DTYPE_BYTES["FP32"]
+    p_moments = p_parameters * 2 * DTYPE_BYTES["FP32"]
+    staging = 18_375 * KIB  # declared update-staging budget from the intrinsic ledger
+    workspace = 36 * KIB
+    return {
+        "bank_tensor": {
+            "records": MEMORY_BANK_RECORDS,
+            "elements_per_record": MEMORY_BANK_ELEMENTS_PER_RECORD,
+            "dtype": "BF16",
+            "bytes": bank_bytes,
+            "MiB": mib(bank_bytes),
+        },
+        "bank_metadata_cap_bytes": metadata_bytes,
+        "fast_associative_F": {
+            "parameters": f_parameters,
+            "dtype": "FP32",
+            "bytes": f_parameters * DTYPE_BYTES["FP32"],
+        },
+        "adaptive_addressing_A": {
+            "parameters": a_parameters,
+            "dtype": "FP32",
+            "bytes": a_parameters * DTYPE_BYTES["FP32"],
+        },
+        "plastic_knowledge_P": {
+            "parameters": p_parameters,
+            "weight_bytes_fp32": p_bytes,
+            "two_moment_bytes_fp32": p_moments,
+        },
+        "workspace_bytes": workspace,
+        "update_staging_bytes": staging,
+        "live_bytes": (
+            bank_bytes
+            + metadata_bytes
+            + f_parameters * DTYPE_BYTES["FP32"]
+            + a_parameters * DTYPE_BYTES["FP32"]
+            + p_bytes
+            + p_moments
+            + workspace
+        ),
+        "update_peak_bytes": (
+            bank_bytes
+            + metadata_bytes
+            + f_parameters * DTYPE_BYTES["FP32"]
+            + a_parameters * DTYPE_BYTES["FP32"]
+            + p_bytes
+            + p_moments
+            + workspace
+            + staging
+        ),
+        "note": (
+            "Dynamic state is not part of the 18-byte fixed-parameter rate. "
+            "It is charged at its declared dtypes and update staging; replay "
+            "and raw-source storage are excluded."
+        ),
+    }
+
+
+def training_plan_row(plan: dict, parameters: int) -> dict:
+    copies = [
+        {"copy": name, "dtype": dtype, "count": count, "bytes": DTYPE_BYTES[dtype] * count}
+        for name, dtype, count in plan["copies"]
+    ]
+    bytes_per_parameter = sum(copy["bytes"] for copy in copies)
+    return {
+        "id": plan["id"],
+        "label": plan["label"],
+        "copies": copies,
+        "dtype_breakdown": {
+            dtype: sum(copy["bytes"] for copy in copies if copy["dtype"] == dtype)
+            for dtype in sorted({copy["dtype"] for copy in copies})
+        },
         "bytes_per_parameter": bytes_per_parameter,
-        "formula": formula,
+        "formula": " + ".join(f"{copy['bytes']}" for copy in copies) + " bytes/parameter",
+        "parameters": parameters,
+        "total_bytes": parameters * bytes_per_parameter,
+        "total_GiB": gib(parameters * bytes_per_parameter),
+        "note": plan["note"],
+    }
+
+
+def activation_inventory() -> dict:
+    """Declared analytical activation/logit/temporary model.
+
+    These are byte formulas over the declared workload, not measured peaks.
+    They are included so the ledger is not a weights-only lower bound.
+    """
+    checkpoint_inputs = (
+        LAYERS * MICROBATCH_POSITIONS * WIDTH["backbone"] * DTYPE_BYTES["BF16"]
+    )
+    attention_workspace = (
+        2
+        * MICROBATCH_POSITIONS
+        * QUERY_HEADS
+        * HEAD_DIM
+        * DTYPE_BYTES["FP32"]
+    )
+    mlp_workspace = (
+        2 * MICROBATCH_POSITIONS * FFN_WIDTH * DTYPE_BYTES["FP32"]
+    )
+    vision_workspace = (
+        3 * VISION_PATCHES * WIDTH["vision_encoder"] * DTYPE_BYTES["FP32"]
+    )
+    audio_workspace = 3 * AUDIO_TOKENS * WIDTH["audio_encoder"] * DTYPE_BYTES["FP32"]
+    activations = (
+        checkpoint_inputs
+        + attention_workspace
+        + mlp_workspace
+        + vision_workspace
+        + audio_workspace
+    )
+    logits = (
+        3 * MICROBATCH_POSITIONS * VOCAB * DTYPE_BYTES["FP32"]
+    )
+    return {
+        "workload": {
+            "microbatch_positions": MICROBATCH_POSITIONS,
+            "hidden_width": WIDTH["backbone"],
+            "ffn_width": FFN_WIDTH,
+            "layers": LAYERS,
+            "query_heads": QUERY_HEADS,
+            "head_dim": HEAD_DIM,
+            "vision_patches": VISION_PATCHES,
+            "audio_tokens": AUDIO_TOKENS,
+            "vocab": VOCAB,
+        },
+        "items": [
+            {
+                "id": "checkpointed_layer_inputs",
+                "bytes": checkpoint_inputs,
+                "formula": "layers * positions * hidden * 2",
+            },
+            {
+                "id": "attention_recompute_workspace",
+                "bytes": attention_workspace,
+                "formula": "2 * positions * query_heads * head_dim * 4",
+            },
+            {
+                "id": "mlp_recompute_workspace",
+                "bytes": mlp_workspace,
+                "formula": "2 * positions * ffn_width * 4",
+            },
+            {
+                "id": "vision_feature_workspace",
+                "bytes": vision_workspace,
+                "formula": "3 * patches * vision_width * 4",
+            },
+            {
+                "id": "audio_feature_workspace",
+                "bytes": audio_workspace,
+                "formula": "3 * audio_tokens * audio_width * 4",
+            },
+        ],
+        "activation_bytes": activations,
+        "activation_MiB": mib(activations),
+        "logits": {
+            "bytes": logits,
+            "formula": "3 * positions * vocab * 4 (logits, softmax buffer, gradient)",
+            "MiB": mib(logits),
+        },
+        "role": "analytical estimate with activation checkpointing; not a measured allocator peak",
+    }
+
+
+def temporary_buffers(parameters: int) -> dict:
+    clip = parameters * DTYPE_BYTES["FP32"]
+    fused_optimizer_scratch = 256 * MIB
+    feature_queue = 64 * MIB
+    total = clip + fused_optimizer_scratch + feature_queue
+    return {
+        "items": [
+            {
+                "id": "gradient_clip_reduction",
+                "bytes": clip,
+                "formula": "parameters * 4",
+                "kind": "analytical",
+            },
+            {
+                "id": "fused_optimizer_scratch",
+                "bytes": fused_optimizer_scratch,
+                "formula": "256 MiB declared budget",
+                "kind": "analytical_declared_budget",
+            },
+            {
+                "id": "encoder_feature_queue",
+                "bytes": feature_queue,
+                "formula": "64 MiB declared budget",
+                "kind": "analytical_declared_budget",
+            },
+        ],
         "total_bytes": total,
-        "total_GiB": round(total / GIB, 6),
-        "below_driver_guard_lower_bound": total < guard,
-        "headroom_to_driver_guard_bytes": headroom,
-        "headroom_to_driver_guard_GiB": round(headroom / GIB, 6),
-        "status": "analytical_lower_bound_not_admitted",
-        "note": note,
+        "total_MiB": mib(total),
+        "role": "explicit temporary-buffer budget; allocator slack and driver overhead remain excluded",
     }
 
 
-def calculate() -> dict:
-    header = load_json(HEADER_PATH)
-    minicpm_run = load_json(MINICPM_RUN_PATH)
-    minicpm_guard = load_json(MINICPM_GUARD_PATH)
+def phase_peaks(parameters: int, source_bf16_bytes: int, source_fp8_bytes: int) -> dict:
+    """Restore and export peaks over the declared fixed parameter count."""
+    bf16_weights = parameters * DTYPE_BYTES["BF16"]
+    fp32_master = parameters * DTYPE_BYTES["FP32"]
+    fp32_gradients = parameters * DTYPE_BYTES["FP32"]
+    fp32_moments = parameters * 2 * DTYPE_BYTES["FP32"]
+    fp8_export = parameters * DTYPE_BYTES["F8_E4M3"]
+    bf16_export = bf16_weights
 
-    audit = audit_header(header)
-    parameters = audit["unique_parameters"]
+    restore_bf16 = source_bf16_bytes + bf16_weights + fp32_master
+    restore_fp8 = source_fp8_bytes + bf16_weights + fp32_master
+    export = fp32_master + bf16_export + fp8_export
+    training_live = (
+        bf16_weights + fp32_master + fp32_gradients + fp32_moments
+    )
+    return {
+        "restore_from_bf16_source": {
+            "bytes": restore_bf16,
+            "GiB": gib(restore_bf16),
+            "formula": "BF16 artifact + materialized BF16 weights + FP32 master",
+            "status": "analytical; loader and dequantization unqualified",
+        },
+        "restore_from_fp8_source": {
+            "bytes": restore_fp8,
+            "GiB": gib(restore_fp8),
+            "formula": "mixed-dtype FP8 artifact + BF16 weights + FP32 master",
+            "status": "analytical; FP8 loader, dequantization and backend unqualified",
+        },
+        "export_bf16_and_fp8": {
+            "bytes": export,
+            "GiB": gib(export),
+            "formula": "FP32 master + BF16 export copy + FP8 staging copy",
+            "status": "analytical; serialization and backend export unqualified",
+        },
+        "training_live_parameter_state": {
+            "bytes": training_live,
+            "GiB": gib(training_live),
+            "formula": "18-byte/parameter five-copy plan",
+        },
+    }
 
-    guard = minicpm_guard["guard"]["policy"]["driver_limit_bytes"]
+
+def build_ledger(root: Path) -> dict:
+    bf16_header = load_json(root, BF16_HEADER_PATH)
+    fp8_header = load_json(root, FP8_HEADER_PATH)
+    guard_receipt = load_json(root, GUARD_PATH)
+    architecture_text = (root / ARCHITECTURE_PATH).read_text(encoding="utf-8")
+
+    bf16 = audit_bf16_header(bf16_header)
+    fp8 = audit_fp8_header(fp8_header)
+    arch = _parse_architecture(architecture_text)
+    inventory = parameter_inventory(root, bf16, arch)
+    parameters = inventory["total_parameters"]
+    dynamic = dynamic_memory_state()
+
+    guard = guard_receipt["guard"]["policy"]["driver_limit_bytes"]
     if guard != DRIVER_GUARD_GIB * GIB:
-        raise SystemExit(
-            f"driver guard policy mismatch: {guard} != {DRIVER_GUARD_GIB} GiB"
-        )
+        raise ResidencyError(f"driver guard policy mismatch: {guard} != {DRIVER_GUARD_GIB} GiB")
+    if guard_receipt["guard"]["policy"]["swap_growth_limit_bytes"] != SUSTAINED_SWAP_LIMIT:
+        raise ResidencyError("sustained swap-growth policy changed; review before recomputing")
+    if guard_receipt["guard"]["policy"]["minimum_free_percent"] != MINIMUM_FREE_PERCENT:
+        raise ResidencyError("minimum free-percent policy changed; review before recomputing")
 
-    weight_bounds = bounds(parameters)
-
-    training_state = [
-        state_scenario(
-            "fp32_weight_gradient_two_fp32_moments",
-            "FP32 weights, FP32 gradients, two FP32 Adam moments",
-            16,
-            "4 + 4 + 4 + 4 bytes/parameter",
-            "Full-precision AdamW over the entire 4,112,079,360-parameter scope, "
-            "matching the currently selected NativeFusedAdamW state dtype. "
-            "Exceeds the driver guard on the parameter/state inventory alone.",
-            parameters,
-            guard,
-        ),
-        state_scenario(
-            "bf16_weight_gradient_two_fp32_moments_no_master",
-            "BF16 weights, BF16 gradients, two FP32 Adam moments, no FP32 master copy",
-            12,
-            "2 + 2 + 4 + 4 bytes/parameter",
-            "Mixed-precision AdamW without an FP32 master weight. BF16 gradients "
-            "are an optimistic assumption: autocast/AMP normally accumulates FP32 "
-            "gradients, which moves this row toward 14 bytes/parameter. The "
-            "remaining headroom is not evidence of fit.",
-            parameters,
-            guard,
-        ),
-        state_scenario(
-            "bf16_weight_fp32_gradient_two_fp32_moments_no_master",
-            "BF16 stored weights, FP32 gradients, two FP32 Adam moments, no master copy",
-            14,
-            "2 + 4 + 4 + 4 bytes/parameter",
-            "The common autocast/AMP shape: stored BF16 weights with FP32 "
-            "accumulated gradients. Also outside the guard on the parameter and "
-            "state inventory alone, before any activation.",
-            parameters,
-            guard,
-        ),
-        state_scenario(
-            "bf16_weight_gradient_two_fp32_moments_fp32_master",
-            "BF16 stored weights plus FP32 master weights, FP32 gradients, two FP32 Adam moments",
-            16,
-            "2 + 4 + 4 + 4 + 4 bytes/parameter",
-            "Mixed precision with an explicit FP32 master copy, as required for "
-            "faithful AdamW updates from BF16 storage. Byte-identical to the FP32 "
-            "row and therefore also outside the guard before any activations.",
-            parameters,
-            guard,
-        ),
+    plans = [training_plan_row(plan, parameters) for plan in TRAINING_PLANS]
+    plan_by_id = {plan["id"]: plan for plan in plans}
+    corrected = plan_by_id[
+        "bf16_weights_fp32_master_fp32_gradients_two_fp32_moments"
     ]
+    all_fp32 = plan_by_id["all_fp32"]
+    _fail(
+        "training plan arithmetic",
+        [
+            "five_copy_rate_is_18" if corrected["bytes_per_parameter"] != 18 else "",
+            "five_copy_formula_is_2_4_4_4_4"
+            if corrected["formula"] != "2 + 4 + 4 + 4 + 4 bytes/parameter"
+            else "",
+            "all_fp32_rate_is_16" if all_fp32["bytes_per_parameter"] != 16 else "",
+        ],
+    )
 
-    auxiliary = audit["auxiliary_parameters_historical_definition"]
-    matrix = parameters - auxiliary
-    muon_bytes = 9 * parameters + 7 * auxiliary
-    historical = [
-        {
-            "id": "historical_bf16_weight_gradient_two_int8_moments_no_master",
-            "label": "Historical: BF16 weights and gradients with two int8 quantized moments",
-            "bytes_per_parameter": 6,
-            "formula": "2 + 2 + 1 + 1 bytes/parameter",
-            "total_bytes": parameters * 6,
-            "total_GiB": round(parameters * 6 / GIB, 6),
-            "status": "historical_unselected",
-            "note": HISTORICAL_NOTE + " Quantization scales, block metadata and the "
-            "dequantize/requantize workspace are excluded, so even this row is a "
-            "lower bound for an implementation that does not exist here.",
-        },
-        {
-            "id": "historical_fp32_muon_int8_momentum_with_auxiliary_fp32_adam",
-            "label": "Historical: FP32 Muon with int8 momentum plus auxiliary FP32 Adam",
-            "bytes_per_parameter": None,
-            "formula": "(9 * parameters + 7 * auxiliary_parameters) bytes",
-            "matrix_parameters": matrix,
-            "auxiliary_parameters": auxiliary,
-            "total_bytes": muon_bytes,
-            "total_GiB": round(muon_bytes / GIB, 6),
-            "status": "historical_unselected",
-            "note": HISTORICAL_NOTE + " The auxiliary set is the historical "
-            "assumption 'any non-2D tensor plus model.embedding.weight'; "
-            "orthogonalization scratch, Newton-Schulz temporaries, block scales "
-            "and cross-rank reductions are excluded. The 7-byte auxiliary term "
-            "was inherited without a recorded per-parameter decomposition.",
-        },
-    ]
-    for row in historical:
-        row["below_driver_guard_lower_bound"] = row["total_bytes"] < guard
-        row["headroom_to_driver_guard_bytes"] = guard - row["total_bytes"]
-        row["headroom_to_driver_guard_GiB"] = round((guard - row["total_bytes"]) / GIB, 6)
+    activations = activation_inventory()
+    temporary = temporary_buffers(parameters)
+    peaks = phase_peaks(
+        parameters,
+        bf16["serialized_payload_bytes"],
+        fp8["serialized_payload_bytes"],
+    )
 
-    audit_block = minicpm_run["optimizer_audit"]
-    minicpm_parameters = minicpm_run["trainable_parameters"]
-    minicpm_state_bytes = audit_block["state_tensor_bytes"]
-    minicpm_peak = minicpm_guard["guard"]["peak_driver_bytes"]
-    minicpm_16 = minicpm_parameters * 16
-    cross_check = {
-        "role": "cross_check_of_optimizer_state_accounting_only_not_a_Spark_fit",
-        "model": "MiniCPM5 sealed source, native sustained fused AdamW probe",
-        "sources": [MINICPM_RUN_PATH, MINICPM_GUARD_PATH],
-        "trainable_parameters": minicpm_parameters,
-        "optimizer_class": audit_block["optimizer_class"],
-        "optimizer_implementation": audit_block["implementation"],
-        "fused": audit_block["fused"],
-        "parameter_dtype": audit_block["parameter_dtype"],
-        "state_tensor_bytes": minicpm_state_bytes,
-        "state_bytes_by_dtype": audit_block["state_bytes_by_dtype"],
-        "measured_bytes_per_parameter": round(minicpm_state_bytes / minicpm_parameters, 9),
-        "two_moment_fp32_expectation_bytes": minicpm_parameters * 8,
-        "excess_over_two_moment_expectation_bytes": minicpm_state_bytes
-        - minicpm_parameters * 8,
-        "interpretation": (
-            "Measured optimizer state is two FP32 moments per trainable parameter "
-            "(8 bytes/parameter) plus "
-            f"{minicpm_state_bytes - minicpm_parameters * 8} bytes of non-parameter "
-            "scalars. It confirms that the selected AdamW keeps no master copy, "
-            "no int8 moments and no extra per-parameter tensors, which is why the "
-            "12-byte and 16-byte Spark rows are the correct accounting shapes. It "
-            "says nothing about Spark: the model, sequence length, activation "
-            "profile and clip path differ."
-        ),
-        "measured_peak_driver_bytes": minicpm_peak,
-        "excluded_overhead_exercised_at_that_peak_bytes": minicpm_peak - minicpm_16,
-        "excluded_overhead_fraction_of_16_byte_bound": round(
-            (minicpm_peak - minicpm_16) / minicpm_16, 6
-        ),
-        "excluded_overhead_note": (
-            "On MiniCPM5 the sampled process peak exceeded its 16-byte/parameter "
-            "parameter/state inventory by the figure above at physical microbatch 1 "
-            "with activation checkpointing. That delta covers activations, logits, "
-            "clip and allocator behaviour for a 2.52B-parameter model and must not "
-            "be scaled, transferred or subtracted from the Spark guard."
-        ),
-    }
-
-    encoder = encoder_scope()
-    encoder_parameters = encoder["combined_parameters"]
-    combined_parameters = parameters + encoder_parameters
-    combined_state = [
-        state_scenario(
-            "combined_bf16_weight_gradient_two_fp32_moments_no_master",
-            "Backbone plus declared encoder pair, BF16 weight and gradient, two FP32 moments, no master",
-            12,
-            "2 + 2 + 4 + 4 bytes/parameter",
-            "Declared revision scope at the most optimistic accounting rate. The "
-            "encoder increment is declared metadata, not a sealed tensor inventory, "
-            "so this row is a lower bound over an assumption.",
-            combined_parameters,
-            guard,
-        ),
-        state_scenario(
-            "combined_bf16_weight_fp32_gradient_two_fp32_moments_no_master",
-            "Backbone plus declared encoder pair, BF16 stored weight, FP32 gradient, two FP32 moments, no master",
-            14,
-            "2 + 4 + 4 + 4 bytes/parameter",
-            "Autocast-shaped mixed precision over the declared revision scope.",
-            combined_parameters,
-            guard,
-        ),
-        state_scenario(
-            "combined_bf16_weight_gradient_two_fp32_moments_fp32_master",
-            "Backbone plus declared encoder pair, BF16 stored weights with FP32 masters, FP32 gradients, two FP32 moments",
-            16,
-            "2 + 4 + 4 + 4 + 4 bytes/parameter",
-            "Mixed precision with explicit FP32 masters over the declared revision "
-            "scope; byte-identical to all-FP32 accounting, which the current fused "
-            "AdamW selection makes the realistic full-scope shape.",
-            combined_parameters,
-            guard,
-        ),
-    ]
-    for row in combined_state:
-        increment = encoder_parameters * row["bytes_per_parameter"]
-        row["encoder_increment_bytes"] = increment
-        row["encoder_increment_GiB"] = round(increment / GIB, 6)
-        row["declared_parameters"] = combined_parameters
-
-    combined_over_guard = [
-        row["id"] for row in combined_state if not row["below_driver_guard_lower_bound"]
-    ]
-    combined_under_guard = [
-        row["id"] for row in combined_state if row["below_driver_guard_lower_bound"]
-    ]
-
-    over_guard = [s["id"] for s in training_state if not s["below_driver_guard_lower_bound"]]
-
-    under_guard = [s["id"] for s in training_state if s["below_driver_guard_lower_bound"]]
+    projected_training = (
+        corrected["total_bytes"]
+        + dynamic["update_peak_bytes"]
+        + activations["activation_bytes"]
+        + activations["logits"]["bytes"]
+        + temporary["total_bytes"]
+    )
+    projected_training_with_restore = projected_training + peaks["restore_from_bf16_source"]["bytes"]
+    projected_training_with_export = projected_training + peaks["export_bf16_and_fp8"]["bytes"]
 
     return {
-        "format": "replica.sparkx_residency.v1",
-        "kind": "analytical_lower_bounds_not_native_measurements_or_admission",
+        "format": "replica.sparkx_residency.v2",
+        "kind": "analytical_dtype_explicit_residency_ledger_not_native_measurement",
+        "receipt_version": 2,
         "regeneration": "deterministic; re-running the calculator reproduces this file byte for byte",
         "calculator": {
             "path": CALCULATOR_PATH,
-            "sha256": sha256_file(ROOT / CALCULATOR_PATH),
+            "sha256": sha256_file(root / CALCULATOR_PATH),
             "language": "python3 standard library only",
             "invocation": f"python3 {CALCULATOR_PATH}",
         },
-        "receipt": {"path": RECEIPT_PATH, "note": "this file; written by the calculator"},
-        "sources": [
-            {
-                "path": HEADER_PATH,
-                "role": "official BF16 safetensors tensor index for the pinned checkpoint",
-                "sha256": sha256_file(ROOT / HEADER_PATH),
-                "bytes": (ROOT / HEADER_PATH).stat().st_size,
-                "repo_id": header.get("repo_id"),
-                "revision": header.get("revision"),
-                "storage": header.get("storage"),
-                "schema": header.get("schema"),
-            },
-            {
-                "path": MINICPM_RUN_PATH,
-                "role": "MiniCPM5 measured fused AdamW optimizer-state and parameter counts",
-                "sha256": sha256_file(ROOT / MINICPM_RUN_PATH),
-                "bytes": (ROOT / MINICPM_RUN_PATH).stat().st_size,
-            },
-            {
-                "path": MINICPM_GUARD_PATH,
-                "role": "driver guard policy value and sampled peak driver bytes",
-                "sha256": sha256_file(ROOT / MINICPM_GUARD_PATH),
-                "bytes": (ROOT / MINICPM_GUARD_PATH).stat().st_size,
-            },
-            {
-                "path": ARCHITECTURE_DOC_PATH,
-                "role": "current revision declaration of the SigLIP2/SPEAR encoder pair and its training scope",
-                "sha256": sha256_file(ROOT / ARCHITECTURE_DOC_PATH),
-                "bytes": (ROOT / ARCHITECTURE_DOC_PATH).stat().st_size,
-            },
-            {
-                "path": PRODUCT_PLAN_PATH,
-                "role": "structured vision/audio component declarations and pinned revisions",
-                "sha256": sha256_file(ROOT / PRODUCT_PLAN_PATH),
-                "bytes": (ROOT / PRODUCT_PLAN_PATH).stat().st_size,
-            },
-            {
-                "path": SIGLIP_MANIFEST_PATH,
-                "role": "sealed SigLIP2 vision tensor inventory and revision pin",
-                "sha256": sha256_file(ROOT / SIGLIP_MANIFEST_PATH),
-                "bytes": (ROOT / SIGLIP_MANIFEST_PATH).stat().st_size,
-            },
-        ],
+        "supersession": {
+            "supersedes": SUPERSEDED_RECEIPT_PATH,
+            "superseded_sha256": (
+                sha256_file(root / SUPERSEDED_RECEIPT_PATH)
+                if (root / SUPERSEDED_RECEIPT_PATH).is_file()
+                else None
+            ),
+            "historical_receipt_untouched": True,
+            "reason": (
+                "v1 labelled the five-copy BF16-weight + FP32-master row as "
+                "16 bytes/parameter although its own formula was 2+4+4+4+4 = 18. "
+                "v1 also treated FP8 as parameters x 1 byte and omitted "
+                "activations, logits, temporary buffers and phase peaks."
+            ),
+        },
         "driver_guard": {
             "driver_limit_bytes": guard,
             "driver_limit_GiB": guard / GIB,
             "policy": "50 GiB sampled driver stop, unchanged repository policy",
             "scope": "the guard bounds the native worker process, not the model alone",
             "companion_limits": {
-                "sustained_swap_growth_limit_bytes": minicpm_guard["guard"]["policy"][
-                    "swap_growth_limit_bytes"
-                ],
-                "minimum_free_percent": minicpm_guard["guard"]["policy"][
-                    "minimum_free_percent"
-                ],
+                "sustained_swap_growth_limit_bytes": SUSTAINED_SWAP_LIMIT,
+                "minimum_free_percent": MINIMUM_FREE_PERCENT,
                 "note": "neither companion limit is evaluated by this calculator",
             },
         },
-        "header_audit": audit,
-        "weight_payload_lower_bounds": {
-            "scope": f"all {parameters} unique parameters of the serialized checkpoint",
-            "fp8_weights_only": {
-                "bytes": weight_bounds["fp8_weights_only"],
-                "GiB": round(weight_bounds["fp8_weights_only"] / GIB, 6),
-                "formula": "parameters * 1 byte",
-                "note": "8-bit storage of every parameter; per-block scales, padding "
-                "and dequantization buffers are excluded",
+        "source_storage": {
+            "role": "artifact bytes on disk; not resident training state and not a capability claim",
+            "bf16_source": {
+                "path": BF16_HEADER_PATH,
+                "repo_id": bf16_header.get("repo_id"),
+                "revision": bf16_header.get("revision"),
+                "storage": bf16_header.get("storage"),
+                "payload_bytes": bf16["serialized_payload_bytes"],
+                "dtype_payload_bytes": {"BF16": bf16["serialized_payload_bytes"]},
+                "unique_parameter_elements": bf16["unique_parameter_elements"],
+                "note": "sealed BF16 source; full-training reference artifact",
             },
-            "bf16_weights_only": {
-                "bytes": weight_bounds["bf16_weights_only"],
-                "GiB": round(weight_bounds["bf16_weights_only"] / GIB, 6),
-                "formula": "parameters * 2 bytes",
-                "note": "equals the serialized BF16 payload of the indexed shards",
-            },
-            "fp32_weights_only": {
-                "bytes": weight_bounds["fp32_weights_only"],
-                "GiB": round(weight_bounds["fp32_weights_only"] / GIB, 6),
-                "formula": "parameters * 4 bytes",
-                "note": "materialized FP32 parameters; the selected optimizer's "
-                "measured state is FP32 and the model weights are FP32 in training",
-            },
-        },
-        "training_state_scenarios": training_state,
-        "encoder_scope": encoder,
-        "combined_scope": {
-            "scope": (
-                f"backbone {parameters} + declared encoder pair {encoder_parameters} = "
-                f"{combined_parameters} parameters"
-            ),
-            "backbone_parameters": parameters,
-            "encoder_parameters": encoder_parameters,
-            "combined_parameters": combined_parameters,
-            "weight_payload_lower_bounds": {
-                "fp8_weights_only": {
-                    "bytes": combined_parameters * 1,
-                    "GiB": round(combined_parameters * 1 / GIB, 6),
-                    "formula": "combined_parameters * 1 byte",
-                },
-                "bf16_weights_only": {
-                    "bytes": combined_parameters * 2,
-                    "GiB": round(combined_parameters * 2 / GIB, 6),
-                    "formula": "combined_parameters * 2 bytes",
-                },
-                "fp32_weights_only": {
-                    "bytes": combined_parameters * 4,
-                    "GiB": round(combined_parameters * 4 / GIB, 6),
-                    "formula": "combined_parameters * 4 bytes",
-                },
-            },
-            "training_state_scenarios": combined_state,
-            "excluded_beyond_backbone_only": COMBINED_EXCLUSIONS,
-            "interpretation": {
-                "over_driver_guard_on_lower_bound_alone": combined_over_guard,
-                "under_driver_guard_on_lower_bound_alone": combined_under_guard,
-                "full_scope_local_admission": "not_admitted",
-                "admission_statement": (
-                    "The combined revision scope is not admitted locally either. "
-                    "Two of its three accounting rates already exceed the guard on "
-                    "the parameter and state inventory alone, and the remaining "
-                    "12-byte rate leaves a headroom far smaller than the excluded "
-                    "bridge, projector, fast/expert state, activation, logits, KV "
-                    "and media budgets. The encoder total is a declared scope "
-                    "figure, so even its parameter count is an assumption rather "
-                    "than a sealed inventory."
+            "fp8_source": {
+                "path": FP8_HEADER_PATH,
+                "repo_id": fp8_header.get("repo_id"),
+                "revision": fp8_header.get("revision"),
+                "storage": fp8_header.get("storage"),
+                "payload_bytes": fp8["serialized_payload_bytes"],
+                "dtype_payload_bytes": fp8["dtype_payload_bytes"],
+                "dtype_tensor_counts": fp8["dtype_tensor_counts"],
+                "f8_matrix_count": fp8["f8_matrix_count"],
+                "scale_tensor_count": fp8["scale_tensor_count"],
+                "scale_payload_bytes": fp8["scale_payload_bytes"],
+                "bf16_category_payload_bytes": fp8["bf16_category_payload_bytes"],
+                "note": (
+                    "mixed dtype, not parameters x 1 byte: F8_E4M3 matrices plus "
+                    "BF16 scales, tied embedding, norms and attention gates. It is "
+                    "kept separate from BF16 source storage and from any training "
+                    "or backend capability. FP8 loader, dequantization and training "
+                    "support remain unqualified."
                 ),
             },
+            "fp8_payload_is_not_one_byte_per_parameter": True,
+            "fp8_training_capability": "unqualified",
         },
-        "historical_unselected_scenarios": historical,
-        "minicpm_measured_cross_check": cross_check,
+        "bf16_header_audit": bf16,
+        "fp8_header_audit": fp8,
+        "architecture_declaration": {
+            "path": ARCHITECTURE_PATH,
+            "sha256": sha256_file(root / ARCHITECTURE_PATH),
+            **arch,
+        },
+        "parameter_inventory": inventory,
+        "training_storage_plans": plans,
+        "corrected_critical_rate": {
+            "plan": corrected["id"],
+            "bytes_per_parameter": 18,
+            "formula": "2 + 4 + 4 + 4 + 4",
+            "statement": (
+                "BF16 weights + FP32 master weights + FP32 gradients + two FP32 "
+                "moments coexist at 18 bytes/parameter. The 16-byte figure is the "
+                "separate all-FP32 plan and must not be used for the five-copy plan."
+            ),
+        },
+        "dynamic_memory_state": dynamic,
+        "activations_and_logits": activations,
+        "temporary_buffers": temporary,
+        "phase_peaks": peaks,
+        "projected_full_scope_training": {
+            "scope": inventory["scope"],
+            "fixed_parameters": parameters,
+            "training_plan": corrected["id"],
+            "parameter_state_bytes": corrected["total_bytes"],
+            "dynamic_state_bytes": dynamic["update_peak_bytes"],
+            "activation_bytes": activations["activation_bytes"],
+            "logits_bytes": activations["logits"]["bytes"],
+            "temporary_buffer_bytes": temporary["total_bytes"],
+            "resident_training_bytes": projected_training,
+            "resident_training_GiB": gib(projected_training),
+            "with_bf16_restore_peak_bytes": projected_training_with_restore,
+            "with_bf16_restore_peak_GiB": gib(projected_training_with_restore),
+            "with_export_peak_bytes": projected_training_with_export,
+            "with_export_peak_GiB": gib(projected_training_with_export),
+            "over_driver_guard_on_resident_training": projected_training >= guard,
+            "headroom_to_driver_guard_bytes": guard - projected_training,
+            "headroom_to_driver_guard_GiB": gib(guard - projected_training),
+            "status": "analytical_not_admitted",
+            "note": (
+                "Parameter state, dynamic state, analytical activations, logits "
+                "and temporary buffers are summed. Allocator and driver overhead "
+                "are still excluded, so the true peak can only be larger."
+            ),
+        },
         "excluded_from_every_figure": EXCLUSIONS,
-        "interpretation": {
-            "over_driver_guard_on_lower_bound_alone": over_guard,
-            "under_driver_guard_on_lower_bound_alone": under_guard,
-            "full_scope_local_admission": "not_admitted",
-            "admission_statement": (
-                "No full-scope configuration is admitted. Any row at or above the "
-                "guard is excluded outright, because the excluded terms can only "
-                "add bytes. Any row below the guard remains unqualified: a lower "
-                "bound below a ceiling is not evidence that the measured peak "
-                "stays below it, and no Spark training run exists to measure that "
-                "peak. No figure here is a native fit, allocator peak, throughput "
-                "or convergence result."
+        "gates": {
+            "loader": "unqualified",
+            "dequantization": "unqualified",
+            "backend": "unqualified",
+            "resource": "unqualified",
+            "native_execution": "not_run",
+            "admission": "not_admitted",
+            "statement": (
+                "No loader, dequantizer, FP8/BF16 backend, MPS resource gate or "
+                "native training run is qualified by this receipt. A value below "
+                "the driver guard is not a measured fit."
             ),
-            "scope_note": (
-                "The training_state_scenarios rows cover the backbone only. The "
-                "current revision trains the backbone plus the declared SigLIP2/SPEAR "
-                "encoder pair, so combined_scope is the applicable full-scope "
-                "inventory."
+        },
+        "provisioning": {
+            "required_inputs_tracked": [
+                BF16_HEADER_PATH,
+                FP8_HEADER_PATH,
+                GUARD_PATH,
+                ARCHITECTURE_PATH,
+            ],
+            "unprovisioned_local_inputs": [],
+            "bundle_check_command": "python3 scripts/prepare_sparkx_research_bundle.py --check",
+            "clean_checkout_replay": (
+                "all residency inputs are repository-tracked; run the bundle check "
+                "to verify their hashes before citing this receipt"
             ),
-            "rounding": "byte counts are exact integers; GiB values are bytes / 2**30 rounded to 6 decimals",
+            "native_execution_required": False,
         },
         "non_claims": [
-            "no Spark weight, tokenizer, dataset or other asset was downloaded or inspected beyond the committed tensor index header and the sealed SigLIP2 source manifest",
-            "the encoder pair total comes from a declarative scope statement validated against component declarations, not from a fresh encoder tensor index and not from a compiled or executed multimodal model",
-            "no native Spark training, export, adapter, multimodal or inference run was performed or implied",
-            "the Spark adapter remains design_only_not_implemented; FP8/BF16 source preparation is offline-only",
-            "dataset admission, the source registry and optimizer/adapter status are unchanged by this receipt",
+            "no Spark weight payload, tokenizer, dataset, media asset, model code or native runtime was downloaded, loaded or executed",
+            "encoder parameter counts are declared in the architecture document, not a fresh sealed encoder tensor index",
+            "projector, reader, phrase, activation, logit and temporary-buffer figures are analytical formulas, not measurements",
+            "the mixed-dtype FP8 source artifact does not demonstrate FP8 loading, dequantization, full backprop or backend support",
+            "no MPS memory fit, allocator peak, throughput, convergence or training admission is established",
         ],
     }
 
 
-def main() -> None:
-    receipt = calculate()
-    OUT.mkdir(parents=True, exist_ok=True)
-    (ROOT / RECEIPT_PATH).write_text(json.dumps(receipt, indent=2) + "\n")
+def calculate(root: Path | None = None) -> dict:
+    return build_ledger(Path(root) if root is not None else ROOT)
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="recompute and compare against the committed receipt without writing",
+    )
+    args = parser.parse_args(argv)
+
+    receipt = calculate(args.root)
+    output = args.output or (args.root / RECEIPT_PATH)
+    payload = json.dumps(receipt, indent=2) + "\n"
+    if args.check:
+        if not output.is_file():
+            raise SystemExit(f"receipt missing for --check: {output}")
+        if output.read_text(encoding="utf-8") != payload:
+            raise SystemExit(f"receipt is stale or non-deterministic: {output}")
+        print(f"Receipt verified: {output}")
+        return 0
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(payload, encoding="utf-8")
     print(
         "Wrote "
-        f"{RECEIPT_PATH}: {receipt['header_audit']['unique_parameters']} parameters, "
-        f"{receipt['header_audit']['tensors']} tensors, lower bounds only; "
-        "no models or native jobs executed."
+        f"{output}: {receipt['parameter_inventory']['total_parameters']} fixed "
+        f"parameters, corrected rate "
+        f"{receipt['corrected_critical_rate']['bytes_per_parameter']} B/param, "
+        f"resident training {receipt['projected_full_scope_training']['resident_training_GiB']} GiB "
+        "(analytical only; no native job executed)."
     )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

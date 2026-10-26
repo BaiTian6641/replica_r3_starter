@@ -1,0 +1,194 @@
+{
+  "format": "replica.sparkx_first_tranche.v1",
+  "date_local": "2026-10-26",
+  "status": "prospective_protocol_not_authorization",
+  "scope": "bounded first tranche of already-local or owned synthetic evidence; no bulk download and no external media acquisition",
+  "download_authorized": false,
+  "bulk_download": false,
+  "native_execution": false,
+  "training_admitted": false,
+  "license_policy": {
+    "allow": [
+      "odc-by",
+      "cc-by-4.0",
+      "cc-by-sa-4.0",
+      "repository_owned_synthetic"
+    ],
+    "deny_prefixes": [
+      "cc-by-nc",
+      "cc-by-nc-sa",
+      "cc-by-nd",
+      "other"
+    ],
+    "deny_exact": [
+      "odbl",
+      "unknown",
+      "none"
+    ],
+    "evaluation_only_sources_rejected": true,
+    "gated_sources_rejected": true,
+    "note": "An annotation-card license does not clear underlying media. Every admitted asset needs its own license decision and provenance record."
+  },
+  "caps": {
+    "max_assets": 24,
+    "max_assets_per_source": 6,
+    "max_asset_bytes": 65536,
+    "max_total_bytes": 262144,
+    "min_admitted_assets": 3,
+    "max_duplicate_rate_per_source": 0.2,
+    "train_basis_points": 7000,
+    "development_basis_points": 1500,
+    "audit_basis_points": 1500
+  },
+  "split_assignment": {
+    "method": "sha256_first_64_bits_mod_10000",
+    "salt": "sparkx-first-tranche-20261026",
+    "group_key_required": true,
+    "group_key_scope": "global",
+    "note": "The split is a deterministic function of group_key alone, so one source group can never straddle train/development/audit."
+  },
+  "dedup": {
+    "exact_sha256": true,
+    "duplicate_asset_id": "reject",
+    "duplicate_path": "reject",
+    "note": "Only exact byte hashes are checked. Perceptual or near-duplicate detection is not claimed."
+  },
+  "leakage": {
+    "checks": [
+      "a group_key may map to exactly one split",
+      "a group_key may not appear under two source ids",
+      "an explicit declared_split must equal the computed split",
+      "evaluation-only source ids are never admitted"
+    ]
+  },
+  "source_pins": [
+    {
+      "id": "pixmo_points",
+      "repo_id": "allenai/pixmo-points",
+      "revision": "2b5c6931e790e00ae00d4a2857e5f95d88f09a66",
+      "license_metadata": "odc-by",
+      "role": "offline_grounding",
+      "priority": "P1_conditional",
+      "gate": "not_acquired_or_cleared",
+      "max_assets": 4,
+      "note": "Pinned research candidate. No media was downloaded or cleared by this task."
+    },
+    {
+      "id": "pixmo_cap",
+      "repo_id": "allenai/pixmo-cap",
+      "revision": "edce6390d9d5be6c8db0d863fbe62718c88988a4",
+      "license_metadata": "odc-by",
+      "role": "offline_alignment",
+      "priority": "P1_conditional",
+      "gate": "not_acquired_or_cleared",
+      "max_assets": 4,
+      "note": "Pinned research candidate. Human narration and model-rewritten captions are not cleared media."
+    },
+    {
+      "id": "fsd50k",
+      "repo_id": "Fhrozen/FSD50k",
+      "revision": "ccf1acaff12f3f4a4c10052dddafbb6d22152c9b",
+      "license_metadata": "cc-by-4.0",
+      "role": "offline_sound_perception",
+      "priority": "P1_conditional",
+      "gate": "not_acquired_or_cleared",
+      "max_assets": 4,
+      "note": "Mirror-level card license does not join each per-file license. Pinned candidate only."
+    },
+    {
+      "id": "librispeech",
+      "repo_id": "openslr/librispeech_asr",
+      "revision": "71cacbfb7e2354c4226d01e70d77d5fca3d04ba1",
+      "license_metadata": "cc-by-4.0",
+      "role": "offline_speech_alignment",
+      "priority": "P1_conditional",
+      "gate": "not_acquired_or_cleared",
+      "max_assets": 4,
+      "note": "Speaker/chapter groups must remain intact. Pinned candidate only."
+    }
+  ],
+  "synthetic_fixtures": {
+    "source_id": "owned_synthetic_v1",
+    "revision": "synthetic-20261026-v1",
+    "label": "owned_synthetic_not_external_media",
+    "license_claim": "repository_owned_synthetic",
+    "asset_manifest": "reports/sparkx_first_tranche_20261026/synthetic_assets/assets.jsonl",
+    "asset_root": "reports/sparkx_first_tranche_20261026/synthetic_assets",
+    "note": "These files are authored for tests and protocol replay. They are not recordings, images or videos from any external dataset and carry no external license."
+  },
+  "asset_requirements": {
+    "required_fields": [
+      "asset_id",
+      "source_id",
+      "source_revision",
+      "group_key",
+      "sha256",
+      "bytes",
+      "media_kind",
+      "license",
+      "path",
+      "provenance",
+      "synthetic"
+    ],
+    "allowed_media_kinds": [
+      "synthetic_scene_json",
+      "synthetic_audio_manifest",
+      "synthetic_av_manifest"
+    ],
+    "hash_algorithm": "sha256_exact_file_bytes",
+    "sha256_pattern": "^[0-9a-f]{64}$",
+    "path_must_stay_within_asset_root": true,
+    "provenance_must_be_nonempty": true,
+    "synthetic_assets_must_set_synthetic_true": true,
+    "real_source_assets_require_gate_cleared": true
+  },
+  "stop_rules": [
+    {
+      "code": "source_integrity_failure",
+      "scope": "source",
+      "action": "stop admitting every asset from that source",
+      "trigger": "revision mismatch, disallowed license, missing provenance or hash/size failure"
+    },
+    {
+      "code": "global_leakage",
+      "scope": "tranche",
+      "action": "refuse the whole tranche",
+      "trigger": "one group_key maps to more than one split or source, or an explicit split conflicts"
+    },
+    {
+      "code": "global_cap_exceeded",
+      "scope": "tranche",
+      "action": "stop admitting further assets and mark the receipt stopped",
+      "trigger": "max_assets, max_assets_per_source, max_asset_bytes or max_total_bytes"
+    },
+    {
+      "code": "duplicate_rate_exceeded",
+      "scope": "source",
+      "action": "stop admitting further assets from that source",
+      "trigger": "exact duplicate rate above max_duplicate_rate_per_source"
+    },
+    {
+      "code": "below_minimum",
+      "scope": "tranche",
+      "action": "no admission receipt",
+      "trigger": "fewer than min_admitted_assets survive"
+    },
+    {
+      "code": "external_media_not_acquired",
+      "scope": "tranche",
+      "action": "no external media admission",
+      "trigger": "no real source is gate-cleared; only owned synthetic fixtures may be admitted"
+    }
+  ],
+  "outputs": {
+    "receipt": "reports/sparkx_first_tranche_20261026/tranche_receipt.json",
+    "admitted": "reports/sparkx_first_tranche_20261026/admitted_assets.jsonl",
+    "rejected": "reports/sparkx_first_tranche_20261026/rejected_assets.jsonl"
+  },
+  "non_claims": [
+    "No external image, audio, video or annotation asset was acquired, cleared or audited.",
+    "No dataset loader, model or native job was executed.",
+    "Synthetic fixtures are repository-owned test evidence, not licensed external media.",
+    "Tranche admission is a protocol decision, not training admission or quality evidence."
+  ]
+}

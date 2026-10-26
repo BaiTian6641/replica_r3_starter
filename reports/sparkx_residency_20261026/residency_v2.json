@@ -1,0 +1,616 @@
+{
+  "format": "replica.sparkx_residency.v2",
+  "kind": "analytical_dtype_explicit_residency_ledger_not_native_measurement",
+  "receipt_version": 2,
+  "regeneration": "deterministic; re-running the calculator reproduces this file byte for byte",
+  "calculator": {
+    "path": "reports/sparkx_residency_20261026/calculate_residency.py",
+    "sha256": "676ce637ee1555e2498bf7f7308087b7bbb09e565df8d0fb6e0fc74fbf2a959a",
+    "language": "python3 standard library only",
+    "invocation": "python3 reports/sparkx_residency_20261026/calculate_residency.py"
+  },
+  "supersession": {
+    "supersedes": "reports/sparkx_residency_20261026/residency.json",
+    "superseded_sha256": "f85215b2d39a5d3424d2111b14674d1a077e7eb4e58a4346feeb6709b23ed456",
+    "historical_receipt_untouched": true,
+    "reason": "v1 labelled the five-copy BF16-weight + FP32-master row as 16 bytes/parameter although its own formula was 2+4+4+4+4 = 18. v1 also treated FP8 as parameters x 1 byte and omitted activations, logits, temporary buffers and phase peaks."
+  },
+  "driver_guard": {
+    "driver_limit_bytes": 53687091200,
+    "driver_limit_GiB": 50.0,
+    "policy": "50 GiB sampled driver stop, unchanged repository policy",
+    "scope": "the guard bounds the native worker process, not the model alone",
+    "companion_limits": {
+      "sustained_swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "note": "neither companion limit is evaluated by this calculator"
+    }
+  },
+  "source_storage": {
+    "role": "artifact bytes on disk; not resident training state and not a capability claim",
+    "bf16_source": {
+      "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "storage": "bf16",
+      "payload_bytes": 8224158720,
+      "dtype_payload_bytes": {
+        "BF16": 8224158720
+      },
+      "unique_parameter_elements": 4112079360,
+      "note": "sealed BF16 source; full-training reference artifact"
+    },
+    "fp8_source": {
+      "path": "reports/spark_preparation_20261025/run_01/headers/official_fp8_adaptation_base/tensor_index.json",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "storage": "fp8_compressed_tensors",
+      "payload_bytes": 4451570688,
+      "dtype_payload_bytes": {
+        "BF16": 676697088,
+        "F8_E4M3": 3774873600
+      },
+      "dtype_tensor_counts": {
+        "BF16": 290,
+        "F8_E4M3": 180
+      },
+      "f8_matrix_count": 180,
+      "scale_tensor_count": 180,
+      "scale_payload_bytes": 2285568,
+      "bf16_category_payload_bytes": {
+        "tied_embedding": 671088640,
+        "layer_and_final_norms": 373760,
+        "attention_gates": 2949120,
+        "scale_tensors": 2285568
+      },
+      "note": "mixed dtype, not parameters x 1 byte: F8_E4M3 matrices plus BF16 scales, tied embedding, norms and attention gates. It is kept separate from BF16 source storage and from any training or backend capability. FP8 loader, dequantization and training support remain unqualified."
+    },
+    "fp8_payload_is_not_one_byte_per_parameter": true,
+    "fp8_training_capability": "unqualified"
+  },
+  "bf16_header_audit": {
+    "role": "sealed BF16 source checkpoint; the only parameter inventory treated as complete",
+    "tensor_count": 290,
+    "shard_count": 5,
+    "unique_parameter_elements": 4112079360,
+    "serialized_payload_bytes": 8224158720,
+    "dtype_tensor_counts": {
+      "BF16": 290
+    },
+    "dtype_payload_bytes": {
+      "BF16": 8224158720
+    },
+    "checks": {
+      "all_tensor_dtypes_known": true,
+      "all_tensors_bf16": true,
+      "no_duplicate_tensor_names": true,
+      "offsets_match_shape_and_dtype": true,
+      "tensor_count_matches_shards": true,
+      "payload_matches_shards": true,
+      "payload_equals_parameters_times_two": true,
+      "shards_referenced_are_indexed": true,
+      "language_head_not_serialized_separately": true,
+      "single_tied_embedding_present": true
+    },
+    "tied_embedding": "model.embedding.weight"
+  },
+  "fp8_header_audit": {
+    "role": "sealed mixed-dtype FP8 adaptation artifact; source storage only, not an FP8 training or backend capability record",
+    "tensor_count": 470,
+    "shard_count": 1,
+    "serialized_payload_bytes": 4451570688,
+    "dtype_tensor_counts": {
+      "BF16": 290,
+      "F8_E4M3": 180
+    },
+    "dtype_payload_bytes": {
+      "BF16": 676697088,
+      "F8_E4M3": 3774873600
+    },
+    "dtype_parameter_elements": {
+      "BF16": 338348544,
+      "F8_E4M3": 3774873600
+    },
+    "f8_matrix_count": 180,
+    "scale_tensor_count": 180,
+    "scale_payload_bytes": 2285568,
+    "bf16_category_payload_bytes": {
+      "tied_embedding": 671088640,
+      "layer_and_final_norms": 373760,
+      "attention_gates": 2949120,
+      "scale_tensors": 2285568
+    },
+    "checks": {
+      "all_tensor_dtypes_known": true,
+      "mixed_dtype_artifact": true,
+      "no_duplicate_tensor_names": true,
+      "offsets_match_shape_and_dtype": true,
+      "tensor_count_matches_shards": true,
+      "payload_matches_shards": true,
+      "f8_matrices_have_bf16_scales": true,
+      "no_orphan_scale_tensors": true,
+      "scale_tensors_are_bf16": true,
+      "one_scale_per_f8_matrix": true,
+      "tied_embedding_is_bf16": true,
+      "final_norm_is_bf16": true,
+      "all_layer_norms_are_bf16": true,
+      "all_attention_gates_are_bf16": true,
+      "bf16_tensors_accounted": true,
+      "bf16_category_payloads_sum": true
+    }
+  },
+  "architecture_declaration": {
+    "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+    "sha256": "2837b9793410eab432e4115aa1af26630ec80b77022000bf3a60cfc4483e11b9",
+    "vision_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "audio_revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+    "vision_parameters": 92884224,
+    "audio_parameters": 93289476,
+    "pair_parameters": 186173700,
+    "query_output_parameters": 3276800,
+    "checks": {
+      "vision_revision_pinned": true,
+      "audio_revision_pinned": true,
+      "pair_equals_component_sum": true
+    }
+  },
+  "parameter_inventory": {
+    "scope": "fixed trainable parameters; dynamic memory state is a separate account",
+    "components": [
+      {
+        "id": "language_backbone",
+        "label": "SparkX 2.6 4B language backbone (tied embedding/head)",
+        "parameters": 4112079360,
+        "trainable": true,
+        "evidence": {
+          "path": "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+          "field": "sum(shape)",
+          "tensor_count": 290
+        }
+      },
+      {
+        "id": "vision_encoder",
+        "label": "SigLIP2 base patch16-224 vision encoder",
+        "parameters": 92884224,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+          "kind": "declared_encoder_count"
+        }
+      },
+      {
+        "id": "audio_encoder",
+        "label": "SPEAR base speech/audio v2 encoder",
+        "parameters": 93289476,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+          "kind": "declared_encoder_count"
+        }
+      },
+      {
+        "id": "vision_projector",
+        "label": "Vision spatial bridge 768 -> 1024 -> 2560",
+        "parameters": 3411456,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "kind": "explicit_two_stage_bias_formula",
+          "formula": "768*1024+1024 + 1024*2560+2560"
+        }
+      },
+      {
+        "id": "audio_projector",
+        "label": "Audio temporal bridge 512 -> 1024 -> 2560",
+        "parameters": 3149312,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "kind": "explicit_two_stage_bias_formula",
+          "formula": "512*1024+1024 + 1024*2560+2560"
+        }
+      },
+      {
+        "id": "memory_query_output",
+        "label": "Spark memory query/output projections (two sites)",
+        "parameters": 3276800,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "kind": "declared_analytical_projection_count"
+        }
+      },
+      {
+        "id": "memory_reader_matrices",
+        "label": "Two-site width-512 memory reader Q/K/V/O matrices",
+        "parameters": 10485760,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "kind": "explicit_formula_not_sealed",
+          "formula": "sites * 4 * 2560 * 512"
+        }
+      },
+      {
+        "id": "phrase_encoder",
+        "label": "Compact 256-row phrase encoder (two layers)",
+        "parameters": 2228224,
+        "trainable": true,
+        "evidence": {
+          "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+          "kind": "explicit_formula_not_sealed",
+          "formula": "2*12*256^2 + 256*2560"
+        }
+      }
+    ],
+    "total_parameters": 4320804612,
+    "backbone_parameters": 4112079360,
+    "declared_encoder_parameters": 186173700,
+    "notes": [
+      "The two encoders are declared counts, not a fresh sealed tensor inventory.",
+      "Projector, reader and phrase counts are explicit analytical formulas, not measured modules.",
+      "Dynamic fast/knowledge state and the bank tensor are excluded here and priced below."
+    ]
+  },
+  "training_storage_plans": [
+    {
+      "id": "all_fp32",
+      "label": "FP32 weights, FP32 gradients, two FP32 Adam moments",
+      "copies": [
+        {
+          "copy": "weights_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "gradients_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment1_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment2_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        }
+      ],
+      "dtype_breakdown": {
+        "FP32": 16
+      },
+      "bytes_per_parameter": 16,
+      "formula": "4 + 4 + 4 + 4 bytes/parameter",
+      "parameters": 4320804612,
+      "total_bytes": 69132873792,
+      "total_GiB": 64.385006,
+      "note": "The FP32 weight tensor is itself the master. This is 16 bytes/parameter: 4 + 4 + 4 + 4."
+    },
+    {
+      "id": "bf16_weights_fp32_master_fp32_gradients_two_fp32_moments",
+      "label": "BF16 stored weights plus FP32 master weights, FP32 gradients, two FP32 Adam moments",
+      "copies": [
+        {
+          "copy": "weights_bf16",
+          "dtype": "BF16",
+          "count": 1,
+          "bytes": 2
+        },
+        {
+          "copy": "master_weights_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "gradients_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment1_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment2_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        }
+      ],
+      "dtype_breakdown": {
+        "BF16": 2,
+        "FP32": 16
+      },
+      "bytes_per_parameter": 18,
+      "formula": "2 + 4 + 4 + 4 + 4 bytes/parameter",
+      "parameters": 4320804612,
+      "total_bytes": 77774483016,
+      "total_GiB": 72.433132,
+      "note": "The five-copy mixed-precision shape required for faithful AdamW updates from BF16 storage. It is 18 bytes/parameter: 2 + 4 + 4 + 4 + 4. It must not be called 16."
+    },
+    {
+      "id": "bf16_weights_fp32_gradients_two_fp32_moments_no_master",
+      "label": "BF16 stored weights, FP32 accumulated gradients, two FP32 Adam moments, no FP32 master copy",
+      "copies": [
+        {
+          "copy": "weights_bf16",
+          "dtype": "BF16",
+          "count": 1,
+          "bytes": 2
+        },
+        {
+          "copy": "gradients_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment1_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment2_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        }
+      ],
+      "dtype_breakdown": {
+        "BF16": 2,
+        "FP32": 12
+      },
+      "bytes_per_parameter": 14,
+      "formula": "2 + 4 + 4 + 4 bytes/parameter",
+      "parameters": 4320804612,
+      "total_bytes": 60491264568,
+      "total_GiB": 56.33688,
+      "note": "14 bytes/parameter: 2 + 4 + 4 + 4. The update has no master."
+    },
+    {
+      "id": "bf16_weights_bf16_gradients_two_fp32_moments_no_master",
+      "label": "BF16 stored weights and BF16 gradients, two FP32 Adam moments, no FP32 master copy",
+      "copies": [
+        {
+          "copy": "weights_bf16",
+          "dtype": "BF16",
+          "count": 1,
+          "bytes": 2
+        },
+        {
+          "copy": "gradients_bf16",
+          "dtype": "BF16",
+          "count": 1,
+          "bytes": 2
+        },
+        {
+          "copy": "moment1_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        },
+        {
+          "copy": "moment2_fp32",
+          "dtype": "FP32",
+          "count": 1,
+          "bytes": 4
+        }
+      ],
+      "dtype_breakdown": {
+        "BF16": 4,
+        "FP32": 8
+      },
+      "bytes_per_parameter": 12,
+      "formula": "2 + 2 + 4 + 4 bytes/parameter",
+      "parameters": 4320804612,
+      "total_bytes": 51849655344,
+      "total_GiB": 48.288755,
+      "note": "12 bytes/parameter: 2 + 2 + 4 + 4. BF16 gradient accumulation is an optimistic lower bound; autocast usually accumulates FP32."
+    }
+  ],
+  "corrected_critical_rate": {
+    "plan": "bf16_weights_fp32_master_fp32_gradients_two_fp32_moments",
+    "bytes_per_parameter": 18,
+    "formula": "2 + 4 + 4 + 4 + 4",
+    "statement": "BF16 weights + FP32 master weights + FP32 gradients + two FP32 moments coexist at 18 bytes/parameter. The 16-byte figure is the separate all-FP32 plan and must not be used for the five-copy plan."
+  },
+  "dynamic_memory_state": {
+    "bank_tensor": {
+      "records": 4096,
+      "elements_per_record": 896,
+      "dtype": "BF16",
+      "bytes": 7340032,
+      "MiB": 7.0
+    },
+    "bank_metadata_cap_bytes": 2097152,
+    "fast_associative_F": {
+      "parameters": 1572864,
+      "dtype": "FP32",
+      "bytes": 6291456
+    },
+    "adaptive_addressing_A": {
+      "parameters": 49152,
+      "dtype": "FP32",
+      "bytes": 196608
+    },
+    "plastic_knowledge_P": {
+      "parameters": 12582912,
+      "weight_bytes_fp32": 50331648,
+      "two_moment_bytes_fp32": 100663296
+    },
+    "workspace_bytes": 36864,
+    "update_staging_bytes": 18816000,
+    "live_bytes": 166957056,
+    "update_peak_bytes": 185773056,
+    "note": "Dynamic state is not part of the 18-byte fixed-parameter rate. It is charged at its declared dtypes and update staging; replay and raw-source storage are excluded."
+  },
+  "activations_and_logits": {
+    "workload": {
+      "microbatch_positions": 256,
+      "hidden_width": 2560,
+      "ffn_width": 10240,
+      "layers": 36,
+      "query_heads": 16,
+      "head_dim": 256,
+      "vision_patches": 196,
+      "audio_tokens": 40,
+      "vocab": 131072
+    },
+    "items": [
+      {
+        "id": "checkpointed_layer_inputs",
+        "bytes": 47185920,
+        "formula": "layers * positions * hidden * 2"
+      },
+      {
+        "id": "attention_recompute_workspace",
+        "bytes": 8388608,
+        "formula": "2 * positions * query_heads * head_dim * 4"
+      },
+      {
+        "id": "mlp_recompute_workspace",
+        "bytes": 20971520,
+        "formula": "2 * positions * ffn_width * 4"
+      },
+      {
+        "id": "vision_feature_workspace",
+        "bytes": 1806336,
+        "formula": "3 * patches * vision_width * 4"
+      },
+      {
+        "id": "audio_feature_workspace",
+        "bytes": 245760,
+        "formula": "3 * audio_tokens * audio_width * 4"
+      }
+    ],
+    "activation_bytes": 78598144,
+    "activation_MiB": 74.957031,
+    "logits": {
+      "bytes": 402653184,
+      "formula": "3 * positions * vocab * 4 (logits, softmax buffer, gradient)",
+      "MiB": 384.0
+    },
+    "role": "analytical estimate with activation checkpointing; not a measured allocator peak"
+  },
+  "temporary_buffers": {
+    "items": [
+      {
+        "id": "gradient_clip_reduction",
+        "bytes": 17283218448,
+        "formula": "parameters * 4",
+        "kind": "analytical"
+      },
+      {
+        "id": "fused_optimizer_scratch",
+        "bytes": 268435456,
+        "formula": "256 MiB declared budget",
+        "kind": "analytical_declared_budget"
+      },
+      {
+        "id": "encoder_feature_queue",
+        "bytes": 67108864,
+        "formula": "64 MiB declared budget",
+        "kind": "analytical_declared_budget"
+      }
+    ],
+    "total_bytes": 17618762768,
+    "total_MiB": 16802.561539,
+    "role": "explicit temporary-buffer budget; allocator slack and driver overhead remain excluded"
+  },
+  "phase_peaks": {
+    "restore_from_bf16_source": {
+      "bytes": 34148986392,
+      "GiB": 31.803722,
+      "formula": "BF16 artifact + materialized BF16 weights + FP32 master",
+      "status": "analytical; loader and dequantization unqualified"
+    },
+    "restore_from_fp8_source": {
+      "bytes": 30376398360,
+      "GiB": 28.290226,
+      "formula": "mixed-dtype FP8 artifact + BF16 weights + FP32 master",
+      "status": "analytical; FP8 loader, dequantization and backend unqualified"
+    },
+    "export_bf16_and_fp8": {
+      "bytes": 30245632284,
+      "GiB": 28.16844,
+      "formula": "FP32 master + BF16 export copy + FP8 staging copy",
+      "status": "analytical; serialization and backend export unqualified"
+    },
+    "training_live_parameter_state": {
+      "bytes": 77774483016,
+      "GiB": 72.433132,
+      "formula": "18-byte/parameter five-copy plan"
+    }
+  },
+  "projected_full_scope_training": {
+    "scope": "fixed trainable parameters; dynamic memory state is a separate account",
+    "fixed_parameters": 4320804612,
+    "training_plan": "bf16_weights_fp32_master_fp32_gradients_two_fp32_moments",
+    "parameter_state_bytes": 77774483016,
+    "dynamic_state_bytes": 185773056,
+    "activation_bytes": 78598144,
+    "logits_bytes": 402653184,
+    "temporary_buffer_bytes": 17618762768,
+    "resident_training_bytes": 96060270168,
+    "resident_training_GiB": 89.463098,
+    "with_bf16_restore_peak_bytes": 130209256560,
+    "with_bf16_restore_peak_GiB": 121.26682,
+    "with_export_peak_bytes": 126305902452,
+    "with_export_peak_GiB": 117.631538,
+    "over_driver_guard_on_resident_training": true,
+    "headroom_to_driver_guard_bytes": -42373178968,
+    "headroom_to_driver_guard_GiB": -39.463098,
+    "status": "analytical_not_admitted",
+    "note": "Parameter state, dynamic state, analytical activations, logits and temporary buffers are summed. Allocator and driver overhead are still excluded, so the true peak can only be larger."
+  },
+  "excluded_from_every_figure": [
+    "allocator fragmentation, caching-allocator slack, compiler workspace and MPS driver overhead",
+    "autograd graph metadata, Python object overhead and per-tensor bookkeeping",
+    "per-worker or per-session replication of model, optimizer, activation or memory state",
+    "checkpoint I/O buffers beyond the declared export staging copy",
+    "raw media, tokenized corpora, replay buffers and data-loader prefetch",
+    "per-camera/per-microphone encoder streaming queues beyond the declared temporary budget",
+    "teacher models, evaluation harnesses and any training-only auxiliary network not listed in the component inventory"
+  ],
+  "gates": {
+    "loader": "unqualified",
+    "dequantization": "unqualified",
+    "backend": "unqualified",
+    "resource": "unqualified",
+    "native_execution": "not_run",
+    "admission": "not_admitted",
+    "statement": "No loader, dequantizer, FP8/BF16 backend, MPS resource gate or native training run is qualified by this receipt. A value below the driver guard is not a measured fit."
+  },
+  "provisioning": {
+    "required_inputs_tracked": [
+      "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json",
+      "reports/spark_preparation_20261025/run_01/headers/official_fp8_adaptation_base/tensor_index.json",
+      "reports/fused_adamw_20261025/sustained01.guard.json",
+      "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md"
+    ],
+    "unprovisioned_local_inputs": [],
+    "bundle_check_command": "python3 scripts/prepare_sparkx_research_bundle.py --check",
+    "clean_checkout_replay": "all residency inputs are repository-tracked; run the bundle check to verify their hashes before citing this receipt",
+    "native_execution_required": false
+  },
+  "non_claims": [
+    "no Spark weight payload, tokenizer, dataset, media asset, model code or native runtime was downloaded, loaded or executed",
+    "encoder parameter counts are declared in the architecture document, not a fresh sealed encoder tensor index",
+    "projector, reader, phrase, activation, logit and temporary-buffer figures are analytical formulas, not measurements",
+    "the mixed-dtype FP8 source artifact does not demonstrate FP8 loading, dequantization, full backprop or backend support",
+    "no MPS memory fit, allocator peak, throughput, convergence or training admission is established"
+  ]
+}

@@ -1,5 +1,7 @@
 # Dataset acquisition, evidence and curriculum
 
+**26 October 2026 extension:** the [SparkX multimodal dataset strategy](datasets/20261026_SparkX_Dataset_Plan.md), [36-family source catalog](datasets/20261026_SparkX_Dataset_Catalog.json), and [MiniCPM validation curriculum](datasets/20261026_MiniCPM_Dataset_Validation.md) extend this guide with visual grounding, audio/music/affect, audiovisual reasoning and native-learning episodes. They distinguish source metadata review from asset QA and training admission. The dated observations below remain historical; the extension does not change the runtime registry or existing run caps.
+
 **Prepared 25 October 2026 for the `7c7018e` design review.** This plan expands
 the [existing data guide](04_Datasets_and_Generation.md) and supports the
 [integrated design](architecture/19_Integrated_Memory_Learning_and_RSI_Design.md).

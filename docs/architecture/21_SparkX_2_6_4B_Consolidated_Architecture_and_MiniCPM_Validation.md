@@ -1,343 +1,318 @@
-# SparkX 2.6 4B: consolidated native architecture and MiniCPM5 validation plan
+# SparkX 2.6 4B: native multimodal, memory and learning product plan
 
-**Revision 2 · 25 October 2026 · Research and implementation proposal; no training run authorized or performed by this review.**
+**Revision 4.4 · 26 October 2026 · Final product target; research/design, not a capability qualification or execution protocol.**
 
-This is the canonical architecture and validation plan. It consolidates the earlier [Spark study](../research/sparkx_2_6_4b_20261024/README.md), [Dynamic Engram study](../research/dynamic_engram_20261025/README.md) and [vocabulary/LoRA study](../research/vocabulary_lora_20261025/README.md). Those packages remain supporting research and historical snapshots. Where recommendations differ, this document takes precedence; existing execution protocols still govern actual runs until explicitly replaced.
+SparkX 2.6 4B is the intended finished product. Its language backbone will undergo **full fine-tuning**, with native vision, audio, memory and learning components integrated into its computation. **Full offline fine-tuning establishes multimodal perception and reasoning. Online self-learning uses those already-trained abilities to acquire knowledge and experience; it does not train the model into becoming multimodal.** MiniCPM5 is the smaller experimental platform used to reject weak mechanisms before paying for Spark training. The 35B/26B MoE options remain separate adapter-based ports; they are not prerequisites for the 4B product.
 
-The companion [machine-readable plan](../../configs/sparkx_2_6_4b_consolidated_plan_v2.json), [evidence manifest](../../reports/sparkx_2_6_consolidation_20261025/evidence.json), [repository snapshot](../../reports/sparkx_2_6_consolidation_20261025/repository_snapshot.json), [cost model](../../reports/sparkx_2_6_consolidation_20261025/analytical_costs.json) and [artifact validation](../../reports/sparkx_2_6_consolidation_20261025/validation.json) make assumptions and decisions inspectable. They are supporting records for this one plan, not separate architecture proposals.
+This document refines revision 3 with reusable audiovisual experience, native temporal state, paired sensory/semantic memory and additional transfer tests. Revision 4.1 added a [port-density study](../research/sparkx_port_density_20261026/Port_Density_Research_and_Plan.md): two ports are a baseline; six, nine and all-layer readers are candidates. Revision 4.2 added [dynamic memory attention and a unified module bridge](../research/sparkx_dynamic_memory_bridge_20261026/README.md). Revision 4.3 clarifies the product boundary: memory and plastic knowledge are permanent backbone components; the unified port is a separate sensory/action/model interface. Persistent learning can occur in native dynamic parameters while the stable 4B weights remain frozen during use. It also makes full offline multimodal fine-tuning a prerequisite for audiovisual self-learning. Existing experiment protocols and documents 16–20 still govern immediate execution. Nothing in this research update promotes a rejected experiment or starts training. The [frozen revision 3](../../reports/sparkx_av_experience_20261026/architecture_v3_snapshot.txt), [frozen revision 4](../../reports/sparkx_port_density_20261026/architecture_v4_snapshot.txt), [frozen revision 4.1](../../reports/sparkx_dynamic_memory_bridge_20261026/architecture_v4_1_snapshot.txt), [frozen revision 4.2](../../reports/sparkx_intrinsic_learning_spine_20261026/architecture_v4_2_snapshot.txt) and dated evidence packages remain historical records.
 
-## 1. Decision and scope
+Current companions: [new research review](../research/sparkx_av_experience_20261026/Research_Review.md), [native experience design](../research/sparkx_av_experience_20261026/Native_Experience_Design.md), [MiniCPM validation addendum](../research/sparkx_av_experience_20261026/Validation_Addendum.md), [machine-readable v4 plan](../../configs/sparkx_2_6_4b_product_plan_v4.json), [source manifest](../../reports/sparkx_av_experience_20261026/evidence.json), and [repository observation](../../reports/sparkx_av_experience_20261026/repository_snapshot.json). Retained foundations: [prior research](../research/sparkx_2_6_product_20261025/Research_Crosscheck.md), [release gates](../research/sparkx_2_6_product_20261025/Validation_and_Release.md), and [full-training resource analysis](../research/sparkx_2_6_product_20261025/Resources_and_Full_Finetuning.md).
 
-Build a pretrained Spark backbone with small native readers, writers and adaptation modules. Start with **an editable tensor memory bank, a bounded swappable phrase vocabulary and a small verified-update adapter**. Validate their individual and joint utility on MiniCPM5 before adding nonlinear fast weights, a learned learning controller or recursive improvement.
+Revision 4.2 companions: [15-paper cross-check](../research/sparkx_dynamic_memory_bridge_20261026/Research_Review.md), [Unified Access Port design](../research/sparkx_dynamic_memory_bridge_20261026/Unified_Bridge_and_Memory_Design.md), [MiniCPM validation](../research/sparkx_dynamic_memory_bridge_20261026/MiniCPM_Validation.md), [supplementary study configuration](../../configs/sparkx_2_6_4b_dynamic_memory_bridge_study_v1.json), and [evidence/cost report](../../reports/sparkx_dynamic_memory_bridge_20261026/README.md). The v4 JSON remains the two-port baseline; the supplements describe additional research candidates.
 
-The user-confirmed parameter boundary is **4B for the language backbone**, with vision, memory and inter-layer components additional. “HOPS” means **HOPE / Nested Learning**. The personality description is pending; this plan reserves a versioned interface and makes no assumption about its contents.
+Revision 4.3 companions: [11-paper research review](../research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md), [intrinsic architecture and neural spine](../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md), [teaching environment and MiniCPM validation](../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md), [research configuration](../../configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json), and [evidence/resource report](../../reports/sparkx_intrinsic_learning_spine_20261026/README.md). This revision supersedes prior wording that placed intrinsic memory behind peripheral attachment, or required erasing all learned dynamic parameters to prove persistent learning. Earlier configurations remain historical controls, not the complete current product specification.
 
-The intended deployed model performs semantic selection itself: what to retain, which memory to read, which lexical entries to activate, what to learn from feedback and when to stop recurrent reasoning. A runtime still supplies observations, executes tensor kernels, enforces resource limits and saves state. These necessary mechanics do not make the model an external agent harness. A host-generated fact list, oracle-selected answer record or external LLM-written lesson must remain a labelled diagnostic or training aid, rather than silently becoming the deployed reasoning mechanism.
+Revision 4.4 adds the [high-quality dataset strategy](../datasets/20261026_SparkX_Dataset_Plan.md), [36-family catalog with immutable Hugging Face revisions](../datasets/20261026_SparkX_Dataset_Catalog.json), [MiniCPM data and joint-learning validation curriculum](../datasets/20261026_MiniCPM_Dataset_Validation.md), and [source verification report](../../reports/sparkx_dataset_hunt_20261026/README.md). The [frozen revision 4.3](../../reports/sparkx_dataset_hunt_20261026/architecture_v4_3_snapshot.txt) preserves the previous design. This update qualifies source metadata and refines data selection; it does not admit datasets, change the runtime registry, rerun model experiments or revise their prior dispositions.
 
-Distinguish four achievements:
+## 1. Product contract and evidence boundary
 
-| Achievement | Required evidence |
+The user-confirmed **4B limit applies to the language backbone**, not the sum of all encoders and state. Added module parameters have no fixed product ceiling. Their active computation, resident bytes, training/update costs and quality must be measured separately; dynamically selected or updated weights still have costs. HOPS means **HOPE / Nested Learning**. The target accepts text, images, video and audio; produces grounded text and structured evidence; learns verified new facts, vocabulary and skills; and sustains long sessions with bounded working state. Speech synthesis is a separate optional decoder, not required to understand audio.
+
+“Native” means that modality interpretation, evidence selection, memory writing/reading, lexical selection and learned adaptation decisions belong to the model computation and saved model state. A host may decode media, enforce tensor budgets, run an optimizer, serialize state and apply independent verification. It must not secretly select the relevant object, supply the answer, caption every observation on the model's behalf, or choose the right memory using gold labels. Offline teacher models and evaluation tools are compatible with this requirement; a deployment-time semantic agent harness is not the target architecture.
+
+Use distinct claims:
+
+| Claim | Required behavior |
 |---|---|
-| Remembering | New information remains usable after the source leaves the context |
-| Lexical adaptation | A new expression can be encoded/emitted atomically, evicted and reactivated without identity corruption |
-| Learning | Updates improve answers on new applications of a taught rule, beyond recalling its demonstrations |
-| Improving learning | An updated learning policy learns future tasks better than a frozen policy under the same observations and resource budget |
+| Multimodal perception | Answers change correctly when relevant pixels or sound change |
+| Visual reasoning | Intermediate region/event representations causally help solve spatial or temporal problems |
+| Episodic memory | New information remains useful after its source and source KV are removed |
+| Instructed learning | A supplied correction or rule improves later, unseen applications |
+| Persistent skill learning | Designated native dynamic parameters improve new-instance performance and retain it across sessions/interference, with stable 4B weights allowed to remain frozen |
+| Backbone consolidation | Separately tested transfer of learning into a new stable release |
+| Learning-policy improvement | A trained selection/update policy produces more future benefit at equal total compute |
+| Recursive improvement | Successive policy revisions improve the learning process itself under independent evaluation |
+| Functional appraisal | Uncertainty, novelty, perceived affect and task progress modulate useful behavior |
 
-The first three are staged component gates; only after individual utility passes may they form the initial joint experiment. The fourth is a later research claim. None follows from a growing state file or a successful checkpoint reload alone.
+These claims do not imply subjective feeling, consciousness, unlimited memory or unbounded self-improvement. Personality content remains pending the user's description; its interface can be designed now.
 
-## 2. What is established, and what remains a hypothesis
+## 2. What the current repository actually establishes
 
-Evidence labels used below are **published** (author-reported, not reproduced), **source-inspected** (implementation read, not executed), **local measured** (preserved repository result) and **proposed** (our design). Source versions and reading scope are pinned in the manifest. The search was refreshed on 25 October 2026; it is targeted, not an exhaustive literature survey.
+Revision 3's evidence was reviewed at commit `4d2eb0236e31613462c26961a6a3d5bd9c2a0315`, reconciled through `023e8b9d4dd0dac81ebbea9d50eb65dc7b12d213`. Revision 4 adds a dated observation at `2468f16dfdf590104133efb041f30ec57e669a3a`, including concurrent uncommitted artifacts identified by hash. These reviews inspected reports and raw artifacts; they did not reproduce model runs. The [earlier follow-up](../../reports/sparkx_2_6_product_refinement_20261025/followup_snapshot.json) and [new snapshot](../../reports/sparkx_av_experience_20261026/repository_snapshot.json) preserve that distinction.
 
-| Primary evidence | What it supports | Boundary for this project |
+| Evidence | Verified interpretation | Planning consequence |
 |---|---|---|
-| [MemT-1.0 v2](https://arxiv.org/html/2610.26825v2), §§2–4, 6–8 | Native memory attention, per-trajectory state and trained storage/read procedures; 34B-token training program | Its Nano model is about 36B total/3B active. Persistent-state adaptation does not demonstrate lifelong permanent-weight consolidation. Its agent experiment also uses retrieved experience. It is architectural evidence, not a cheap 2B/4B reproduction |
-| [Engram v2](https://arxiv.org/html/2601.07372v2), §§2, 4, 6 | Hashed n-gram parameter tables, contextual gating and sparse access | Static learned pattern capacity is different from an editable episodic bank. Large-scale pretraining and H800 offload results do not predict single-stream MPS performance |
-| [Titans v1](https://arxiv.org/html/2501.00663v1), §§3–4 | Associative inner loss, momentum/forgetting and outer training of useful memory representations | A small residual retrofit must be trained and compared with simpler recurrence; “surprise” has a specified gradient-based meaning |
-| [Nested Learning / HOPE v1](https://arxiv.org/html/2512.24695v1), §§7–9 | Multiple optimization levels, context flows and self-referential adaptive modules | Multiple timers alone are not HOPE. The pretrained-model experiment includes 15B continued-pretraining tokens; our staged pilot is explicitly HOPE-inspired |
-| [Generation with Dynamic Vocabulary](https://arxiv.org/html/2410.08481v1), §2 and appendix D | A trained phrase encoder supplies input/output rows and atomic phrase feedback; candidates can be added | It does not establish safe recycled slot identities, restart semantics or native episodic selection |
-| [DVAGen](https://arxiv.org/html/2510.17115v1), §3 | Modern-model integration, phrase encoding, mixed token/phrase generation and candidate masks | Its evaluated phrase encoder is Qwen3-0.6B. Our approximately 3M-parameter encoder is an unproven efficiency hypothesis; external retrieval is not our intended deployment |
-| [Retrofitting LLMs with Dynamic Tokenization](https://aclanthology.org/2025.acl-long.1444/) | Hypernetwork-based vocabulary changes and input compression | Its expanded-output degradation is a warning about output calibration, not a proof that trained atomic generation cannot work |
-| [Self-Adapting Language Models / SEAL v2](https://arxiv.org/html/2506.10943v2), §3 and limitations | Learning which self-edits help after adaptation and evaluation | Nested adaptation is costly; self-generated training text is not independent truth. Our compact native policy is a proposed distillation target |
-| [SigLIP 2](https://arxiv.org/html/2502.14786v1), §2 | Pretrained visual features, localization and dense-feature improvements | A vision tower plus an untrained projector does not establish language grounding or temporal reasoning |
-| [V-JEPA 2.1](https://arxiv.org/html/2603.14482v1), §§2.3, 3 | Dense spatial/temporal self-supervision and intermediate-level targets | Useful candidate teacher for a later predictive branch; not a required second resident tower or a ready language world model |
-| [Learning Rate Matters](https://arxiv.org/html/2602.04998v2), §3 | Fairly tuned vanilla LoRA remains competitive with several studied variants | Use tuned LoRA as a mandatory baseline; the study does not rank every new PEFT method on continual learning |
-| [LoRA-FA v3](https://arxiv.org/html/2308.03303v3), §5 and appendix B | Frozen A with the specified optimizer correction reduces adaptation activation needs | Simply freezing A is not a faithful implementation; upstream trainable modules can still require backbone backward activations |
-| [CARE-LoRA](https://arxiv.org/html/2607.11940v1), §III; [MatryoshkaLoRA](https://arxiv.org/html/2605.07850v1), §2 | Activation reconstruction; separately, adapters trained for usable sub-ranks | Optional comparisons after baseline success. CARE approximates the A gradient; Matryoshka rank truncation requires its training method |
+| [Staged vision curriculum](../experiments/20261025_Staged_Vision_Curriculum_Results.md) | AdamW dev 99/240; sealed audit 37/120, wrong image 38/120, no image 29/120; all six quality gates fail. External captions: token-F1 0 on eight cases | Repair priors, abstention, supervision and generalization before a larger training arm. Low loss and successful reload are insufficient |
+| [Balanced vision dependence](../experiments/20261025_Vision_Dependence_Results.md) | Frozen regional features plus question-conditioned ridge readouts: final 75/120 versus question-only 36/120 and shuffled 46/120 | Some useful visual information exists. This is a procedural readout diagnostic, not a trained native visual reasoner or proof of a projector-only bottleneck |
+| [Memory update dynamics](../experiments/20261025_Memory_Update_Dynamics.md) | Full-history exact-key readout 36/240 for both reducers; query addressing 232/240. Target-only/prefix and target-last interventions recover information | Address write-position interference with writer frozen and non-oracle policies. Increasing capacity or separating depths is not an established repair |
+| [Earlier v5 memory verdict](../../reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json) | Fast and disabled both 56/192; facts/corrections fail | Useful native delayed recall remains unqualified despite repaired state contracts |
+| [Full-training performance](../experiments/20261025_M2_Ultra_Full_Training_Performance.md) | All 2,516,756,480 MiniCPM parameters were trainable and all 381 original tensors changed in three-update probes. Fused AdamW averaged 8.949 s/update versus Muon8bit 23.021 s/update at 55 positions/example | Full-backbone updates are locally demonstrated on MiniCPM. This is neither a convergence comparison nor evidence that full Spark training fits |
+| [Current continuation record](../../AGENT_CONTINUE.md) | Verified-learning CPU fixture inconclusive; delayed visual-memory corpus has 12 episodes, 24 images, 96 queries and CPU contracts only | No neural learning-policy, visual-memory or RSI promotion. Individual capability gates precede the joint factorial |
+| [Core source](../../src/replica_lab/architecture/core.py) and [heads](../../src/replica_lab/architecture/heads.py) | Eight recurrent width-256 slots; task features currently host-derived; audit heads detach core inputs | Reuse recurrence, but add native modality/task representation learning and a separate end-to-end training path |
+| [Spark preparation repair](../../reports/spark_repair_20261025/repair_record.json) | Source/preparation contracts exist; native FP8 remains blocked | Qualify Spark source/backend independently of RSI; use BF16 source as full-training reference |
 
-**New implementation finding.** The [pinned DVAGen implementation](https://github.com/AntNLP/DVAGen/blob/b29b40d7336bb15564253132f1092915a89102bf/src/dvagen/models/modeling_dva.py) clones the static input and output tables into separate `nn.Parameter`s, concatenates them with dynamic rows and computes an explicit extended output projection. Its [FREEZE training branch](https://github.com/AntNLP/DVAGen/blob/b29b40d7336bb15564253132f1092915a89102bf/src/dvagen/train/train.py) freezes `language_model.parameters()`; those separately cloned tables are outside that loop. This source inspection is not an execution test. It means we should reproduce the useful mechanism, not assume importing the package provides our intended frozen-table memory budget. Its example also selects CUDA and a large phrase encoder. Our implementation must share immutable base tables and explicitly audit every trainable tensor.
+The audit score is in the [sealed finalize receipt](../../reports/vision_curriculum_20261025/finalize_receipts/audit_593dc5406ebea4a09403ef597f81b513ad143025d3823ae0c3e9f45904d505d5.json), not the earlier dev-only score file. Preserve that distinction. The vision comparison used one seed per optimizer; it cannot establish that Muon alone caused the failed learning.
 
-The official [MemT inference source](https://github.com/MemTensor/MemT-1.0/tree/e75c13d090a6a9d34b29146d901bd84323185f24/inference) and [Engram demonstration](https://github.com/deepseek-ai/Engram/blob/fb7f84a21f91223715394a33a1dc24bbfb7f788e/engram_demo_v1.py) are implementation references. They are not qualified MPS dependencies. MemT original inference code declares PolyForm Noncommercial terms; reuse needs to respect the relevant file licences. This plan does not vendor upstream code.
+Commit `8ad047c` adds [authenticated historical score replay](../maintenance/20261025_Vision_Score_Replay.md); both arms retain failed learned quality. Commit `023e8b9` adds a production `adamw_fused` integration and strict resume metadata. The initial smoke reporting error described in revision 3 is historical. The newer [sustained probe](../../runs/fused_adamw_20261025/sustained01/run_report.json) completed 12 updates at 55 positions, with ten steady updates in 84.216 seconds, about 8.422 s/update. Its checkpoint-reload validation flag is false. This is a narrow performance observation, not a convergence, restart or Spark-fit qualification.
 
-The **combined native memory + recycled vocabulary + continual parameter adaptation + visual workspace** remains a research hypothesis. The evidence justifies the experiments, not a conclusion that the combination already works.
+The [causal-refresh diagnostic](../../runs/memory_causal_refresh_20261026/native01/run_report.json) improves exact recall from 36/240 to **110/240**, but remains **rejected** with zero optimizer updates. Unaffected-query accuracy is 33.3% and unknown false recall 16.7%. Its causal arm is classified as cached-observation retrieval plus neural refresh. A separate [restart attempt](../../runs/memory_causal_refresh_20261026/restart01/failure_report.json) reports different fresh-process outputs. These results strengthen the case for an explicit native record-bank comparison and a restart repair; they do not establish that causal refresh solved memory.
 
-## 3. Repository starting point
+**Revision 4.2 repository reconciliation:** the newer [restart04 report](../../runs/memory_causal_refresh_20261026/restart04/run_report.json) now passes fresh-process parity with zero old-observation encodes, after cached-vector device placement was repaired. [Native04](../../runs/memory_causal_refresh_20261026/native04/run_report.json) still rejects learned memory quality at 110/240 recall. The [vision stage final disposition](../../reports/vision_stage_diagnostic_20261026/final_disposition.json) records recovered engineering and byte-identical reload, but rejects learning: audit 6/24, all 24 audit answers `yes`, caption F1 zero. The [new source snapshot](../../reports/sparkx_dynamic_memory_bridge_20261026/repository_snapshot.json) pins this observation. The old failed attempts remain historical evidence; restart repair is no longer the outstanding quality problem.
 
-The audit originally started at commit `81c96f8453ad4f796ae084adfe10ffbd0e1e1e11`, with concurrent vision and diagnostic drafts recorded separately. This revision is reconciled through `4f6fb4c` and its subsequent verification repairs; preserved experiment reports remain historical evidence, not rerun claims by this proposal.
-
-| Component | Current evidence | Consequence |
-|---|---|---|
-| MiniCPM5 baseline | Pinned `openbmb/MiniCPM5-2B`, revision `f97400052a43d642bbc6e9975e2397e3ae6a6b52`; 42 layers, width 2048, vocabulary 130560, untied input/output tables; 2,516,756,480 parameters | Use actual geometry and measured allocation, not the rounded “2B” label |
-| Memory reliability | [v5 verdict](../../reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json) rejects the candidate. Fast and disabled conditions both score 56/192; new facts 0/64, corrections 0/16 and unaffected facts 0/48 | Diagnose storage, binding, selection and readout separately before expanding state |
-| Exact reference | Same evaluation: selective context 184/192, full context 176/192; the complete reference gate still rejects | Useful positive diagnostic, not an accepted native memory solution |
-| Memory integrity | [Repair qualification](../../reports/memory_contract_repairs_20261025/qualification.json) records repaired scope, ordering and representation/reload contracts | Reuse these interfaces; do not equate software repair with learned recall |
-| Vision V0 | [Accepted score](../../reports/vision_v0_20261025/accepted_score_report.json) and [qualification](../../reports/vision_v0_20261025/qualification.json): interface-only acceptance, zero optimizer updates, no perception-quality pass | Proceed to alignment and grounding experiments. Logit differences and gradient ownership are necessary, insufficient evidence |
-| Vision resources | V0 uses frozen SigLIP2-base-patch16-224, 92,884,224 encoder parameters; 5,772,800 projector parameters. Sampled driver peak 11,815,763,968 bytes, no CPU fallback | This is one bounded interface run, not the memory requirement of joint training |
-| Semi-cognitive core | [Core](../../src/replica_lab/architecture/core.py): eight width-256 slots, tied recurrence, typed sense/memory/task inputs; [heads](../../src/replica_lab/architecture/heads.py) detach core features | Existing heads do not train better core representations. Add a distinct learning path and measure its benefit |
-| Procedural RSI draft | [Draft module](../../src/replica_lab/runtime/bounded_rsi.py) explicitly describes host-owned procedure plumbing, not integrated or neural RSI | Keep it as infrastructure evidence; do not use its acceptance as model self-improvement evidence |
-| Spark | [Source preparation](../../reports/spark_preparation_20261025/run_01/preparation_manifest.json) is metadata/header inspection only, status `preparation_only_unqualified` | Native execution, precision, output-head integration and gradients still require qualification |
-
-Evidence reconciliation through `4f6fb4c`: both projector-only V1 arms are rejected. The 2048-wide arm scores 18/64 correct-image; the 4096-wide arm scores 21/64 versus 22/64 with no image. Its 128 updates, six-tensor lineage and zero-update fresh-process bitwise reload pass engineering, but not learned quality. The wide tiny-overfit arm fits 8/8 training worlds and 0/8 fresh dev worlds; the old frozen-feature verdict replays as `inconclusive_visual_contribution`. See [wide V1 results](../experiments/20261025_MiniCPM5_Vision_V1_Wide_Results.md) and the [conservative diagnostic replay](../../reports/vision_diagnostic_20261025/conservative_replay.json). These results defer the full memory/vocabulary/learning factorial until individual components demonstrate utility; they do not authorize V2, LoRA, learned visual memory or integrated RSI.
-
-## 4. Target architecture
+## 3. Integrated architecture
 
 ```mermaid
-flowchart TD
-    T[Text and instructions] --> B[Stable tokenizer and base embeddings]
-    I[Images and timestamped frames] --> V[Frozen vision tower and trained spatial temporal bridge]
-    B --> S[Spark language backbone]
-    V --> S
-    S --> W[Native event and lexical writer]
-    W --> M[Editable scoped tensor memory and lexical records]
-    M --> R[Learned retrieval and relevance gates]
-    R --> S
-    R --> C[Recurrent shared workspace]
-    V --> C
-    S --> C
-    C --> P[Bounded learning and compute policy]
-    C --> S
-    M --> Q[Native lexical selector and phrase encoder]
-    Q --> O[Stable base head plus active phrase rows]
-    S --> O
-    O --> B
-    P --> A[Small versioned adaptation modules]
-    A --> S
-    F[Observed outcomes and instructed corrections] --> W
-    F --> A
+flowchart TB
+    T[Text and immutable base tokenizer] --> B[Modified Spark decoder]
+    I[Images and timestamped frames] --> V[Native vision and spatial bridge]
+    A[Waveform and sample clock] --> E[Native audio and temporal bridge]
+    V --> B
+    E --> B
+    V --> P[Native recurrent region and event state]
+    E --> P
+    P --> C[Workspace, goals and appraisal]
+    B <--> M[Intrinsic memory attention and episodic bank]
+    B <--> F[Intrinsic associative and addressing parameters]
+    B <--> K[Persistent plastic knowledge parameters]
+    C --> M
+    C --> L[Native write and learning controller]
+    P --> M
+    L --> F
+    L --> K
+    TE[Teaching and observed outcomes] --> L
+    B --> H[Base head and swappable phrase rows]
+    H --> O[Text and grounded evidence]
+    B <--> J[Separate unified sensory and model spine]
+    X[Additional sensors and aligned models] <--> J
+    B --> R[Read-only observer and action queries]
+    R --> D[Trained action head and device controller]
 ```
 
-The optional static Engram and fast-weight branches attach through the same residual interface. They are not prerequisites for the initial three-way experiment.
+These are components of one model package. Intrinsic memory operates with the peripheral spine entirely disconnected. Initial full fine-tuning teaches the model to perceive, reason and use/update memory. During use, stable release weights stay frozen while designated memory/knowledge parameters change. The compact core is not a second language model. Reader density, memory commits, plastic-parameter updates and peripheral calls have independent schedules. The [revision 4.3 design](../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md) defines the permanent components, ordered causal phases and separate spine contract.
 
-### 4.1 Preserve the backbone and add bounded residual paths
+### 3.1 Backbone and integration points
 
-Spark has 36 layers, width 2560, MLP width 10240, 16 query heads, four KV heads and head dimension 256. Its pattern is three sliding-attention blocks followed by one full-attention block; the sliding window is 512. Its 131072-row input/output table is tied. The inspected BF16 model has **4,112,079,360 unique parameters**. Sources: [pinned configuration](https://huggingface.co/XHToken/Spark-X2.6-4B/blob/66e3ae7bee54e0a523d692cb8ef841f35409807b/config.json) and the local source/header audit above.
+Retain `XHToken/Spark-X2.6-4B` at revision `66e3ae7bee54e0a523d692cb8ef841f35409807b` as the starting checkpoint. It contains **4,112,079,360 unique parameters**, 36 layers, width 2560, FFN width 10240, vocabulary 131072, tied embeddings, 16 query/4 KV heads and head dimension 256. Three sliding layers precede each full-attention layer; the sliding window is 512.
 
-Preserve attention, normalization, RoPE, MLPs and residual ordering. Introduce zero-output-initialized memory/workspace residuals at zero-based layers **11 and 23**; MiniCPM uses the existing **13 and 27** ports. Layer placement is a starting hypothesis, not a published optimum. Compare an early static-pattern port separately. Expand depth only after attributing gains to the existing ports.
+This is custom `Spark2_5`, not a Llama module-name alias. The fused QKV projection maps 2560→6144; attention output maps 4096→2560. The output uses `F.linear` with the embedding weight, so wrapping an unused `lm_head` is insufficient. Preserve attention gates, mixed full/sliding positional behavior, tied-weight identity and output calibration. Initial extension ports are zero-indexed layers 11 and 23; MiniCPM controls use 13 and 27. These placements are hypotheses, not optimized locations.
 
-Use `h' = h + g_m R_m(h, M) + g_c R_c(h, C) + g_f R_f(h, F)`, with each branch independently disableable. An explicit disabled branch must recover the unmodified computation; sigmoid gates alone are never exactly zero. Prevent a zero-initialized gate and zero-initialized output matrix from simultaneously blocking all learning. Audit first-step gradients and subsequent update ownership.
+Use zero-effect initialization and extension-disabled parity. During training disable KV caching; checkpoint recomputation must not duplicate memory writes, lexical swaps or event updates. Forward returns proposed state; commit once at an explicit boundary. Re-entry, rejected optimizer steps and interrupted checkpoints must be idempotent.
 
-The Spark tied output path directly calls `F.linear(hidden_states, self.model.embedding.weight)` in the [inspected implementation](../../reports/spark_preparation_20261025/run_01/assets/official_bf16_control/modeling_spark.py). Replacing `lm_head.forward` alone would miss that path. MiniCPM and Spark require separate adapters against their actual executed embedding/head paths.
+In the retained compact reader baseline, project the current hidden state to a width-128 memory query, read bounded bank evidence, and combine width-256 readout/workspace vectors through a gated residual projection back to width 2560. An initial form is `h_next = h + g * W_out([memory_read, workspace_read])`, with zero-effect output initialization and a live gate, respecting validity/modality masks. The expanded candidate uses width-512 intrinsic memory readers. These readers do not require UAP attachment. Keep reading and writing separate: the observation encoder proposes keys/values and correction links, while a native selector chooses writes under the record quota. Hard selection at deployment needs a trained relaxation or explicit selection loss; it must not be substituted with answer-aware host selection. Audit the resulting projection parameters and gradients rather than treating the small bank payload as the entire module size.
 
-### 4.2 Dynamic Engram: editable information with learned access
+The new primary candidate adds memory after the attention residual and before the block MLP, plus a parallel full-rank plastic knowledge branch. Compare it with the existing post-block residual control and a separately qualified MemT-like pre-output branch. The original attention and MLP remain present. Nine-site, late-only and shared/grouped parameter layouts need matched experiments; permanent architectural membership does not require executing every branch on every token.
 
-“Dynamic Engram” is our project name for the following combination, not a claim that published Engram already supplies an episodic writer:
+The separately named `Spark-X2.6-4B-Base` exists, but its inspected card also describes post-trained weights. Do not silently substitute it or assume the name proves a raw pretrained starting point. An eventual Base-versus-current comparison needs a pinned, documented training provenance and equal data budget.
 
-| Path | Stored object | Update mode | Initial disposition |
-|---|---|---|---|
-| Editable episodic bank | Keys, compact values, typed event/concept links and exact lexical surfaces | Learned writes/corrections at observation boundaries | Required pilot |
-| Static pattern memory | Trained n-gram embeddings | Offline training or validated consolidation | Existing comparator; enlarge only after direct utility |
-| Fast associative memory | Small recurrent matrices or fast MLP weights | Causal, bounded per-segment update | Linear control first; nonlinear Titans-style branch later |
-| Skill adaptation | A small versioned LoRA or extension update | Verified feedback plus replay | Required learning factor, initially conventional optimizer |
+#### Reader density: six, nine and all-layer candidates
 
-Use a **1,024-entry bank on the main MiniCPM pilot**, 128 entries for smoke tests and a 4,096-entry Spark target. Start with key width 128 and value width 256. These are bounded capacities, not guarantees of indefinite retention. Persistent spellings, evidence records, replay and revision history also need byte limits and declared eviction rules.
+Per-layer access is feasible. Prioritize Spark read sets `[3,11,15,23,27,35]` and `[3,7,11,15,19,23,27,31,35]`, then compare an all-36-layer arm. The nine-port set follows Spark's full-attention blocks. These are research candidates, not a claim that more layers improve quality. Preserve the historical two-port arm and a two-port early-placement control; use corresponding relative-depth sets on MiniCPM.
 
-A native writer emits candidate spans, event representations, identity links, confidence and write/replace scores from observed hidden states. A learned query encoder scores bank keys, then reads a small top-k set with an explicit null route. At these sizes, dense key scoring is a reasonable baseline; sparse reads do not make the full search constant-time. Pretrain reader/writer utility on disjoint episodes with supervised identity/correction targets and downstream answer loss. Use soft reads or supervised routing during initial learning; hard top-k gradients alone do not train an unselected record.
+Separate early sensory-feature additions, memory readers, full-bank retrieval, writer sources and learning targets. Share the bank and cap selected evidence at 16 records regardless of reader count. For the first controlled density study, hold sensing layers fixed and use a separately accounted native query-sensing/selection pass before the action pass. This differs from revision 4's no-extra-planning-pass baseline hypothesis. An early reader cannot use selection computed at a deeper layer later in the same pass.
 
-Train the write-to-use path explicitly: observation → commit → source-context removal → later query. Initially unroll one to four segments so a future-query loss can reach the writer through its produced values, with a declared truncated-gradient boundary. Detach between independent worlds; do not detach the only intended learning path and expect answer loss to train storage. At evaluation, allow gradients only for the declared L update events. Invalidate or rebuild cached representations after relevant parameter changes.
+Test independent, depth-group shared and factored-output readers. Zero gates alone do not save computation; actual skipped execution must be measured. More readers must not multiply memory writes, fast-state decay or online LoRA targets. See the [research and experiment design](../research/sparkx_port_density_20261026/Port_Density_Research_and_Plan.md), [supplementary study config](../../configs/sparkx_2_6_4b_port_density_study_v1.json), and [density cost ledger](../../reports/sparkx_port_density_20261026/analytical_costs.json). Revision 4's machine-readable config remains the two-port baseline.
 
-Store a stable `record_uid`, scope, source reference, observation order, event time, validity interval and revision separately from mutable physical row position. Corrections supersede relevant claims and retain provenance. Time of observation is not automatically the time an event happened; temporal updates must not become “last string wins.” A self-generated guess is a hypothesis until verified, not a trusted memory fact.
+### 3.2 Vision: perceptual tokens, visual primitives and latent reasoning
 
-Native selection may read exact stored spelling bytes after choosing a lexical record. This is compatible with a model-native mechanism: the model selects the record, while a mechanical decoder emits its surface. A host selecting the correct record would invalidate that claim. Raw surface payload is counted as storage, not hidden in the tensor-only capacity estimate.
+Reuse qualified `google/siglip2-base-patch16-224` revision `75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2`: 92,884,224 encoder parameters. Initially retain all 196 patches per image to establish perception. Preserve patch coordinates, image dimensions, crop transforms, observation identity and time through the bridge. Then compare a 64-token resampler, sparse crops and an event-state compressor. Small-object and OCR quality must survive compression; a single global image vector is inadequate for the target.
 
-### 4.3 Swappable vocabulary is a view of memory, not the memory itself
+Use two complementary mechanisms:
 
-Keep permanent base token IDs immutable. Add **K=256 active phrase slots**, studying 32 for smoke tests and 512/1024 only after success. A reusable slot references a persistent lexical identity; reassigning slot 17 must not overwrite what the old expression means.
+1. **Grounded primitive control.** Predict points, boxes, object references and temporal intervals alongside answer generation. Train the geometric heads and language references on the same evidence. Points suit instance counting; boxes retain extent and overlap. This has closely matched 4B precedent in [Thinking with Visual Grounding](https://arxiv.org/html/2606.16122v1). It is supervised grounding, not proof of arbitrary latent reasoning.
+2. **Native visual reasoning candidate.** A small recurrent module updates region/event vectors while attending to actual visual features and memory. Feed the resulting vectors back through the backbone ports. Supervise them using region feature reconstruction, geometry, correspondence and future-event prediction, in addition to answer loss. Compare with explicit grounded reasoning and an equal-compute nonrecurrent module. [CoVT](https://arxiv.org/html/2511.19418v1) and [LVR](https://arxiv.org/html/2509.24251v1) motivate this experiment; they do not qualify this retrofit.
 
-The identity chain is:
+Start with two workspace iterations and at most 64 event/region slots. If autoregressive latent thought positions are tested, cap them at 16 in the first comparison and charge every backbone pass. Continuous tokens do not make computation free. Do not require a renderer or image generator at inference. Training-only segmentation/depth/feature teachers can supply targets; begin with existing geometry annotations before adding a large teacher stack.
 
-```text
-(stream_id, slot_index, slot_generation)
-  -> (lexeme_uid, surface_revision, encoder_revision, lexical_state_revision)
-  -> exact UTF-8 surface + base-token decomposition + optional concept/event links
-```
+A primitive contains `{observation_uid, region_uid, box_or_point, coordinate_frame, t_start, t_end, latent, confidence, representation_version}`. Relation predictions reference stable identities and carry confidence: left/right, overlap, containment, same-object, before/after and event association. The core reasons over vectors plus geometry; a host only validates ranges and resolves identified tensor slices. Predicted crop selection must remain native, with a fixed crop budget. Bounding boxes alone cannot recover unseen depth; monocular depth is relative unless grounded by additional measurements.
 
-Separate a spelling from its senses. Contextual concept links resolve ambiguity; avoid duplicate active rows with identical emitted bytes in the first implementation. Unicode normalization, leading spaces, punctuation and token-boundary behavior are explicit, versioned policies. Keep an exact-byte path so normalization cannot silently change identifiers.
+**Temporal reasoning is a separate capability.** Train correspondence across motion, occlusion, viewpoint and scale changes; interval ordering; identity continuity; and evidence that spans multiple frames. Use a common monotonic media clock, not frame number as elapsed time. Preserve source-resolution transforms. Test reversed order, time offsets, identity swaps, duplicated frames, dropped frames and query-relevant short events. Uniform 1 FPS sampling cannot support claims about arbitrarily fast events; allow a bounded model-selected burst or abstain when evidence is missing.
 
-Use a shared small phrase encoder over frozen base-token embeddings, with a proposed width 256, two Transformer blocks and an up-projection. Generated dynamic rows are initially shared between input and output, including on MiniCPM with its untied base tables. Train this choice and compare separate small input/output projections if necessary. No new full-size embedding table is allocated. Optional conditioning on a persistent lexical value is a later ablation, not required to encode the spelling.
+The DeepSeek report is now reviewed from two byte-identical mirrors. Its grounded-reference mechanism informs this plan; original-release provenance remains unverified. Scale, compression and reproduction limitations are documented in the [new research review](../research/sparkx_av_experience_20261026/Research_Review.md).
 
-Compute base logits and dynamic logits separately. Compare concatenated-softmax scoring with a learned mixture `p(base)=(1−a) softmax(z_base)`, `p(phrase)=a softmax(z_phrase)`. Set `a=0` exactly when disabled or no valid phrases exist. Learn candidate-count calibration and hard negative discrimination; adding many plausible phrases changes competition. The base fallback always remains available. Do not prune the base head in the initial experiment.
+### 3.3 Native audio input
 
-Training must include mixed base/phrase sequences, unseen phrase compositions, random slot permutations, negative phrases, empty candidate sets and base-only replay. Gold answers may provide loss labels but cannot select inference candidates. The phrase encoder learns offline; online learning initially changes a small skill adapter and memory state, avoiding simultaneous uncontrolled drift of every representation.
+**Yes: add an audio encoder whose continuous outputs enter Spark directly.** Speech recognition, environmental sound, timing and prosody need different evidence. An ASR transcript is useful supervision and a mandatory baseline, but cannot be the only representation.
 
-**Two different feedback modes must be measured.** In copy mode, emitting a phrase feeds all its constituent base tokens back through the backbone. In atomic mode, a phrase occupies one model position and its generated vector is the next input. Only the latter saves those backbone decode steps. It changes the model's computation and effective positional/context scale, so it needs training. Keep byte spans and video timestamps separate from model positions. Do not describe atomic and base-token replay as numerically equivalent.
+Compare two compact front ends before selecting one:
 
-**Swap progression.** First fix the active mapping for an entire generation. Later allow refresh only at declared segment boundaries, with at most 16 newly encoded phrases per refresh. Pin entries still referenced by pending next inputs, beams or backward/recomputation graphs. If all slots are pinned, use the base fallback. During training, recompute encoder graphs or retain the correct graph; a detached inference row cache cannot silently replace trainable encoder outputs. Optimizer state belongs to persistent parameters or lexical identities, never an anonymous recycled slot.
-
-**Cache and restart.** Changing future output candidates alone need not invalidate valid prefix KV. Changing already-realized input vectors, positions, adapters or prefix memory conditioning does. Persist either compatible KV with exact atomic-prefix identities or enough immutable data to rebuild the same atomic inputs and states. Retokenizing saved text with the base tokenizer is a useful alternative execution, not exact restart parity. Reject incompatible representation versions rather than silently rebinding IDs.
-
-Use these same contracts for repetition penalties, stop matching, batching and any later beam/speculative generation. Initially qualify greedy, batch-one generation only. Exclude phrases crossing role, control-token or stop boundaries. Unknown/inactive lexical entries remain expressible through ordinary base tokens.
-
-### 4.4 Learning at explicit timescales
-
-| Timescale | State/parameters | Learning signal | Ownership and cost |
-|---|---|---|---|
-| Token/segment | KV, workspace and optional fast state | Causal observations; associative prediction | Small bounded state; no global model optimizer |
-| Observation/turn | Episodic records and lexical state | Observed evidence, instructed correction, relevance | Native writer; fixed-capacity storage |
-| Verified learning episode | Small adapter and selected extension parameters | Demonstrations, independent outcomes and replay | Explicit optimizer steps, saved optimizer identity and rollback |
-| Consolidation window | Durable skills, reader/writer or encoder revisions | Replayed evidence and held-out retention | Offline bounded job; representation migration required |
-| Meta-training | Learning-policy parameters | Future-task gain after adaptation, less resource cost | Later research stage; separate policy-update evidence |
-
-The initial learning objective combines response loss on verified demonstrations, disjoint replay loss and a calibrated retention/distillation term. Phrase training adds mixed-sequence loss and relevant negative candidates; memory training adds record selection, correction and future-answer losses. Vision adds grounded language and temporal targets. Tune weights on development worlds; a single weighted average must not hide a failed correction or retention gate.
-
-For a simple fast-memory control, one may use a normalized linear delta update `F_next = λF + η(v − Fk)kᵀ`, with bounded learned scalars and an outer future-query loss. This is a **linear control**, not the full symmetric SGDN-2 rule or Titans. The existing SGDN-2 path must be identified by its actual implementation. A nonlinear branch gets an explicit associative loss, momentum state, forgetting rule and truncated credit horizon; compare equal state, data and measured compute. Never silently average state proposals and call that an aggregated-gradient optimizer.
-
-Updates use only observations available at that time. Evaluate adaptation on later queries before their answers are exposed. Keep a copied pre-update state for paired counterfactual evaluation; the test verifier cannot become training feedback. An explicit user instruction can authorize learning a supplied fact or rule, but uncertainty about the content must remain represented.
-
-### 4.5 Vision, workspace and functional appraisal
-
-Reuse the already-qualified SigLIP2-base source and existing visual contracts before introducing a different tower. Train the projector with the tower and language base frozen. Preserve region coordinates, crop-to-image transforms, frame indices and timestamps through the bridge; a global pooled vector is insufficient for the intended reasoning tasks.
-
-The initial vision control retains all 196 image patches. After grounding works, compare a learned 64-token resampler and a coarse-to-fine crop budget. For video, begin with four timestamped frames and a compact temporal module; examine 32/64 retained tokens per frame after the uncompressed control. Count image encoding, crops and temporal modules in latency. Frame shuffling, time reversal and object-identity swaps are required counterfactuals.
-
-Train region-to-name grounding, spatial relations, entity tracking under occlusion, event order, state changes and cross-frame question answering. Write object/event records into the same memory bank used by text. Link a taught name to a visually grounded identity, then test its use after both visual context removal and vocabulary eviction. A visual object ID, a lexical identity and a model token position are three different things.
-
-An optional predictive branch learns future visual latents or relation changes from observed sequences. A frozen teacher can supply training targets; it need not be resident at deployment. Prediction error can guide attention or learning priority, but does not prove causal understanding. Require held-out interventions and alternative explanations before claiming causal reasoning.
-
-Keep the current eight-slot width-256 workspace as the initial semi-cognitive core, with zero/one/two recurrence controls and a parameter-matched feed-forward control. Give it structured region/event tokens, memory candidates and task features rather than only a mean-pooled sense vector. Train a separate end-to-end objective through the core while retaining detached audit heads where their role requires it. Existing host-computed journal features are instrumentation; they cannot carry hidden answers in a native-capability evaluation.
-
-Functional appraisal may represent novelty, uncertainty, goal progress, conflict and urgency. It can modulate bounded write priority, replay selection or recurrence. It must not turn emotional salience into factual confidence. Compare no-appraisal, fixed-signal and learned-appraisal controls under identical compute. [Backpropamine](https://arxiv.org/html/2002.10585v1) provides a mechanism precedent for learned plasticity modulation; [computational appraisal research](https://arxiv.org/html/2309.06367v2) provides a formal connection to reinforcement learning. Neither establishes feelings or consciousness in this model. The personality file will later define desired behavioral constraints and stability tests through a separate versioned conditioning interface.
-
-### 4.6 LoRA and precision choices
-
-Start with rank-8 ordinary LoRA on the two selected MLP down projections, testing rank 16 only when rank 8 underfits. Tune learning rate independently per method with an equal development budget; the initial grid is `1e-5, 1e-4, 5e-4`, not a recommended online default. Freeze all base embeddings/head weights and enumerate trainable parameters before allocating optimizer state.
-
-If this narrow adapter is inadequate, compare additional projections under a **parameter budget**, then a wall-time budget. MiniCPM uses separate q/k/v/o projections; Spark uses fused `q_k_v_proj` and a 4096→2560 `out_proj`. A rank budget alone is not a parameter budget across unequal widths.
-
-LoRA-FA is the first efficiency alternative, including its optimizer correction. CARE is a later activation-memory comparison; its reconstruction matrices may cost more on very short microbatches. MatryoshkaLoRA is useful if a trained adapter must support several deployment ranks. EVA, PiSSA, DoRA, LoRA+ and rsLoRA remain candidates from the supporting review, not cumulative additions. Generated adapters from [Doc-to-LoRA](https://arxiv.org/html/2602.15902v1) or [Text-to-LoRA](https://arxiv.org/html/2506.06105v1) are later alternatives requiring meta-training and interference controls. Do not add a large generator merely to avoid a few cheap local optimizer steps.
-
-Keep the current qualified MiniCPM precision as the control. Spark BF16 and official FP8 are separate source qualifications. The official FP8 checkpoint uses compressed-tensors F8_E4M3 weights/dynamic activation machinery, not NF4 QLoRA. Dequantizing it does not recreate the independent BF16 checkpoint. No FP8/MPS training claim is made here. Sparse state, optimizer-state compression and low-bit base storage require separate numerical and performance validation.
-
-## 5. Concrete MiniCPM5 experiment
-
-### 5.1 Hypotheses and controlled factors
-
-The main experiment has three factors: **M** = learned episodic read/write bank, **V** = trained atomic swappable vocabulary, **L** = verified online adapter updates. All arms use the same base checkpoint, offline-trained extension initialization, observation stream, decoding settings and evaluation queries. Initially freeze the core policy and phrase encoder during online adaptation.
-
-| Arm | M | V | L | Main purpose |
-|---|---|---|---|---|
-| 000 | off | off | off | Base-only persistent-state control |
-| 100 | on | off | off | Memory utility with ordinary tokens |
-| 010 | off | on | off | Lexical mechanism without semantic memory |
-| 001 | off | off | on | Parameter learning without memory/vocab assistance |
-| 110 | on | on | off | Memory plus phrase handling |
-| 101 | on | off | on | Memory plus learned adaptation |
-| 011 | off | on | on | Phrase handling plus learned adaptation |
-| 111 | on | on | on | Complete initial system |
-
-**Prevent an information confound.** Every arm may access the same bounded lexical surface catalog containing only encountered spellings and mechanically necessary IDs. It contains no answer labels, semantic attributes, selected evidence or privileged future phrases. In M-off arms, catalog keys derive only from spelling and dynamic rows cannot use contextual semantic values. M controls the semantic values/links/readout, not whether a string exists. V controls atomic encoding/output, not whether an answer string is available at all. Candidate selection uses causal model representations. Report catalog coverage and native selector recall separately. A secondary information-matched test supplies identical non-oracle candidate lists to isolate representation costs; it is not the native-selector result.
-
-Use two analyses: interventions on the same trained system to establish component dependence, then independently trained key baselines with matched offline data/tuning budgets to check fairness. Disabling a jointly trained pathway can create distribution shift; intervention results alone do not prove that architecture is better than an independently trained alternative.
-
-Required additional controls are empty/shuffled/stale/wrong-scope memory, fixed-slot vs swapped-slot vocab, phrase copy with base-token feedback, no-update/fake-update learning, exact-record and full-context diagnostic ceilings, and correct/wrong/no-image inputs at the visual stage. Any oracle-assisted writer/reader remains clearly marked and excluded from native acceptance.
-
-### 5.2 Data and chronology
-
-Generate owned, independently seeded worlds with random names, bindings, corrections and compositional rules. Separate training, tuning and final worlds by generator family as well as seed, vocabulary, templates and rule composition. Render equivalent facts in multiple forms. Give verifiers structured world truth; give the model only the allowed observations. Filenames, row order, timestamps, task features and candidate order must not encode answers.
-
-A main long-horizon episode follows this sequence:
-
-1. **Pretest:** evaluate base facts, unknown cases and a task-specific baseline before teaching.
-2. **Observe:** teach nonce entities, exact identifiers and a verified rule through text; later visual episodes use images/frames with the same evidence boundary.
-3. **Commit and remove context:** commit memory through the native writer, clear source text and its KV, then ask paraphrased delayed questions. Preserve only declared persistent state.
-4. **Churn vocabulary:** expose at least `2K+32` distinct lexical entries—544 at K=256—within the 1,024-entry semantic capacity. Evict/reassign the target's active slot, then require reactivation. This isolates vocabulary churn from semantic-bank overflow.
-5. **Correct:** change selected facts with explicit provenance; ask both revised and unaffected facts, including historical-time questions.
-6. **Learn a rule:** provide verified demonstrations and at most four online optimizer steps per teaching event, batch one, at most 256 positions per training microbatch including replay. Use the same supervised material and update cap in every L-on arm.
-7. **Transfer:** query new entities, combinations and rule inputs; no exact training answer may occur in memory, candidates or replay. Test direct recall separately from this transfer score.
-8. **Retain and restart:** interleave unrelated learning, query old tasks after declared 1/10/100-event delays, save, restart in a fresh process and repeat with identical versions and zero extra updates.
-
-For a deterministic rule family, teach a nonce operation such as `dax(x)=3x+2` through a few permitted demonstrations and explicit instruction, then evaluate unseen inputs and compositions. Randomize rules between worlds and include verification failures. Also run a parameter-only transfer probe: clear semantic memory and source context, retain the adapter, and compare against its frozen pre-update version. This distinguishes parameter learning from retrieving a rule and applying existing reasoning. This is a controlled transfer diagnostic, not proof of general mathematical self-improvement. Add a small independently verified programming/transformation task family before broader claims.
-
-Run a separate `>N` semantic-bank overflow test. It measures eviction and graceful forgetting, not perfect retention beyond capacity. Likewise test ambiguity, contradictory sources, rejected feedback, empty banks, multilingual/Unicode spellings, all-slots-pinned fallback and interleaved session isolation.
-
-### 5.3 Stage order and dependencies
-
-| Stage | Work | Exit evidence |
-|---|---|---|
-| P0 — contracts and audit | Pin source/tokenizer/precision; define new state schema; baseline parity; instrument trainable tensors, gradients and memory | Integrity suite and native resource smoke pass; all result classes separated |
-| P1 — memory diagnosis and repair | Oracle writer + native reader, native writer + oracle read, both native; exact-record controls | Native recall and correction beat empty/shuffled controls; no source answer injection |
-| P2 — phrase learning | Train small encoder and output calibration; fixed mapping before swaps; random slot permutation | Atomic feedback preserves task quality; no stale identity or wrong-scope output |
-| P3 — verified learning | Tune small LoRA vs FA; retention replay; freeze representation versions within an episode | Held-out rule transfer beats no-update/fake-update with bounded forgetting |
-| P4 — joint M×V×L | Run eight-arm screen, then paired confirmation; churn, corrections, delays, restart and costs | Joint acceptance gates below; explain failures by component |
-| P5 — vision and workspace | Finish V1 alignment/grounding; spatial and temporal controls; visual naming through the same M/V/L path | New visual evidence changes correct reasoning; grounded identity survives swaps and learning |
-| P6 — fast memory and multi-rate learning | Linear/SGDN-2 vs small nonlinear memory; static-pattern control; matched-rate schedules | Incremental benefit under equal data, state and measured cost |
-| P7 — native learning policy | Train/update compact policy; compare frozen policy; appraisal ablation | Better future-task learning after policy updates, independent of larger knowledge/state budgets |
-| P8 — Spark qualification and transfer | Port interfaces, retrain dimension-specific modules, repeat native and quality gates | Spark-specific verified results, including actual output-head and precision paths |
-
-P0 is required for all execution. P2 and P3 can be developed independently after P0, but P4 requires P1–P3. Vision preparation can proceed independently, but joint visual learning requires P4 and a perception-quality pass. P6/P7 are optional research expansions; they must not delay a useful simpler P4/P5 system. P8 first ports the accepted simpler architecture, and only later optional branches that earned their cost.
-
-### 5.4 Sample sizes, statistics and decision gates
-
-These are **proposed engineering targets**, not published results or guaranteed achievable thresholds. Freeze them with the dataset/protocol before final evaluation. Development failures should refine the model, not silently loosen the final gate.
-
-The resource screen uses two training seeds and 32 independent worlds per seed per factorial arm. Limit normal worlds to 128 events; run at least eight dedicated long-churn worlds per seed with `2K+32` lexical introductions. This screen estimates variance, feasibility and useful effect sizes; it does not establish a 2-point non-inferiority claim. Limit the first offline fit to 2M base-token-equivalent exposures and the screen to four device-hours per arm, reporting actual exposures, atomic positions and wall time. If a budget expires, record an incomplete result rather than a quality failure or success. Expand only through a revised budget declaration.
-
-Confirmation begins with three independent training seeds and 128 fresh worlds per seed for the retained principal comparisons. Determine any larger sample from a development-only power simulation, with a predeclared maximum of 1,024 worlds per seed; freeze the final sample size before viewing final labels. If the budget cannot resolve the interval, the outcome is **inconclusive**. Bootstrap paired differences by whole world and training seed, not by correlated questions; also report each seed and task family. Use simultaneous intervals or Holm adjustment across the predeclared primary superiority contrasts. Never repeatedly sample final data until a threshold passes.
-
-| Gate | Proposed requirement |
+| Candidate | Role and limits |
 |---|---|
-| G0: mechanics | Zero stale-slot, wrong-scope, incompatible-reload, future-candidate or unauthorized-parameter updates in the adversarial contract suite. Finite outputs and correct disabled-branch parity within declared numerical tolerance |
-| G1: native memory | Point accuracy ≥90% on delayed facts and corrections separately; paired 95% lower confidence bound above empty and shuffled memory controls. Demonstrate native writer and reader ownership |
-| G2: lexical reliability | Zero surface/identity mismatches in the contract suite; task-quality difference against ordinary-token control has 95% lower bound ≥−2 percentage points. Correct behavior under eviction/reactivation and permutation |
-| G3: learning | New-rule transfer improves by at least 5 points in the point estimate and the adjusted paired 95% lower bound is >0 versus both no-update and fake-update controls; demonstration recall alone is insufficient |
-| G4: retention | For unaffected facts and general regression tasks separately, 95% lower bound of quality change ≥−2 points. Report correction-induced errors and old-task forgetting separately |
-| G5: joint utility | Arm 111 passes G1–G4; removing M harms delayed recall and removing L harms new-rule transfer with adjusted lower bounds >0. Removing V demonstrates its intended efficiency benefit while quality remains non-inferior. A positive three-way statistical interaction is reported if present, not required |
-| G6: cost | On prespecified phrase-heavy workloads, V reduces end-to-end latency per correct task by ≥10% in point estimate with paired confidence supporting improvement; on general text, warm p95 latency increase ≤10%. Full accounting includes selection, encoding, writes, updates and replay |
-| G7: grounded vision | Correct-image/frame condition beats wrong/no-image; ≥5-point point gain and adjusted lower bound >0 on both spatial and temporal held-out families. Visual naming survives V churn and M correction; text/general retention passes G4 |
-| G8: improved learning policy | Under equal observations, initial knowledge, update count and resource caps, updated policy improves future-task learning versus frozen policy by ≥5 points with adjusted lower bound >0, after retention checks. This is bounded meta-learning evidence, not open-ended RSI |
+| `openai/whisper-small` encoder only | Multilingual speech-oriented control. Analytical stored encoder size about 88.15M elements, including fixed positions; do not load its autoregressive decoder into the product |
+| `marcoyang/spear-base-speech-audio-v2` | Preferred unified-audio research candidate: official metadata 93,289,476 parameters, width-512 output, about 50 Hz; English speech plus general-audio pretraining. Mandarin/multilingual transfer is not established by that pretraining |
+| Whisper-base encoder only | Approximately 20.59M stored elements; lower-cost ablation if accuracy permits |
+| SPEAR XLarge / AuT / dual Whisper+BEATs | Teacher or quality ceiling, not default resident components |
 
-Report all denominator counts and uncertainty. Zero observed contract violations is a finite-suite finding, not proof that faults are impossible. At three seeds, seed-level uncertainty can remain large; publish it rather than treating hundreds of within-seed queries as independent training replications.
+Pin SPEAR v2 at `7447901d44bf265b3c304cc4ccf25ca741527b6c`, Whisper-small at `973afd24965f72e36ca33b3055d56a652f456b4d`. All remain unqualified on this repository's device/backend. The SPEAR checkpoint declares `causal: false`; it is not streaming-ready simply because its config has chunk fields.
 
-For memory and vocabulary compare exact decoded bytes, semantic correctness and justified abstention. Report candidate recall@K, correct-record selection, read usefulness, write/overwrite rates, cross-scope leakage, phrase utilization and churn recovery. For learning report pre/post transfer, learning curves, samples-to-criterion, cumulative update time and backward transfer. For vision include grounding/association accuracy and counterfactual sensitivity; logit movement alone does not pass.
+Use 16 kHz waveform input, documented frontend normalization, validity masks and exact sample offsets. First qualify short, complete clips. Then train/test chunk-aware processing with explicit lookahead and bounded acoustic context. Never expose future audio while measuring online latency or causality. Preserve overlap identity to avoid counting the same event twice.
 
-Do not compare perplexity per token across different token units. Report content quality and byte-normalized canonical-path loss, clearly labelled as such; this is not the fully marginalized probability of a string with multiple segmentations. Measure both cold and warm timings, fixed-length controlled decode and equal-answer task latency, bytes per second, energy if available, and separate teacher/training costs. Include failed and abstained tasks when computing cost per correct task.
+The bridge has a content stream and a low/mid-layer acoustic stream, both derived from the same encoder. Project into Spark width through small MLPs; retain native acoustic vectors for sound events and perceived affect. Compare final-layer-only, a small selected-layer fusion and a larger all-layer fusion. [SALMONN-2](https://arxiv.org/html/2607.17079v1) and [MOSS-Audio](https://arxiv.org/html/2606.01802v1) support multi-level features, but their much larger encoders and training programs do not establish equivalent quality for a 93M tower.
 
-### 5.5 Broader validation after the owned diagnostic
+Begin at 50 Hz for representation diagnostics; test grouping by five to **10 model tokens/second**. A 4-second segment then contributes 40 content tokens. Keep precise intervals and a small separate event summary so pooling does not erase a short sound or prosodic change. Lower rates are later ablations. Silence suppression is not automatically safe: pauses and breath can carry useful information.
 
-Use [LongMemEval](https://arxiv.org/abs/2410.10813) for conversation-memory transfer, [CLEVR](https://arxiv.org/abs/1612.06890) for controlled visual composition, and the [Perception Test](https://arxiv.org/abs/2305.13786) for real-video tasks. Verify exact dataset versions, access terms, splits and evaluator behavior before use; these sources were checked for benchmark scope, not locally reproduced. Select video-only tasks unless audio is actually implemented. The authors now also provide [LongMemEval-V2](https://xiaowu0162.github.io/longmemeval-v2/); inspect its interaction/cost requirements before making it an additional target. Do not silently replace one benchmark version with another.
+For audiovisual input, fuse by actual time intervals and learned correspondence. Include synchronized, shifted, contradictory and missing-modality examples. The model must distinguish a sound correlated with an object from a verified causal event. Its lexical memory may bind a newly taught name to pronunciation and visual appearance; pronunciation exemplars are optional bounded records, not permanent new acoustic token IDs.
 
-Existing synthetic datasets and public benchmark items may have been seen during earlier development or pretraining. Preserve an untouched project-specific holdout and disclose exposure. Exact owned-world verifiers are the primary acceptance mechanism; separately report benchmark-native scoring and a small blinded human audit for open answers. An external LLM judge may be a secondary sensitivity analysis, not the sole source of truth.
+Audio understanding does not require a talker, vocoder, voice cloning or a second LLM. Those would add their own training, memory and latency qualification and are outside the initial product release.
 
-## 6. Cost model and resource policy
+Audio capability is established through offline full multimodal fine-tuning before online learning experiments. Compare speech/sound/music feature preservation, with MERT-95M as a music control and AF3/Music Flamingo as training precedents; see the [audio research cross-check](../research/sparkx_intrinsic_learning_spine_20261026/Research_Review.md). Preserve pitch, timbre, rhythm, prosody and actual timestamps, and test multiple feature scales before fixing a token-compression rate. Online learning may acquire a new musical concept or sound convention using these trained features; it is not the mechanism for teaching an untrained audio path to hear.
 
-All numbers below are analytical payload estimates unless explicitly identified as V0 measurements. The reproducible calculator lists formulas and exclusions. BF16 estimates describe storage possibilities, not a claim that the current MPS path has been qualified in that dtype.
+### 3.4 Semi-cognitive core and functional affect
 
-| Item | MiniCPM5 | SparkX 2.6 |
-|---|---:|---:|
-| Unique base parameters | 2,516,756,480 | 4,112,079,360 |
-| Base BF16 / FP32 payload | 4.688 / 9.376 GiB | 7.659 / 15.319 GiB |
-| 256 active dynamic rows, one shared input/output bank, BF16 | 1.00 MiB | 1.25 MiB |
-| Double-buffered rows, BF16 | 2.00 MiB | 2.50 MiB |
-| Small phrase encoder matrix parameters | 2,621,440 | 2,883,584 |
-| Phrase encoder FP32 weight + gradient + two Adam moments | 40 MiB | 44 MiB |
-| Two down-projection rank-8 adapters | 131,072 parameters | 204,800 parameters |
-| Their FP32 weight + gradient + two Adam moments | 2.00 MiB | 3.125 MiB |
-| Episodic keys/values, BF16, excluding metadata | 0.75 MiB at 1,024 entries | 3.00 MiB at 4,096 entries |
+Retain the existing eight width-256 recurrent slots as the first control. Extend their typed inputs to visual regions, audio segments, events, native memory reads and the current language goal. The current 24 host-computed task features may remain in the control, but product semantic state must be inferred from model inputs; exact counters can remain mechanical metadata.
 
-A 256-row dynamic head adds approximately 0.196%/0.195% to the respective **output projection arithmetic**, not to total latency. It does not eliminate the full base head. For Spark, encoding 256 fresh eight-token phrases with the proposed tiny encoder costs about 4.75B matrix MACs before norms and scheduling. Refresh only useful entries, amortize them and measure break-even. Count each distinct per-session row bank; batching different vocabularies can multiply storage.
+Separate three representations:
 
-The core's default geometry is about 1.07M parameters before new modality/learning heads. A frozen 92.9M-parameter vision tower is an additional roughly 177 MiB BF16 or 354 MiB FP32 payload; activations and input tokens are additional. A corresponding two-layer 768→2048→2560 Spark bridge would have about 6.82M parameters including normalization/biases, but must be qualified against the actual chosen bridge definition. The optional 4.19M-parameter static pattern table and optional fast-memory ports are **not included** in the minimal joint pilot total.
+- **Observed evidence:** what happened, where/when, source reliability and contradictions.
+- **Perceived social/affective evidence:** distributions over vocal cues or listener-perceived affect, including uncertainty and competing interpretations.
+- **Internal functional appraisal:** prediction error, novelty, task progress, uncertainty and expected learning value. These variables control attention, memory retention, learning effort and response style.
 
-These figures are not a total training-memory forecast. Full logits, KV, saved activations through a frozen backbone, row construction, replay, gradients, optimizer workspaces and allocator copies can dominate. In particular, freezing the base does not eliminate backward activations when training an upstream vision projector or early memory reader. Report incremental storage, trainable parameters, active arithmetic and end-to-end memory as different quantities.
+An “emotion simulation” can be a learned, bounded dynamical state with decay and task-conditioned updates. It should be evaluated through its useful effects and calibration, rather than a claim of subjective experience. A loud voice must not automatically mean anger; a predicted affect label must not become a durable personality fact. Explicit user corrections outrank inferred preference hypotheses. Store the acoustic evidence separately from its current interpretation.
 
-Use the existing M2 Ultra 64 GiB policy: one MPS worker, 50 GiB driver ceiling, sustained swap growth limit 512 MiB, minimum host free memory 15%, no silent CPU fallback. Collect phase-level RSS/MPS/driver samples and wall time. These limits are admission/stop rules, not permission to consume that much in every experiment. Start with batch one, bounded generation and no concurrent model jobs. Any future 24 GB NVIDIA target requires its own CUDA/precision profile; Mac measurements do not qualify it.
+[emotion2vec](https://arxiv.org/html/2312.15185v1) motivates frame/utterance representation supervision. Its term “online distillation” describes a training method, not proof of lifelong autonomous learning. Use a frozen teacher for offline distillation if useful; avoid an additional permanent emotion tower unless it earns its runtime cost. Assess soft-label agreement and counterfactual prosody using the [VoxEmo](https://arxiv.org/html/2603.08936v1) methodology.
 
-## 7. Implementation boundaries and delivery sequence
+Add answer/future-query and representation losses that backpropagate through the core. Preserve detached monitoring heads for independent auditing. Compare recurrence 0/1/2, a parameter-matched feed-forward control, and a compute-matched control. A successful monitor predicting the model's errors does not demonstrate improved reasoning. Personality conditioning is a separate stable input/module, with contents deferred until supplied; it should not overwrite observed facts or determine verification outcomes.
 
-Reuse [contracts](../../src/replica_lab/architecture/contracts.py), [MiniCPM integration](../../src/replica_lab/architecture/minicpm5.py), [ports](../../src/replica_lab/architecture/ports.py), [vision](../../src/replica_lab/architecture/vision.py), [loading](../../src/replica_lab/architecture/loading.py) and the existing memory representation/ownership framework. The current [copy and pointer heads](../../src/replica_lab/architecture/ports.py) are useful controls; caller-supplied eligible records do not establish native record selection.
+Initially update the recurrent workspace at observation/segment boundaries and when a query arrives, rather than running a full recurrent reasoning loop for every acoustic frame. Backbone ports can read the resulting state during decoding. This schedule is a compute hypothesis; compare against token-level updates only if the simpler schedule loses required information. Clock resolution, update rate and retention duration are separate quantities.
 
-Proposed implementation units, in order:
+### 3.5 Dynamic Engram and long-running state
 
-1. **State contract:** lexical IDs, slot generations, versioned learned state, frozen observation boundary, restart and invalidation rules. Add bounded surface/replay/history accounting.
-2. **Native memory diagnosis:** independently instrument write, key selection, value decoding and final answer use. Fix the first failed boundary; avoid enlarging a bank whose contents are unused.
-3. **Dynamic lexical module:** shared phrase encoder, typed active view, separate logits, mixture/concatenation controls and atomic feedback. Extend the strict current input-ID bounds through an explicit mixed-input interface rather than globally accepting arbitrary IDs.
-4. **Learning module:** qualified adapter targets, exact trainable ownership, verified update inputs, replay and reversible versioned state. Add optimizer identity to export/import.
-5. **Unified experiment runner/scorer:** the eight arms, paired worlds, independent verifier, metric denominators, complete costs and staged acceptance. Keep oracle diagnostics visibly separate.
-6. **Visual/core extension:** structured spatial/temporal memory, native naming and corrected-state tracking, then learned recurrence and appraisal controls.
-7. **Optional memory/policy research:** add only branches with measured incremental value. Audit cross-level gradient paths before using the HOPE name for an implementation.
-8. **Spark port:** qualify the real output path, precision and adapters; retrain dimension/tokenizer-dependent components. Transfer contracts and datasets, not incompatible MiniCPM weights or numeric token IDs.
+Use “dynamic Engram” as the project name for **native editable associative memory**, not as a claim that the static Engram paper already implements it. Keep distinct state types:
 
-Each implementation unit should produce a reviewable change, a pinned protocol, a small mechanical test set and one bounded native smoke before a larger run. A passed mechanics test permits the next experiment; it does not automatically promote a model. Preserve rejected models and reasons for analysis.
+| State | Initial design | Update/retention contract |
+|---|---|---|
+| Working context | Capped KV and eight core slots | Segment-local; predictable reset/restart |
+| Event/region state | Up to 64 width-256 slots | Native merge/select; stable observation lineage |
+| Episodic/lexical bank | MiniCPM 1024 records; Spark 4096; key 128 and semantic value 256; paired candidate adds 2×128 visual and 2×128 audio evidence | Native write/read; revisions, deletion, uncertainty and bounded capacity; semantic-only v3 bank remains a control |
+| Intrinsic fast parameters `F` | Associative matrices/nonlinear memory; earlier two-matrix arm remains a control | Learned causal update and explicitly scoped persistence; compare against bank-only |
+| Adaptive addressing | Full-rank query/routing state; fixed addressing remains a control | Feedback updates between decisions; compatible stored keys and representation versions |
+| Persistent knowledge `P` | Full-rank plastic MLP/expert bank inside decoder computation; earlier LoRA arm remains a control | Verified updates and replay across sessions with stable backbone frozen |
+| Stable release `Theta` | Original backbone, modality components and qualified learning machinery | Full offline training; optionally a later consolidation release |
+| Static Engram | Optional fixed pattern table | Offline learning; separate capacity/cost accounting |
 
-The first actionable milestone is **P0 plus P1 diagnosis and the P2 fixed-mapping prototype**. A successful project checkpoint is a MiniCPM model whose native semantic memory survives vocabulary churn, whose verified updates improve a new application of a rule, and whose untouched abilities remain within the stated retention bound. Spark deployment and more ambitious self-improvement depend on that evidence.
+The current frozen-writer diagnostic shows that old information can be lost through write ordering even when query addressing is strong. First compare causal refresh/retention strategies with the exact same writer, records and scoring. The diagnostic's target-last intervention knew the queried target and cannot serve as a deployment policy. Refresh must use information available at write time, declared coverage rules or the current lawful query; never future labels.
 
-## 8. Conditions that change the recommendation
+A new explicit bank control writes distinct records without repeatedly overwriting one shared fast matrix. Later compare matrix compression at matched byte budgets. Preserve an ordinary indexed-bank baseline so failures can be localized to storage, selection, representation or readout. Full memory content is not a free prompt append: native selection supplies bounded evidence to the active reader sites.
 
-- If exact/native memory binding still fails, improve its learned representation and readout before adding nonlinear memory or more rows.
-- If the tiny phrase encoder cannot meet quality and amortized-cost targets, keep native lexical memory with ordinary-token/copy output; evaluate a larger encoder or offline distillation as a separate budget decision.
-- If vocabulary swaps work but do not save end-to-end computation, keep them as an optional domain feature rather than claiming a general speedup.
-- If LoRA improves demonstrations but not held-out rules, report memorization and change the learning curriculum/objective. Increasing rank alone does not establish self-learning.
-- If vision gains disappear under wrong-frame controls, address grounding before adding a predictive world model.
-- If recurrence, appraisal or multi-rate modules do not beat their matched controls, leave them disabled in the accepted architecture.
-- If a learned policy only benefits from more updates or more observations, report that resource effect rather than recursive improvement.
+Titans/HOPE-inspired updates must specify the inner loss, update state, learning rates, decay, truncation horizon and outer objective. Separate episodic inference-time state changes from durable weight consolidation. The revised [video-SALMONN S](https://arxiv.org/html/2510.11129v2) uses one-step fast-memory updates; audio still bypasses that layer. Audiovisual fast memory remains our hypothesis. The new review distinguishes this version from the earlier v1 analysis.
 
-The open inputs are the personality description, priority application domain and a sustained training budget. They affect later specialization and scale, but do not prevent the contract, diagnosis and bounded joint experiment defined here.
+A minimal optional fast-state control is `F_next = lambda * F + eta * (v - F*k) * k^T`, using normalized width-128 keys, width-256 values and bounded update/decay scalars. Train the projections and gating through later-query loss over 1–4 observation segments, then truncate between worlds. This linear delta rule is not a faithful replacement for the existing SGDN-2 implementation or full Titans. A nonlinear candidate must state its associative reconstruction loss, optimizer/momentum and state cost explicitly. Compare bank-only, fast-only and bank-plus-fast under matched budgets before combining them by default. HOPE-inspired multi-timescale modules additionally need demonstrated outer learning of useful update behavior; several scheduled update rates are insufficient.
+
+Revision 4.2 adds distinct read and write routers sharing expert addresses, with a fixed-routing control and a feedback-adapted address transform. MemT's MoS is dense routing; proposed top-two sparse expert execution is an extension requiring separate evidence. An initial three-group/eight-expert/four-head/128×128 candidate uses 6 MiB FP32 fast matrix state before snapshots and optimizer buffers. More capacity is allowed. State changes, useful persistent learning and improvement of the learning policy remain different claims. Persistence/transfer in `F` or `P` is a valid learning target; it does not require altering the original backbone. The [current intrinsic design](../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md) supersedes the earlier peripheral packaging.
+
+Memory has finite information capacity. Long-running means bounded state and graceful retention/forgetting, not perfect recall of an unlimited stream. Set explicit quotas for tensor state, lexical surfaces, provenance, replay and raw evidence. The 32 MiB resident-state, 64 MiB replay and 256 MiB optional raw-source targets remain the baseline profile. Revision 4.2 introduces explicit 64/128 MiB resident-state research alternatives rather than a universal 32 MiB product cap; each must count all tensors, metadata, mutable parameters and snapshots. No alternative changes current run admission. Raw-media retention is optional and bounded. Missing/revoked sources must cause uncertainty or abstention, not reconstructed certainty.
+
+### 3.6 Swappable vocabulary paired with learning
+
+Preserve permanent tokenizer IDs and byte-level fallback. Generate **256 active phrase rows** from a compact phrase encoder; use 32 in smoke tests. Initial phrase encoder: width 256, two layers, roughly 3M matrix parameters. This size is an unproven compression of the larger encoders in DVA/DVAGen.
+
+A lexical identity is `{lexeme_uid, canonical_bytes, representation_version}`. An active use additionally records `{stream_id, slot_index, slot_generation, mapping_hash}`. Swapping an active slot cannot redefine an old KV position, a saved memory record or an optimizer's parameter identity. Base input/output weights are shared with the backbone where appropriate, never cloned into redundant trainable tables. Permanent IDs remain immutable during full FT, although their embedding values are trainable.
+
+Train both phrase output calibration and **atomic feedback**: an emitted phrase feeds one learned vector back as one model position. Merely printing several words from one output and then replaying every base token does not save subsequent backbone steps. Compare atomic mode against that copy-feedback control, static vocab, permanent expansion and a fixed active bank. Count candidate encoding, refresh, selection, prefill and output bytes in efficiency comparisons.
+
+First freeze a mapping for a generation. Later allow swaps only at declared segment boundaries, encoding at most 16 fresh phrases per refresh. Pin entries used by pending inputs or backward/recomputation graphs. If all slots are pinned, fall back to base tokens. Reject phrases crossing role/control/stop boundaries. Train random slot permutations, irrelevant candidates, unseen phrase compositions and empty banks. Gold answers cannot choose candidates.
+
+Coordinates, event IDs, modality control symbols and acoustic codebooks are not recycled lexical slots. New visual concepts and spoken names may share a stable semantic identity in memory, while their surface forms stay lexical. Store unfamiliar words with definition, pronunciation/appearance evidence and provenance; test whether the model learned meaning rather than only spelling.
+
+Changing adapters, embeddings or memory conditioning may invalidate a prefix KV and cached phrase rows. Full-backbone consolidation requires a new representation version and rebuild/re-encoding or learned migration of stored state. A text-only retokenization is not exact atomic-state restart. Do not silently reuse old vectors after updating their encoder.
+
+### 3.7 Learning and self-evolution
+
+Use three training regimes with different purposes:
+
+1. **Full offline product training:** train all original Spark backbone parameters and the native multimodal components after warmup, including vision/audio encoders and spatial/temporal bridges in the joint product phase. This establishes seeing, hearing and multimodal reasoning. Learn the memory read/write and bounded adaptation procedure offline as well.
+2. **Online native learning:** freeze the stable release. Update episodic records, associative parameters `F`, qualified address state `A` and slower full-rank knowledge parameters `P` from teaching and observed outcomes. Use already-qualified multimodal representations; do not use self-learning to establish multimodal competence. Start with a fixed policy and bounded local objectives, followed by a measured end-to-end adaptation comparator. LoRA remains a baseline, not a required architecture or interface.
+3. **Maintenance and policy improvement:** consolidate verified experience into `P` with replay. Optional full-backbone consolidation produces a new stable release and requires representation migration. Research plastic learning-policy parameters `Psi` only after fixed-policy knowledge learning succeeds.
+
+The [teaching specification](../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md) distinguishes `F`-only, `P`-only and combined learning. For `P`-only evaluation, retain taught `P` and fixed `Theta`; clear records, fast/address/core state, teaching prompts/media, prototypes, source KV, read caches and active phrase rows. Compare with initial/reset/wrong-world `P`. Resetting taught `P` is a causal intervention, not the normal persistent-learning test.
+
+Self-generated exercises or update targets require independent feedback before being treated as verified knowledge. The environment supplies teaching and outcomes; semantic writing, retrieval and adaptation belong to model computation. Charge encoding, replay, verification, rejected candidates and any gradient propagation through the frozen decoder. Frozen weights do not make end-to-end backpropagation free.
+
+For recursive improvement, compare at least two successive qualified policy revisions against a fixed policy at equal cumulative resources on fresh task families. Better answers, retrieval or ordinary parameter learning alone do not establish an improved learning algorithm. This remains a separate research gate.
+
+### 3.8 Reusable audiovisual experience
+
+The [detailed native design](../research/sparkx_av_experience_20261026/Native_Experience_Design.md) connects visual primitives to temporal identities, acoustic events, memory and learning. Add a width-256 recurrent sensory bridge before the backbone, sharing the existing 64 event slots across visual tracks, sound events and transitions. It updates at declared observation boundaries; a full language-model pass for every sensory frame is not required by the proposed architecture.
+
+Use one bounded bank with semantic and modality-specific views. A new record may preserve an object's appearance, an acoustic motif and their temporal relation, rather than only a generated caption. Write without future-query information. In the two-port baseline hypothesis, each port selects up to eight records at the last query-prefill position; cache the union of at most 16 for decoding and qualify training against that schedule. The denser study separates selection from reading as specified above. All readers share storage; an optional pair of fast matrices is also shared, not duplicated at every depth.
+
+Train grounding, continuity, cross-modal alignment, delayed readout and verified transfer alongside answer generation. Keep actual observations separate from predicted futures. The semi-cognitive core can prioritize uncertainty or learning value, but perceived affect and confidence cannot certify a fact. Stable lexical identities connect new names to sensory evidence without changing old vocabulary slots.
+
+Evaluate episodic recall, new-instance transfer with records available, and persistent parameter learning separately. For parameter learning, predeclare the retained substrate: taught `F` for an associative-learning test, or taught `P` for a plastic-knowledge test. Remove teaching-derived records/prototypes, lexical shortcuts, source KV and other undeclared changing state; disable further test-time updates. Keeping learned native parameters is the point of this test. A stricter test that resets all dynamic parameters evaluates consolidation into `Theta` instead. Keep experience producers stable within an online release; full offline FT requires version migration or invalidation of old representations. Deleting a record is not exact unlearning from consolidated weights.
+
+### 3.9 Unified Access Port v2: a separate neural spine
+
+The spine exposes typed native feature exchange for additional sensors, aligned models, read-only internal observers and continuous action heads. It is our proposed interface, not an existing standard. Intrinsic memory, knowledge learning and the core modality paths are permanent model components and do not require a peripheral to be attached.
+
+Provide potential access sites per decoder block, with execution selected independently of memory reader density. Packets carry feature/representation identity, stream and observation IDs, units, coordinate frame, acquisition interval, causal availability, state revision and query-specific masks. Start with width-512 features and width-256 control representations. A read-only observer must not mutate hidden state or memory; exported features are not automatically an interpretable account of reasoning.
+
+Train device/model-specific adapters into this representation. Shared tensor width does not establish semantic compatibility. Start model exchange with one-way causal feature packets; any two-way exchange needs finite, explicitly scheduled rounds. Different tokenizers, rotary positions and latent spaces prevent default raw-KV interchange. [CALM](https://arxiv.org/html/2401.02412v1) supports learned hidden-state composition; [Octo](https://arxiv.org/html/2405.12213v2) supports sensor tokenizers and passive readouts. Neither demonstrates untrained universal attachment.
+
+Action heads receive native features and emit calibrated continuous action chunks with units, deadlines and validity intervals. Separate sensor rate, model decision rate and device control rate. [Pi0](https://www.physicalintelligence.company/download/pi0.pdf) provides an architectural precedent for action experts and cached observation context; its robot control frequency is not a full-language-model inference frequency. The [spine specification](../research/sparkx_intrinsic_learning_spine_20261026/Architecture_and_Spine.md) defines causal masks, attachment, timing and qualification. Additional peripheral adapters are trained explicitly; they are not expected to emerge through unsupervised self-learning.
+
+## 4. Full fine-tuning and data program
+
+The Spark-specific [official training example](https://github.com/XHToken/LlamaFactory/blob/f56888d47dc5681e15b83ddbea01adddf2050adf/examples/torch_spark2_5/example_4b_sft_args.yaml) sets `finetuning_type: full`, `use_muon: true`, and BF16. This establishes an intended full-training path, not MPS compatibility or adequate quality for our modified model.
+
+| Phase | Trainable scope | Purpose and exit condition |
+|---|---|---|
+| F0: backend qualification | Short all-original-parameter probe | Unique tensor inventory, optimizer ownership, nonzero gradients where exercised, actual changes, reload and guard pass |
+| F1: modality warmup | Visual/audio bridges and native evidence heads; backbone and encoders frozen | Align each modality; beat no-input/wrong-input and prior baselines on fresh data |
+| F2: integrated continued training | **All 4,112,079,360 backbone parameters**, vision/audio encoders, spatial/temporal bridges, native memory machinery, core and lexical encoder | Establish multimodal perception and integration through full offline FT; learn causal memory reads/writes |
+| F3: grounded reasoning and temporal learning | Same joint full offline scope; task-specific heads and intrinsic branches | Qualify spatial/temporal/AV reasoning, uncertainty, counterfactual dependence and text retention before audiovisual online learning |
+| F4: learning-behavior training | Explicit offline outer training and bounded inner `F/P/A` updates; original release frozen in deployment-style evaluation | Teach acquisition of knowledge/experience through already-trained modalities; persistence, vocabulary turnover and retention |
+| F5: product consolidation | Full backbone in bounded offline jobs; candidate deployment quantization separately | Independent integrated release evaluation and long-session soak |
+| F6: learning-policy/recursive improvement | Explicit policy parameters and declared inner updates | Future-task gains at matched total compute, repeated on fresh families |
+
+The final joint multimodal stages include the original language backbone and the core sensory/reasoning components. Frozen-encoder warmups or ablations remain useful but must be labeled with their actual scope; they do not replace the full multimodal training commitment. Offline teachers used only for distillation may remain frozen. Count tied weights once and include encoder/extension optimizer state. If the full scope does not fit locally, provision training resources rather than relabeling a partial update as full FT. Multimodal quality gates precede any claim about learning audiovisual experiences online.
+
+Build data in stages: diverse image-caption/region pairs; speech/transcript and sound-event alignment; grounded spatial reasoning; timestamped video/AV relations; then episode sequences with teaching, source removal, correction, vocabulary turnover and later transfer. Mix text-only retention data from the start. Include ambiguous/absent evidence and answerable examples with balanced labels. All generated labels need provenance and sampled independent review. Split by world, image root, video, speaker, recording session and lexical family—not merely by question rows.
+
+Suggested engineering pilot scales are 5k–20k visual examples and 10–50 hours of audio, followed by staged larger curves if held-out results justify them. These are **experiment budgets, not a claim that they suffice for final-product competence**. Plan product-data and compute commitments from measured scaling curves (for example 1×/4×/16×) and per-language/task coverage. The old 2M-token pilot cap remains a pilot limit, not the entire full-FT recipe. Do not copy a multi-trillion-token research program into a small-device feasibility claim.
+
+A provisional full-training mix is 30% text retention, 20% image/region, 20% audio, 15% temporal/AV, 15% memory/learning episodes, measured by processed model positions. Also report unique examples, audio seconds, video frames and supervised positions. This is a starting hypothesis; development data chooses it. Evaluate component metrics separately so the aggregate loss cannot hide a failed modality.
+
+Use an explicit objective ledger: response cross-entropy; point/box or mask geometry; cross-frame correspondence and future-event prediction; audio event/localization and optional transcript losses; listener-distribution loss where available; delayed memory-query/correction loss; mixed base/phrase sequence loss; and text/skill retention replay. Activate terms in the relevant stage, normalize by their own valid targets and tune weights on development data. For learning-policy training, the outer target is verified **future** task gain minus measured update/replay cost after an inner adaptation episode. Target labels may supervise the loss but cannot enter inference features, memory selection or the policy's pre-update state. A low aggregate objective cannot waive any component gate.
+
+### 4.1 Dataset readiness and the first acquisition sequence
+
+Prioritize human point/track supervision from PixMo/Molmo2; complementary sound/music labels from FSD50K and NSynth; a small LibriSpeech alignment component; and CREMA-D's original listener votes for perceived affect. Review MusicCaps and the newer AudioMCQ StrongAC subset at source level before inclusion. Clotho captions, AudioCaps, WavCaps, LongVALE and the reviewed NVIDIA audio collections have research/noncommercial restrictions; they are not automatically part of the product training lineage. A collection license or Hub badge cannot replace the rights and provenance of its component media.
+
+Use the [dataset plan](../datasets/20261026_SparkX_Dataset_Plan.md) to select exact source subsets, then perform a bounded asset audit before scaling. Its proposed 10k visual-example and 15-hour audio pools are selection ceilings, not changes to current run caps or claims of sufficient product training. Each record must have original-media identity, annotation lineage, a byte hash after acquisition, time/geometry transforms, split group, rights disposition and measured cost. Public benchmark media and all derived questions remain outside training/replay; a different dataset name does not establish independence.
+
+The [MiniCPM curriculum](../datasets/20261026_MiniCPM_Dataset_Validation.md) requires matched sensory substitutions, temporal controls and independent source groups before F4 learning. Fresh teaching/correction/source-removal episodes then validate memory, lexical-bank turnover and plastic-parameter transfer together. Public caption/QA data do not establish that behavior. Full offline multimodal training remains the prerequisite; online learning is not the mechanism for bootstrapping vision or audio.
+
+## 5. Compute and long-run resource contract
+
+Separate offline training cost, streaming encoder cost, prompt/decode cost, adaptation cost and storage. The [base analytical inventory](../../reports/sparkx_2_6_product_refinement_20261025/analytical_costs.json) and [v4 experience inventory](../../reports/sparkx_av_experience_20261026/analytical_costs.json) are not runtime measurements. The paired bank candidate uses 7 MiB of Spark tensors or 1.75 MiB on MiniCPM, versus the v3 Spark control's 3 MiB. Fixed metadata adds up to 2 MiB at 4096 records. Two Spark query/output projections alone add 3,276,800 weights, 6.25 MiB in BF16, excluding other module weights, activations and optimizers. These costs must not be hidden inside a bank-payload claim.
+
+The [revision 4.2 ledger](../../reports/sparkx_dynamic_memory_bridge_20261026/analytical_costs.json) adds larger bridge/expert/state alternatives. Width-512 Q/K/V/O reader matrices use 54 MiB BF16 for nine Spark sites or 216 MiB for all 36, excluding other modules. A larger nine-site/16-head/256×256 fast-memory design uses 36 MiB FP32 state and, with separate full Q/K/V/O projections, 720 MiB BF16 projection weights before norms/gates. These are capacity options, not latency predictions. Keep total parameters, active operations, resident bytes and per-scope mutable state in separate accounts. Shared weights reduce storage; repeated reads and module calls still cost computation.
+
+The [revision 4.3 ledger](../../reports/sparkx_intrinsic_learning_spine_20261026/analytical_costs.json) costs intrinsic plastic knowledge separately: sixteen full-rank width-256/hidden-1024 experts use 48 MiB FP32, with two active per site. Its illustrated live `E/F/A/P/C` state is 63.22265625 MiB; update staging brings this to at least 81.59765625 MiB, plus 64 MiB replay and omitted activations/caches. Full-bank Adam moments would add 96 MiB. These are lower bounds and research profiles, not measured latency or run admission.
+
+Spark BF16 weights are about 7.66 GiB. Ordinary FP32 weights/gradients/two Adam moments require **61.27 GiB before activations**. BF16 weights/gradients with FP32 moments and no master copy require about 45.96 GiB. A candidate FP32 Muon/int8-momentum assignment is about 36.66 GiB before scales, matrix workspaces and activations. These backbone-only floors exclude joint multimodal encoder and extension training. The current SigLIP2/SPEAR pair alone adds 186,173,700 parameters and roughly 2.77 GiB under the same FP32 weight/gradient/Adam accounting, before activations. None of these figures qualifies a native Spark training run. FP8 inference storage does not prove FP8 full-backprop support.
+
+For local full FT, qualify the actual optimizer precision and temporary allocation, use activation checkpointing, bounded sequence length and supervised-position/chunked output loss, then profile sustained steps. Fused AdamW's MiniCPM speedup does not solve its Spark state-memory floor. If local full scope cannot pass, use a separately provisioned larger-memory training environment; retain 4B as the deployment product and full FT as the training objective.
+
+**Cache cross-check:** Spark calls `DynamicCache(config=...)`. The inspected [Transformers 4.57.1 cache implementation](https://github.com/huggingface/transformers/blob/v4.57.1/src/transformers/cache_utils.py) selects sliding-cache layers from `layer_types`; it is incorrect to assume every layer grows unbounded simply from the class name. The nine full-attention layers still grow with context. Verify the actual installed version, cache dtype, retained lengths and prefill transients. A million-position config is not a cheap unlimited-session design.
+
+After uncompressed controls pass, test a **16-second media window** with four sampled frames ×64 tokens, at most two extra crops ×64, 160 audio tokens, 64 event tokens and 32 clock/modality tokens: **640 new conditioning positions maximum**. This is a compression/throughput candidate, not a guarantee that four frames preserve every event. Keep an 8192-position active-context starting cap; commit selected evidence and close/rebuild segments before global KV grows indefinitely. Segment reset changes access to history and must be trained/tested as such.
+
+Long streams require the total capture→encoder→bridge→memory→backbone path to keep up. Target sustained real-time factor ≤1 on the declared workload, bounded queue length, and no hidden backlog. For unchanged text workloads, proposed warm P95 overhead is ≤10% versus the matched backbone; multimodal cost is compared against a matched multimodal baseline. Online learning has a separate elapsed-time ledger and duty-cycle target ≤5% over the defined soak workload. These are proposed gates, not current measurements.
+
+Preserve one MPS worker, no silent CPU fallback, the 50 GiB driver cap, sustained swap-growth cap 512 MiB and the existing host-free-memory guard. Read-only research does not relax these limits.
+
+## 6. Validation order and product decisions
+
+Follow the detailed [validation specification](../research/sparkx_2_6_product_20261025/Validation_and_Release.md), [audiovisual experience addendum](../research/sparkx_av_experience_20261026/Validation_Addendum.md), and the current [intrinsic learning/spine validation](../research/sparkx_intrinsic_learning_spine_20261026/Teaching_and_Validation.md). Earlier dynamic-module tests remain controls, with the learning-storage criteria corrected by revision 4.3. The immediate sequence is:
+
+1. Resolve existing vision priors/abstention and memory addressing/retention quality; preserve the now-passing fresh-process memory parity and all historical rejections. Compare an explicit bank under the required protocol.
+2. Qualify pure software contracts and compact audio sources/backend without making perception claims.
+3. Establish and qualify multimodal perception/reasoning through full offline MiniCPM fine-tuning, alongside individual memory/vocabulary utility. Only then evaluate audiovisual knowledge acquisition through native self-learning.
+4. Qualify fixed/adaptive addressing and `E/F/P` contributions, including `P`-only persistent learning with the stable backbone frozen. Run the eight-arm episodic/fast pathway × vocabulary × verified `P` learning factorial on shared fresh worlds, followed by audiovisual transfer and recurrence controls. Qualify spine attachments separately.
+5. Qualify Spark source, precision and all-parameter training independently; transfer only modules supported by component evidence.
+6. Perform staged full Spark training and the same causal, retention, resource and restart tests on Spark. MiniCPM success alone cannot qualify Spark.
+7. Release only the capability scope that passes, with final-product coverage still the target. Continue the learning-policy/RSI research until its separate gates pass; never relabel ordinary adaptation as recursive improvement.
+
+The larger `openbmb/MiniCPM-V-4.7-35B-A3B` and `google/gemma-4-26B-A4B-it` tracks use frozen-base, expert-aware LoRA/components with independent memory, precision and licensing checks. Active MoE parameters describe per-token work, not total resident weights. Neither track substitutes for full training of Spark or supplies evidence that its native extensions work.
+
+The most important next decisions are empirical: whether compact audio preserves paralinguistic evidence, whether native visual state is causally useful, whether non-oracle memory policies retain old writes, and whether verified updates improve future tasks without forgetting. The design makes each question independently falsifiable before combining them.

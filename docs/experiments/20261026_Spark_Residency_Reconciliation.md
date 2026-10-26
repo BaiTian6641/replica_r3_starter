@@ -53,7 +53,7 @@ arithmetic, and refuses to write a receipt unless all of these hold:
 | Validation | Result |
 |---|---|
 | Declared 186,173,700 equals the component sum 92,884,224 + 93,289,476 | passes |
-| Declared "roughly 2.77 GiB" matches the 16-byte recomputation of 2.774204 GiB within 0.01 GiB | passes |
+| Declared "roughly 2.77 GiB" matches the all-FP32 16-byte recomputation of 2.774204 GiB within 0.01 GiB; the 18-byte five-copy rate is 3.120980 GiB | passes |
 | `vision.encoder_parameters_observed` equals the sealed manifest's `tensor_inventory.vision_parameter_elements` (92,884,224) | passes |
 | Architecture doc, product plan and sealed manifest agree on revision `75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2` | passes |
 | Both component revisions and the manifest seal are present | passes |
@@ -102,7 +102,7 @@ once the encoders are in scope.
 | FP32 weight, FP32 gradient, two FP32 moments | 16 | `4+4+4+4` | 61.275 | **exceeds** by 11.275 GiB |
 | BF16 weight, BF16 gradient, two FP32 moments, no master | 12 | `2+2+4+4` | 45.956 | 4.044 GiB headroom |
 | BF16 weight, FP32 gradient, two FP32 moments, no master | 14 | `2+4+4+4` | 53.615 | **exceeds** by 3.615 GiB |
-| BF16 weight, FP32 master, FP32 gradient, two FP32 moments | 16 | `2+4+4+4+4` | 61.275 | **exceeds** by 11.275 GiB |
+| BF16 weight, FP32 master, FP32 gradient, two FP32 moments | 18 | `2+4+4+4+4` | 68.934 | **exceeds** by 18.934 GiB |
 | BF16 weight, BF16 gradient, two int8 moments (historical, unselected) | 6 | `2+2+1+1` | 22.978 | 27.022 GiB headroom |
 | FP32 Muon with int8 momentum plus auxiliary FP32 Adam (historical, unselected) | — | `9p + 7·aux` | 36.656 | 13.344 GiB headroom |
 
@@ -129,11 +129,12 @@ in FP32.
 |---|---:|---|---:|---:|---|
 | BF16 weight and gradient, two FP32 moments, no master | 12 | `2+2+4+4` | 51,579,036,720 | 48.037 | 1.963 GiB headroom |
 | BF16 weight, FP32 gradient, two FP32 moments, no master | 14 | `2+4+4+4` | 60,175,542,840 | 56.043 | **exceeds** by 6.043 GiB |
-| BF16 weight, FP32 master, FP32 gradient, two FP32 moments | 16 | `2+4+4+4+4` | 68,772,048,960 | 64.049 | **exceeds** by 14.049 GiB |
+| BF16 weight, FP32 master, FP32 gradient, two FP32 moments | 18 | `2+4+4+4+4` | 77,368,555,080 | 72.055 | **exceeds** by 22.055 GiB |
 
 The encoder increment over the matching backbone-only row is 2.080653 GiB at 12
-bytes/parameter, 2.427429 GiB at 14 and 2.774204 GiB at 16 — the last matching
-the revision's declared "roughly 2.77 GiB" after recomputation.
+bytes/parameter, 2.427429 GiB at 14, 2.774204 GiB at the all-FP32 16-byte rate
+and 3.120980 GiB at the 18-byte five-copy rate. The declared "roughly 2.77 GiB"
+sentence uses the 16-byte all-FP32 accounting; it is not the five-copy figure.
 
 Beyond the encoder parameters, the combined rows still exclude:
 
@@ -179,10 +180,10 @@ the guard is merely unqualified. The applicable full scope is the combined
   4,112,079,360 indexed parameters needs **65,793,269,760 bytes (61.275 GiB)**,
   **11.275 GiB above the guard**; the BF16 weight/gradient, FP32-moment row
   without a master is **49,344,952,320 bytes (45.956 GiB)**, leaving 4.044 GiB.
-  An FP32 master copy makes the BF16 storage byte-identical at 16
-  bytes/parameter and excluded for the same reason, and the 14-byte
-  FP32-gradient shape is **57,569,111,040 bytes (53.615 GiB)**, 3.615 GiB over
-  the guard.
+  Adding an FP32 master copy to BF16 weights costs 18 bytes/parameter (the
+  five-copy plan), **74,017,428,480 bytes (68.934 GiB)**, and is excluded for
+  the same reason; the 14-byte FP32-gradient shape is **57,569,111,040 bytes
+  (53.615 GiB)**, 3.615 GiB over the guard.
 
 So full-scope local admission cannot be inferred for either scope. What remains
 unqualified for BF16 is the encoder-pair parameter count itself (declared
@@ -212,7 +213,8 @@ The sustained fused AdamW probe measured optimizer state of
 two FP32 moments per parameter plus 1,524 bytes of non-parameter scalars. It
 confirms the accounting shape used above — the selected AdamW keeps no FP32
 master copy, no int8 moments and no extra per-parameter tensors — and therefore
-that the 12-, 14- and 16-byte Spark rows are the right structures.
+that the 12-, 14-, 16- and 18-byte Spark rows are the right structures, with 18
+reserved for the plan that explicitly adds an FP32 master copy.
 
 It does not support extrapolating Spark fit. The probe is a 2.52B-parameter
 MiniCPM5 run: its sampled peak reached 43,090,886,656 bytes against a 16
@@ -241,3 +243,121 @@ guard, or treated as a Spark activation estimate.
   `reports/sparkx_2_6_product_refinement_20261025/` are unmodified.
 - No figure here is a native fit, allocator peak, throughput prediction,
   convergence result or learning-quality claim.
+
+---
+
+> **Revision 2 correction (26 October 2026).** The original note above is preserved as historical evidence. The appended correction supersedes its 16-byte five-copy label and its weights-only scope. The current receipt is `reports/sparkx_residency_20261026/residency_v2.json`; `residency.json` is retained byte-for-byte.
+
+## Spark residency reconciliation: 18-byte training state and explicit dtype inventories
+
+**26 October 2026 · Analytical ledger for the SparkX 2.6 4B revision · Not a native fit, allocator measurement, backend qualification or admission decision.**
+
+This note corrects a critical arithmetic error in the earlier residency receipt. When BF16 stored weights, an FP32 master copy, FP32 gradients and two FP32 Adam moments coexist, the training state costs **18 bytes per parameter**, not 16:
+
+$$
+2\ (\text{BF16 weights}) + 4\ (\text{FP32 master}) + 4\ (\text{FP32 gradients}) + 4 + 4\ (\text{two FP32 moments}) = 18.
+$$
+
+The 16-byte figure is a different plan: all-FP32 weights (the weights themselves are the master), FP32 gradients and two FP32 moments, $4+4+4+4=16$. It is retained as its own row and is never used for the five-copy plan. The earlier receipt's formula string already read `2 + 4 + 4 + 4 + 4` while labelling the rate 16; that contradiction is the defect this revision removes.
+
+The current receipt is [residency_v2.json](../../reports/sparkx_residency_20261026/residency_v2.json), generated by [calculate_residency.py](../../reports/sparkx_residency_20261026/calculate_residency.py). The historical v1 [residency.json](../../reports/sparkx_residency_20261026/residency.json) is retained byte-for-byte; v2 records its SHA-256 under `supersession`.
+
+### 1. Explicit storage inventory
+
+The ledger separates four accounts that earlier reports mixed:
+
+| Account | Contents | Dtype / size | Role |
+|---|---|---|---|
+| BF16 source artifact | Sealed official checkpoint, 290 tensors, 4,112,079,360 parameters | BF16, 8,224,158,720 B | Source artifact only |
+| FP8 source artifact | Sealed mixed-dtype adaptation checkpoint, 470 tensors | F8_E4M3 3,774,873,600 B + BF16 676,697,088 B = 4,451,570,688 B | Source artifact only |
+| Fixed-parameter training state | Backbone, declared encoders, projectors, memory modules, phrase encoder | 12 / 14 / 16 / 18 B/param depending on copies | Training storage |
+| Dynamic memory state | Bank tensor, metadata, fast `F`, addressing `A`, plastic `P`, workspace, update staging | Declared dtypes | Runtime/plastic state |
+
+The FP8 account is **mixed dtype**, not `parameters × 1 byte`: 180 F8_E4M3 matrices, 180 BF16 scale tensors (2,285,568 B), a BF16 tied embedding (671,088,640 B), BF16 layer norms/final norm (373,760 B) and BF16 attention gates (2,949,120 B). It is kept separate from BF16 source storage and from the optimizer/training account. Nothing in this receipt demonstrates an FP8 loader, dequantizer, autograd path, MPS kernel or backend.
+
+### 2. Component inventory
+
+All fixed-parameter rows are explicit and sum to **4,320,804,612** parameters:
+
+| Component | Parameters | Evidence |
+|---|---:|---|
+| Language backbone (tied embedding/head) | 4,112,079,360 | Sealed BF16 tensor index |
+| SigLIP2 vision encoder | 92,884,224 | Declared in the architecture document |
+| SPEAR audio encoder | 93,289,476 | Declared in the architecture document |
+| Vision projector $768\to1024\to2560$ | 3,411,456 | Explicit two-stage bias formula |
+| Audio projector $512\to1024\to2560$ | 3,149,312 | Explicit two-stage bias formula |
+| Memory query/output projections | 3,276,800 | Declared analytical projection count |
+| Two-site width-512 reader Q/K/V/O | 10,485,760 | $2\cdot4\cdot2560\cdot512$ |
+| Compact phrase encoder | 2,228,224 | $2\cdot12\cdot256^2 + 256\cdot2560$ |
+
+Encoder totals are declared metadata, not a fresh sealed encoder tensor index. Projector, reader and phrase rows are declared analytical formulas, not measured modules. The dynamic account adds a 4,096-record BF16 bank (896 elements per record), 2 MiB metadata cap, FP32 `F`/`A`/`P`, workspace and update staging; it is not multiplied by the fixed-parameter byte rate.
+
+### 3. Scenario arithmetic
+
+| Plan | Copies | B/param | Backbone GiB | Full fixed scope GiB |
+|---|---|---:|---:|---:|
+| BF16 weights, BF16 gradients, 2 FP32 moments, no master | 2+2+4+4 | 12 | 45.956 | 48.289 |
+| BF16 weights, FP32 gradients, 2 FP32 moments, no master | 2+4+4+4 | 14 | 53.615 | 56.337 |
+| All FP32 weights/gradients/2 moments | 4+4+4+4 | 16 | 61.275 | 64.385 |
+| **BF16 weights + FP32 master + FP32 gradients + 2 FP32 moments** | **2+4+4+4+4** | **18** | **68.934** | **72.433** |
+
+The declared encoder pair is 2.774 GiB at 16 B/param and **3.121 GiB at 18 B/param**. The architecture document's 2.77 GiB sentence uses the all-FP32 16-byte accounting; it is not a five-copy mixed-precision figure.
+
+### 4. Activations, logits, temporaries and phase peaks
+
+These are included so the ledger is not a weights-only lower bound. They are explicit formulas over a declared 256-position, 36-layer, width-2560 workload with activation checkpointing:
+
+| Bucket | Formula | Result |
+|---|---|---:|
+| Retained layer inputs | $36\cdot256\cdot2560\cdot2$ | 47,185,920 B |
+| Attention recompute workspace | $2\cdot256\cdot16\cdot256\cdot4$ | 8,388,608 B |
+| MLP recompute workspace | $2\cdot256\cdot10240\cdot4$ | 20,971,520 B |
+| Vision/audio feature workspace | declared patch/token counts | 2,052,096 B |
+| Logits/softmax/gradient | $3\cdot256\cdot131072\cdot4$ | 402,653,184 B |
+| Temporary buffers | clip reduction + optimizer scratch + feature queue | 17,618,762,768 B |
+
+Restore and export are separate phases, not additions to the live training peak:
+
+| Phase | Formula | GiB |
+|---|---|---:|
+| Restore from BF16 source | BF16 artifact + BF16 weights + FP32 master | 31.804 |
+| Restore from FP8 source | mixed FP8 artifact + BF16 weights + FP32 master | 28.290 |
+| Export BF16 + FP8 | FP32 master + BF16 export + FP8 staging | 28.168 |
+
+The 18-byte fixed-parameter state plus dynamic state, analytical activations, logits and temporary buffers is **89.463 GiB**, already above the 50 GiB sampled driver guard before allocator fragmentation, compiler workspace and driver overhead. Restore or export staging raises the analytical phase peak further. Nothing here is a measured peak.
+
+### 5. Gates that remain unqualified
+
+- Loader: **unqualified**.
+- Dequantization: **unqualified**.
+- FP8/BF16 backend and kernels: **unqualified**.
+- MPS resource behaviour and allocator peak: **unqualified**; no native run.
+- Training admission: **not admitted**.
+
+A lower bound below the guard would still not be a fit, because the excluded terms can only add bytes. Here the central analytical sum is already above the guard, which is a stronger negative statement but still not a measured OOM.
+
+### 6. Reproduce and provision
+
+All residency inputs are repository-tracked: the BF16 index, the FP8 index, the guard receipt and the architecture document. The bundle manifest binds them with roles and SHA-256 digests.
+
+```bash
+## verify provisioned input hashes and clean-checkout status
+python3 scripts/prepare_sparkx_research_bundle.py --check
+
+## regenerate and verify the receipt (v1 is never written)
+python3 reports/sparkx_residency_20261026/calculate_residency.py
+python3 reports/sparkx_residency_20261026/calculate_residency.py --check
+
+## deterministic arithmetic and tamper tests
+.venv/bin/python -m pytest tests/test_sparkx_residency.py -q
+```
+
+If the manifest reports untracked inputs, the checkout is not clean. Development-only verification is `python3 scripts/prepare_sparkx_research_bundle.py --check --allow-untracked`; that override records `clean_checkout_ready: false` and must not be cited as clean replay.
+
+### 7. Non-claims
+
+- No Spark weight payload, model code, tokenizer, dataset, media asset or native runtime was downloaded, loaded or executed.
+- Encoder counts are declared metadata; the only sealed parameter inventory is the BF16 backbone index.
+- Activation, logit, temporary-buffer and phase-peak values are analytical formulas, not allocator measurements.
+- The mixed-dtype FP8 artifact does not establish FP8 training capability or backend support.
+- No throughput, convergence, memory fit or training admission is established.

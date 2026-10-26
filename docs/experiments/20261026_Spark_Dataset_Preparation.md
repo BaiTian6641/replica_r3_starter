@@ -103,3 +103,74 @@ Added by this task:
 - `docs/experiments/20261026_Spark_Dataset_Preparation.md` — this note.
 
 The existing repository snapshot records that the acquisition guide `docs/08_Dataset_Acquisition_and_Curriculum.md` has changed since its historical pin. The verifier reports this as a warning and does not repair or re-certify the changed document; the runtime registry and the other pinned research documents still match. The next permissible step is an explicitly authorized bounded asset audit under a new manifest, after the prerequisites in the intake record are satisfied.
+
+## 7. Hashed clean-checkout provisioning
+
+This revision adds a manifest-based provisioning path for the existing research inputs:
+
+- `scripts/prepare_sparkx_research_bundle.py` — hashes every required input, records its repository-relative role and byte count, and verifies git tracking.
+- `reports/sparkx_first_tranche_20261026/research_bundle_manifest.json` — the generated manifest and bundle digest.
+
+The bundle is deliberately a manifest, not a copy. It does not duplicate checkpoints, media, annotations or caches, and it never rewrites an input. Paths are repository-relative; absolute home, temporary or `/private/tmp` paths are rejected. A manifest input that is missing, size-mismatched, hash-mismatched or untracked fails verification. Untracked files are refused by default even when they exist locally, because a clean checkout would not contain them.
+
+```bash
+# create/refresh the manifest after the listed inputs are committed
+python3 scripts/prepare_sparkx_research_bundle.py --write
+
+# clean-checkout verification
+python3 scripts/prepare_sparkx_research_bundle.py --check
+
+# development-only override; records clean_checkout_ready=false
+python3 scripts/prepare_sparkx_research_bundle.py --check --allow-untracked
+```
+
+The named provisioning command for tests and operators is:
+
+```bash
+python3 scripts/prepare_sparkx_research_bundle.py --write
+```
+
+Every listed input is committed, and the regenerated manifest reports `clean_checkout_ready: true`; `--check` passes without `--allow-untracked`. A checkout missing any listed input must use the named provisioning command before claiming replay.
+
+## 8. Bounded first tranche protocol
+
+`configs/sparkx_first_tranche_v1.json` defines a **protocol only**, with `download_authorized: false`, `bulk_download: false`, `native_execution: false` and `training_admitted: false`. `scripts/prepare_sparkx_first_tranche.py` applies it to a JSONL asset manifest and exact asset bytes.
+
+The protocol pins four research candidates, without acquiring them:
+
+| Source | Pinned revision | Card license | Gate |
+|---|---|---|---|
+| `allenai/pixmo-points` | `2b5c6931e790e00ae00d4a2857e5f95d88f09a66` | ODC-BY | not acquired or cleared |
+| `allenai/pixmo-cap` | `edce6390d9d5be6c8db0d863fbe62718c88988a4` | ODC-BY | not acquired or cleared |
+| `Fhrozen/FSD50k` | `ccf1acaff12f3f4a4c10052dddafbb6d22152c9b` | CC-BY-4.0 | not acquired or cleared |
+| `openslr/librispeech_asr` | `71cacbfb7e2354c4226d01e70d77d5fca3d04ba1` | CC-BY-4.0 | not acquired or cleared |
+
+Because no external source has a clearing decision, every real-source asset is refused with `source_not_acquired_or_cleared`. The only admitted evidence in this task is the repository-owned synthetic fixture set under `reports/sparkx_first_tranche_20261026/synthetic_assets/`. Those JSON files are labelled `owned_synthetic_not_external_media`; they are not images, recordings or videos from any external dataset and carry no external license.
+
+Admission rules, all deterministic:
+
+- **Fields and provenance:** every required field (asset id, source id, pinned revision, group key, SHA-256, bytes, media kind, license, path, provenance, synthetic flag) must be present and non-empty.
+- **Hash and size:** SHA-256 and size must match the exact bytes. Paths must remain inside the declared asset root; absolute paths and `..` are rejected.
+- **License:** only an explicit allowlist (`odc-by`, `cc-by-4.0`, `cc-by-sa-4.0`, `repository_owned_synthetic`) is accepted. NC/ND/ODbL/unknown/`other` and evaluation-only or gated sources are refused.
+- **Dedup:** exact SHA-256 duplicates are rejected, with the first asset id recorded. Perceptual or near-duplicate detection is **not** claimed.
+- **Leakage:** a group key maps to exactly one split and one source; an explicit `declared_split` must equal the computed split. Any conflict triggers the global leakage stop and refuses the whole tranche.
+- **Roles:** train/development/audit is a deterministic 70/15/15 function of `sha256(salt || group_key)`, so a source group cannot straddle splits. The committed synthetic fixture resolves 2/2/2.
+- **Caps and stops:** per-asset, per-source and tranche asset/byte caps stop admission and are recorded in the receipt. Source integrity failures (revision, license, provenance, hash, missing file) stop that source. A duplicate rate above 0.2 stops the source. Fewer than three admitted assets yields `refused_no_admission`.
+
+Outputs are `tranche_receipt.json`, `admitted_assets.jsonl` and `rejected_assets.jsonl` in `reports/sparkx_first_tranche_20261026/`. The receipt states `synthetic_only: true`, `external_media_acquired: false`, `training_admitted: false`, `network_used: false` and `native_execution: false`.
+
+## 9. Tests and precise non-claims
+
+```bash
+.venv/bin/python -m pytest tests/test_sparkx_first_tranche.py -q
+.venv/bin/python -m pytest tests/test_sparkx_residency.py -q
+```
+
+The self-contained tests build temporary trees and owned synthetic bytes. They cover manifest generation and hashing, clean-checkout refusal of untracked inputs, hash/traversal/digest tampering, balanced role assignment, exact dedup, duplicate-rate and integrity stops, leakage refusal, cap stops and configuration rejection. The artifact-dependent manifest/receipt tests use `require_local_artifacts`; in a clean export they skip with the named `--write` provisioning command, while a provisioned workspace runs them.
+
+This revision does **not** claim:
+
+- any external dataset, media asset, annotation or license was acquired, cleared, audited or admitted for training;
+- any asset-level QA, perceptual dedup, rights clearance or split-safety validation beyond the documented group-key checks;
+- any dataset-loader, model, MPS or native execution;
+- that synthetic fixtures are external media or that a 2/2/2 protocol fixture establishes quality or scale.

@@ -1,0 +1,3524 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-10-26",
+  "purpose": "Research shortlist for SparkX 2.6 4B full multimodal fine-tuning and subsequent native learning validation on MiniCPM5-2B.",
+  "architecture_revision": "4.4",
+  "source_family_count": 36,
+  "hugging_face_repositories_inspected": 42,
+  "count_caveat": "Reported/card counts are not counts of decoded, licensed, deduplicated or training-admitted assets.",
+  "training_admitted": false,
+  "auto_admit": false,
+  "media_assets_downloaded": 0,
+  "model_runs": 0,
+  "earlier_catalog": "20261024_Source_Catalog.json",
+  "supersession": "Adds AV/audio/grounding and refreshes two memory pins. Earlier text/OCR/chart/document entries remain candidates at their earlier pins; not re-audited here.",
+  "source_families": [
+    {
+      "id": "pixmo_points",
+      "title": "PixMo-Points",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/pixmo-points",
+          "url": "https://huggingface.co/datasets/allenai/pixmo-points",
+          "revision": "2b5c6931e790e00ae00d4a2857e5f95d88f09a66",
+          "api_evidence": "dataset_api_allenai__pixmo-points",
+          "card_evidence": "dataset_card_allenai__pixmo-points",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/pixmo-points/blob/2b5c6931e790e00ae00d4a2857e5f95d88f09a66/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 4,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "image_url",
+                "dtype": "string"
+              },
+              {
+                "name": "image_sha256",
+                "dtype": "string"
+              },
+              {
+                "name": "points",
+                "list": [
+                  {
+                    "name": "x",
+                    "dtype": "float64"
+                  },
+                  {
+                    "name": "y",
+                    "dtype": "float64"
+                  }
+                ]
+              },
+              {
+                "name": "count",
+                "dtype": "int64"
+              },
+              {
+                "name": "label",
+                "dtype": "string"
+              },
+              {
+                "name": "collection_method",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 668565775,
+                "num_examples": 2376222
+              }
+            ],
+            "download_size": 198336771,
+            "dataset_size": 668565775
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_grounding",
+      "priority": "P1_conditional",
+      "modalities": [
+        "image",
+        "text",
+        "point"
+      ],
+      "reported_scale": "Pinned card: 2,376,222 training rows; original paper: about 428k images. Rows are not unique images.",
+      "annotation_provenance": "Human referring expressions and exhaustive points, including absent-object cases.",
+      "asset_access": "Annotations on HF; image URLs retrieved separately; repeated URLs.",
+      "rights_review": "ODC-BY annotation collection; card states research/educational intent. Original image rights and intended-use compatibility remain unresolved.",
+      "split_group_keys": [
+        "image bytes hash",
+        "source URL/root",
+        "near-duplicate image cluster"
+      ],
+      "required_checks": [
+        "Verify bytes SHA256 against image_sha256",
+        "Check coordinate frame and negative examples",
+        "Deduplicate with MultiImagePoint and other PixMo sources"
+      ],
+      "primary_evidence": [
+        "dataset_paper_pixmo"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "pixmo_cap",
+      "title": "PixMo-Cap",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/pixmo-cap",
+          "url": "https://huggingface.co/datasets/allenai/pixmo-cap",
+          "revision": "edce6390d9d5be6c8db0d863fbe62718c88988a4",
+          "api_evidence": "dataset_api_allenai__pixmo-cap",
+          "card_evidence": "dataset_card_allenai__pixmo-cap",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/pixmo-cap/blob/edce6390d9d5be6c8db0d863fbe62718c88988a4/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 6,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "image_url",
+                "dtype": "string"
+              },
+              {
+                "name": "caption",
+                "dtype": "string"
+              },
+              {
+                "name": "transcripts",
+                "sequence": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 1992611257,
+                "num_examples": 717042
+              }
+            ],
+            "download_size": 1101527794,
+            "dataset_size": 1992611257
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_alignment",
+      "priority": "P1_conditional",
+      "modalities": [
+        "image",
+        "text"
+      ],
+      "reported_scale": "Pinned card: 717,042 rows; captions approximately 200 words on average.",
+      "annotation_provenance": "Human spoken descriptions transcribed and rewritten by Claude; captions are model-assisted, not verbatim human gold.",
+      "asset_access": "HF text plus image URLs; transcripts are annotation speech, not environmental audio supervision.",
+      "rights_review": "ODC-BY card plus research/educational intent, original image rights and stated generator terms.",
+      "split_group_keys": [
+        "image root",
+        "near-duplicate image cluster"
+      ],
+      "required_checks": [
+        "Audit concrete visual claims",
+        "Use short verified targets for initial pilot",
+        "Do not infer audio input labels from annotator transcripts"
+      ],
+      "primary_evidence": [
+        "dataset_paper_pixmo"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "pixmo_count",
+      "title": "PixMo-Count",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/pixmo-count",
+          "url": "https://huggingface.co/datasets/allenai/pixmo-count",
+          "revision": "ebf51cf70e45d12374e64d475862e4f8d21d31d0",
+          "api_evidence": "dataset_api_allenai__pixmo-count",
+          "card_evidence": "dataset_card_allenai__pixmo-count",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/pixmo-count/blob/ebf51cf70e45d12374e64d475862e4f8d21d31d0/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 5,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "image_url",
+                "dtype": "string"
+              },
+              {
+                "name": "image_sha256",
+                "dtype": "string"
+              },
+              {
+                "name": "count",
+                "dtype": "int32"
+              },
+              {
+                "name": "points",
+                "sequence": [
+                  {
+                    "name": "x",
+                    "dtype": "float32"
+                  },
+                  {
+                    "name": "y",
+                    "dtype": "float32"
+                  }
+                ]
+              },
+              {
+                "name": "label",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "validation",
+                "num_bytes": 84869,
+                "num_examples": 540
+              },
+              {
+                "name": "train",
+                "num_bytes": 6860607,
+                "num_examples": 36916
+              },
+              {
+                "name": "test",
+                "num_bytes": 84942,
+                "num_examples": 540
+              }
+            ],
+            "download_size": 5235768,
+            "dataset_size": 7030418
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_grounding",
+      "priority": "P2_conditional",
+      "modalities": [
+        "image",
+        "text",
+        "point"
+      ],
+      "reported_scale": "36,916 train / 540 validation / 540 test rows in pinned card.",
+      "annotation_provenance": "Training uses filtered Detic predictions; validation/test human-verified counts 2\u201310, without point labels.",
+      "asset_access": "HF annotations and external image URLs.",
+      "rights_review": "ODC-BY with intended-use and original-image checks.",
+      "split_group_keys": [
+        "image bytes hash",
+        "image root"
+      ],
+      "required_checks": [
+        "Do not call training points human gold",
+        "Reserve validation/test",
+        "Do not score point localization using count-only eval labels"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "pixmo_explanations",
+      "title": "PixMo-Point-Explanations",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/pixmo-point-explanations",
+          "url": "https://huggingface.co/datasets/allenai/pixmo-point-explanations",
+          "revision": "08a566fa00747e4c1c7e8481c350763b469c209c",
+          "api_evidence": "dataset_api_allenai__pixmo-point-explanations",
+          "card_evidence": "dataset_card_allenai__pixmo-point-explanations",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/pixmo-point-explanations/blob/08a566fa00747e4c1c7e8481c350763b469c209c/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 3,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "image_url",
+                "dtype": "string"
+              },
+              {
+                "name": "image_sha256",
+                "dtype": "string"
+              },
+              {
+                "name": "question",
+                "dtype": "string"
+              },
+              {
+                "name": "response",
+                "dtype": "string"
+              },
+              {
+                "name": "parsed_response",
+                "dtype": "string"
+              },
+              {
+                "name": "alt_text",
+                "sequence": "string"
+              },
+              {
+                "name": "inline_text",
+                "sequence": "string"
+              },
+              {
+                "name": "points",
+                "sequence": {
+                  "sequence": {
+                    "sequence": "float64"
+                  }
+                }
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 91111483,
+                "num_examples": 79551
+              }
+            ],
+            "download_size": 51811429,
+            "dataset_size": 91111483
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_reasoning",
+      "priority": "P2_experimental",
+      "modalities": [
+        "image",
+        "text",
+        "point"
+      ],
+      "reported_scale": "79,551 training rows.",
+      "annotation_provenance": "Human/LLM-assisted grounded explanations; publisher explicitly warns of hallucinations in this output mode.",
+      "asset_access": "HF annotations; external image URLs; nullable parsed point fields.",
+      "rights_review": "ODC-BY plus generator and original-image conditions.",
+      "split_group_keys": [
+        "image bytes hash",
+        "PixMo source family"
+      ],
+      "required_checks": [
+        "Audit each retained point-to-claim link",
+        "Reject malformed point fields",
+        "Compare short evidence targets with long rationale targets"
+      ],
+      "primary_evidence": [
+        "dataset_paper_pixmo"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "molmo2_videopoint",
+      "title": "Molmo2-VideoPoint",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-VideoPoint",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-VideoPoint",
+          "revision": "65a7347ebbb501a14002418877e9a7de43510047",
+          "api_evidence": "dataset_api_allenai__Molmo2-VideoPoint",
+          "card_evidence": "dataset_card_allenai__Molmo2-VideoPoint",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-VideoPoint/blob/65a7347ebbb501a14002418877e9a7de43510047/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 15,
+          "reported_splits": [
+            {
+              "config_name": "action_or_event",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 61887340,
+                  "num_examples": 175168
+                }
+              ],
+              "download_size": 21691971,
+              "dataset_size": 61887340
+            },
+            {
+              "config_name": "animal",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 5444716,
+                  "num_examples": 23750
+                }
+              ],
+              "download_size": 1710493,
+              "dataset_size": 5444716
+            },
+            {
+              "config_name": "anomaly",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 4550039,
+                  "num_examples": 15204
+                }
+              ],
+              "download_size": 916819,
+              "dataset_size": 4550039
+            },
+            {
+              "config_name": "comparative reference",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 10095666,
+                  "num_examples": 48015
+                }
+              ],
+              "download_size": 3289855,
+              "dataset_size": 10095666
+            },
+            {
+              "config_name": "default",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 222742682,
+                  "num_examples": 658340
+                }
+              ],
+              "download_size": 80210096,
+              "dataset_size": 222742682
+            },
+            {
+              "config_name": "indirect reference",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 10057929,
+                  "num_examples": 39567
+                }
+              ],
+              "download_size": 3946968,
+              "dataset_size": 10057929
+            },
+            {
+              "config_name": "object",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 111515506,
+                  "num_examples": 267749
+                }
+              ],
+              "download_size": 42374468,
+              "dataset_size": 111515506
+            },
+            {
+              "config_name": "referring expression",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 16967502,
+                  "num_examples": 60902
+                }
+              ],
+              "download_size": 7024105,
+              "dataset_size": 16967502
+            },
+            {
+              "config_name": "spatial reference",
+              "features": [
+                {
+                  "name": "video_id",
+                  "dtype": "string"
+                },
+                {
+                  "name": "question",
+                  "dtype": "string"
+                },
+                {
+                  "name": "label",
+                  "dtype": "string"
+                },
+                {
+                  "name": "count",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "two_fps_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "points",
+                  "list": {
+                    "list": [
+                      {
+                        "name": "x",
+                        "dtype": "float64"
+                      },
+                      {
+                        "name": "y",
+                        "dtype": "float64"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "raw_frames",
+                  "sequence": "int64"
+                },
+                {
+                  "name": "raw_timestamps",
+                  "sequence": "float64"
+                },
+                {
+                  "name": "annotator_unsure",
+                  "dtype": "bool"
+                },
+                {
+                  "name": "category",
+                  "dtype": "string"
+                },
+                {
+                  "name": "video_duration",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "video_source",
+                  "dtype": "string"
+                },
+                {
+                  "name": "clip_start",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "clip_end",
+                  "dtype": "float64"
+                },
+                {
+                  "name": "__index_level_0__",
+                  "dtype": "int64"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train",
+                  "num_bytes": 7486908,
+                  "num_examples": 27985
+                }
+              ],
+              "download_size": 2881329,
+              "dataset_size": 7486908
+            }
+          ],
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_temporal_grounding",
+      "priority": "P1_conditional",
+      "modalities": [
+        "video",
+        "text",
+        "point",
+        "time"
+      ],
+      "reported_scale": "Default train config: 658,340 annotation rows; eight category configs partition the same collection.",
+      "annotation_provenance": "Human point placement on 2 FPS videos, with model-generated query proposals and annotator uncertainty flags.",
+      "asset_access": "HF annotations; external YouTube/MammalNet and generated video sources. CC-BY subset GCS route can incur requester-pays costs.",
+      "rights_review": "ODC-BY annotations; source-specific video terms and research/education intent; qualify one source subset before intake.",
+      "split_group_keys": [
+        "original video ID",
+        "source clip lineage",
+        "all category views"
+      ],
+      "required_checks": [
+        "annotator_unsure == false for initial seed",
+        "Preserve raw versus 2 FPS timestamps",
+        "Do not add default plus category configs",
+        "Verify sampled frames contain evidence"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "molmo2_videotrack",
+      "title": "Molmo2-VideoTrack",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-VideoTrack",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-VideoTrack",
+          "revision": "5940b8225a8565f7793f7090f6bf69909237434d",
+          "api_evidence": "dataset_api_allenai__Molmo2-VideoTrack",
+          "card_evidence": "dataset_card_allenai__Molmo2-VideoTrack",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-VideoTrack/blob/5940b8225a8565f7793f7090f6bf69909237434d/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 34,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_temporal_grounding",
+      "priority": "P1_conditional",
+      "modalities": [
+        "video",
+        "text",
+        "point_track"
+      ],
+      "reported_scale": "Paper: about 3.6k clips and 15k language queries. Card covers 16 source datasets; exact current row count not audited.",
+      "annotation_provenance": "Human complex referring queries over existing segmentation/box tracks; separate validation round.",
+      "asset_access": "Point trajectories on HF; original videos downloaded from source datasets.",
+      "rights_review": "ODC-BY collection; mixed source terms, many noncommercial. SA-V/APTv2 are candidates for individual source review, not blanket clearance.",
+      "split_group_keys": [
+        "source dataset",
+        "original video",
+        "object track",
+        "adjacent clip lineage"
+      ],
+      "required_checks": [
+        "Trim start_frame/end_frame correctly",
+        "Maintain object identity and FPS",
+        "Exclude all held-out source videos across clips"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "molmo2_multiimage",
+      "title": "Molmo2-MultiImagePoint",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-MultiImagePoint",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-MultiImagePoint",
+          "revision": "ab3d86ad22917698c24680138f20ff65693f402d",
+          "api_evidence": "dataset_api_allenai__Molmo2-MultiImagePoint",
+          "card_evidence": "dataset_card_allenai__Molmo2-MultiImagePoint",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-MultiImagePoint/blob/ab3d86ad22917698c24680138f20ff65693f402d/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 97,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_spatial_comparison",
+      "priority": "P2_conditional",
+      "modalities": [
+        "image_set",
+        "text",
+        "point"
+      ],
+      "reported_scale": "Search viewer reported about 473k groups; no independently audited current count.",
+      "annotation_provenance": "Algorithmic grouping of PixMo-Points annotations, not a fully independent human corpus.",
+      "asset_access": "HF grouping metadata; image URLs external.",
+      "rights_review": "ODC-BY plus source-image terms and stated research/educational intent.",
+      "split_group_keys": [
+        "all constituent image roots",
+        "PixMo-Points lineage"
+      ],
+      "required_checks": [
+        "image_sha256s are documented as URL-string hashes, not media-byte hashes",
+        "Compute independent byte/perceptual hashes",
+        "Choose split-safe groups before training"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "molmo2_cap",
+      "title": "Molmo2-Cap",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-Cap",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-Cap",
+          "revision": "b1d59eb784681dff9c7bdc453c7be51582eca209",
+          "api_evidence": "dataset_api_allenai__Molmo2-Cap",
+          "card_evidence": "dataset_card_allenai__Molmo2-Cap",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-Cap/blob/b1d59eb784681dff9c7bdc453c7be51582eca209/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 12,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "video_id",
+                "dtype": "string"
+              },
+              {
+                "name": "video_start",
+                "dtype": "string"
+              },
+              {
+                "name": "video_end",
+                "dtype": "string"
+              },
+              {
+                "name": "merged_caption",
+                "dtype": "string"
+              },
+              {
+                "name": "video_caption",
+                "dtype": "string"
+              },
+              {
+                "name": "video_transcript",
+                "dtype": "string"
+              },
+              {
+                "name": "clip_timestamps",
+                "list": {
+                  "list": "float64"
+                }
+              },
+              {
+                "name": "clip_captions",
+                "list": "string"
+              },
+              {
+                "name": "clip_transcripts",
+                "list": "string"
+              },
+              {
+                "name": "frame_timestamps",
+                "list": "float64"
+              },
+              {
+                "name": "frame_indices",
+                "list": "int64"
+              },
+              {
+                "name": "frame_captions",
+                "list": "string"
+              },
+              {
+                "name": "video_frame_merged_caption",
+                "dtype": "string"
+              },
+              {
+                "name": "annotation_score",
+                "dtype": "int64"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 3297177981,
+                "num_examples": 104002
+              },
+              {
+                "name": "val",
+                "num_bytes": 104656523,
+                "num_examples": 3815
+              }
+            ],
+            "download_size": 1676535243,
+            "dataset_size": 3401834504
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_video_alignment",
+      "priority": "P2_conditional",
+      "modalities": [
+        "video",
+        "text",
+        "time"
+      ],
+      "reported_scale": "Pinned metadata: 104,002 train / 3,815 val rows; roughly 900-word captions.",
+      "annotation_provenance": "Human video/clip narration rewritten and merged by LLM; frame captions and annotation_score also model-generated.",
+      "asset_access": "HF annotations; external video IDs.",
+      "rights_review": "ODC-BY card; Source Attribution explicitly names academic/noncommercial LLaVA-Video, Koala and InternVid components. Whole-collection product use not admitted.",
+      "split_group_keys": [
+        "original video ID",
+        "all clip/frame/video captions"
+      ],
+      "required_checks": [
+        "Audit human versus synthetic fields separately",
+        "Do not use LLM score as independent truth",
+        "Do not truncate a caption onto a clip lacking its evidence"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2",
+        "dataset_source_molmo2_cap"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "molmo2_ama",
+      "title": "Molmo2-AskModelAnything",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-AskModelAnything",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-AskModelAnything",
+          "revision": "ffb135632d2415d1dfcc70f65a34a00d10c94492",
+          "api_evidence": "dataset_api_allenai__Molmo2-AskModelAnything",
+          "card_evidence": "dataset_card_allenai__Molmo2-AskModelAnything",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-AskModelAnything/blob/ffb135632d2415d1dfcc70f65a34a00d10c94492/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 4,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "video_id",
+                "dtype": "string"
+              },
+              {
+                "name": "answer",
+                "dtype": "string"
+              },
+              {
+                "name": "question",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "HumanQA",
+                "num_bytes": 43075455,
+                "num_examples": 129470
+              }
+            ],
+            "download_size": 24388703,
+            "dataset_size": 43075455
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_video_reasoning",
+      "priority": "P1_conditional",
+      "modalities": [
+        "video",
+        "text"
+      ],
+      "reported_scale": "Pinned HumanQA split: 129,470 rows; HumanQA is a split label, not proof of an independent evaluation split.",
+      "annotation_provenance": "Human-in-the-loop video questions/answers with model-assisted proposals/refinement.",
+      "asset_access": "HF annotations; video URL mapping, including CC-BY GCS subset with possible egress cost.",
+      "rights_review": "ODC-BY plus video source terms, research/education intent and named generation terms.",
+      "split_group_keys": [
+        "original video ID",
+        "Molmo2 cross-dataset lineage"
+      ],
+      "required_checks": [
+        "Construct development split by original video",
+        "Recheck temporal dependence",
+        "Prevent overlap with Cap/VideoPoint"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "fsd50k",
+      "title": "FSD50K",
+      "hugging_face": [
+        {
+          "repo_id": "Fhrozen/FSD50k",
+          "url": "https://huggingface.co/datasets/Fhrozen/FSD50k",
+          "revision": "ccf1acaff12f3f4a4c10052dddafbb6d22152c9b",
+          "api_evidence": "dataset_api_Fhrozen__FSD50k",
+          "card_evidence": "dataset_card_Fhrozen__FSD50k",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/Fhrozen/FSD50k/blob/ccf1acaff12f3f4a4c10052dddafbb6d22152c9b/README.md",
+          "publisher_license_metadata": "cc-by-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 51213,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_sound_perception",
+      "priority": "P1_conditional",
+      "modalities": [
+        "audio",
+        "sound_labels"
+      ],
+      "reported_scale": "Original/card: 51,197 clips, 108.3 hours, 200 sound classes.",
+      "annotation_provenance": "Human validated clip-level labels; development labels are not exhaustive and are not event timestamps.",
+      "asset_access": "Community HF copy; original Zenodo waveform and metadata release is preferred authority.",
+      "rights_review": "Collection CC-BY; per-clip CC0, CC-BY, CC-BY-NC or Sampling+. Product candidate limited to explicitly compatible clips with attribution records.",
+      "split_group_keys": [
+        "Freesound sound_id",
+        "uploader/session",
+        "near-duplicate waveform"
+      ],
+      "required_checks": [
+        "Join per-file license metadata",
+        "Keep original dev train/val and eval separation",
+        "Never convert absent tag into verified silence",
+        "Use original validation ratings when selecting clean seed"
+      ],
+      "primary_evidence": [
+        "dataset_paper_fsd50k"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "nsynth",
+      "title": "NSynth",
+      "hugging_face": [
+        {
+          "repo_id": "jg583/NSynth",
+          "url": "https://huggingface.co/datasets/jg583/NSynth",
+          "revision": "5ba57c8114d9d4d7cf076c4cb3c8f508f105fca8",
+          "api_evidence": "dataset_api_jg583__NSynth",
+          "card_evidence": "dataset_card_jg583__NSynth",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/jg583/NSynth/blob/5ba57c8114d9d4d7cf076c4cb3c8f508f105fca8/README.md",
+          "publisher_license_metadata": "cc-by-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 40,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "id",
+                "dtype": "string"
+              },
+              {
+                "name": "note",
+                "dtype": "int64"
+              },
+              {
+                "name": "note_str",
+                "dtype": "string"
+              },
+              {
+                "name": "instrument",
+                "dtype": "int64"
+              },
+              {
+                "name": "instrument_str",
+                "dtype": "string"
+              },
+              {
+                "name": "pitch",
+                "dtype": "int64"
+              },
+              {
+                "name": "velocity",
+                "dtype": "int64"
+              },
+              {
+                "name": "sample_rate",
+                "dtype": "int64"
+              },
+              {
+                "name": "qualities",
+                "sequence": "int64"
+              },
+              {
+                "name": "qualities_str",
+                "sequence": "string"
+              },
+              {
+                "name": "instrument_family",
+                "dtype": "int64"
+              },
+              {
+                "name": "instrument_family_str",
+                "dtype": "string"
+              },
+              {
+                "name": "instrument_source",
+                "dtype": "int64"
+              },
+              {
+                "name": "instrument_source_str",
+                "dtype": "string"
+              },
+              {
+                "name": "audio",
+                "dtype": "audio"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 129511245,
+                "num_examples": 289205
+              },
+              {
+                "name": "validation",
+                "num_bytes": 5679042,
+                "num_examples": 12678
+              },
+              {
+                "name": "test",
+                "num_bytes": 1830670,
+                "num_examples": 4096
+              }
+            ],
+            "download_size": 25233566634,
+            "dataset_size": 137020957
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_music_perception",
+      "priority": "P1_conditional",
+      "modalities": [
+        "audio",
+        "pitch",
+        "instrument",
+        "velocity"
+      ],
+      "reported_scale": "305,979 four-second notes: 289,205 train / 12,678 validation / 4,096 test.",
+      "annotation_provenance": "Controlled note sampling with explicit pitch, instrument and velocity; some timbral qualities include heuristic/human labels.",
+      "asset_access": "Community HF Parquet mirror; original Magenta release provides WAV/JSON or TFRecord.",
+      "rights_review": "CC-BY-4.0 original/card; verify mirror correspondence and preserve attribution.",
+      "split_group_keys": [
+        "instrument identity",
+        "sample-library lineage",
+        "derived mixtures"
+      ],
+      "required_checks": [
+        "Preserve official instrument-disjoint train boundary",
+        "Do not confuse single-note classification with full music understanding",
+        "Group duplicate velocities and derived mixtures"
+      ],
+      "primary_evidence": [
+        "dataset_author_nsynth"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "librispeech",
+      "title": "LibriSpeech",
+      "hugging_face": [
+        {
+          "repo_id": "openslr/librispeech_asr",
+          "url": "https://huggingface.co/datasets/openslr/librispeech_asr",
+          "revision": "71cacbfb7e2354c4226d01e70d77d5fca3d04ba1",
+          "api_evidence": "dataset_api_openslr__librispeech_asr",
+          "card_evidence": "dataset_card_openslr__librispeech_asr",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/openslr/librispeech_asr/blob/71cacbfb7e2354c4226d01e70d77d5fca3d04ba1/README.md",
+          "publisher_license_metadata": [
+            "cc-by-4.0"
+          ],
+          "gated_metadata": false,
+          "observed_repo_file_count": 262,
+          "reported_splits": [
+            {
+              "config_name": "clean",
+              "features": [
+                {
+                  "name": "file",
+                  "dtype": "string"
+                },
+                {
+                  "name": "audio",
+                  "dtype": {
+                    "audio": {
+                      "sampling_rate": 16000
+                    }
+                  }
+                },
+                {
+                  "name": "text",
+                  "dtype": "string"
+                },
+                {
+                  "name": "speaker_id",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "chapter_id",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "id",
+                  "dtype": "string"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train.100",
+                  "num_bytes": 6619683041,
+                  "num_examples": 28539
+                },
+                {
+                  "name": "train.360",
+                  "num_bytes": 23898214592,
+                  "num_examples": 104014
+                },
+                {
+                  "name": "validation",
+                  "num_bytes": 359572231,
+                  "num_examples": 2703
+                },
+                {
+                  "name": "test",
+                  "num_bytes": 367705423,
+                  "num_examples": 2620
+                }
+              ],
+              "download_size": 30121377654,
+              "dataset_size": 31245175287
+            },
+            {
+              "config_name": "other",
+              "features": [
+                {
+                  "name": "file",
+                  "dtype": "string"
+                },
+                {
+                  "name": "audio",
+                  "dtype": {
+                    "audio": {
+                      "sampling_rate": 16000
+                    }
+                  }
+                },
+                {
+                  "name": "text",
+                  "dtype": "string"
+                },
+                {
+                  "name": "speaker_id",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "chapter_id",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "id",
+                  "dtype": "string"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train.500",
+                  "num_bytes": 31810256902,
+                  "num_examples": 148688
+                },
+                {
+                  "name": "validation",
+                  "num_bytes": 337283304,
+                  "num_examples": 2864
+                },
+                {
+                  "name": "test",
+                  "num_bytes": 352396474,
+                  "num_examples": 2939
+                }
+              ],
+              "download_size": 31236565377,
+              "dataset_size": 32499936680
+            },
+            {
+              "config_name": "all",
+              "features": [
+                {
+                  "name": "file",
+                  "dtype": "string"
+                },
+                {
+                  "name": "audio",
+                  "dtype": {
+                    "audio": {
+                      "sampling_rate": 16000
+                    }
+                  }
+                },
+                {
+                  "name": "text",
+                  "dtype": "string"
+                },
+                {
+                  "name": "speaker_id",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "chapter_id",
+                  "dtype": "int64"
+                },
+                {
+                  "name": "id",
+                  "dtype": "string"
+                }
+              ],
+              "splits": [
+                {
+                  "name": "train.clean.100",
+                  "num_bytes": 6627791685,
+                  "num_examples": 28539
+                },
+                {
+                  "name": "train.clean.360",
+                  "num_bytes": 23927767570,
+                  "num_examples": 104014
+                },
+                {
+                  "name": "train.other.500",
+                  "num_bytes": 31852502880,
+                  "num_examples": 148688
+                },
+                {
+                  "name": "validation.clean",
+                  "num_bytes": 359505691,
+                  "num_examples": 2703
+                },
+                {
+                  "name": "validation.other",
+                  "num_bytes": 337213112,
+                  "num_examples": 2864
+                },
+                {
+                  "name": "test.clean",
+                  "num_bytes": 368449831,
+                  "num_examples": 2620
+                },
+                {
+                  "name": "test.other",
+                  "num_bytes": 353231518,
+                  "num_examples": 2939
+                }
+              ],
+              "download_size": 61357943031,
+              "dataset_size": 63826462287
+            }
+          ],
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_speech_alignment",
+      "priority": "P1_conditional",
+      "modalities": [
+        "audio",
+        "transcript"
+      ],
+      "reported_scale": "Original 960-hour family; clean train.100 config has 28,539 utterances.",
+      "annotation_provenance": "Read audiobook speech with aligned reference text; no natural emotion or music reasoning labels.",
+      "asset_access": "HF audio Parquet and original OpenSLR audio; select one explicit config.",
+      "rights_review": "CC-BY-4.0 card; original-source attribution and corpus provenance retained.",
+      "split_group_keys": [
+        "speaker",
+        "book/chapter",
+        "recording"
+      ],
+      "required_checks": [
+        "Avoid loading all plus clean duplicate configs",
+        "Keep test-clean/test-other separate",
+        "Charge transcript targets separately from non-speech learning"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "cremad",
+      "title": "CREMA-D",
+      "hugging_face": [
+        {
+          "repo_id": "myleslinder/crema-d",
+          "url": "https://huggingface.co/datasets/myleslinder/crema-d",
+          "revision": "8a11ae8cb89df0d49a85ab0a64410a9f354c11e4",
+          "api_evidence": "dataset_api_myleslinder__crema-d",
+          "card_evidence": "dataset_card_myleslinder__crema-d",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/myleslinder/crema-d/blob/8a11ae8cb89df0d49a85ab0a64410a9f354c11e4/README.md",
+          "publisher_license_metadata": "odbl",
+          "gated_metadata": false,
+          "observed_repo_file_count": 5,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "audio",
+                "dtype": {
+                  "audio": {
+                    "sampling_rate": 16000
+                  }
+                }
+              },
+              {
+                "name": "actor_id",
+                "dtype": "string"
+              },
+              {
+                "name": "sentence",
+                "dtype": "string"
+              },
+              {
+                "name": "emotion_intensity",
+                "dtype": "string"
+              },
+              {
+                "name": "label",
+                "dtype": {
+                  "class_label": {
+                    "names": {
+                      "0": "anger",
+                      "1": "disgust",
+                      "2": "fear",
+                      "3": "happy",
+                      "4": "neutral",
+                      "5": "sad"
+                    }
+                  }
+                }
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 1736578,
+                "num_examples": 7442
+              }
+            ],
+            "download_size": 470756748,
+            "dataset_size": 1736578
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_affect_and_av",
+      "priority": "P1_conditional",
+      "modalities": [
+        "audio",
+        "video",
+        "perceived_affect"
+      ],
+      "reported_scale": "7,442 recordings, 91 actors, 12 sentences; mirror is audio-oriented.",
+      "annotation_provenance": "Acted expressions with crowd listener ratings in separate audio, visual and audiovisual conditions.",
+      "asset_access": "HF legacy loading script; source WAV/video and vote tables at author repo. Do not execute third-party loaders for research.",
+      "rights_review": "Original ODbL database plus Database Contents License; mirror ODbL. Preserve obligations and source consent scope.",
+      "split_group_keys": [
+        "actor",
+        "recording",
+        "audio/video modality variants"
+      ],
+      "required_checks": [
+        "Join original vote distributions instead of filename emotion alone",
+        "Actor-disjoint evaluation",
+        "Keep filenames/actor metadata away from inference",
+        "Do not generalize acted labels to actual inner feelings"
+      ],
+      "primary_evidence": [
+        "dataset_author_cremad"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "clotho",
+      "title": "Clotho v2.1",
+      "hugging_face": [
+        {
+          "repo_id": "gijs/clotho",
+          "url": "https://huggingface.co/datasets/gijs/clotho",
+          "revision": "93be4f14a2d662389bb30c324781d2b489b583fd",
+          "api_evidence": "dataset_api_gijs__clotho",
+          "card_evidence": "dataset_card_gijs__clotho",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/gijs/clotho/blob/93be4f14a2d662389bb30c324781d2b489b583fd/README.md",
+          "publisher_license_metadata": null,
+          "gated_metadata": false,
+          "observed_repo_file_count": 12,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "file_name",
+                "dtype": "string"
+              },
+              {
+                "name": "audio",
+                "dtype": {
+                  "audio": {
+                    "sampling_rate": 16000
+                  }
+                }
+              },
+              {
+                "name": "caption_1",
+                "dtype": "string"
+              },
+              {
+                "name": "caption_2",
+                "dtype": "string"
+              },
+              {
+                "name": "caption_3",
+                "dtype": "string"
+              },
+              {
+                "name": "caption_4",
+                "dtype": "string"
+              },
+              {
+                "name": "caption_5",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 2764901400.125,
+                "num_examples": 3839
+              },
+              {
+                "name": "validation",
+                "num_bytes": 756797291.375,
+                "num_examples": 1045
+              },
+              {
+                "name": "test",
+                "num_bytes": 749749965.375,
+                "num_examples": 1045
+              }
+            ],
+            "download_size": 4193413368,
+            "dataset_size": 4271448656.875
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_captioning",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "Original metadata CSVs counted: 3,839 development / 1,045 validation / 1,045 evaluation = 5,929 distinct filenames; five captions per clip.",
+      "annotation_provenance": "Human audio-only captions; metadata/page headline counts disagree, so exact release file counts govern.",
+      "asset_access": "HF 16kHz audio mirror; original v2.1 Zenodo audio/captions/provenance preferred.",
+      "rights_review": "Original caption LICENSE is experimental/noncommercial; recordings have per-file CC terms. No product training admission.",
+      "split_group_keys": [
+        "Freesound sound_id",
+        "original recording",
+        "all five captions"
+      ],
+      "required_checks": [
+        "Preserve v2.1 corrected files",
+        "Join source licenses",
+        "Keep Freesound relatives out of held-out tests",
+        "Do not infer caption rights from an empty HF license badge"
+      ],
+      "primary_evidence": [
+        "dataset_paper_clotho",
+        "dataset_author_clotho",
+        "dataset_clotho_license"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "audiocaps",
+      "title": "AudioCaps 2.0 and older HF mirrors",
+      "hugging_face": [
+        {
+          "repo_id": "gijs/audiocaps",
+          "url": "https://huggingface.co/datasets/gijs/audiocaps",
+          "revision": "4ce803933d3981ab7e08913d51f64f3a50c66e8d",
+          "api_evidence": "dataset_api_gijs__audiocaps",
+          "card_evidence": "dataset_card_gijs__audiocaps",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/gijs/audiocaps/blob/4ce803933d3981ab7e08913d51f64f3a50c66e8d/README.md",
+          "publisher_license_metadata": null,
+          "gated_metadata": false,
+          "observed_repo_file_count": 40,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "file_name",
+                "dtype": "string"
+              },
+              {
+                "name": "audio",
+                "dtype": {
+                  "audio": {
+                    "sampling_rate": 16000
+                  }
+                }
+              },
+              {
+                "name": "audiocap_id",
+                "dtype": "string"
+              },
+              {
+                "name": "youtube_id",
+                "dtype": "string"
+              },
+              {
+                "name": "start_time",
+                "dtype": "string"
+              },
+              {
+                "name": "caption",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 15618986346.125,
+                "num_examples": 49431
+              },
+              {
+                "name": "validation",
+                "num_bytes": 782328058.25,
+                "num_examples": 2470
+              },
+              {
+                "name": "test",
+                "num_bytes": 1520734762.125,
+                "num_examples": 4815
+              }
+            ],
+            "download_size": 17524429008,
+            "dataset_size": 17922049166.5
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        },
+        {
+          "repo_id": "OpenSound/AudioCaps",
+          "url": "https://huggingface.co/datasets/OpenSound/AudioCaps",
+          "revision": "b29b3243d6ce49c2cd0d48d4b5f0701ae7969ded",
+          "api_evidence": "dataset_api_OpenSound__AudioCaps",
+          "card_evidence": "dataset_card_OpenSound__AudioCaps",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/OpenSound/AudioCaps/blob/b29b3243d6ce49c2cd0d48d4b5f0701ae7969ded/README.md",
+          "publisher_license_metadata": "cc-by-nc-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 475,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "audiocap_id",
+                "dtype": "int64"
+              },
+              {
+                "name": "youtube_id",
+                "dtype": "string"
+              },
+              {
+                "name": "start_time",
+                "dtype": "int64"
+              },
+              {
+                "name": "caption",
+                "dtype": "string"
+              },
+              {
+                "name": "audio_length",
+                "dtype": "int64"
+              },
+              {
+                "name": "audio",
+                "dtype": "audio"
+              }
+            ],
+            "splits": [
+              {
+                "name": "train",
+                "num_bytes": 41181431035.0636,
+                "num_examples": 45178
+              },
+              {
+                "name": "validation",
+                "num_bytes": 1994928649.4433637,
+                "num_examples": 2223
+              },
+              {
+                "name": "test",
+                "num_bytes": 4014005937.8083076,
+                "num_examples": 4411
+              }
+            ],
+            "download_size": 43940711190,
+            "dataset_size": 47190365622.31528
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_captioning",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "Author v2.0 README: 91,256 train / 2,475 validation / 4,875 test caption rows. Inspected HF mirrors have older/different counts and are not verified v2.0.",
+      "annotation_provenance": "Human captions; original annotation protocol supplied contextual hints and allowed video assistance, so acoustic grounding still needs audit.",
+      "asset_access": "Official v2 media link requires author form; inspected community mirrors contain audio but version/provenance mismatch unresolved.",
+      "rights_review": "Author README restricts materials to academic use; one mirror NC, other lacks license. Mirror availability does not remove source restrictions.",
+      "split_group_keys": [
+        "YouTube ID",
+        "source interval",
+        "all caption siblings"
+      ],
+      "required_checks": [
+        "Resolve exact v1/v2 membership before use",
+        "Count unique recordings separately from captions",
+        "Check AudioSet/MusicCaps/AudioMCQ overlap"
+      ],
+      "primary_evidence": [
+        "dataset_author_audiocaps",
+        "dataset_author_audiocaps_v2",
+        "dataset_paper_audiocaps"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "musiccaps",
+      "title": "MusicCaps",
+      "hugging_face": [
+        {
+          "repo_id": "google/MusicCaps",
+          "url": "https://huggingface.co/datasets/google/MusicCaps",
+          "revision": "0a51889b340037bb75a9a0858af2e4ece21f7f89",
+          "api_evidence": "dataset_api_google__MusicCaps",
+          "card_evidence": "dataset_card_google__MusicCaps",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/google/MusicCaps/blob/0a51889b340037bb75a9a0858af2e4ece21f7f89/README.md",
+          "publisher_license_metadata": [
+            "cc-by-sa-4.0"
+          ],
+          "gated_metadata": false,
+          "observed_repo_file_count": 3,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_music_description",
+      "priority": "P1_conditional",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "5,521 ten-second excerpts: 2,663 from AudioSet train and 2,858 from AudioSet eval.",
+      "annotation_provenance": "Musician-written aspect lists and free-text descriptions.",
+      "asset_access": "Official HF metadata with YouTube IDs and intervals; recordings external.",
+      "rights_review": "Caption dataset CC-BY-SA-4.0; original recording rights separate.",
+      "split_group_keys": [
+        "YouTube ID",
+        "song/performance identity",
+        "AudioSet split"
+      ],
+      "required_checks": [
+        "Reserve is_audioset_eval=true",
+        "Remove sibling clips from AudioSkills/AudioMCQ/MusicBench",
+        "Verify music description against sound",
+        "Do not treat 1k balanced subset as independent data"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "slakh",
+      "title": "Slakh2100 / Redux",
+      "hugging_face": [
+        {
+          "repo_id": "DreamyWanderer/Slakh2100-FLAC-Redux-Reduced",
+          "url": "https://huggingface.co/datasets/DreamyWanderer/Slakh2100-FLAC-Redux-Reduced",
+          "revision": "368add9a2d203ba8a416c44dff8936e720f83704",
+          "api_evidence": "dataset_api_DreamyWanderer__Slakh2100-FLAC-Redux-Reduced",
+          "card_evidence": "dataset_card_DreamyWanderer__Slakh2100-FLAC-Redux-Reduced",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/DreamyWanderer/Slakh2100-FLAC-Redux-Reduced/blob/368add9a2d203ba8a416c44dff8936e720f83704/README.md",
+          "publisher_license_metadata": "cc-by-nc-sa-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 3422,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_music_temporal_controls",
+      "priority": "P2_mirror_unqualified",
+      "modalities": [
+        "audio",
+        "MIDI",
+        "instrument_stems"
+      ],
+      "reported_scale": "Original Slakh2100: 2,100 mixtures, 187 synthesis patches, 34 instrument classes. Reduced HF variant count/lineage not established.",
+      "annotation_provenance": "Synthesized multitrack music aligned to source MIDI; exact labels within rendering assumptions.",
+      "asset_access": "Prefer original author release; inspected HF reduced mirror has only a tiny card.",
+      "rights_review": "Original author release CC-BY-4.0; inspected reduced mirror declares CC-BY-NC-SA-4.0. Resolve transformation/rights before selecting either.",
+      "split_group_keys": [
+        "source MIDI/song",
+        "all stems",
+        "synthesis variants"
+      ],
+      "required_checks": [
+        "Choose exact Redux release and inspect official split",
+        "Deduplicate MIDI and derived versions",
+        "Verify note-to-audio latency and soundfont timing",
+        "Synthetic transfer requires real music test"
+      ],
+      "primary_evidence": [
+        "dataset_author_slakh"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "musicnet",
+      "title": "MusicNet",
+      "hugging_face": [
+        {
+          "repo_id": "DreamyWanderer/MusicNet",
+          "url": "https://huggingface.co/datasets/DreamyWanderer/MusicNet",
+          "revision": "15078b3037afe83bdcacb9cea14232e4debffd2b",
+          "api_evidence": "dataset_api_DreamyWanderer__MusicNet",
+          "card_evidence": "dataset_card_DreamyWanderer__MusicNet",
+          "card_read": false,
+          "pinned_card_url": "https://huggingface.co/datasets/DreamyWanderer/MusicNet/blob/15078b3037afe83bdcacb9cea14232e4debffd2b/README.md",
+          "publisher_license_metadata": null,
+          "gated_metadata": false,
+          "observed_repo_file_count": 661,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_music_temporal_supervision",
+      "priority": "P2_mirror_unqualified",
+      "modalities": [
+        "audio",
+        "note_time",
+        "instrument"
+      ],
+      "reported_scale": "Original: 330 classical recordings, over 1M note labels; authors estimate about 4% label error.",
+      "annotation_provenance": "Score-to-audio alignment via dynamic time warping, checked by trained musicians.",
+      "asset_access": "Original Zenodo release preferred; inspected HF mirror has no README at pinned revision.",
+      "rights_review": "Original metadata/license and per-recording provenance must be retained; missing HF card is not clearance.",
+      "split_group_keys": [
+        "composition",
+        "recording/performance",
+        "MIDI source"
+      ],
+      "required_checks": [
+        "Verify original train/test release",
+        "Audit temporal label uncertainty",
+        "No claim of exact sample-perfect ground truth"
+      ],
+      "primary_evidence": [
+        "dataset_author_musicnet_zenodo"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "ravdess",
+      "title": "RAVDESS",
+      "hugging_face": [
+        {
+          "repo_id": "narad/ravdess",
+          "url": "https://huggingface.co/datasets/narad/ravdess",
+          "revision": "2894394c52a8621bf8bb2e4d7c3b9cf77f6fa80e",
+          "api_evidence": "dataset_api_narad__ravdess",
+          "card_evidence": "dataset_card_narad__ravdess",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/narad/ravdess/blob/2894394c52a8621bf8bb2e4d7c3b9cf77f6fa80e/README.md",
+          "publisher_license_metadata": [
+            "cc-by-nc-sa-4.0"
+          ],
+          "gated_metadata": false,
+          "observed_repo_file_count": 4,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "affect_diagnostic",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "video",
+        "perceived_affect"
+      ],
+      "reported_scale": "HF speech portion 1,440 files; original has 2,452 performances across three modality forms = 7,356 files.",
+      "annotation_provenance": "Acted speech/song; ten ratings per stimulus in original validation. Not 7,356 independent performances.",
+      "asset_access": "HF legacy audio loader; original speech/song/AV files and rating supplements separate.",
+      "rights_review": "CC-BY-NC-SA-4.0 original; separate commercial license option exists, not obtained.",
+      "split_group_keys": [
+        "actor",
+        "statement",
+        "performance",
+        "all modality forms"
+      ],
+      "required_checks": [
+        "Actor-disjoint holdout",
+        "Join original ratings",
+        "Never expose emotion-coded filenames",
+        "Song subset has 23 actors, speech 24"
+      ],
+      "primary_evidence": [
+        "dataset_author_ravdess"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "audiomcq",
+      "title": "AudioMCQ",
+      "hugging_face": [
+        {
+          "repo_id": "inclusionAI/AudioMCQ",
+          "url": "https://huggingface.co/datasets/inclusionAI/AudioMCQ",
+          "revision": "7ab9df0263d3e594e16e188ffca8db893b445e38",
+          "api_evidence": "dataset_api_inclusionAI__AudioMCQ",
+          "card_evidence": "dataset_card_inclusionAI__AudioMCQ",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/inclusionAI/AudioMCQ/blob/7ab9df0263d3e594e16e188ffca8db893b445e38/README.md",
+          "publisher_license_metadata": "apache-2.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 16,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_reasoning",
+      "priority": "P2_component_review",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "Publisher reports 571,118 samples; 54.8% weak / 45.2% strong audio-contribution.",
+      "annotation_provenance": "Synthetic structured/unstructured rationale and QA over seven source families; silent-audio filtering is model-relative.",
+      "asset_access": "Parent release supplies JSONL annotations; recordings obtained separately from sources.",
+      "rights_review": "Apache-2.0 annotation card; source Clotho, AudioCaps, MusicCaps and other assets retain their own terms.",
+      "split_group_keys": [
+        "source dataset",
+        "original recording",
+        "all generated questions",
+        "parent-child rationale lineage"
+      ],
+      "required_checks": [
+        "Separate training JSONL from bundled benchmarks",
+        "Audit strong label with matched audio replacements",
+        "Use corrected evaluator, not obsolete MMSU headline",
+        "Do not pool parent and curated child as independent"
+      ],
+      "primary_evidence": [
+        "dataset_paper_audiomcq"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "audiomcq_strong",
+      "title": "AudioMCQ-StrongAC-GeminiCoT",
+      "hugging_face": [
+        {
+          "repo_id": "Harland/AudioMCQ-StrongAC-GeminiCoT",
+          "url": "https://huggingface.co/datasets/Harland/AudioMCQ-StrongAC-GeminiCoT",
+          "revision": "6d549d883b2b4a7e323e8786596277e876c01052",
+          "api_evidence": "dataset_api_Harland__AudioMCQ-StrongAC-GeminiCoT",
+          "card_evidence": "dataset_card_Harland__AudioMCQ-StrongAC-GeminiCoT",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/Harland/AudioMCQ-StrongAC-GeminiCoT/blob/6d549d883b2b4a7e323e8786596277e876c01052/README.md",
+          "publisher_license_metadata": "apache-2.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 19483,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_reasoning",
+      "priority": "P1_component_review",
+      "modalities": [
+        "audio",
+        "text",
+        "time"
+      ],
+      "reported_scale": "Card: 19,480 samples and unique audio files; SpeechCraft 9,603; AudioCaps 4,705; CompA-R 2,901; Tacos 1,128; LP-MusicCaps-MTT 807; Clotho 194; MusicCaps 142.",
+      "annotation_provenance": "AudioMCQ StrongAC subset selected for correct Gemini answers and model-generated summarized reasoning; not human-certified traces.",
+      "asset_access": "HF JSONL and audio paths/files exposed; no media sampled in this review.",
+      "rights_review": "Apache-2.0 card does not override inherited source recording/caption/generator terms. Source-level allowlist required.",
+      "split_group_keys": [
+        "original recording",
+        "AudioMCQ parent",
+        "all source benchmark IDs"
+      ],
+      "required_checks": [
+        "Cross-check source counts and rights",
+        "Distill short verified evidence spans, not unverified long traces",
+        "Recheck silence/wrong-audio/option-order dependence",
+        "Separate DCASE dev/eval audio from training"
+      ],
+      "primary_evidence": [
+        "dataset_paper_audiomcq",
+        "dataset_author_dcase2026",
+        "dataset_paper_dcase2026"
+      ],
+      "notes": "Card news dates say 2025 despite Gemini 3.1 / DCASE 2026 context; pin by commit, not those news lines.",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "wavcaps",
+      "title": "WavCaps",
+      "hugging_face": [
+        {
+          "repo_id": "cvssp/WavCaps",
+          "url": "https://huggingface.co/datasets/cvssp/WavCaps",
+          "revision": "0930ec11ded28fa0eaa910fde2f6fc3538acbeac",
+          "api_evidence": "dataset_api_cvssp__WavCaps",
+          "card_evidence": "dataset_card_cvssp__WavCaps",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/cvssp/WavCaps/blob/0930ec11ded28fa0eaa910fde2f6fc3538acbeac/README.md",
+          "publisher_license_metadata": "cc-by-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 164,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_scale",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "403,050 clips in card; Freesound, BBC, SoundBible and AudioSet strongly labelled subset.",
+      "annotation_provenance": "Weak captions rewritten from descriptions with ChatGPT; not human audio-caption gold.",
+      "asset_access": "HF metadata and FLAC ZIP archives; archives are large and not acquired.",
+      "rights_review": "YAML says CC-BY-4.0 but body explicitly limits academic use; source clip licenses also apply.",
+      "split_group_keys": [
+        "Freesound ID",
+        "YouTube ID/interval",
+        "BBC/SoundBible ID",
+        "original recording"
+      ],
+      "required_checks": [
+        "Honor restrictive body/source terms",
+        "Deduplicate Clotho/FSD50K/AudioCaps derivatives",
+        "Audit audible versus metadata-only claims"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "audioskills",
+      "title": "AudioSkills / AudioSkills-XL",
+      "hugging_face": [
+        {
+          "repo_id": "nvidia/AudioSkills",
+          "url": "https://huggingface.co/datasets/nvidia/AudioSkills",
+          "revision": "83bbf80178bb80461fc3e83e0139deb2d6fef1a6",
+          "api_evidence": "dataset_api_nvidia__AudioSkills",
+          "card_evidence": "dataset_card_nvidia__AudioSkills",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/nvidia/AudioSkills/blob/83bbf80178bb80461fc3e83e0139deb2d6fef1a6/README.md",
+          "publisher_license_metadata": "other",
+          "gated_metadata": false,
+          "observed_repo_file_count": 42,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_reasoning_scale",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "Card reports about 10M QA including about 4.5M added XL examples; no independent full count.",
+      "annotation_provenance": "Synthetic QA from heterogeneous metadata and model-assisted annotations.",
+      "asset_access": "Annotations only; source audio separately obtained. Source-named splits are not train/eval guarantees.",
+      "rights_review": "NVIDIA OneWay Noncommercial plus all source audio terms.",
+      "split_group_keys": [
+        "original recording",
+        "source train/eval split",
+        "all derivatives"
+      ],
+      "required_checks": [
+        "Never mix reserved benchmark audio via a source-named split",
+        "Measure unique media rather than QA count",
+        "Do not download entire monolithic JSON for first pilot"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "longaudio",
+      "title": "LongAudio / LongAudio-XL",
+      "hugging_face": [
+        {
+          "repo_id": "nvidia/LongAudio",
+          "url": "https://huggingface.co/datasets/nvidia/LongAudio",
+          "revision": "59870db61ddae819506cbf9673381399f2c16db0",
+          "api_evidence": "dataset_api_nvidia__LongAudio",
+          "card_evidence": "dataset_card_nvidia__LongAudio",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/nvidia/LongAudio/blob/59870db61ddae819506cbf9673381399f2c16db0/README.md",
+          "publisher_license_metadata": "other",
+          "gated_metadata": false,
+          "observed_repo_file_count": 25,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_long_audio_scale",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text",
+        "time"
+      ],
+      "reported_scale": "Card describes about 1.25M QA, 30-second to 10-minute audio, with newer AFNext additions in same repo.",
+      "annotation_provenance": "Synthetic temporal, dialogue and event QA; some inputs reconstructed from ordered source utterances.",
+      "asset_access": "Annotations only; sources include separately licensed/LDC corpora. Actual duration must be recomputed.",
+      "rights_review": "NVIDIA OneWay Noncommercial plus individual speech/video source licenses/access.",
+      "split_group_keys": [
+        "whole conversation",
+        "speaker/session",
+        "ordered source-clip list"
+      ],
+      "required_checks": [
+        "Preserve reconstruction order",
+        "Exclude LongAudioBench and other held-out inputs",
+        "Version AF3 versus AFNext files separately",
+        "Defer until short-audio gates pass"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "afthink",
+      "title": "AF-Think",
+      "hugging_face": [
+        {
+          "repo_id": "nvidia/AF-Think",
+          "url": "https://huggingface.co/datasets/nvidia/AF-Think",
+          "revision": "05e34d6f0db81ffc849de91154d54342dd613a26",
+          "api_evidence": "dataset_api_nvidia__AF-Think",
+          "card_evidence": "dataset_card_nvidia__AF-Think",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/nvidia/AF-Think/blob/05e34d6f0db81ffc849de91154d54342dd613a26/README.md",
+          "publisher_license_metadata": "other",
+          "gated_metadata": false,
+          "observed_repo_file_count": 64,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_audio_rationale_scale",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "Current card 500k QA; previous AF3 paper described 250k. Current repo includes AFNext/AF-Think-Time.",
+      "annotation_provenance": "Synthetic thought prefixes over AudioSkills/LongAudio; parent overlap.",
+      "asset_access": "Text annotations only; recordings external; duration field may be inaccurate per card.",
+      "rights_review": "NVIDIA OneWay Noncommercial plus source/generator terms.",
+      "split_group_keys": [
+        "parent AudioSkills/LongAudio record",
+        "original source recording"
+      ],
+      "required_checks": [
+        "Freeze exact file family and commit",
+        "Do not add parent/child sizes as unique data",
+        "Avoid treating rationale as verified acoustic evidence"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "mfskills",
+      "title": "MF-Skills / MF-Think files",
+      "hugging_face": [
+        {
+          "repo_id": "nvidia/MF-Skills",
+          "url": "https://huggingface.co/datasets/nvidia/MF-Skills",
+          "revision": "cbc4b4ac82629357f3a4f85b685c1941ea55fa6f",
+          "api_evidence": "dataset_api_nvidia__MF-Skills",
+          "card_evidence": "dataset_card_nvidia__MF-Skills",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/nvidia/MF-Skills/blob/cbc4b4ac82629357f3a4f85b685c1941ea55fa6f/README.md",
+          "publisher_license_metadata": "other",
+          "gated_metadata": false,
+          "observed_repo_file_count": 21,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_music_reasoning_scale",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "audio",
+        "text",
+        "music_structure"
+      ],
+      "reported_scale": "Card: 1.87M QA + 3.39M structured captions over 2.95M songs; actual current file counts not audited.",
+      "annotation_provenance": "LAION-DISCO-derived audio; LALM/music-tool metadata and gpt-oss-generated captions/QA/CoT.",
+      "asset_access": "Text annotations/YouTube IDs; card requests institutional access but API gated=false. Do not infer asset access from metadata.",
+      "rights_review": "NVIDIA OneWay Noncommercial; source/creator audio rights separate.",
+      "split_group_keys": [
+        "song",
+        "performance/recording",
+        "all QA/caption/CoT variants"
+      ],
+      "required_checks": [
+        "Use MF-Skills cot files, not guessed MF-Think repository",
+        "Verify exposure by song/performance",
+        "Do not mistake a viewer subset for full published scale"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "longvale",
+      "title": "LongVALE",
+      "hugging_face": [
+        {
+          "repo_id": "ttgeng233/LongVALE",
+          "url": "https://huggingface.co/datasets/ttgeng233/LongVALE",
+          "revision": "18889b01886e30c36b0d1c650ac4439ad460ee73",
+          "api_evidence": "dataset_api_ttgeng233__LongVALE",
+          "card_evidence": "dataset_card_ttgeng233__LongVALE",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/ttgeng233/LongVALE/blob/18889b01886e30c36b0d1c650ac4439ad460ee73/README.md",
+          "publisher_license_metadata": "cc-by-nc-sa-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 68,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_av_temporal_reasoning",
+      "priority": "P2_restricted_research",
+      "modalities": [
+        "video",
+        "audio",
+        "text",
+        "time"
+      ],
+      "reported_scale": "8,411 videos / 549 hours / 105,730 events; train 7,240 videos, test 1,171.",
+      "annotation_provenance": "Automated audiovisual event/caption pipeline; test split manually refined, not a human-gold training corpus.",
+      "asset_access": "HF annotations, raw-video archives, features and checkpoints mixed in one repo; select only needed data files.",
+      "rights_review": "CC-BY-NC-SA-4.0; academic/educational stated use; source media and generation terms remain.",
+      "split_group_keys": [
+        "original video ID",
+        "all events",
+        "source ACAV/YouTube lineage"
+      ],
+      "required_checks": [
+        "No test-video training",
+        "Audit sync and temporal endpoints",
+        "Use raw audio/video for full encoder FT, not fixed features alone",
+        "Association in captions is not causal ground truth"
+      ],
+      "primary_evidence": [
+        "dataset_paper_longvale"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "musicavqa",
+      "title": "MUSIC-AVQA and audit companion",
+      "hugging_face": [
+        {
+          "repo_id": "UnFaZeD07/Music-AVQA",
+          "url": "https://huggingface.co/datasets/UnFaZeD07/Music-AVQA",
+          "revision": "42b81bee385ecfcd541a2676103ea59fe0cf6fa5",
+          "api_evidence": "dataset_api_UnFaZeD07__Music-AVQA",
+          "card_evidence": "dataset_card_UnFaZeD07__Music-AVQA",
+          "card_read": false,
+          "pinned_card_url": "https://huggingface.co/datasets/UnFaZeD07/Music-AVQA/blob/42b81bee385ecfcd541a2676103ea59fe0cf6fa5/README.md",
+          "publisher_license_metadata": null,
+          "gated_metadata": false,
+          "observed_repo_file_count": 9292,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        },
+        {
+          "repo_id": "gwkrsrch/music_avqa",
+          "url": "https://huggingface.co/datasets/gwkrsrch/music_avqa",
+          "revision": "4436046412f3073a908e651bbe79e4e42d36d5a8",
+          "api_evidence": "dataset_api_gwkrsrch__music_avqa",
+          "card_evidence": "dataset_card_gwkrsrch__music_avqa",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/gwkrsrch/music_avqa/blob/4436046412f3073a908e651bbe79e4e42d36d5a8/README.md",
+          "publisher_license_metadata": "mit",
+          "gated_metadata": false,
+          "observed_repo_file_count": 3,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "source_index",
+                "dtype": "int64"
+              },
+              {
+                "name": "question_id",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "test",
+                "num_examples": 9185
+              }
+            ]
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "av_reasoning_and_eval",
+      "priority": "P2_mirror_unqualified",
+      "modalities": [
+        "audio",
+        "video",
+        "text"
+      ],
+      "reported_scale": "Original paper/repo: over 45k QA on musical performances; audit companion has 9,185 test index rows only.",
+      "annotation_provenance": "Templated/human-checked musical AV QA; single-frame/text shortcuts require controls.",
+      "asset_access": "Full community HF mirror has no card; MIT audit mirror contains no questions, answers or video. Original author release is authority.",
+      "rights_review": "Source AV/annotation terms must be resolved; audit-column MIT is not permission for source dataset.",
+      "split_group_keys": [
+        "original performance/video",
+        "all questions",
+        "audio/video views"
+      ],
+      "required_checks": [
+        "Join audit via source_index, not question_id alone",
+        "Prove audio and temporal dependence",
+        "Reserve official test and all derivative rows"
+      ],
+      "primary_evidence": [
+        "dataset_author_musicavqa"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "videopoint_eval",
+      "title": "Molmo2-VideoPointEval",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-VideoPointEval",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-VideoPointEval",
+          "revision": "4743a9b4639acf1065a1e2f8e64f19284b08f85d",
+          "api_evidence": "dataset_api_allenai__Molmo2-VideoPointEval",
+          "card_evidence": "dataset_card_allenai__Molmo2-VideoPointEval",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-VideoPointEval/blob/4743a9b4639acf1065a1e2f8e64f19284b08f85d/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 4,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "video_id",
+                "dtype": "string"
+              },
+              {
+                "name": "label",
+                "dtype": "string"
+              },
+              {
+                "name": "two_fps_timestamps",
+                "sequence": "float64"
+              },
+              {
+                "name": "points",
+                "list": [
+                  {
+                    "name": "x",
+                    "dtype": "float64"
+                  },
+                  {
+                    "name": "y",
+                    "dtype": "float64"
+                  }
+                ]
+              },
+              {
+                "name": "masks",
+                "list": {
+                  "list": [
+                    {
+                      "name": "frame_id",
+                      "dtype": "int64"
+                    },
+                    {
+                      "name": "rle",
+                      "struct": [
+                        {
+                          "name": "counts",
+                          "dtype": "string"
+                        },
+                        {
+                          "name": "size",
+                          "sequence": "int32"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "width",
+                "dtype": "int64"
+              },
+              {
+                "name": "height",
+                "dtype": "int64"
+              },
+              {
+                "name": "video_duration",
+                "dtype": "float64"
+              },
+              {
+                "name": "raw_frames",
+                "sequence": "int64"
+              },
+              {
+                "name": "raw_timestamps",
+                "sequence": "float64"
+              },
+              {
+                "name": "count",
+                "dtype": "int64"
+              },
+              {
+                "name": "category",
+                "dtype": "string"
+              },
+              {
+                "name": "video_source",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "val",
+                "num_bytes": 1329330,
+                "num_examples": 181
+              }
+            ],
+            "download_size": 846237,
+            "dataset_size": 1329330
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "video",
+        "point",
+        "time"
+      ],
+      "reported_scale": "Pinned val metadata: 181 rows.",
+      "annotation_provenance": "Human points plus SAM2-generated mask windows for matching.",
+      "asset_access": "HF labels, external video sources.",
+      "rights_review": "ODC-BY plus source video conditions; no training role.",
+      "split_group_keys": [
+        "original video",
+        "source derivatives"
+      ],
+      "required_checks": [
+        "Use native temporal-point metric",
+        "Keep masks exclusively in verifier",
+        "Do not treat 181 rows as 181 independent source videos"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "videotrack_eval",
+      "title": "Molmo2-VideoTrackEval",
+      "hugging_face": [
+        {
+          "repo_id": "allenai/Molmo2-VideoTrackEval",
+          "url": "https://huggingface.co/datasets/allenai/Molmo2-VideoTrackEval",
+          "revision": "18b4ba282c48d367855b37386d29747c34ec14d5",
+          "api_evidence": "dataset_api_allenai__Molmo2-VideoTrackEval",
+          "card_evidence": "dataset_card_allenai__Molmo2-VideoTrackEval",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/allenai/Molmo2-VideoTrackEval/blob/18b4ba282c48d367855b37386d29747c34ec14d5/README.md",
+          "publisher_license_metadata": "odc-by",
+          "gated_metadata": false,
+          "observed_repo_file_count": 7,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "video",
+        "track"
+      ],
+      "reported_scale": "Five source configs plus default combined view; count not independently audited.",
+      "annotation_provenance": "Tracks and reference masks, across animal/dance/sports/person/misc domains.",
+      "asset_access": "HF annotations; source videos obtained separately.",
+      "rights_review": "ODC-BY plus heterogeneous source restrictions; evaluation only.",
+      "split_group_keys": [
+        "source dataset",
+        "original video"
+      ],
+      "required_checks": [
+        "Do not concatenate default and subsets",
+        "Prevent shared source videos with training",
+        "Masks are scoring-only"
+      ],
+      "primary_evidence": [
+        "dataset_paper_molmo2"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "videomme",
+      "title": "Video-MME",
+      "hugging_face": [
+        {
+          "repo_id": "lmms-eval/Video-MME",
+          "url": "https://huggingface.co/datasets/lmms-eval/Video-MME",
+          "revision": "ead1408f75b618502df9a1d8e0950166bf0a2a0b",
+          "api_evidence": "dataset_api_lmms-eval__Video-MME",
+          "card_evidence": "dataset_card_lmms-eval__Video-MME",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/lmms-eval/Video-MME/blob/ead1408f75b618502df9a1d8e0950166bf0a2a0b/README.md",
+          "publisher_license_metadata": null,
+          "gated_metadata": false,
+          "observed_repo_file_count": 24,
+          "reported_splits": {
+            "config_name": "videomme",
+            "features": [
+              {
+                "name": "video_id",
+                "dtype": "string"
+              },
+              {
+                "name": "duration",
+                "dtype": "string"
+              },
+              {
+                "name": "domain",
+                "dtype": "string"
+              },
+              {
+                "name": "sub_category",
+                "dtype": "string"
+              },
+              {
+                "name": "url",
+                "dtype": "string"
+              },
+              {
+                "name": "videoID",
+                "dtype": "string"
+              },
+              {
+                "name": "question_id",
+                "dtype": "string"
+              },
+              {
+                "name": "task_type",
+                "dtype": "string"
+              },
+              {
+                "name": "question",
+                "dtype": "string"
+              },
+              {
+                "name": "options",
+                "sequence": "string"
+              },
+              {
+                "name": "answer",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "test",
+                "num_bytes": 1003241,
+                "num_examples": 2700
+              }
+            ],
+            "download_size": 405167,
+            "dataset_size": 1003241
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "video",
+        "audio",
+        "subtitle",
+        "text"
+      ],
+      "reported_scale": "Pinned mirror: 2,700 test questions; original benchmark has 900 videos.",
+      "annotation_provenance": "Curated broad video understanding benchmark; audio/subtitle protocol must be explicit.",
+      "asset_access": "HF mirror annotation Parquet; source media external.",
+      "rights_review": "Mirror has no blanket license; original project/media terms remain required.",
+      "split_group_keys": [
+        "video ID",
+        "all questions/subtitles",
+        "YouTube root"
+      ],
+      "required_checks": [
+        "Specify no-subtitle, subtitle and native-audio conditions separately",
+        "No benchmark-driven training",
+        "Do not count text subtitles as native listening"
+      ],
+      "primary_evidence": [
+        "dataset_author_videomme"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "longvideobench",
+      "title": "LongVideoBench",
+      "hugging_face": [
+        {
+          "repo_id": "longvideobench/LongVideoBench",
+          "url": "https://huggingface.co/datasets/longvideobench/LongVideoBench",
+          "revision": "60d1c89c1919a198b73be39c2babb213b29d6a5c",
+          "api_evidence": "dataset_api_longvideobench__LongVideoBench",
+          "card_evidence": "dataset_card_longvideobench__LongVideoBench",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/longvideobench/LongVideoBench/blob/60d1c89c1919a198b73be39c2babb213b29d6a5c/README.md",
+          "publisher_license_metadata": "cc-by-nc-sa-4.0",
+          "gated_metadata": "auto",
+          "observed_repo_file_count": 38,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "video",
+        "subtitle",
+        "text"
+      ],
+      "reported_scale": "Card: 3,763 videos, 6,678 human questions; inputs up to one hour.",
+      "annotation_provenance": "Human referring-reasoning benchmark; subtitled video is not native audio evidence.",
+      "asset_access": "HF gated media and annotation archive; card inspected, no gate accepted.",
+      "rights_review": "CC-BY-NC-SA-4.0 plus source-media acknowledgement; evaluation only.",
+      "split_group_keys": [
+        "original video ID",
+        "subtitle/video variants"
+      ],
+      "required_checks": [
+        "Pin val versus hidden-test roles",
+        "Measure duration and retained frames",
+        "Keep subtitled and audio-native scores separate"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "mmau",
+      "title": "MMAU audio benchmark",
+      "hugging_face": [
+        {
+          "repo_id": "gamma-lab-umd/MMAU-test-mini",
+          "url": "https://huggingface.co/datasets/gamma-lab-umd/MMAU-test-mini",
+          "revision": "ccd9696c0111ea7060827598f310558df0b71b0a",
+          "api_evidence": "dataset_api_gamma-lab-umd__MMAU-test-mini",
+          "card_evidence": "dataset_card_gamma-lab-umd__MMAU-test-mini",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/gamma-lab-umd/MMAU-test-mini/blob/ccd9696c0111ea7060827598f310558df0b71b0a/README.md",
+          "publisher_license_metadata": "cc-by-nc-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 3,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        },
+        {
+          "repo_id": "gamma-lab-umd/MMAU-test",
+          "url": "https://huggingface.co/datasets/gamma-lab-umd/MMAU-test",
+          "revision": "8e835a9f64ed6c703b3c9ddb6d423d9ab697061e",
+          "api_evidence": "dataset_api_gamma-lab-umd__MMAU-test",
+          "card_evidence": "dataset_card_gamma-lab-umd__MMAU-test",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/gamma-lab-umd/MMAU-test/blob/8e835a9f64ed6c703b3c9ddb6d423d9ab697061e/README.md",
+          "publisher_license_metadata": "mit",
+          "gated_metadata": false,
+          "observed_repo_file_count": 4,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        },
+        {
+          "repo_id": "lmms-lab-audio/mmau",
+          "url": "https://huggingface.co/datasets/lmms-lab-audio/mmau",
+          "revision": "bd09999670e77f5452c23a09435ee437bd0e1406",
+          "api_evidence": "dataset_api_lmms-lab-audio__mmau",
+          "card_evidence": "dataset_card_lmms-lab-audio__mmau",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/lmms-lab-audio/mmau/blob/bd09999670e77f5452c23a09435ee437bd0e1406/README.md",
+          "publisher_license_metadata": null,
+          "gated_metadata": false,
+          "observed_repo_file_count": 80,
+          "reported_splits": {
+            "features": [
+              {
+                "name": "id",
+                "dtype": "string"
+              },
+              {
+                "name": "audio",
+                "dtype": {
+                  "audio": {
+                    "sampling_rate": 192000
+                  }
+                }
+              },
+              {
+                "name": "question",
+                "dtype": "string"
+              },
+              {
+                "name": "choices",
+                "dtype": "string"
+              },
+              {
+                "name": "answer",
+                "dtype": "string"
+              },
+              {
+                "name": "dataset",
+                "dtype": "string"
+              },
+              {
+                "name": "task",
+                "dtype": "string"
+              },
+              {
+                "name": "split",
+                "dtype": "string"
+              },
+              {
+                "name": "category",
+                "dtype": "string"
+              },
+              {
+                "name": "sub-category",
+                "dtype": "string"
+              },
+              {
+                "name": "difficulty",
+                "dtype": "string"
+              }
+            ],
+            "splits": [
+              {
+                "name": "test",
+                "num_bytes": 13995053883,
+                "num_examples": 9000
+              },
+              {
+                "name": "test_mini",
+                "num_bytes": 1428598758,
+                "num_examples": 1000
+              }
+            ],
+            "download_size": 14540107176,
+            "dataset_size": 15423652641
+          },
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "Author: 1k test-mini + 9k held-out-answer test; v05.15.25 revised about 25% QA and 5% audio.",
+      "annotation_provenance": "Human audio reasoning questions across speech/sound/music; still requires shortcut controls.",
+      "asset_access": "Author-linked HF repos currently expose README only at inspected commits; community mirror advertises 1k/9k Parquet rows. Version/content match unresolved.",
+      "rights_review": "Author-linked cards differ (NC mini, MIT test); mirror lacks license. Reconcile with authoritative protocol and source media before use.",
+      "split_group_keys": [
+        "original audio/video root",
+        "mini/test version",
+        "derivative benchmark subsets"
+      ],
+      "required_checks": [
+        "Reject apple/mmau: unrelated agent benchmark",
+        "Do not use hidden answers from any mirror",
+        "Pin corrected audio/QA release",
+        "Freeze evaluation model state and discard test-session adaptations"
+      ],
+      "primary_evidence": [
+        "dataset_author_mmau"
+      ],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "mmar",
+      "title": "MMAR",
+      "hugging_face": [
+        {
+          "repo_id": "BoJack/MMAR",
+          "url": "https://huggingface.co/datasets/BoJack/MMAR",
+          "revision": "3bd051123480e80d273ae9e8e9f1653f49010ac7",
+          "api_evidence": "dataset_api_BoJack__MMAR",
+          "card_evidence": "dataset_card_BoJack__MMAR",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/BoJack/MMAR/blob/3bd051123480e80d273ae9e8e9f1653f49010ac7/README.md",
+          "publisher_license_metadata": "cc-by-nc-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 11,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "audio",
+        "text"
+      ],
+      "reported_scale": "1,000 curated audio QA triplets.",
+      "annotation_provenance": "Human/LLM taxonomy and iterative quality correction; audio-source timestamps available.",
+      "asset_access": "Official HF metadata and about 3GB audio archive, not acquired.",
+      "rights_review": "CC-BY-NC-4.0 card; source terms remain.",
+      "split_group_keys": [
+        "original video ID",
+        "clip interval",
+        "DCASE derivative IDs"
+      ],
+      "required_checks": [
+        "Preserve official version versus corrected derivative",
+        "No evaluation questions/CoT in training",
+        "Test silent and matched wrong-audio conditions"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "personamem",
+      "title": "PersonaMem-v2",
+      "hugging_face": [
+        {
+          "repo_id": "bowen-upenn/PersonaMem-v2",
+          "url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v2",
+          "revision": "ed956dea41521fc4499acbc63f966e0fd3c053ba",
+          "api_evidence": "dataset_api_bowen-upenn__PersonaMem-v2",
+          "card_evidence": "dataset_card_bowen-upenn__PersonaMem-v2",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/bowen-upenn/PersonaMem-v2/blob/ed956dea41521fc4499acbc63f966e0fd3c053ba/README.md",
+          "publisher_license_metadata": "cc-by-4.0",
+          "gated_metadata": false,
+          "observed_repo_file_count": 9001,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "offline_learning_behavior",
+      "priority": "P2_conditional",
+      "modalities": [
+        "text",
+        "multimodal_histories"
+      ],
+      "reported_scale": "No new count claim; pinned train_text/train_multimodal versus val/benchmark split definitions inspected.",
+      "annotation_provenance": "Constructed persona histories and personalization tasks; not a proof of audiovisual pattern learning.",
+      "asset_access": "Official HF histories and split manifests; same pin as earlier repository catalog.",
+      "rights_review": "CC-BY-4.0 card; preserve media/persona provenance.",
+      "split_group_keys": [
+        "persona",
+        "all conversations/history variants",
+        "query family"
+      ],
+      "required_checks": [
+        "Only declared train splits eligible",
+        "Keep val/benchmark histories out of memory/replay",
+        "Use separate fresh procedural transfer tasks"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    },
+    {
+      "id": "longmemeval",
+      "title": "LongMemEval cleaned",
+      "hugging_face": [
+        {
+          "repo_id": "xiaowu0162/longmemeval-cleaned",
+          "url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned",
+          "revision": "98d7416c24c778c2fee6e6f3006e7a073259d48f",
+          "api_evidence": "dataset_api_xiaowu0162__longmemeval-cleaned",
+          "card_evidence": "dataset_card_xiaowu0162__longmemeval-cleaned",
+          "card_read": true,
+          "pinned_card_url": "https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/blob/98d7416c24c778c2fee6e6f3006e7a073259d48f/README.md",
+          "publisher_license_metadata": "mit",
+          "gated_metadata": false,
+          "observed_repo_file_count": 5,
+          "reported_splits": null,
+          "access_warning": "Metadata/card access does not establish media availability or permission."
+        }
+      ],
+      "role": "evaluation_only",
+      "priority": "EVAL",
+      "modalities": [
+        "text",
+        "conversation_history"
+      ],
+      "reported_scale": "Evaluation history family; this review makes no new row-count claim.",
+      "annotation_provenance": "Long-conversation memory benchmark, not an online learning curriculum.",
+      "asset_access": "HF JSON histories, same pin as earlier catalog.",
+      "rights_review": "MIT card; preserve benchmark version/protocol.",
+      "split_group_keys": [
+        "complete history",
+        "user",
+        "overlapping v2 histories"
+      ],
+      "required_checks": [
+        "No persistent global adaptation from test feedback",
+        "Reset evaluation tenant/state per independent episode",
+        "Report retrieval and persistent transfer separately"
+      ],
+      "primary_evidence": [],
+      "notes": "",
+      "media_audited": false,
+      "training_admitted": false,
+      "auto_admit": false
+    }
+  ],
+  "lookup_findings": [
+    {
+      "repo": "nvidia/MF-Think",
+      "result": "HTTP 401 from public API; identity/availability not established. MF-Skills contains cot files."
+    },
+    {
+      "repo": "confit/clotho",
+      "result": "Metadata pin found, README 404; not selected; gijs mirror and original v2.1 reviewed instead."
+    },
+    {
+      "repo": "apple/mmau",
+      "result": "Different agent-capability benchmark, not the requested audio MMAU. Excluded."
+    },
+    {
+      "repo": "VoxEmo",
+      "result": "Paper describes a multi-corpus benchmark, not a verified single HF waveform release. Similar HF names are not assumed equivalent."
+    }
+  ]
+}
