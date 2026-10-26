@@ -839,7 +839,7 @@ def run_qualification(args) -> int:
         report["loaded_inventory"] = loaded["inventory"]
         report["tokenizer"] = loaded["tokenizer_identity"]
         report["stages"]["load"] = _result(
-            "load", adapter=adapter.describe(), tokenizer_digest=loaded["tokenizer_identity"]["digest"],
+            "load", adapter=adapter.describe(), tokenizer_digest=fingerprint(loaded["tokenizer_identity"]),
             weight_storage=resolved["precision"].storage,
             attention_implementation="eager", use_cache=False,
             parameter_elements=loaded["inventory"]["parameter_elements"],
