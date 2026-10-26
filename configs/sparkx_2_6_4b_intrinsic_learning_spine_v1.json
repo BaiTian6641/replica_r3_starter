@@ -1,0 +1,356 @@
+{
+  "format": "sparkx.intrinsic_learning_spine.research_design.v1",
+  "date": "2026-10-26",
+  "architecture_revision": "4.3",
+  "status": "proposed_not_implemented_or_qualified",
+  "runtime_enabled": false,
+  "training_authorized_by_this_file": false,
+  "device_operation_authorized": false,
+  "canonical_plan": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+  "historical_baselines": [
+    "configs/sparkx_2_6_4b_product_plan_v4.json",
+    "configs/sparkx_2_6_4b_port_density_study_v1.json",
+    "configs/sparkx_2_6_4b_dynamic_memory_bridge_study_v1.json"
+  ],
+  "supersedes_interpretations": [
+    "intrinsic_memory_as_optional_UAP_peripheral",
+    "all_persistent_learning_requires_changing_original_backbone",
+    "clear_every_learned_dynamic_parameter_to_test_persistent_learning"
+  ],
+  "backbone": {
+    "model": "XHToken/Spark-X2.6-4B",
+    "source_revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+    "original_unique_parameters": 4112079360,
+    "layers": 36,
+    "width": 2560,
+    "initial_training": "full_backbone_after_extension_warmup",
+    "deployment": "freeze_stable_release_update_declared_intrinsic_dynamic_parameters",
+    "added_parameter_ceiling": null
+  },
+  "intrinsic_memory": {
+    "required_in_product_architecture": true,
+    "requires_spine_attachment": false,
+    "state_namespace": "intrinsic_memory",
+    "primary_candidate_insertion": "parallel_memory_after_attention_before_mlp_plus_plastic_mlp_branch",
+    "controls": [
+      "current_post_block_residual",
+      "qualified_pre_attention_output_projection"
+    ],
+    "reader_sites_candidate": [
+      3,
+      7,
+      11,
+      15,
+      19,
+      23,
+      27,
+      31,
+      35
+    ],
+    "reader_width": 512,
+    "other_site_count_controls": [
+      2,
+      6,
+      36
+    ],
+    "potential_sites": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ],
+    "full_bank_queries_per_decision": 2,
+    "selected_records_union_cap": 16,
+    "causal_reference": "known_query_sensing_pass_then_immutable_answer_snapshot",
+    "production_candidates": [
+      "compact_native_query_encoder",
+      "single_pass_current_and_later_layer_readers"
+    ],
+    "native_cached_generation_currently_qualified": false
+  },
+  "state": {
+    "Theta": {
+      "lifetime": "stable_release",
+      "online_mutable": false
+    },
+    "C": {
+      "lifetime": "stream_task",
+      "workspace_slots": 8,
+      "event_slots": 64,
+      "width": 256,
+      "dtype": "bfloat16",
+      "core_steps": 2
+    },
+    "E": {
+      "lifetime": "scoped_persistent",
+      "spark_records": 4096,
+      "minicpm_records": 1024,
+      "bf16_values_per_record": 896,
+      "metadata_bytes_per_record_cap": 512,
+      "query_aware_future_writes": false
+    },
+    "F": {
+      "lifetime": "explicitly_scoped_persistent_candidate",
+      "depth_groups": 3,
+      "experts_per_group": 8,
+      "heads": 4,
+      "key_width": 128,
+      "value_width": 128,
+      "dtype": "float32",
+      "sparse_execution": "unqualified_candidate_not_MemT_reproduction",
+      "commit": "once_per_declared_observation_boundary"
+    },
+    "A": {
+      "lifetime": "scoped_persistent_if_qualified",
+      "groups": 3,
+      "width": 128,
+      "dtype": "float32",
+      "initial_keys": "stable",
+      "update": "separate_feedback_adaptation_arm"
+    },
+    "P": {
+      "lifetime": "scoped_cross_session_persistent",
+      "intrinsic_backbone_component": true,
+      "kind": "full_rank_gated_mlp_bank",
+      "experts": 16,
+      "active_experts_per_site": 2,
+      "max_active_experts_per_teaching_event": 2,
+      "width": 256,
+      "hidden_width": 1024,
+      "matrices_per_expert": 3,
+      "dtype": "float32",
+      "initial_optimizer": "sgd_no_momentum",
+      "LoRA_required": false,
+      "shared_bank_across_sites": true,
+      "grouped_bank_control": true,
+      "capacity_growth_research": {
+        "expert_counts": [
+          16,
+          64,
+          128
+        ],
+        "active_experts": 2,
+        "initialize_from": "meta_trained_template",
+        "stable_expert_ids_required": true,
+        "allocation_and_routing_training_required": true,
+        "profile_admission_required": true
+      }
+    },
+    "Psi": {
+      "lifetime": "stable_release_until_separate_policy_qualification",
+      "online_mutable_default": false,
+      "purpose": "later_learning_policy_improvement"
+    }
+  },
+  "online_teaching": {
+    "maximum_steps": 4,
+    "maximum_model_positions_per_step_e2e_control": 256,
+    "maximum_cached_feature_vectors_per_step_local_candidate": 128,
+    "replay_bytes_cap": 67108864,
+    "stable_backbone_backward_for_local_update": false,
+    "stable_backbone_backward_for_e2e_loss": "required_through_downstream_layers_even_when_weights_frozen",
+    "teach_source": "observed_or_supplied_feedback",
+    "generated_hypotheses_are_verified_truth": false,
+    "final_evaluation_labels_available_to_update": false,
+    "default_cache_policy": "invalidate_dependent_KV_and_read_caches_after_state_revision"
+  },
+  "sensory": {
+    "core_product": [
+      "vision",
+      "audio",
+      "spatial_temporal_event_bridge"
+    ],
+    "audio_requires": [
+      "speech_semantics",
+      "sound_events",
+      "pitch_timbre_rhythm",
+      "prosody_and_uncertain_listener_affect"
+    ],
+    "audio_candidates": [
+      "existing_SPEAR_baseline",
+      "MERT_95M_music_control",
+      "unified_music_aware_encoder_or_distillation"
+    ],
+    "candidate_weights_selected_or_downloaded_this_update": false,
+    "additional_encoder_parameters_allowed": true,
+    "audio_semantic_rate_hz_hypothesis": 10,
+    "high_rate_local_features_preserved_when_needed": true,
+    "native_goal_representation_replaces_host_semantic_features": true,
+    "personality_content": "pending_user_description"
+  },
+  "spine": {
+    "interface_version": "UAP-v2-proposal",
+    "is_industry_standard": false,
+    "state_namespace": "spine",
+    "channels": [
+      "sensory_ingress",
+      "aligned_model_exchange",
+      "read_only_observer_egress",
+      "continuous_action_egress"
+    ],
+    "feature_width": 512,
+    "control_width": 256,
+    "availability_mask": "B,Q,S",
+    "default_observer_slots_per_site": 8,
+    "external_memory_peripheral_required": false,
+    "raw_KV_interchange_supported_by_default": false,
+    "attachment_requires": [
+      "shape_contract",
+      "trained_representation_alignment",
+      "causal_availability",
+      "behavioral_qualification",
+      "adaptive_compatibility_if_mutable"
+    ],
+    "action_fields": [
+      "action_space_id",
+      "units",
+      "coordinate_frame",
+      "horizon",
+      "execution_times",
+      "deadline",
+      "valid_until"
+    ],
+    "model_exchange_default": "one_way_causal_features",
+    "bidirectional_exchange": "finite_explicit_rounds_only",
+    "observer_can_mutate_memory_or_weights": false
+  },
+  "learning_evaluations": {
+    "P_only": {
+      "retain": [
+        "taught_P",
+        "fixed_Theta"
+      ],
+      "reset_to_initial": [
+        "A",
+        "F",
+        "C"
+      ],
+      "clear": [
+        "E",
+        "teaching_prompts",
+        "teaching_media",
+        "prototypes",
+        "source_KV",
+        "read_caches",
+        "teaching_phrase_rows"
+      ],
+      "further_updates": false,
+      "negative_interventions": [
+        "pre_teaching_P",
+        "wrong_world_P",
+        "reset_P"
+      ]
+    },
+    "F_only": {
+      "retain": [
+        "taught_F",
+        "fixed_Theta"
+      ],
+      "optional_separate_arm": [
+        "taught_A"
+      ],
+      "clear": [
+        "E",
+        "teaching_media",
+        "prototypes",
+        "source_KV",
+        "read_caches",
+        "teaching_phrase_rows"
+      ],
+      "reset_to_initial": [
+        "P",
+        "C"
+      ],
+      "further_updates": false
+    },
+    "factorial": {
+      "M": "episodic_fast_E_F_A_channel",
+      "V": "swappable_phrase_rows",
+      "L": "verified_intrinsic_P_updates",
+      "arms": 8,
+      "P_branch_present_in_all_arms": true
+    },
+    "stages": [
+      "IL0_existing_quality_failures",
+      "IL1_native_integration",
+      "IL2_locate_learning",
+      "IL3_joint_vocabulary",
+      "IL4_multimodal_retention",
+      "IL5_separate_spine",
+      "IL6_learning_policy_evolution"
+    ]
+  },
+  "proposed_gates": {
+    "gain_over_no_update_percentage_points": 10,
+    "paired_ci_level": 0.95,
+    "legacy_decline_max_percentage_points": 2,
+    "minimum_promotion_seeds": 3,
+    "cluster_unit": "world_or_recording",
+    "text_warm_p95_overhead_max_fraction": 0.1,
+    "online_learning_duty_cycle_max_fraction": 0.05,
+    "streaming_realtime_factor_max": 1.0,
+    "bounded_queue_required": true,
+    "existing_stricter_gates_take_precedence": true
+  },
+  "resource_profiles": {
+    "historical_resident_mib": 32,
+    "candidate_mutable_resident_peak_mib": 128,
+    "replay_separate_mib": 64,
+    "not_run_admission": true,
+    "no_latency_inference_from_parameter_count": true
+  },
+  "implementation_status": {
+    "native_spine": false,
+    "persistent_P_learning": false,
+    "integrated_audio": false,
+    "useful_vision_quality_qualified": false,
+    "useful_memory_quality_qualified": false,
+    "research_only": true
+  },
+  "multimodal_training_contract": {
+    "method": "full_offline_finetuning",
+    "joint_scope": [
+      "all_original_backbone_parameters",
+      "vision_encoder",
+      "audio_encoder",
+      "spatial_temporal_bridges",
+      "native_multimodal_reasoning_and_memory_machinery"
+    ],
+    "warmup_may_freeze_components": true,
+    "online_self_learning_establishes_multimodality": false,
+    "multimodal_quality_required_before_audiovisual_online_learning": true,
+    "online_learning_purpose": "new_knowledge_and_experience_using_already_trained_modalities"
+  }
+}

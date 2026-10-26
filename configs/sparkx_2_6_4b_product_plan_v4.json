@@ -1,0 +1,546 @@
+{
+  "format": "replica.sparkx_product_architecture_plan.v4",
+  "date_local": "2026-10-26",
+  "timezone": "America/Chicago",
+  "status": "proposal_not_execution_protocol",
+  "canonical_document": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+  "supersedes_design_recommendations": [
+    "configs/sparkx_2_6_4b_product_plan_v3.json"
+  ],
+  "preserve_existing_execution_protocols": true,
+  "training_launched_by_review": false,
+  "runtime_implemented_by_review": false,
+  "product": {
+    "target": "SparkX 2.6 4B final product",
+    "four_billion_scope": "language_backbone_only",
+    "full_backbone_finetuning_required": true,
+    "native_semantic_decisions": true,
+    "inputs": [
+      "text",
+      "image",
+      "video",
+      "audio"
+    ],
+    "initial_outputs": [
+      "text",
+      "structured_grounding"
+    ],
+    "speech_synthesis": "optional_separate_decoder_not_initial_requirement",
+    "personality_description": "pending",
+    "hops_means": "HOPE / Nested Learning"
+  },
+  "models": {
+    "minicpm5": {
+      "repo_id": "openbmb/MiniCPM5-2B",
+      "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "hidden_size": 2048,
+      "intermediate_size": 6144,
+      "layers": 42,
+      "vocab_size": 130560,
+      "tied_base_embeddings": false,
+      "ports_zero_indexed": [
+        13,
+        27
+      ],
+      "unique_parameters": 2516756480
+    },
+    "sparkx": {
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "hidden_size": 2560,
+      "intermediate_size": 10240,
+      "layers": 36,
+      "vocab_size": 131072,
+      "tied_base_embeddings": true,
+      "ports_zero_indexed": [
+        11,
+        23
+      ],
+      "unique_parameters": 4112079360
+    }
+  },
+  "offline_training": {
+    "scope": "all_unique_original_spark_backbone_parameters_plus_native_modules",
+    "original_parameters": 4112079360,
+    "initial_encoder_scope": "frozen_pretrained_visual_and_audio_encoders",
+    "stages": [
+      "F0_backend_full_update",
+      "F1_connector_warmup",
+      "F2_full_coadaptation",
+      "F3_grounded_temporal",
+      "F4_learning_behavior",
+      "F5_full_consolidation",
+      "F6_learning_policy"
+    ],
+    "checkpoint": "XHToken/Spark-X2.6-4B",
+    "base_sibling_not_automatically_substituted": true,
+    "training_mix_by_processed_positions": {
+      "text": 0.3,
+      "image_region": 0.2,
+      "audio": 0.2,
+      "temporal_av": 0.15,
+      "memory_learning": 0.15
+    },
+    "pilot_only": {
+      "image_examples": [
+        5000,
+        20000
+      ],
+      "audio_hours": [
+        10,
+        50
+      ],
+      "not_final_product_sufficiency_claim": true
+    }
+  },
+  "modules": {
+    "bank": {
+      "smoke_entries": 128,
+      "minicpm_entries": 1024,
+      "spark_entries": 4096,
+      "key_width": 128,
+      "value_width": 256,
+      "persistent_capacity_bounded": true,
+      "native_writer": true,
+      "native_selector": true,
+      "initial_training_unroll_segments": [
+        1,
+        4
+      ],
+      "gradient_boundary": "retain_writer_to_later_query_gradient_inside_unroll_detach_between_worlds",
+      "schema_candidate": "paired_sensory_semantic_v1",
+      "control_schema": "v3_key128_semantic256",
+      "tensor_dtype": "bfloat16",
+      "visual_views": 2,
+      "visual_view_width": 128,
+      "audio_views": 2,
+      "audio_view_width": 128,
+      "elements_per_record": 896,
+      "fixed_metadata_bytes_per_record_cap": 512,
+      "relationship_refs_per_record_cap": 4,
+      "prototype_and_rule_records_share_capacity": true,
+      "auxiliary_history_bounded": true,
+      "unknown_future_query_writing": true,
+      "query_known_during_write": false,
+      "per_port_topk": 8,
+      "selected_unique_records_cap": 16,
+      "full_bank_scans_per_query_boundary_cap": 2,
+      "read_schedule": "last_query_prefill_position_each_port_then_cache_union_for_decode",
+      "semantic_selection_external_harness": false,
+      "stable_experience_producer_within_online_release": true
+    },
+    "vocab": {
+      "base_ids_immutable": true,
+      "active_slots": 256,
+      "smoke_slots": 32,
+      "later_slots": [
+        512,
+        1024
+      ],
+      "initial_map_lifetime": "one_generation",
+      "later_swap_boundary": "segment",
+      "max_fresh_encodings_per_refresh": 16,
+      "encoder_width": 256,
+      "encoder_layers": 2,
+      "encoder_mlp_ratio": 4,
+      "dynamic_input_output_rows_shared": true,
+      "clone_base_tables": false,
+      "base_head_preserved": true,
+      "slot_optimizer_state_allowed": false,
+      "feedback_controls": [
+        "atomic",
+        "copy_with_base_token_feedback"
+      ],
+      "initial_decoding": "greedy_batch_one"
+    },
+    "learning": {
+      "initial_method": "vanilla_LoRA",
+      "rank": 8,
+      "secondary_rank": 16,
+      "targets": "down_projection_at_two_declared_ports",
+      "learning_rate_development_grid": [
+        1e-05,
+        0.0001,
+        0.0005
+      ],
+      "first_efficiency_control": "LoRA_FA_with_optimizer_correction",
+      "verified_feedback_only": true,
+      "online_steps_per_teaching_event_cap": 4,
+      "training_microbatch": 1,
+      "positions_per_microbatch_including_replay_cap": 256,
+      "online_phrase_encoder_frozen_initially": true,
+      "online_core_policy_frozen_initially": true,
+      "online_bridge_self_supervision": "separate_later_experiment_with_observed_targets_and_transfer_retention_checks",
+      "parameter_learning_test_removes_teaching_records_and_prototypes": true,
+      "exact_unlearning_from_bank_deletion_claim": false,
+      "online_position_cap_includes_inserted_modality_positions": true
+    },
+    "core": {
+      "width": 256,
+      "slots": 8,
+      "heads": 4,
+      "default_steps": 2,
+      "step_controls": [
+        0,
+        1,
+        2
+      ],
+      "ffn_hidden": 1024,
+      "task_features": 24,
+      "matched_feedforward_control": true,
+      "detached_audit_heads_preserved": true,
+      "distinct_end_to_end_training_path_required": true,
+      "initial_update_schedule": "observation_or_segment_boundary_and_query_arrival",
+      "recurrent_state_dtype_candidate": "float32"
+    },
+    "native_bridge": {
+      "status": "proposed_unimplemented",
+      "width": 256,
+      "update_schedule": "declared_observation_boundary",
+      "full_backbone_per_frame_required": false,
+      "goal_source": "cached_native_backbone_projection",
+      "event_slots_shared_cap": 64,
+      "initial_slot_partition": {
+        "visual_tracks": 32,
+        "acoustic_events": 16,
+        "transitions": 16
+      },
+      "state_dtype_candidate": "float32",
+      "recent_perceptual_window_retained": true,
+      "future_predictions_are_observations": false,
+      "state_change_protection": true,
+      "train_final_hard_allocation_path": true
+    },
+    "fast_memory": {
+      "default_enabled": false,
+      "status": "optional_after_bank_utility",
+      "matrix_count": 2,
+      "matrix_shape": [
+        256,
+        128
+      ],
+      "state_dtype": "float32",
+      "modalities": [
+        "visual",
+        "audio"
+      ],
+      "shared_across_ports": true,
+      "controls": [
+        "bank_only",
+        "fast_only",
+        "bank_plus_fast"
+      ],
+      "retention_objective_controls": [
+        "long_span_reconstruction",
+        "old_anchor_replay_under_own_key"
+      ],
+      "audio_adaptation_demonstrated_by_cited_SALMONN": false
+    }
+  },
+  "vision": {
+    "repo_id": "google/siglip2-base-patch16-224",
+    "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_parameters_observed": 92884224,
+    "encoder_frozen_initially": true,
+    "qualified_compute_dtype": "float32",
+    "initial_patch_control": 196,
+    "later_resampler_tokens": 64,
+    "video_initial_frames": 4,
+    "later_video_tokens_per_frame": [
+      32,
+      64
+    ],
+    "teacher_candidate": "V-JEPA 2.1",
+    "teacher_required_at_deployment": false,
+    "native_primitive_control": true,
+    "continuous_state_candidate": true,
+    "causal_intervention_gate": true,
+    "event_slots_cap": 64,
+    "event_width": 256,
+    "latent_autoregressive_positions_cap_if_tested": 16
+  },
+  "audio": {
+    "status": "not_implemented_or_native_qualified",
+    "sample_rate_hz": 16000,
+    "candidate": {
+      "repo_id": "marcoyang/spear-base-speech-audio-v2",
+      "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+      "parameters_metadata": 93289476,
+      "output_width": 512,
+      "feature_hz_approx": 50,
+      "causal_checkpoint": false,
+      "speech_pretraining_language": "English"
+    },
+    "control": {
+      "repo_id": "openai/whisper-small",
+      "revision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+      "scope": "encoder_only",
+      "output_width": 768
+    },
+    "bridge_hidden": 1024,
+    "content_tokens_per_second_candidate": 10,
+    "selected_layer_fusion_candidate": true,
+    "one_resident_encoder_target": true,
+    "streaming_status": "separate_training_and_causal_validation_required",
+    "lookahead_must_be_declared": true,
+    "transcript_only_is_control_not_product_path": true
+  },
+  "functional_appraisal": {
+    "observed_evidence_separate_from_affect": true,
+    "perceived_affect": "distribution_with_uncertainty",
+    "internal_state": [
+      "novelty",
+      "uncertainty",
+      "prediction_error",
+      "goal_progress",
+      "expected_learning_value"
+    ],
+    "subjective_feeling_claim": false,
+    "audit_heads_detached": true
+  },
+  "state_contract": {
+    "lexical_ref": [
+      "stream_id",
+      "slot_index",
+      "slot_generation",
+      "lexeme_uid",
+      "surface_revision",
+      "encoder_revision",
+      "lexical_state_revision"
+    ],
+    "persistent_record": [
+      "record_uid",
+      "scope",
+      "source_reference",
+      "observation_order",
+      "event_time",
+      "validity_interval",
+      "revision",
+      "key",
+      "value",
+      "track_or_event_uid",
+      "modality_mask",
+      "visual_evidence",
+      "audio_evidence",
+      "confidence",
+      "representation_version",
+      "correction_and_revocation_status",
+      "bounded_relationship_refs",
+      "lexeme_uid_optional"
+    ],
+    "checkpoint_bindings": [
+      "backbone_revision",
+      "tokenizer_digest",
+      "normalization_version",
+      "writer_version",
+      "reader_version",
+      "phrase_encoder_version",
+      "adapter_version",
+      "optimizer_identity",
+      "state_schema_version",
+      "vision_producer",
+      "scope",
+      "audio_producer",
+      "audio_frontend",
+      "event_clock_schema",
+      "crop_transform_schema",
+      "media_chunk_lookahead",
+      "lexical_mapping_hash",
+      "experience_producer_version",
+      "record_schema_version",
+      "read_selection_snapshot",
+      "media_overlap_state",
+      "fast_state_version"
+    ],
+    "restart_modes": [
+      "compatible_KV_and_immutable_atomic_prefix",
+      "rebuild_identical_atomic_inputs_and_states"
+    ],
+    "raw_text_base_retokenization_is_exact_restart": false,
+    "all_slots_pinned_behavior": "base_token_fallback",
+    "metadata_surface_replay_history_byte_caps_required_before_execution": true,
+    "offline_full_ft_embedding_values_trainable": true,
+    "representation_migration_after_full_ft_required": true,
+    "lexical_slots_not_modality_control_ids": true
+  },
+  "factorial": {
+    "bit_order": [
+      "M",
+      "V",
+      "L"
+    ],
+    "arms": [
+      "000",
+      "001",
+      "010",
+      "011",
+      "100",
+      "101",
+      "110",
+      "111"
+    ],
+    "lexemes_per_turnover_world": 544,
+    "active_slots": 256,
+    "target_total_records_before_overflow_study": 768,
+    "memory_capacity_minicpm": 1024,
+    "all_components_individually_useful_first": true,
+    "positive_three_way_interaction_required": false
+  },
+  "statistics": {
+    "confirmation_training_seeds": 3,
+    "initial_worlds_per_seed": 128,
+    "max_worlds_per_seed": 1024,
+    "final_sample_frozen_before_unsealing": true,
+    "resampling": "paired_cluster_by_world_video_or_speaker_and_report_training_seed",
+    "primary_alpha": 0.05,
+    "multiple_comparisons": "Holm_or_simultaneous_intervals"
+  },
+  "long_run": {
+    "active_context_positions": 8192,
+    "window_seconds": 16,
+    "frames_per_window": 4,
+    "tokens_per_frame": 64,
+    "additional_crops_max": 2,
+    "tokens_per_crop": 64,
+    "audio_tokens": 160,
+    "event_tokens": 64,
+    "clock_tokens_reserve": 32,
+    "total_media_token_cap": 640,
+    "compression_requires_richer_control_pass": true,
+    "resident_state_MiB_cap": 32,
+    "replay_MiB_cap": 64,
+    "optional_raw_source_MiB_cap": 256,
+    "soak_hours": [
+      0.5,
+      8,
+      72
+    ],
+    "proposed_media_RTF_max": 1.0,
+    "proposed_text_warm_P95_overhead_max": 0.1,
+    "proposed_learning_duty_cycle_max": 0.05
+  },
+  "resource_policy": {
+    "platform": "M2_Ultra_64_GiB",
+    "exclusive_MPS_worker": true,
+    "driver_ceiling_bytes": 53687091200,
+    "sustained_swap_growth_ceiling_bytes": 536870912,
+    "host_free_percent_minimum": 15,
+    "silent_CPU_fallback": false,
+    "future_CUDA_qualification_separate": true
+  },
+  "release_gates": {
+    "scope": "new_proposals_do_not_reinterpret_historical_gates",
+    "contract_failures_max": 0,
+    "memory_accuracy_min": 0.9,
+    "vocabulary_quality_noninferiority_margin_pp": 2,
+    "phrase_workload_latency_gain_min": 0.1,
+    "skill_transfer_point_gain_min_pp": 5,
+    "retention_noninferiority_margin_pp": 2,
+    "balanced_relation_accuracy_min": 0.75,
+    "reasoning_point_gain_min_pp": 5,
+    "grounding_recall_min": 0.8,
+    "grounding_iou_min": 0.5,
+    "speech_relative_error_regression_max": 0.1,
+    "nonverbal_gain_min_pp": 5,
+    "av_gain_min_pp": 5,
+    "future_learning_policy_gain_min_pp": 5,
+    "rsi_successive_independent_revisions_min": 2,
+    "adjusted_superiority_CI_lower_must_exceed": 0
+  },
+  "immediate_priority": [
+    "vision_priors_and_abstention",
+    "frozen_writer_causal_refresh_rejection_and_restart_diagnosis",
+    "explicit_record_bank_comparison_requires_existing_protocol_gates"
+  ],
+  "deferred_until_component_evidence": [
+    "joint_factorial",
+    "learned_visual_memory",
+    "native_learning_policy",
+    "RSI_promotion"
+  ],
+  "spark_engineering_depends_on_rsi": false,
+  "larger_moe_tracks": {
+    "models": [
+      "openbmb/MiniCPM-V-4.7-35B-A3B",
+      "google/gemma-4-26B-A4B-it"
+    ],
+    "training": "frozen_base_expert_aware_LoRA_and_components",
+    "not_required_for_4b_product": true
+  },
+  "evidence_manifest": "reports/sparkx_av_experience_20261026/evidence.json",
+  "validation_document": "docs/research/sparkx_2_6_product_20261025/Validation_and_Release.md",
+  "repository_followup": "reports/sparkx_av_experience_20261026/repository_snapshot.json",
+  "previous_evidence_manifest": "reports/sparkx_2_6_product_refinement_20261025/evidence.json",
+  "validation_addendum": "docs/research/sparkx_av_experience_20261026/Validation_Addendum.md",
+  "evidence_update": {
+    "review_head": "2468f16dfdf590104133efb041f30ec57e669a3a",
+    "papers_reviewed": 14,
+    "deepseek_report": "two_byte_identical_mirrors_read_original_authentication_unverified",
+    "deepseek_hash": "1951785873385498b608b7aa66868f9915ecd78f6c578d42ef52d80ad25f7153",
+    "salmonn_version": "arxiv_v2_and_final_PMLR",
+    "causal_refresh": {
+      "exact_correct": 110,
+      "queries": 240,
+      "decision": "rejected",
+      "optimizer_updates": 0,
+      "fresh_process_parity": "failed_attempt"
+    },
+    "runtime_tests_executed_by_review": false
+  },
+  "validation_extensions": {
+    "claims": [
+      "delayed_recall",
+      "experience_assisted_pattern_transfer",
+      "persistent_parameter_learning",
+      "learning_policy_improvement"
+    ],
+    "integration_controls": [
+      "perceptual_prefix",
+      "recurrent_bridge",
+      "backbone_ports",
+      "bridge_and_ports",
+      "matched_parameter_control",
+      "matched_compute_control"
+    ],
+    "record_controls": [
+      "semantic_only",
+      "visual_semantic",
+      "audio_semantic",
+      "paired_av_semantic",
+      "caption_only",
+      "transcript_only",
+      "unaligned_banks",
+      "richer_evidence_ceiling"
+    ],
+    "causality_controls": [
+      "relevant_state_replacement",
+      "irrelevant_state_replacement",
+      "content_swap_fixed_geometry",
+      "reversed_time",
+      "av_time_shift",
+      "contradictory_modalities",
+      "unknown_future_query"
+    ],
+    "preserve_MVL_factorial": true,
+    "factorial_V_means": "swappable_vocabulary_not_vision",
+    "primary_additional_gain_min_pp": 5,
+    "retention_margin_pp": 2,
+    "matched_total_cost_required": true,
+    "fresh_process_parity_required": true,
+    "durable_parameter_transfer_reset": {
+      "retain": "allowed_updated_backbone_or_adapter_parameters_only",
+      "remove_or_reset": [
+        "teaching_records",
+        "derived_prototypes_and_rules",
+        "raw_source_access",
+        "source_KV",
+        "fast_weights",
+        "core_and_event_state",
+        "record_read_cache",
+        "teaching_derived_lexical_candidates"
+      ],
+      "updates_during_evaluation": false,
+      "test_prompt_restates_taught_rule": false
+    }
+  }
+}

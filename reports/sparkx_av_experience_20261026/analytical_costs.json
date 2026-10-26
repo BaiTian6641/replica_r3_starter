@@ -1,0 +1,28 @@
+{
+  "format": "sparkx.av_experience.analytical_costs.v1",
+  "scope": "arithmetic_not_measured_runtime",
+  "bank_elements_per_record": 896,
+  "bank_bytes_per_record_bf16": 1792,
+  "spark_tensor_bank_MiB": 7.0,
+  "minicpm_tensor_bank_MiB": 1.75,
+  "v3_control_spark_tensor_bank_MiB": 3.0,
+  "spark_fixed_metadata_cap_MiB": 2.0,
+  "optional_fast_state_MiB": 0.25,
+  "spark_port_query_output_weights_lower_bound": 3276800,
+  "spark_port_query_output_weights_bf16_MiB": 6.25,
+  "single_spark_bank_scan_MACs": 524288,
+  "two_spark_bank_scan_MACs": 1048576,
+  "known_resident_state_payload_MiB_including_optional_fast_and_active_phrase_rows": 10.5703125,
+  "logical_resident_cap_remaining_after_known_payload_MiB": 21.4296875,
+  "media_positions": 640,
+  "exclusions": [
+    "encoder_and_bridge_weights",
+    "writer_reader_fusion_gates_biases",
+    "activation_and_optimizer_memory",
+    "normalization_topk_and_readout_compute",
+    "variable_lexical_surfaces_provenance_and_indices",
+    "allocator_overhead_and_temporary_copies",
+    "checkpoint_serialization_transients"
+  ],
+  "runtime_feasibility_established": false
+}

@@ -1,0 +1,368 @@
+{
+  "format": "sparkx.port_density.evidence.v1",
+  "created_at_utc": "2026-10-26T06:05:04.589160+00:00",
+  "date_local": "2026-10-26",
+  "scope": "web_research_primary_text_reading_selective_static_code_inspection",
+  "model_experiments_run": false,
+  "paper_count": 10,
+  "papers": [
+    {
+      "id": "flamingo",
+      "sources": [
+        "density_flamingo"
+      ],
+      "version": "2204.14198v2",
+      "reading_scope": "Section 3.3 Table 3 frequency/gating ablations; Appendix B model-size placement"
+    },
+    {
+      "id": "deepstack",
+      "sources": [
+        "density_deepstack"
+      ],
+      "version": "2406.04334v1",
+      "reading_scope": "Method residual stacking and section 4.3 placement/layer-count study"
+    },
+    {
+      "id": "memory_layers",
+      "sources": [
+        "density_memory_layers",
+        "density_memory_layers_final"
+      ],
+      "version": "2412.09764v2 and final ICML2025",
+      "reading_scope": "Section 5.4 and Table 3 in preprint/final; FFN replacement confound"
+    },
+    {
+      "id": "engram",
+      "sources": [
+        "density_engram"
+      ],
+      "version": "2601.07372v2",
+      "reading_scope": "Residual integration and section 6.2 fixed-capacity layer-placement ablation"
+    },
+    {
+      "id": "qwen3_vl",
+      "sources": [
+        "density_qwen_report"
+      ],
+      "version": "2511.21631v2",
+      "reading_scope": "Sections 2.2, 5.12.2; selective implementation/configuration cross-check"
+    },
+    {
+      "id": "titans",
+      "sources": [
+        "density_titans"
+      ],
+      "version": "2501.00663v1",
+      "reading_scope": "Section 4 memory variants and distinction from section 5.5 inner-memory depth"
+    },
+    {
+      "id": "memt",
+      "sources": [
+        "density_memt"
+      ],
+      "version": "2610.26825v2",
+      "reading_scope": "Sections 3.3, 4.3 and Appendix B/Table6: layer sets, state geometry, fusion and training scope"
+    },
+    {
+      "id": "memvit",
+      "sources": [
+        "density_memvit"
+      ],
+      "version": "CVPR2022",
+      "reading_scope": "Section 5.2/Table1c augmentation-layer ablation and adjacent temporal-memory discussion"
+    },
+    {
+      "id": "hope",
+      "sources": [
+        "density_hope"
+      ],
+      "version": "2512.24695v1",
+      "reading_scope": "Sections 7.3 and 9.1: pretrained MLP initialization, update levels and continual-training setting"
+    },
+    {
+      "id": "video_salmonn",
+      "sources": [
+        "salmonn_v2",
+        "salmonn_final_pdf"
+      ],
+      "version": "2510.11129v2 and final PMLR",
+      "reading_scope": "Appendix E: input-only versus all-deepstack fast-memory processing; prior full review reused"
+    }
+  ],
+  "sources": [
+    {
+      "name": "salmonn_final_pdf",
+      "url": "https://raw.githubusercontent.com/mlresearch/v306/main/assets/sun26s/sun26s.pdf",
+      "retrieved_at_utc": "2026-10-26T05:19:36.521045+00:00",
+      "final_url": "https://raw.githubusercontent.com/mlresearch/v306/main/assets/sun26s/sun26s.pdf",
+      "pages": 16,
+      "sha256": "8cfafaae1ab9e6a465163224c205a9754e737733b333569fed4f4469f2909344",
+      "bytes": 8873281,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/salmonn_final_pdf.pdf",
+      "text_path": "/private/tmp/spark_av_experience_20261026/salmonn_final_pdf.txt",
+      "paper_id": "video_salmonn",
+      "version": "2510.11129v2 and final PMLR",
+      "inspection_scope": "Appendix E: input-only versus all-deepstack fast-memory processing; prior full review reused",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "1979a467d0f7992b5c5a60054ef9133ea3ff21abb52f19c05d1bd4c254e0eb85"
+    },
+    {
+      "name": "salmonn_v2",
+      "url": "https://arxiv.org/html/2510.11129v2",
+      "retrieved_at_utc": "2026-10-26T05:19:36.521422+00:00",
+      "final_url": "https://arxiv.org/html/2510.11129v2",
+      "sha256": "e6c84289f1b885121b7997429678f77a8ade9f016f2b8de8e27f4a465113ab76",
+      "bytes": 265255,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/salmonn_v2.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/salmonn_v2.txt",
+      "paper_id": "video_salmonn",
+      "version": "2510.11129v2 and final PMLR",
+      "inspection_scope": "Appendix E: input-only versus all-deepstack fast-memory processing; prior full review reused",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "b6a8fb520e7ddbab606b018a90e94868ac651d5dd46b7503a337c3b74a364b73"
+    },
+    {
+      "name": "density_flamingo",
+      "url": "https://arxiv.org/html/2204.14198",
+      "retrieved_at_utc": "2026-10-26T05:53:45.177980+00:00",
+      "final_url": "https://arxiv.org/html/2204.14198",
+      "sha256": "8a1c947ae09c6eeb2f167752b4a754154ec7006ce5de9b8a67eb3f63608bb6c1",
+      "bytes": 1075396,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_flamingo.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_flamingo.txt",
+      "paper_id": "flamingo",
+      "version": "2204.14198v2",
+      "inspection_scope": "Section 3.3 Table 3 frequency/gating ablations; Appendix B model-size placement",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "5960b3396cf032680441fa3cf3112d857fcf9d69e0212d00919198207cb34554"
+    },
+    {
+      "name": "density_deepstack",
+      "url": "https://arxiv.org/html/2406.04334",
+      "retrieved_at_utc": "2026-10-26T05:53:45.178463+00:00",
+      "final_url": "https://arxiv.org/html/2406.04334",
+      "sha256": "efb7cd492d84c709792be05d99ad670baef72bd8d1a1b089d396a3eb55aaeba3",
+      "bytes": 452127,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_deepstack.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_deepstack.txt",
+      "paper_id": "deepstack",
+      "version": "2406.04334v1",
+      "inspection_scope": "Method residual stacking and section 4.3 placement/layer-count study",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "0b60693e9c03c7d7ab9c7788be9b03ad2bd1730306c9271c8efad418315f01e3"
+    },
+    {
+      "name": "density_memory_layers",
+      "url": "https://arxiv.org/html/2412.09764",
+      "retrieved_at_utc": "2026-10-26T05:53:45.178616+00:00",
+      "final_url": "https://arxiv.org/html/2412.09764",
+      "sha256": "b5a6ad876ba2a88b87c4299c1efe751b81c5912f1661216fbfe22ea17db363dd",
+      "bytes": 210708,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_memory_layers.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_memory_layers.txt",
+      "paper_id": "memory_layers",
+      "version": "2412.09764v2 and final ICML2025",
+      "inspection_scope": "Section 5.4 and Table 3 in preprint/final; FFN replacement confound",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "f28fccf7666766f2e7a26100f9dc27e7f97bda5d8167cdb6f9cc5b90affbcd5d"
+    },
+    {
+      "name": "density_engram",
+      "url": "https://arxiv.org/html/2601.07372",
+      "retrieved_at_utc": "2026-10-26T05:53:45.178794+00:00",
+      "final_url": "https://arxiv.org/html/2601.07372",
+      "sha256": "00638e77dac9d73f116aacf4f60a99db17e1ea82f17d6a5c224b995cfe1bfe20",
+      "bytes": 478046,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_engram.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_engram.txt",
+      "paper_id": "engram",
+      "version": "2601.07372v2",
+      "inspection_scope": "Residual integration and section 6.2 fixed-capacity layer-placement ablation",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "aac55b363cd674326a032ad6d93b0762d9604bf4f35539f5e270d5fc2f07f44c"
+    },
+    {
+      "name": "density_qwen_report",
+      "url": "https://arxiv.org/html/2511.21631v2",
+      "retrieved_at_utc": "2026-10-26T05:53:45.178867+00:00",
+      "final_url": "https://arxiv.org/html/2511.21631v2",
+      "sha256": "06a35979d95ad23215fae5db1b1eef10676281098291ad089113bc597fe9c339",
+      "bytes": 613713,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_qwen_report.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_qwen_report.txt",
+      "paper_id": "qwen3_vl",
+      "version": "2511.21631v2",
+      "inspection_scope": "Sections 2.2, 5.12.2; selective implementation/configuration cross-check",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "462064c488480e3a729d8f2936bdcc0a6a31c4a4019416d37ccc139b2d46f980"
+    },
+    {
+      "name": "density_titans",
+      "url": "https://arxiv.org/html/2501.00663",
+      "retrieved_at_utc": "2026-10-26T05:53:45.337862+00:00",
+      "final_url": "https://arxiv.org/html/2501.00663",
+      "sha256": "6e34c963bc34591df67a1e6e4c96e89b2bed30925a92862dc9a3c585ee15dd44",
+      "bytes": 482566,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_titans.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_titans.txt",
+      "paper_id": "titans",
+      "version": "2501.00663v1",
+      "inspection_scope": "Section 4 memory variants and distinction from section 5.5 inner-memory depth",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "2bb8aae1583963c7ae8ea79fdd2c030c97e0a81a6281080e9fead8789d1772d9"
+    },
+    {
+      "name": "density_qwen_code",
+      "url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.1/src/transformers/models/qwen3_vl/modeling_qwen3_vl.py",
+      "retrieved_at_utc": "2026-10-26T05:53:45.380278+00:00",
+      "final_url": "https://raw.githubusercontent.com/huggingface/transformers/v4.57.1/src/transformers/models/qwen3_vl/modeling_qwen3_vl.py",
+      "sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da",
+      "bytes": 70877,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_qwen_code.source",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_qwen_code.txt",
+      "role": "upstream_implementation",
+      "version": "transformers_v4.57.1",
+      "inspection_scope": "Vision feature collection declarations and text forward/deepstack addition, especially lines 838-884; not full runtime audit",
+      "code_executed": false,
+      "extracted_text_sha256": "dd63ed3b124232735b3dca1bfa28f9d6b0d3f7182afcb75dde8f3e724b2b22da"
+    },
+    {
+      "name": "density_qwen_meta",
+      "url": "https://huggingface.co/api/models/Qwen/Qwen3-VL-2B-Instruct",
+      "retrieved_at_utc": "2026-10-26T05:53:45.473816+00:00",
+      "final_url": "https://huggingface.co/api/models/Qwen/Qwen3-VL-2B-Instruct",
+      "sha256": "6f3fa8c7cf0292d1884d13a8bfb200cbe30adc8eb3ec5990dc4b7c3c8a6760f7",
+      "bytes": 15944,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_qwen_meta.source",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_qwen_meta.txt",
+      "role": "model_metadata",
+      "version": "observed_model_revision",
+      "inspection_scope": "Model SHA and public identity only",
+      "code_executed": false,
+      "extracted_text_sha256": "6f3fa8c7cf0292d1884d13a8bfb200cbe30adc8eb3ec5990dc4b7c3c8a6760f7"
+    },
+    {
+      "name": "density_spark_code",
+      "url": "https://huggingface.co/XHToken/Spark-X2.6-4B/resolve/66e3ae7bee54e0a523d692cb8ef841f35409807b/modeling_spark.py",
+      "retrieved_at_utc": "2026-10-26T05:53:45.564470+00:00",
+      "final_url": "https://huggingface.co/api/resolve-cache/models/XHToken/Spark-X2.6-4B/66e3ae7bee54e0a523d692cb8ef841f35409807b/modeling_spark.py?%2FXHToken%2FSpark-X2.6-4B%2Fresolve%2F66e3ae7bee54e0a523d692cb8ef841f35409807b%2Fmodeling_spark.py=&etag=%224e48c7a98111e2a8457970fad0361db3404c154f%22",
+      "sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+      "bytes": 19418,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_spark_code.source",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_spark_code.txt",
+      "role": "pinned_model_implementation",
+      "version": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "inspection_scope": "MLP, decoder residual ordering and model loop/mask/position/checkpoint paths; read only",
+      "code_executed": false,
+      "extracted_text_sha256": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4"
+    },
+    {
+      "name": "density_qwen_config",
+      "url": "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct/resolve/89644892e4d85e24eaac8bacfd4f463576704203/config.json",
+      "retrieved_at_utc": "2026-10-26T05:54:00.858480+00:00",
+      "final_url": "https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-VL-2B-Instruct/89644892e4d85e24eaac8bacfd4f463576704203/config.json?%2FQwen%2FQwen3-VL-2B-Instruct%2Fresolve%2F89644892e4d85e24eaac8bacfd4f463576704203%2Fconfig.json=&etag=%220cd8c646eb55794594b14fefcd1d3acea5cc000f%22",
+      "sha256": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b",
+      "bytes": 1505,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_qwen_config.source",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_qwen_config.txt",
+      "role": "pinned_model_configuration",
+      "version": "89644892e4d85e24eaac8bacfd4f463576704203",
+      "inspection_scope": "Model/vision layer counts and deepstack_visual_indexes",
+      "code_executed": false,
+      "extracted_text_sha256": "bec4b3d446efa05807365c9e1cec03ac590836879d02f3a6da879971154bdd3b"
+    },
+    {
+      "name": "density_memory_layers_final",
+      "url": "https://raw.githubusercontent.com/mlresearch/v267/main/assets/berges25a/berges25a.pdf",
+      "retrieved_at_utc": "2026-10-26T05:54:34.289662+00:00",
+      "final_url": "https://raw.githubusercontent.com/mlresearch/v267/main/assets/berges25a/berges25a.pdf",
+      "pages": 12,
+      "sha256": "d24f13e7f55244391f2e827f5533c1a1ca0898043295baa730ce3c82f0799278",
+      "bytes": 863328,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_memory_layers_final.pdf",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_memory_layers_final.txt",
+      "paper_id": "memory_layers",
+      "version": "2412.09764v2 and final ICML2025",
+      "inspection_scope": "Section 5.4 and Table 3 in preprint/final; FFN replacement confound",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "68c96bc828c03f52fe62db5f66a947783dc49614597e8d040d5dceefa6ba9055"
+    },
+    {
+      "name": "density_memt",
+      "url": "https://arxiv.org/html/2610.26825v2",
+      "retrieved_at_utc": "2026-10-26T05:54:49.484061+00:00",
+      "final_url": "https://arxiv.org/html/2610.26825v2",
+      "sha256": "7e7f4aaf4c50c1b363cf4e1670cc4f7827824cfb6d8305f216f8bc29bb25c90f",
+      "bytes": 870620,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_memt.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_memt.txt",
+      "paper_id": "memt",
+      "version": "2610.26825v2",
+      "inspection_scope": "Sections 3.3, 4.3 and Appendix B/Table6: layer sets, state geometry, fusion and training scope",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "de776edcf0b7d679bd89416c32f5b07a4c67eac7e5725e7aa9416c6d7e4373f7"
+    },
+    {
+      "name": "density_memvit",
+      "url": "https://openaccess.thecvf.com/content/CVPR2022/papers/Wu_MeMViT_Memory-Augmented_Multiscale_Vision_Transformer_for_Efficient_Long-Term_Video_Recognition_CVPR_2022_paper.pdf",
+      "retrieved_at_utc": "2026-10-26T05:54:49.484375+00:00",
+      "final_url": "https://openaccess.thecvf.com/content/CVPR2022/papers/Wu_MeMViT_Memory-Augmented_Multiscale_Vision_Transformer_for_Efficient_Long-Term_Video_Recognition_CVPR_2022_paper.pdf",
+      "pages": 11,
+      "sha256": "8e757bc1518bac07c030d6054b45771ba033d1edf3d63ebdb79191ec8512ad3e",
+      "bytes": 1523705,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_memvit.pdf",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_memvit.txt",
+      "paper_id": "memvit",
+      "version": "CVPR2022",
+      "inspection_scope": "Section 5.2/Table1c augmentation-layer ablation and adjacent temporal-memory discussion",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "35a4b15b77fcb2acbacd5343857407d0e7cd3e735058b51088b46bb38370e5c6"
+    },
+    {
+      "name": "density_hope",
+      "url": "https://arxiv.org/html/2512.24695",
+      "retrieved_at_utc": "2026-10-26T05:54:49.484468+00:00",
+      "final_url": "https://arxiv.org/html/2512.24695",
+      "sha256": "46d34c077c7c99e13075bc18c1329d4ff567c69c813edd6cebc5fad967b49eb6",
+      "bytes": 1198521,
+      "scratch_path": "/private/tmp/spark_av_experience_20261026/density_hope.html",
+      "text_path": "/private/tmp/spark_av_experience_20261026/density_hope.txt",
+      "paper_id": "hope",
+      "version": "2512.24695v1",
+      "inspection_scope": "Sections 7.3 and 9.1: pretrained MLP initialization, update levels and continual-training setting",
+      "role": "primary_paper_selected_sections",
+      "code_executed": false,
+      "extracted_text_sha256": "2248a3251e7a93e9a5e8f7dc8d7d157d089bb37c33764afa939c8fbba3e63422"
+    }
+  ],
+  "source_count": 16,
+  "full_source_content_in_repository": false,
+  "source_retention": "temporary public downloads; exact hashes and stable versions recorded; no downloaded code executed",
+  "prior_canonical_snapshot": {
+    "path": "reports/sparkx_port_density_20261026/architecture_v4_snapshot.txt",
+    "sha256": "bae976fbc0b74c2949f2e436a6154b48bbbb4605b4bc4d5a3799a47367679646"
+  },
+  "repository_observation": {
+    "path": "reports/sparkx_port_density_20261026/repository_snapshot.json",
+    "sha256": "e9f1eaf50d2a194413d61f011362a78e2a04ae48bed50defe18f5036f8d58176"
+  },
+  "cross_checks": [
+    "Flamingo frequency table and appendix; distinguishes training time from inference",
+    "Memory Layers final proceedings agrees with preprint layer-placement limitation",
+    "Qwen report versus exact model config versus versioned source; vision indices differ from language indices",
+    "MemT AppendixB full-attention layer schedule versus Spark declared hybrid layer schedule",
+    "Current MiniCPM reader formula versus proposed fused-reader formula",
+    "SALMONN repeated fast updates distinguished from shared-state reader count"
+  ]
+}

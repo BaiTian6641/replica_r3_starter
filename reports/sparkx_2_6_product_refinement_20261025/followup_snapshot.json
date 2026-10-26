@@ -1,0 +1,60 @@
+{
+  "format": "sparkx.product_refinement.concurrent_followup.v1",
+  "observed_at_utc": "2026-10-26T04:39:45.951722+00:00",
+  "head": "023e8b9d4dd0dac81ebbea9d50eb65dc7b12d213",
+  "scope": "read-only observation of concurrent work; not executed by this research review",
+  "findings": {
+    "historical_vision_score_replay": "engineering validated; learned quality remains false",
+    "native_fused_optimizer": "production path and strict resume added",
+    "first_sustained_smoke": {
+      "status": "stopped_or_failed",
+      "child_exit_code": 1,
+      "guard_stop_reason": null,
+      "error": "KeyError: 'nonfinite' in probe reporting check",
+      "is_optimizer_quality_verdict": false,
+      "sustained_qualification": false
+    }
+  },
+  "files": [
+    {
+      "path": "docs/maintenance/20261025_Vision_Score_Replay.md",
+      "sha256": "fd24507e2093a6e331a8bf12a0d622d01955161c1760b6fc77b61f31e8139dd4",
+      "bytes": 3313
+    },
+    {
+      "path": "reports/vision_score_replay_20261025/adamw_validation.json",
+      "sha256": "0c6c953344aaf15e188492229e04cae7fb440f75d7833944e9c462f94569da02",
+      "bytes": 1999
+    },
+    {
+      "path": "reports/vision_score_replay_20261025/muon_validation.json",
+      "sha256": "09da86598c3bf1ea91156529fba12cecc4dc22342a4815a97711ef3f782d32c4",
+      "bytes": 1994
+    },
+    {
+      "path": "src/replica_lab/optimizers.py",
+      "sha256": "2af90a04607f2ecb87eac27908e02c364cf84fce6cdd8325422faaf8487a404e",
+      "bytes": 26707
+    },
+    {
+      "path": "scripts/probe_fused_adamw_sustained.py",
+      "sha256": "c3982df35332e387a4c96d920e565dd3dd8de53f24606e22a2f8e7bb07010b38",
+      "bytes": 16138
+    },
+    {
+      "path": "configs/fused_adamw_sustained_probe_v1.json",
+      "sha256": "080768367de8dfdc2d9be8f63d18e0c61e41e757ec6742258e0c3351b50265a6",
+      "bytes": 4665
+    },
+    {
+      "path": "reports/fused_adamw_20261025/smoke_first01.guard.json",
+      "sha256": "91573f50580da99457807d6963a7150174df53f08a6348a1ad7e5cd8265c308d",
+      "bytes": 1790
+    },
+    {
+      "path": "reports/fused_adamw_20261025/smoke_first01.guard.child.log",
+      "sha256": "426634c5b228a0d021733ec8775e2c33526fb885dea678b691ffe78f51bc057f",
+      "bytes": 1192
+    }
+  ]
+}

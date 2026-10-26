@@ -1,0 +1,557 @@
+{
+  "format": "replica.sparkx_dynamic_memory_bridge_study.v1",
+  "date_local": "2026-10-26",
+  "status": "proposal_not_execution_protocol",
+  "canonical_revision": "4.2",
+  "training_launched": false,
+  "runtime_implemented": false,
+  "model_tests_run": false,
+  "canonical_document": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+  "research_directory": "docs/research/sparkx_dynamic_memory_bridge_20261026",
+  "evidence_manifest": "reports/sparkx_dynamic_memory_bridge_20261026/evidence.json",
+  "baseline_config": "configs/sparkx_2_6_4b_product_plan_v4.json",
+  "density_control_config": "configs/sparkx_2_6_4b_port_density_study_v1.json",
+  "parameter_policy": {
+    "language_backbone_target": "SparkX2.6 4B",
+    "added_parameter_cap": null,
+    "added_parameters_not_primary_constraint": true,
+    "full_offline_language_backbone_finetuning_required": true,
+    "lora_required_for_interface": false,
+    "runtime_and_mutable_state_must_be_measured": true
+  },
+  "geometry": {
+    "spark": {
+      "layers": 36,
+      "hidden_size": 2560,
+      "original_unique_parameters": 4112079360,
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b"
+    },
+    "minicpm": {
+      "layers": 42,
+      "hidden_size": 2048,
+      "original_unique_parameters": 2516756480,
+      "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+    }
+  },
+  "ports": {
+    "interface_name": "UAP",
+    "interface_version": 1,
+    "existing_industry_standard": false,
+    "site": "post_complete_native_block",
+    "exposed_spark_layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35
+    ],
+    "exposed_minicpm_layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41
+    ],
+    "active_layer_controls": [
+      {
+        "name": "historical_two",
+        "spark_read_layers": [
+          11,
+          23
+        ],
+        "minicpm_read_layers": [
+          13,
+          27
+        ]
+      },
+      {
+        "name": "early_two",
+        "spark_read_layers": [
+          3,
+          23
+        ],
+        "minicpm_read_layers": [
+          4,
+          27
+        ]
+      },
+      {
+        "name": "six",
+        "spark_read_layers": [
+          3,
+          11,
+          15,
+          23,
+          27,
+          35
+        ],
+        "minicpm_read_layers": [
+          4,
+          13,
+          18,
+          27,
+          32,
+          41
+        ]
+      },
+      {
+        "name": "nine",
+        "spark_read_layers": [
+          3,
+          7,
+          11,
+          15,
+          19,
+          23,
+          27,
+          31,
+          35
+        ],
+        "minicpm_read_layers": [
+          4,
+          8,
+          13,
+          18,
+          22,
+          27,
+          32,
+          36,
+          41
+        ]
+      },
+      {
+        "name": "alternating",
+        "spark_read_layers": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23,
+          25,
+          27,
+          29,
+          31,
+          33,
+          35
+        ],
+        "minicpm_read_layers": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17,
+          19,
+          21,
+          23,
+          25,
+          27,
+          29,
+          31,
+          33,
+          35,
+          37,
+          39,
+          41
+        ]
+      },
+      {
+        "name": "all",
+        "spark_read_layers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35
+        ],
+        "minicpm_read_layers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41
+        ]
+      }
+    ],
+    "initial_active_arms": [
+      "historical_two",
+      "six",
+      "nine"
+    ],
+    "all_layer_arm_retained": true,
+    "payload_width": 512,
+    "payload_width_controls": [
+      256,
+      512
+    ],
+    "state_shared_across_reader_sites": true,
+    "pre_attention_output_variant_requires_separate_native_qualification": true,
+    "no_global_forward_hook_state": true
+  },
+  "module_interface": {
+    "manifest_fields": [
+      "module_uid",
+      "weights_hash",
+      "interface_version",
+      "capabilities",
+      "representation_version",
+      "layout",
+      "dtype_device",
+      "schedule",
+      "state_schema",
+      "compatibility_receipt"
+    ],
+    "packet_fields": [
+      "semantic_latents",
+      "valid",
+      "availability",
+      "observation_uids",
+      "modality",
+      "geometry",
+      "time_intervals",
+      "uncertainty",
+      "producer",
+      "representation_version"
+    ],
+    "capabilities": [
+      "encode_visual",
+      "encode_audio",
+      "read_experience",
+      "read_fast_association",
+      "temporal_reasoning",
+      "spatial_reasoning",
+      "lexical_lookup",
+      "propose_update"
+    ],
+    "compatibility_levels": [
+      "structural",
+      "representational",
+      "behavioral",
+      "adaptive"
+    ],
+    "execution_modes": [
+      "observation",
+      "query",
+      "token"
+    ],
+    "initial_active_modules_per_request": 2,
+    "attach_only_at_declared_boundaries": true,
+    "requires_trained_alignment_or_verified_shared_representation": true,
+    "mechanical_loader_not_semantic_agent": true,
+    "module_state_is_scope_owned": true
+  },
+  "memory": {
+    "record_bank": {
+      "minicpm_records": 1024,
+      "spark_records": 4096,
+      "record_elements": 896,
+      "dtype": "bfloat16",
+      "metadata_max_bytes_per_record": 512,
+      "key_width": 128,
+      "initial_search": "exact",
+      "full_bank_queries_per_boundary": 2,
+      "topk_per_query": 8,
+      "unique_selected_record_cap": 16,
+      "selection_phase": "separate_native_known_query_pass_before_action",
+      "hierarchical_later_candidates": [
+        16384,
+        65536
+      ]
+    },
+    "fast_association": {
+      "depth_groups": 3,
+      "experts_per_group": 8,
+      "capacity_candidates": [
+        1,
+        8,
+        24,
+        64
+      ],
+      "heads": 4,
+      "key_width": 128,
+      "value_width": 128,
+      "state_dtype": "float32",
+      "initial_routing_control": "dense",
+      "sparse_candidate_topk": 2,
+      "sparse_actual_skip_required": true,
+      "read_write_router_projections_separate": true,
+      "shared_expert_addresses": true,
+      "memt_mos_is_dense": true,
+      "update_controls": [
+        "single_event_delta",
+        "bounded_recent_event_window",
+        "self_referential_later"
+      ],
+      "decay_clock": "observation_or_elapsed_time_not_read_count",
+      "max_commits_per_observation_boundary": 1
+    },
+    "fast_addressing": {
+      "depth_groups": 3,
+      "width": 128,
+      "full_rank": true,
+      "initial_state": "zero_residual_transform",
+      "update_phase": "verified_feedback_boundary",
+      "initial_key_producer_frozen": true,
+      "shared_addresses_initially_slow": true,
+      "compare_fixed_address_control": true
+    },
+    "large_attention_memory_candidate": {
+      "read_sites": 9,
+      "heads": 16,
+      "key_width": 256,
+      "value_width": 256,
+      "state_dtype": "float32",
+      "separate_full_QKVO_projection_accounting": true,
+      "reuses_native_output_projection_in_alternative_site_only": true
+    }
+  },
+  "state_classes": [
+    "episodic_E",
+    "working_C",
+    "fast_association_F",
+    "fast_addressing_A",
+    "durable_theta"
+  ],
+  "vocabulary": {
+    "canonical_identity": [
+      "lexeme_uid",
+      "canonical_bytes",
+      "representation_version"
+    ],
+    "ephemeral_identity": [
+      "stream_id",
+      "slot_index",
+      "slot_generation",
+      "mapping_hash"
+    ],
+    "module_packets_never_use_ephemeral_slot_alone": true,
+    "base_token_fallback_required": true,
+    "module_swap_requires_tokenizer_or_latent_alignment": true
+  },
+  "training": {
+    "outer_inner_split_required": true,
+    "relevance_supervision_not_only_answer_loss": true,
+    "teacher_forcing_masks_per_query": true,
+    "online_backbone_optimizer_initially_disabled": true,
+    "full_rank_skill_module_learning_candidate": true,
+    "old_rank8_lora_remains_separate_control": true,
+    "post_full_FT_interface_and_memory_requalification_required": true,
+    "self_generated_confidence_not_truth_target": true
+  },
+  "validation": {
+    "stages": [
+      "BR0_contracts_causality",
+      "BR1_addressing",
+      "BR2_fast_parameters",
+      "BR3_module_swaps",
+      "BR4_joint_memory_vocab_learning",
+      "BR5_cleared_state_learning"
+    ],
+    "joint_factorial": [
+      "memory",
+      "swappable_vocabulary",
+      "verified_durable_learning"
+    ],
+    "address_adaptation_separate_followup_factor": true,
+    "swap_types": [
+      "seed",
+      "architecture_with_connector",
+      "independently_aligned_module",
+      "new_capability",
+      "null",
+      "two_module_composition"
+    ],
+    "confirmation_seeds": 3,
+    "initial_worlds_per_seed": 128,
+    "maximum_worlds_per_seed": 1024,
+    "primary_capability_gain_pp": 5,
+    "retention_noninferiority_margin_pp": 2,
+    "gate_values_are_proposed_not_measured": true,
+    "clear_for_durable_learning": [
+      "teaching_records",
+      "prototypes",
+      "fast_F",
+      "fast_A",
+      "core_C",
+      "event_state",
+      "source_KV",
+      "read_caches",
+      "teaching_lexical_candidates",
+      "replay_access"
+    ],
+    "evaluation_updates_disabled": true,
+    "successive_policy_revisions_for_RSI": 2
+  },
+  "resource_profiles": {
+    "mutable_state_MiB": [
+      32,
+      64,
+      128
+    ],
+    "old_32MiB_baseline_preserved": true,
+    "larger_profiles_not_admitted_runs": true,
+    "replay_baseline_MiB": 64,
+    "optional_raw_source_baseline_MiB": 256,
+    "existing_execution_limits": {
+      "exclusive_MPS_worker": true,
+      "driver_bytes": 53687091200,
+      "silent_cpu_fallback": false,
+      "warm_text_P95_overhead_max": 0.1,
+      "learning_duty_cycle_max": 0.05
+    },
+    "state_snapshots_and_optimizers_counted": true,
+    "warm_text_overhead_target": 0.1,
+    "learning_duty_target": 0.05,
+    "soak_hours": [
+      0.5,
+      8,
+      72
+    ]
+  }
+}

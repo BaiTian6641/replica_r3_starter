@@ -1,0 +1,311 @@
+{
+  "format": "sparkx.dynamic_memory_bridge.analytical_costs.v1",
+  "date_local": "2026-10-26",
+  "runtime_measured": false,
+  "units": {
+    "MiB": 1048576,
+    "BF16_bytes": 2,
+    "FP32_bytes": 4,
+    "MAC": "one multiply-accumulate; not a measured latency"
+  },
+  "port_matrices": [
+    {
+      "model": "spark",
+      "sites": 2,
+      "width": 256,
+      "matrix_parameters": 2883584,
+      "BF16_weight_MiB": 5.5,
+      "FP32_weight_gradient_Adam2_MiB": 44.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 2637824,
+      "KV_projection_MACs_per_16_packet_refresh": 4194304
+    },
+    {
+      "model": "spark",
+      "sites": 6,
+      "width": 256,
+      "matrix_parameters": 8650752,
+      "BF16_weight_MiB": 16.5,
+      "FP32_weight_gradient_Adam2_MiB": 132.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 7913472,
+      "KV_projection_MACs_per_16_packet_refresh": 12582912
+    },
+    {
+      "model": "spark",
+      "sites": 9,
+      "width": 256,
+      "matrix_parameters": 12976128,
+      "BF16_weight_MiB": 24.75,
+      "FP32_weight_gradient_Adam2_MiB": 198.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 11870208,
+      "KV_projection_MACs_per_16_packet_refresh": 18874368
+    },
+    {
+      "model": "spark",
+      "sites": 36,
+      "width": 256,
+      "matrix_parameters": 51904512,
+      "BF16_weight_MiB": 99.0,
+      "FP32_weight_gradient_Adam2_MiB": 792.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 47480832,
+      "KV_projection_MACs_per_16_packet_refresh": 75497472
+    },
+    {
+      "model": "spark",
+      "sites": 2,
+      "width": 512,
+      "matrix_parameters": 6291456,
+      "BF16_weight_MiB": 12.0,
+      "FP32_weight_gradient_Adam2_MiB": 96.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 5275648,
+      "KV_projection_MACs_per_16_packet_refresh": 16777216
+    },
+    {
+      "model": "spark",
+      "sites": 6,
+      "width": 512,
+      "matrix_parameters": 18874368,
+      "BF16_weight_MiB": 36.0,
+      "FP32_weight_gradient_Adam2_MiB": 288.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 15826944,
+      "KV_projection_MACs_per_16_packet_refresh": 50331648
+    },
+    {
+      "model": "spark",
+      "sites": 9,
+      "width": 512,
+      "matrix_parameters": 28311552,
+      "BF16_weight_MiB": 54.0,
+      "FP32_weight_gradient_Adam2_MiB": 432.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 23740416,
+      "KV_projection_MACs_per_16_packet_refresh": 75497472
+    },
+    {
+      "model": "spark",
+      "sites": 36,
+      "width": 512,
+      "matrix_parameters": 113246208,
+      "BF16_weight_MiB": 216.0,
+      "FP32_weight_gradient_Adam2_MiB": 1728.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 94961664,
+      "KV_projection_MACs_per_16_packet_refresh": 301989888
+    },
+    {
+      "model": "minicpm",
+      "sites": 2,
+      "width": 256,
+      "matrix_parameters": 2359296,
+      "BF16_weight_MiB": 4.5,
+      "FP32_weight_gradient_Adam2_MiB": 36.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 2113536,
+      "KV_projection_MACs_per_16_packet_refresh": 4194304
+    },
+    {
+      "model": "minicpm",
+      "sites": 6,
+      "width": 256,
+      "matrix_parameters": 7077888,
+      "BF16_weight_MiB": 13.5,
+      "FP32_weight_gradient_Adam2_MiB": 108.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 6340608,
+      "KV_projection_MACs_per_16_packet_refresh": 12582912
+    },
+    {
+      "model": "minicpm",
+      "sites": 9,
+      "width": 256,
+      "matrix_parameters": 10616832,
+      "BF16_weight_MiB": 20.25,
+      "FP32_weight_gradient_Adam2_MiB": 162.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 9510912,
+      "KV_projection_MACs_per_16_packet_refresh": 18874368
+    },
+    {
+      "model": "minicpm",
+      "sites": 42,
+      "width": 256,
+      "matrix_parameters": 49545216,
+      "BF16_weight_MiB": 94.5,
+      "FP32_weight_gradient_Adam2_MiB": 756.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 44384256,
+      "KV_projection_MACs_per_16_packet_refresh": 88080384
+    },
+    {
+      "model": "minicpm",
+      "sites": 2,
+      "width": 512,
+      "matrix_parameters": 5242880,
+      "BF16_weight_MiB": 10.0,
+      "FP32_weight_gradient_Adam2_MiB": 80.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 4227072,
+      "KV_projection_MACs_per_16_packet_refresh": 16777216
+    },
+    {
+      "model": "minicpm",
+      "sites": 6,
+      "width": 512,
+      "matrix_parameters": 15728640,
+      "BF16_weight_MiB": 30.0,
+      "FP32_weight_gradient_Adam2_MiB": 240.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 12681216,
+      "KV_projection_MACs_per_16_packet_refresh": 50331648
+    },
+    {
+      "model": "minicpm",
+      "sites": 9,
+      "width": 512,
+      "matrix_parameters": 23592960,
+      "BF16_weight_MiB": 45.0,
+      "FP32_weight_gradient_Adam2_MiB": 360.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 19021824,
+      "KV_projection_MACs_per_16_packet_refresh": 75497472
+    },
+    {
+      "model": "minicpm",
+      "sites": 42,
+      "width": 512,
+      "matrix_parameters": 110100480,
+      "BF16_weight_MiB": 210.0,
+      "FP32_weight_gradient_Adam2_MiB": 1680.0,
+      "read_MACs_per_position_with_16_cached_KV_packets": 88768512,
+      "KV_projection_MACs_per_16_packet_refresh": 352321536
+    }
+  ],
+  "fast_expert_states": [
+    {
+      "groups": 3,
+      "experts_per_group": 1,
+      "FP32_state_elements": 196608,
+      "FP32_state_MiB": 0.75,
+      "old_plus_candidate_state_MiB": 1.5,
+      "optional_BF16_meta_learned_initial_weights_MiB": 0.375,
+      "dense_matrix_read_MACs_one_group_one_query": 65536,
+      "top2_matrix_read_MACs_one_group_one_query": 65536
+    },
+    {
+      "groups": 3,
+      "experts_per_group": 8,
+      "FP32_state_elements": 1572864,
+      "FP32_state_MiB": 6.0,
+      "old_plus_candidate_state_MiB": 12.0,
+      "optional_BF16_meta_learned_initial_weights_MiB": 3.0,
+      "dense_matrix_read_MACs_one_group_one_query": 524288,
+      "top2_matrix_read_MACs_one_group_one_query": 131072
+    },
+    {
+      "groups": 3,
+      "experts_per_group": 24,
+      "FP32_state_elements": 4718592,
+      "FP32_state_MiB": 18.0,
+      "old_plus_candidate_state_MiB": 36.0,
+      "optional_BF16_meta_learned_initial_weights_MiB": 9.0,
+      "dense_matrix_read_MACs_one_group_one_query": 1572864,
+      "top2_matrix_read_MACs_one_group_one_query": 131072
+    },
+    {
+      "groups": 3,
+      "experts_per_group": 64,
+      "FP32_state_elements": 12582912,
+      "FP32_state_MiB": 48.0,
+      "old_plus_candidate_state_MiB": 96.0,
+      "optional_BF16_meta_learned_initial_weights_MiB": 24.0,
+      "dense_matrix_read_MACs_one_group_one_query": 4194304,
+      "top2_matrix_read_MACs_one_group_one_query": 131072
+    }
+  ],
+  "fast_addressing": {
+    "elements": 49152,
+    "FP32_MiB": 0.1875
+  },
+  "bank_and_search_examples": [
+    {
+      "records": 1024,
+      "tensor_MiB": 1.75,
+      "metadata_cap_MiB": 0.5,
+      "bank_payload_plus_metadata_MiB": 2.25,
+      "flat_two_query_dot_MACs": 262144,
+      "balanced_shard_count": 32,
+      "selected_shards": 2,
+      "balanced_hierarchical_two_query_dot_MACs": 24576,
+      "bank_alone_fits_128MiB": true
+    },
+    {
+      "records": 4096,
+      "tensor_MiB": 7.0,
+      "metadata_cap_MiB": 2.0,
+      "bank_payload_plus_metadata_MiB": 9.0,
+      "flat_two_query_dot_MACs": 1048576,
+      "balanced_shard_count": 64,
+      "selected_shards": 2,
+      "balanced_hierarchical_two_query_dot_MACs": 49152,
+      "bank_alone_fits_128MiB": true
+    },
+    {
+      "records": 16384,
+      "tensor_MiB": 28.0,
+      "metadata_cap_MiB": 8.0,
+      "bank_payload_plus_metadata_MiB": 36.0,
+      "flat_two_query_dot_MACs": 4194304,
+      "balanced_shard_count": 128,
+      "selected_shards": 2,
+      "balanced_hierarchical_two_query_dot_MACs": 98304,
+      "bank_alone_fits_128MiB": true
+    },
+    {
+      "records": 65536,
+      "tensor_MiB": 112.0,
+      "metadata_cap_MiB": 32.0,
+      "bank_payload_plus_metadata_MiB": 144.0,
+      "flat_two_query_dot_MACs": 16777216,
+      "balanced_shard_count": 256,
+      "selected_shards": 2,
+      "balanced_hierarchical_two_query_dot_MACs": 196608,
+      "bank_alone_fits_128MiB": false
+    }
+  ],
+  "large_memory_candidate": {
+    "sites": 9,
+    "heads": 16,
+    "dk": 256,
+    "dv": 256,
+    "FP32_state_MiB": 36.0,
+    "separate_full_QKVO_matrix_parameters": 377487360,
+    "BF16_projection_MiB": 720.0,
+    "FP32_weight_gradient_Adam2_MiB": 5760.0
+  },
+  "conditional_full_rank_skill_pool_examples": [
+    {
+      "experts": 16,
+      "matrix_parameters": 50331648,
+      "BF16_weight_MiB": 96.0,
+      "top2_active_matrix_MACs_per_processed_vector": 6291456,
+      "dense_matrix_MACs_per_processed_vector": 50331648
+    },
+    {
+      "experts": 64,
+      "matrix_parameters": 201326592,
+      "BF16_weight_MiB": 384.0,
+      "top2_active_matrix_MACs_per_processed_vector": 6291456,
+      "dense_matrix_MACs_per_processed_vector": 201326592
+    },
+    {
+      "experts": 128,
+      "matrix_parameters": 402653184,
+      "BF16_weight_MiB": 768.0,
+      "top2_active_matrix_MACs_per_processed_vector": 6291456,
+      "dense_matrix_MACs_per_processed_vector": 402653184
+    }
+  ],
+  "exclusions_and_limits": [
+    "Port matrix counts exclude norms, gates, encoders, core, routers and other modules.",
+    "Read MAC example assumes 16 already projected packets, not 16 arbitrarily large records.",
+    "Independent K/V projections are refreshed per site; reuse requires a valid version/state key.",
+    "FP32 Adam example counts weight, gradient and two moments; no activations/workspaces.",
+    "Fast state is not durable model learning; learned initialization weights are listed separately.",
+    "Old+candidate states exclude updater gradients, momentum, replay and allocator overhead.",
+    "Sparse counts require actual dispatch; routing, gathers, index maintenance and paging are excluded.",
+    "Hierarchical examples assume balanced shards and do not guarantee exact retrieval.",
+    "65536 paired records already exceed the 128MiB profile before fast/core state.",
+    "Expert read counts omit query projections, gating, nonlinearities and module scheduling.",
+    "None of these arithmetic examples qualifies device fit, real-time performance or quality."
+  ]
+}

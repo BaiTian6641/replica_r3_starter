@@ -1,0 +1,319 @@
+{
+  "format": "replica.sparkx_port_density_study.v1",
+  "date_local": "2026-10-26",
+  "status": "proposal_not_execution_protocol",
+  "baseline_config": "configs/sparkx_2_6_4b_product_plan_v4.json",
+  "canonical_document": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+  "research_document": "docs/research/sparkx_port_density_20261026/Port_Density_Research_and_Plan.md",
+  "training_launched": false,
+  "runtime_implemented": false,
+  "preserve_existing_execution_protocols": true,
+  "full_backbone_finetuning_required": true,
+  "initial_arm_order": [
+    "historical_two",
+    "early_two",
+    "six",
+    "nine"
+  ],
+  "later_arms_if_admitted": [
+    "all",
+    "alternating"
+  ],
+  "arms": [
+    {
+      "name": "historical_two",
+      "spark_read_layers": [
+        11,
+        23
+      ],
+      "minicpm_read_layers": [
+        13,
+        27
+      ]
+    },
+    {
+      "name": "early_two",
+      "spark_read_layers": [
+        3,
+        23
+      ],
+      "minicpm_read_layers": [
+        4,
+        27
+      ]
+    },
+    {
+      "name": "six",
+      "spark_read_layers": [
+        3,
+        11,
+        15,
+        23,
+        27,
+        35
+      ],
+      "minicpm_read_layers": [
+        4,
+        13,
+        18,
+        27,
+        32,
+        41
+      ]
+    },
+    {
+      "name": "nine",
+      "spark_read_layers": [
+        3,
+        7,
+        11,
+        15,
+        19,
+        23,
+        27,
+        31,
+        35
+      ],
+      "minicpm_read_layers": [
+        4,
+        8,
+        13,
+        18,
+        22,
+        27,
+        32,
+        36,
+        41
+      ]
+    },
+    {
+      "name": "alternating",
+      "spark_read_layers": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29,
+        31,
+        33,
+        35
+      ],
+      "minicpm_read_layers": [
+        1,
+        3,
+        5,
+        7,
+        9,
+        11,
+        13,
+        15,
+        17,
+        19,
+        21,
+        23,
+        25,
+        27,
+        29,
+        31,
+        33,
+        35,
+        37,
+        39,
+        41
+      ]
+    },
+    {
+      "name": "all",
+      "spark_read_layers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "minicpm_read_layers": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41
+      ]
+    }
+  ],
+  "ports": {
+    "placement": "after_complete_native_block",
+    "sense_layers_minicpm_fixed": [
+      13,
+      27,
+      41
+    ],
+    "retrieval_query_layers_minicpm_fixed": [
+      13,
+      27
+    ],
+    "full_bank_scan_cap_per_query_boundary": 2,
+    "topk_per_query": 8,
+    "selected_unique_record_cap": 16,
+    "selection_reference": "separate_known_query_sense_pass_then_immutable_action_input",
+    "selection_is_native": true,
+    "sense_pass_cost_in_all_arms": true,
+    "previous_no_extra_pass_design_remains_distinct_candidate": true,
+    "no_deeper_to_earlier_layer_access_same_pass": true,
+    "write_sources_change_with_read_density": false,
+    "write_commits_per_observation_boundary": 1,
+    "online_adapter_targets_minicpm_fixed": [
+      13,
+      27
+    ],
+    "online_adapter_targets_spark_fixed": [
+      11,
+      23
+    ],
+    "core_iterations_fixed": 2,
+    "sensory_injection_held_fixed_for_reader_comparison": true
+  },
+  "storage": {
+    "shared_persistent_bank": true,
+    "spark_records": 4096,
+    "minicpm_records": 1024,
+    "paired_record_elements": 896,
+    "paired_record_dtype": "bfloat16",
+    "shared_optional_fast_pair": true,
+    "independent_fast_state_experiment_separate": true,
+    "resident_cap_MiB": 32,
+    "replay_cap_MiB": 64,
+    "raw_source_optional_cap_MiB": 256
+  },
+  "reader_variants": {
+    "proposed_fused_full_rank": {
+      "query_width": 128,
+      "memory_read_width": 256,
+      "workspace_read_width": 256,
+      "counts_are_projection_lower_bounds": true
+    },
+    "proposed_rank64_output": {
+      "query_width": 128,
+      "output_input_width": 512,
+      "output_factor_rank": 64,
+      "query_not_factored": true
+    },
+    "proposed_group_shared": {
+      "groups": 3,
+      "layer_specific_norms_and_gates": true,
+      "parameter_savings_not_compute_savings": true
+    },
+    "existing_memory_plus_workspace_pair": {
+      "memory_width": 256,
+      "separate_modules": true,
+      "include_norms_and_scalar_gates_in_counts": true
+    }
+  },
+  "validation": {
+    "confirmation_seeds": 3,
+    "matched_controls": [
+      "same_data_updates_state_and_selection",
+      "matched_added_parameters",
+      "matched_total_wall_time",
+      "no_memory"
+    ],
+    "primary_claims": [
+      "delayed_recall_and_correction",
+      "spatial_temporal_reasoning",
+      "audio_pattern_transfer",
+      "retention"
+    ],
+    "preserve_prior_capability_gates": true,
+    "five_point_gate_not_required_per_density_increment": true,
+    "density_upgrade_requires_confirmed_preregistered_slice_gain": true,
+    "gate_magnitude_not_causal_utility": true,
+    "actual_skip_required_for_compute_savings": true,
+    "selection_policy": "least_expensive_non_dominated_design_within_quality_and_resource_limits",
+    "durable_parameter_reset_contract_from_v4_retained": true
+  },
+  "limits": {
+    "exclusive_MPS_worker": true,
+    "driver_bytes": 53687091200,
+    "silent_cpu_fallback": false,
+    "warm_text_P95_overhead_max": 0.1,
+    "learning_duty_cycle_max": 0.05
+  },
+  "evidence_manifest": "reports/sparkx_port_density_20261026/evidence.json"
+}

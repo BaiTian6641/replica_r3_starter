@@ -1,0 +1,77 @@
+{
+  "kind": "analytical_lower_bounds_not_measurements",
+  "config": "configs/sparkx_2_6_4b_intrinsic_learning_spine_v1.json",
+  "assumptions": [
+    "FP32 dynamic matrices/knowledge; BF16 fixed projections and workspace",
+    "One global P bank shared by active sites; two active experts per site/event",
+    "Initial inner optimizer is SGD with no momentum",
+    "Record metadata is a proposed hard cap, not measured Python-object overhead",
+    "No double counting of tied/shared parameters"
+  ],
+  "fixed_parameters": {
+    "memory_reader_matrices": 28311552,
+    "memory_reader_bf16_mib": 54.0,
+    "P_input_output_projections": 11796480,
+    "P_projection_bf16_mib": 22.5
+  },
+  "offline_joint_training_additions": {
+    "existing_siglip2_spear_parameters": 186173700,
+    "encoders_fp32_weight_gradient_two_moments_gib": 2.7742043137550354,
+    "activations_and_extensions_included": false,
+    "full_multimodal_finetuning_required": true,
+    "online_self_learning_substitutes_for_modality_training": false
+  },
+  "dynamic_state": {
+    "F_mib": 6.0,
+    "A_mib": 0.1875,
+    "P_parameters": 12582912,
+    "P_fp32_mib": 48.0,
+    "P_full_bank_adam_moments_extra_mib": 96.0,
+    "E_tensor_mib": 7.0,
+    "E_metadata_cap_mib": 2.0,
+    "workspace_event_mib": 0.03515625,
+    "live_lower_bound_mib": 63.22265625,
+    "update_staging_extra_mib": 18.375,
+    "update_peak_lower_bound_mib": 81.59765625,
+    "replay_separate_mib": 64.0,
+    "update_peak_plus_replay_lower_bound_mib": 145.59765625
+  },
+  "P_capacity_growth_candidates": [
+    {
+      "experts": 16,
+      "FP32_weight_mib": 48.0,
+      "active_experts": 2,
+      "admitted": false
+    },
+    {
+      "experts": 64,
+      "FP32_weight_mib": 192.0,
+      "active_experts": 2,
+      "admitted": false
+    },
+    {
+      "experts": 128,
+      "FP32_weight_mib": 384.0,
+      "active_experts": 2,
+      "admitted": false
+    }
+  ],
+  "matrix_macs": {
+    "P_per_processed_vector_two_experts": 1572864,
+    "P_nine_sites_per_decoder_position": 14155776,
+    "P_local_forward_128_vectors": 201326592,
+    "backward_cost_included": false
+  },
+  "observer_payload": {
+    "all_hidden_layers_8192_positions_bf16_gib": 1.40625,
+    "nine_sites_eight_512_slots_bf16_kib": 72.0
+  },
+  "exclusions": [
+    "Original backbone, encoders, controller/norm/gate parameters and optimizer state",
+    "Activations, KV, routing, indexes, phrase rows and lexical/provenance overflow",
+    "Backend scratch, allocator overhead, checkpoint copies and disk serialization",
+    "Full prefix/sensing passes, encoder/teacher work, replay and validation compute"
+  ],
+  "latency_estimated": false,
+  "runtime_admission_granted": false
+}

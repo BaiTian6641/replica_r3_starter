@@ -1,0 +1,123 @@
+{
+  "format": "sparkx.av_experience.repo_snapshot.v1",
+  "observed_at_utc": "2026-10-26T05:22:45.888079+00:00",
+  "client_date": "2026-10-26",
+  "head": "2468f16dfdf590104133efb041f30ec57e669a3a",
+  "git_status": " M docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md\n M reports/vision_overfit_20261025/helper_tests.xml\n M src/replica_lab/vision_curriculum.py\n?? configs/sparkx_2_6_4b_product_plan_v3.json\n?? configs/vision_stage_diagnostic_v1.json\n?? docs/research/sparkx_2_6_product_20261025/\n?? reports/fused_adamw_20261025/\n?? reports/memory_causal_refresh_20261026/\n?? reports/memory_repair_20261025/full_suite_final_diagnostics.xml\n?? reports/sparkx_2_6_product_refinement_20261025/\n?? reports/sparkx_av_experience_20261026/\n?? scripts/prepare_vision_stage_diagnostic.py\n?? src/replica_lab/vision_stage_data.py\n",
+  "scope": "read-only research observation; no model execution by this review",
+  "files": [
+    {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "sha256": "854e263e61b3fe326246829723bd607ba96177263908e945d71d88510af6de2c",
+      "bytes": 39009
+    },
+    {
+      "path": "configs/sparkx_2_6_4b_product_plan_v3.json",
+      "sha256": "1795f580a71502f88269fa807508c5481c1b22c2c9584f2df328c54a19440690",
+      "bytes": 11744
+    },
+    {
+      "path": "AGENT_CONTINUE.md",
+      "sha256": "adec8bdbab810aabc863bc61fc6eb7e46f78935c0f666af41c7912c98ac5bb68",
+      "bytes": 14541
+    },
+    {
+      "path": "execution_state.md",
+      "sha256": "50eb05b4812861fdaf87fc6e6893c2db713f7a7bfe764d69cd9b402886b99506",
+      "bytes": 115704
+    },
+    {
+      "path": "src/replica_lab/architecture/core.py",
+      "sha256": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+      "bytes": 13233
+    },
+    {
+      "path": "src/replica_lab/memory_causal_refresh.py",
+      "sha256": "aa79862f17ff422f4eebeb45648aaf6e0249a5989e4851bcac094419917256b5",
+      "bytes": 18902
+    },
+    {
+      "path": "configs/memory_causal_refresh_v1.json",
+      "sha256": "4fedaafe2937294085fdc5e95d375d076df3d7d66570927c634de3953809c671",
+      "bytes": 6719
+    },
+    {
+      "path": "runs/memory_causal_refresh_20261026/native01/run_report.json",
+      "sha256": "12a48939d94508d0a4e112d0efe596f095cb6f1491653ff710b931b6ea2ed50d",
+      "bytes": 71279
+    },
+    {
+      "path": "runs/memory_causal_refresh_20261026/restart01/failure_report.json",
+      "sha256": "6c184cf0cec078f41f4ef57a5431733cefffe652d14d289ee7ffa7f2157a3538",
+      "bytes": 7540
+    },
+    {
+      "path": "runs/fused_adamw_20261025/sustained01/run_report.json",
+      "sha256": "30fec17beb90de0982fbdffa663f31cb563c608018ae7f816ebe0934768439fd",
+      "bytes": 136703
+    }
+  ],
+  "findings": {
+    "memory": {
+      "status": "completed",
+      "decision": "rejected",
+      "optimizer_updates": 0,
+      "mechanical_pass": true,
+      "learned_pass": false,
+      "classification": {
+        "full_history": "frozen learned-memory baseline",
+        "causal_refresh": "hybrid query-addressed cached-observation retrieval plus neural refresh",
+        "oracle_refresh": "gold-target diagnostic upper bound; not deployable policy",
+        "exact_source_or_full_context": "hybrid exact retrieval/context controls, not learned memory"
+      },
+      "scores": {
+        "shared_mean/full": {
+          "exact_top1": 0.15,
+          "query_top1": 0.15,
+          "unaffected_top1": 0.0,
+          "unknown_false_recall": 0.38095238095238093
+        },
+        "shared_mean/causal_query_refresh": {
+          "exact_top1": 0.4583333333333333,
+          "query_top1": 0.4583333333333333,
+          "unaffected_top1": 0.3333333333333333,
+          "unknown_false_recall": 0.16666666666666666
+        },
+        "shared_mean/causal_query_refresh_shuffled_values": {
+          "exact_top1": 0.1375,
+          "query_top1": 0.1375,
+          "unaffected_top1": 0.08333333333333333,
+          "unknown_false_recall": 0.16666666666666666
+        },
+        "shared_mean/disabled": {
+          "exact_top1": 0.18333333333333332,
+          "query_top1": 0.18333333333333332,
+          "unaffected_top1": 0.1,
+          "unknown_false_recall": 0.0
+        },
+        "shared_mean/oracle_target_refresh_last": {
+          "exact_top1": 0.9958333333333333,
+          "query_top1": 1.0,
+          "unaffected_top1": 1.0,
+          "unknown_false_recall": 0.38095238095238093
+        }
+      },
+      "restart_failure": "Fresh-process outputs differ from the first process"
+    },
+    "fused_training": {
+      "status": "completed",
+      "sequence_length": 55,
+      "process_updates": 12,
+      "steady_updates": 10,
+      "steady_seconds": 84.2163066258654,
+      "checkpoint_reload_validated": false,
+      "limitations": [
+        "Short 55-token exposed diagnostic, not a long-context or broad workload benchmark.",
+        "Throughput does not establish convergence, retention or universal speedup.",
+        "The historical 2.57x result is a separate three-update comparison, not this sustained measurement.",
+        "Sampled memory telemetry can miss transient peaks.",
+        "The smoke checkpoint is required only for resume validation and is not a selected model."
+      ]
+    }
+  }
+}
