@@ -1,0 +1,79 @@
+{
+  "format": "replica.memory_bank_readout.h1.summary.v1",
+  "date_utc": "2026-10-26",
+  "hypothesis": "Static one-line response grammar plus max_new_tokens=32 corrects the readout, not the bank selection",
+  "selected_runs": {
+    "first": "runs/memory_bank_readout_20261026/first02/report.json",
+    "restart": "runs/memory_bank_readout_20261026/restart02/report.json"
+  },
+  "outcome": {
+    "literal_dev": "passed",
+    "first_process": "passed",
+    "restart_revocation_state_accounting": "passed",
+    "heldout": "evaluated_once_after_all_dev_gates",
+    "persistent_learning": false,
+    "calibrated_confidence": false,
+    "general_personal_memory_claim": false
+  },
+  "metrics": {
+    "literal_fact_value_exact": [124, 128],
+    "first_exact_answers": [72, 72],
+    "first_correction": [8, 8],
+    "first_unaffected": [20, 20],
+    "first_unknown": [8, 8],
+    "restart_exact_answers": [68, 72],
+    "restart_correction": [8, 8],
+    "restart_unaffected_retention": [20, 20],
+    "restart_unknown": [8, 8],
+    "revocation_exact": [8, 8],
+    "initial_fact_exact": [62, 64],
+    "corrected_fact_exact": [62, 64],
+    "heldout_exact_answers": [148, 152],
+    "heldout_exact_rate": 0.9736842105263158,
+    "single_line_rate": 1.0,
+    "ended_by_eos_rate": 1.0,
+    "cap_hits": 0,
+    "control_false_values": 0,
+    "restart_text_disjoint_rate": 1.0,
+    "old_observations_encoded": 0,
+    "old_first_process_queries_regenerated": 0
+  },
+  "heldout_misses": {
+    "count": 4,
+    "kind": "predeclared_bank_abstentions",
+    "runtime_status": "revoked",
+    "false_value_generated": false,
+    "note": "Two episodes by two states remain misses under the exact fact scorer and are not relabeled"
+  },
+  "resources": {
+    "first_guard_seconds": 70.9412268330343,
+    "restart_guard_seconds": 205.86408487474546,
+    "peak_driver_bytes": 10763255808,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 74.0,
+    "first_artifact_bytes": 424576,
+    "restart_artifact_bytes": 1217677,
+    "model_loads_per_job": 1,
+    "tokenizer_loads_per_job": 1,
+    "gradients": 0,
+    "optimizer_updates": 0,
+    "checkpoint_writes": 0,
+    "downloads": 0
+  },
+  "verification": {
+    "focused_tests": 21,
+    "independent_decision_rows_validated": 456,
+    "independent_dev_generations_validated": 232,
+    "independent_heldout_generations_validated": 152,
+    "metrics_replayed_match": true,
+    "raw_hashes_match": true,
+    "first_restart_implementation_hashes_match": true,
+    "initial_failure": "Baseline source-shape lookup failed before model; first02 corrected it and remains separately preserved"
+  },
+  "non_claims": [
+    "No persistent learning or learned-selector claim",
+    "No compressed-memory or calibrated-confidence claim",
+    "No broad personal-memory generalization claim",
+    "No claim that the four bank abstentions are model false values"
+  ]
+}
