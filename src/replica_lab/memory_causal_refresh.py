@@ -202,6 +202,23 @@ def _pack_context(context):
     return packed
 
 
+def _write_to_device(write, device):
+    return SGDN2Write(
+        write.keys.to(device), write.values.to(device), write.erase.to(device),
+        write.write_gate.to(device), write.decay.to(device), write.chunk_index,
+        None if write.mask is None else write.mask.to(device))
+
+
+def _context_to_device(context, device):
+    moved = dict(context)
+    moved["writes"] = {
+        key: _write_to_device(write, device)
+        for key, write in context["writes"].items()}
+    moved["query_vectors"] = {
+        key: vector.to(device) for key, vector in context["query_vectors"].items()}
+    return moved
+
+
 def _unpack_context(context):
     unpacked = dict(context)
     unpacked["writes"] = {
@@ -279,6 +296,7 @@ def run_causal_refresh(model, tokenizer, protocol, *, output_dir, episodes,
             for state in episode_states(episode):
                 contexts.append(_state_context(model, tokenizer, episode, state, layers))
         contexts = [_unpack_context(_pack_context(context)) for context in contexts]
+        contexts = [_context_to_device(context, device) for context in contexts]
         checkpoint_path = output_dir / "policy_checkpoint.pt"
         save_policy_checkpoint(checkpoint_path, contexts,
                                protocol_sha256=protocol_sha, writer_sha256=writer_sha)
@@ -287,6 +305,7 @@ def run_causal_refresh(model, tokenizer, protocol, *, output_dir, episodes,
     else:
         contexts = load_policy_checkpoint(
             resume_checkpoint, protocol_sha256=protocol_sha, writer_sha256=writer_sha)
+        contexts = [_context_to_device(context, device) for context in contexts]
         checkpoint_path = Path(resume_checkpoint)
         encoded_contexts = 0
         resumed = True
