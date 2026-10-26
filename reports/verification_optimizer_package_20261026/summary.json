@@ -1,0 +1,45 @@
+{
+  "format": "replica.verification_optimizer_package.summary.v1",
+  "commit": "6f63035",
+  "clean_export": {
+    "source": "git archive HEAD; no ignored model, tokenizer, image or historical payloads",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml /Users/flare/replica_r3_starter/reports/verification_optimizer_package_20261026/clean_export_final_v2.xml",
+    "passed": 1869,
+    "skipped": 21,
+    "subtests_passed": 21,
+    "failed": 0,
+    "errors": 0,
+    "warnings": 1,
+    "seconds": 226.43,
+    "junit_xml": "reports/verification_optimizer_package_20261026/clean_export_final_v2.xml",
+    "integration_coverage": "unavailable assets produce explicit skips, never passing native-asset claims",
+    "provisioning": "docs/maintenance/20261025_Test_Provisioning.md"
+  },
+  "previous_evidence": {
+    "clean_export_at_8ad047c": {
+      "passed": 1846,
+      "skipped": 21,
+      "subtests_passed": 21
+    },
+    "failed_provisioned_suite_before_response_migration": {
+      "passed": 0,
+      "failed": 11,
+      "junit_xml": "reports/verification_optimizer_package_20261026/full_suite_provisioned.xml",
+      "disposition": "response-contract trainer migration repaired and rerun passed"
+    },
+    "response_contract_tests_after_migration": {
+      "passed": 80
+    },
+    "shared_optimizer_checkpoint_memory_vision_regressions": {
+      "passed": 130
+    }
+  },
+  "native_outcomes": {
+    "fused_optimizer": "torch.optim.AdamW(fused=True)",
+    "sustained_full_scope": "accepted engineering; 12 updates, all381 tensors changed, zero swap growth",
+    "full_native_resume": "unqualified on optimizer-state transfer swap; not claimed as passing",
+    "causal_refresh": "rejected learned quality; fresh-process parity passes",
+    "stage_vision": "engineering recovered and reload passes; learned quality rejected"
+  },
+  "next_smallest_experiment": "Analyze constant-output priors and caption alignment on fresh sealed data; do not enlarge the projector or unfreeze the backbone"
+}

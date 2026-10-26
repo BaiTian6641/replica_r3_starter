@@ -6,11 +6,14 @@ packages within the user's active authorization. Reading or editing this prompt
 does not launch training, download weights/corpora, create a chat or schedule work.
 
 Continue TAIS Obsidian / Replica R3 in the existing checkout. Keep sealed
-MiniCPM5-2B as the baseline and the 50 GiB native guard. R1–R4 are complete. Prioritize **isolated MiniCPM5 V0 → V1/V2 vision
-fine-tuning → qualified visual memory → bounded RSI**. Prepare the official
-Spark-X2.6-4B-FP8 path, its official BF16 comparison and eligible datasets alongside
-this work. Native Spark transfer follows reusable interfaces and backend gates;
-it need not wait for RSI success and must not displace the MiniCPM5 baseline.
+MiniCPM5-2B as the baseline and the 50 GiB native guard. New training uses
+`adamw_fused` after integration checks; historical Muon experiments and their
+provenance remain unchanged. The current priority is **constant-output priors
+and caption alignment on fresh sealed data**, not another larger arm. Native
+full-size resume remains unqualified on optimizer-state transfer memory.
+Visual memory and RSI remain gated by accepted perception and useful memory.
+Prepare Spark FP8/BF16 interfaces alongside this work without replacing the
+MiniCPM5 baseline.
 
 ## 1. Establish current evidence once
 
@@ -32,6 +35,22 @@ On later iterations read changed files and relevant evidence; do not restart
 completed work or reread the whole archive. M0–M7/E1–E6 remain component/claim
 identifiers, not a different priority queue.
 
+
+Current reconciled evidence:
+
+- Sustained fused full-scope training passes 12 updates /381 tensors with
+  0.11781 updates/s, 52.2464 steady processed tokens/s and zero swap growth.
+  Full-size native resume remains unqualified on optimizer-state transfer.
+- Causal frozen-writer refresh improves learned recovery from36/240 to110/240
+  but fails correction, unaffected and unknown-abstention gates; fresh-process
+  parity passes. This is hybrid retrieval plus neural refresh, not V3 quality.
+- The fused stage diagnostic recovered engineering and reload but rejects
+  learned quality: audit6/24, caption token-F1 0 and constant `yes` on all24
+  correct-control answers. Do not enlarge the projector or unfreeze the backbone.
+- Verified-learning v2 now encodes apply-once versus compose-twice explicitly;
+  supplied-rule arithmetic is separate from unknown-rule inference.
+- Historical v1 vision scores validate through the explicit supplemental-lineage
+  replay route; original reports are unchanged.
 The reviewed state is:
 
 - v5 writer-only D1: 48 updates / 192 scheduled cases; 14 changed tensors /
@@ -293,11 +312,12 @@ initial free-memory admission. Do not kill another session's worker, raise the
 guard or change OS/allocator limits to rescue an arm. Historical explicit
 40 GiB protocols remain historical; every new run binds its actual policy.
 
-Muon int8 momentum retains FP32 trainable parameters/gradients and auxiliary
-AdamW state. Profile visual/text tokens, encoder features, activations, optimizer
-and temporary state. The prior 11.00 GiB memory run and a BF16 checkpoint label
-are not fit evidence. Offload, dtype, quantization and optimizer changes each
-need explicit qualification. Keep full/partial training labels accurate.
+Native fused AdamW is the production optimizer for new training after integration
+checks; `adamw` remains custom eager and Muon int8 momentum remains historical.
+Record actual trainable membership, gradients, changed tensors, tokens, time,
+memory and optimizer state. Full-size native resume remains unqualified. The
+prior 11.00 GiB memory run and a BF16 checkpoint label are not fit evidence.
+Offload, dtype, quantization and optimizer changes each need explicit qualification.
 
 For each iteration: select the earliest unresolved dependency → state one
 hypothesis and artifact → inspect/reuse the existing path → make one coherent

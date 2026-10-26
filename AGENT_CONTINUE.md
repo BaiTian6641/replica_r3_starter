@@ -1,6 +1,6 @@
 # Coding-agent continuation instruction
 
-**Current priority — analyze constant-output priors and abstention before any larger training arm; validate order-aware memory refresh only with the writer frozen.**
+**Current priority — analyze constant-output priors and caption alignment on fresh sealed data; no scaling. Full-size native resume remains unqualified on optimizer-state transfer memory.**
 All four verification defects are fixed. Raw-page rebinding requires explicit
 record dependencies and fails closed on unknown provenance or contained
 revocation. Memory parity checks every fact and rejects duplicate/missing rows.
@@ -20,6 +20,26 @@ Query-derived addressing remains invariant at 232/240. See
 [update dynamics](docs/experiments/20261025_Memory_Update_Dynamics.md).
 Do not start another blind writer arm or promote per-depth; validate only an
 order-aware/refresh policy with identical sources, candidates, vectors and scoring.
+New training uses native `torch.optim.AdamW(fused=True)` through
+`NativeFusedAdamW`; historical Muon experiments remain unchanged. Sustained
+full-scope FP32 training passes 12 updates /381 tensors: 0.11781 updates/s,
+52.2464 steady processed tokens/s, 43,090,886,656-byte sampled driver peak,
+zero swap growth and 18.75 GiB optimizer state. Full-size native resume remains
+unqualified on optimizer-state transfer swap; do not claim it passed.
+
+Causal frozen-writer query refresh improves learned recovery from36/240 to
+110/240 but fails correction, unaffected and unknown-abstention gates. It is a
+hybrid retrieval+neural-refresh result, not pure learned memory. Fresh-process
+parity passes with zero old-observation encodes.
+
+The fused stage diagnostic recovered engineering and reload but rejects learned
+quality: audit6/24, caption token-F1 0 and constant `yes` on all24 correct-control
+answers. Do not enlarge the projector or unfreeze the backbone.
+
+The final clean tracked export passes 1,869 tests +21 subtests with 21 explicit
+integration skips. Response-contract trainer migration and historical score
+replay are repaired.
+
 
 Verified-learning contracts now separate rule transfer from learning-policy
 improvement, with matched recurrence/feed-forward controls and exact resource
@@ -126,26 +146,23 @@ No new model or capability is qualified by this documentation update.
   137.53 s** (zero failures/errors/skips); 37 focused reliability tests also
   passed. The 50 GiB guard, source seals and all failed native reports are preserved.
 
-## Next work package and progression
+## Current progression and gates
 
-1. **R1–R4 complete at `757ace1`.** Reuse the recorded consumer/schedule/
-   representation and source-export qualification in document 17. Recheck only
-   contracts affected by new changes; do not restart this completed package.
-2. **Isolated MiniCPM5 V0.** After those fixes, qualify real visual tensors, masks,
-   positions, input gradients, disabled text parity, request isolation and reload.
-   The rejected v5 repair already has a measured outcome; do not repeat blind
-   writer/reader training as another V0 prerequisite.
-3. **V1/V2.** Admit paired data under the dataset curriculum, train the projector,
-   then declared small adapters for instructions/verified reasoning with text replay.
-4. **Memory diagnosis and V3.** Fresh storage/addressing/readout probes can proceed
-   independently. Learned visual memory requires accepted perception and chosen
-   memory quality, dated correction, unaffected retention and fresh-process reuse.
-5. **V4/M5.** Run one externally verified candidate cycle, then matched T0–T3
-   longitudinal comparisons. Keep rejection/rollback and audit authority external.
-6. **Spark/data preparation now.** Pin the official FP8 adaptation base and BF16
-   control, inspect backend support and prepare eligible small data manifests.
-   Later native qualification uses reusable V0 contracts; RSI success is not a
-   prerequisite. No unsupported FP8 training or automatic backbone promotion.
+1. **Verification and fused integration are complete.** Synthetic clean-export
+   tests, composition inputs, historical score replay and response-contract
+   migration are repaired. Sustained full-scope fused training passes; native
+   full-size resume remains unqualified on optimizer-state transfer memory.
+2. **Memory diagnosis is bounded and rejected.** Causal query refresh improves
+   recovery but fails correction, unaffected and abstention gates. Next inspect
+   address calibration and abstention on fresh sealed data; do not train a writer.
+3. **Vision diagnosis is bounded and rejected.** Stage A never acquires useful
+   captions, stage B shows constant-output behavior and audit failure. Analyze
+   constant-output priors and caption alignment before any larger arm.
+4. **V3/V4 remain gated.** Native visual memory requires accepted perception and
+   useful memory with correction and retention. RSI requires independently
+   measured improvement, old-task retention, rejection and rollback.
+5. **Spark/data preparation continues separately.** Preserve official FP8/BF16
+   identities and backend gates; do not replace MiniCPM5 or infer native support.
 
 The current canonical result is
 [v5 eval02](reports/memory_reliability_v5_scorer_fix_eval02/verdict_final.json).
@@ -182,9 +199,10 @@ reports and the pinned D2 resume launcher retain their original limits; create
 a new version with matched policy/code hashes for new 50 GiB work. This changes
 no allocator limit and establishes no new model fit.
 CPU remains appropriate for host I/O and small contract tests. MPS is not ANE.
-Use experimental `muon8bit` plus the documented auxiliary FP32 AdamW groups
-unless a comparison explicitly changes the optimizer. Record actual trainable
-membership, gradients, changed tensors, tokens, time and memory.
+Use native `adamw_fused` for new training after integration checks; the production
+`adamw` option remains custom eager and historical Muon experiments retain their
+provenance. Record actual trainable membership, gradients, changed tensors, tokens,
+time, memory and optimizer state. Full-size native resume is still unqualified.
 
 BF16 source weights/compute do not imply BF16 parameter residency in the current
 FP32 trainer. Muon int8 momentum does not enable FP8 weight training. Qualify
