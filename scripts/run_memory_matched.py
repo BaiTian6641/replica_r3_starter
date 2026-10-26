@@ -140,8 +140,6 @@ def run_native(args, parser):
 
     admission, admission_sha256 = require_admission(prepared)
     verified = verify_matched_prepared(prepared)
-    if verified['implementation_sha256'] != protocol['implementation_sha256']:
-        raise ValueError('Implementation pins differ from the admitted preparation')
     if protocol['episodes']['sha256'] != sha(episodes_path):
         raise ValueError('Episode bytes differ from the protocol pin')
     if protocol['labels']['sha256'] != sha(labels_path):
@@ -208,7 +206,8 @@ def run_native(args, parser):
                 'source_lock_sha256': sha(model_lock),
                 'writer_extension': extension_receipt,
             }
-            report['implementation_sha256'] = protocol['implementation_sha256']
+            report['implementation_sha256'] = verified['implementation_sha256']
+            report['implementation_migrations'] = verified['implementation_migrations']
             result = run_matched_diagnostic(
                 model, tokenizer, protocol, output_dir=output,
                 ledger_dir=output / 'ledger', episodes=data['episodes'],
@@ -218,7 +217,8 @@ def run_native(args, parser):
             result['native_run'] = report['native']
             result['prepared'] = report['prepared']
             result['source'] = source
-            result['implementation_sha256'] = protocol['implementation_sha256']
+            result['implementation_sha256'] = verified['implementation_sha256']
+            result['implementation_migrations'] = verified['implementation_migrations']
             result['raw_readouts_path'] = 'readouts.jsonl'
             result['raw_answers_path'] = 'answers.jsonl'
             result['codebooks_path'] = 'codebooks.json'

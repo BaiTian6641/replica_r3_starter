@@ -1,0 +1,36 @@
+{
+  "format": "replica.memory_matched.implementation_migrations.v1",
+  "mode": "explicit_read_only_migration",
+  "reason": "prepared02 protocol.json, manifest.json, episodes.json, labels.json and both audits stay byte-identical. Five implementation files moved from their prepared pins to declared current bytes for this read-only diagnostic; every other implementation pin is enforced unchanged and verification stays fail-closed without this sidecar.",
+  "prepared": {
+    "protocol_sha256": "da4a2274644eb9c6deaf32678526c945c091c0e86a15ca338beb670eb1f4abc8",
+    "manifest_sha256": "9f421504632988f802c0e21d68d1e41fa766a3f934356f900f5fbeec6dca6abc"
+  },
+  "migrations": {
+    "scripts/run_memory_matched.py": {
+      "parent_sha256": "7e3a96f78365015fc24c449c81451affdbc556213ddf3083b71f3c89ac686853",
+      "current_sha256": "75555c47b0f58169f6763969c2b5fd895ca2eb63209e013269f8f5f20252ac41",
+      "reason": "Consumes the verified current implementation map and explicit migration receipt instead of rejecting valid drift against historical prepared pins; episode, generation and artifact behavior is unchanged."
+    },
+    "src/replica_lab/architecture/contracts.py": {
+      "parent_sha256": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+      "current_sha256": "d882f03cb6f7b0c52dcf39b83b296d8602e34e02bfa95741b2f97b7b654d67a9",
+      "reason": "Additive PlasticSpec/PlasticRead contracts; this matched memory diagnostic does not use them and enforces the declared current bytes."
+    },
+    "src/replica_lab/architecture/minicpm5.py": {
+      "parent_sha256": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+      "current_sha256": "07003b00a381abb199bee106615eaf7ba23a658ad09d0580174c644b519f32ce",
+      "reason": "Additive plastic read/site capture; projector, forward_with_frame, generation and loss paths are unchanged and current bytes are enforced."
+    },
+    "src/replica_lab/memory_matched.py": {
+      "parent_sha256": "b8df1e83d39094b7e3bd9efb45791368103630100c8d1dad7b164dc9833e5674",
+      "current_sha256": "7ba3a923d36171a7511dfff70cb77e15883dc64bb1bcd9eaebb6b7cba6a581c7",
+      "reason": "Adds the pure implementation-migration validator and its fail-closed sidecar check; prepared episode, label, prompt, generation and admission semantics are unchanged."
+    },
+    "src/replica_lab/memory_system/session.py": {
+      "parent_sha256": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+      "current_sha256": "a88d047a667201b09390304f636969d0aee2c65724b72d164f9fa57cb79039b9",
+      "reason": "Additive optional plastic input plumbing; the matched memory session read/write and answer paths are unchanged and current bytes are enforced."
+    }
+  }
+}

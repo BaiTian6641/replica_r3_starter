@@ -89,6 +89,9 @@ ANSWER_FORMAT = 'replica.memory_matched.answer.v1'
 CODEBOOK_FORMAT = 'replica.memory_matched.codebook.v1'
 PROMPT_AUDIT_FORMAT = 'replica.memory_matched.prompt_audit.v1'
 GENERATION_AUDIT_FORMAT = 'replica.memory_matched.generation_audit.v1'
+MIGRATION_FORMAT = 'replica.memory_matched.implementation_migrations.v1'
+MIGRATION_MODE = 'explicit_read_only_migration'
+MIGRATION_FILENAME = 'implementation_migrations.json'
 
 SPLITS = ('train', 'dev', 'heldout')
 COMPLEXITIES = ('single', 'pair', 'triple', 'correction', 'interference')
@@ -413,6 +416,110 @@ def _implementation_sha256():
         _require(path.is_file(), f'Implementation pin path is missing: {relative}')
         result[relative] = _sha_file(path)
     return result
+
+
+def _is_sha256(value):
+    return (isinstance(value, str) and len(value) == 64
+            and all(character in '0123456789abcdef' for character in value))
+
+
+def _require_sha256(value, label):
+    _require(_is_sha256(value),
+             f'{label} is not a lowercase SHA-256 digest')
+
+
+def _implementation_drift(prepared_pins, current_pins):
+    """Validate both pin maps and return the set of files that moved."""
+    _require(isinstance(prepared_pins, dict) and bool(prepared_pins)
+             and isinstance(current_pins, dict) and bool(current_pins),
+             'Matched implementation pins are missing')
+    _require(set(prepared_pins) == set(current_pins),
+             'Current implementation map does not mirror the prepared pins')
+    for relative in prepared_pins:
+        _require_sha256(prepared_pins[relative], f'Prepared pin {relative}')
+        _require_sha256(current_pins[relative], f'Current pin {relative}')
+    return {relative for relative in prepared_pins
+            if prepared_pins[relative] != current_pins[relative]}
+
+
+def validate_implementation_migrations(sidecar, *, prepared_pins, current_pins,
+                                       protocol_sha256, manifest_sha256):
+    """Validate one explicit read-only implementation migration declaration.
+
+    Pure: every input is already-loaded data, nothing is read from disk.  The
+    sidecar pins the immutable prepared protocol and manifest bytes and must
+    name exactly the implementation files whose current bytes differ from the
+    prepared pins.  Missing, extra, stale or fabricated entries are rejected.
+    Returns the concise migration report used by the admission receipt.
+    """
+    _require(isinstance(sidecar, dict)
+             and set(sidecar) == {'format', 'mode', 'reason', 'prepared',
+                                  'migrations'},
+             'Implementation migration sidecar schema differs')
+    _require(sidecar['format'] == MIGRATION_FORMAT,
+             'Implementation migration sidecar format differs')
+    _require(sidecar['mode'] == MIGRATION_MODE,
+             'Implementation migrations must be explicit and read-only')
+    _require(isinstance(sidecar['reason'], str) and sidecar['reason'].strip(),
+             'Implementation migration sidecar lacks a reason')
+    pinned = sidecar['prepared']
+    _require(isinstance(pinned, dict)
+             and set(pinned) == {'protocol_sha256', 'manifest_sha256'},
+             'Implementation migration parent pins are malformed')
+    _require_sha256(pinned['protocol_sha256'], 'Migration protocol_sha256')
+    _require_sha256(pinned['manifest_sha256'], 'Migration manifest_sha256')
+    _require(pinned['protocol_sha256'] == protocol_sha256,
+             'Implementation migrations pin different prepared protocol bytes')
+    _require(pinned['manifest_sha256'] == manifest_sha256,
+             'Implementation migrations pin different prepared manifest bytes')
+    drifted = _implementation_drift(prepared_pins, current_pins)
+    migrations = sidecar['migrations']
+    _require(isinstance(migrations, dict),
+             'Implementation migrations are malformed')
+    _require(set(migrations) == drifted,
+             'Implementation migrations do not cover exactly the changed '
+             'files')
+    report = {}
+    for relative in sorted(drifted):
+        migration = migrations[relative]
+        _require(isinstance(migration, dict)
+                 and set(migration) == {'parent_sha256', 'current_sha256',
+                                        'reason'},
+                 f'Implementation migration is malformed: {relative}')
+        _require_sha256(migration['parent_sha256'],
+                        f'Migration parent {relative}')
+        _require_sha256(migration['current_sha256'],
+                        f'Migration current {relative}')
+        _require(migration['parent_sha256'] == prepared_pins[relative],
+                 f'Implementation migration parent is stale: {relative}')
+        _require(migration['current_sha256'] == current_pins[relative],
+                 f'Implementation migration current pin is stale: {relative}')
+        _require(isinstance(migration['reason'], str)
+                 and bool(migration['reason'].strip()),
+                 f'Implementation migration lacks a reason: {relative}')
+        report[relative] = dict(migration)
+    return {'format': MIGRATION_FORMAT, 'mode': MIGRATION_MODE,
+            'protocol_sha256': protocol_sha256,
+            'manifest_sha256': manifest_sha256,
+            'migrated': sorted(drifted), 'migrations': report}
+
+
+def _verify_implementation_migrations(prepared, *, prepared_pins, current_pins,
+                                      protocol_sha256, manifest_sha256):
+    """Load and validate the sidecar; drift without one fails closed."""
+    path = prepared / MIGRATION_FILENAME
+    if not path.is_file():
+        _require(not _implementation_drift(prepared_pins, current_pins),
+                 'Matched implementation pins changed and no explicit '
+                 f'migration sidecar exists: {MIGRATION_FILENAME}')
+        return None
+    report = validate_implementation_migrations(
+        json.loads(path.read_text()), prepared_pins=prepared_pins,
+        current_pins=current_pins, protocol_sha256=protocol_sha256,
+        manifest_sha256=manifest_sha256)
+    report['path'] = MIGRATION_FILENAME
+    report['sha256'] = _sha_file(path)
+    return report
 
 
 # ---------------------------------------------------------------------------
@@ -3279,9 +3386,13 @@ def verify_matched_prepared(prepared):
              and _sha_file(config_path) == protocol['config_sha256'],
              'Configuration bytes changed after preparation')
     current = _implementation_sha256()
-    _require(protocol.get('implementation_sha256') == current
-             and manifest.get('implementation_sha256') == current,
-             'Matched implementation pins changed')
+    prepared_pins = protocol.get('implementation_sha256')
+    _require(manifest.get('implementation_sha256') == prepared_pins,
+             'Matched implementation pins differ between protocol and manifest')
+    implementation_migrations = _verify_implementation_migrations(
+        prepared, prepared_pins=prepared_pins, current_pins=current,
+        protocol_sha256=_sha_file(protocol_path),
+        manifest_sha256=_sha_file(manifest_path))
     source = protocol.get('source')
     _require(isinstance(source, dict) and source == _source_pins(
         source.get('model_path'), source.get('model_lock')),
@@ -3427,6 +3538,7 @@ def verify_matched_prepared(prepared):
         'source': source, 'source_lock_sha256': source['model_lock_sha256'],
         'writer_extension': extension,
         'implementation_sha256': current,
+        'implementation_migrations': implementation_migrations,
         'seed': data['seed'], 'variants': data['variants'],
         'families_per_split': data['families_per_split'],
         'audit': audit, 'planned_workload': protocol['planned_workload'],

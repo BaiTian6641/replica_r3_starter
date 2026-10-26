@@ -22,6 +22,8 @@ from replica_lab.memory_matched import (
     DEFAULT_LIMITS,
     FORBIDDEN_INPUT_MARKERS,
     LABELS_FORMAT,
+    MIGRATION_FORMAT,
+    MIGRATION_MODE,
     PROTOCOL_FORMAT,
     admit_matched_prepared,
     derive_matched_labels,
@@ -37,6 +39,7 @@ from replica_lab.memory_matched import (
     score_matched,
     select_first_failing_stage,
     state_observation_sha256,
+    validate_implementation_migrations,
     validate_matched_episodes,
     verify_matched_prepared,
     writer_inputs,
@@ -600,6 +603,151 @@ def test_prepare_verify_and_admit_pins_are_regenerative(tmp_path):
         verify_matched_prepared(output)
     labels_path.write_text(original)
     assert verify_matched_prepared(output)['status'] == 'admitted'
+
+
+MIGRATION_PROTOCOL_PIN = 'a' * 64
+MIGRATION_MANIFEST_PIN = 'b' * 64
+
+
+def _migration_pin_maps():
+    prepared = {'src/replica_lab/a.py': '1' * 64,
+                'src/replica_lab/b.py': '2' * 64}
+    current = {'src/replica_lab/a.py': '3' * 64,
+               'src/replica_lab/b.py': '2' * 64}
+    return prepared, current
+
+
+def _migration_sidecar(*, migrated=True):
+    return {
+        'format': MIGRATION_FORMAT,
+        'mode': MIGRATION_MODE,
+        'reason': 'Read-only diagnostic; prepared data bytes are unchanged.',
+        'prepared': {'protocol_sha256': MIGRATION_PROTOCOL_PIN,
+                     'manifest_sha256': MIGRATION_MANIFEST_PIN},
+        'migrations': ({'src/replica_lab/a.py': {
+            'parent_sha256': '1' * 64, 'current_sha256': '3' * 64,
+            'reason': 'Additive helper only; scored paths are unchanged.'}}
+            if migrated else {}),
+    }
+
+
+def _validate_migrations(sidecar, prepared, current):
+    return validate_implementation_migrations(
+        sidecar, prepared_pins=prepared, current_pins=current,
+        protocol_sha256=MIGRATION_PROTOCOL_PIN,
+        manifest_sha256=MIGRATION_MANIFEST_PIN)
+
+
+def test_implementation_migrations_accept_exactly_the_drifted_files():
+    prepared, current = _migration_pin_maps()
+    sidecar = _migration_sidecar()
+    report = _validate_migrations(sidecar, prepared, current)
+    assert report['migrated'] == ['src/replica_lab/a.py']
+    assert report['migrations'] == sidecar['migrations']
+    assert report['protocol_sha256'] == MIGRATION_PROTOCOL_PIN
+    assert report['manifest_sha256'] == MIGRATION_MANIFEST_PIN
+    assert report['mode'] == MIGRATION_MODE
+    # Validation never mutates the declared sidecar or the pin maps.
+    assert sidecar == _migration_sidecar()
+    assert prepared == _migration_pin_maps()[0]
+    assert current == _migration_pin_maps()[1]
+
+    # With no drift, an empty migration set is accepted and nothing is reported.
+    report = _validate_migrations(_migration_sidecar(migrated=False),
+                                 current, dict(current))
+    assert report['migrated'] == [] and report['migrations'] == {}
+
+
+def test_implementation_migrations_reject_wrong_parent_pins():
+    prepared, current = _migration_pin_maps()
+    for field, error in (('protocol_sha256', 'protocol bytes'),
+                         ('manifest_sha256', 'manifest bytes')):
+        sidecar = deepcopy(_migration_sidecar())
+        sidecar['prepared'][field] = 'c' * 64
+        with pytest.raises(ValueError, match=error):
+            _validate_migrations(sidecar, prepared, current)
+
+
+def test_implementation_migrations_reject_stale_or_fabricated_hashes():
+    prepared, current = _migration_pin_maps()
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['migrations']['src/replica_lab/a.py']['parent_sha256'] = '4' * 64
+    with pytest.raises(ValueError, match='parent is stale'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['migrations']['src/replica_lab/a.py']['current_sha256'] = '4' * 64
+    with pytest.raises(ValueError, match='current pin is stale'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['migrations']['src/replica_lab/a.py']['current_sha256'] = 'A' * 64
+    with pytest.raises(ValueError, match='lowercase SHA-256'):
+        _validate_migrations(sidecar, prepared, current)
+
+
+def test_implementation_migrations_reject_missing_or_extra_entries():
+    prepared, current = _migration_pin_maps()
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['migrations'] = {}
+    with pytest.raises(ValueError, match='exactly the changed files'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['migrations']['src/replica_lab/b.py'] = {
+        'parent_sha256': '2' * 64, 'current_sha256': '5' * 64,
+        'reason': 'Undeclared drift must not be accepted.'}
+    with pytest.raises(ValueError, match='exactly the changed files'):
+        _validate_migrations(sidecar, prepared, current)
+
+    # A stale sidecar carrying entries against a drift-free bundle is extra.
+    with pytest.raises(ValueError, match='exactly the changed files'):
+        _validate_migrations(_migration_sidecar(), current, current)
+
+
+def test_implementation_migrations_reject_malformed_schema():
+    prepared, current = _migration_pin_maps()
+    sidecar = deepcopy(_migration_sidecar())
+    del sidecar['prepared']
+    with pytest.raises(ValueError, match='schema differs'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['mode'] = 'automatic'
+    with pytest.raises(ValueError, match='explicit and read-only'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    del sidecar['migrations']['src/replica_lab/a.py']['reason']
+    with pytest.raises(ValueError, match='malformed'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['migrations']['src/replica_lab/a.py']['reason'] = '   '
+    with pytest.raises(ValueError, match='lacks a reason'):
+        _validate_migrations(sidecar, prepared, current)
+
+    sidecar = deepcopy(_migration_sidecar())
+    sidecar['reason'] = ''
+    with pytest.raises(ValueError, match='lacks a reason'):
+        _validate_migrations(sidecar, prepared, current)
+
+    with pytest.raises(ValueError, match='does not mirror'):
+        _validate_migrations(_migration_sidecar(), prepared,
+                             {'src/replica_lab/a.py': '3' * 64})
+
+
+def test_missing_migration_sidecar_fails_closed_only_under_drift(tmp_path):
+    from replica_lab.memory_matched import _verify_implementation_migrations
+
+    prepared, current = _migration_pin_maps()
+    kwargs = dict(protocol_sha256=MIGRATION_PROTOCOL_PIN,
+                  manifest_sha256=MIGRATION_MANIFEST_PIN)
+    assert _verify_implementation_migrations(
+        tmp_path, prepared_pins=current, current_pins=current, **kwargs) is None
+    with pytest.raises(ValueError, match='no explicit migration sidecar'):
+        _verify_implementation_migrations(
+            tmp_path, prepared_pins=prepared, current_pins=current, **kwargs)
 
 
 def test_default_frozen_answerer_enables_fast_port_for_memory_only(tmp_path):
