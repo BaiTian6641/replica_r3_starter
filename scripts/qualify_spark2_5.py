@@ -188,7 +188,7 @@ def environment_issues(
     expected = plan["environment"]
     entry = plan["sources"][role]
     issues: list[str] = []
-    if platform_name != "darwin":
+    if platform_name.lower() != "darwin":
         issues.append("platform is not macOS")
     if not python_version.startswith(str(expected["python"])):
         issues.append(f"python {python_version} does not start with {expected['python']}")

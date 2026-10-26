@@ -386,7 +386,7 @@ def test_plan_pins_environment_and_payload_refusals(tmp_path):
             "HF_DATASETS_OFFLINE": "1", "REPLICA_CAPACITY_GUARD": "1",
             "PYTORCH_ENABLE_MPS_FALLBACK": "0"}
     issues = qualification.environment_issues(
-        plan, "official_bf16_control", platform_name="darwin",
+        plan, "official_bf16_control", platform_name="Darwin",
         python_version="3.12.14", torch_version="2.14.1",
         transformers_version="4.57.1", compressed_tensors_version=None,
         mps_available=True, environ=good)
