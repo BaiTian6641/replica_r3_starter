@@ -6,11 +6,12 @@ media assets or other large payloads, and it never rewrites an input file.
 Every required input is identified by repository-relative path, role, byte
 size and SHA-256 digest.
 
-A clean checkout is one where every required input is tracked by git and its
-worktree bytes match the manifest. Untracked inputs are refused by default:
-they are a hidden user-file dependency even when they happen to exist locally.
-``--allow-untracked`` is an explicit development-only override; a manifest
-written that way records ``clean_checkout_ready: false``.
+A clean checkout has every required input tracked by git, no unstaged input
+changes, and worktree bytes matching the manifest. Untracked inputs and
+unstaged modifications are refused by default; intentional staged changes are
+allowed because they belong to the commit being prepared. ``--allow-untracked``
+is an explicit development-only override and records ``clean_checkout_ready:
+false``.
 
 Commands:
   python3 scripts/prepare_sparkx_research_bundle.py --write
@@ -385,6 +386,19 @@ def _git_tracked(root: Path, relative: str) -> bool:
     return result.returncode == 0
 
 
+def _git_worktree_matches_index(root: Path, relative: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "diff", "--quiet", "--", relative],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    except OSError:
+        return False
+    return result.returncode == 0
+
+
 def _entry(root: Path, relative: str, role: str, allow_untracked: bool) -> dict:
     path = root / relative
     if not path.is_file():
@@ -395,10 +409,16 @@ def _entry(root: Path, relative: str, role: str, allow_untracked: bool) -> dict:
     except OSError as error:  # pragma: no cover - permission/IO failure
         raise BundleError(f"unreadable required input: {relative}: {error}") from error
     tracked = _git_tracked(root, relative)
+    matches_index = _git_worktree_matches_index(root, relative)
     if not tracked and not allow_untracked:
         raise BundleError(
             f"untracked required input: {relative} (commit it, or use "
             "--allow-untracked for a development-only manifest)"
+        )
+    if tracked and not matches_index and not allow_untracked:
+        raise BundleError(
+            f"unstaged required input change: {relative} (stage it for the "
+            "intended commit or preserve it outside the clean bundle)"
         )
     return {
         "path": relative,
@@ -406,6 +426,7 @@ def _entry(root: Path, relative: str, role: str, allow_untracked: bool) -> dict:
         "bytes": size,
         "sha256": digest,
         "tracked_in_git": tracked,
+        "worktree_matches_index": matches_index,
     }
 
 
@@ -421,6 +442,7 @@ def build_manifest(root: Path, allow_untracked: bool = False) -> dict:
         key=lambda entry: entry["path"],
     )
     untracked = [entry["path"] for entry in entries if not entry["tracked_in_git"]]
+    dirty = [entry["path"] for entry in entries if not entry["worktree_matches_index"]]
     return {
         "format": FORMAT,
         "kind": "hashed_manifest_not_an_asset_copy",
@@ -432,8 +454,9 @@ def build_manifest(root: Path, allow_untracked: bool = False) -> dict:
         "input_count": len(entries),
         "total_input_bytes": sum(entry["bytes"] for entry in entries),
         "bundle_digest": _canonical_digest(entries),
-        "clean_checkout_ready": not untracked,
+        "clean_checkout_ready": not untracked and not dirty,
         "untracked_inputs": untracked,
+        "unstaged_modified_inputs": dirty,
         "tracking_enforced": not allow_untracked,
         "inputs": entries,
         "not_copied": NOT_COPIED,
@@ -498,6 +521,7 @@ def verify_manifest(
         size = path.stat().st_size
         digest = sha256_file(path)
         tracked = _git_tracked(root, relative)
+        matches_index = _git_worktree_matches_index(root, relative)
         if size != record.get("bytes"):
             failures.append(
                 {"path": relative, "reason": "size_mismatch", "expected": record.get("bytes"), "actual": size}
@@ -508,6 +532,8 @@ def verify_manifest(
             )
         if require_tracking and not allow_untracked and not tracked:
             failures.append({"path": relative, "reason": "untracked_in_git"})
+        if require_tracking and not allow_untracked and not matches_index:
+            failures.append({"path": relative, "reason": "unstaged_modification"})
         entries.append(
             {
                 "path": relative,
@@ -515,6 +541,7 @@ def verify_manifest(
                 "bytes": size,
                 "sha256": digest,
                 "tracked_in_git": tracked,
+                "worktree_matches_index": matches_index,
             }
         )
 

@@ -78,6 +78,27 @@ def test_bundle_manifest_is_deterministic(tmp_path: Path) -> None:
     assert bundle.build_manifest(root) == bundle.build_manifest(root)
 
 
+def test_bundle_rejects_unstaged_change_but_allows_staged_update(tmp_path: Path) -> None:
+    root = _bundle_tree(tmp_path / "repo")
+    manifest = bundle.build_manifest(root)
+    relative = bundle.INPUT_ROLES[0][0]
+    target = root / relative
+    target.write_text("unstaged user change\n", encoding="utf-8")
+    with pytest.raises(bundle.BundleError, match="unstaged required input change"):
+        bundle.build_manifest(root)
+    report = bundle.verify_manifest(root, manifest)
+    assert report["verified"] is False
+    assert any(
+        failure["reason"] == "unstaged_modification"
+        for failure in report["failures"]
+    )
+    subprocess.run(["git", "add", "--", relative], cwd=root, check=True)
+    updated = bundle.build_manifest(root)
+    assert updated["clean_checkout_ready"] is True
+    assert updated["unstaged_modified_inputs"] == []
+    assert updated["bundle_digest"] != manifest["bundle_digest"]
+
+
 def test_bundle_verify_detects_hash_tamper(tmp_path: Path) -> None:
     root = _bundle_tree(tmp_path / "repo")
     manifest = bundle.build_manifest(root)
