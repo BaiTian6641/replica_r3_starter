@@ -62,6 +62,7 @@ def execute(args, profiler):
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
         raise RuntimeError("Explicit CPU fallback=0 is required")
     for key in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE"):
+        if os.environ.get(key) != "1":
             raise RuntimeError(f"{key}=1 is required")
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer

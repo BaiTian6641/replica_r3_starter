@@ -75,3 +75,11 @@ def test_gradient_audit_matches_actual_adapter_contract():
         PROBE._require_full_gradient_audit(
             {"original": {"nonzero_gradient_tensors": 1,
                           "missing_gradient_names": ["head"]}}, 2)
+
+
+def test_execute_requires_offline_environment(monkeypatch):
+    monkeypatch.setenv("REPLICA_CAPACITY_GUARD", "1")
+    monkeypatch.setenv("PYTORCH_ENABLE_MPS_FALLBACK", "0")
+    monkeypatch.delenv("HF_HUB_OFFLINE", raising=False)
+    with pytest.raises(RuntimeError, match="HF_HUB_OFFLINE=1"):
+        PROBE.execute(SimpleNamespace(mode="sustained"), profiler=None)
