@@ -1,0 +1,149 @@
+{
+  "baseline": {
+    "artifact_sha256": "ca66fc7f500f4b36a1d7a1274176d54b79332693604e70492a1a96855b90423d",
+    "declared_budgets": [
+      512,
+      2048
+    ],
+    "executed_budget": 8,
+    "precision_kind": "official_bf16",
+    "role": "official_bf16_control"
+  },
+  "claims": {
+    "capability_claim": "none",
+    "declared_budgets_executed": false,
+    "heldout_accessed": false,
+    "training_claimed": false
+  },
+  "comparison": {
+    "all_prompts_paired": true,
+    "exact_token_agreement_count": 2,
+    "non_bitwise": true,
+    "note": "Paired smoke rows only; no accuracy tolerance, 512/2048 budget or capability claim is established.",
+    "paired_rows": 3
+  },
+  "derivative": {
+    "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+    "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+    "declared_budgets": [
+      512,
+      2048
+    ],
+    "executed_budget": 8,
+    "precision_kind": "dequantized_fp8_derivative",
+    "role": "dequantized_fp8_derivative"
+  },
+  "fingerprint": "4e32ba1a4a8ecfdc4fb67ce9cc90e848d2e54f174ca82b102a04560490afdc41",
+  "rows": [
+    {
+      "baseline_decoded_text_sha256": "a1edba8c850d0bf8c6af42958c0b21789acea71ebf526d0b6aa412363b7f919d",
+      "baseline_latency_seconds": 1.2219702913425863,
+      "baseline_reasoning_token_count": 0,
+      "baseline_stop_reason": "max_new_tokens",
+      "baseline_token_count": 8,
+      "baseline_token_ids": [
+        3066,
+        1633,
+        6787,
+        3754,
+        27179,
+        2795,
+        3182,
+        9640
+      ],
+      "derivative_decoded_text_sha256": "a1edba8c850d0bf8c6af42958c0b21789acea71ebf526d0b6aa412363b7f919d",
+      "derivative_latency_seconds": 1.2171700410544872,
+      "derivative_reasoning_token_count": 0,
+      "derivative_stop_reason": "max_new_tokens",
+      "derivative_token_count": 8,
+      "derivative_token_ids": [
+        3066,
+        1633,
+        6787,
+        3754,
+        27179,
+        2795,
+        3182,
+        9640
+      ],
+      "exact_token_match": true,
+      "prompt_id": "q_primary_colors",
+      "prompt_token_count": 72,
+      "thinking": "high"
+    },
+    {
+      "baseline_decoded_text_sha256": "632e46ba8609e718e3a298952ddcc639b463d967515384991eaca447786fbec1",
+      "baseline_latency_seconds": 1.3088187500834465,
+      "baseline_reasoning_token_count": 0,
+      "baseline_stop_reason": "max_new_tokens",
+      "baseline_token_count": 8,
+      "baseline_token_ids": [
+        3066,
+        1633,
+        312,
+        6787,
+        39,
+        518,
+        2441,
+        3182
+      ],
+      "derivative_decoded_text_sha256": "4d56e9079b8949c94708fe36feeb340cabcd9ec75af223a780ae66989922809f",
+      "derivative_latency_seconds": 1.2692037499509752,
+      "derivative_reasoning_token_count": 0,
+      "derivative_stop_reason": "max_new_tokens",
+      "derivative_token_count": 8,
+      "derivative_token_ids": [
+        3066,
+        1633,
+        6787,
+        6645,
+        27,
+        35069,
+        2795,
+        3182
+      ],
+      "exact_token_match": false,
+      "prompt_id": "q_primary_colors",
+      "prompt_token_count": 72,
+      "thinking": "low"
+    },
+    {
+      "baseline_decoded_text_sha256": "a891cbe8e9a9a65348cc3826e264a04353ef8c45bbf958cc4b4c6a2a9f3199a4",
+      "baseline_latency_seconds": 0.6750542498193681,
+      "baseline_reasoning_token_count": 0,
+      "baseline_stop_reason": "max_new_tokens",
+      "baseline_token_count": 8,
+      "baseline_token_ids": [
+        1046,
+        3182,
+        9640,
+        17175,
+        314,
+        4077,
+        404,
+        2211
+      ],
+      "derivative_decoded_text_sha256": "a891cbe8e9a9a65348cc3826e264a04353ef8c45bbf958cc4b4c6a2a9f3199a4",
+      "derivative_latency_seconds": 0.6814601249061525,
+      "derivative_reasoning_token_count": 0,
+      "derivative_stop_reason": "max_new_tokens",
+      "derivative_token_count": 8,
+      "derivative_token_ids": [
+        1046,
+        3182,
+        9640,
+        17175,
+        314,
+        4077,
+        404,
+        2211
+      ],
+      "exact_token_match": true,
+      "prompt_id": "q_primary_colors",
+      "prompt_token_count": 21,
+      "thinking": "none"
+    }
+  ],
+  "schema": "replica.spark2_5_arm_comparison.v1",
+  "status": "completed"
+}

@@ -1,0 +1,108 @@
+{
+  "format": "replica.spark2_5_qualification.summary.v1",
+  "date_utc": "2026-10-26",
+  "selected_runs": {
+    "bf16": "runs/spark_qualification_20261026/bf16_06/qualification_report.json",
+    "derivative": "runs/spark_qualification_20261026/derivative_02/qualification_report.json",
+    "comparison": "reports/spark_qualification_20261026/comparison.json"
+  },
+  "acquisition": {
+    "receipt": "reports/spark_weight_acquisition_20261026/receipt_01.json",
+    "status": "complete_and_offline_reverified",
+    "official_files": 25,
+    "bytes_downloaded": 12705404543,
+    "official_weight_bytes": 12675818528,
+    "fp8_snapshot": "checkpoints/sparkx2_5_fp8_source",
+    "bf16_snapshot": "checkpoints/sparkx2_5_bf16_source",
+    "model_code_executed_during_acquisition": false,
+    "offline_reverification_network_requests": 0
+  },
+  "derivative": {
+    "root": "checkpoints/spark_fp8_derivative_v1",
+    "manifest": "checkpoints/spark_fp8_derivative_v1/derivative_manifest.json",
+    "artifact_sha256": "c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882",
+    "shards": 8,
+    "wall_seconds": 13.85,
+    "identity": "dequantized_fp8_derivative",
+    "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+    "official_bf16_release": false,
+    "native_fp8_execution": false,
+    "second_derivative_created": false
+  },
+  "qualification": {
+    "tests": "15 passed",
+    "stages": ["load", "inference", "input_gradients", "single_update", "export_reload"],
+    "loaded_parameter_elements": 4112079360,
+    "loaded_tensor_count": 290,
+    "extension_tensor_count": 24,
+    "zero_init_parity": true,
+    "new_gradient_tensors": 24,
+    "new_gradient_finite": true,
+    "new_gradient_nonzero": true,
+    "optimizer": "NativeFusedAdamW",
+    "optimizer_steps": 1,
+    "base_unchanged": true,
+    "fresh_process": true,
+    "fresh_process_max_abs_logit_difference": 0.0,
+    "fresh_process_exact_greedy_tokens": true,
+    "base_or_optimizer_checkpoints_written": false,
+    "extension_contains_base_weights": false
+  },
+  "resources": {
+    "bf16": {
+      "guard_seconds": 27.97310262499377,
+      "peak_driver_bytes": 9552216064,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 77.0
+    },
+    "derivative": {
+      "guard_seconds": 26.39054508274421,
+      "peak_driver_bytes": 9552232448,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 77.0
+    },
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_free_percent_limit": 15,
+    "native_workers": 1,
+    "cpu_fallback": false
+  },
+  "comparison": {
+    "paired_prompt_rows": 3,
+    "exact_token_agreement_count": 2,
+    "cross_arm_logits": {
+      "shape": [1, 21, 131072],
+      "finite": true,
+      "max_abs_difference": 10.875,
+      "mean_abs_difference": 0.9691294431686401,
+      "exact_greedy_tokens": false,
+      "source": "runs/spark_qualification_20261026/bf16_06/reload_expected.pt and derivative_02/reload_expected.pt"
+    },
+    "interpretation": "The dequantized derivative is not the official BF16 release. Exact fresh-process reload within each arm does not imply cross-precision equality."
+  },
+  "storage": {
+    "spark_specific_budget_bytes": 42949672960,
+    "budget_respected": true,
+    "official_and_derivative_payload_bytes": 20900010936,
+    "latest_free_bytes": 491607945216,
+    "derivative_count": 1,
+    "full_base_saves": 0,
+    "duplicate_derivatives": 0,
+    "environment_locks": ["requirements-spark.lock.txt", "requirements-spark-bf16.lock.txt"]
+  },
+  "preserved_failures": [
+    {"stage": "initial invocation", "reason": "Darwin capitalization rejected before model load"},
+    {"stage": "load reporting", "reason": "Tokenizer identity digest accessed as a serialized key instead of computed fingerprint"},
+    {"stage": "inference/gradient", "reason": "Extension and memory-port device placement and registration"},
+    {"stage": "derivative load", "reason": "Derivative parameter_elements pin missing"}
+  ],
+  "non_claims": {
+    "official_native_fp8_on_mps": false,
+    "full_fp32_spark_training_admitted": false,
+    "declared_512_2048_generation_budgets_executed": false,
+    "h200_or_cuda_qualified": false,
+    "training_convergence_or_capability": false,
+    "heldout_accessed": false
+  },
+  "next_gate": "Use the qualified adapter only for a separately declared experiment. Native FP8 requires an explicitly FP8-capable backend; full training requires a separate H200/equivalent residency admission."
+}

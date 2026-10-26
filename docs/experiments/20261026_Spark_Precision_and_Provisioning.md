@@ -3,10 +3,10 @@
 26 October 2026. This note defines the frozen-base Spark2_5 qualification path,
 the single authorized FP8 derivative, the 40 GiB Spark-specific storage ledger,
 and the separate H200/full-FP32 provisioning boundary. It records what is
-implemented and what is **not** measured. No Spark weights are present locally;
-no native Spark stage, weight download, heldout access or training run is
-performed by this work. The parent workflow schedules the isolated environment,
-downloads, tests and native stages and appends measured receipts.
+and the separate H200/full-FP32 provisioning boundary. Official BF16 and FP8
+snapshots are now hash-verified locally, and BF16 plus one explicitly labelled
+derivative have completed the frozen-base qualification path. Native FP8 and
+full-FP32 Spark training remain unadmitted.
 
 Artefacts:
 
@@ -238,53 +238,62 @@ plan**, not a local exception:
 The existing compute-estimate report remains the planning baseline for H200
 hours and cost; this note only fixes the precision/provisioning boundary.
 
-## 8. Implemented, measured, rejected and not claimed
+## 8. Measured results
 
-**Implemented (offline, synthetic tests only)**
+**Acquisition and derivative.** The user authorized both official snapshots.
+The acquisition downloaded and verified 25 files totaling 12,705,404,543 bytes,
+then passed offline re-verification with zero network requests. The single
+FP8→BF16 derivative was written in 13.85 s with eight shards and artifact
+SHA256 `c52c6cc5e6aababa94105cf4612a09013cffd841c71d53d16356e6dc49966882`.
+Its manifest includes scale provenance, new config/precision digests and the
+explicit no-per-token-F8 activation semantics. No second derivative exists.
 
-- official geometry/precision admission and the frozen-base adapter;
-- zero-init parity and nonzero perturbation, freeze scope, FP32 optimizer
-  ownership, finite/nonzero new gradients, one-step update evidence;
-- complete projector+port extension inventory, extension-only save/load, stale
-  base rejection;
-- exact source/config/shard pins, environment refusal, missing-payload refusal,
-  implicit-dequantization refusal and fresh-process reload comparison;
-- the single FP8 derivative writer with scale provenance and a new identity;
-- the 40 GiB storage policy and H200/full-FP32 boundary.
+**Frozen-base qualification.** Selected runs are `bf16_06` and `derivative_02`.
+Both completed load, inference, input gradients, one FP32 update and
+extension-only fresh-process reload. Zero-initialized projector logits were
+bit-exact with the untouched base; perturbation changed them. All 24 new
+gradient tensors were finite with nonzero gradients at the final projections.
+One fused FP32 AdamW step changed only declared new tensors; the base stamp
+stayed unchanged. Fresh-process logits and greedy tokens matched exactly with
+zero measured difference. Extensions contain 24 tensors and no base weights or
+optimizer state.
 
-**Not measured**
+| Metric | BF16 `bf16_06` | Dequantized `derivative_02` |
+|---|---:|---:|
+| Projector perturbation | 48.6641 | 43.8672 |
+| Peak sampled driver bytes | 9,552,216,064 | 9,552,232,448 |
+| Guard wall time | 27.97 s | 26.39 s |
+| Swap growth | 0 | 0 |
+| Fresh-process max logit difference | 0.0 | 0.0 |
+| Extension tensors | 24 | 24 |
 
-- no Spark weight payload is present locally; no Spark model has been loaded;
-- no MPS BF16/derivative inference, gradient, update or reload has run;
-- no fused AdamW execution on MPS is established;
-- no H200 or other CUDA qualification exists;
-- no generation at the declared 512/2048 budgets, no heldout role, no training
-  convergence, throughput or capability claim.
+The paired generation comparison agrees exactly on 2/3 prompts. Cross-arm
+logits from `reload_expected.pt` differ by **10.875 maximum / 0.969129 mean
+absolute value**, and exact greedy tokens differ for the no-thinking case.
+This is direct evidence that the derivative is not the official BF16 release;
+it does not contradict exact reload within each arm. Paired comparison does not
+require bitwise equality and establishes no accuracy or capability claim.
 
-**Rejected**
+**Verification and failures.** Both adapter/dequant suites pass **15 tests**.
+Preserved early failures cover Darwin capitalization, tokenizer-digest access,
+extension/device placement, memory-port registration and the derivative
+parameter pin. Each was corrected before a fresh run; no failure was relabeled
+as a resource stop or capability result.
 
-- native FP8 on MPS, CPU fallback, implicit dequantization, official-BF16
-  labelling of a derivative, a second derivative variant, full-base saves
-  during qualification, local full FP32 Spark fine-tuning under the 50 GiB guard.
+**Storage.** Official payload plus one derivative is within the 40 GiB budget.
+Latest reported free space is 491,607,945,216 bytes. The two isolated runtime
+manifests are locked (`requirements-spark*.lock.txt`). No full-base checkpoint,
+optimizer checkpoint or repeated derivative was saved.
 
-**Report honesty fields**
+**Not measured or admitted.** Official native FP8 was not run on MPS. Declared
+512/2048-token generation budgets were not executed. H200/CUDA execution,
+full-FP32 Spark training, convergence, throughput and capability remain
+unmeasured or unadmitted. The H200 strategy above remains a separate admission,
+not a local exception.
 
-Every runner report carries `weights_downloaded`,
-`remote_code_executed`, `native_execution`, `fallback_used`,
-`dequantization_performed` and `capability_claim: none`; measured values are
-appended by the parent only after the corresponding stage actually runs.
+## 9. Next gate
 
-## 9. Next gates for the parent
-
-1. Install the isolated 4.57.x Spark environment; do not upgrade the locked
-   MiniCPM5 environment.
-2. Acquire the pinned BF16 and FP8 snapshots under a separate weight
-   authorization, verify every shard/config pin, and check the 40 GiB ledger.
-3. Run the tiny CPU tests:
-   `pytest tests/test_spark2_5_adapter.py tests/test_dequantize_spark_fp8.py -q`.
-4. Generate the one derivative with `scripts/dequantize_spark_fp8.py`, then run
-   the BF16 and derivative qualification paths through
-   `scripts/run_capacity_preflight.py` with fresh output paths, one worker,
-   `REPLICA_CAPACITY_GUARD=1`, offline flags and fallback disabled.
-5. Keep native FP8 and full FP32 Spark training blocked until their separate
-   backend/provisioning admissions are qualified.
+No further local training arm is justified by these results. Use the qualified
+BF16/derivative adapter only for a separately declared experiment. Native FP8
+requires a backend with explicit FP8 storage/compute/activation quantization;
+full training requires the separate H200 or equivalent residency admission.
