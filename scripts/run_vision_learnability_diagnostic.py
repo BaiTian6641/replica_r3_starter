@@ -766,10 +766,13 @@ def execute_ablation(args, config, pins):
                     order.snapshot(), accessed)
                 learn.require(access["ok"],
                               f"Sealed access observed: {access['violations']}")
-                data_bytes = _data_bytes(output)
                 learn.require(accounting.counts()
                               == {"model_loads": 1, "extension_loads": 1},
                               f"Load counts differ: {accounting.counts()}")
+                profiler.mark("report_ready")
+                summary = profiler.stop()
+                profiler_stopped = True
+                data_bytes = _data_bytes(output)
                 stop_report = collapse._stop_report(
                     started=started, limits=limits, guard=guard,
                     accounting=accounting, artifact_bytes=data_bytes)
@@ -780,9 +783,6 @@ def execute_ablation(args, config, pins):
                               and stop_report["no_extension_writes"],
                               "Zero-gradient policy was violated")
                 status = decision["decision"]
-                profiler.mark("report_ready")
-                summary = profiler.stop()
-                profiler_stopped = True
                 report = {
                     "format": learn.REPORT_FORMAT,
                     "version": learn.VERSION,
