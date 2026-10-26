@@ -8,15 +8,20 @@ import pytest
 from conftest import require_local_artifacts
 
 from replica_lab.contracts import fingerprint
+from replica_lab.learning import ManifestRegistry
 from replica_lab.runtime.bounded_rsi import (
-    APP_SETTINGS, BoundedRsiCycle, CandidateControlError, CandidateSubmission,
-    DEFAULT_NEURAL_PINS, EvidenceIntegrityError, EvidencePin, GuardedWorkspace,
-    HostPolicy, MEMORY_FORMAT, NEURAL_EVIDENCE_FORMAT, NeuralEvidencePins,
-    NeuralGate, PERCEPTION_FORMAT, PINNED_MODEL_REVISION,
-    ProtectedRevisionError, ResourceGuard, ResourceLimitError, TaskCase,
-    WorldCatalog, WorldFamily, build_owned_worlds, materialize_case)
-from replica_lab.runtime.artifacts import ArtifactRegistry
-from replica_lab.runtime.compilation import CompiledProcedure, StaleSourceError
+    APP_SETTINGS, BoundedRsiCycle, BoundedRsiError, CandidateControlError,
+    CandidateSubmission, DEFAULT_NEURAL_PINS, EvidenceIntegrityError,
+    EvidencePin, GuardedWorkspace, HostPolicy, MEMORY_FORMAT,
+    NEURAL_EVIDENCE_FORMAT, NeuralEvidencePins, NeuralGate, PERCEPTION_FORMAT,
+    PINNED_MODEL_REVISION, ProtectedRevisionError, ResourceGuard,
+    ResourceLimitError, TaskCase, WorldCatalog, WorldFamily,
+    build_owned_worlds, materialize_case)
+from replica_lab.runtime.artifacts import ArtifactRegistry, artifact_content_digest
+from replica_lab.runtime.compilation import (
+    CompiledProcedure, InterruptedTransactionError, StaleSourceError,
+    TransactionJournal, _transaction_record, active_manifest, journal_path_for)
+from replica_lab.runtime.learning_proposal import LearningProposal
 from replica_lab.runtime.procedures import RepairProcedure
 from replica_lab.runtime.tools import FixtureWorkspace
 
@@ -292,6 +297,31 @@ def test_candidate_claims_and_path_traversal_cannot_control_verdict(tmp_path):
         runner.compile_candidate(practice, 'foreign-parent')
 
 
+def test_world_definition_change_between_verify_and_publish_is_rejected(tmp_path):
+    runner = cycle(tmp_path, 'world-tamper')
+    base = runner.prepare_base()
+    practice = runner.practice()
+    candidate = runner.compile_candidate(practice, base['manifest_id'])
+    verification = runner.verify(candidate)
+    assert verification.accepted is True
+
+    family = runner.catalog.by_split('verification')
+    original = family.cases[0]
+    tampered_case = TaskCase(original.case_id, original.role, 'Tampered goal.',
+                             original.constants)
+    tampered_family = WorldFamily(family.family_id, family.split,
+                                  (tampered_case,) + family.cases[1:])
+    runner.catalog = WorldCatalog(tuple(
+        tampered_family if world.family_id == family.family_id else world
+        for world in runner.catalog.worlds))
+
+    with pytest.raises(ProtectedRevisionError, match='world inventory'):
+        runner.publish(candidate, verification)
+    assert runner.manifests.active()['manifest_id'] == base['manifest_id']
+    assert runner.artifacts.get(candidate.artifact_id).status == 'validated'
+    assert not journal_path_for(runner.manifests).exists()
+
+
 def test_source_epoch_parent_and_identity_staleness_are_rejected(tmp_path):
     first = cycle(tmp_path, 'source-stale')
     base = first.prepare_base()
@@ -408,6 +438,23 @@ def test_replaced_and_in_place_mutated_candidates_are_rejected_before_execution(
         runner.publish(publish_tamper, publish_verification)
     assert runner.manifests.active()['manifest_id'] == base['manifest_id']
 
+    # Even a self-consistent forged proposal (content and digest together) is a
+    # different authority than the one this cycle issued.
+    proposal_tamper = runner.compile_candidate(
+        practice, base['manifest_id'],
+        submission=CandidateSubmission(name='repair-config-proposal-tamper'))
+    forged = LearningProposal(
+        proposal_tamper.proposal_id, base['manifest_id'],
+        tuple(record.record_id for record in practice.records), 'procedure',
+        'repair-config', {'fixture': 'forged'}, {'cases': 99}, 'host_tools',
+        'forged evaluation plan', 0)
+    object.__setattr__(proposal_tamper, 'proposal', forged.to_dict())
+    object.__setattr__(proposal_tamper, 'proposal_digest', forged.digest)
+    assert forged.digest != candidate.proposal_digest
+    with pytest.raises(CandidateControlError, match='authority changed'):
+        runner.verify(proposal_tamper)
+    assert runner.manifests.active()['manifest_id'] == base['manifest_id']
+
 
 def test_prepare_base_metadata_is_detached_from_rollback_authority(tmp_path):
     runner, base, candidate, _verification, publication = published_cycle(
@@ -441,6 +488,158 @@ def test_rollback_authenticates_archived_protected_ancestor(tmp_path):
     assert runner.manifests.active()['manifest_id'] == \
         publication['manifest_id']
     assert runner.artifacts.get(candidate.artifact_id).status == 'accepted'
+
+
+def test_interrupted_publish_is_recovered_explicitly(tmp_path, monkeypatch):
+    runner = cycle(tmp_path, 'interrupted-publish')
+    base = runner.prepare_base()
+    practice = runner.practice()
+    candidate = runner.compile_candidate(practice, base['manifest_id'])
+    verification = runner.verify(candidate)
+    assert verification.accepted is True
+
+    real_save = ArtifactRegistry.save
+    calls = {'count': 0}
+
+    def fail_commit(self, path):
+        calls['count'] += 1
+        if calls['count'] == 2:  # durable pre-state write succeeds, commit fails
+            raise OSError('simulated catalog interruption')
+        return real_save(self, path)
+
+    monkeypatch.setattr(ArtifactRegistry, 'save', fail_commit)
+    with pytest.raises(InterruptedTransactionError, match='recover_pending_transaction'):
+        runner.publish(candidate, verification)
+    assert runner.transactions.read()['phase'] == 'prepared'
+    assert active_manifest(runner.manifests)['manifest_id'] != base['manifest_id']
+    monkeypatch.undo()
+
+    recovered = BoundedRsiCycle.recover_interrupted(
+        tmp_path / 'interrupted-publish', policy())
+    assert recovered['recovery']['outcome'] == 'completed_publish'
+    assert recovered['journal_present'] is False
+    assert recovered['active_manifest_id'] == recovered['recovery']['manifest_id']
+    states = {item['artifact_id']: item for item in recovered['artifacts']}
+    assert states[candidate.artifact_id]['status'] == 'accepted'
+    assert states[candidate.artifact_id]['publication']['active'] is True
+    assert runner.transactions.read() is None
+
+
+def test_interrupted_rollback_restores_pre_rollback_state(tmp_path):
+    runner, base, candidate, _verification, publication = published_cycle(
+        tmp_path, 'interrupted-rollback')
+    snapshot = runner.artifacts.snapshot()
+    record = _transaction_record(
+        'rollback', snapshot, candidate.artifact_id,
+        artifact_content_digest(runner.artifacts.get(candidate.artifact_id)),
+        'accepted', 'revoked',
+        {'active_before': publication['manifest_id'],
+         'expected_manifest_id': base['manifest_id'],
+         'published_manifest_id': publication['manifest_id'],
+         'payload_digest': fingerprint(publication['payload'])})
+    runner.transactions.write(record)
+    runner.artifacts.transition(candidate.artifact_id, 'revoked',
+                                reason='manifest rollback')
+    runner.artifacts.save(runner.catalog_path)
+
+    recovered = BoundedRsiCycle.recover_interrupted(
+        tmp_path / 'interrupted-rollback', policy())
+    assert recovered['recovery']['outcome'] == 'aborted_rollback'
+    assert recovered['active_manifest_id'] == publication['manifest_id']
+    states = {item['artifact_id']: item for item in recovered['artifacts']}
+    assert states[candidate.artifact_id]['status'] == 'accepted'
+    assert states[candidate.artifact_id]['publication']['active'] is True
+    assert runner.transactions.read() is None
+
+
+def test_cycle_rejects_a_proposal_for_another_target(tmp_path):
+    runner = cycle(tmp_path, 'wrong-target')
+    base = runner.prepare_base()
+    practice = runner.practice()
+    original = runner._proposal
+    runner._proposal = replace(original, target_id='memory-selection')
+    with pytest.raises(ProtectedRevisionError, match='host-authorized'):
+        runner.compile_candidate(practice, base['manifest_id'])
+    runner._proposal = replace(original, target_kind='neural')
+    with pytest.raises(CandidateControlError, match='procedure proposal'):
+        runner.compile_candidate(practice, base['manifest_id'])
+    runner._proposal = original
+    assert runner.compile_candidate(practice, base['manifest_id']) is not None
+
+
+def test_cycle_script_recovery_dispatch(tmp_path, monkeypatch, capsys):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        'run_bounded_rsi_cycle_under_test',
+        ROOT / 'scripts' / 'run_bounded_rsi_cycle.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    empty = tmp_path / 'empty'
+    empty.mkdir()
+    with pytest.raises(SystemExit, match='empty'):
+        module.main(['--recover', '--output', str(empty)])
+    with pytest.raises(SystemExit, match='does not exist'):
+        module.main(['--recover', '--output', str(tmp_path / 'missing')])
+    plain = tmp_path / 'plain'
+    plain.mkdir()
+    (plain / 'note.txt').write_text('no journal here')
+    with pytest.raises(SystemExit, match='no pending transaction journal'):
+        module.main(['--recover', '--output', str(plain)])
+
+    real_run_one = module.run_one
+
+    def interrupted(output, evidence_root):
+        raise InterruptedTransactionError('simulated interruption')
+
+    monkeypatch.setattr(module, 'run_one', interrupted)
+    assert module.main(['--output', str(tmp_path / 'fresh-run')]) == 7
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload['status'] == 'interrupted_transaction'
+    assert '--recover' in payload['recovery_command']
+    monkeypatch.setattr(module, 'run_one', real_run_one)
+
+    runner = cycle(tmp_path, 'script-recovery')
+    base = runner.prepare_base()
+    practice = runner.practice()
+    candidate = runner.compile_candidate(practice, base['manifest_id'])
+    verification = runner.verify(candidate)
+    real_save = ArtifactRegistry.save
+    calls = {'count': 0}
+
+    def fail_commit(self, path):
+        calls['count'] += 1
+        if calls['count'] == 2:
+            raise OSError('simulated catalog interruption')
+        return real_save(self, path)
+
+    monkeypatch.setattr(ArtifactRegistry, 'save', fail_commit)
+    with pytest.raises(InterruptedTransactionError):
+        runner.publish(candidate, verification)
+    monkeypatch.setattr(ArtifactRegistry, 'save', real_save)
+    assert module.main(['--recover', '--output',
+                        str(tmp_path / 'script-recovery')]) == 0
+    recovered = json.loads(capsys.readouterr().out)
+    assert recovered['status'] == 'recovered'
+    assert recovered['recovery']['outcome'] == 'completed_publish'
+    assert recovered['journal_present'] is False
+
+
+def test_pending_transaction_refuses_silent_cycle_reconstruction(tmp_path):
+    root = tmp_path / 'pending'
+    manifests = ManifestRegistry(root / 'manifests')
+    artifact = RepairProcedure('repair-config', APP_SETTINGS, ('obs-0001',)).artifact()
+    artifacts = ArtifactRegistry()
+    artifacts.add(artifact)
+    journal = TransactionJournal(journal_path_for(manifests))
+    journal.write(_transaction_record(
+        'publish', artifacts.snapshot(), artifact.artifact_id,
+        artifact_content_digest(artifact), 'proposed', 'validated',
+        {'active_before': None, 'expected_manifest_id': '1' * 64,
+         'published_manifest_id': '1' * 64, 'payload_digest': None}))
+    with pytest.raises(BoundedRsiError, match='recover_interrupted'):
+        BoundedRsiCycle(root, policy(), evidence_root=ROOT)
 
 
 def test_replay_is_deterministic_across_isolated_roots(tmp_path):

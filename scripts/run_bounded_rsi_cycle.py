@@ -23,6 +23,8 @@ sys.path.insert(0, str(ROOT / 'src'))
 from replica_lab.runtime.bounded_rsi import (  # noqa: E402
     BoundedRsiCycle, BoundedRsiError, EvidenceIntegrityError, HostPolicy,
     ResourceGuard)
+from replica_lab.runtime.compilation import (  # noqa: E402
+    ManifestIntegrityError, TransactionError)
 
 
 def build_policy() -> HostPolicy:
@@ -109,6 +111,29 @@ def run_one(output: Path, evidence_root: Path):
     return cycle.run()
 
 
+def recovery_root(path: Path) -> Path:
+    """The same output root may be recovered; a fresh/empty root is refused."""
+    root = path.resolve()
+    if not root.is_dir():
+        raise SystemExit(
+            f'recovery root does not exist; fresh roots cannot be recovered: {root}')
+    if not any(root.iterdir()):
+        raise SystemExit(f'recovery root is empty; nothing to recover: {root}')
+    journal = root / 'manifests' / 'transactions' / 'runtime_journal.json'
+    if not journal.is_file():
+        raise SystemExit(
+            f'recovery root has no pending transaction journal: {root}')
+    return root
+
+
+def run_recovery(output: Path) -> dict:
+    root = recovery_root(output)
+    result = BoundedRsiCycle.recover_interrupted(root, build_policy())
+    result['status'] = 'recovered'
+    result['output'] = str(root)
+    return result
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         description='One isolated bounded procedure-RSI plumbing cycle.')
@@ -121,7 +146,36 @@ def main(argv=None) -> int:
     parser.add_argument(
         '--evidence-root', type=Path, default=ROOT,
         help='repository root holding pinned neural evidence (default: checkout)')
+    parser.add_argument(
+        '--recover', action='store_true',
+        help='replay a pending transaction in the same --output root instead '
+             'of running a fresh cycle')
     args = parser.parse_args(argv)
+
+    if args.recover:
+        if args.output is None:
+            parser.error('--recover requires --output pointing at the same root')
+        try:
+            summary = run_recovery(args.output)
+        except TransactionError as error:
+            print(json.dumps({'status': 'failed_recovery',
+                              'error_type': type(error).__name__,
+                              'error': str(error),
+                              'output': str(args.output.resolve())},
+                             sort_keys=True))
+            return 7
+        except ManifestIntegrityError as error:
+            print(json.dumps({'status': 'failed_recovery_evidence',
+                              'error': str(error),
+                              'output': str(args.output.resolve())},
+                             sort_keys=True))
+            return 8
+        except BoundedRsiError as error:
+            print(json.dumps({'status': 'failed_recovery_cycle',
+                              'error': str(error)}, sort_keys=True))
+            return 4
+        print(json.dumps(summary, indent=2, sort_keys=True))
+        return 0
 
     if args.output is None:
         stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
@@ -132,6 +186,20 @@ def main(argv=None) -> int:
 
     try:
         report = run_one(output, evidence_root)
+    except TransactionError as error:
+        print(json.dumps({'status': 'interrupted_transaction',
+                          'error_type': type(error).__name__,
+                          'error': str(error),
+                          'output': str(output),
+                          'recovery_command': (
+                              f'run_bounded_rsi_cycle.py --recover '
+                              f'--output {output}')}, sort_keys=True))
+        return 7
+    except ManifestIntegrityError as error:
+        print(json.dumps({'status': 'failed_manifest_evidence',
+                          'error': str(error),
+                          'output': str(output)}, sort_keys=True))
+        return 8
     except EvidenceIntegrityError as error:
         print(json.dumps({'status': 'failed_evidence_integrity',
                           'error': str(error)}, sort_keys=True))

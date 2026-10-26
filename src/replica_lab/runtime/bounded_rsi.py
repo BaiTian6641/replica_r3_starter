@@ -26,11 +26,16 @@ from typing import Any, Mapping
 from ..contracts import fingerprint
 from ..learning import ManifestRegistry
 from ..memory_system.ledger import MemoryRecord
-from .artifacts import ArtifactRegistry
-from .compilation import (CompilationBinding, CompilationEvaluation,
-                          CompiledProcedure, StaleSourceError)
+from .artifacts import ArtifactRegistry, artifact_content_digest
+from .compilation import (
+    CandidateIntegrityError, CompilationBinding, CompilationEvaluation,
+    CompiledProcedure, ManifestIntegrityError, StaleSourceError,
+    TransactionJournal, WorldInventory, active_manifest, authenticate_manifest,
+    catalog_path_for, journal_path_for, load_catalog, load_manifest,
+    recover_pending_transaction, authenticated_ancestor)
 from .director import DirectorBudget, LearningDirector
 from .learning_cycle import CycleEvidence, review_cycle
+from .learning_proposal import verify_proposal_snapshot
 from .procedures import RepairProcedure
 from .tools import CASE_FORMAT, FixtureWorkspace
 
@@ -43,6 +48,7 @@ QUALIFICATION_SCOPE = 'procedure_plumbing_only'
 SPLITS = ('source', 'verification', 'rejection')
 GATES = ('perception', 'memory', 'correction', 'retention')
 APP_SETTINGS = 'workspace/app_settings.py'
+PROCEDURE_TARGET = 'repair-config'
 MAX_WORKSPACE_ENTRY = 512
 _IDENTIFIER = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$')
 _CONSTANT = re.compile(r'^[A-Z][A-Z0-9_]{0,63}$')
@@ -716,6 +722,17 @@ class CompiledCandidate:
     claims_ignored: tuple[str, ...]
     source_record_ids: tuple[str, ...]
     proposal_id: str
+    proposal_digest: str
+    proposal: Mapping
+
+    def __post_init__(self):
+        if not isinstance(self.proposal, Mapping):
+            raise TypeError('candidate requires an authenticated proposal snapshot')
+        snapshot = verify_proposal_snapshot(dict(self.proposal))
+        if snapshot.digest != self.proposal_digest:
+            raise ValueError('candidate proposal content differs from its digest')
+        if self.proposal_digest != self.compiled.proposal_digest:
+            raise ValueError('candidate proposal differs from the compiled proposal')
 
     @property
     def artifact_id(self) -> str:
@@ -732,13 +749,17 @@ class CompiledCandidate:
             'artifact_id': self.artifact_id,
             'artifact_digest_proposed': self.artifact_digest,
             'parent_manifest_id': self.compiled.binding.parent_manifest_id,
+            'parent_manifest_digest': self.compiled.binding.parent_manifest_digest,
             'base_revision': self.compiled.binding.base_revision,
             'identity_version': self.compiled.binding.identity_version,
+            'identity_digest': self.compiled.binding.identity_digest,
             'evidence_epoch': self.compiled.binding.evidence_epoch,
             'cutoff': self.compiled.binding.cutoff,
             'source_hashes': dict(self.compiled.source_hashes),
             'source_record_ids': list(self.source_record_ids),
             'proposal_id': self.proposal_id,
+            'proposal_digest': self.proposal_digest,
+            'proposal_target': f"{self.proposal['target_kind']}:{self.proposal['target_id']}",
             'claims_ignored': list(self.claims_ignored),
         }
 
@@ -752,11 +773,23 @@ class VerificationOutcome:
     evaluation: CompilationEvaluation
     tool_calls: int
     evaluator_runs: int
+    world_inventory: dict
     raw_cases: tuple[dict, ...] = ()
+
+    def __post_init__(self):
+        inventory = WorldInventory.from_dict(self.world_inventory)
+        if inventory.digest != self.evaluation.worlds_digest:
+            raise ValueError('verification outcome inventory differs from evaluation')
+        if inventory.family_id != self.family_id or inventory.split != self.split:
+            raise ValueError('verification outcome inventory family differs')
 
     @property
     def accepted(self) -> bool:
         return self.evaluation.accepted is True
+
+    @property
+    def worlds_digest(self) -> str:
+        return self.evaluation.worlds_digest
 
     def to_dict(self) -> dict:
         return {
@@ -764,6 +797,7 @@ class VerificationOutcome:
             'artifact_id': self.candidate.artifact_id,
             'split': self.split,
             'family_id': self.family_id,
+            'worlds_digest': self.worlds_digest,
             'accepted': self.accepted,
             'candidate_digest': self.evaluation.candidate_digest,
             'parent_manifest_id': self.evaluation.parent_manifest_id,
@@ -773,34 +807,6 @@ class VerificationOutcome:
             'tool_calls': self.tool_calls,
             'evaluator_runs': self.evaluator_runs,
         }
-
-
-def _normalized_case(case: Mapping) -> dict:
-    receipts = case.get('receipts') or ()
-    last = receipts[-1] if receipts else {}
-    if not isinstance(last, Mapping):
-        last = {}
-    nested = last.get('receipt')
-    content = nested if isinstance(nested, Mapping) else last
-    return {
-        'case_id': case.get('case_id'),
-        'role': case.get('role'),
-        'status': case.get('status'),
-        'independent_passed': case.get('independent_passed'),
-        'final_exit_code': case.get('final_exit_code'),
-        'error': case.get('error'),
-        'last_receipt': {
-            'kind': last.get('kind') or content.get('kind'),
-            'tool_status': last.get('status'),
-            'tool_error': last.get('error'),
-            'exit_code': content.get('exit_code'),
-            'timed_out': content.get('timed_out'),
-            'stdout_sha256': content.get('stdout_sha256'),
-            'stderr_sha256': content.get('stderr_sha256'),
-            'stdout_excerpt': content.get('stdout_excerpt', ''),
-            'stderr_excerpt': content.get('stderr_excerpt', ''),
-        } if last else None,
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -1058,6 +1064,12 @@ class BoundedRsiCycle:
             else Path(__file__).resolve().parents[3]
         self.root.mkdir(parents=True, exist_ok=True)
         self.manifests = ManifestRegistry(self.root / 'manifests')
+        self.transactions = TransactionJournal(journal_path_for(self.manifests))
+        self.catalog_path = catalog_path_for(self.manifests)
+        if self.transactions.read() is not None:
+            raise BoundedRsiError(
+                'an interrupted runtime transaction is durable; call '
+                'BoundedRsiCycle.recover_interrupted first')
         self.artifacts = ArtifactRegistry()
         self.ledger = EpisodicLedger(policy)
         self._base: Mapping | None = None
@@ -1067,19 +1079,61 @@ class BoundedRsiCycle:
         self._published_candidate: CompiledCandidate | None = None
         self._published_manifest: Mapping | None = None
 
+    # -- explicit restart recovery -------------------------------------------
+    @classmethod
+    def recover_interrupted(cls, root, policy: HostPolicy, *,
+                            catalog_path=None) -> dict:
+        """Replay or compensate one durable publish/rollback transaction."""
+        if not isinstance(policy, HostPolicy):
+            raise TypeError('policy must be a HostPolicy')
+        root = Path(root)
+        manifests = ManifestRegistry(root / 'manifests')
+        journal = TransactionJournal(journal_path_for(manifests))
+        catalog = Path(catalog_path) if catalog_path is not None \
+            else catalog_path_for(manifests)
+        artifacts = load_catalog(catalog, manifests) if catalog.exists() \
+            else ArtifactRegistry()
+        try:
+            result = recover_pending_transaction(
+                artifacts, manifests, journal, catalog_path=catalog)
+            active = active_manifest(manifests)
+        except (CandidateIntegrityError, ManifestIntegrityError) as error:
+            raise ProtectedRevisionError(str(error)) from error
+        if active is not None:
+            payload = active.get('payload') or {}
+            if payload.get('base_revision') != policy.base_revision or \
+                    payload.get('identity_version') != policy.identity_version:
+                raise ProtectedRevisionError(
+                    'recovered active manifest differs from the host policy')
+        return {
+            'recovery': result,
+            'active_manifest_id': active['manifest_id'] if active is not None else None,
+            'journal_present': journal.read() is not None,
+            'catalog_path': str(catalog),
+            'artifacts': [{
+                'artifact_id': item.artifact_id,
+                'kind': item.kind,
+                'status': item.status,
+                'publication': artifacts.publication(item.artifact_id),
+            } for item in artifacts.list()],
+        }
+
     # -- private candidate authority ----------------------------------------
     def _candidate_authority(self, candidate: CompiledCandidate) -> dict:
         """Canonical authority snapshot for one issued candidate.
 
         Status is deliberately excluded: the artifact registry advances the
-        lifecycle, while identity/base/owner/parent/sources/payload stay fixed.
+        lifecycle, while proposal content, identity, lineage, sources and the
+        executable payload stay fixed.
         """
         compiled = candidate.compiled
         artifact = compiled.artifact
         binding = compiled.binding
         submission = candidate.submission
+        entry = artifact.steps[0].argument_schema.get('path')
         return {
             'artifact_id': artifact.artifact_id,
+            'artifact_content_digest': artifact_content_digest(artifact),
             'artifact': {
                 'name': artifact.name,
                 'version': artifact.version,
@@ -1092,6 +1146,9 @@ class BoundedRsiCycle:
                 'created_at': artifact.created_at,
                 'expires_at': artifact.expires_at,
             },
+            'executable': {'entry': entry,
+                           'steps': [step.to_dict() for step in artifact.steps],
+                           'content_digest': artifact_content_digest(artifact)},
             'binding': {
                 'subject_id': binding.subject_id,
                 'branch_id': binding.branch_id,
@@ -1101,8 +1158,12 @@ class BoundedRsiCycle:
                 'base_revision': binding.base_revision,
                 'identity_version': binding.identity_version,
                 'parent_manifest_id': binding.parent_manifest_id,
+                'parent_manifest_digest': binding.parent_manifest_digest,
+                'identity_digest': binding.identity_digest,
             },
             'source_hashes': dict(compiled.source_hashes),
+            'proposal': dict(candidate.proposal),
+            'proposal_digest': candidate.proposal_digest,
             'submission': {
                 'name': submission.name,
                 'workspace_entry': submission.workspace_entry,
@@ -1156,6 +1217,7 @@ class BoundedRsiCycle:
             'base_revision': self.policy.base_revision,
             'identity_version': self.policy.identity_version,
             'parent_manifest_id': self._base['manifest_id'],
+            'parent_manifest_digest': self._base['manifest_digest'],
         }
         actual_binding = {
             'subject_id': binding.subject_id,
@@ -1166,41 +1228,53 @@ class BoundedRsiCycle:
             'base_revision': binding.base_revision,
             'identity_version': binding.identity_version,
             'parent_manifest_id': binding.parent_manifest_id,
+            'parent_manifest_digest': binding.parent_manifest_digest,
         }
         if actual_binding != expected_binding:
             raise ProtectedRevisionError(
                 'candidate binding differs from protected policy/base')
+        if binding.identity_digest != fingerprint(binding.identity_snapshot()):
+            raise CandidateControlError('candidate identity snapshot is not canonical')
+        proposal = verify_proposal_snapshot(candidate.proposal)
+        if proposal.digest != candidate.proposal_digest or \
+                proposal.digest != candidate.compiled.proposal_digest:
+            raise CandidateControlError(
+                'candidate proposal content differs from its digest')
+        if proposal.parent_manifest_id != binding.parent_manifest_id:
+            raise ProtectedRevisionError(
+                'proposal lineage differs from the protected base')
+        if proposal.target_kind != 'procedure':
+            raise CandidateControlError(
+                'only a procedure proposal may be compiled by this cycle')
+        if proposal.target_id != PROCEDURE_TARGET:
+            raise ProtectedRevisionError(
+                'proposal target differs from the host-authorized procedure target')
         expected_hashes = {record.record_id: record.record_hash
                            for record in self._practice.records}
         if dict(candidate.compiled.source_hashes) != expected_hashes:
             raise StaleSourceError(
                 'candidate source hashes differ from practice evidence')
+        if not set(proposal.source_event_ids) <= set(expected_hashes):
+            raise CandidateControlError(
+                'proposal sources are not this cycle\'s evidence')
         if set(candidate.compiled.source_hashes) != set(
                 candidate.compiled.artifact.source_event_ids):
             raise CandidateControlError(
                 'candidate source hashes do not cover the artifact sources')
+        registered = self.artifacts.get(candidate.artifact_id)
+        if registered is not None and artifact_content_digest(registered) != \
+                artifact_content_digest(candidate.compiled.artifact):
+            raise CandidateControlError(
+                'registered executable payload differs from the issued candidate')
         return candidate
 
     # -- archived manifest authentication -----------------------------------
-    @staticmethod
-    def _manifest_body(manifest) -> dict:
-        if not isinstance(manifest, dict) or set(manifest) != {
-                'manifest_id', 'payload', 'parent', 'evaluation'}:
-            raise ProtectedRevisionError('archived manifest body is malformed')
-        return {'payload': manifest['payload'],
-                'parent': manifest['parent'],
-                'evaluation': manifest['evaluation']}
-
     def _authenticate_manifest_body(self, manifest, *,
                                     expected_id: str | None = None) -> dict:
-        body = self._manifest_body(manifest)
-        recomputed = fingerprint(body)
-        if manifest['manifest_id'] != recomputed:
-            raise ProtectedRevisionError(
-                'archived manifest body does not match its manifest ID')
-        if expected_id is not None and recomputed != expected_id:
-            raise ProtectedRevisionError('archived manifest ID is not the expected ID')
-        return manifest
+        try:
+            return authenticate_manifest(manifest, expected_id=expected_id)
+        except ManifestIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
 
     def _load_manifest_body(self, manifest_id: str) -> dict:
         try:
@@ -1208,38 +1282,28 @@ class BoundedRsiCycle:
         except ValueError as error:
             raise ProtectedRevisionError(
                 'manifest ID is not a SHA256') from error
-        path = self.manifests.root / f'{manifest_id}.json'
         try:
-            manifest = json.loads(path.read_text(encoding='utf-8'))
-        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
-            raise ProtectedRevisionError(
-                f'manifest archive is unreadable: {manifest_id}') from error
-        return self._authenticate_manifest_body(manifest, expected_id=manifest_id)
+            return load_manifest(self.manifests, manifest_id)
+        except ManifestIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
 
     def _authenticated_ancestry(self, target_manifest_id: str) -> dict:
         """Walk active -> parent chain, authenticating every body before use."""
-        active = self.manifests.active()
+        try:
+            active = active_manifest(self.manifests)
+        except ManifestIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
         if active is None:
             raise ProtectedRevisionError('no active manifest')
-        self._authenticate_manifest_body(active)
         if self._published_manifest is None or \
                 active['manifest_id'] != self._published_manifest['manifest_id'] or \
                 fingerprint(active) != self._published_manifest['manifest_digest']:
             raise ProtectedRevisionError(
                 'active manifest is not this cycle\'s publication')
-        seen = {active['manifest_id']}
-        cursor = active
-        while cursor['manifest_id'] != target_manifest_id:
-            parent = cursor.get('parent')
-            if not parent:
-                raise ProtectedRevisionError('rollback target is not an ancestor')
-            cursor = self._load_manifest_body(parent)
-            if cursor['manifest_id'] in seen:
-                raise ProtectedRevisionError('manifest ancestry contains a cycle')
-            seen.add(cursor['manifest_id'])
-            if len(seen) > 64:
-                raise ProtectedRevisionError('manifest ancestry exceeds bounds')
-        return cursor
+        try:
+            return authenticated_ancestor(self.manifests, target_manifest_id)
+        except ManifestIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
 
     # -- protected base ------------------------------------------------------
     def prepare_base(self) -> dict:
@@ -1278,10 +1342,12 @@ class BoundedRsiCycle:
     def _assert_active_protected_base(self) -> dict:
         if self._base is None:
             raise BoundedRsiError('the protected base is not prepared')
-        active = self.manifests.active()
+        try:
+            active = active_manifest(self.manifests)
+        except ManifestIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
         if active is None:
             raise ProtectedRevisionError('the protected base manifest is absent')
-        self._authenticate_manifest_body(active)
         payload = active.get('payload') or {}
         if payload.get('base_revision') != self.policy.base_revision:
             raise ProtectedRevisionError('active base revision differs from policy')
@@ -1411,6 +1477,13 @@ class BoundedRsiCycle:
         record_ids = {record.record_id for record in practice.records}
         if not set(self._proposal.source_event_ids) <= record_ids:
             raise BoundedRsiError('proposal sources are not practice evidence')
+        if self._proposal.parent_manifest_id != base_manifest_id:
+            raise ProtectedRevisionError('proposal parent differs from protected base')
+        if self._proposal.target_kind != 'procedure':
+            raise CandidateControlError('only a procedure proposal may be compiled')
+        if self._proposal.target_id != PROCEDURE_TARGET:
+            raise ProtectedRevisionError(
+                'proposal target differs from the host-authorized procedure target')
         procedure = RepairProcedure(
             candidate.name, candidate.workspace_entry,
             tuple(record.record_id for record in practice.records), version=1)
@@ -1418,14 +1491,18 @@ class BoundedRsiCycle:
         binding = CompilationBinding(
             self.policy.subject_id, self.policy.branch_id, self.policy.purpose,
             cutoff, self.policy.evidence_epoch, self.policy.base_revision,
-            self.policy.identity_version, base_manifest_id)
+            self.policy.identity_version, base_manifest_id,
+            self._base['manifest_digest'])
         compiled = CompiledProcedure.compile(
-            procedure, binding, practice.records, self.artifacts)
+            procedure, binding, practice.records, self.artifacts,
+            proposal=self._proposal, authorized_target=PROCEDURE_TARGET)
         return self._issue_candidate(CompiledCandidate(
             compiled=compiled, submission=candidate,
             claims_ignored=candidate.ignored_claims(),
             source_record_ids=tuple(record.record_id for record in practice.records),
-            proposal_id=self._proposal.proposal_id))
+            proposal_id=self._proposal.proposal_id,
+            proposal_digest=self._proposal.digest,
+            proposal=MappingProxyType(self._proposal.to_dict())))
 
     def verify(self, candidate: CompiledCandidate, *, split: str = 'verification'
                ) -> VerificationOutcome:
@@ -1441,33 +1518,68 @@ class BoundedRsiCycle:
                                         'or rejection')
         family = self.catalog.family(family_id)
         workspaces = []
+        inventory_cases = []
         for case in family.cases:
             target = self.root / 'verification' / split / candidate.artifact_id \
                 / case.case_id
             materialize_case(family, case, target)
             workspace = FixtureWorkspace(target)
             guarded = GuardedWorkspace(workspace, self.policy.guard)
+            inventory_cases.append({
+                'case_id': case.case_id,
+                'role': case.role,
+                'definition_digest': fingerprint(case.to_dict()),
+                'workspace_digest': fingerprint(dict(guarded.workspace_hashes())),
+            })
             workspaces.append((case.case_id, case.role, guarded))
+        inventory = WorldInventory.build(family.split, family_id, inventory_cases)
         evaluation = candidate.compiled.evaluate(self.artifacts,
-                                                 tuple(workspaces))
-        cases = tuple(_normalized_case(case) for case in evaluation.cases)
-        # The shared compiler embeds raw receipt dicts (absolute cwd, command
-        # and wall duration) in the evaluation; those must never enter a
-        # manifest if replay is to be deterministic.  The host keeps the raw
-        # receipts separately and publishes only stable observable fields.
-        publication_evaluation = CompilationEvaluation(
-            accepted=evaluation.accepted,
-            candidate_digest=evaluation.candidate_digest,
-            parent_manifest_id=evaluation.parent_manifest_id,
-            artifact_digest=evaluation.artifact_digest,
-            cases=cases)
+                                                 tuple(workspaces),
+                                                 inventory=inventory)
+        cases = evaluation.cases
+        # The compiler keeps raw receipts out of published evidence so absolute
+        # paths and wall durations cannot make replay root-dependent.
+        publication_evaluation = evaluation
         tool_calls = sum(ws[2].tool_calls for ws in workspaces)
         evaluator_runs = sum(ws[2].evaluator_runs for ws in workspaces)
         return VerificationOutcome(
             candidate=candidate, split=split, family_id=family_id, cases=cases,
             evaluation=publication_evaluation, tool_calls=tool_calls,
             evaluator_runs=evaluator_runs,
-            raw_cases=tuple(dict(case) for case in evaluation.cases))
+            world_inventory=inventory.to_dict(),
+            raw_cases=evaluation.raw_cases)
+
+    def _verified_world_inventory(self,
+                                  verification: VerificationOutcome) -> WorldInventory:
+        """Re-derive the verified inventory from the current host catalog.
+
+        Any change to the world family between verification and publication
+        changes the digest and refuses publication.
+        """
+        family = self.catalog.family(verification.family_id)
+        verified = WorldInventory.from_dict(verification.world_inventory)
+        by_case = {case.case_id: case for case in verified.cases}
+        if set(by_case) != {case.case_id for case in family.cases}:
+            raise ProtectedRevisionError(
+                'verification cases are not the current catalog family')
+        cases = []
+        for case in family.cases:
+            previous = by_case[case.case_id]
+            if previous.role != case.role:
+                raise ProtectedRevisionError(
+                    'verification case roles changed after evaluation')
+            cases.append({
+                'case_id': case.case_id,
+                'role': case.role,
+                'definition_digest': fingerprint(case.to_dict()),
+                'workspace_digest': previous.workspace_digest,
+            })
+        inventory = WorldInventory.build(family.split, family.family_id, cases)
+        if inventory.digest != verified.digest:
+            raise ProtectedRevisionError(
+                'verification world inventory changed after evaluation')
+        return inventory
+
 
     # -- publication / rejection / rollback ----------------------------------
     def publish(self, candidate: CompiledCandidate,
@@ -1493,17 +1605,29 @@ class BoundedRsiCycle:
                 verification.family_id != self.policy.verification_family:
             raise CandidateControlError('publication requires the independent '
                                         'verification world family')
-        manifest = candidate.compiled.publish(
-            self.artifacts, self.manifests, verification.evaluation,
-            self.ledger.current_hashes())
+        if verification.evaluation.parent_manifest_id != self._base['manifest_id']:
+            raise ProtectedRevisionError(
+                'verification evaluation parent differs from the protected base')
+        inventory = self._verified_world_inventory(verification)
+        try:
+            manifest = candidate.compiled.publish(
+                self.artifacts, self.manifests, verification.evaluation,
+                self.ledger.current_hashes(),
+                journal=self.transactions, world_inventory=inventory,
+                catalog_path=self.catalog_path)
+        except CandidateIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
         self._published_candidate = candidate
         self._published_manifest = MappingProxyType({
             'manifest_id': manifest['manifest_id'],
             'manifest_digest': fingerprint(manifest),
             'payload_digest': fingerprint(manifest['payload']),
+            'artifact_content_digest': artifact_content_digest(
+                self.artifacts.get(candidate.artifact_id)),
             'parent': manifest['parent'],
         })
         return manifest
+
 
     def rollback(self, ancestor_manifest_id: str) -> dict:
         if self._base is None or self._published_candidate is None or \
@@ -1526,17 +1650,29 @@ class BoundedRsiCycle:
                 target_payload.get('identity_version') != self.policy.identity_version:
             raise ProtectedRevisionError(
                 'protected ancestor identity differs from policy')
-        active_before = self.manifests.active()
+        active_before = active_manifest(self.manifests)
         if active_before is None or \
                 active_before['manifest_id'] != self._published_manifest['manifest_id']:
             raise ProtectedRevisionError('active manifest changed before rollback')
-        restored = self._published_candidate.compiled.rollback(
-            self.artifacts, self.manifests, ancestor_manifest_id)
-        active_after = self.manifests.active()
+        current = self.artifacts.get(self._published_candidate.artifact_id)
+        if current is None or current.status not in ('accepted', 'revoked'):
+            raise BoundedRsiError(
+                'published artifact is neither accepted nor source-revoked')
+        if artifact_content_digest(current) != \
+                self._published_manifest['artifact_content_digest']:
+            raise ProtectedRevisionError(
+                'published artifact payload changed after publication')
+        try:
+            restored = self._published_candidate.compiled.rollback(
+                self.artifacts, self.manifests, ancestor_manifest_id,
+                journal=self.transactions, catalog_path=self.catalog_path)
+        except CandidateIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
+        except ManifestIntegrityError as error:
+            raise ProtectedRevisionError(str(error)) from error
+        active_after = active_manifest(self.manifests)
         if active_after is None:
             raise ProtectedRevisionError('rollback produced no active manifest')
-        self._authenticate_manifest_body(active_after,
-                                         expected_id=ancestor_manifest_id)
         if fingerprint(active_after) != self._base['manifest_digest']:
             raise ProtectedRevisionError(
                 'restored active body differs from the protected base')
@@ -1571,7 +1707,7 @@ class BoundedRsiCycle:
             practice, base['manifest_id'],
             submission=CandidateSubmission(name='repair-config-rejection-probe'))
         rejection = self.verify(rejection_candidate, split='rejection')
-        rejection_active_before = self.manifests.active()['manifest_id']
+        rejection_active_before = active_manifest(self.manifests)['manifest_id']
         rejection_error = None
         rejection_refused = False
         try:
@@ -1579,7 +1715,7 @@ class BoundedRsiCycle:
         except PermissionError as error:
             rejection_refused = True
             rejection_error = str(error)
-        rejection_active_after = self.manifests.active()['manifest_id']
+        rejection_active_after = active_manifest(self.manifests)['manifest_id']
         rejection_artifact = self.artifacts.get(rejection_candidate.artifact_id)
         rejection_record = {
             'candidate_name': rejection_candidate.submission.name,
@@ -1684,7 +1820,14 @@ class BoundedRsiCycle:
                 'artifact_id': publication['payload']['artifact']['artifact_id'],
                 'candidate_digest': publication['evaluation']['candidate_digest'],
                 'evaluation_scope': publication['evaluation']['evaluation_scope'],
+                'manifest_schema': publication['payload']['schema'],
                 'source_hashes': publication['payload']['source_hashes'],
+                'source_digest': publication['payload']['source_digest'],
+                'proposal_digest': publication['payload']['proposal_digest'],
+                'worlds_digest': publication['payload']['worlds']['digest'],
+                'identity_digest': publication['payload']['identity']['digest'],
+                'artifact_content_digest':
+                    publication['payload']['artifact']['content_digest'],
                 'base_revision': publication['payload']['base_revision'],
                 'identity_version': publication['payload']['identity_version'],
                 'evidence_epoch': publication['payload']['owner']['evidence_epoch'],
@@ -1772,7 +1915,8 @@ __all__ = [
     'EvidenceIntegrityError', 'EvidencePin', 'GATES', 'GuardedWorkspace',
     'HostPolicy', 'MEMORY_FORMAT', 'NEURAL_EVIDENCE_FORMAT', 'NEURAL_GATE_FORMAT',
     'NeuralEvidencePins', 'NeuralGate', 'Observation', 'PERCEPTION_FORMAT',
-    'PINNED_MODEL_REVISION', 'PracticeOutcome', 'ProtectedRevisionError',
+    'PINNED_MODEL_REVISION', 'PROCEDURE_TARGET', 'PracticeOutcome',
+    'ProtectedRevisionError',
     'QUALIFICATION_SCOPE', 'ResourceGuard', 'ResourceLimitError', 'SPLITS',
     'TaskCase', 'VerificationOutcome', 'WorldCatalog', 'WorldFamily',
     'build_owned_worlds', 'materialize_case',
