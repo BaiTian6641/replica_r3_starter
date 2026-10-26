@@ -224,7 +224,7 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     base_path = Path(base_path)
     with torch.device("meta"):
         config = AutoConfig.from_pretrained(base_path)
-        base = AutoModelForCausalLM.from_config(config)
+        base = AutoModelForCausalLM.from_config(config, attn_implementation="eager")
         model = adapter_factory(base)
         optimizer = optimizer_factory(model)
     base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
