@@ -1,0 +1,69 @@
+{
+  "format": "replica.convincing_result_data_budget.v1",
+  "review_date": "2026-10-26",
+  "status": "prospective_research_budget_not_training_authorization_or_convergence_forecast",
+  "evidence_directory": "reports/convincing_result_data_budget_20261026",
+  "compute_estimate": "reports/mixed_precision_budget_20261026/estimate.json",
+  "positions_per_outer_update": 32768,
+  "average_exposures": 1.5,
+  "storage_illustration": {
+    "image_bytes_per_asset": 200000,
+    "audio_sample_rate": 24000,
+    "audio_bytes_per_sample_mono": 2,
+    "video_bits_per_second": 2000000,
+    "note": "Illustrative retained media, not download sizes or a storage permission: disjoint assets across buckets, mono PCM audio and compressed video; excludes text, episode media, decoded frames, cache and checkpoints."
+  },
+  "ordinary_records": [
+    {"bucket": "text_retention", "minicpm_records": 500000, "mean_processed_positions": 768},
+    {"bucket": "image_region_document", "minicpm_records": 250000, "mean_processed_positions": 1024, "questions_per_asset": 2},
+    {"bucket": "audio", "minicpm_records": 350000, "mean_processed_positions": 768, "questions_per_asset": 2, "mean_asset_seconds": 10},
+    {"bucket": "temporal_av", "minicpm_records": 100000, "mean_processed_positions": 2048, "questions_per_asset": 2, "mean_asset_seconds": 20}
+  ],
+  "episode": {
+    "minicpm_unique_episodes": 6000,
+    "teaching_events": 32,
+    "observation_positions_per_event": 256,
+    "fast_steps_per_event": 2,
+    "slow_clock_events": 16,
+    "slow_steps_per_boundary": 2,
+    "inner_positions_per_step_including_replay": 256,
+    "future_queries": 8,
+    "retention_queries": 8,
+    "positions_per_query": 512,
+    "note": "Separate live observation pass, bounded inner passes, then outer query passes. First-order P and four-observation F horizon; not a 32-event exact meta-gradient. If implementation merges passes, recount rather than double count."
+  },
+  "models": [
+    {"id": "minicpm_integrated", "scale": 1, "planning_parameters": 2800000000, "judgment_position_range": [1000000000, 3000000000]},
+    {"id": "spark_integrated", "scale": 2.5, "planning_parameters": 4400000000, "judgment_position_range": [3000000000, 8000000000]}
+  ],
+  "power": {
+    "family_alpha": 0.05,
+    "primary_comparisons": 10,
+    "power": 0.8,
+    "paired_discordance": [0.2, 0.4],
+    "effects": [0.1, 0.05],
+    "retention_noninferiority_margin": 0.02,
+    "retention_discordance": [0.05, 0.15],
+    "note": "Approximate normal paired-binary design at independent source-group level. Re-estimate discordance/cluster variance on development data; continuous metrics require their own design."
+  },
+  "audit": {
+    "factorial_arms": 8,
+    "p_update_arms": 4,
+    "seeds": 3,
+    "canonical_worlds": 2200,
+    "additional_orders": 3,
+    "worlds_per_additional_order": 600,
+    "extra_query_variants": 3,
+    "queries_per_variant": 8,
+    "retention_groups_per_primary_skill": 4500,
+    "note": "Additional query variants price P-only, P-reset and wrong-state checks; reuse learned state by cloning it, not reteaching. P updates run in four of eight arms. Same worlds across seeds/orders are clustered, not counted as independent data. Legacy retention and ordinary modality audits are additional."
+  },
+  "campaign": {
+    "full_seeds": 3,
+    "additional_preparation_controls": 2,
+    "seeds_per_control": 3,
+    "continuation_fraction": 0.2,
+    "extra_scaling_curve_fractions": [0.0625, 0.25],
+    "note": "Reuse each seed's qualified pre-F4 checkpoint only for controls sharing identical upstream training. 20% continuation allowance covers F4 plus consolidation; full factorial retraining, recurrent-core ablations, extra sweeps, policy evolution and failed integrations are additional."
+  }
+}

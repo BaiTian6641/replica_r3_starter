@@ -1,0 +1,93 @@
+{
+  "access_date": "2026-10-26",
+  "source_type": "primary papers and author-hosted paper",
+  "sources": [
+    {
+      "id": "llava15",
+      "url": "https://static.hliu.cc/files/llava/improved_llava.pdf",
+      "location": "Table 3; section 3.3; appendix A",
+      "facts": {
+        "alignment_rows": 558000,
+        "instruction_rows": 665000
+      },
+      "comparison_limit": "Image-language recipe; different model, objectives and trainable scope."
+    },
+    {
+      "id": "molmo2",
+      "url": "https://arxiv.org/html/2601.10611v1",
+      "location": "section 3.2, Tables 12 and 14",
+      "facts": {
+        "pretrain_steps": 32000,
+        "pretrain_batch": 128,
+        "pretrain_max_sequence": 2560,
+        "sft_steps": 30000,
+        "sft_batch": 128,
+        "sft_max_sequence": 16384,
+        "four_billion_h100_gpu_hours_reported": [
+          490,
+          7500,
+          3200
+        ]
+      },
+      "comparison_limit": "Sequence products are capacity, not measured unpadded tokens. No audio/native learning comparison."
+    },
+    {
+      "id": "salmonn",
+      "url": "https://proceedings.iclr.cc/paper_files/paper/2024/file/476ab8f369e489c04187ba84f68cfa68-Paper-Conference.pdf",
+      "location": "sections 4.1\u20134.2, Table 1",
+      "facts": {
+        "pretrain_librispeech_hours": 960,
+        "pretrain_gigaspeech_hours": 1000,
+        "pretrain_wavcaps_hours": 2800,
+        "instruction_samples_approx": 2300000,
+        "instruction_hours_reported_approx": 4400,
+        "trainable_parameters_approx": 33000000
+      },
+      "comparison_limit": "Q-Former/LoRA, reused recordings across tasks; not an all-parameter FT match."
+    },
+    {
+      "id": "smolvlm",
+      "url": "https://arxiv.org/html/2504.05299v1",
+      "location": "sections 3.3\u20133.4 and 4.1",
+      "facts": {
+        "video_stage_text_fraction": 0.14,
+        "video_stage_video_fraction": 0.33
+      },
+      "comparison_limit": "Published sampling units differ from this repository position mixture; do not copy ratios directly."
+    },
+    {
+      "id": "lima",
+      "url": "https://arxiv.org/abs/2305.11206",
+      "location": "abstract",
+      "facts": {
+        "instruction_examples": 1000,
+        "pretrained_parameters": 65000000000
+      },
+      "comparison_limit": "Instruction alignment on pretrained text knowledge; not new sensory or persistent-learning machinery."
+    },
+    {
+      "id": "nested_learning",
+      "url": "https://arxiv.org/html/2512.24695v1",
+      "location": "section 9.3, Table 2",
+      "facts": {
+        "from_scratch_parameter_and_token_pairs": [
+          [
+            760000000,
+            30000000000
+          ],
+          [
+            1300000000,
+            100000000000
+          ]
+        ]
+      },
+      "comparison_limit": "Different from adapting the pretrained MiniCPM/Spark backbone; no established retrofit sample-complexity law."
+    },
+    {
+      "id": "statistical_testing",
+      "url": "https://aclanthology.org/P18-1128/",
+      "location": "abstract and linked ACL paper",
+      "comparison_limit": "Supports task-appropriate significance testing; numerical power estimates in this review are our explicit planning calculations."
+    }
+  ]
+}
