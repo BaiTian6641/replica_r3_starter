@@ -714,6 +714,7 @@ def run_p_only(args, config: dict) -> int:
         wrong_world = None
         wrong_on_primary = None
         if args.wrong_world_p is not None:
+            wrong_world = manifest["wrong_world"]
             wrong_protocol = protocol_for_world(
                 config, lock, hidden_size=adapter.base.config.hidden_size,
                 world_uid=wrong_world)
