@@ -1,0 +1,30 @@
+{
+  "audit_scored": false,
+  "audit_seal_sha256": "5bcbc977d0f2144d34dc97b4b43e621c576a7c9c16b2b94aae841cc2fb43e478",
+  "dev_seal_sha256": "65ebf0c07f0fb49294a48bd05ef49e6f4f6cc3ae44542778d0c17b1412f1d439",
+  "external_final_consumed": false,
+  "external_final_pointer_sha256": "e0d139d1699e9db7b6e5a34ee6cfdf87148cc17db53357d5ad03e4be7ae2b0f5",
+  "external_final_seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d",
+  "format": "replica.vision_curriculum_seals.v1",
+  "policy": "Train updates use train rows only. Dev is for bounded selection. Audit is scored once after the selected checkpoint is frozen. External final stays untouched.",
+  "roles": {
+    "audit": [
+      "procedural_audit"
+    ],
+    "dev": [
+      "external_development",
+      "procedural_source_development",
+      "procedural_dev"
+    ],
+    "sealed": [
+      "external_final_eval_untouched"
+    ],
+    "train": [
+      "external_train",
+      "procedural_source_train",
+      "procedural_train"
+    ]
+  },
+  "train_seal_sha256": "79b090a0be58b9e9a987578b4f96da9dbfd08d5882574b3283f0c8f7f3b38d7e",
+  "version": "replica.vision_curriculum.v1"
+}

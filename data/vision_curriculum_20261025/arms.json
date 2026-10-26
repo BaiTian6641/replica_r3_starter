@@ -1,0 +1,110 @@
+{
+  "arms": {
+    "adamw_control": {
+      "arm": "adamw_control",
+      "declared_lr": 0.0003,
+      "groups": [
+        {
+          "algorithm": "adamw",
+          "betas": [
+            0.9,
+            0.999
+          ],
+          "eps": 1e-08,
+          "group_name": "vision_projector_adamw_control",
+          "lr": 0.0003,
+          "lr_role": "declared_tuned_lr",
+          "param_names": [
+            "vision_projector.0.weight",
+            "vision_projector.0.bias",
+            "vision_projector.1.weight",
+            "vision_projector.1.bias",
+            "vision_projector.3.weight",
+            "vision_projector.3.bias"
+          ],
+          "weight_decay": 0.01
+        }
+      ],
+      "lr_probe_candidates": [
+        0.0001,
+        0.0003
+      ],
+      "route": "all_fp32_adamw"
+    },
+    "muon8bit": {
+      "arm": "muon8bit",
+      "declared_lr": 0.0001,
+      "groups": [
+        {
+          "algorithm": "muon8bit",
+          "block_size": 2048,
+          "group_name": "vision_projector_muon8bit",
+          "lr": 0.0001,
+          "lr_role": "matrix_route",
+          "momentum": 0.95,
+          "ns_steps": 5,
+          "param_names": [
+            "vision_projector.1.weight",
+            "vision_projector.3.weight"
+          ],
+          "weight_decay": 0.01
+        },
+        {
+          "algorithm": "adamw",
+          "betas": [
+            0.9,
+            0.999
+          ],
+          "eps": 1e-08,
+          "group_name": "vision_projector_adamw",
+          "lr": 0.0001,
+          "lr_role": "fp32_adamw_aux",
+          "param_names": [
+            "vision_projector.0.weight",
+            "vision_projector.0.bias",
+            "vision_projector.1.bias",
+            "vision_projector.3.bias"
+          ],
+          "weight_decay": 0.01
+        }
+      ],
+      "lr_probe_candidates": [
+        0.0001,
+        0.0003
+      ],
+      "route": "muon8bit_matrix_plus_fp32_adamw_aux"
+    }
+  },
+  "equal_compute": {
+    "examples_per_arm": 512,
+    "probe_examples_per_arm": 64,
+    "probe_updates_per_arm": 32,
+    "response_only_labels": true,
+    "same_initialization_for_both_arms": true,
+    "same_schedule_for_both_arms": true,
+    "updates_per_arm": 128
+  },
+  "format": "replica.vision_curriculum_arms.v1",
+  "frozen_prefixes": [
+    "base.",
+    "record_writer.",
+    "memory_ports.",
+    "sense_ports.",
+    "reranker."
+  ],
+  "init_recipe": "fresh_seeded_normal_std0.02",
+  "init_seed": 17,
+  "projector_hidden": 4096,
+  "projector_parameter_count": 11542016,
+  "projector_tensors": [
+    "vision_projector.0.weight",
+    "vision_projector.0.bias",
+    "vision_projector.1.weight",
+    "vision_projector.1.bias",
+    "vision_projector.3.weight",
+    "vision_projector.3.bias"
+  ],
+  "seed": 17,
+  "trainable_scope": "vision_projector.",
+  "version": "replica.vision_curriculum.v1"
+}

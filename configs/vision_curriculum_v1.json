@@ -1,0 +1,399 @@
+{
+  "format": "replica.vision_curriculum_config.v1",
+  "version": "replica.vision_curriculum.v1",
+  "seed": 20261025,
+  "data_root": "data/vision_curriculum_20261025",
+  "purpose": "Staged MiniCPM5 projector curriculum after rejected V1 arms: bounded external caption alignment, then procedural spatial/grounding and abstention instruction. Two equal-compute arms from identical fresh 4096-wide seeded initialization; fresh-process reload and independent scoring; external final eval sealed and untouched.",
+  "external": {
+    "root": "data/external_caption_tranche_20261025_v2",
+    "intake_manifest": "manifest.json",
+    "corpus": {
+      "path": "corpus.jsonl",
+      "sha256": "100f28c226cfd27913f0750d959d41de2faea0eb1857670e178d53278064da90"
+    },
+    "manifests": {
+      "train": {
+        "path": "manifests/train.json",
+        "rows": 15,
+        "sha256": "5cd231d151ddedc3c373556a46a29c92c19c6f918a09ef66ac15e4c1f3ff9a72"
+      },
+      "development": {
+        "path": "manifests/development.json",
+        "rows": 7,
+        "sha256": "46df3145fa9eef0d0bf2bd4e47ff5de995b2a7082d82d5325acbdbe63da75993"
+      },
+      "final_eval_untouched": {
+        "path": "manifests/final_eval_untouched.json",
+        "rows": 8,
+        "sha256": "e4d951e09ce5eb0ce7b1bc213c8af3448fcddbf6fa9a491817b96a4ad74db26a",
+        "seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d"
+      }
+    },
+    "image_root": "raw/images",
+    "prompt_mode": "upstream_prompt",
+    "train_rows": 15,
+    "development_rows": 7,
+    "final_rows": 8,
+    "final_policy": "sealed_unconsumed_pointer_only"
+  },
+  "procedural_source": {
+    "root": "data/vision_dependence_v2",
+    "protocol_sha256": "944a2a98c64f3360c8a4b2f68255e99c21adefd31f2e315bd0dddd8b1488d3f9",
+    "manifest_sha256": "712a34f8ca3c809ba79dc7bcb78a3c56fe088eb8da26794d5c9f10f7ea9c5195",
+    "model_rows_sha256": "d102d2bbb98a56d11fe2e9a90a32b51ac7f99b4a26dc20c261d0b97f2a865e23",
+    "verifier_cases_sha256": "12cca8bb920d58f3544d2234b2cc278637e0ceb1c09f50f1a401c7073d27a361",
+    "train_split": "train",
+    "development_split": "final",
+    "development_note": "The balanced diagnostic final split was already scored in its own zero-update diagnostic and is therefore reused here only as development evidence. It is never a final audit in this curriculum."
+  },
+  "procedural": {
+    "renderer": {
+      "version": "procedural_png_v1",
+      "width": 128,
+      "height": 96,
+      "image_format": "png_rgb8",
+      "standard_library_only": true
+    },
+    "worlds_per_task": 12,
+    "tasks": [
+      "spatial",
+      "count",
+      "presence",
+      "color",
+      "shape",
+      "abstain"
+    ],
+    "count_labels": [
+      "2",
+      "3"
+    ],
+    "splits": [
+      "train",
+      "dev",
+      "audit"
+    ],
+    "descriptor_pools": {
+      "train": [
+        [
+          "red",
+          "circle"
+        ],
+        [
+          "blue",
+          "circle"
+        ],
+        [
+          "blue",
+          "square"
+        ],
+        [
+          "green",
+          "triangle"
+        ],
+        [
+          "yellow",
+          "circle"
+        ],
+        [
+          "orange",
+          "circle"
+        ],
+        [
+          "purple",
+          "circle"
+        ],
+        [
+          "red",
+          "rectangle"
+        ]
+      ],
+      "dev": [
+        [
+          "green",
+          "square"
+        ],
+        [
+          "yellow",
+          "triangle"
+        ],
+        [
+          "blue",
+          "rectangle"
+        ],
+        [
+          "orange",
+          "rectangle"
+        ]
+      ],
+      "audit": [
+        [
+          "orange",
+          "triangle"
+        ],
+        [
+          "purple",
+          "rectangle"
+        ],
+        [
+          "yellow",
+          "rectangle"
+        ]
+      ]
+    },
+    "split_layouts": {
+      "train": [
+        "row_major",
+        "row_major_shift"
+      ],
+      "dev": [
+        "column_major"
+      ],
+      "audit": [
+        "column_major_shift"
+      ]
+    },
+    "abstain_kinds": [
+      "absent_referent",
+      "ambiguous_referent",
+      "undecidable_relation"
+    ],
+    "unknown_label": "unknown"
+  },
+  "curriculum": {
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "stage_a": {
+      "updates": 16,
+      "batch": 4,
+      "source": "external_train",
+      "policy": "deterministic_epoch_cycle"
+    },
+    "stage_b": {
+      "updates": 112,
+      "batch": 4,
+      "sources": [
+        "procedural_source_train",
+        "procedural_train"
+      ],
+      "policy": "deterministic_epoch_cycle"
+    },
+    "total_updates": 128,
+    "total_examples": 512,
+    "max_response_tokens": 32,
+    "schedule_version": "curriculum_two_stage.v1",
+    "selection": {
+      "development_splits": [
+        "procedural_dev",
+        "external_development"
+      ],
+      "selection_split": "procedural_dev",
+      "external_development_role": "narrow_caption_diagnostic_only",
+      "probe_cases": 24,
+      "arm_selection": {
+        "measure": "mean_dev_response_loss",
+        "tie_break": "declared_arm_order",
+        "both_arms_required": true
+      }
+    }
+  },
+  "train": {
+    "seed": 17,
+    "init_seed": 17,
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "optimizer_order": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "max_grad_norm": 1.0,
+    "max_seconds": 2400,
+    "response_only_labels": true,
+    "warm_start": null,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ]
+  },
+  "arms": {
+    "muon8bit": {
+      "route": "muon8bit_matrix_plus_fp32_adamw_aux",
+      "matrix_lr": 0.0001,
+      "aux_lr": 0.0001,
+      "momentum": 0.95,
+      "ns_steps": 5,
+      "block_size": 2048,
+      "weight_decay": 0.01,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08
+    },
+    "adamw_control": {
+      "route": "all_fp32_adamw",
+      "declared_lr": 0.0003,
+      "lr_candidates": [
+        0.0001,
+        0.0003
+      ],
+      "weight_decay": 0.01,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08
+    },
+    "equal_compute": {
+      "identical_examples": true,
+      "identical_updates": true,
+      "identical_schedule": true,
+      "identical_probe_budget": true,
+      "identical_initialization": true
+    }
+  },
+  "lr_probe": {
+    "updates": 16,
+    "batch": 2,
+    "split": "procedural_dev",
+    "measure": "mean_dev_response_loss",
+    "tie_break": "lowest_lr",
+    "candidates": {
+      "muon8bit": [
+        0.0001,
+        0.0003
+      ],
+      "adamw_control": [
+        0.0001,
+        0.0003
+      ]
+    }
+  },
+  "evaluation": {
+    "controls": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage"
+    ],
+    "max_new_tokens": 8,
+    "greedy": true,
+    "do_sample": false,
+    "beam_width": 1,
+    "batch": 1,
+    "wrong_control": "different_world_same_task",
+    "shuffle_policy": "deterministic_derangement_within_split",
+    "shuffle_seed_offset": 7919,
+    "bootstrap": {
+      "cluster": "world",
+      "resamples": 1000,
+      "confidence": 0.95
+    },
+    "caption_metric": {
+      "name": "normalized_token_f1",
+      "normalization": "casefold_whitespace_strip_punctuation.v1",
+      "teacher_forced_loss": "response_mean_nll",
+      "claim": "narrow_alignment_metric_only_no_semantic_quality_claim"
+    },
+    "gates": {
+      "min_correct_accuracy": 0.6,
+      "min_unique_families": 32,
+      "max_unknown_rate": 0.15,
+      "min_correct_margin_wrong": 0.15,
+      "min_correct_margin_shuffled": 0.15,
+      "min_correct_margin_noimage": 0.15,
+      "min_unknown_accuracy": 0.7,
+      "max_false_answer_on_abstain": 0.2,
+      "max_false_abstention_on_answerable": 0.15,
+      "min_text_retention_accuracy": 0.75,
+      "max_text_retention_drop": 0.0
+    },
+    "caption_max_new_tokens": 32
+  },
+  "retention": {
+    "policy": "component_nonregression.v1",
+    "baseline": {
+      "correct": 22,
+      "cases": 32,
+      "accuracy": 0.6875,
+      "source": "execution_state.md#measured-projector-only-v1-disposition-and-wide-arm"
+    },
+    "require_token_parity": true,
+    "prompts": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+      "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+    },
+    "labels": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+      "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+    },
+    "max_cases": 32,
+    "role": "Reported separately from component nonregression; the declared 22/32 baseline stays overall ineligible."
+  },
+  "checkpoint_policy": {
+    "policy": "one_final_extension_per_arm",
+    "probe_checkpoints": false,
+    "base_copies": 0,
+    "optimizer_state_saved": false,
+    "export": "strict_extension_v4",
+    "reload": "zero_update_fresh_process_bitwise",
+    "selection_freeze": "freeze_selected_checkpoint_before_audit",
+    "audit_scoring": "once",
+    "keep_arms": [
+      "muon8bit",
+      "adamw_control"
+    ]
+  },
+  "limits": {
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 32,
+    "max_sequence_tokens": 288,
+    "max_new_tokens": 8,
+    "max_eval_cases": 600,
+    "max_rows": 4096,
+    "max_updates": 320,
+    "max_probe_updates": 64,
+    "max_seconds": 3600,
+    "max_export_bytes": 134217728,
+    "min_free_disk_bytes": 5368709120,
+    "max_cache_bytes": 8388608,
+    "max_driver_bytes": 53687091200,
+    "max_bootstrap_resamples": 2000
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_mps_worker": true,
+    "workers": 1,
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "initial_free_admission": true
+  },
+  "action_limits": {
+    "enabled_ports": [],
+    "enabled_branches": [
+      "memory"
+    ],
+    "core_impl": "none",
+    "host_actions": "none",
+    "success_claims": "none"
+  },
+  "stop_conditions": [
+    "Stop before native execution if the protocol, data seals, model lock, vision spec or implementation pins differ.",
+    "Stop if free disk falls below 5 GiB or the sampled MPS driver guard reaches the declared 50 GiB ceiling.",
+    "Stop on sustained host swap growth above 512 MiB or host free percentage at or below 15% for three samples.",
+    "Stop if any non-projector parameter becomes trainable, receives a gradient, or changes.",
+    "Stop if the fresh initialization differs from the declared seeded recipe or matches a rejected parent weight hash.",
+    "Stop if the two arms differ in update count, example count, schedule hash or probe budget.",
+    "Stop before audit scoring until the exact frozen dev report hash is supplied and the selected checkpoint is frozen.",
+    "Score the procedural audit and the sealed external final split exactly once; refuse every later finalize attempt.",
+    "Stop without a CPU fallback, a model download or a duplicate base checkpoint."
+  ],
+  "vision_scope": {
+    "subject_id": "owned-curriculum-v1",
+    "branch_id": "curriculum-run01",
+    "purpose": "staged_vision_curriculum",
+    "as_of": 0,
+    "mode": "parallel_replica",
+    "snapshot_at": null
+  }
+}
