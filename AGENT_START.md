@@ -1,13 +1,17 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
-**Current priority — 26 October 2026:** preserve sealed evidence and keep
-quality rejections distinct from mechanical acceptance. Memory v2 native
-restart parity, refresh intervention and v3 replay are committed; quality is
-rejected. Vision v2 train04 stopped before held-out access after fit/dev gate
-failures; no reload or promotion is authorized. Spark residency and strict
-research-bundle replay are documented, but external assets and native Spark
-remain unadmitted. Exact fused continuation remains unqualified. Keep the
-50 GiB driver / 512 MiB swap / 15% host-free guard and protected draft rules.
+**Current priority — 26 October 2026:** preserve sealed evaluation and keep
+mechanical acceptance separate from learned quality. Standalone
+[NL0 software/math contracts](docs/experiments/20261026_Nested_Learning_NL0.md)
+pass 28 tests and independent review; native integration is unrun. The
+[real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md) verifies
+seven rights-cleared derivatives for local input validation only, not training.
+[Memory readout](docs/experiments/20261026_Memory_Bank_Value.md) passes literal
+value recovery but fails MiniCPM at 19/152, so held-out stays sealed.
+[Vision fitting](docs/experiments/20261026_Vision_Collapse_Diagnostic.md) does
+not establish robust image dependence or authorize V0. Next is a read-only
+mean-only patch ablation on the same sealed rows. Keep the 50 GiB driver /
+512 MiB swap / 15% host-free guard and protected draft rules.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

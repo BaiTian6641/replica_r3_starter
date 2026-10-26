@@ -1,5 +1,55 @@
 # Execution state — integrated memory, cognition and learning
 
+## NL0, real-image, memory-readout and vision-collapse evidence — 26 October 2026
+
+**Current status — standalone NL0 software contracts and real-image asset QA
+pass; learned memory and robust image-dependent generation remain rejected or
+unestablished. No held-out split was opened and no native Spark training was
+started.** The protected untracked `src/replica_lab/runtime_pilot.py` was not
+modified. New native jobs used one exclusive MPS worker, CPU fallback disabled,
+offline sources and the unchanged 50 GiB / 512 MiB / 15% guard.
+
+- [NL0 software/math qualification](docs/experiments/20261026_Nested_Learning_NL0.md)
+  (`88c46e4`) implements selected-expert updates, exact AdamW comparison,
+  associative recurrence, causal one-clock observations and atomic persistence.
+  The final suite is 28/28 and independent closeout is correct. Native model
+  integration, source-free evaluation and learned utility remain unrun.
+- [Real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md)
+  (`1bf6345`) admits seven public-domain/CC0 JPEG derivatives from six source
+  groups for local image-input validation only. Rights/provenance, current
+  revisions, original SHA-1 metadata, exact derivative hashes, decoded
+  geometry, 4/1/2 train/development/audit group splits, exact dedup and content
+  review pass. Assets total 1,734,983 bytes; `training_admitted=false`.
+  Independent verdict is `verified_with_declared_limits`. The strict bundle
+  now verifies 89 tracked inputs and its focused replay passes 38 tests.
+- [Selected-record value/readout](docs/experiments/20261026_Memory_Bank_Value.md)
+  (`88167db`) passes the literal development gate at 124/128 fact values with
+  zero unknown/revoked selections, but sealed MiniCPM scores only 19/152 exact
+  answers. Correction is 5/16, unaffected 5/40, unknown 0/16 and revoked 0/8;
+  held-out and train were not run. Native03 took 93.93 s, peaked at
+  10,763,255,808 sampled driver bytes with zero swap growth, and wrote no
+  checkpoint or extension.
+- [Vision-collapse diagnostic](docs/experiments/20261026_Vision_Collapse_Diagnostic.md)
+  (`510f6dd`) shows training-set text fitting but not robust image-dependent
+  generation. Train04 correct response NLL is 1.517730 versus fresh 10.274771,
+  yet shuffled first-token accuracy is 7/26 versus correct 5/26 and correct /
+  sibling outputs match for 16/20 rows. Fresh is operationally unaligned;
+  train04 is mean-dominated with reduced mean-feature cosine separation, not
+  complete visual-information collapse. The corrected attempt02 took 265.33 s,
+  peaked at 10,877,730,816 sampled driver bytes with zero swap growth, and
+  produced 6,005,936 final artifact bytes. Independent closeout is correct;
+  all 123 affected tests pass. No gradients or answer/caption-mixing arm were
+  run by this diagnostic.
+
+The next justified experiment is a predeclared **read-only mean-only
+projected-patch ablation** on the same sealed training rows and pinned train04
+stage, comparing opposite-token gaps and greedy swap-invariance against
+attempt02. It must not read evaluation splits or authorize V0. The one-clock
+NL0 text baseline, gradient-inclusive vision learnability work, useful-memory
+hypothesis, native Spark backend and exact continuation remain separate open
+gates. No additional blind training arm is justified by these results.
+
+
 ## BF16/Muon and parallel GPU budget follow-up — 26 October 2026
 
 The user requested a second review including optimized low-precision Muon,

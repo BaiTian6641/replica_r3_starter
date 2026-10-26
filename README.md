@@ -5,11 +5,14 @@ adds a current-code audit, model-native spatial/temporal vision and learning
 architecture, a 12-stage proposal, resource estimates and primary-source review.
 It incorporates the 25 October design update below; no new native training ran.
 
-**Current priority — 25 October 2026:** R1–R4 are implemented and verified at
-`757ace1`. Qualify **isolated MiniCPM5 V0** with memory/core/identity injections
-disabled; native V0 remains unqualified. Follow with visual alignment,
-instruction tuning, qualified visual memory and bounded RSI. Prepare the official
-Spark FP8/BF16 path and eligible dataset manifests independently now.
+**Current priority — 26 October 2026:** distinguish verified software and data
+evidence from learned capability. Standalone NL0 passes 28 tests and review;
+seven rights-cleared real-image derivatives pass independent asset QA for local
+input validation only. Memory literal recovery passes at 124/128 but MiniCPM
+readout fails at 19/152; vision text fitting does not establish robust image-
+dependent generation. Held-out splits remain sealed and V0/native Spark
+training remain unauthorized. See [execution state](execution_state.md) and
+the linked dated evidence reports.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context
@@ -135,8 +138,11 @@ one sealed source offline; a new run never downloads another original model. The
 The expanded [integrated design](docs/architecture/19_Integrated_Memory_Learning_and_RSI_Design.md),
 [Spark FP8/BF16 preparation](docs/architecture/20_Spark_X2_6_FP8_Preparation_Plan.md)
 and [dataset curriculum](docs/08_Dataset_Acquisition_and_Curriculum.md) specify
-the next architecture and data packages. The catalog contains 34 external source
-records, 22 pinned; assets remain unacquired and unadmitted by this update.
+the next architecture and data packages. The historical catalog contains 34
+external source records, 22 pinned, as metadata only. A separate
+[real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md) now
+contains seven independently reviewed derivatives for local input validation;
+bulk corpus acquisition and training admission remain closed.
 
 ## Original bundle evidence
 

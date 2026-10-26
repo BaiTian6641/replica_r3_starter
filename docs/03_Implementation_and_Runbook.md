@@ -7,29 +7,28 @@ and 1,372-test +21-subtest source-export result in
 [repair qualification](../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
 native work. The dated design and historical results below retain their scope.
 
-**Current priority — 25 October 2026, using the review of `7c7018e`.**
-Repair caller-bound exact-context verification, complete route/update sequence
-audits and representation-preserving memory rebuild, then isolated MiniCPM5 V0.
-The v5 writer arm is complete and rejected: fast/disabled both 56/192 with zero
-factual recall. Selective exact context is 184/192, but its reference still fails
-broader gates. Original source dependency, changed-span and counter fixes are
-complete; [document 17](architecture/17_Memory_Reliability_Recovery.md) specifies
-remaining reproductions and acceptance tests.
+**Current priority — 26 October 2026.** Preserve sealed evaluation and use the
+dated evidence reports as the execution authority. Standalone
+[NL0 contracts](experiments/20261026_Nested_Learning_NL0.md) are software/math
+qualified but not natively integrated. The
+[real-image tranche](experiments/20261026_Real_Image_Tranche.md) supplies the
+exact bounded acquisition and offline-verification commands for seven
+validation-only JPEGs; it does not authorize training.
 
-Use [the loop prompt](architecture/16_Loop_Agent_Instructions.md) and
-[integrated design](architecture/19_Integrated_Memory_Learning_and_RSI_Design.md)
-for the active queue: remaining fixes → V0 → visual fine-tuning → qualified visual
-memory → bounded RSI. Prepare [Spark FP8/BF16](architecture/20_Spark_X2_6_FP8_Preparation_Plan.md)
-and [eligible datasets](08_Dataset_Acquisition_and_Curriculum.md) independently now.
-These plans are not new supported runner modes. Native Spark follows reusable
-interfaces and backend gates; RSI success is not a prerequisite.
+[Memory readout](experiments/20261026_Memory_Bank_Value.md) passes literal
+value recovery at 124/128 but fails MiniCPM at 19/152, leaving held-out sealed.
+[Vision collapse](experiments/20261026_Vision_Collapse_Diagnostic.md) shows
+text fitting without robust image dependence and does not authorize V0. The
+next experiment is a read-only mean-only projected-patch ablation on the same
+sealed rows; the one-clock NL0 baseline and gradient-inclusive learnability
+work remain separate engineering gates.
 
-MiniCPM5 and the 50 GiB guard remain fixed. Current Muon int8 momentum does not
-change FP32 parameter/gradient residency. This revision gathers public metadata
-and updates plans; it implements no fixes, training or asset acquisition.
-Commands and P/S stages below preserve their original evidence scope and are not
-instructions to repeat rejected arms. See [execution state](../execution_state.md)
-for the current canonical v5 scorer replay command and saved verdict.
+MiniCPM5 and the 50 GiB driver / 512 MiB swap-growth / 15% host-free guard
+remain fixed. Use one native worker, offline sources, CPU fallback disabled,
+fresh output paths and predeclared artifact/write limits. Commands below retain
+their original evidence scope and are not instructions to repeat rejected arms.
+See [execution state](../execution_state.md) for current metrics and preserved
+failure receipts.
 
 ## Historical reader-only recovery result and commands
 

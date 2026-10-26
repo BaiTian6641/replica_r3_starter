@@ -1,28 +1,31 @@
 # Coding-agent continuation instruction
 
-**Current priority — 26 October 2026:** preserve completed evidence; do not
-promote rejected quality or open sealed evaluation roles early. The latest
-focused commits are `edcf1d47` (memory v2 native refresh and v3 receipt),
-`73f6cb64` (caption target identity), `c5e57b01` (fused boundary
-instrumentation) and `5c6577e9` (Spark residency and strict research bundle).
+**Current priority — 26 October 2026:** preserve sealed evaluation and failed
+quality results. Evidence commits include `88c46e4` (standalone NL0),
+`1bf6345` (real-image evidence), `88167db` (memory readout) and `510f6dd`
+(vision-collapse evidence). Native Spark training and V0 remain unauthorized.
 
-Memory native02/restart02 passes mechanical, refresh-intervention and
-fresh-process parity gates. The v3 receipt rejects quality: 21/384
-accepted-correct at 15.22% precision; no useful learned memory is claimed.
-Read [fresh causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
-Deterministic checkpoint crash-injection recovery also passes; no SIGKILL or
-native crash test is claimed.
+[NL0](docs/experiments/20261026_Nested_Learning_NL0.md) passes 28 tests and
+independent correctness review for selected-expert updates, causal observation
+writes, exact optimizer comparison and atomic persistence. These are standalone
+software/math contracts; one-clock integration and learned utility are unrun.
 
-Vision train04 completes 24 projector-only updates and passes scorer
-contracts, but train-fit/dev gates fail (3/14 and 2/18 answers; caption
-semantic F1 0). It stopped before held-out access; no reload or promotion is
-authorized. Read [balanced visual results](docs/experiments/20261026_Vision_Balanced_Alignment.md).
+[Real images](docs/experiments/20261026_Real_Image_Tranche.md) now provide seven
+public-domain/CC0 JPEG derivatives from six source groups with verified rights,
+revisions, hashes, geometry, exact dedup and 4/1/2 source-group splits. The
+strict bundle verifies 89 tracked inputs and 38 focused tests. Admission is for
+local image-input validation only; `training_admitted=false`.
 
-Fused instrumentation passes 33 boundary/resume tests and 25 optimizer tests;
-historical exact continuation failures remain failures. Spark residency is
-analytical only; strict 32-input bundle replay passes with owned synthetic
-fixtures only. External media rights, asset QA and native Spark remain
-prerequisites, not completed work. Earlier evidence below is historical.
+[Memory readout](docs/experiments/20261026_Memory_Bank_Value.md) passes literal
+dev at 124/128 with zero unknown/revoked selections but fails MiniCPM at 19/152.
+Held-out and train were not run; useful learned memory remains unestablished.
+
+[Vision collapse](docs/experiments/20261026_Vision_Collapse_Diagnostic.md)
+shows text fitting without robust image-dependent generation. Shuffled first-
+token accuracy exceeds correct, and image swaps often leave generations
+unchanged. Attempt02 passes independent engineering review and preserves
+native01; no held-out claim or V0 promotion follows. Next is a read-only mean-
+only projected-patch ablation on the same sealed rows.
 
 The final integration suite passed 2016 tests plus 21 subtests with one
 explicit skip in 292.73 s; see `reports/regression_20261026/full_suite.log`
