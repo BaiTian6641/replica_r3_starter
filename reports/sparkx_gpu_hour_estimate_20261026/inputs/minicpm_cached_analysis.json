@@ -1,0 +1,388 @@
+{
+  "format": "replica.m2_ultra.training_performance_analysis.v1",
+  "source_commit": "f25ea86f77e46dd52e227158c285b351afacb5ab",
+  "source_sha256": {
+    "reports/minicpm5_balanced_mask1_chunk01_report.json": "617119b5a35add49d741ec8e48d5f12feb024d276c4f82eb28165788a5f022a0",
+    "reports/minicpm5_capacity256_chunk01_report.json": "9781b6291a236245b1b8757c594a6c1b9f630abc5cdbacf091b38414467a2090",
+    "reports/minicpm5_capacity256_chunk02_report.json": "603396b9df1c906625bb2112290b6376d10083241806f622c8e1884a58ff9613",
+    "reports/minicpm5_capacity512_chunk01_report.json": "29ba3ea7500236c6d85757c3f4bf89e91b921c36d13b4efde47e4852535ee92d",
+    "reports/minicpm5_capacity512_chunk02_report.json": "11ee80229bdd528b6c9a2dc556077167dee0c372e6f029f6cabd2096f9d99a15",
+    "reports/minicpm5_D2_capacity256_chunk01_report.json": "b6141d2439b3c60b4458e0baf8ecd871845c02f617e44293ed317c13e0b21d92",
+    "reports/minicpm5_D2_capacity256_chunk02_report.json": "4b3287f6b5d9e513f54ce43e15836975efa3a65df377922847b9590c0017aec5",
+    "reports/minicpm5_D2_capacity512_chunk01_report.json": "491e80f728a85e97e182162392fbf3001554c6d98be183dcfa0d9a06f770f04f",
+    "reports/minicpm5_D2_capacity512_chunk02_report.json": "2e6f2635be3f95de63ec2bd53dd64512e499d4093d02ef7faaf1890ef7c19cae"
+  },
+  "cached_cases": {
+    "full_55": {
+      "reports": [
+        "reports/minicpm5_balanced_mask1_chunk01_report.json"
+      ],
+      "updates": [
+        {
+          "step": 1,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.585756292100996,
+          "start": 4.435085542034358,
+          "post_backward_seconds": 17.831687750061974,
+          "total_seconds": 20.41744404216297
+        },
+        {
+          "step": 2,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.101453709183261,
+          "start": 24.853656999999657,
+          "post_backward_seconds": 17.459891040809453,
+          "total_seconds": 19.561344749992713
+        },
+        {
+          "step": 3,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.084242583019659,
+          "start": 44.41590433404781,
+          "post_backward_seconds": 17.493994541931897,
+          "total_seconds": 19.578237124951556
+        },
+        {
+          "step": 4,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.2014184589497745,
+          "start": 63.99497650004923,
+          "post_backward_seconds": 17.488537250086665,
+          "total_seconds": 19.68995570903644
+        },
+        {
+          "step": 5,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.1299027919303626,
+          "start": 84.48691666708328,
+          "post_backward_seconds": 17.448711832985282,
+          "total_seconds": 19.578614624915645
+        },
+        {
+          "step": 6,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.1244501248002052,
+          "start": 104.1229111251887,
+          "post_backward_seconds": 17.503533375216648,
+          "total_seconds": 19.627983500016853
+        },
+        {
+          "step": 7,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.13858383288607,
+          "start": 123.75168879213743,
+          "post_backward_seconds": 17.396427917061374,
+          "total_seconds": 19.535011749947444
+        },
+        {
+          "step": 8,
+          "backward_calls": 8,
+          "forward_backward_seconds": 2.215098291868344,
+          "start": 143.28750725020654,
+          "post_backward_seconds": 17.43954029190354,
+          "total_seconds": 19.654638583771884
+        }
+      ],
+      "trainable_parameters": 2516756480,
+      "trainable_original_tensors": 381,
+      "gradient_accumulation": 8,
+      "actual_sequence_length": {
+        "minimum": 55,
+        "maximum": 55
+      },
+      "mean_total_seconds": 19.705403760599438,
+      "mean_forward_backward_seconds": 2.197613260592334,
+      "mean_post_backward_seconds": 17.507790500007104,
+      "post_backward_fraction": 0.8884766185310845,
+      "optimizer_updates_per_second": 0.05074750114988662,
+      "conditional_projections_not_measurements": [
+        {
+          "post_backward_phase_speedup": 2,
+          "seconds_per_update": 10.951508510595886,
+          "updates_per_second": 0.09131162150241426
+        },
+        {
+          "post_backward_phase_speedup": 4,
+          "seconds_per_update": 6.57456088559411,
+          "updates_per_second": 0.15210141291582777
+        },
+        {
+          "post_backward_phase_speedup": 8,
+          "seconds_per_update": 4.386087073093222,
+          "updates_per_second": 0.2279936497691928
+        }
+      ],
+      "infinite_forward_backward_speedup_ceiling": 1.125522021787469
+    },
+    "full_256": {
+      "reports": [
+        "reports/minicpm5_capacity256_chunk01_report.json",
+        "reports/minicpm5_capacity256_chunk02_report.json"
+      ],
+      "updates": [
+        {
+          "step": 1,
+          "backward_calls": 8,
+          "forward_backward_seconds": 4.736246540909633,
+          "start": 4.529754792107269,
+          "post_backward_seconds": 17.830465625040233,
+          "total_seconds": 22.566712165949866
+        },
+        {
+          "step": 2,
+          "backward_calls": 8,
+          "forward_backward_seconds": 4.675655625062063,
+          "start": 15.191933874972165,
+          "post_backward_seconds": 17.745427042013034,
+          "total_seconds": 22.421082667075098
+        }
+      ],
+      "trainable_parameters": 2516756480,
+      "trainable_original_tensors": 381,
+      "gradient_accumulation": 8,
+      "actual_sequence_length": {
+        "minimum": 256,
+        "maximum": 256
+      },
+      "mean_total_seconds": 22.493897416512482,
+      "mean_forward_backward_seconds": 4.705951082985848,
+      "mean_post_backward_seconds": 17.787946333526634,
+      "post_backward_fraction": 0.79078987532275,
+      "optimizer_updates_per_second": 0.044456502200721906,
+      "conditional_projections_not_measurements": [
+        {
+          "post_backward_phase_speedup": 2,
+          "seconds_per_update": 13.599924249749165,
+          "updates_per_second": 0.07352982131635358
+        },
+        {
+          "post_backward_phase_speedup": 4,
+          "seconds_per_update": 9.152937666367507,
+          "updates_per_second": 0.10925454061317413
+        },
+        {
+          "post_backward_phase_speedup": 8,
+          "seconds_per_update": 6.929444374676677,
+          "updates_per_second": 0.14431171475370408
+        }
+      ],
+      "infinite_forward_backward_speedup_ceiling": 1.264558425955901
+    },
+    "full_512": {
+      "reports": [
+        "reports/minicpm5_capacity512_chunk01_report.json",
+        "reports/minicpm5_capacity512_chunk02_report.json"
+      ],
+      "updates": [
+        {
+          "step": 1,
+          "backward_calls": 8,
+          "forward_backward_seconds": 7.6927740829996765,
+          "start": 4.317281792173162,
+          "post_backward_seconds": 17.630528333829716,
+          "total_seconds": 25.323302416829392
+        },
+        {
+          "step": 2,
+          "backward_calls": 8,
+          "forward_backward_seconds": 7.6686518751084805,
+          "start": 15.09686812479049,
+          "post_backward_seconds": 17.952971041901037,
+          "total_seconds": 25.621622917009518
+        }
+      ],
+      "trainable_parameters": 2516756480,
+      "trainable_original_tensors": 381,
+      "gradient_accumulation": 8,
+      "actual_sequence_length": {
+        "minimum": 512,
+        "maximum": 512
+      },
+      "mean_total_seconds": 25.472462666919455,
+      "mean_forward_backward_seconds": 7.6807129790540785,
+      "mean_post_backward_seconds": 17.791749687865376,
+      "post_backward_fraction": 0.6984699485288144,
+      "optimizer_updates_per_second": 0.03925808089606816,
+      "conditional_projections_not_measurements": [
+        {
+          "post_backward_phase_speedup": 2,
+          "seconds_per_update": 16.576587822986767,
+          "updates_per_second": 0.06032604602820004
+        },
+        {
+          "post_backward_phase_speedup": 4,
+          "seconds_per_update": 12.128650401020423,
+          "updates_per_second": 0.08244940425654175
+        },
+        {
+          "post_backward_phase_speedup": 8,
+          "seconds_per_update": 9.90468169003725,
+          "updates_per_second": 0.10096235611547846
+        }
+      ],
+      "infinite_forward_backward_speedup_ceiling": 1.431700822786002
+    },
+    "full_augmented_256": {
+      "reports": [
+        "reports/minicpm5_D2_capacity256_chunk01_report.json",
+        "reports/minicpm5_D2_capacity256_chunk02_report.json"
+      ],
+      "updates": [
+        {
+          "step": 1,
+          "backward_calls": 8,
+          "forward_backward_seconds": 4.81898641702719,
+          "start": 4.452467791968957,
+          "post_backward_seconds": 17.784381082979962,
+          "total_seconds": 22.603367500007153
+        },
+        {
+          "step": 2,
+          "backward_calls": 8,
+          "forward_backward_seconds": 5.001856582937762,
+          "start": 15.208583500003442,
+          "post_backward_seconds": 18.001764124957845,
+          "total_seconds": 23.003620707895607
+        }
+      ],
+      "trainable_parameters": 2516756480,
+      "trainable_original_tensors": 381,
+      "gradient_accumulation": 8,
+      "actual_sequence_length": {
+        "minimum": 256,
+        "maximum": 256
+      },
+      "mean_total_seconds": 22.80349410395138,
+      "mean_forward_backward_seconds": 4.910421499982476,
+      "mean_post_backward_seconds": 17.893072603968903,
+      "post_backward_fraction": 0.7846636363007369,
+      "optimizer_updates_per_second": 0.04385292865389083,
+      "conditional_projections_not_measurements": [
+        {
+          "post_backward_phase_speedup": 2,
+          "seconds_per_update": 13.856957801966928,
+          "updates_per_second": 0.07216591219308288
+        },
+        {
+          "post_backward_phase_speedup": 4,
+          "seconds_per_update": 9.383689650974702,
+          "updates_per_second": 0.10656788930526151
+        },
+        {
+          "post_backward_phase_speedup": 8,
+          "seconds_per_update": 7.147055575478589,
+          "updates_per_second": 0.13991775906024584
+        }
+      ],
+      "infinite_forward_backward_speedup_ceiling": 1.2744314298983666
+    },
+    "full_augmented_512": {
+      "reports": [
+        "reports/minicpm5_D2_capacity512_chunk01_report.json",
+        "reports/minicpm5_D2_capacity512_chunk02_report.json"
+      ],
+      "updates": [
+        {
+          "step": 1,
+          "backward_calls": 8,
+          "forward_backward_seconds": 8.351520375115797,
+          "start": 4.651875833980739,
+          "post_backward_seconds": 18.179526540916413,
+          "total_seconds": 26.53104691603221
+        },
+        {
+          "step": 2,
+          "backward_calls": 8,
+          "forward_backward_seconds": 8.077794499928132,
+          "start": 16.021677457960322,
+          "post_backward_seconds": 17.719112042104825,
+          "total_seconds": 25.796906542032957
+        }
+      ],
+      "trainable_parameters": 2516756480,
+      "trainable_original_tensors": 381,
+      "gradient_accumulation": 8,
+      "actual_sequence_length": {
+        "minimum": 512,
+        "maximum": 512
+      },
+      "mean_total_seconds": 26.163976729032584,
+      "mean_forward_backward_seconds": 8.214657437521964,
+      "mean_post_backward_seconds": 17.94931929151062,
+      "post_backward_fraction": 0.6860317709881367,
+      "optimizer_updates_per_second": 0.038220489582165104,
+      "conditional_projections_not_measurements": [
+        {
+          "post_backward_phase_speedup": 2,
+          "seconds_per_update": 17.189317083277274,
+          "updates_per_second": 0.05817566777989428
+        },
+        {
+          "post_backward_phase_speedup": 4,
+          "seconds_per_update": 12.70198726039962,
+          "updates_per_second": 0.07872783836885527
+        },
+        {
+          "post_backward_phase_speedup": 8,
+          "seconds_per_update": 10.458322348960792,
+          "updates_per_second": 0.09561763030753843
+        }
+      ],
+      "infinite_forward_backward_speedup_ceiling": 1.4576584384126032
+    }
+  },
+  "muon_arithmetic": {
+    "scope": "Analytical GEMM count; not a measured kernel-time partition.",
+    "shape_counts": [
+      {
+        "shape": [
+          256,
+          2048
+        ],
+        "tensors": 84
+      },
+      {
+        "shape": [
+          2048,
+          2048
+        ],
+        "tensors": 84
+      },
+      {
+        "shape": [
+          2048,
+          6144
+        ],
+        "tensors": 42
+      },
+      {
+        "shape": [
+          6144,
+          2048
+        ],
+        "tensors": 84
+      }
+    ],
+    "newton_schulz_steps": 5,
+    "gemms_per_matrix": 15,
+    "gemms_per_update": 4410,
+    "ns_flops_per_update": 97649436917760,
+    "formula_per_matrix": "5 * (4 * min(rows,cols)^2 * max(rows,cols) + 2 * min(rows,cols)^3)",
+    "optimizer_finite_scalar_checks_per_update": 675,
+    "forward_backward_6NT_estimate_flops_55": 6644237107200,
+    "note": "6NT is a coarse language-model FLOP approximation, excludes activation recomputation and detailed vocab/attention geometry; not measured useful hardware FLOPS."
+  },
+  "memory_lower_bounds_bytes": {
+    "weights_fp32": 10067025920,
+    "gradients_fp32": 10067025920,
+    "current_optimizer_state": 6265262080,
+    "current_weights_gradients_optimizer": 26399313920,
+    "all_adamw_fp32_weights_gradients_moments": 40268103680,
+    "excludes": "Activations, workspace, backend allocator, temporary tensors, live sources and host buffers."
+  },
+  "limits": [
+    "Post-backward markers include gradient audits, norm clipping and optimizer work; cached logs do not isolate their internal substeps.",
+    "Warmup/allocation and process restart affect short runs; results are diagnostic.",
+    "Performance gains need new scope-audited native tests; theoretical projections are not benchmark results."
+  ]
+}

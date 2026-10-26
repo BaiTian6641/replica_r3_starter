@@ -1,5 +1,36 @@
 # Execution state — integrated memory, cognition and learning
 
+## Spark formal full-training compute review — 26 October 2026
+
+The user requested total compute estimates for the modified SparkX 2.6 4B
+architecture on DigitalOcean, this M2 Ultra, and independent dual-3090-Ti and
+dual-TITAN jobs. The user selected 100M/1B/5B total processed-position scenarios.
+The [review](docs/experiments/20261026_SparkX_Formal_Full_Finetuning_Compute_Estimate.md)
+preserves full joint trainable scope and the current native-fused optimizer
+policy. It separates the 4.3208B declared floor from a rounded 4.4B planning
+placeholder, measured MiniCPM timing from assumed CUDA delivery, numerical
+precision from trainable scope, and occupied GPU-hours from wall time.
+
+At 1B positions, a mixed-precision H200 schedule is conditionally estimated at
+116–417 GPU-hours; three schedule equivalents plus initial qualification are
+355–1,266 GPU-hours, about $1,590–$5,660 at the checked $4.47/GPU-hour rate.
+Strict FP32 H200 sensitivity is 495–1,484 GPU-hours for one schedule. Each
+dual-24-GB pair needs qualified sharding/offload. The full FP32 Mac state floor
+exceeds both physical memory and the unchanged 50 GiB driver guard; its hour
+projection is explicitly compute-only, not an executable configuration.
+
+The [calculator](scripts/estimate_sparkx_training_budget.py),
+[assumptions](configs/sparkx_formal_training_budget_estimate_v1.json) and
+[evidence package](reports/sparkx_gpu_hour_estimate_20261026/README.md) preserve
+15 hashed input snapshots, the newer 12-update MiniCPM sustained evidence and
+current official hardware/pricing references. Nine offline checks pass,
+including deterministic fresh-CLI replay, original phase/changed-tensor audits,
+Decimal hour/cost arithmetic and separate-pair GPU occupancy. No new model/GPU
+job, dataset admission, paid resource, guard or training-default change occurred.
+The next measurement is a separately admitted bounded Spark backend/residency
+and representative multimodal/learning-graph pilot; final data volume, extension
+inventory, numerical qualification and product convergence remain unestablished.
+
 
 ## Integrated repairs and diagnostics — 26 October 2026
 

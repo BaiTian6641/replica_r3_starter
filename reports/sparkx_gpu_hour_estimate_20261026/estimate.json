@@ -1,0 +1,914 @@
+{
+  "format": "replica.sparkx_formal_training_budget_estimate.v1",
+  "kind": "conditional_planning_ranges_not_benchmarks",
+  "config": "configs/sparkx_formal_training_budget_estimate_v1.json",
+  "config_sha256": "34e2151554eb7daf20fa6dbdfe934f9fead35f1bcb92e4ec9888c622ed518486",
+  "calculator_sha256": "bb3b923c4f10c1ea892cab057f4b7413dcf21e13d4bfd9f1e7fdb0b556d47f34",
+  "input_manifest_sha256": "f64dad51bdf63b721afe9545bc99d8a604783703171dabc28fc4ce982ebf5d3f",
+  "snapshot_source_commit": "da75bc6af8c7d48d08ce979457df229fa5e0b5d4",
+  "work_budget": {
+    "sequence_length": 2048,
+    "window_aware_attention": true,
+    "backbone_flops_per_position": 32896634880,
+    "attention_flops_per_position": 2113929216,
+    "assumed_reserves": {
+      "live_encoder_flops_reserve_per_position": 1000000000,
+      "native_extension_flops_reserve_per_position": 1000000000,
+      "unimplemented_branch_and_non_gemm_flops_reserve_per_position": 3000000000
+    },
+    "total_flops_per_position": 40010564096
+  },
+  "context_sensitivity": [
+    {
+      "sequence_length": 2048,
+      "window_aware_attention": true,
+      "backbone_flops_per_position": 32896634880,
+      "attention_flops_per_position": 2113929216,
+      "assumed_reserves": {
+        "live_encoder_flops_reserve_per_position": 1000000000,
+        "native_extension_flops_reserve_per_position": 1000000000,
+        "unimplemented_branch_and_non_gemm_flops_reserve_per_position": 3000000000
+      },
+      "total_flops_per_position": 40010564096
+    },
+    {
+      "sequence_length": 8192,
+      "window_aware_attention": true,
+      "backbone_flops_per_position": 32896634880,
+      "attention_flops_per_position": 5737807872,
+      "assumed_reserves": {
+        "live_encoder_flops_reserve_per_position": 1000000000,
+        "native_extension_flops_reserve_per_position": 1000000000,
+        "unimplemented_branch_and_non_gemm_flops_reserve_per_position": 3000000000
+      },
+      "total_flops_per_position": 43634442752
+    },
+    {
+      "sequence_length": 2048,
+      "window_aware_attention": false,
+      "backbone_flops_per_position": 32896634880,
+      "attention_flops_per_position": 4831838208,
+      "assumed_reserves": {
+        "live_encoder_flops_reserve_per_position": 1000000000,
+        "native_extension_flops_reserve_per_position": 1000000000,
+        "unimplemented_branch_and_non_gemm_flops_reserve_per_position": 3000000000
+      },
+      "total_flops_per_position": 42728473088
+    },
+    {
+      "sequence_length": 8192,
+      "window_aware_attention": false,
+      "backbone_flops_per_position": 32896634880,
+      "attention_flops_per_position": 19327352832,
+      "assumed_reserves": {
+        "live_encoder_flops_reserve_per_position": 1000000000,
+        "native_extension_flops_reserve_per_position": 1000000000,
+        "unimplemented_branch_and_non_gemm_flops_reserve_per_position": 3000000000
+      },
+      "total_flops_per_position": 57223987712
+    }
+  ],
+  "integrated_parameter_account": {
+    "versioned_floor": 4320804612,
+    "partial_nine_reader_plus_P_inventory": 4363009796,
+    "planning_total_not_measured": 4400000000,
+    "remaining_parameter_reserve_not_inventory": 36990204
+  },
+  "parameter_state_GiB_at_planning_total": {
+    "12_bytes_per_parameter": 49.173831939697266,
+    "14_bytes_per_parameter": 57.36947059631348,
+    "16_bytes_per_parameter": 65.56510925292969,
+    "18_bytes_per_parameter": 73.7607479095459
+  },
+  "source_residency_projection_not_measured": {
+    "scope": "fixed trainable parameters; dynamic memory state is a separate account",
+    "fixed_parameters": 4320804612,
+    "training_plan": "bf16_weights_fp32_master_fp32_gradients_two_fp32_moments",
+    "parameter_state_bytes": 77774483016,
+    "dynamic_state_bytes": 185773056,
+    "activation_bytes": 78598144,
+    "logits_bytes": 402653184,
+    "temporary_buffer_bytes": 17618762768,
+    "resident_training_bytes": 96060270168,
+    "resident_training_GiB": 89.463098,
+    "with_bf16_restore_peak_bytes": 130209256560,
+    "with_bf16_restore_peak_GiB": 121.26682,
+    "with_export_peak_bytes": 126305902452,
+    "with_export_peak_GiB": 117.631538,
+    "over_driver_guard_on_resident_training": true,
+    "headroom_to_driver_guard_bytes": -42373178968,
+    "headroom_to_driver_guard_GiB": -39.463098,
+    "status": "analytical_not_admitted",
+    "note": "Parameter state, dynamic state, analytical activations, logits and temporary buffers are summed. Allocator and driver overhead are still excluded, so the true peak can only be larger."
+  },
+  "m2_calibration": {
+    "status": "Current full FP32 architecture is not runnable within 64 GiB unified memory and unchanged 50 GiB driver guard",
+    "executable_hours": null,
+    "conditional_compute_only": true,
+    "measured_minicpm_steady_updates_per_second": 0.118741849419085,
+    "measured_minicpm_steady_processed_tokens_per_second": 52.2464137443974,
+    "measured_minicpm_steady_phase_seconds": {
+      "forward_backward_seconds": 2.084305512579158,
+      "gradient_audit_seconds": 1.0082032531499862e-06,
+      "gradient_clip_seconds": 5.424994729086757,
+      "optimizer_seconds": 0.9123294127173722
+    },
+    "forward_backward_samples": [
+      {
+        "case": "full_55",
+        "positions_per_update": 440.0,
+        "forward_backward_seconds": 2.197613260592334,
+        "checkpointed_equivalent_TFLOPS": 4.0311837248434665
+      },
+      {
+        "case": "full_256",
+        "positions_per_update": 2048.0,
+        "forward_backward_seconds": 4.705951082985848,
+        "checkpointed_equivalent_TFLOPS": 8.762211387492231
+      },
+      {
+        "case": "full_512",
+        "positions_per_update": 4096.0,
+        "forward_backward_seconds": 7.6807129790540785,
+        "checkpointed_equivalent_TFLOPS": 10.737164187952317
+      },
+      {
+        "case": "fused_steady_55",
+        "positions_per_update": 440,
+        "forward_backward_seconds": 2.084305512579158,
+        "checkpointed_equivalent_TFLOPS": 4.2503283497234206
+      }
+    ],
+    "conditional_delivered_TFLOPS": [
+      4.0311837248434665,
+      10.737164187952317
+    ],
+    "conditional_projected_clip_optimizer_seconds_per_update": 11.079429593417862,
+    "conditional_projected_processed_positions_per_second": [
+      88.68613166500015,
+      214.7891787615221
+    ],
+    "projection_work": {
+      "sequence_length": 2048,
+      "window_aware_attention": false,
+      "backbone_flops_per_position": 32896634880,
+      "attention_flops_per_position": 4831838208,
+      "assumed_reserves": {
+        "live_encoder_flops_reserve_per_position": 1000000000,
+        "native_extension_flops_reserve_per_position": 1000000000,
+        "unimplemented_branch_and_non_gemm_flops_reserve_per_position": 3000000000
+      },
+      "total_flops_per_position": 42728473088
+    },
+    "limits": [
+      "The eight-parameter FLOP coefficient is a checkpointed-work convention, not measured silicon FLOPS.",
+      "Linear clipping/optimizer scaling and 2048-position efficiency extrapolation are unvalidated.",
+      "Unified host offload creates no additional physical memory; no executable full-scope MPS configuration is asserted."
+    ]
+  },
+  "scenarios": [
+    {
+      "total_charged_positions": 100000000,
+      "main_schedule_position_split": {
+        "F2_joint_integration": 60000000,
+        "F3_grounded_reasoning": 25000000,
+        "F4_learning_behavior_including_charged_inner_passes": 10000000,
+        "F5_consolidation": 5000000
+      },
+      "hardware": {
+        "do_h200": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; primary capacity candidate; separate CUDA backend/resource admission required",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            999.7359673316614,
+            2999.2079019949842
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              11.577130814814813,
+              41.67767093333333
+            ],
+            "gpu_hours": [
+              11.577130814814813,
+              41.67767093333333
+            ],
+            "wall_days_at_continuous_use": [
+              0.4823804506172839,
+              1.7365696222222222
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            42.73139244444444,
+            141.0330128
+          ],
+          "one_schedule_usd_compute_only": [
+            51.749774742222215,
+            186.299189072
+          ],
+          "campaign_usd_compute_only": [
+            191.00932422666662,
+            630.417567216
+          ]
+        },
+        "do_h100": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; conditional on fitting complete phase peaks; current conservative 89.46 GiB ledger exceeds capacity",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            799.7887738653291,
+            2499.3399183291535
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              13.89255697777778,
+              52.097088666666664
+            ],
+            "gpu_hours": [
+              13.89255697777778,
+              52.097088666666664
+            ],
+            "wall_days_at_continuous_use": [
+              0.5788565407407408,
+              2.170712027777778
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            49.67767093333334,
+            172.291266
+          ],
+          "one_schedule_usd_compute_only": [
+            61.26617627200001,
+            229.74816102
+          ],
+          "campaign_usd_compute_only": [
+            219.07852881600002,
+            759.80448306
+          ]
+        },
+        "do_l40s": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; 64 GiB host RAM and offload need qualification; current resident state cannot fit",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            299.9207901994984,
+            799.7887738653291
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              43.41424055555556,
+              138.92556977777778
+            ],
+            "gpu_hours": [
+              43.41424055555556,
+              138.92556977777778
+            ],
+            "wall_days_at_continuous_use": [
+              1.8089266898148149,
+              5.7885654074074075
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            142.24272166666668,
+            440.7767093333333
+          ],
+          "one_schedule_usd_compute_only": [
+            68.16035767222223,
+            218.11314455111113
+          ],
+          "campaign_usd_compute_only": [
+            223.3210730166667,
+            692.0194336533333
+          ]
+        },
+        "dual_3090ti": {
+          "gpus_per_job": 2,
+          "status": "Unmeasured; rates cover both GPUs together, not each; sufficient host RAM and topology required",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            149.9603950997492,
+            449.88118529924765
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              77.18087209876542,
+              277.85113955555556
+            ],
+            "gpu_hours": [
+              154.36174419753084,
+              555.7022791111111
+            ],
+            "wall_days_at_continuous_use": [
+              3.2158696707818923,
+              11.577130814814815
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            479.08523259259255,
+            1707.1068373333333
+          ],
+          "one_schedule_usd_compute_only": null,
+          "campaign_usd_compute_only": null
+        },
+        "dual_titan": {
+          "gpus_per_job": 2,
+          "status": "Unmeasured; no native BF16; Spark head dimension 256 and local masks are outside the cited Turing FlashAttention implementation; qualify an exact alternate kernel",
+          "modeled_flops_per_position": 42728473088,
+          "assumed_processed_positions_per_second_entire_job": [
+            74.89151305288974,
+            224.67453915866923
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              154.54453518518517,
+              556.3603266666667
+            ],
+            "gpu_hours": [
+              309.08907037037034,
+              1112.7206533333333
+            ],
+            "wall_days_at_continuous_use": [
+              6.439355632716048,
+              23.181680277777776
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            943.267211111111,
+            3378.16196
+          ],
+          "one_schedule_usd_compute_only": null,
+          "campaign_usd_compute_only": null
+        },
+        "do_h200_strict_fp32": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; separate strict-precision sensitivity, not the BF16 forecast",
+          "modeled_flops_per_position": 42728473088,
+          "assumed_processed_positions_per_second_entire_job": [
+            280.8431739483365,
+            702.1079348708413
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              49.45425125925926,
+              148.36275377777778
+            ],
+            "gpu_hours": [
+              49.45425125925926,
+              148.36275377777778
+            ],
+            "wall_days_at_continuous_use": [
+              2.060593802469136,
+              6.181781407407407
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            156.36275377777778,
+            461.0882613333333
+          ],
+          "one_schedule_usd_compute_only": [
+            221.06050312888888,
+            663.1815093866667
+          ],
+          "campaign_usd_compute_only": [
+            698.9415093866667,
+            2061.06452816
+          ]
+        }
+      },
+      "m2_conditional_compute_only": {
+        "wall_hours": [
+          161.65722324761018,
+          469.82167205191524
+        ],
+        "gpu_hours": [
+          161.65722324761018,
+          469.82167205191524
+        ],
+        "wall_days_at_continuous_use": [
+          6.735717635317091,
+          19.575903002163134
+        ],
+        "hours_are_device_hours_not_cuda_gpu_hours": true,
+        "not_an_executable_budget": true,
+        "wall_days_at_half_time_availability": [
+          13.471435270634181,
+          39.15180600432627
+        ]
+      },
+      "independent_local_campaign_example": {
+        "allocation": "Two whole schedules on 3090 Ti pair; one on TITAN pair, independently",
+        "wall_hours_excluding_one_time_qualification": [
+          154.54453518518517,
+          556.3603266666667
+        ],
+        "aggregate_gpu_hours_excluding_one_time_qualification": [
+          617.812558765432,
+          2224.1252115555553
+        ],
+        "add_pair_qualification_gpu_hours": [
+          32,
+          80
+        ],
+        "not_one_96_GB_training_job": true
+      }
+    },
+    {
+      "total_charged_positions": 1000000000,
+      "main_schedule_position_split": {
+        "F2_joint_integration": 600000000,
+        "F3_grounded_reasoning": 250000000,
+        "F4_learning_behavior_including_charged_inner_passes": 100000000,
+        "F5_consolidation": 50000000
+      },
+      "hardware": {
+        "do_h200": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; primary capacity candidate; separate CUDA backend/resource admission required",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            999.7359673316614,
+            2999.2079019949842
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              115.77130814814815,
+              416.7767093333333
+            ],
+            "gpu_hours": [
+              115.77130814814815,
+              416.7767093333333
+            ],
+            "wall_days_at_continuous_use": [
+              4.82380450617284,
+              17.365696222222223
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            355.31392444444447,
+            1266.330128
+          ],
+          "one_schedule_usd_compute_only": [
+            517.4977474222222,
+            1862.99189072
+          ],
+          "campaign_usd_compute_only": [
+            1588.2532422666666,
+            5660.49567216
+          ]
+        },
+        "do_h100": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; conditional on fitting complete phase peaks; current conservative 89.46 GiB ledger exceeds capacity",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            799.7887738653291,
+            2499.3399183291535
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              138.92556977777778,
+              520.9708866666667
+            ],
+            "gpu_hours": [
+              138.92556977777778,
+              520.9708866666667
+            ],
+            "wall_days_at_continuous_use": [
+              5.7885654074074075,
+              21.70712027777778
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            424.7767093333333,
+            1578.9126600000002
+          ],
+          "one_schedule_usd_compute_only": [
+            612.6617627200001,
+            2297.4816102000004
+          ],
+          "campaign_usd_compute_only": [
+            1873.26528816,
+            6963.004830600001
+          ]
+        },
+        "do_l40s": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; 64 GiB host RAM and offload need qualification; current resident state cannot fit",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            299.9207901994984,
+            799.7887738653291
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              434.14240555555557,
+              1389.2556977777779
+            ],
+            "gpu_hours": [
+              434.14240555555557,
+              1389.2556977777779
+            ],
+            "wall_days_at_continuous_use": [
+              18.08926689814815,
+              57.885654074074075
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            1314.4272166666667,
+            4191.767093333334
+          ],
+          "one_schedule_usd_compute_only": [
+            681.6035767222222,
+            2181.1314455111115
+          ],
+          "campaign_usd_compute_only": [
+            2063.650730166667,
+            6581.074336533335
+          ]
+        },
+        "dual_3090ti": {
+          "gpus_per_job": 2,
+          "status": "Unmeasured; rates cover both GPUs together, not each; sufficient host RAM and topology required",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            149.9603950997492,
+            449.88118529924765
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              771.8087209876542,
+              2778.5113955555557
+            ],
+            "gpu_hours": [
+              1543.6174419753083,
+              5557.0227911111115
+            ],
+            "wall_days_at_continuous_use": [
+              32.158696707818926,
+              115.77130814814815
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            4646.8523259259255,
+            16711.068373333335
+          ],
+          "one_schedule_usd_compute_only": null,
+          "campaign_usd_compute_only": null
+        },
+        "dual_titan": {
+          "gpus_per_job": 2,
+          "status": "Unmeasured; no native BF16; Spark head dimension 256 and local masks are outside the cited Turing FlashAttention implementation; qualify an exact alternate kernel",
+          "modeled_flops_per_position": 42728473088,
+          "assumed_processed_positions_per_second_entire_job": [
+            74.89151305288974,
+            224.67453915866923
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              1545.445351851852,
+              5563.603266666667
+            ],
+            "gpu_hours": [
+              3090.890703703704,
+              11127.206533333334
+            ],
+            "wall_days_at_continuous_use": [
+              64.3935563271605,
+              231.81680277777778
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            9288.672111111111,
+            33421.619600000005
+          ],
+          "one_schedule_usd_compute_only": null,
+          "campaign_usd_compute_only": null
+        },
+        "do_h200_strict_fp32": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; separate strict-precision sensitivity, not the BF16 forecast",
+          "modeled_flops_per_position": 42728473088,
+          "assumed_processed_positions_per_second_entire_job": [
+            280.8431739483365,
+            702.1079348708413
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              494.5425125925926,
+              1483.6275377777777
+            ],
+            "gpu_hours": [
+              494.5425125925926,
+              1483.6275377777777
+            ],
+            "wall_days_at_continuous_use": [
+              20.60593802469136,
+              61.81781407407407
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            1491.6275377777777,
+            4466.882613333333
+          ],
+          "one_schedule_usd_compute_only": [
+            2210.6050312888888,
+            6631.815093866666
+          ],
+          "campaign_usd_compute_only": [
+            6667.575093866666,
+            19966.965281599998
+          ]
+        }
+      },
+      "m2_conditional_compute_only": {
+        "wall_hours": [
+          1616.5722324761014,
+          4698.216720519151
+        ],
+        "gpu_hours": [
+          1616.5722324761014,
+          4698.216720519151
+        ],
+        "wall_days_at_continuous_use": [
+          67.35717635317089,
+          195.75903002163128
+        ],
+        "hours_are_device_hours_not_cuda_gpu_hours": true,
+        "not_an_executable_budget": true,
+        "wall_days_at_half_time_availability": [
+          134.71435270634177,
+          391.51806004326255
+        ]
+      },
+      "independent_local_campaign_example": {
+        "allocation": "Two whole schedules on 3090 Ti pair; one on TITAN pair, independently",
+        "wall_hours_excluding_one_time_qualification": [
+          1545.445351851852,
+          5563.603266666667
+        ],
+        "aggregate_gpu_hours_excluding_one_time_qualification": [
+          6178.12558765432,
+          22241.25211555556
+        ],
+        "add_pair_qualification_gpu_hours": [
+          32,
+          80
+        ],
+        "not_one_96_GB_training_job": true
+      }
+    },
+    {
+      "total_charged_positions": 5000000000,
+      "main_schedule_position_split": {
+        "F2_joint_integration": 3000000000,
+        "F3_grounded_reasoning": 1250000000,
+        "F4_learning_behavior_including_charged_inner_passes": 500000000,
+        "F5_consolidation": 250000000
+      },
+      "hardware": {
+        "do_h200": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; primary capacity candidate; separate CUDA backend/resource admission required",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            999.7359673316614,
+            2999.2079019949842
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              578.8565407407407,
+              2083.883546666667
+            ],
+            "gpu_hours": [
+              578.8565407407407,
+              2083.883546666667
+            ],
+            "wall_days_at_continuous_use": [
+              24.119022530864196,
+              86.82848111111112
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            1744.569622222222,
+            6267.650640000001
+          ],
+          "one_schedule_usd_compute_only": [
+            2587.488737111111,
+            9314.9594536
+          ],
+          "campaign_usd_compute_only": [
+            7798.226211333332,
+            28016.3983608
+          ]
+        },
+        "do_h100": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; conditional on fitting complete phase peaks; current conservative 89.46 GiB ledger exceeds capacity",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            799.7887738653291,
+            2499.3399183291535
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              694.6278488888889,
+              2604.8544333333334
+            ],
+            "gpu_hours": [
+              694.6278488888889,
+              2604.8544333333334
+            ],
+            "wall_days_at_continuous_use": [
+              28.942827037037038,
+              108.53560138888889
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            2091.883546666667,
+            7830.5633
+          ],
+          "one_schedule_usd_compute_only": [
+            3063.3088136,
+            11487.408051
+          ],
+          "campaign_usd_compute_only": [
+            9225.2064408,
+            34532.784153
+          ]
+        },
+        "do_l40s": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; 64 GiB host RAM and offload need qualification; current resident state cannot fit",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            299.9207901994984,
+            799.7887738653291
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              2170.7120277777776,
+              6946.278488888888
+            ],
+            "gpu_hours": [
+              2170.7120277777776,
+              6946.278488888888
+            ],
+            "wall_days_at_continuous_use": [
+              90.44633449074074,
+              289.42827037037034
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            6524.136083333333,
+            20862.835466666664
+          ],
+          "one_schedule_usd_compute_only": [
+            3408.017883611111,
+            10905.657227555555
+          ],
+          "campaign_usd_compute_only": [
+            10242.893650833334,
+            32754.651682666663
+          ]
+        },
+        "dual_3090ti": {
+          "gpus_per_job": 2,
+          "status": "Unmeasured; rates cover both GPUs together, not each; sufficient host RAM and topology required",
+          "modeled_flops_per_position": 40010564096,
+          "assumed_processed_positions_per_second_entire_job": [
+            149.9603950997492,
+            449.88118529924765
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              3859.0436049382715,
+              13892.556977777776
+            ],
+            "gpu_hours": [
+              7718.087209876543,
+              27785.113955555553
+            ],
+            "wall_days_at_continuous_use": [
+              160.79348353909464,
+              578.8565407407407
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            23170.26162962963,
+            83395.34186666665
+          ],
+          "one_schedule_usd_compute_only": null,
+          "campaign_usd_compute_only": null
+        },
+        "dual_titan": {
+          "gpus_per_job": 2,
+          "status": "Unmeasured; no native BF16; Spark head dimension 256 and local masks are outside the cited Turing FlashAttention implementation; qualify an exact alternate kernel",
+          "modeled_flops_per_position": 42728473088,
+          "assumed_processed_positions_per_second_entire_job": [
+            74.89151305288974,
+            224.67453915866923
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              7727.22675925926,
+              27818.016333333333
+            ],
+            "gpu_hours": [
+              15454.45351851852,
+              55636.032666666666
+            ],
+            "wall_days_at_continuous_use": [
+              321.9677816358025,
+              1159.0840138888889
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            46379.360555555555,
+            166948.098
+          ],
+          "one_schedule_usd_compute_only": null,
+          "campaign_usd_compute_only": null
+        },
+        "do_h200_strict_fp32": {
+          "gpus_per_job": 1,
+          "status": "Unmeasured; separate strict-precision sensitivity, not the BF16 forecast",
+          "modeled_flops_per_position": 42728473088,
+          "assumed_processed_positions_per_second_entire_job": [
+            280.8431739483365,
+            702.1079348708413
+          ],
+          "one_schedule": {
+            "wall_hours": [
+              2472.7125629629627,
+              7418.13768888889
+            ],
+            "gpu_hours": [
+              2472.7125629629627,
+              7418.13768888889
+            ],
+            "wall_days_at_continuous_use": [
+              103.02969012345677,
+              309.0890703703704
+            ]
+          },
+          "three_equivalent_campaign_gpu_hours_including_qualification": [
+            7426.137688888888,
+            22270.413066666668
+          ],
+          "one_schedule_usd_compute_only": [
+            11053.025156444442,
+            33159.07546933334
+          ],
+          "campaign_usd_compute_only": [
+            33194.83546933333,
+            99548.746408
+          ]
+        }
+      },
+      "m2_conditional_compute_only": {
+        "wall_hours": [
+          8082.861162380508,
+          23491.083602595758
+        ],
+        "gpu_hours": [
+          8082.861162380508,
+          23491.083602595758
+        ],
+        "wall_days_at_continuous_use": [
+          336.7858817658545,
+          978.7951501081566
+        ],
+        "hours_are_device_hours_not_cuda_gpu_hours": true,
+        "not_an_executable_budget": true,
+        "wall_days_at_half_time_availability": [
+          673.571763531709,
+          1957.5903002163132
+        ]
+      },
+      "independent_local_campaign_example": {
+        "allocation": "Two whole schedules on 3090 Ti pair; one on TITAN pair, independently",
+        "wall_hours_excluding_one_time_qualification": [
+          7727.22675925926,
+          27818.016333333333
+        ],
+        "aggregate_gpu_hours_excluding_one_time_qualification": [
+          30890.627938271606,
+          111206.26057777778
+        ],
+        "add_pair_qualification_gpu_hours": [
+          32,
+          80
+        ],
+        "not_one_96_GB_training_job": true
+      }
+    }
+  ],
+  "limitations": [
+    "No new model, GPU, cloud, external media or paid resource execution.",
+    "Only MiniCPM timing is measured; every Spark and CUDA hour is a conditional planning estimate.",
+    "Rate bands and 25-50% overhead are assumptions, not statistical confidence intervals.",
+    "Three full-schedule equivalents are a finite campaign reserve, not a guaranteed product-quality budget.",
+    "Full trainable scope is preserved; changing numerical precision, offload, optimizer implementation or backend requires separate qualification.",
+    "Specified exclusions and any additional experiments must be added to the budget."
+  ]
+}
