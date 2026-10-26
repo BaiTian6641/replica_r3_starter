@@ -1,6 +1,6 @@
 # Coding-agent continuation instruction
 
-**Current priority — run the staged vision curriculum, then compare memory update dynamics.**
+**Current priority — run the staged vision curriculum, then validate order-aware memory refresh only with the writer frozen.**
 All four verification defects are fixed. Raw-page rebinding requires explicit
 record dependencies and fails closed on unknown provenance or contained
 revocation. Memory parity checks every fact and rejects duplicate/missing rows.
@@ -13,14 +13,13 @@ The balanced diagnostic supports narrow procedural image dependence: primary
 46/120, with positive clustered lower bounds. Spatial leads; this is not uniform
 five-task or real-image competence. Both V1 arms remain rejected.
 
-Matched memory now localizes the first failure to exact-key stored-value
-retention/readout: 18/120 top1, with 18/18 final-write targets versus 0/102
-non-final-write targets. Query-derived addressing passes 116/120, while value
-discrimination and memory generation fail. Clean source controls are exact
-162/162 and full-context 160/162; memory is 0/162. See
-[matched results](docs/experiments/20261025_Matched_Memory_Localization.md).
-Do not start another blind writer arm; next compare update dynamics on the same
-episodes before changing writer, reader, addressing or answer integration.
+Matched memory now isolates write-position interference: per-depth and shared
+full baselines recover 18/120, while prefix-through-target and target-only
+recover 120/120 in both reducers. Refreshing the target last also passes.
+Query-derived addressing remains invariant at 232/240. See
+[update dynamics](docs/experiments/20261025_Memory_Update_Dynamics.md).
+Do not start another blind writer arm or promote per-depth; validate only an
+order-aware/refresh policy with identical sources, candidates, vectors and scoring.
 
 External intake admits 30 inspected LLaVA-Pretrain roots/rows. Spark2_5
 preparation contracts are implemented but native FP8 remains blocked. The staged

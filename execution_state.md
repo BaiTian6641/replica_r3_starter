@@ -1,6 +1,6 @@
 # Execution state — integrated memory, cognition and learning
 
-**Current implementation — matched exact-key retention fails first with last-write dominance; balanced image dependence supported on procedural holdouts; staged curriculum next.**
+**Current implementation — write-position interference isolated in memory; balanced image dependence supported on procedural holdouts; staged curriculum next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh
 process replay smoke. The tracked source export passes **1,372 tests +21 subtests
@@ -67,6 +67,21 @@ Guard elapsed is 543.251 s, peak driver 10,765,336,576 bytes, zero swap growth
 and 74% minimum free. Independent CPU recomputation and outcome review confirm
 the localization. Next compare update dynamics on the same episodes before any
 writer/reader change or new training arm; the staged vision curriculum follows.
+
+## Update dynamics — write-position interference isolated
+
+The [update-dynamics results](docs/experiments/20261025_Memory_Update_Dynamics.md)
+compare 20 frozen variants on identical prepared02 observations. Per-depth and
+shared-mean full baselines both recover only 18/120 targets, so shared reduction
+is not the first cause. Reversing writes reaches 42/120; prefix-through-target
+and target-only recover **120/120 in both reducers**. Refreshing the target last
+reaches 120/120 per-depth and 119.5/120 shared. No forced-full gate variant
+approaches the exact recovery gate. Query-derived addressing stays invariant at
+232/240. This isolates write-position/recency interference and justifies only an
+order-aware/refresh diagnostic with the writer frozen, not writer training or
+per-depth promotion. Independent review confirms all 22,224 rows, 1,464 ordered
+histories and candidate inventories. Guard elapsed is 86.923 s, peak driver
+11,815,763,968 bytes, zero swap growth and 78% minimum free.
 
 ## Isolated V0 source and native preregistration — 25 October 2026
 
