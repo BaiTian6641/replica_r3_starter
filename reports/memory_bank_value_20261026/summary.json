@@ -1,0 +1,127 @@
+{
+  "format": "replica.memory_bank_value.summary.v1",
+  "date_utc": "2026-10-26",
+  "selected_attempt": "native03",
+  "protocol_commit": "dfcf309",
+  "config_sha256": "18f9151209464dcb1d1a2566c01b19fdac307dacddec546ddde0be6bf692b3ca",
+  "decision_rule_sha256": "e2c3fd91b68da2e6b5a207b9c095305f797559398e13fd92f5cab286036c6c10",
+  "run_report": "runs/memory_bank_value_20261026/native03/report.json",
+  "guard_report": "runs/memory_bank_value_20261026/guard03.json",
+  "classification": {
+    "native_mps": true,
+    "cpu_fallback": false,
+    "downloads": 0,
+    "model_loads": 1,
+    "optimizer_updates": 0,
+    "gradients": 0,
+    "checkpoint_writes": 0,
+    "extension_exports": 0,
+    "base_exports": 0,
+    "learned_selector": false,
+    "calibrated": false,
+    "persistent_learning": false,
+    "heldout_opened": false
+  },
+  "outcome": {
+    "status": "stopped_at_dev_model",
+    "literal_dev": "passed",
+    "model_dev": "failed",
+    "heldout": "not_run",
+    "train": "not_run",
+    "claim": "Exact selected-record literal values are recoverable, but the bounded sealed-MiniCPM readout fails; no useful learned memory or held-out claim."
+  },
+  "literal_dev": {
+    "decisions": 152,
+    "fact_n": 128,
+    "fact_value_exact_n": 124,
+    "fact_value_exact_rate": 0.96875,
+    "fact_gate_min": 0.85,
+    "unknown_n": 16,
+    "unknown_selected_n": 0,
+    "revoked_n": 8,
+    "revoked_selected_n": 0,
+    "passed": true
+  },
+  "model_dev": {
+    "generations": 152,
+    "generated_tokens": 1204,
+    "correct_n": 19,
+    "exact_answer_rate": 0.125,
+    "exact_gate_min": 0.85,
+    "correction_correct_n": 5,
+    "correction_n": 16,
+    "correction_rate": 0.3125,
+    "correction_gate_min": 0.6,
+    "unaffected_correct_n": 5,
+    "unaffected_n": 40,
+    "unaffected_rate": 0.125,
+    "unaffected_gate_min": 0.7,
+    "unknown_correct_n": 0,
+    "unknown_n": 16,
+    "unknown_gate_min": 0.9,
+    "revoked_correct_n": 0,
+    "revoked_n": 8,
+    "revoked_gate_min": 0.9,
+    "passed": false
+  },
+  "raw_outputs": {
+    "decisions": {
+      "path": "runs/memory_bank_value_20261026/native03/decisions_dev.jsonl",
+      "rows": 152,
+      "sha256": "dd777b30c323b157dddcd83632d3e4dc9d364525cd7cf148fddc26781c760940"
+    },
+    "generations": {
+      "path": "runs/memory_bank_value_20261026/native03/generations_dev.jsonl",
+      "rows": 152,
+      "sha256": "46ab8c55c06325af813745a07a272565d3547c6e6453856d09cb0c1ff8a8f014"
+    },
+    "heldout_files": 0,
+    "train_files": 0,
+    "immutable_first_write_verified": true
+  },
+  "independent_replay": {
+    "generation_rows_validated": 152,
+    "metrics_match_report": true,
+    "raw_hashes_match": true,
+    "native02_decisions_byte_identical": true,
+    "native02_generations_byte_identical": true,
+    "heldout_artifacts": 0,
+    "train_artifacts": 0
+  },
+  "resources": {
+    "run_elapsed_seconds": 93.93222745787352,
+    "guard_elapsed_seconds": 96.69076762488112,
+    "peak_driver_bytes": 10763255808,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 74.0,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_free_percent_limit": 15,
+    "artifact_bytes": 505747,
+    "guard_status": "completed_within_declared_sampled_limits",
+    "note": "Sampled MPS driver/RSS telemetry can miss transients; MPS and RSS overlap and are not additive."
+  },
+  "preserved_attempts": {
+    "native01": {
+      "status": "failed_interface",
+      "reason": "DecisionFrame rejected an empty enabled-branches tuple before generation.",
+      "guard_report": "runs/memory_bank_value_20261026/guard.json",
+      "failure_report": "runs/memory_bank_value_20261026/native01/failure_report.json",
+      "peak_driver_bytes": 10746478592,
+      "peak_swap_growth_bytes": 0
+    },
+    "native02": {
+      "status": "completed_but_report_contract_superseded",
+      "reason": "Execution used the valid empty-memory frame, but report generation_contract still declared enabled_branches=[]; native03 regenerated consistent evidence without changing thresholds or data access.",
+      "guard_report": "runs/memory_bank_value_20261026/guard02.json",
+      "run_report": "runs/memory_bank_value_20261026/native02/report.json",
+      "raw_outputs_match_native03": true
+    }
+  },
+  "software_verification": {
+    "focused_tests": "14 passed",
+    "test_command": ".venv/bin/python -m pytest -q -p no:cacheprovider tests/test_memory_bank_value.py",
+    "notes": "The synthetic initial-view fixture now applies supersession only when the correction is live at the cutoff. The obsolete mock test that pinned the invalid empty-branch request was removed; native execution is the regression evidence."
+  },
+  "next_gate": "Inspect the preserved development readout failures and predeclare one evidence-backed readout/memory hypothesis. Do not open heldout or tune against it."
+}
