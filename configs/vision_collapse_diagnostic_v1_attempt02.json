@@ -125,7 +125,7 @@
   "implementation_pins": {
     "prepared_protocol_pins_checked": true,
     "mode": "explicit_read_only_migration",
-    "reason": "Prepared04 data and seals are unchanged. Exactly two pre-repair runner scripts migrate to declared current hashes for this read-only diagnostic; every other implementation pin is enforced and default un-migrated loading remains fail-closed.",
+    "reason": "Prepared04 data and seals are unchanged. Two pre-repair runner scripts and three additive plastic integration files migrate to declared current hashes for this read-only diagnostic; every other implementation pin is enforced and default un-migrated loading remains fail-closed.",
     "migrations": {
       "scripts/run_vision_curriculum.py": {
         "parent_sha256": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
@@ -136,6 +136,22 @@
         "parent_sha256": "5fc326475aefc8ff78c0fa1bf9e1b963e681079e3f5297246a096c614fd78012",
         "current_sha256": "8834e8db25bc6451577062b1bf9ab17fe2182c3d885146c4d32251ca8df03de9",
         "reason": "The trainer now retains shared per-row prompt/label/EOS coverage evidence; the sealed prepared04 payload and historical train04 result are not rewritten."
+      }
+      ,
+      "src/replica_lab/architecture/contracts.py": {
+        "parent_sha256": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+        "current_sha256": "d882f03cb6f7b0c52dcf39b83b296d8602e34e02bfa95741b2f97b7b654d67a9",
+        "reason": "Additive PlasticSpec/PlasticRead contracts; this vision diagnostic does not use them and enforces the declared current bytes."
+      },
+      "src/replica_lab/architecture/minicpm5.py": {
+        "parent_sha256": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+        "current_sha256": "07003b00a381abb199bee106615eaf7ba23a658ad09d0580174c644b519f32ce",
+        "reason": "Additive plastic read/site capture; projector, forward_with_frame, generation and loss paths are unchanged and current bytes are enforced."
+      },
+      "src/replica_lab/memory_system/session.py": {
+        "parent_sha256": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+        "current_sha256": "a88d047a667201b09390304f636969d0aee2c65724b72d164f9fa57cb79039b9",
+        "reason": "Additive optional plastic input plumbing; visual prepare/forward/backward/generate paths are unchanged and current bytes are enforced."
       }
     }
   },

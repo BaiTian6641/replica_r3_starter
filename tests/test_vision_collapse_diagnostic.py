@@ -605,7 +605,10 @@ def test_config_and_static_pins_verify_without_a_model():
     files = pins["pins"]["implementation"]["files"]
     migrated = {
         "scripts/run_vision_curriculum.py",
-        "scripts/run_vision_balanced_alignment.py"}
+        "scripts/run_vision_balanced_alignment.py",
+        "src/replica_lab/architecture/contracts.py",
+        "src/replica_lab/architecture/minicpm5.py",
+        "src/replica_lab/memory_system/session.py"}
     assert migrated <= set(files)
     for relative, entry in files.items():
         assert len(entry["pinned_sha256"]) == len(entry["actual_sha256"]) == 64

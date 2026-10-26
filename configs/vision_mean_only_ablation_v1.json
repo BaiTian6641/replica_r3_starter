@@ -1,0 +1,270 @@
+{
+  "format": "replica.vision_learnability_diagnostic_config.v1",
+  "version": "replica.vision_learnability_diagnostic.v1",
+  "mode": "ablation",
+  "name": "vision_mean_only_ablation_v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Training-only paired mean-only projected-patch ablation over the pinned train04 extension. Two stages that differ only in the projected patch content are measured on the same prepared04 training rows, controls, teacher-forced cells and greedy generations. Zero optimizer steps, gradients, checkpoint writes or extension writes. No evaluation split is read and no learned-quality promotion is made.",
+  "prepared": {
+    "root": "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "protocol": "data/vision_balanced_alignment_v2_20261026/prepared04/protocol.json",
+    "protocol_sha256": "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77",
+    "manifest": "data/vision_balanced_alignment_v2_20261026/prepared04/manifest.json",
+    "manifest_sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227",
+    "training": "data/vision_balanced_alignment_v2_20261026/prepared04/training/alignment.jsonl",
+    "training_sha256": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+    "training_examples": 26,
+    "answer_examples": 14,
+    "caption_examples": 12,
+    "answer_pairs": 5,
+    "caption_pair_ids": 7,
+    "read_only_training": true,
+    "forbidden_access": [
+      "evaluation/",
+      "dev",
+      "heldout",
+      "semantic_audit"
+    ]
+  },
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "vision_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+    "vision_source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+    "protocol_authorities": [
+      "model.lock_sha256",
+      "model.revision",
+      "vision_digest",
+      "vision",
+      "vision_source",
+      "resource_policy",
+      "limits"
+    ]
+  },
+  "extension": {
+    "path": "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    "run": "train04",
+    "updates_consumed": 24,
+    "format": "replica.minicpm5.extensions.v4",
+    "regime": "modules_only",
+    "manifest_sha256": "593075106dfa6b91c5c0f27096861e1a57e0afc77b7838388e848926d666756a",
+    "weights_sha256": "76b8f7defcabb113e7c96f2eb9f5a4be8b8ed3886cd147264bb51cf013df2e3e",
+    "manifest_digest": "a11c1dac668172cab0bf0280c70706e111ebdfa6f2bc46e6cc9c9712a1becaf8",
+    "weights_bytes": 65688472
+  },
+  "parent_attempt": {
+    "run": "runs/vision_collapse_diagnostic_v1_20261026_attempt02",
+    "report": "runs/vision_collapse_diagnostic_v1_20261026_attempt02/report.json",
+    "rows": "runs/vision_collapse_diagnostic_v1_20261026_attempt02/rows.jsonl",
+    "cells": "runs/vision_collapse_diagnostic_v1_20261026_attempt02/cells.jsonl",
+    "features": "runs/vision_collapse_diagnostic_v1_20261026_attempt02/features.json",
+    "report_sha256": "a8969c7ca1dcc5591ddd834ca5d36bc354e27a33e77df5611f6f2c64ef0bc25b",
+    "rows_sha256": "72d7c0161fbfbbfa51a48b3e4588a4b524573d9cd3cb9ff9945aef6dad0c5f37",
+    "cells_sha256": "60061bfa8050b55004c88434f20a0cda3be72ddf8b84cc867af346171e6adc30",
+    "features_sha256": "8c28b7e608242010886040e6a3b381b6cbc82d0f3d1f7b2c63b3f7ba71170ca6",
+    "baseline_stage": "train04_extension",
+    "baseline_updates": 24,
+    "records": 104,
+    "available_records": 98,
+    "unavailable_siblings": 6,
+    "teacher_forced_cells": 98,
+    "comparison_cells": 72
+  },
+  "stages": [
+    {
+      "name": "train04_full_patch",
+      "kind": "extension",
+      "ablation": "none",
+      "updates": 0,
+      "extension": "train04",
+      "note": "The pinned train04 extension measured unchanged; this stage is the baseline-identity arm."
+    },
+    {
+      "name": "train04_mean_only",
+      "kind": "extension",
+      "ablation": "mean_projected_patches",
+      "updates": 0,
+      "extension": "train04",
+      "note": "The same adapter and extension with project_visual wrapped to replace every valid projected patch by that image's mean."
+    }
+  ],
+  "ablation": {
+    "mode": "mean_projected_patches",
+    "valid_only": true,
+    "projected_space": "projected",
+    "tolerance": 1e-06,
+    "preserve_mean": true,
+    "expected_spatial_variance": 0.0,
+    "apply_to": [
+      "teacher_forced",
+      "generation",
+      "projected_stats"
+    ],
+    "global_dataset_mean": false
+  },
+  "comparison": {
+    "baseline_stage": "train04_extension",
+    "tolerances": {
+      "generated_ids": 0.0,
+      "generated_text": 0.0,
+      "gold_rank": 0.0,
+      "argmax_token": 0.0,
+      "loss_tokens": 0.0,
+      "gold_logit": 0.0001,
+      "opposite_logit": 0.0001,
+      "gap": 0.0001,
+      "mean_nll": 1e-05
+    },
+    "identity": {
+      "records": 104,
+      "available_records": 98,
+      "unavailable_siblings": 6,
+      "teacher_forced_cells": 98,
+      "comparison_cells": 72,
+      "generations": 98
+    }
+  },
+  "decision": {
+    "observed_if": {
+      "changed_pair_rows_min": 5,
+      "answer_gap_reduction_rows_min": 3,
+      "gap_reduction_threshold": 0.1
+    },
+    "precedence": [
+      "baseline_mismatch",
+      "spatial_contribution_observed",
+      "spatial_residual_not_established"
+    ],
+    "authorizes": "gradient_learnability_diagnostic_only",
+    "gradient_authorized_on_observed": true,
+    "v0_authorized": false,
+    "v0_run": false,
+    "no_automatic_retry": true
+  },
+  "expectations": {
+    "rows": 26,
+    "records": 104,
+    "available_records": 98,
+    "unavailable_siblings": 6,
+    "teacher_forced_cells": 98,
+    "comparison_cells": 72,
+    "generations": 98,
+    "fit_answers": 14,
+    "fit_captions": 12,
+    "valid_patches_per_image": 196,
+    "prefill_agreement": 98,
+    "answer_max_new_tokens": 8,
+    "caption_max_new_tokens": 32
+  },
+  "stop_tokens": [
+    1,
+    130073
+  ],
+  "target_eos_token": 1,
+  "controls": [
+    "correct",
+    "sibling",
+    "shuffled",
+    "noimage"
+  ],
+  "prompt_contract": {
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "caption_template": "Describe the image briefly.",
+    "response_only_labels": true,
+    "label_shift": 1,
+    "loss": "mean_response_nll"
+  },
+  "limits": {
+    "max_seconds": 1200,
+    "artifact_bytes": 134217728,
+    "max_prompt_tokens": 256,
+    "max_sequence_tokens": 288,
+    "max_new_tokens": 8,
+    "caption_max_new_tokens": 32,
+    "max_visual_tokens": 196,
+    "updates": 0,
+    "optimizer_steps": 0,
+    "gradients": 0,
+    "backward_calls": 0,
+    "checkpoint_writes": 0,
+    "extension_writes": 0,
+    "downloads": 0,
+    "model_loads": 1,
+    "extension_loads": 1,
+    "workers": 1
+  },
+  "policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_mps_worker": true,
+    "capacity_guard_required": true,
+    "profiler_required": true,
+    "fresh_output": true,
+    "sealed_evaluation_access": 0,
+    "no_optimizer": true,
+    "no_backward": true,
+    "no_extension_save": true,
+    "no_downloads": true,
+    "matched_frozen_components": true,
+    "deterministic_controls": true,
+    "first_order_evidence_only": true,
+    "train_only_access": true
+  },
+  "implementation_pins": {
+    "prepared_protocol_pins_checked": true,
+    "mode": "explicit_read_only_migration",
+    "reason": "Prepared04 data and seals are unchanged. Two pre-repair runner scripts migrate to their declared current hashes; every other prepared pin is enforced and the two new learnability files are pinned explicitly.",
+    "migrations": {
+      "scripts/run_vision_curriculum.py": {
+        "parent_sha256": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+        "current_sha256": "38e685ec0dd91e663a2c3739ee63c58f98f148ab689ffc06693763b6aba99fef",
+        "reason": "Generation rows now report the model-declared stop set and stop reason; prompt, label, scoring and sealed-data semantics are unchanged."
+      },
+      "scripts/run_vision_balanced_alignment.py": {
+        "parent_sha256": "5fc326475aefc8ff78c0fa1bf9e1b963e681079e3f5297246a096c614fd78012",
+        "current_sha256": "8834e8db25bc6451577062b1bf9ab17fe2182c3d885146c4d32251ca8df03de9",
+        "reason": "The trainer retains shared per-row prompt/label/EOS coverage evidence; the sealed prepared04 payload and historical train04 result are not rewritten."
+      },
+      "src/replica_lab/architecture/contracts.py": {
+        "parent_sha256": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+        "current_sha256": "d882f03cb6f7b0c52dcf39b83b296d8602e34e02bfa95741b2f97b7b654d67a9",
+        "reason": "Unrelated concurrent work adds PlasticSpec/PlasticRead contracts; this training-only vision diagnostic does not use them and enforces the declared current bytes."
+      },
+      "src/replica_lab/architecture/minicpm5.py": {
+        "parent_sha256": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+        "current_sha256": "07003b00a381abb199bee106615eaf7ba23a658ad09d0580174c644b519f32ce",
+        "reason": "Unrelated concurrent plastic read/site capture work is additive; projector, forward_with_frame, generation and loss paths are unchanged and the declared current bytes are enforced."
+      },
+      "src/replica_lab/memory_system/session.py": {
+        "parent_sha256": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+        "current_sha256": "a88d047a667201b09390304f636969d0aee2c65724b72d164f9fa57cb79039b9",
+        "reason": "Unrelated concurrent plastic input plumbing is additive and optional; visual prepare/forward/backward/generate paths are unchanged and the declared current bytes are enforced."
+      }
+    },
+    "new_files": {
+      "src/replica_lab/vision_learnability_diagnostic.py": "dcea168b193931b53d0dc4863c683be18138c430fd2633a0a9860f42a7eba90b",
+      "scripts/run_vision_learnability_diagnostic.py": "814e241db65c0b01b47992c5537971d93d51f0e975fb94830926a33e2b10e7ab"
+    }
+  },
+  "output": "runs/vision_mean_only_ablation_v1_20261026",
+  "report_root": "reports/vision_mean_only_ablation_v1_20261026",
+  "claims": {
+    "first_order_evidence_only": true,
+    "promotion": false,
+    "perception_quality": false,
+    "semantic_quality": false,
+    "overall_baseline_eligible": false,
+    "learned_quality": false
+  },
+  "limitations": [
+    "Two paired training stages only; no evaluation split is read.",
+    "The mean-only ablation removes within-image spatial residual while preserving each image's mean projected patch; it is not a test of a global dataset mean or of residual-zero projections.",
+    "Mean preservation and spatial collapse are asserted only within the declared 1e-6 tolerance.",
+    "Attempt02 retained first-token scalars, NLL and generations but not full logits; baseline identity cannot reconstruct full logit tensors.",
+    "The decision rule is first-order evidence only and authorizes at most the separate gradient diagnostic, never V0.",
+    "Sampled MPS and host telemetry cannot guarantee the absence of a transient allocation.",
+    "A not-established or baseline-mismatch decision stops the vision sequence; no automatic retry is performed."
+  ]
+}
