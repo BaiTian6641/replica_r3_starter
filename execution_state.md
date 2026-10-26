@@ -47,12 +47,20 @@ and the unchanged 50 GiB / 512 MiB / 15% guard.
   (`510f6dd`) remains the historical train04 baseline: text fitting without
   robust image-dependent generation. The new ablation isolates spatial
   contribution but does not reverse that quality rejection.
+- [Prepared02 implementation migration](data/memory_matched_20261025/prepared02/implementation_migrations.json)
+  (`ff9693f`) preserves the original protocol, manifest, episodes, labels and
+  audits while validating exactly five current implementation hashes. The
+  runner now consumes verified current pins plus the migration receipt. All 26
+  matched tests and independent static hash review pass; no native memory arm
+  was rerun.
 
-The [final clean-clone suite](reports/clean_export_20261026_final/summary.json)
-at `f25670a` passed **2,133 tests plus 21 subtests**, with 37 explicit skips in
-345.04 s. That is a historical full-suite receipt, not a rerun of the new
-changes. Current focused commands and results are recorded in the two new
-experiment documents and their raw guard/report artifacts.
+The [clean-clone suite](reports/clean_export_20261026_nested_vision/summary.json)
+at `6684af8` passes **2,274 tests plus 21 subtests**, with 40 explicit skips in
+335.27 s and no failures. The strict 89-input bundle verifies at digest
+`ef2e961c…`; the first 10-failure clean attempt remains preserved. The combined
+provisioned-workspace focus suite passes 237 tests. Pillow-overlay runs cover
+all seven base-environment JPEG dependency branches and the official PIL
+processor branch.
 
 The next justified work is development-only analysis of the existing one-clock
 readout's null generations and teaching cost. Do not parse or score nested

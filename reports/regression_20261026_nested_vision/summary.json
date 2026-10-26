@@ -1,0 +1,43 @@
+{
+  "format": "replica.workspace_regression.v1",
+  "date": "2026-10-26",
+  "head_at_start": "6739804",
+  "scope": "Full provisioned workspace suite with uncommitted status/document changes and unrelated concurrent Spark changes present; fea4bbf5 and 2f7261d were committed while this process was running",
+  "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=reports/regression_20261026_nested_vision/tests.xml",
+  "junit_xml": "reports/regression_20261026_nested_vision/tests.xml",
+  "status": "failed",
+  "passed": 2296,
+  "failed": 4,
+  "errors": 0,
+  "skipped": 8,
+  "subtests_passed": 21,
+  "warnings": 1,
+  "seconds": 357.24,
+  "failures": [
+    {
+      "test": "tests/test_memory_matched.py::test_prepared02_audits_interference_and_declared_budget",
+      "scope": "Historical prepared02 implementation pins reject the three concurrent architecture/contracts.py, architecture/minicpm5.py and memory_system/session.py changes; no file from the nested-text/vision increment is involved"
+    },
+    {
+      "test": "tests/test_sparkx_first_tranche.py::test_committed_bundle_manifest_matches_local_inputs",
+      "scope": "Bundle pins were stale for this increment's architecture-22 and nested-learning edits as well as unrelated uncommitted Spark inputs; owned entries were reconciled separately while unrelated files were left untouched"
+    },
+    {
+      "test": "tests/test_sparkx_residency.py::test_receipt_is_deterministic_and_preserves_v1",
+      "scope": "Unrelated uncommitted architecture-21 edit makes the residency receipt's documentation validation stale"
+    },
+    {
+      "test": "tests/test_sparkx_residency.py::test_cli_check_mode_reproduces_receipt",
+      "scope": "Same unrelated architecture-21 documentation drift as the direct residency test"
+    }
+  ],
+  "overlay_verification": {
+    "environment": ".venv-vision",
+    "real_image_tests": "14 passed, 1 intentional Pillow-absent boundary skip; all seven Pillow-required branches from the base-suite skips passed",
+    "real_image_junit": "reports/regression_20261026_nested_vision/real_image_vision.xml",
+    "vision_feature_tests": "20 passed, including the official PIL processor branch",
+    "vision_feature_junit": "reports/regression_20261026_nested_vision/vision_features_vision.xml"
+  },
+  "native_model_jobs": 0,
+  "preservation": "This failed workspace result is retained independently of the later committed-byte clean-clone verification"
+}

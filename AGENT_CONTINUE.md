@@ -37,10 +37,11 @@ and exactly 30 backward calls with all six tensors changing, but answers are
 passes; train-fit learnability is rejected. Development, held-out and new V0
 alignment remain closed; no further vision job is authorized by this result.
 
-The final clean-clone suite at `f25670a` passed **2,133 tests plus 21
-subtests**, with 37 explicit skips in 345.04 s; see
-`reports/clean_export_20261026_final/summary.json` and `tests_final.xml`.
-The first archive run's eight provisioning failures are preserved separately.
+The clean-clone suite at `6684af8` passed **2,274 tests plus 21 subtests**,
+with 40 explicit skips in 335.27 s; see
+`reports/clean_export_20261026_nested_vision/summary.json` and `tests.xml`.
+The first clean run's 10 provisioning failures are preserved separately. The
+final combined provisioned-workspace focus suite passes 237 tests.
 
 The balanced diagnostic supports narrow procedural image dependence: primary
 71/120 dev and 75/120 final versus question-only 36/120 and shuffled 50/120 and

@@ -1,0 +1,82 @@
+{
+  "format": "replica.clean_export_verification.v1",
+  "date": "2026-10-26",
+  "head_commit": "6684af8",
+  "head_commit_full": "6684af8814f4451394bf62a80f56ea17bb7ba901",
+  "source": "Exact local git clone --no-hardlinks of ff9693f, then fast-forward pull to 6684af8; .git metadata present and git status --porcelain empty in the tested clone",
+  "clone": "/tmp/replica_clean_export_20261026_ff9693f",
+  "first_attempt": {
+    "head": "ff9693f",
+    "junit_xml": "reports/clean_export_20261026_nested_vision/tests_failed01.xml",
+    "passed": 2265,
+    "failed": 10,
+    "errors": 0,
+    "skipped": 39,
+    "subtests_passed": 21,
+    "seconds": 334.24,
+    "failure_scope": [
+      "Nine behavior tests could not find the untracked prepared04_roles label bundle",
+      "The native baseline replay lacked an explicit local-artifact provisioning guard"
+    ],
+    "preserved": true
+  },
+  "self_containment_fix": {
+    "commit": "6684af8",
+    "change": "Track the deterministic prepared04_roles bundle and declare native02/restart02 as optional local artifacts for the integration replay",
+    "role_bundle_verification": "manifest verified and all four files regenerate byte-for-byte",
+    "focused_memory_bank_replay": "20 passed, 1 explicit native-artifact skip in the clean clone",
+    "focused_spark_and_matched_receipts": "69 passed, 4 explicit provisioning skips in the clean clone"
+  },
+  "final_attempt": {
+    "head": "6684af8",
+    "junit_xml": "reports/clean_export_20261026_nested_vision/tests.xml",
+    "junit_bytes": 337344,
+    "passed": 2274,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 40,
+    "subtests_passed": 21,
+    "warnings": 1,
+    "warning_scope": "PyTorch sparse-invariant performance warning in test_m4_pattern; no failure",
+    "seconds": 335.27,
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/clean_export_20261026_nested_vision/tests.xml"
+  },
+  "strict_bundle": {
+    "verified": true,
+    "input_count": 89,
+    "total_input_bytes": 3958181,
+    "bundle_digest": "ef2e961cb79ac8b6cc47ec13c723509c93ddc854e3fd1d9c9f3eea32f3031f79",
+    "clean_checkout_ready": true
+  },
+  "skip_provisioning": {
+    "total": 40,
+    "by_reason": {
+      "sealed MiniCPM source absent alone": 15,
+      "Pillow JPEG fixture generation unavailable in base environment": 7,
+      "external caption tranche absent": 2,
+      "other optional native/raw evidence or overlay artifacts": 16
+    },
+    "policy": "Every skip is explicit in tests.xml with test name and missing artifact/provisioning reason. No test was deleted or converted into a silent pass.",
+    "network_downloads": 0,
+    "native_model_jobs_in_clean_suite": 0
+  },
+  "overlay_verification": {
+    "environment": ".venv-vision in the provisioned workspace",
+    "real_image_tests": "14 passed, 1 intentional Pillow-absent boundary skip; all seven Pillow-required branches from the clean-base skips passed",
+    "real_image_junit": "reports/regression_20261026_nested_vision/real_image_vision.xml",
+    "vision_feature_tests": "20 passed, including the official PIL processor branch",
+    "vision_feature_junit": "reports/regression_20261026_nested_vision/vision_features_vision.xml"
+  },
+  "workspace_verification": {
+    "combined_focused_tests": 237,
+    "full_workspace_receipt": "reports/regression_20261026_nested_vision/summary.json",
+    "note": "The earlier provisioned-workspace full suite retained four failures from historical pins and concurrent uncommitted Spark edits; this clean committed-byte result is separate"
+  },
+  "scope": "Clean-clone software verification only. Native model results and guard receipts were produced separately in the provisioned workspace and are not claimed by this suite.",
+  "preservation": {
+    "first_failed_xml_retained": true,
+    "unrelated_uncommitted_user_files_excluded_and_preserved": true,
+    "prepared02_original_protocol_manifest_episodes_labels_and_audits_unchanged": true,
+    "protected_runtime_pilot_not_touched": true
+  }
+}
