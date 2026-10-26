@@ -1,0 +1,161 @@
+{
+  "format": "replica.vision_collapse_diagnostic.summary.v1",
+  "date_utc": "2026-10-26",
+  "selected_attempt": "attempt02",
+  "protocol_commit": "c595751",
+  "config": "configs/vision_collapse_diagnostic_v1_attempt02.json",
+  "run_report": "runs/vision_collapse_diagnostic_v1_20261026_attempt02/report.json",
+  "artifact_manifest": "runs/vision_collapse_diagnostic_v1_20261026_attempt02/manifest.json",
+  "guard_report": "reports/vision_collapse_diagnostic_v1_20261026_attempt02/native02.guard.json",
+  "classification": {
+    "training_rows_only": true,
+    "sealed_evaluation_access": 0,
+    "native_mps": true,
+    "cpu_fallback": false,
+    "downloads": 0,
+    "model_loads": 1,
+    "extension_loads": 2,
+    "optimizer_steps": 0,
+    "gradients": 0,
+    "checkpoint_writes": 0,
+    "extension_writes": 0,
+    "learned_quality": false,
+    "promotion": false,
+    "heldout_claim": false
+  },
+  "data_and_controls": {
+    "unique_fit_rows": 26,
+    "answer_rows": 14,
+    "caption_rows": 12,
+    "fit_rows_valid": 26,
+    "evidence_rows": 208,
+    "available_rows": 196,
+    "unavailable_sibling_placeholders": 12,
+    "comparison_cells": 144,
+    "complete_answer_pairs": 5,
+    "complete_caption_pairs": 5,
+    "singleton_or_incomplete_pair_ids": 6,
+    "prefill_greedy_matches": 196,
+    "changed_projector_tensors": 6,
+    "unchanged_extension_tensors": 43,
+    "encoder_feature_matrix_sha256": "b972c4cc12121f741993e7def5102eb668bcb42f648963ada2852205a433820c",
+    "control_selection": "Deterministic by case/pair ordering; expected target text does not select controls"
+  },
+  "generation_and_loss": [
+    {"stage": "fresh", "control": "correct", "declared_rows": 26, "scored_rows": 26, "first_token_correct": 0, "response_mean_nll": 10.274770758129083, "unique_generations": 26},
+    {"stage": "fresh", "control": "sibling", "declared_rows": 26, "scored_rows": 20, "first_token_correct": 0, "response_mean_nll": 9.959036266307036, "unique_generations": 20},
+    {"stage": "fresh", "control": "shuffled", "declared_rows": 26, "scored_rows": 26, "first_token_correct": 0, "response_mean_nll": 10.37917068432539, "unique_generations": 16},
+    {"stage": "fresh", "control": "noimage", "declared_rows": 26, "scored_rows": 26, "first_token_correct": 1, "response_mean_nll": 9.746723264479247, "unique_generations": 7},
+    {"stage": "train04", "control": "correct", "declared_rows": 26, "scored_rows": 26, "first_token_correct": 5, "response_mean_nll": 1.517730102228383, "unique_generations": 3},
+    {"stage": "train04", "control": "sibling", "declared_rows": 26, "scored_rows": 20, "first_token_correct": 3, "response_mean_nll": 1.5016305707585222, "unique_generations": 3},
+    {"stage": "train04", "control": "shuffled", "declared_rows": 26, "scored_rows": 26, "first_token_correct": 7, "response_mean_nll": 1.7527247826724002, "unique_generations": 4},
+    {"stage": "train04", "control": "noimage", "declared_rows": 26, "scored_rows": 26, "first_token_correct": 1, "response_mean_nll": 9.746723264479247, "unique_generations": 7}
+  ],
+  "additional_raw_findings": {
+    "train04_correct_generation_texts": {"yes": 10, "blue": 10, "a": 6},
+    "train04_correct_exact_target_generations": 3,
+    "fresh_exact_target_generations": 0,
+    "train04_correct_shuffled_identical_rows": 14,
+    "train04_correct_sibling_identical_rows": 16,
+    "train04_caption_correct_sibling_identical_rows": 10,
+    "train04_answer_correct_first_token": [3, 14],
+    "train04_caption_correct_first_token": [2, 12],
+    "train04_answer_shuffled_first_token": [3, 14],
+    "train04_caption_shuffled_first_token": [4, 12],
+    "train04_correct_answer_opposite_gap_mean": 0.2856911659240723,
+    "train04_correct_answer_opposite_gap_positive_rows": [5, 10],
+    "note": "These are paired training observations, not independent held-out measurements."
+  },
+  "feature_evidence": {
+    "fresh": {
+      "projected_rms_mean": 0.41424443286198837,
+      "projected_mean_vector_rms_mean": 0.27992479273906123,
+      "mean_over_projected_rms": 0.6757773340262019,
+      "projected_mean_over_text_rms": 17.602556147984863,
+      "within_image_spatial_variance_mean": 0.09321998260342158,
+      "sibling_cosine_distance_mean": 0.023259219643108276,
+      "cross_pair_cosine_distance_mean": 0.047447714222888224,
+      "pca_content_ratio": 0.374671755437796,
+      "pca_converged": true,
+      "pca_iterations": 29
+    },
+    "train04": {
+      "projected_rms_mean": 1.4107712461398199,
+      "projected_mean_vector_rms_mean": 1.321785147373493,
+      "mean_over_projected_rms": 0.9368802114714092,
+      "projected_mean_over_text_rms": 83.11802982704384,
+      "within_image_spatial_variance_mean": 0.24320087467248624,
+      "sibling_cosine_distance_mean": 0.0025646076776864703,
+      "cross_pair_cosine_distance_mean": 0.006314919463769036,
+      "pca_content_ratio": 0.44827665302079384,
+      "pca_converged": false,
+      "pca_budget_exhausted": true,
+      "pca_iterations": 48,
+      "pca_delta": 7.409448699036147e-08,
+      "pca_tolerance": 9.953537926237443e-10
+    },
+    "text_ceiling_first_token_correct": [1, 14],
+    "text_ceiling_stage_invariant": true,
+    "frozen_encoder_leave_one_pair_out_correct": [5, 5],
+    "frozen_encoder_readout_scope": "Internal readout over the same five training pairs, not external held-out evidence"
+  },
+  "disposition": {
+    "engineering": "passed",
+    "training_set_text_fitting": "observed",
+    "fresh_projector": "operationally_unaligned_on_these_rows",
+    "robust_image_dependent_generation": "unestablished",
+    "train04_feature_geometry": "mean-dominated scale with reduced mean-feature cosine separation; not complete visual-information collapse",
+    "learned_quality": "rejected_for_promotion",
+    "heldout": "not_read",
+    "v0_alignment_authorized": false
+  },
+  "independent_verification": {
+    "initial_review": "Confirmed sealed-data/control/stage integrity and recomputed metrics; found four reporting defects",
+    "corrected_findings": [
+      "actual model/extension load counters in success and failure receipts",
+      "declared versus scored sibling denominators",
+      "PCA budget exhaustion distinguished from tolerance convergence",
+      "manifest total excludes itself while final artifact total includes it"
+    ],
+    "closeout_verdict": "correct",
+    "confidence": 0.99,
+    "engineering_acceptance": "pass",
+    "all_eight_control_summaries_replayed": true,
+    "all_manifest_hashes_verified": true,
+    "native01_rows_cells_fit_and_protocol_byte_identical": true
+  },
+  "resources": {
+    "guard_elapsed_seconds": 268.0067343749106,
+    "run_wall_seconds": 265.32735791709274,
+    "peak_driver_bytes": 10877730816,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 75.0,
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_free_percent_limit": 15,
+    "listed_artifact_files": 11,
+    "listed_artifact_bytes_excluding_manifest": 6003939,
+    "manifest_bytes": 1997,
+    "final_artifact_bytes": 6005936,
+    "guard_status": "completed_within_declared_sampled_limits",
+    "note": "Telemetry is sampled; non-load policy counters are source-audited/self-declared rather than syscall-level attestation."
+  },
+  "preserved_native01": {
+    "run_report": "runs/vision_collapse_diagnostic_v1_20261026/report.json",
+    "guard_report": "reports/vision_collapse_diagnostic_v1_20261026/native01.guard.json",
+    "disposition": "Core measurements valid; four reporting defects corrected and independently closed in attempt02",
+    "rows_cells_fit_and_protocol_match_attempt02": true
+  },
+  "software_verification": {
+    "affected_tests": "123 passed",
+    "command": ".venv/bin/python -m pytest -q -p no:cacheprovider tests/test_vision_collapse_diagnostic.py tests/test_vision_caption_v2.py tests/test_vision_balanced_alignment.py tests/test_vision_curriculum.py"
+  },
+  "residual_limits": [
+    "Small sealed training set only; no external held-out evidence",
+    "Train04 PCA ratio is a 48-iteration non-converged approximation",
+    "Full logits and projected patch tensors are not retained; persisted raw metrics and aggregates were independently verified",
+    "Positive opposite-token gaps show logit sensitivity, not robust image-specific generation",
+    "Increased spatial variance and PCA content mean this is not complete visual-information collapse"
+  ],
+  "next_experiment": "Predeclare a read-only mean-only projected-patch ablation on the same sealed rows and pinned train04 stage. Compare correct/sibling/shuffled opposite-token gaps and greedy swap-invariance against attempt02 to test whether spatial residuals contribute image-specific information beyond the dominant mean. No new training or evaluation-split access."
+}
