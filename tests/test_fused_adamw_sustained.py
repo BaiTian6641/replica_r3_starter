@@ -448,3 +448,8 @@ def test_direct_restore_protocol_predeclares_fresh_aa_budget_and_stops():
     assert "any capacity-guard stop" in comparison["stop_conditions"]
     assert "any first/resume boundary fingerprint mismatch" in (
         comparison["stop_conditions"])
+    assert protocol["numeric_policy"] == {
+        "torch_use_deterministic_algorithms": True,
+        "mps_fast_math": "disabled",
+        "dtype": "float32",
+    }
