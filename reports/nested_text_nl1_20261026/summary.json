@@ -1,0 +1,109 @@
+{
+  "format": "replica.nested_text.native_summary.v1",
+  "date": "2026-10-26",
+  "status": "native_engineering_pass_development_learning_rejected",
+  "implementation": {
+    "integration_commit": "1648f72d",
+    "review_corrections_through": "6739804",
+    "protocol": "configs/nested_text_nl1_v1.json",
+    "episodes": "data/nested_text_nl1_20261026/manifest.json",
+    "objective": "0.5 * sum((output - target)^2) on detached projected features; no mean normalization or response cross-entropy",
+    "world_protocol_sha256": {
+      "world_alpha": "b0249d3a8258baaebba80166cec0c89abb098a2b64ff599ee5dad4c09125c958",
+      "world_beta": "de4ade8676b8ef1a6e7b6bc42b83e0c5d34fc4aaf154f87a6794143a292f8df4"
+    }
+  },
+  "runs": {
+    "primary_teaching": {
+      "path": "runs/nested_text_nl1_20261026/teach02",
+      "events": 27,
+      "optimizer_steps": 27,
+      "response_tokens": 117,
+      "full_checkpoint_bytes": 107529763,
+      "p_only_bytes": 50347007,
+      "guard": "runs/nested_text_nl1_20261026/teach02.guard.json"
+    },
+    "wrong_world_teaching": {
+      "path": "runs/nested_text_nl1_20261026/wrong_world_teach",
+      "events": 24,
+      "optimizer_steps": 24,
+      "response_tokens": 92,
+      "full_checkpoint_bytes": 101206264,
+      "p_only_bytes": 50347007,
+      "guard": "runs/nested_text_nl1_20261026/wrong_world_teach.guard.json"
+    },
+    "development": {
+      "path": "runs/nested_text_nl1_20261026/p_only_dev04",
+      "superseded_analysis_run": "runs/nested_text_nl1_20261026/p_only_dev03",
+      "scoring_attempts": 196,
+      "audits": 196,
+      "audit_complete": true,
+      "serialized_audit_entries": 228,
+      "duplicate_serialized_entries": 32,
+      "generated_tokens_all_attempts": 1566,
+      "primary_generated_tokens": 479,
+      "updates": 0,
+      "source_free": true,
+      "new_instance_accuracy": 0.0,
+      "gain_over_preteach": 0.0,
+      "correction_accuracy": 0.0,
+      "unaffected_accuracy": 0.0,
+      "legacy_retention_accuracy": 0.0,
+      "unknown_false_recall": 0.0,
+      "revoked_false_recall": 0.0,
+      "duty_cycle": 0.9999381452021495,
+      "checkpoint_bytes": 107529763,
+      "checkpoint_gate_passed": true,
+      "p_only_gate_passed": true,
+      "warm_p95_overhead_ms": 514.4781251437962,
+      "gate_failures": [
+        "min_new_instance_accuracy",
+        "min_gain_over_preteach",
+        "min_unaffected_accuracy",
+        "min_correction_accuracy",
+        "max_duty_cycle"
+      ],
+      "heldout_opened": false,
+      "sealed_final_rows_parsed_or_scored": false,
+      "sealed_final_bytes_hashed_for_lineage": true,
+      "guard": "runs/nested_text_nl1_20261026/p_only_dev04.guard.json"
+    },
+    "resume": {
+      "path": "runs/nested_text_nl1_20261026/resume01",
+      "next_event": "correction-0003",
+      "before_state": "8ba6b866b41beb0b82563c50c2249c9085f46871cc114125efd0d50b615deb47",
+      "after_state": "ed242b006c261aa26b1ca9fc1351b774bcdcfd8f73e0afa62cc6e57e7e9e91a8",
+      "reference_after_state": "ed242b006c261aa26b1ca9fc1351b774bcdcfd8f73e0afa62cc6e57e7e9e91a8",
+      "restart_equal": true,
+      "revision_before": 27,
+      "revision_after": 28,
+      "transition_count": 1,
+      "reference_scope": "second independently loaded learner in the same fresh process; not an independent uninterrupted-process comparison",
+      "guard": "runs/nested_text_nl1_20261026/resume01.guard.json"
+    }
+  },
+  "resources": {
+    "policy": "one exclusive MPS worker; CPU fallback disabled; 50 GiB driver / 512 MiB swap growth / 15% host free",
+    "peak_sampled_driver_bytes": 11815763968,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_host_free_percent": 75.0,
+    "guard_stop_reason": null
+  },
+  "verification": {
+    "nested_text_and_learning_tests": 59,
+    "nested_integration_tests": 112,
+    "combined_nested_and_vision_tests": 190,
+    "dev03_to_dev04_scores_unchanged": true,
+    "dev03_to_dev04_controls_unchanged": true,
+    "dev03_to_dev04_non_cost_metrics_unchanged": true,
+    "independent_closeout": "correct; static read-only review; no remaining findings"
+  },
+  "disposition": {
+    "implemented": "one-clock native integration, selected-expert teaching, strict P-only export/load, complete source-free controls and checkpoint resume",
+    "trained": "declared plastic bank only on primary and wrong-world teaching events",
+    "rejected": "development learned utility and duty-cycle gate",
+    "unestablished": "new-instance gain, correction, retention, multi-seed utility, additional clocks, learned routing and promotion",
+    "heldout_evaluation_authorized": false,
+    "additional_clock_or_objective_authorized": false
+  }
+}
