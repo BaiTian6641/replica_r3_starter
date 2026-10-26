@@ -1,0 +1,153 @@
+{
+  "format": "replica.visual_memory_episodes.config.v1",
+  "declared_at_utc": "2026-10-25T00:00:00+00:00",
+  "purpose": "Prepare delayed visual-memory episodes, exact-source controls and CPU-only contract checks before any native perception or learned-memory evaluation.",
+  "hypothesis": "A deliberately small visual-memory protocol can keep object/region identity, coordinates, dates and provenance while separating evaluator expectations from sensing and writer inputs. If the typed state, removal boundary, journal, dated correction and exact-source retrieval are mechanically correct, then a later native run can test useful memory above zero/shuffled/disabled/context-removed controls without hiding failures.",
+  "episode_contract": {
+    "sequence": [
+      "observe initial image/regions",
+      "commit observation-only state",
+      "remove original image and context",
+      "answer delayed initial questions",
+      "restart without re-encoding old observations",
+      "ingest a later dated visual correction",
+      "answer corrected, unaffected and unknown questions",
+      "recover an interrupted publication from journal and state"
+    ],
+    "initial_view": "One deterministic RGB PNG plus checked procedural source annotations with stable object/region ids, pixel boxes, centres, dates and producer provenance.",
+    "correction": "A later dated observation that preserves object/region identity and coordinates, changes exactly one object colour, and supersedes only the changed colour binding.",
+    "delayed_queries": "Initial queries are asked after removal. Post-correction queries are asked after a fresh-process restart and after the dated correction.",
+    "unknowns": "Queries targeting an object identity that was never observed must abstain rather than fabricate a value.",
+    "labels": "Evaluator expectations, query kinds, phases, splits and expected source observations live only in labels.jsonl. Episodes, queries and source annotations contain no expected answer field.",
+    "native_gate": "Native evaluation is not permitted by this package until a separately accepted perception producer and independent memory-use evidence exist."
+  },
+  "seed": 20261025,
+  "splits": ["train", "dev", "audit"],
+  "evaluation_splits": ["dev", "audit"],
+  "worlds_per_split": {"train": 4, "dev": 4, "audit": 4},
+  "objects_per_world": 3,
+  "image": {
+    "width": 96,
+    "height": 72,
+    "layout_template": "row",
+    "margin": 8,
+    "object_size": 18
+  },
+  "timeline": {
+    "initial_day": "2026-01-01",
+    "initial_query_day": "2026-01-02",
+    "correction_day": "2026-01-15",
+    "after_correction_day": "2026-01-16"
+  },
+  "subject_id": "visual-memory-subject",
+  "branch_id": "source",
+  "memory_purpose": "exact_visual_source",
+  "producer_id": "replica_lab:procedural_visual_memory_v1",
+  "source_id_prefix": "replica_lab:visual_memory",
+  "arms": [
+    "memory",
+    "exact_source",
+    "full_context",
+    "zero_state",
+    "shuffled_state",
+    "disabled",
+    "context_removed"
+  ],
+  "controls": {
+    "memory": "Committed observation-only state; no original image, annotation or context read after removal.",
+    "exact_source": "Explicit authenticated source retrieval; source bytes are returned and logged, so it cannot count as compressed-state-only recall.",
+    "full_context": "A separate control that deliberately retains the original visual context; it uses the same queries and information boundary but does not remove context.",
+    "zero_state": "Same state interface with no facts; measures whether the committed facts, rather than the prompt, carry the answer.",
+    "shuffled_state": "Facts from another world in the same split; preserves the state interface and query while removing the correct binding.",
+    "disabled": "Memory read disabled; answers must abstain.",
+    "context_removed": "Same post-removal boundary with no state; distinguishes an unavailable state from a merely disabled read."
+  },
+  "information_boundary": {
+    "forbidden_input_fields": [
+      "expected",
+      "expected_answer",
+      "expected_observation_id",
+      "gold",
+      "label",
+      "labels",
+      "query_kind",
+      "phase",
+      "split",
+      "role",
+      "target_role",
+      "correct",
+      "incorrect",
+      "quality"
+    ],
+    "forbidden_markers": [
+      "expected_answer",
+      "gold_answer",
+      "evaluator_label",
+      "answer_key"
+    ],
+    "episode_and_query_rows": "Only sensing fields, dates, source identity, object/region coordinates, query text and target identity.",
+    "source_annotations": "Checked procedural renderer output, never a query answer, evaluator role or split label.",
+    "writer_inputs": "The adapter receives only an observation plus authenticated image bytes. Labels are never imported into the adapter or runtime.",
+    "answers": "Answer rows contain no expected, gold, split, query-kind or quality field. Scoring joins them to labels after generation."
+  },
+  "access_policy": {
+    "memory": "state_only; context_removed_required_for_delayed_queries",
+    "exact_source": "explicit_authenticated_source_retrieval; logged",
+    "full_context": "retained_context_control; no labels",
+    "zero_state": "state_only_empty",
+    "shuffled_state": "state_only_other_world_same_split",
+    "disabled": "no_memory_read",
+    "context_removed": "no_state_no_context"
+  },
+  "native_gate": {
+    "status": "gated",
+    "native_evaluated": false,
+    "required_evidence": ["qualified_perception_producer", "memory_use_evidence"],
+    "perception": "not_established_by_this_package",
+    "memory_use": "not_evaluated",
+    "reason": "This package supplies deterministic episodes, typed interfaces and CPU contract checks only. A native evaluation requires a qualified visual producer and measured useful memory above zero/shuffled/disabled/context-removed controls, with corrections and unaffected retention across a fresh process."
+  },
+  "limits": {
+    "max_episodes": 16,
+    "max_queries": 256,
+    "max_answers": 2048,
+    "max_images": 32,
+    "max_image_bytes": 2097152,
+    "max_state_bytes": 262144,
+    "max_journal_bytes": 2097152,
+    "native_jobs": 0,
+    "optimizer_updates": 0,
+    "gradient_examples": 0,
+    "max_wall_seconds": 180
+  },
+  "mechanical_gates": {
+    "require_exact_delayed_queries": true,
+    "require_no_context_reads_after_removal": true,
+    "require_restart_without_reencode": true,
+    "require_interrupted_restart_recovery": true,
+    "require_dated_correction": true,
+    "require_unaffected_retention": true,
+    "require_unknown_abstention": true,
+    "require_stale_source_rejection": true,
+    "require_label_boundary": true,
+    "require_mechanical_separation": true
+  },
+  "report_contract": {
+    "separate_actual_outcome": true,
+    "separate_corrections": true,
+    "separate_unknowns": true,
+    "separate_provenance": true,
+    "separate_storage_costs": true,
+    "separate_mechanical_persistence": true,
+    "native_evaluation_gated": true
+  },
+  "limitations": [
+    "The CPU adapter is a deterministic reference contract adapter, not a trained learned memory.",
+    "Procedural renderer annotations are checked source annotations; they are not evidence of a perception model.",
+    "No native model, optimizer, gradient or training arm is executed by this package.",
+    "Mechanical restart parity is not power-loss durability, useful memory or answer quality.",
+    "Exact-source retrieval and full-context arms carry an information advantage over compressed-state-only memory; they are controls, not equal-information competitors.",
+    "The corpus is small, synthetic and split-separated; it does not establish broad photographic, OCR, document or real-world visual competence.",
+    "Native evaluation remains gated on an accepted perception producer and independent memory-use evidence."
+  ]
+}
