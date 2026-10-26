@@ -12,13 +12,22 @@ the projector is untrained and this establishes no useful visual perception.
 
 **Plan revision: 25 October 2026, following the review of `7c7018e`.**
 The following sections define the staged implementation and experiment policy.
-The V0 native interface is qualified; trained perception, accepted neural memory
-and integrated RSI remain separate unpassed gates.
-MiniCPM5 remains the baseline. The active order is completed
-verification/rebuild repairs → isolated MiniCPM5 V0 → visual fine-tuning → qualified visual memory → bounded RSI. Spark FP8/BF16
-metadata/backend preparation and dataset curation proceed independently now.
+The V0 native interface remains qualified; the new seven-update train-fit
+diagnostic is rejected and authorizes no new V0 alignment or visual fine-tuning.
+MiniCPM5 remains the baseline. Preserve the failed learnability evidence before
+any separately predeclared vision hypothesis; visual memory and bounded RSI
+remain gated. Spark FP8/BF16 metadata/backend preparation and dataset curation
+proceed independently now.
 Use [recovery gates](17_Memory_Reliability_Recovery.md)
 and the [execution prompt](16_Loop_Agent_Instructions.md).
+
+**26 October learnability outcome:** the
+[mean-only ablation and gradient diagnostic](../experiments/20261026_Vision_Learnability_Diagnostic.md)
+isolates spatial contribution without updates, then completes seven fresh-
+projector updates and 30 backward calls with correct gradient ownership.
+Answer accuracy is 0/14, caption semantic F1 is zero and all nine answer gates
+fail. This is an engineering pass and a learnability rejection, not a perception
+promotion. Development, held-out and semantic-audit payloads were not read.
 
 ## 1. Admission and model roles
 

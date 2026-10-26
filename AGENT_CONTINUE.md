@@ -1,31 +1,41 @@
 # Coding-agent continuation instruction
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and failed
-quality results. Evidence commits include `88c46e4` (standalone NL0),
-`1bf6345` (real-image evidence), `88167db` (memory readout) and `510f6dd`
-(vision-collapse evidence). Native Spark training and V0 remain unauthorized.
+quality results. Native one-clock integration is `1648f72d`; the vision
+diagnostics were predeclared at `0caf14fa`. Earlier evidence commits include
+`88c46e4` (standalone NL0), `1bf6345` (real images), `88167db` (memory readout)
+and `510f6dd` (vision collapse). Native Spark training and new V0 alignment
+remain unauthorized; historical interface-only V0 is unchanged.
 
-[NL0](docs/experiments/20261026_Nested_Learning_NL0.md) passes 28 tests and
-independent correctness review for selected-expert updates, causal observation
-writes, exact optimizer comparison and atomic persistence. These are standalone
-software/math contracts; one-clock integration and learned utility are unrun.
+[NL0](docs/experiments/20261026_Nested_Learning_NL0.md) passes 28 standalone
+software/math tests and independent review. Its
+[one-clock native baseline](docs/experiments/20261026_Nested_Text_One_Clock.md)
+now completes 27 primary and 24 wrong-world teaching updates, strict source-
+free P-only evaluation and exact fresh-process checkpoint-resume composition.
+Dev04 audits all 196 scoring attempts and preserves every preteach role;
+scores and controls are unchanged from dev03.
+Development learned utility is rejected: new instances 0/16, corrections 0/4,
+unaffected 0/8 and duty cycle 0.999938. Held-out evaluation is unopened and
+sealed-final rows are not parsed or scored. No extra
+clock, objective, router or promotion follows.
 
-[Real images](docs/experiments/20261026_Real_Image_Tranche.md) now provide seven
+[Real images](docs/experiments/20261026_Real_Image_Tranche.md) provide seven
 public-domain/CC0 JPEG derivatives from six source groups with verified rights,
-revisions, hashes, geometry, exact dedup and 4/1/2 source-group splits. The
-strict bundle verifies 89 tracked inputs and 38 focused tests. Admission is for
+hashes, geometry, exact dedup and 4/1/2 source-group splits. Admission remains
 local image-input validation only; `training_admitted=false`.
 
 [Memory readout](docs/experiments/20261026_Memory_Bank_Value.md) passes literal
 dev at 124/128 with zero unknown/revoked selections but fails MiniCPM at 19/152.
 Held-out and train were not run; useful learned memory remains unestablished.
 
-[Vision collapse](docs/experiments/20261026_Vision_Collapse_Diagnostic.md)
-shows text fitting without robust image-dependent generation. Shuffled first-
-token accuracy exceeds correct, and image swaps often leave generations
-unchanged. Attempt02 passes independent engineering review and preserves
-native01; no held-out claim or V0 promotion follows. Next is a read-only mean-
-only projected-patch ablation on the same sealed rows.
+The [vision learnability diagnostic](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
+first observes spatial contribution: mean-only replacement changes 24/46 paired
+generations and reduces six answer-gap rows while full-patch baseline identity
+matches. The separate fresh-projector gradient arm then completes seven updates
+and exactly 30 backward calls with all six tensors changing, but answers are
+0/14, caption semantic F1 is zero and all nine answer gates fail. Engineering
+passes; train-fit learnability is rejected. Development, held-out and new V0
+alignment remain closed; no further vision job is authorized by this result.
 
 The final clean-clone suite at `f25670a` passed **2,133 tests plus 21
 subtests**, with 37 explicit skips in 345.04 s; see
@@ -198,13 +208,16 @@ No new model or capability is qualified by this documentation update.
 2. **Memory diagnosis is bounded and rejected.** Causal query refresh improves
    recovery but fails correction, unaffected and abstention gates. Next inspect
    address calibration and abstention on fresh sealed data; do not train a writer.
-3. **Vision diagnosis is bounded and rejected.** Stage A never acquires useful
-   captions, stage B shows constant-output behavior and audit failure. Analyze
-   constant-output priors and caption alignment before any larger arm.
-4. **V3/V4 remain gated.** Native visual memory requires accepted perception and
+3. **Vision learnability is rejected.** Mean ablation isolates spatial
+   contribution, but the mixed answer/caption gradient arm fails train-fit.
+   No development, held-out, new V0 alignment or larger arm is authorized.
+4. **One-clock native engineering passes; utility fails.** Strict P-only and
+   checkpoint resume work, but development accuracy and duty-cycle gates fail.
+   Do not add clocks, objectives, routing or visual memory from this result.
+5. **V3/V4 remain gated.** Native visual memory requires accepted perception and
    useful memory with correction and retention. RSI requires independently
    measured improvement, old-task retention, rejection and rollback.
-5. **Spark/data preparation continues separately.** Preserve official FP8/BF16
+6. **Spark/data preparation continues separately.** Preserve official FP8/BF16
    identities and backend gates; do not replace MiniCPM5 or infer native support.
 
 The current canonical result is

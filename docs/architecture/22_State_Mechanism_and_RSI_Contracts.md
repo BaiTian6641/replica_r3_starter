@@ -7,31 +7,34 @@ routing-versus-compilation admission rules, the bounded RSI gate sequence and th
 behavioral stability/correction protocol. It is compatible with the current
 product plan ([document 21](21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md),
 revision 4.5) and the integrated design
-([document 19](19_Integrated_Memory_Learning_and_RSI_Design.md)). It reports no
-new training, no native execution and no capability result.
+([document 19](19_Integrated_Memory_Learning_and_RSI_Design.md)). Linked
+experiment records own their native evidence; this contract adds no independent
+capability qualification.
 
 **Current dispositions that constrain every claim below.** MiniCPM5 V0 is
 accepted as an interface only (frozen decoder, zero optimizer updates, native
-reload). Vision quality is rejected: the current vision-stage audit is 6/24 with
-all 24 audit answers `yes` and caption F1 zero. Learned memory and causal-refresh
-quality are rejected: `native04` reaches 110/240 exact recall with **zero
-optimizer updates**; `restart04` passes
-fresh-process parity without re-encoding old observations. Spark source
-preparation is metadata/tokenizer only; native FP8 loading, adapters, gradients
-and training are **blocked**. No Titans, uTTT, HOPE, MemT, Mem-T or
-selective-plasticity mechanism in this repository has been trained, and no
-recursive-improvement cycle has run.
+reload). The new vision learnability arm is rejected at 0/14 train-fit answers
+with caption semantic F1 zero; development and held-out were not opened.
+Learned memory and causal-refresh quality remain rejected: `native04` reaches
+110/240 exact recall with **zero optimizer updates**; `restart04` passes fresh-
+process parity without re-encoding old observations. Spark source preparation
+is metadata/tokenizer only; native FP8 loading, adapters, gradients and
+training are **blocked**. No Titans, uTTT, HOPE, MemT, Mem-T or selective-
+plasticity mechanism in this repository has been trained, and no recursive-
+improvement cycle has run.
 
-**Revision 4.5 learning refinement:** the [nested-learning contract](../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md) specifies the `Pf/Ps` clocks, future-query objective, explicit first-order `P` meta-gradient and replay/causal schedule. Its [validation ledger](../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md) supplies the missing experiments without changing the authority rules below. The latest [vision train04](../experiments/20261026_Vision_Balanced_Alignment.md) remains rejected at 3/14 train-fit and 2/18 dev answers, stopping before audit; the earlier 6/24 result above is historical. No nested-learning or RSI capability is promoted.
+**Revision 4.5 learning refinement:** the [nested-learning contract](../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md) specifies the `Pf/Ps` clocks, future-query objective, explicit first-order `P` meta-gradient and replay/causal schedule. Its [validation ledger](../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md) supplies the missing experiments without changing the authority rules below. The new [vision learnability diagnostic](../experiments/20261026_Vision_Learnability_Diagnostic.md) rejects the fresh seven-update train-fit arm after observing spatial contribution in the read-only ablation; development, held-out and new V0 alignment remain closed. No nested-learning or RSI capability is promoted.
 
-**NL0 implementation status:** the standalone
+**NL0 and one-clock implementation status:** the standalone
 [software/math qualification](../experiments/20261026_Nested_Learning_NL0.md)
-now passes 28 focused tests and independent correctness review. It implements
-selected-expert `P` transactions, bounded associative `F` recurrence, exact
-AdamW comparison, causal one-clock observation writes and atomic persistence.
-These are `implemented contract` results only. Native model integration,
-one-clock text behavior, source-free evaluation and learned utility remain
-unrun; no capability, training or promotion claim is made.
+passes 28 focused tests and independent correctness review. The
+[one-clock native baseline](../experiments/20261026_Nested_Text_One_Clock.md)
+now integrates selected-expert `P` transactions, causal observation writes,
+strict source-free P-only evaluation and checkpoint resume. Native engineering
+passes, but new-instance accuracy is 0/16, corrections 0/4 and duty cycle
+0.999938; held-out evaluation is unopened and sealed-final rows are not parsed or scored. These are `implemented contract` and native
+integration results with `rejected` development learned utility, not capability
+or promotion evidence.
 
 ### Status vocabulary
 
@@ -74,10 +77,10 @@ The rows are the intended categories, not claims that every row is implemented.
 `Theta`, `E`, `C`, the identity store and narrow publication contracts have
 implemented pieces. Native memory readers and a diagnostic `F` state exist, but
 the v5 writer is rejected and learned memory is unqualified. Standalone NL0
-`P`/`F` software and numerical contracts are implemented and reviewed, but are
-not integrated into a native model or a learned-utility result. `A`, integrated
-trained `P`, the trained memory machinery beyond the qualified readers, and the
-UAP remain design-only or interface-only.
+`P`/`F` contracts and the one-clock native `P` integration are implemented;
+its development learned utility is rejected. `A`, broader trained memory
+machinery beyond the qualified readers, and the UAP remain design-only or
+interface-only.
 
 ### 2.1 Ownership, timing, reset, persistence and version key
 

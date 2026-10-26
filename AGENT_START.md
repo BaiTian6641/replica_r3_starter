@@ -1,17 +1,22 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and keep
-mechanical acceptance separate from learned quality. Standalone
-[NL0 software/math contracts](docs/experiments/20261026_Nested_Learning_NL0.md)
-pass 28 tests and independent review; native integration is unrun. The
-[real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md) verifies
-seven rights-cleared derivatives for local input validation only, not training.
-[Memory readout](docs/experiments/20261026_Memory_Bank_Value.md) passes literal
-value recovery but fails MiniCPM at 19/152, so held-out stays sealed.
-[Vision fitting](docs/experiments/20261026_Vision_Collapse_Diagnostic.md) does
-not establish robust image dependence or authorize V0. Next is a read-only
-mean-only patch ablation on the same sealed rows. Keep the 50 GiB driver /
-512 MiB swap / 15% host-free guard and protected draft rules.
+mechanical acceptance separate from learned quality. The
+[one-clock text baseline](docs/experiments/20261026_Nested_Text_One_Clock.md)
+now has native teaching, strict source-free P-only evaluation, wrong-world
+controls and exact checkpoint-resume equality. Dev04 audits all 196 scoring
+attempts with updates disabled and preserves every preteach role. Development
+utility is rejected: new instances 0/16, corrections 0/4 and duty cycle
+0.999938; held-out evaluation
+is unopened and sealed-final rows are not parsed or scored. The [vision learnability diagnostic](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
+observes spatial contribution in the read-only ablation, but the seven-update
+gradient arm fails all answer gates and stops before development, held-out and
+new V0 alignment work. Historical interface-only V0 remains unchanged.
+The [real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md) is
+admitted for local input validation only, and
+[memory readout](docs/experiments/20261026_Memory_Bank_Value.md) still fails
+MiniCPM at 19/152. Keep the 50 GiB driver / 512 MiB swap / 15% host-free guard
+and protected draft rules.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

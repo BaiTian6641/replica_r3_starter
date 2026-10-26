@@ -1,34 +1,31 @@
 # 03 - Construction plan and executable runbook
 
-**Implementation reconciliation — 25 October 2026:** R1–R4 passed at `757ace1`.
-The repair prerequisites described below are satisfied; isolated MiniCPM5 V0 is
-next and remains natively unqualified. Reuse the recorded 140 integrated tests
-and 1,372-test +21-subtest source-export result in
-[repair qualification](../reports/memory_contract_repairs_20261025/qualification.json). This maintenance inspected that evidence without rerunning
-native work. The dated design and historical results below retain their scope.
+**Implementation reconciliation — 26 October 2026:** R1–R4 repairs and the
+historical interface-only MiniCPM5 V0 qualification remain accepted. The new
+[one-clock text baseline](experiments/20261026_Nested_Text_One_Clock.md) adds
+native teaching, strict source-free P-only controls and checkpoint resume, but
+development learned utility and duty-cycle gates fail; held-out evaluation is closed.
+The [vision learnability diagnostic](experiments/20261026_Vision_Learnability_Diagnostic.md)
+observes spatial contribution in its read-only ablation, then rejects the
+seven-update mixed answer/caption arm on train-fit gates. Development, held-out
+and new V0 alignment work remain closed.
 
-**Current priority — 26 October 2026.** Preserve sealed evaluation and use the
-dated evidence reports as the execution authority. Standalone
-[NL0 contracts](experiments/20261026_Nested_Learning_NL0.md) are software/math
-qualified but not natively integrated. The
-[real-image tranche](experiments/20261026_Real_Image_Tranche.md) supplies the
-exact bounded acquisition and offline-verification commands for seven
-validation-only JPEGs; it does not authorize training.
-
-[Memory readout](experiments/20261026_Memory_Bank_Value.md) passes literal
-value recovery at 124/128 but fails MiniCPM at 19/152, leaving held-out sealed.
-[Vision collapse](experiments/20261026_Vision_Collapse_Diagnostic.md) shows
-text fitting without robust image dependence and does not authorize V0. The
-next experiment is a read-only mean-only projected-patch ablation on the same
-sealed rows; the one-clock NL0 baseline and gradient-inclusive learnability
-work remain separate engineering gates.
+**Current priority.** Preserve the failed quality receipts and use the dated
+experiment reports as execution authority. Do not start another vision job or
+add nested clocks/objectives from these results. The
+[real-image tranche](experiments/20261026_Real_Image_Tranche.md) remains limited
+to local input validation, and
+[memory readout](experiments/20261026_Memory_Bank_Value.md) remains rejected
+for useful MiniCPM recall at 19/152. Continue only development-only diagnosis
+of the existing one-clock readout/cost or an independently justified open gate.
 
 MiniCPM5 and the 50 GiB driver / 512 MiB swap-growth / 15% host-free guard
-remain fixed. Use one native worker, offline sources, CPU fallback disabled,
-fresh output paths and predeclared artifact/write limits. Commands below retain
-their original evidence scope and are not instructions to repeat rejected arms.
-See [execution state](../execution_state.md) for current metrics and preserved
-failure receipts.
+remain fixed. Use one exclusive MPS worker, offline sources, CPU fallback
+disabled, fresh output paths and predeclared artifact/write limits. Preserve
+the protected untracked `src/replica_lab/runtime_pilot.py`. Commands below
+retain their original evidence scope and are not instructions to repeat
+rejected arms. See [execution state](../execution_state.md) for current metrics
+and preserved failure receipts.
 
 ## Historical reader-only recovery result and commands
 

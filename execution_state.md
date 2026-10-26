@@ -1,60 +1,65 @@
 # Execution state — integrated memory, cognition and learning
 
-## NL0, real-image, memory-readout and vision-collapse evidence — 26 October 2026
+## Native one-clock baseline and vision learnability — 26 October 2026
 
-**Current status — standalone NL0 software contracts and real-image asset QA
-pass; learned memory and robust image-dependent generation remain rejected or
-unestablished. No held-out split was opened and no native Spark training was
-started.** The protected untracked `src/replica_lab/runtime_pilot.py` was not
-modified. New native jobs used one exclusive MPS worker, CPU fallback disabled,
-offline sources and the unchanged 50 GiB / 512 MiB / 15% guard.
+**Current status — native engineering integration passes; learned utility is
+rejected in both new diagnostics. Nested held-out evaluation and all vision
+development/held-out splits remain unopened. No native Spark training or new
+V0 alignment run started; historical interface-only V0 is unchanged.** The
+protected untracked `src/replica_lab/runtime_pilot.py` was not modified. Each
+native job used one exclusive MPS worker, CPU fallback disabled, offline sources
+and the unchanged 50 GiB / 512 MiB / 15% guard.
 
-- [NL0 software/math qualification](docs/experiments/20261026_Nested_Learning_NL0.md)
-  (`88c46e4`) implements selected-expert updates, exact AdamW comparison,
-  associative recurrence, causal one-clock observations and atomic persistence.
-  The final suite is 28/28 and independent closeout is correct. Native model
-  integration, source-free evaluation and learned utility remain unrun.
+- [One-clock nested text](docs/experiments/20261026_Nested_Text_One_Clock.md)
+  (`1648f72d`, with runner/review fixes through `6739804`) completes 27 primary
+  and 24 wrong-world selected-expert updates, strict source-free P-only
+  evaluation and fresh-process resume. Resume on `correction-0003` produces
+  exactly equal post-update state hashes against a second loaded learner.
+  Dev04 audits all 196 scoring attempts with updates disabled: new instances
+  0/16, corrections 0/4, unaffected 0/8, legacy retention 0/8 and duty cycle
+  0.999938. Five quality/cost gates fail and `heldout_opened=false`. The
+  focused integration suite passes 112 tests. Learned utility, additional
+  clocks/objectives and promotion remain unauthorized.
+- [Vision learnability](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
+  (`0caf14fa`, corrections through `8fedebd`) first records a read-only
+  mean-only ablation with exact full-patch baseline identity. Mean replacement
+  changes 24/46 paired generations and reduces six answer-gap rows, so spatial
+  contribution is observed. The separate fresh-projector arm completes seven
+  updates and exactly 30 backward calls; all six projector tensors receive
+  finite nonzero gradients and change. Engineering passes, but answer accuracy
+  is 0/14, caption semantic F1 is zero and all nine answer gates fail. The
+  decision is `stopped_before_dev_heldout_v0`; no further vision job follows.
+  Ablation/gradient peaks are 11,951,472,640 and 12,037,570,560 sampled driver
+  bytes with zero swap growth. The focused suite passes 78 tests.
+- [Standalone NL0](docs/experiments/20261026_Nested_Learning_NL0.md)
+  (`88c46e4`) remains the reviewed 28-test software/math qualification for
+  selected-expert updates, associative recurrence, causal observations and
+  atomic persistence. The native result above is separate evidence.
 - [Real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md)
-  (`1bf6345`) admits seven public-domain/CC0 JPEG derivatives from six source
-  groups for local image-input validation only. Rights/provenance, current
-  revisions, original SHA-1 metadata, exact derivative hashes, decoded
-  geometry, 4/1/2 train/development/audit group splits, exact dedup and content
-  review pass. Assets total 1,734,983 bytes; `training_admitted=false`.
-  Independent verdict is `verified_with_declared_limits`. The strict bundle
-  now verifies 89 tracked inputs and its focused replay passes 38 tests.
-- [Selected-record value/readout](docs/experiments/20261026_Memory_Bank_Value.md)
-  (`88167db`) passes the literal development gate at 124/128 fact values with
-  zero unknown/revoked selections, but sealed MiniCPM scores only 19/152 exact
-  answers. Correction is 5/16, unaffected 5/40, unknown 0/16 and revoked 0/8;
-  held-out and train were not run. Native03 took 93.93 s, peaked at
-  10,763,255,808 sampled driver bytes with zero swap growth, and wrote no
-  checkpoint or extension.
-- [Vision-collapse diagnostic](docs/experiments/20261026_Vision_Collapse_Diagnostic.md)
-  (`510f6dd`) shows training-set text fitting but not robust image-dependent
-  generation. Train04 correct response NLL is 1.517730 versus fresh 10.274771,
-  yet shuffled first-token accuracy is 7/26 versus correct 5/26 and correct /
-  sibling outputs match for 16/20 rows. Fresh is operationally unaligned;
-  train04 is mean-dominated with reduced mean-feature cosine separation, not
-  complete visual-information collapse. The corrected attempt02 took 265.33 s,
-  peaked at 10,877,730,816 sampled driver bytes with zero swap growth, and
-  produced 6,005,936 final artifact bytes. Independent closeout is correct;
-  all 123 affected tests pass. No gradients or answer/caption-mixing arm were
-  run by this diagnostic.
+  (`1bf6345`) remains limited to seven rights-cleared JPEG derivatives for
+  local input validation; `training_admitted=false`. Its strict bundle verifies
+  89 tracked inputs and 38 focused tests.
+- [Memory readout](docs/experiments/20261026_Memory_Bank_Value.md)
+  (`88167db`) remains rejected for useful MiniCPM memory at 19/152 despite
+  literal development recovery of 124/128. Its held-out and train roles were
+  not opened.
+- [Vision collapse](docs/experiments/20261026_Vision_Collapse_Diagnostic.md)
+  (`510f6dd`) remains the historical train04 baseline: text fitting without
+  robust image-dependent generation. The new ablation isolates spatial
+  contribution but does not reverse that quality rejection.
 
 The [final clean-clone suite](reports/clean_export_20261026_final/summary.json)
-at `f25670a` passes **2,133 tests plus 21 subtests**, with 37 explicit
-provisioning/decode skips and no failures in 345.04 s. The exact clone also
-verifies all 89 strict-bundle inputs and all seven JPEGs read-only. The first
-archive run's eight environment/provisioning failures are preserved; user
-changes were excluded and restored, not committed or discarded.
+at `f25670a` passed **2,133 tests plus 21 subtests**, with 37 explicit skips in
+345.04 s. That is a historical full-suite receipt, not a rerun of the new
+changes. Current focused commands and results are recorded in the two new
+experiment documents and their raw guard/report artifacts.
 
-The next justified experiment is a predeclared **read-only mean-only
-projected-patch ablation** on the same sealed training rows and pinned train04
-stage, comparing opposite-token gaps and greedy swap-invariance against
-attempt02. It must not read evaluation splits or authorize V0. The one-clock
-NL0 text baseline, gradient-inclusive vision learnability work, useful-memory
-hypothesis, native Spark backend and exact continuation remain separate open
-gates. No additional blind training arm is justified by these results.
+The next justified work is development-only analysis of the existing one-clock
+readout's null generations and teaching cost. Do not parse or score nested
+sealed-final rows or start held-out evaluation, run another vision job, add
+clocks/objectives, or infer useful memory,
+memory, native Spark backend and exact full-scope continuation remain separate
+open gates.
 
 
 ## BF16/Muon and parallel GPU budget follow-up — 26 October 2026

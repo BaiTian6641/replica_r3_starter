@@ -6,7 +6,9 @@ final rows were not parsed or scored. Integration is committed at `1648f72d`;
 runner and review corrections are `ff5e4a9e`, `5a78db3`, `ec602a4` and
 `6739804`. The protocol is `configs/nested_text_nl1_v1.json`, with synthetic,
 role-separated episodes in `data/nested_text_nl1_20261026/`. The selected
-development receipt is `p_only_dev04`; `p_only_dev03` remains preserved.
+development receipt is [p_only_dev04](../../runs/nested_text_nl1_20261026/p_only_dev04/gates/dev.json),
+summarized in [summary.json](../../reports/nested_text_nl1_20261026/summary.json);
+`p_only_dev03` remains preserved.
 
 ## Implemented and trained scope
 
