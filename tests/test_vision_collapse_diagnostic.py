@@ -12,6 +12,7 @@ import importlib.util
 import json
 import math
 from pathlib import Path
+from types import SimpleNamespace
 import time
 
 import pytest
@@ -563,6 +564,26 @@ def test_stop_conditions_report_declares_and_enforces_resource_policy():
     assert slow["violations"] == ["wall_seconds_exceeded"]
     with pytest.raises(diagnostic.DiagnosticError, match="stop condition"):
         diagnostic.require_stop_conditions(slow)
+
+
+def test_constant_patch_stats_are_exact_and_spatially_flat():
+    import torch
+    module = _runner_module()
+    evaluator = object.__new__(module.StageEvaluator)
+    constant = torch.tensor([[1.25, -2.5], [1.25, -2.5]], dtype=torch.bfloat16)
+    visual = SimpleNamespace(
+        features=constant,
+        valid=torch.ones(2, dtype=torch.bool),
+        image_sha256="a" * 64,
+    )
+    evaluator.adapter = SimpleNamespace(project_visual=lambda value: value.features)
+    evaluator.visuals = {("case", "case"): visual}
+    evaluator.image_stats = {}
+    evaluator._torch = torch
+    stats = evaluator._projected_stats("case")
+    assert stats["mean_patch"] == [1.25, -2.5]
+    assert stats["spatial_variance"] == 0.0
+    assert stats["mean_vector_rms"] == pytest.approx(math.sqrt(3.90625), rel=1e-4)
 
 
 def test_claims_block_is_first_order_only():

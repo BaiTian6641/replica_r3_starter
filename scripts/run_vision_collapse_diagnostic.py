@@ -461,7 +461,10 @@ class StageEvaluator:
             patches = projected[valid]
             rms_all = float(patches.square().mean().sqrt().item())
             maximum = float(patches.abs().max().item())
-            mean_patch = patches.mean(dim=0)
+            if patches.numel() and bool(self._torch.all(patches == patches[0]).item()):
+                mean_patch = patches[0].clone()
+            else:
+                mean_patch = patches.mean(dim=0)
             mean_rms = float(mean_patch.square().mean().sqrt().item())
             spatial = float(patches.var(dim=0, unbiased=False).mean().item())
             mean_values = [float(value) for value in mean_patch.tolist()]
