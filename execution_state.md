@@ -1,5 +1,27 @@
 # Execution state — integrated memory, cognition and learning
 
+## Full-scope training performance investigation — 25 October 2026
+
+The user requested training-code analysis, improvements on M2 Ultra without
+reducing trainable scope, and a market-GPU comparison. Cached phase markers show
+17.51 s/update in the post-backward gradient-check/clipping/optimizer phase of
+the 55-token full run, versus 2.20 s/update forward/backward. The five-step FP32
+Muon matrix updates account analytically for 97.65 TFLOP per optimizer update.
+
+The [bounded protocol](configs/full_training_throughput_probe_v1.json) declares
+three updates per arm on the existing eight-row diagnostic. The new profiling
+entry point verifies all 2,516,756,480 original parameters /381 tensors are
+trainable, optimizer-owned, receive nonzero gradients and actually change.
+Reference Muon and fused AdamW, batching and SDPA are separate declared arms.
+The unchanged 50 GiB driver /512 MiB swap /15% free guard and exclusive MPS
+worker apply. No weights are exported or selected and no original is downloaded.
+Optimizer substitutions are throughput comparisons, not convergence equivalence.
+
+Pre-run software validation: `tests/test_full_training_profile.py`,
+`tests/test_optimizers.py` and `tests/test_capacity_guard.py`: **40 passed in
+2.76 s**. Native outcomes and the requested reports follow separately. Current
+vision-curriculum and other concurrent changes are outside this package.
+
 **Current implementation — write-position interference isolated in memory; balanced image dependence supported on procedural holdouts; staged curriculum next.**
 Caller-bound canonical context verification, exact seeded schedule audits and
 versioned representation-preserving rebuild pass 140 integrated tests and a fresh

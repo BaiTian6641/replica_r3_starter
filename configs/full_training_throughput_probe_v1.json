@@ -1,0 +1,52 @@
+{
+  "format": "replica.full_training_throughput_protocol.v1",
+  "date_local": "2026-10-25",
+  "timezone": "America/Chicago",
+  "purpose": "Measure full-parameter training throughput and separate optimizer cost from forward/backward. No selected model or quality promotion.",
+  "source": "checkpoints/minicpm5_source",
+  "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+  "data": "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+  "scope": {
+    "trainable_parameters": 2516756480,
+    "trainable_tensors": 381,
+    "parameter_dtype": "float32",
+    "compute_dtype": "float32",
+    "effective_batch": 8,
+    "sequence_length": 55,
+    "updates_per_arm": 3,
+    "seed": 17,
+    "weight_decay": 0.0,
+    "learning_rate": 0.0001,
+    "warmup_updates": 2,
+    "gradient_norm_limit": 1.0
+  },
+  "arms": [
+    {"id": "muon_reference", "optimizer": "muon8bit", "microbatch": 1, "attention": "eager", "checkpointing": true},
+    {"id": "adamw_fused", "optimizer": "adamw-fused", "microbatch": 1, "attention": "eager", "checkpointing": true},
+    {"id": "adamw_fused_batch4", "optimizer": "adamw-fused", "microbatch": 4, "attention": "eager", "checkpointing": true},
+    {"id": "adamw_fused_batch4_sdpa", "optimizer": "adamw-fused", "microbatch": 4, "attention": "sdpa", "checkpointing": true}
+  ],
+  "resource_policy": {
+    "device": "mps",
+    "exclusive_native_worker": true,
+    "cpu_fallback": false,
+    "driver_limit_gib": 50,
+    "sustained_swap_growth_limit_mib": 512,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "max_seconds_per_arm": 180
+  },
+  "required_checks": [
+    "Every original parameter remains trainable and belongs to the optimizer exactly once.",
+    "All 381 original parameter tensors have nonzero gradients and change by SHA256 comparison.",
+    "Loss and clipped global gradient norm remain finite.",
+    "Fresh outputs; preserve failed arms; do not repeat a guard failure at relaxed limits."
+  ],
+  "outputs": "reports/m2_ultra_training_performance_20261025/; scratch probes under ignored runs/m2_ultra_training_performance_20261025/",
+  "limits": [
+    "Three updates on an exposed short-sequence diagnostic; no sustained or long-context qualification.",
+    "AdamW changes the update algorithm while preserving full training scope; no convergence parity is assumed.",
+    "No weight exports, downloads, historical checkpoint modification, selected/default change or GPU allocator limit change.",
+    "CUDA hardware comparison is sourced specifications and explicitly labelled estimates unless matched execution exists."
+  ]
+}
