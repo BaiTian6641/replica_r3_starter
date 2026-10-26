@@ -112,6 +112,14 @@ def _restore_rng(state: dict) -> None:
             torch.cuda.set_rng_state(value, device=index)
 
 
+def optimizer_state_to(optimizer: Optimizer, device) -> None:
+    """Move allocated optimizer state without changing parameter ownership."""
+    for state in optimizer.state.values():
+        for key, value in list(state.items()):
+            if isinstance(value, torch.Tensor):
+                state[key] = value.to(device)
+
+
 def save_runtime_state(path: str | Path, optimizer: Optimizer, *, step: int,
                        data_state: dict, schedule_state: dict | None = None,
                        run_contract: dict) -> dict:

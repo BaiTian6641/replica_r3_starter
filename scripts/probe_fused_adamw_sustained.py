@@ -62,14 +62,13 @@ def execute(args, profiler):
     if os.environ.get("PYTORCH_ENABLE_MPS_FALLBACK") != "0":
         raise RuntimeError("Explicit CPU fallback=0 is required")
     for key in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE", "HF_DATASETS_OFFLINE"):
-        if os.environ.get(key) != "1":
             raise RuntimeError(f"{key}=1 is required")
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from replica_lab.checkpointing import save_training_checkpoint, validate_training_checkpoint
     from replica_lab.model_adapter import LlamaMemoryAdapter, validate_model_lock
     from replica_lab.optimizers import build_optimizer
-    from replica_lab.training_state import load_runtime_state
+    from replica_lab.training_state import load_runtime_state, optimizer_state_to
     from replica_lab.training_tools import apply_learning_rates, response_statistics
     from profile_full_training import assert_full_scope, parameter_hashes
     from train_text import encode_row, load_rows
@@ -136,6 +135,11 @@ def execute(args, profiler):
         dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
     model = LlamaMemoryAdapter(base, "full").to("mps").train()
     base.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    migrate_on_resume = bool(args.resume_from)
+    if migrate_on_resume:
+        model.to("cpu")
+        gc.collect()
+        torch.mps.empty_cache()
     optimizer = build_optimizer(
         model, "adamw_fused", lr_base=optim["lr"], lr_new=optim["lr"],
         weight_decay=optim["weight_decay"])
@@ -152,12 +156,8 @@ def execute(args, profiler):
     start_step = 0
     update_reports = []
     if args.resume_from:
-        model.to("cpu")
-        gc.collect()
-        torch.mps.empty_cache()
         restored = load_runtime_state(
             Path(args.resume_from) / "runtime.pt", optimizer, run_contract=contract)
-        model.to("mps")
         start_step = restored["step"]
         if start_step != 1 or start_step != resume_receipt["completed_steps"]:
             raise ValueError("Smoke resume must continue exactly update 1")
@@ -169,6 +169,10 @@ def execute(args, profiler):
         update_reports = state.get("update_reports", [])
         if len(update_reports) != 1:
             raise ValueError("Resume update history is incomplete")
+        if migrate_on_resume:
+            gc.collect()
+            optimizer_state_to(optimizer, "mps")
+            model.to("mps")
         profiler.mark("runtime_restored", completed_steps=1)
 
     profiler.mark("model_optimizer_loaded", start_step=start_step)

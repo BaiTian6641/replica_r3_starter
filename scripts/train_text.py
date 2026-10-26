@@ -181,7 +181,7 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
     from replica_lab.optimizers import build_optimizer
     from replica_lab.curriculum import balanced_batches, batch_diagnostics, dataset_diagnostics
     from replica_lab.training_tools import apply_learning_rates, evaluate_generations, response_statistics
-    from replica_lab.training_state import load_runtime_state
+    from replica_lab.training_state import load_runtime_state, optimizer_state_to
     from replica_lab.checkpointing import save_training_checkpoint, validate_training_checkpoint
 
     lock = json.loads(args.model_lock.read_text())
@@ -270,6 +270,14 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
                 if args.dtype == "bfloat16" else nullcontext())
     def device_batch(batch):
         return {key: value.to(args.device) for key, value in batch.items()}
+    migrate_on_resume = bool(args.resume_from and args.device != "cpu")
+    if migrate_on_resume:
+        model.to("cpu")
+        gc.collect()
+        if args.device == "mps":
+            torch.mps.empty_cache()
+        elif args.device == "cuda":
+            torch.cuda.empty_cache()
     optimizer = build_optimizer(
         model, args.optimizer, lr_base=args.lr_base, lr_new=args.lr_new,
         lr_muon_base=args.lr_muon_base, lr_muon_new=args.lr_muon_new,
@@ -283,16 +291,7 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
     base_rates = [group["lr"] for group in optimizer.param_groups] if optimizer is not None else []
     start_step = 0
     if args.resume_from:
-        if args.device != "cpu":
-            model.to("cpu")
-            gc.collect()
-            if args.device == "mps":
-                torch.mps.empty_cache()
-            elif args.device == "cuda":
-                torch.cuda.empty_cache()
         restored = load_runtime_state(args.resume_from / "runtime.pt", optimizer, run_contract=contract)
-        if args.device != "cpu":
-            model.to(args.device)
         start_step = restored["step"]
         if start_step != resume_receipt["completed_steps"]:
             raise ValueError("Runtime completed step differs from the checkpoint receipt")
@@ -307,6 +306,10 @@ def execute(args, profiler, *, expected_original_parameters=2516756480):
         consecutive_perfect = state.get("consecutive_perfect", 0)
         if len(update_reports) != start_step:
             raise ValueError("Resume update history is incomplete")
+        if migrate_on_resume:
+            gc.collect()
+            optimizer_state_to(optimizer, args.device)
+            model.to(args.device)
         profiler.mark("runtime_restored", completed_steps=start_step)
     processed_tokens = sum(item["processed_tokens"] for item in update_reports)
     supervised_tokens = sum(item["supervised_tokens"] for item in update_reports)
