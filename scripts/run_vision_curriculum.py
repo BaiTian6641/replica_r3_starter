@@ -59,6 +59,7 @@ from replica_lab.vision_curriculum import (  # noqa: E402
     verify_implementation_pins, verify_retention_pins,
     verified_finalize_seals, write_finalize_receipt,
 )
+from replica_lab.external_intake import _role_manifest_seal  # noqa: E402
 from replica_lab.capacity_guard import (  # noqa: E402
     CapacityGuard, CapacityPolicy, parse_host_readings,
 )
@@ -1312,6 +1313,9 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "peak_driver_bytes": driver_peak,
                 "workers": 1,
                 "downloads": 0,
+                "train_end_sampled": any(
+                    event.get("event") == "train_end"
+                    for event in guard.report()["events"]),
             },
             "claims": {
                 "perception_quality": False,
@@ -1639,6 +1643,12 @@ def load_external_final(protocol):
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     require(manifest.get("role") == "final_eval_untouched",
             "Sealed final role differs")
+    derived_seal = _role_manifest_seal(manifest)
+    require(derived_seal
+            == protocol["external"]["final_sealed"]["seal_sha256"]
+            == protocol["external"]["final_pointer"]["seal_sha256"]
+            == protocol["splits"]["external_final"]["seal_sha256"],
+            "Sealed final seal differs from the manifest-row derivation")
     corpus_path = resolve_project_path(
         protocol, protocol["external"]["corpus"]["path"])
     require(sha256_file(corpus_path)
@@ -1650,6 +1660,8 @@ def load_external_final(protocol):
     rows = []
     for entry in manifest["rows"]:
         row = corpus[entry["row_id"]]
+        require(row["split"]["role"] == "final_eval_untouched",
+                "Sealed final row role differs")
         require(sha256_bytes(canonical_json(row).encode("utf-8"))
                 == entry["row_sha256"],
                 "Sealed final row bytes changed")
@@ -1671,6 +1683,50 @@ def load_external_final(protocol):
 
 def sha256_text_local(value):
     return hashlib.sha256(str(value).encode("utf-8")).hexdigest()
+
+
+def authenticate_reservations(paths, reservation, verified_seals):
+    from replica_lab.contracts import fingerprint
+    payload = reservation["payload"]
+    expected = (json.dumps(payload, indent=2, sort_keys=True,
+                           ensure_ascii=False) + "\n").encode("utf-8")
+    expected_hash = sha256_bytes(expected)
+    expected_names = {
+        "external": (f"external_final_{verified_seals['external_final']}"
+                     ".reserve.json"),
+        "audit": f"audit_{verified_seals['audit']}.reserve.json",
+    }
+    for name in ("external", "audit"):
+        path = Path(reservation[name]["path"])
+        require(Path(path).name == expected_names[name],
+                f"{name} reservation path is not seal-derived")
+        require(path.is_file(), f"{name} reservation file is missing")
+        require(path.read_bytes() == expected,
+                f"{name} reservation bytes differ from the payload")
+        require(sha256_file(path) == expected_hash
+                == reservation[name]["sha256"],
+                f"{name} reservation hash differs from its payload")
+    require(fingerprint(payload) == reservation["id"],
+            "Reservation id differs from its payload")
+    return expected_hash
+
+
+def validate_external_final_preflight(protocol, dataset):
+    final_cases = load_external_final(protocol)
+    final_ids = {case["case_id"] for case in final_cases}
+    require(final_ids.isdisjoint(dataset.managed_case_ids()),
+            "External final rows overlap a managed split")
+    require({case["image_sha256"] for case in final_cases}.isdisjoint(
+        dataset.managed_image_hashes()),
+        "External final images overlap a managed split")
+    from replica_lab.contracts import fingerprint
+    require(fingerprint(sorted(final_ids))
+            == protocol["external"]["final_pointer"]["row_ids_sha256"],
+            "External final row ids differ from the sealed pointer")
+    require(protocol["splits"]["external_final"]["seal_sha256"]
+            == dataset.seals["external_final_seal_sha256"],
+            "External final seal differs from the verified dataset seal")
+    return final_cases
 
 
 def _arm_report_summary(report):
@@ -1804,7 +1860,7 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
         service = feature_service(protocol, "mps")
         guard.sample(index=0, event="feature_service")
         before = adapter.parameter_stamp(original_only=True)
-        final_cases = load_external_final(protocol)
+        final_cases = validate_external_final_preflight(protocol, dataset)
         # Admission is complete before either irreversible receipt is created.
         verified_seals = verified_finalize_seals(
             protocol, dataset.seals, dataset.seal_receipts)
@@ -1825,6 +1881,11 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
             seed_offset=int(protocol["evaluation"]["shuffle_seed_offset"]),
             guard=guard, start_time=time.monotonic())
         write_jsonl(output / "audit_cases.jsonl", audit_cases)
+        validate_control_provenance(
+            audit_cases, audit_rows,
+            seed_offset=int(protocol["evaluation"]["shuffle_seed_offset"]),
+            controls=protocol["evaluation"]["controls"],
+            token_budget=int(protocol["evaluation"]["max_new_tokens"]))
         audit_score = score_procedural(
             audit_cases, audit_rows,
             controls=protocol["evaluation"]["controls"],
@@ -1858,6 +1919,11 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
         guard.sample(index=1, event="finalize_end")
         dump(output / "guard.json", guard.report())
         guard_sha256 = sha256_file(output / "guard.json")
+        authenticated = authenticate_reservations(paths, reservation,
+                                                   verified_seals)
+        require(reservation["external"]["sha256"] == authenticated
+                == reservation["audit"]["sha256"],
+                "Authenticated reservation hashes differ")
         final_receipt = build_finalize_receipt(
             protocol=protocol, comparison=comparison,
             reservation=reservation, selected_arm=selected_arm,

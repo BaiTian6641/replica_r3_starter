@@ -32,7 +32,7 @@ from replica_lab.vision_curriculum import (  # noqa: E402
     build_arm_declarations, build_curriculum, build_finalize_receipt,
     build_procedural, build_protocol, build_training_plan, caption_token_f1,
     dataset_pins, finalize_receipt_paths, is_unknown_answer, load_config,
-    load_run_report, normalise_answer, protocol_sha256,
+    load_external_source, load_run_report, normalise_answer, protocol_sha256,
     require_global_finalize_allowed,
     reserve_finalize, retention_policy, run_artifact_names,
     lr_probe_artifact_name, score_caption, score_procedural,
@@ -275,6 +275,20 @@ def test_prompt_isolation_and_no_absent_text_shortcut(procedural):
              "Scene question: ", "Dev image question: ", "Picture check: ",
              "Scene check: ", "Audit image question: ", "Audit scene: ",
              "Held-out scene: ", "Final image question: "))
+
+
+def test_external_final_seal_is_derived_from_manifest_rows():
+    config = load_config(ROOT / "configs/vision_curriculum_v1.json")
+    external = load_external_source(ROOT, config)
+    derived = external["final_pointer"]["seal_sha256"]
+    assert derived == config["external"]["manifests"][
+        "final_eval_untouched"]["seal_sha256"]
+    assert external["final_pointer"]["rows"] == 8
+    tampered = copy.deepcopy(config)
+    tampered["external"]["manifests"]["final_eval_untouched"][
+        "seal_sha256"] = "0" * 64
+    with pytest.raises(VisionCurriculumError):
+        load_external_source(ROOT, tampered)
 
 # ---------------------------------------------------------------------------
 # Curriculum build, splits, seals and the untouched final pointer
@@ -926,6 +940,7 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
         "external_final_consumed": False,
         "costs": {"downloads": 0, "workers": 1,
                   "peak_driver_bytes": 1024,
+                  "train_end_sampled": True,
                   "updates": protocol["schedule"]["updates"]},
         "claims": {
             "perception_quality": False,
@@ -1116,8 +1131,12 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                                       "case_id": case["case_id"],
                                       "generated_text": text})
     audit_score = score_procedural(
-        audit_cases, audit_generations, controls=CONTROLS, seed=1,
-        bootstrap_resamples=10, bootstrap_confidence=0.9,
+        audit_cases, audit_generations, controls=CONTROLS,
+        seed=int(prepared_protocol["seed"]),
+        bootstrap_resamples=int(
+            prepared_protocol["evaluation"]["bootstrap"]["resamples"]),
+        bootstrap_confidence=float(
+            prepared_protocol["evaluation"]["bootstrap"]["confidence"]),
         gates=prepared_protocol["evaluation"]["gates"])
     receipt = build_finalize_receipt(
         protocol=prepared_protocol, comparison=comparison,
@@ -1183,6 +1202,28 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
     del bad["guard_report_sha256"]
     with pytest.raises(VisionCurriculumError):
         validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["reservations"]["external"]["path"] = str(
+        tmp_path / "wrong_reservation.json")
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["reservations"]["audit"]["sha256"] = "0" * 64
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["audit"]["score"]["rows"][0]["correct"] = not bad["audit"]["score"][
+        "rows"][0]["correct"]
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["audit"]["score"]["rows"].pop()
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
+    bad = copy.deepcopy(receipt)
+    bad["audit"]["score"]["bootstrap"]["seed"] += 1
+    with pytest.raises(VisionCurriculumError):
+        validate_finalize_receipt(bad, prepared_protocol, "a" * 64)
 
 
 
@@ -1205,6 +1246,10 @@ def test_run_report_requires_artifacts_dev_loss_and_group_lrs(prepared_protocol)
         validate_run_report(report, prepared_protocol)
     report = _run_report(prepared_protocol)
     report["training"]["max_seconds"] = 3600
+    with pytest.raises(VisionCurriculumError):
+        validate_run_report(report, prepared_protocol)
+    report = _run_report(prepared_protocol)
+    del report["costs"]["train_end_sampled"]
     with pytest.raises(VisionCurriculumError):
         validate_run_report(report, prepared_protocol)
 
@@ -1246,6 +1291,26 @@ def test_score_report_rejects_self_contradictory_acceptance(prepared_protocol):
         "correct_margin"] = -1.0
     with pytest.raises(VisionCurriculumError):
         validate_score_report(bad)
+    raw = report["learned_quality"]["procedural_dev"]["rows"]
+    for mutate in (
+            lambda rows: rows[0].__setitem__("correct",
+                                             not rows[0]["correct"]),
+            lambda rows: rows[0].__setitem__("task", "forged_task"),
+            lambda rows: rows[0].__setitem__("world_id", "forged_world"),
+            lambda rows: next(row for row in rows
+                              if row["abstain_case"]).__setitem__(
+                                  "abstain_case", False),
+            lambda rows: rows[0].__setitem__(
+                "unknown", not rows[0]["unknown"]),
+            lambda rows: rows.pop()):
+        bad = copy.deepcopy(report)
+        mutate(bad["learned_quality"]["procedural_dev"]["rows"])
+        with pytest.raises(VisionCurriculumError):
+            validate_score_report(bad, prepared_protocol)
+    bad = copy.deepcopy(report)
+    bad["learned_quality"]["procedural_dev"]["bootstrap"]["seed"] += 1
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad, prepared_protocol)
     bad = copy.deepcopy(report)
     bad["learned_quality"]["external_development_caption"]["loss_cases"] = 0
     with pytest.raises(VisionCurriculumError):
