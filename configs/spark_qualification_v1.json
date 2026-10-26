@@ -1,0 +1,289 @@
+{
+  "schema": "replica.spark2_5_qualification_plan.v1",
+  "reviewed_on": "2026-10-26",
+  "status": "prospective_not_executed",
+  "scope": "Frozen-base Spark2_5 qualification on one exclusive MPS worker: BF16 reference and one explicitly labelled dequantized FP8 derivative. Native FP8 training on MPS is not admitted. This plan authorizes no download, no full-base save and no heldout access.",
+  "environment": {
+    "device": "mps",
+    "device_count": 1,
+    "python": "3.12",
+    "torch": "2.14.1",
+    "attention_implementation": "eager",
+    "use_cache": false,
+    "cpu_fallback": "disabled",
+    "pytorch_enable_mps_fallback": "0",
+    "offline": {
+      "HF_HUB_OFFLINE": "1",
+      "TRANSFORMERS_OFFLINE": "1",
+      "HF_DATASETS_OFFLINE": "1"
+    },
+    "capacity_guard": "REPLICA_CAPACITY_GUARD=1",
+    "trust_remote_code": "sealed local snapshot only; verified by SHA256 before load",
+    "local_files_only": true
+  },
+  "sources": {
+    "official_bf16_control": {
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "role": "official_bf16_control",
+      "precision_kind": "official_bf16",
+      "storage": "bf16",
+      "transformers": "4.57.1",
+      "compressed_tensors": null,
+      "config_sha256": "767161ece8ed2891e44345afdf98d29c1cacb964116cb6db7d20dc1c757490ad",
+      "parameter_elements": 4112079360,
+      "shards": [
+        {
+          "filename": "model-00001-of-00005.safetensors",
+          "bytes": 1982449560,
+          "sha256": "9ba8a59a47ce4197d5c749c76c04272e0b4b880747b31b9167a82d8757e90665"
+        },
+        {
+          "filename": "model-00002-of-00005.safetensors",
+          "bytes": 1993132424,
+          "sha256": "f0cad973670dda858a177d62a1845f9ec3c3e2a7a1cdbd34f98ab6789fbd452d"
+        },
+        {
+          "filename": "model-00003-of-00005.safetensors",
+          "bytes": 1993225080,
+          "sha256": "479c8aecd24d1d4c6c2243541b36acc6a84df4c0706a7ccaacda748eac46b8e8"
+        },
+        {
+          "filename": "model-00004-of-00005.safetensors",
+          "bytes": 1993132448,
+          "sha256": "766cd843c58676b0be533b465368a76f574f36bea074f4d16f7e37d910423d08"
+        },
+        {
+          "filename": "model-00005-of-00005.safetensors",
+          "bytes": 262252896,
+          "sha256": "e2cb22cc6aa1dccdc30042170841058a1a8cffb7e9eb57356c86ae14fc4ca0e3"
+        }
+      ],
+      "required_assets": [
+        "config.json",
+        "configuration_spark.py",
+        "modeling_spark.py",
+        "generation_config.json",
+        "tokenizer_config.json",
+        "tokenizer.json",
+        "vocab.json",
+        "merges.txt",
+        "special_tokens_map.json",
+        "chat_template.jinja",
+        "model.safetensors.index.json"
+      ],
+      "asset_sha256": {
+        "configuration_spark.py": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+        "modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+        "generation_config.json": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+        "tokenizer_config.json": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "tokenizer.json": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "vocab.json": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+        "merges.txt": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "special_tokens_map.json": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "chat_template.jinja": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929"
+      },
+      "admission": "frozen base only; no full fine-tuning claim"
+    },
+    "official_fp8_adaptation_base": {
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "role": "official_fp8_adaptation_base",
+      "precision_kind": "official_native_fp8",
+      "storage": "fp8_compressed_tensors",
+      "transformers": "4.57.6",
+      "compressed_tensors": "0.16.0",
+      "config_sha256": "2f0a76065de1488dbb1576389e7cd37e28ac77c52fc84f522a5ce4a824da9fb2",
+      "parameter_elements": 4112079360,
+      "quantized_parameter_elements": 3774873600,
+      "quantization_fingerprint": "792a878136ace20b770c14d7bc378493893bfddfd5b8dcef19fe811ab4e0dc76",
+      "scale_tensor_count": 180,
+      "scale_tensor_elements": 1142784,
+      "shards": [
+        {
+          "filename": "model.safetensors",
+          "bytes": 4451626120,
+          "sha256": "f92114bf9af5588e0bcbc4fe1c4a0420fa17bba58199cb8b6cf1f3564e664be9"
+        }
+      ],
+      "required_assets": [
+        "config.json",
+        "configuration_spark.py",
+        "modeling_spark.py",
+        "generation_config.json",
+        "tokenizer_config.json",
+        "tokenizer.json",
+        "vocab.json",
+        "merges.txt",
+        "special_tokens_map.json",
+        "chat_template.jinja"
+      ],
+      "asset_sha256": {
+        "configuration_spark.py": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+        "modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+        "generation_config.json": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+        "tokenizer_config.json": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "tokenizer.json": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "vocab.json": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+        "merges.txt": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "special_tokens_map.json": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "chat_template.jinja": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929"
+      },
+      "admission": "refused on MPS: float8_e4m3fn storage and activation quantization are unsupported; never substitute a derivative"
+    },
+    "dequantized_fp8_derivative": {
+      "repo_id": "replica/spark-x2.6-4b-dequantized-fp8-v1",
+      "revision": "derivative-1",
+      "role": "dequantized_fp8_derivative",
+      "precision_kind": "dequantized_fp8_derivative",
+      "parent": "official_fp8_adaptation_base",
+      "storage": "bf16",
+      "transformers": "4.57.1",
+      "compressed_tensors": null,
+      "derivative_root": "checkpoints/spark_fp8_derivative_v1",
+      "manifest_name": "derivative_manifest.json",
+      "max_derivatives": 1,
+      "derivative_index": 1,
+      "activation_semantics": "BF16/FP32 activations with no per-token F8 quantization; this is not the official FP8 forward semantics",
+      "dequantization_formula": "weight_bf16 = round_bf16(e4m3fn_to_f32(stored_byte) * weight_scale[output_channel])",
+      "equivalent_to_bf16_release": false,
+      "required_assets": [
+        "config.json",
+        "configuration_spark.py",
+        "modeling_spark.py",
+        "generation_config.json",
+        "tokenizer_config.json",
+        "tokenizer.json",
+        "vocab.json",
+        "merges.txt",
+        "special_tokens_map.json",
+        "chat_template.jinja"
+      ],
+      "asset_sha256": {
+        "configuration_spark.py": "02218597240490f490659b184052db940b08163ff9c3af7b7e59323f6f963722",
+        "modeling_spark.py": "9cf0d1ad2b54b9f7088792779ddd8b5cb4d4fe63bfea054da7f2dd16362bcaf4",
+        "generation_config.json": "804a5276a9d237600688267dd2bf6f9d4129ec21faf417f870d5d52b32ad9e6c",
+        "tokenizer_config.json": "57b385dcc2ad031aef4a3786e97cd9a832ecb839cb27ed2cd829d627c90e1bfd",
+        "tokenizer.json": "710cce15cf3565674c499f9413997c6e8101f2bdd96245cff8f0311fb501248c",
+        "vocab.json": "9f42cb7e7af5afe27cae2337d272d60b5659e10143ef4bb952f642b847916fe1",
+        "merges.txt": "b06fc88940ae6a20f71142f06304c12547f58ab52c175e56af12a38c3dc62f36",
+        "special_tokens_map.json": "48a257e3f5f20a004e7c30482a70ae19ae7d9cf713144f2a1394ba20af8c3cb5",
+        "chat_template.jinja": "480576bd2ef80726a0dba6406d72ca37f4f4f9ca747c7f1c8d159dbdf40f6929"
+      },
+      "admission": "explicitly labelled derivative; new artifact/config identity; never loaded as official native FP8"
+    }
+  },
+  "qualification": {
+    "prompts": [
+      {
+        "id": "q_primary_colors",
+        "text": "Name three primary colors."
+      },
+      {
+        "id": "q_arithmetic",
+        "text": "What is 17 + 26? Answer with the number only."
+      },
+      {
+        "id": "q_sky",
+        "text": "Explain why the sky appears blue in one sentence."
+      },
+      {
+        "id": "q_exact_ready",
+        "text": "Return the word ready and nothing else."
+      }
+    ],
+    "prompt_set": "source-independent frozen text prompts; no dataset/heldout access",
+    "access_order": ["frozen_prompt_set", "development_smoke", "no_heldout_role_materialized"],
+    "heldout_access": "forbidden; the heldout/audit role is never opened, including after a development-stage failure",
+    "thinking_modes": ["none", "low", "high"],
+    "smoke_max_new_tokens": 8,
+    "declared_generation_budgets": [512, 2048],
+    "generation_in_this_plan": "smoke only; declared budgets are not executed or claimed",
+    "greedy": true,
+    "parity": {
+      "projector_initialization": "zero",
+      "require_exact_logits": true,
+      "perturbation_scale": 0.05,
+      "require_logit_change_after_perturbation": true
+    },
+    "input_gradients": {
+      "decoder_no_grad": false,
+      "require_projector_input_connected": true,
+      "require_all_new_gradients_finite": true,
+      "require_at_least_one_new_nonzero_gradient": true,
+      "require_sliding_and_full_traced": true,
+      "require_base_stamp_unchanged": true
+    },
+    "single_update": {
+      "optimizer": "adamw_fused",
+      "implementation": "replica_lab.optimizers.NativeFusedAdamW",
+      "steps": 1,
+      "new_lr": 0.0002,
+      "base_lr": 0.0,
+      "weight_decay": 0.0,
+      "seed": 20261026,
+      "require_named_delta": true,
+      "require_finite_parameters": true,
+      "require_base_digest_unchanged": true,
+      "no_fallback": true
+    },
+    "export_reload": {
+      "artifact": "extension-only tensors plus base identity",
+      "contains_base_weights": false,
+      "base_saved": false,
+      "optimizer_saved": false,
+      "fresh_process": true,
+      "rtol": 1e-05,
+      "atol": 1e-06,
+      "require_exact_greedy_tokens": true,
+      "reject_stale_base": true
+    }
+  },
+  "extension": {
+    "projector_in_dim": 2560,
+    "projector_hidden_dim": 1024,
+    "projector_out_dim": 2560,
+    "projector_layer": 3,
+    "zero_init_output": true,
+    "memory_ports": [11, 23],
+    "memory_size": 256,
+    "port_heads": 4,
+    "ports_default": "disabled for native parity; enabled only for the gradient/export stage after parity is recorded",
+    "port_status": "hypothesis; enabling changes the experimental identity"
+  },
+  "resources": {
+    "driver_limit_bytes": 53687091200,
+    "swap_growth_limit_bytes": 536870912,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "remote_code_executed": "sealed local source only",
+    "native_jobs_at_once": 1,
+    "cpu_fallback": false,
+    "stop_evidence": [
+      "profile_samples.jsonl with mps_driver_bytes",
+      "profile_summary.json",
+      "guard report from scripts/run_capacity_preflight.py",
+      "explicit stop_reason or completed_within_declared_sampled_limits"
+    ]
+  },
+  "storage_policy": {
+    "spark_specific_budget_bytes": 42949672960,
+    "official_payload_bytes": 12675818528,
+    "max_derivative_bytes": 8600000000,
+    "max_derivatives": 1,
+    "derivative_root": "checkpoints/spark_fp8_derivative_v1",
+    "minimum_free_bytes_before_stage": 10737418240,
+    "full_base_saves_during_qualification": false,
+    "extension_only_qualification_artifacts": true,
+    "retain_failed_evidence": true,
+    "delete_prior_evidence": false,
+    "retention": "Keep both official source snapshots, the single derivative, extension-only qualification outputs and raw failure logs. Never delete earlier reports or user evidence. No repeated derivative variants or full-base checkpoint copies during qualification."
+  },
+  "claims": {
+    "native_execution": false,
+    "training_claimed": false,
+    "fp8_training_claimed": false,
+    "capability_claim": "none",
+    "heldout_access": "forbidden"
+  }
+}

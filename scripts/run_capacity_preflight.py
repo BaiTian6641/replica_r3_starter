@@ -80,7 +80,7 @@ def main():
                                                  "run_memory_update_dynamics.py",
                                                  "run_memory_causal_refresh.py",
                                                  "run_memory_causal_fresh.py", "run_memory_bank_value.py",
-                                                 "run_memory_bank_readout_v2.py", "run_nested_text.py", "run_vision_collapse_diagnostic.py",
+                                                 "run_memory_bank_readout_v2.py", "run_nested_text.py", "qualify_spark2_5.py", "run_vision_collapse_diagnostic.py",
                                                  "run_m3_restart.py",
                                                  "eval_m3_retention.py",
                                                  "run_vision_overfit.py",
