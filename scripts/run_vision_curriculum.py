@@ -192,6 +192,7 @@ class Guard:
         return {"policy": asdict(self.capacity.policy),
                 "baseline": dict(self.capacity.baseline),
                 "peak_driver_bytes": self.driver_peak,
+                "driver_peak": self.driver_peak,
                 "samples": len(self.events),
                 "events": self.events[-64:],
                 "stop_reason": self.capacity.stop_reason,
@@ -1492,8 +1493,19 @@ def execute_reload(args, protocol, protocol_sha, dataset):
             "guard": guard.report(),
             "packages": environment_report(),
         }
+        report["payload_sha256"] = fingerprint(
+            {key: value for key, value in report.items()
+             if key != "payload_sha256"})
         validate_reload_report(report, prior, protocol)
         dump(output / "reload_report.json", report)
+        canonical = run / "reload_report.json"
+        if canonical.exists():
+            require(canonical.read_bytes()
+                    == (output / "reload_report.json").read_bytes(),
+                    "Canonical reload report differs")
+        else:
+            _write_verified(canonical,
+                            (output / "reload_report.json").read_text())
         session.ledger.close()
         return report
 
@@ -1512,8 +1524,8 @@ def verify_run_artifacts(run: Path, report: Mapping[str, Any]) -> None:
 
 
 def find_reload_report(run: Path) -> Path:
-    for candidate in (run / "reload_report/reload_report.json",
-                      run / "reload_report.json"):
+    for candidate in (run / "reload_report.json",
+                      run / "reload_report/reload_report.json"):
         if candidate.is_file():
             return candidate
     raise VisionCurriculumError(
@@ -1562,6 +1574,9 @@ def execute_score(args, protocol, protocol_sha, dataset):
     reload_path = find_reload_report(run)
     reload_report = json.loads(reload_path.read_text())
     validate_reload_report(reload_report, prior, protocol)
+    reload_report_sha256 = sha256_file(reload_path)
+    verify_run_artifacts(
+        run, {"artifacts": {"reload_report.json": reload_report_sha256}})
     from replica_lab.contracts import canonical_json, fingerprint
     verify_run_artifacts(run, prior)
     dev_cases = read_jsonl(run / "dev_cases.jsonl")
@@ -1641,7 +1656,8 @@ def execute_score(args, protocol, protocol_sha, dataset):
         generations=generations, caption_labels=caption_labels,
         caption_generations=caption_generations,
         retention={"measured_correct": retention["correct"],
-                   "token_parity": token_parity})
+                   "token_parity": token_parity},
+        reload_report_sha256=reload_report_sha256)
     validate_score_report(score, protocol)
     output = ensure_fresh_directory(args.output)
     dump(output / "score_report.json", score)
@@ -2010,8 +2026,13 @@ def execute_finalize(args, protocol, protocol_sha, dataset):
                             "caption": final_caption})
         dump(output / "arm_comparison.json", comparison)
         written = write_finalize_receipt(paths, final_receipt)
-        require(sha256_file(paths["external_receipt"])
-                == written["external_receipt"]
+        require(written["external_receipt"]["path"]
+                == str(paths["external_receipt"])
+                and written["audit_receipt"]["path"]
+                == str(paths["audit_receipt"])
+                and sha256_file(paths["external_receipt"])
+                == written["external_receipt"]["sha256"]
+                == written["audit_receipt"]["sha256"]
                 == sha256_file(paths["audit_receipt"]),
                 "Final receipt write differs")
         session.ledger.close()
@@ -2101,7 +2122,8 @@ def main(argv=None):
                       "audit_learned_quality_pass":
                           receipt["audit"]["learned_quality_pass"],
                       "external_receipt":
-                          receipt["reservations"]["external"]["path"]}))
+                          receipt["reservations"]["external"]["path"].replace(
+                              ".reserve.json", ".json")}))
     return 0
 
 

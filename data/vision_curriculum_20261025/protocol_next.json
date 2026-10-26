@@ -1,0 +1,3400 @@
+{
+  "action_limits": {
+    "core_impl": "none",
+    "enabled_branches": [
+      "memory"
+    ],
+    "enabled_ports": [],
+    "host_actions": "none",
+    "success_claims": "none"
+  },
+  "arms": {
+    "arms": {
+      "adamw_control": {
+        "arm": "adamw_control",
+        "declared_lr": 0.0003,
+        "groups": [
+          {
+            "algorithm": "adamw",
+            "betas": [
+              0.9,
+              0.999
+            ],
+            "eps": 1e-08,
+            "group_name": "vision_projector_adamw_control",
+            "lr": 0.0003,
+            "lr_role": "declared_tuned_lr",
+            "param_names": [
+              "vision_projector.0.weight",
+              "vision_projector.0.bias",
+              "vision_projector.1.weight",
+              "vision_projector.1.bias",
+              "vision_projector.3.weight",
+              "vision_projector.3.bias"
+            ],
+            "weight_decay": 0.01
+          }
+        ],
+        "lr_probe_candidates": [
+          0.0001,
+          0.0003
+        ],
+        "route": "all_fp32_adamw"
+      },
+      "muon8bit": {
+        "arm": "muon8bit",
+        "declared_lr": 0.0001,
+        "groups": [
+          {
+            "algorithm": "muon8bit",
+            "block_size": 2048,
+            "group_name": "vision_projector_muon8bit",
+            "lr": 0.0001,
+            "lr_role": "matrix_route",
+            "momentum": 0.95,
+            "ns_steps": 5,
+            "param_names": [
+              "vision_projector.1.weight",
+              "vision_projector.3.weight"
+            ],
+            "weight_decay": 0.01
+          },
+          {
+            "algorithm": "adamw",
+            "betas": [
+              0.9,
+              0.999
+            ],
+            "eps": 1e-08,
+            "group_name": "vision_projector_adamw",
+            "lr": 0.0001,
+            "lr_role": "fp32_adamw_aux",
+            "param_names": [
+              "vision_projector.0.weight",
+              "vision_projector.0.bias",
+              "vision_projector.1.bias",
+              "vision_projector.3.bias"
+            ],
+            "weight_decay": 0.01
+          }
+        ],
+        "lr_probe_candidates": [
+          0.0001,
+          0.0003
+        ],
+        "route": "muon8bit_matrix_plus_fp32_adamw_aux"
+      }
+    },
+    "equal_compute": {
+      "examples_per_arm": 512,
+      "probe_examples_per_arm": 64,
+      "probe_updates_per_arm": 32,
+      "response_only_labels": true,
+      "same_initialization_for_both_arms": true,
+      "same_schedule_for_both_arms": true,
+      "updates_per_arm": 128
+    },
+    "format": "replica.vision_curriculum_arms.v1",
+    "frozen_prefixes": [
+      "base.",
+      "record_writer.",
+      "memory_ports.",
+      "sense_ports.",
+      "reranker."
+    ],
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "init_seed": 17,
+    "projector_hidden": 4096,
+    "projector_parameter_count": 11542016,
+    "projector_tensors": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ],
+    "seed": 17,
+    "trainable_scope": "vision_projector.",
+    "version": "replica.vision_curriculum.v1"
+  },
+  "audit_policy": {
+    "external_final_untouched": true,
+    "refuse_repeat_finalize": true,
+    "requires_frozen_dev_report_sha256": true,
+    "score_once": true
+  },
+  "checkpoint_policy": {
+    "audit_scoring": "once",
+    "base_copies": 0,
+    "export": "strict_extension_v4",
+    "keep_arms": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "optimizer_state_saved": false,
+    "policy": "one_final_extension_per_arm",
+    "probe_checkpoints": false,
+    "reload": "zero_update_fresh_process_bitwise",
+    "selection_freeze": "freeze_selected_checkpoint_before_audit"
+  },
+  "claims": {
+    "component_nonregression_separate": true,
+    "overall_baseline_eligible": false,
+    "perception_quality": false,
+    "scope": "staged_curriculum_engineering_and_learned_quality_only",
+    "semantic_quality": false
+  },
+  "config_sha256": "8b5c08755d156aa647dd82fd1cec20a82960436b0eb5c26bd2af2553239d1a1b",
+  "data": {
+    "counts": {
+      "audit_cases": 120,
+      "dev_cases": 240,
+      "dev_procedural_rows": 240,
+      "diagnostic_source": {
+        "development": 120,
+        "train": 120
+      },
+      "external": {
+        "development": 7,
+        "final_sealed": 8,
+        "train": 15
+      },
+      "external_caption_rows": 7,
+      "probe_cases": 24,
+      "probe_examples": 128,
+      "probe_updates": 64,
+      "procedural": {
+        "asset_bytes": 118831,
+        "assets": 384,
+        "model_rows": 384,
+        "pairs": 192,
+        "split_assets": {
+          "audit": 120,
+          "dev": 120,
+          "train": 144
+        },
+        "split_model_rows": {
+          "audit": 120,
+          "dev": 120,
+          "train": 144
+        },
+        "split_worlds": {
+          "audit": 60,
+          "dev": 60,
+          "train": 72
+        },
+        "task_histogram": {
+          "abstain": 72,
+          "color": 72,
+          "count": 72,
+          "presence": 72,
+          "shape": 24,
+          "spatial": 72
+        },
+        "unknown_worlds": {
+          "audit": 12,
+          "dev": 12,
+          "train": 12
+        },
+        "verifier_cases": 384,
+        "verifier_scenes": 384,
+        "worlds": 192
+      },
+      "schedule_examples": 512,
+      "schedule_updates": 128,
+      "stage_a_examples": 15,
+      "stage_b_examples": 264,
+      "train_examples": 279
+    },
+    "files": {
+      "arms.json": {
+        "path": "arms.json",
+        "sha256": "3914734deb948a065eaa980265478ee68482eed9f0bef00af30a1c8135a24a00"
+      },
+      "diagnostic/dev/images/vd2-w120-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w120-p0-a.png",
+        "sha256": "4697298e290d77f571a73cff3ede57f668807e96ce768ebb6770e98126991836"
+      },
+      "diagnostic/dev/images/vd2-w120-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w120-p0-b.png",
+        "sha256": "df92f8ec0bdc20d4be81620112a27a1fd6ae737d88149bfccae3e1d46e5397c3"
+      },
+      "diagnostic/dev/images/vd2-w121-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w121-p0-a.png",
+        "sha256": "892e92171eabf7bee8d12c13eb2d7637a0a8d040cadcae44d934196e70e19852"
+      },
+      "diagnostic/dev/images/vd2-w121-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w121-p0-b.png",
+        "sha256": "1d9c7c72c8f04a7d1fe3044030346d2a4591094da7a8cb891c2394e1f96371fa"
+      },
+      "diagnostic/dev/images/vd2-w122-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w122-p0-a.png",
+        "sha256": "4d25672d2033b4393bbb264decd8d9a825065a94db242ddc0e0ab034e432f1f5"
+      },
+      "diagnostic/dev/images/vd2-w122-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w122-p0-b.png",
+        "sha256": "ee3752d8fb7c0bccf94e6dc49330881557bcfd8f0458c64d086bef5bcd44556c"
+      },
+      "diagnostic/dev/images/vd2-w123-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w123-p0-a.png",
+        "sha256": "39678253f4826e52ef458d58f611473ea2c7be60b316f4f77005815fe15cab94"
+      },
+      "diagnostic/dev/images/vd2-w123-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w123-p0-b.png",
+        "sha256": "a0396e1f8e27a462bace93722f7b845d54baac4ce9c7976b1cb889a488c3bafc"
+      },
+      "diagnostic/dev/images/vd2-w124-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w124-p0-a.png",
+        "sha256": "77d396b589d376dbeb1deede08eeef232ed52f81e71f2c14f959a174832d126d"
+      },
+      "diagnostic/dev/images/vd2-w124-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w124-p0-b.png",
+        "sha256": "e2827a784930a340171a0558a10bd7aaefb35f8d4921561a10709f25c0686df2"
+      },
+      "diagnostic/dev/images/vd2-w125-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w125-p0-a.png",
+        "sha256": "e7a1e871a299b1835d2ab3136348cdcd6c937f35ddef8dd1b20b0ed33c7ac9da"
+      },
+      "diagnostic/dev/images/vd2-w125-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w125-p0-b.png",
+        "sha256": "b7f44bdddb5998670ebcfe8d453dee88a6fe9e9ce29aaa51e2584f55e6fbdf84"
+      },
+      "diagnostic/dev/images/vd2-w126-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w126-p0-a.png",
+        "sha256": "d1cc5a335a623be525bd2a433dda852300995d3ea752d84fc7330bd00f6aa268"
+      },
+      "diagnostic/dev/images/vd2-w126-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w126-p0-b.png",
+        "sha256": "cee415c1e4be96e476d92225206def703d22d968d0e4417aa0e6eefe8119495b"
+      },
+      "diagnostic/dev/images/vd2-w127-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w127-p0-a.png",
+        "sha256": "92c8edd28ce5f2d493db2d19e6d778b0429d0393959b57e292f88a576531a388"
+      },
+      "diagnostic/dev/images/vd2-w127-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w127-p0-b.png",
+        "sha256": "4a07d529e066dd711f2733eacae0553ca749ac04ecb6c26b0fb0bbb986b24b10"
+      },
+      "diagnostic/dev/images/vd2-w128-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w128-p0-a.png",
+        "sha256": "1af6472c3de37ec2a7c219dfa4dec77faa6ed4f2d1317a0b8e75647c1e8458f6"
+      },
+      "diagnostic/dev/images/vd2-w128-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w128-p0-b.png",
+        "sha256": "003afba7634c8f5d0f23f9763cd46de84aebe477ea8f610d1b1d02341b22b951"
+      },
+      "diagnostic/dev/images/vd2-w129-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w129-p0-a.png",
+        "sha256": "1599fbbd5ef28d225bae6d515dae5eaf49d7a833f6a95ebf6f2cae6f2df4706e"
+      },
+      "diagnostic/dev/images/vd2-w129-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w129-p0-b.png",
+        "sha256": "cdf2a5ca05a4a601585771c8cf2de05faef27c4ae9f3d5e31ddfff678487ac1c"
+      },
+      "diagnostic/dev/images/vd2-w130-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w130-p0-a.png",
+        "sha256": "91a19745f33e6c135be50ce6ca461585bf574caf9d0919d647d02838934ed91a"
+      },
+      "diagnostic/dev/images/vd2-w130-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w130-p0-b.png",
+        "sha256": "da544593fe38babe58be519feaf68ccab7fc9c843ddf885898013c83026d94d8"
+      },
+      "diagnostic/dev/images/vd2-w131-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w131-p0-a.png",
+        "sha256": "736b02b3264f1c83eb38f49343c455d7b2cc73aea42f8ae1ee30679bf4e4e702"
+      },
+      "diagnostic/dev/images/vd2-w131-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w131-p0-b.png",
+        "sha256": "acdf702d2e9fd37adb8b45e6b45b61347744318a2b665c5ec23158599796d71b"
+      },
+      "diagnostic/dev/images/vd2-w132-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w132-p0-a.png",
+        "sha256": "d4612b5d046be99635904aa4e126de86363f10cbc97ceaaf0c0d890b4e646b39"
+      },
+      "diagnostic/dev/images/vd2-w132-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w132-p0-b.png",
+        "sha256": "5af20ab4dd30a11b0a52d5430f0c688ffde8a720c0cbc57cda4a0323731207b0"
+      },
+      "diagnostic/dev/images/vd2-w133-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w133-p0-a.png",
+        "sha256": "e62cecc62f0b7c48fb2da13289b706ac3f51f69fca682b923dc67bbf981f1bdd"
+      },
+      "diagnostic/dev/images/vd2-w133-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w133-p0-b.png",
+        "sha256": "fc2e951cf0ba7e0cb723aea31c505ce1d13f925bed251bc9ed60f62081ad1ae3"
+      },
+      "diagnostic/dev/images/vd2-w134-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w134-p0-a.png",
+        "sha256": "096bbf33481a7769bdc72ca7f2cc2e45edb72fbe7cdaab11a08a33ea38b46595"
+      },
+      "diagnostic/dev/images/vd2-w134-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w134-p0-b.png",
+        "sha256": "885646d20bf64b3dec2f565045e224ec8280422a4e12a3c43ff47263e8ff8085"
+      },
+      "diagnostic/dev/images/vd2-w135-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w135-p0-a.png",
+        "sha256": "da2ced1cdc401f2f863f6f5dc194c7dc0d821175482fd39a1b400d38ca2e3cc6"
+      },
+      "diagnostic/dev/images/vd2-w135-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w135-p0-b.png",
+        "sha256": "00dc9e07f8dee7fab3c6cd8a60121642183ccf3c803a32dc7a086e8d96643df5"
+      },
+      "diagnostic/dev/images/vd2-w136-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w136-p0-a.png",
+        "sha256": "a2f5b77dba316b7d25da76a9bee017dfe952db5773aaa0a4137103097f2157ce"
+      },
+      "diagnostic/dev/images/vd2-w136-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w136-p0-b.png",
+        "sha256": "e25fe00e54903fc3541750266a2eace72f10861c9ba446e67f2e4fd88478891e"
+      },
+      "diagnostic/dev/images/vd2-w137-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w137-p0-a.png",
+        "sha256": "a60cc3694de4aaabf472ecbe4fb796810d4030ce1c7a625dbbd6a073fe5234d6"
+      },
+      "diagnostic/dev/images/vd2-w137-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w137-p0-b.png",
+        "sha256": "2259ffa6f4ad237847bee0f2396211540bd0e60b87305896bddc402a76620cc7"
+      },
+      "diagnostic/dev/images/vd2-w138-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w138-p0-a.png",
+        "sha256": "11f7aee0c362866d17b29ea8bb46ee60a906a90365e8a6d65abee15763f878f0"
+      },
+      "diagnostic/dev/images/vd2-w138-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w138-p0-b.png",
+        "sha256": "3bd54e8d65a2a4f8503285603ebf1f222207d149b3753f3421809212f65ffd27"
+      },
+      "diagnostic/dev/images/vd2-w139-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w139-p0-a.png",
+        "sha256": "8e7fd960b7739cf77c74ef6d28f85255c8fc689a47960ba9e30e954494f7b46d"
+      },
+      "diagnostic/dev/images/vd2-w139-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w139-p0-b.png",
+        "sha256": "b06bbdc6114055f2c5d469e0d03fc1ef4bafebf048821ca80892a92db2b08fc6"
+      },
+      "diagnostic/dev/images/vd2-w140-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w140-p0-a.png",
+        "sha256": "91bf3b5d3f933c974f2b061d3ce680a51afd9177985666523100ee9c9010e721"
+      },
+      "diagnostic/dev/images/vd2-w140-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w140-p0-b.png",
+        "sha256": "5ee686ee42d42079a737c8b629bebc10ea9a8444cd94159913aa945d1ff2252b"
+      },
+      "diagnostic/dev/images/vd2-w141-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w141-p0-a.png",
+        "sha256": "eb6420c9266ae728527c14787ea65404b1088c5438a38c069f7d8f99a7ec26b5"
+      },
+      "diagnostic/dev/images/vd2-w141-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w141-p0-b.png",
+        "sha256": "1ddfbc32559dcfbf0b92e60fcd4203531a035505aa0409b399c78346bbadd105"
+      },
+      "diagnostic/dev/images/vd2-w142-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w142-p0-a.png",
+        "sha256": "e3f22a744f83cdc7602a299d5b45b1183654e0839f555c95b7ee4fbbf0b7a25b"
+      },
+      "diagnostic/dev/images/vd2-w142-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w142-p0-b.png",
+        "sha256": "2d0d4ec21b4c368a1355f35ed26b654f4770f866d2913becb00382bb4acf4bd7"
+      },
+      "diagnostic/dev/images/vd2-w143-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w143-p0-a.png",
+        "sha256": "1995dcc29468868f86e8ac6125f5ee528df6c6c6751f1391e2a04d792d5c7d19"
+      },
+      "diagnostic/dev/images/vd2-w143-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w143-p0-b.png",
+        "sha256": "5ebe03c8db40b2f2d141c5d722a018abf2e729dc49e4f9e9b23e65da8ee5d2d4"
+      },
+      "diagnostic/dev/images/vd2-w144-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w144-p0-a.png",
+        "sha256": "4cdec878f40476cc9d878e06343b72d8923ec0f24b811c4867dc27678bb25eb3"
+      },
+      "diagnostic/dev/images/vd2-w144-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w144-p0-b.png",
+        "sha256": "8914ff066ff946e28e9dcaa3fc7e108f6cb4364949427c9f0899b7e7bf7dc4f4"
+      },
+      "diagnostic/dev/images/vd2-w145-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w145-p0-a.png",
+        "sha256": "c37828a4c04afe5f87604cef5963c9fb7d104afbddc63913501c83c0a5066cb3"
+      },
+      "diagnostic/dev/images/vd2-w145-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w145-p0-b.png",
+        "sha256": "1f73efa271ab1c7f942f7093a42594521f71db517955dacc06dd5875b76f459a"
+      },
+      "diagnostic/dev/images/vd2-w146-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w146-p0-a.png",
+        "sha256": "f1f4119a0d2ac5f6c7a499d75ecf0f7a82d20997c801022231d1454e0d75624f"
+      },
+      "diagnostic/dev/images/vd2-w146-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w146-p0-b.png",
+        "sha256": "63f81826bb2c3cf7f771cef59e63cf0bd12a4ef4d7646f9d4dd83c03118c6f18"
+      },
+      "diagnostic/dev/images/vd2-w147-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w147-p0-a.png",
+        "sha256": "09cd7236ad11980db5a19790d9785b6d1edba191809f0e07e1332128e2338588"
+      },
+      "diagnostic/dev/images/vd2-w147-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w147-p0-b.png",
+        "sha256": "beddba291c0c1a16b1db113f3a6c09459150de9ab500efd4f68c4096c8fe25d5"
+      },
+      "diagnostic/dev/images/vd2-w148-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w148-p0-a.png",
+        "sha256": "d2bf6b74ef4284fa769407e230e63636a91558fd6797612d595b3967cecea737"
+      },
+      "diagnostic/dev/images/vd2-w148-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w148-p0-b.png",
+        "sha256": "e30d6316ea11e4eb350cd9e51d77d1af9eb5b83a01a7e9f731a1e0832c8f2287"
+      },
+      "diagnostic/dev/images/vd2-w149-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w149-p0-a.png",
+        "sha256": "189737900caf73a3a21097cedf888452c28e36fec704521a55ca12625a8c7934"
+      },
+      "diagnostic/dev/images/vd2-w149-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w149-p0-b.png",
+        "sha256": "0b39b0d14030b59fb13ffef873209c7ac4596bded7283aefd763eca0dae0972e"
+      },
+      "diagnostic/dev/images/vd2-w150-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w150-p0-a.png",
+        "sha256": "85bd4280bb50a2f2ce71b811d5e4424123bf98305e26112bca5af16e35c54733"
+      },
+      "diagnostic/dev/images/vd2-w150-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w150-p0-b.png",
+        "sha256": "8b763e0ef4323ebf763a8a650fe380c69d5bd268123495fcb4bbe279683c7f14"
+      },
+      "diagnostic/dev/images/vd2-w151-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w151-p0-a.png",
+        "sha256": "245029d9537dba9e5f63d0ffe2f929515aee3d5486fa0a91ada366ce0d1ed2b3"
+      },
+      "diagnostic/dev/images/vd2-w151-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w151-p0-b.png",
+        "sha256": "9c2d861792d2cec91621a896fe4c1da902e13e7f5d2be2f86e3179f5f5f5203f"
+      },
+      "diagnostic/dev/images/vd2-w152-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w152-p0-a.png",
+        "sha256": "2225c86b14f17e7f0e357941cc206414bf62a25557e8ac893e27ad414d78fa40"
+      },
+      "diagnostic/dev/images/vd2-w152-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w152-p0-b.png",
+        "sha256": "6c3acbd869858ee896124f5ae34c471a5d471316c011b9f775dd48b6159e648c"
+      },
+      "diagnostic/dev/images/vd2-w153-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w153-p0-a.png",
+        "sha256": "2d4728895dcf9c2861fdcb5409d0e22d0e30394e0df8f227132587ec2c5ce145"
+      },
+      "diagnostic/dev/images/vd2-w153-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w153-p0-b.png",
+        "sha256": "99161a177150c9d9452818c80e95129a8f8415306f4559b544dead4a50401041"
+      },
+      "diagnostic/dev/images/vd2-w154-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w154-p0-a.png",
+        "sha256": "a692aa16e49c145e01018d6125f8a7a059c10000ea5df56aab56848ecf35016b"
+      },
+      "diagnostic/dev/images/vd2-w154-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w154-p0-b.png",
+        "sha256": "abe5fa6dd3c9e11fafad8ee5fa026a3abb1cb4d42e815a0dd780bef774632aac"
+      },
+      "diagnostic/dev/images/vd2-w155-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w155-p0-a.png",
+        "sha256": "16ac809edf4ed56fda4b6711fe77acf2716c772b36bacb5ad8391d2e5abdf733"
+      },
+      "diagnostic/dev/images/vd2-w155-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w155-p0-b.png",
+        "sha256": "4a570a2ae189af6c83115f1e619d4ec4d985fee071561d0a246ea6b3eaf4d19f"
+      },
+      "diagnostic/dev/images/vd2-w156-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w156-p0-a.png",
+        "sha256": "7b9e91c61c8c1a2bb5bf8295d289b1f330c47c6124595d23b0a12c6f9c87df1b"
+      },
+      "diagnostic/dev/images/vd2-w156-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w156-p0-b.png",
+        "sha256": "d9e5690c8d43fc75ccd76de96df94ec91a31cd3d6c4e6e80a36667f0b84e44f1"
+      },
+      "diagnostic/dev/images/vd2-w157-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w157-p0-a.png",
+        "sha256": "8237a7ea548461330df0a67564bc94ef8a41b15323955b7dda45b6dbccbcc673"
+      },
+      "diagnostic/dev/images/vd2-w157-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w157-p0-b.png",
+        "sha256": "d67e3285781c303529261689b9916ccbfcd162002cc67cf3b4f5da2da524e924"
+      },
+      "diagnostic/dev/images/vd2-w158-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w158-p0-a.png",
+        "sha256": "4e99a51fc9d19ae29d3f8ae748325429982b05cd959dc354ba2da74a04255eca"
+      },
+      "diagnostic/dev/images/vd2-w158-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w158-p0-b.png",
+        "sha256": "050ccf01d7903083391b57937da7f9c7e1896cf4c4e79fa887091bd225b6db60"
+      },
+      "diagnostic/dev/images/vd2-w159-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w159-p0-a.png",
+        "sha256": "75462871df128886b795ee5bfe333035210e11512743d9a484baf4faf26de915"
+      },
+      "diagnostic/dev/images/vd2-w159-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w159-p0-b.png",
+        "sha256": "7096b452157baea95f9717bc1dcf315dfb9b7fbb7c53f2bc8cca1acc7367cd90"
+      },
+      "diagnostic/dev/images/vd2-w160-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w160-p0-a.png",
+        "sha256": "662f4576948550ad47ea2689b3842506ddcebd53f24061315088702016700a8f"
+      },
+      "diagnostic/dev/images/vd2-w160-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w160-p0-b.png",
+        "sha256": "3d8bb6796a92b60207d93530954bbee7dc860989eddb79ce3a6ff4624fab31da"
+      },
+      "diagnostic/dev/images/vd2-w161-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w161-p0-a.png",
+        "sha256": "751d9f0332ab5fb8c94c0035dbc5fd87148115510c75b6691f79398032b4e7ac"
+      },
+      "diagnostic/dev/images/vd2-w161-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w161-p0-b.png",
+        "sha256": "ee86010a7bfb69daf9e9b070f49e2f59f18bea9fbea66aaae6524bcb739dbcc7"
+      },
+      "diagnostic/dev/images/vd2-w162-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w162-p0-a.png",
+        "sha256": "bac289b5b9f77ba624d3c0a41b9dcdfc2c4617bb2318a611a4fd7210eac31baf"
+      },
+      "diagnostic/dev/images/vd2-w162-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w162-p0-b.png",
+        "sha256": "c00c022fc51bd163c86e96ed810cde6bffc36ed64778c648adde1715f694921b"
+      },
+      "diagnostic/dev/images/vd2-w163-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w163-p0-a.png",
+        "sha256": "d2a871cb9ee3cbe313f7d7edd0ba6f2444eac88dd4e25c1538357281b14c5029"
+      },
+      "diagnostic/dev/images/vd2-w163-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w163-p0-b.png",
+        "sha256": "bb80915d42ac108fd5d004fbe04b07ceecc2c7e8477c633e698a8278c2274685"
+      },
+      "diagnostic/dev/images/vd2-w164-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w164-p0-a.png",
+        "sha256": "b904ee80188aa0ba44dbb3bfac60b7f12fe5264a80715b01156cb2c4b943db04"
+      },
+      "diagnostic/dev/images/vd2-w164-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w164-p0-b.png",
+        "sha256": "020d6bd25b42f2f6d28042e1326c9e57ee61fcf22b87b4d51bad28b1c3121bfb"
+      },
+      "diagnostic/dev/images/vd2-w165-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w165-p0-a.png",
+        "sha256": "2af426ae82c11015e461573caadf90d7c7190e059687c86006369f79e6692a9b"
+      },
+      "diagnostic/dev/images/vd2-w165-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w165-p0-b.png",
+        "sha256": "7a17a7d9a4beb3fbf377c619eaafdf771241c81f3861ac481126b452f0c33c55"
+      },
+      "diagnostic/dev/images/vd2-w166-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w166-p0-a.png",
+        "sha256": "0ca5a5140af3b3868847248273162e4870539589324180c93f0c935ec5519156"
+      },
+      "diagnostic/dev/images/vd2-w166-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w166-p0-b.png",
+        "sha256": "cec1f8f0ee060c9c7a037a26f22668c0d923175451b4af78d27b94e43c661123"
+      },
+      "diagnostic/dev/images/vd2-w167-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w167-p0-a.png",
+        "sha256": "3bfba209b5fbeaf9790a348eee5da3fc882aeae9ede55b35133b6987d0a5c719"
+      },
+      "diagnostic/dev/images/vd2-w167-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w167-p0-b.png",
+        "sha256": "1d1f0fc1abdcbf5e5104ddee9616d14e5007782b1b9ac3fa5cac5431eb0c7552"
+      },
+      "diagnostic/dev/images/vd2-w168-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w168-p0-a.png",
+        "sha256": "423732e57a43fd4e7747c13e0dc9ef507b92d1578423916e0ac257d2f735c30f"
+      },
+      "diagnostic/dev/images/vd2-w168-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w168-p0-b.png",
+        "sha256": "6766fef0f19bff349af82147da3136e62764aef78f007536657670cad62295a9"
+      },
+      "diagnostic/dev/images/vd2-w169-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w169-p0-a.png",
+        "sha256": "5df0b7c6eaa00289a1b3125c5c53ac38723991df1efbbfc9f395ef95d3928ae8"
+      },
+      "diagnostic/dev/images/vd2-w169-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w169-p0-b.png",
+        "sha256": "e9c0ef271738fb7d05128a4042523ada6cc26beb6c799179b51fc496fc2a7bd7"
+      },
+      "diagnostic/dev/images/vd2-w170-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w170-p0-a.png",
+        "sha256": "988449191633e1e67320fe2d2565581d20f26576361ef4690f62e5472344755f"
+      },
+      "diagnostic/dev/images/vd2-w170-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w170-p0-b.png",
+        "sha256": "4b8280b0a4d5c9dda8f73405affbbd330e48953e6fbdc4aa30e1894861b4126e"
+      },
+      "diagnostic/dev/images/vd2-w171-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w171-p0-a.png",
+        "sha256": "fbc785594901c90f539eb85c26ab74cb6e20e3da9f7a7af959a7fa70a8207570"
+      },
+      "diagnostic/dev/images/vd2-w171-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w171-p0-b.png",
+        "sha256": "44d3e4fc9e53786ac7e505fa8bac25caf066912a5607c6ec7f274a22be7c4912"
+      },
+      "diagnostic/dev/images/vd2-w172-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w172-p0-a.png",
+        "sha256": "5786b3f864fa3f2c784f6be76ad5c96fd5c1797908afe003c7d6818516f6b503"
+      },
+      "diagnostic/dev/images/vd2-w172-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w172-p0-b.png",
+        "sha256": "b4c978d827dee49bab0f450e4dde9803a02d8ed4d766e573f604dfc83250b134"
+      },
+      "diagnostic/dev/images/vd2-w173-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w173-p0-a.png",
+        "sha256": "2e5e5886e47afa5ad2d3d5f11a204fab5f3cfedc78183350ffc2eb896328a664"
+      },
+      "diagnostic/dev/images/vd2-w173-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w173-p0-b.png",
+        "sha256": "f006358fe77aae61e9d089da52330e8a624e49408038b6f5a0606cfe33564540"
+      },
+      "diagnostic/dev/images/vd2-w174-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w174-p0-a.png",
+        "sha256": "23be2e32c879ecc2b02a0d584874d4c5b050f190389f4110260f513f4e2d4b04"
+      },
+      "diagnostic/dev/images/vd2-w174-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w174-p0-b.png",
+        "sha256": "e66e9d32587f07e38866fd427769b4dc461e2c53490949320891d81270c92b65"
+      },
+      "diagnostic/dev/images/vd2-w175-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w175-p0-a.png",
+        "sha256": "b4889cd59a1b656168fbfabc8c2988c98020c07931246a37038da242849a2960"
+      },
+      "diagnostic/dev/images/vd2-w175-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w175-p0-b.png",
+        "sha256": "b65749d81acd50261d881d43cbd9c1bd0ddbfb785100185821ac7917cc3676f0"
+      },
+      "diagnostic/dev/images/vd2-w176-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w176-p0-a.png",
+        "sha256": "73367f7fdc16aec528c0f55b836e4b453651ff16a927775fcbdbe77c64d34324"
+      },
+      "diagnostic/dev/images/vd2-w176-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w176-p0-b.png",
+        "sha256": "2867636afaf1f02e5fc3d6e793fd725d4764b481344d25124c1c02341af67d1b"
+      },
+      "diagnostic/dev/images/vd2-w177-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w177-p0-a.png",
+        "sha256": "ace14a46a569977298faaf5f19182f0a55d9f6d320462a24079989e39db45b92"
+      },
+      "diagnostic/dev/images/vd2-w177-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w177-p0-b.png",
+        "sha256": "a7b4d472bebc73ec2ef4ecb4913a89980b34d7609460321d58d59ecb861350c7"
+      },
+      "diagnostic/dev/images/vd2-w178-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w178-p0-a.png",
+        "sha256": "2b658dd22e129b16a458aa421c7158069f2cffb4a2ee603b4b0ad62a9a955003"
+      },
+      "diagnostic/dev/images/vd2-w178-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w178-p0-b.png",
+        "sha256": "bc479ff73f3b5b7e8e7e6d3909233063f5b4cba6469f2451c19a7328aebdd44c"
+      },
+      "diagnostic/dev/images/vd2-w179-p0-a.png": {
+        "path": "diagnostic/dev/images/vd2-w179-p0-a.png",
+        "sha256": "3f1e96b065ee72f174cad73e4610b3c195f5a57149cf1e1642441bc8d000e8c5"
+      },
+      "diagnostic/dev/images/vd2-w179-p0-b.png": {
+        "path": "diagnostic/dev/images/vd2-w179-p0-b.png",
+        "sha256": "9d435a01d0f933e5467592512274aff82b2ed3731d711824070fc9ed3674117c"
+      },
+      "diagnostic/train/images/vd2-w000-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w000-p0-a.png",
+        "sha256": "fdd1ed9ba9463d033a4dc7ede93242b1acca7aa8144009e3e6cb396d049c8fc8"
+      },
+      "diagnostic/train/images/vd2-w000-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w000-p0-b.png",
+        "sha256": "36657a147fa0676f864809a11d3e7c1bf6ef0db6d690c41b1104a221e4355359"
+      },
+      "diagnostic/train/images/vd2-w001-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w001-p0-a.png",
+        "sha256": "40f77396765d19d955fe9ec3543673b6767c2efffaff3b8af6062105c09c8b03"
+      },
+      "diagnostic/train/images/vd2-w001-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w001-p0-b.png",
+        "sha256": "b6576f6c98bc9f41b2afd3cd282de368f6f3c6ab57f8e676be911823c537a406"
+      },
+      "diagnostic/train/images/vd2-w002-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w002-p0-a.png",
+        "sha256": "3d447188ec73ef0d1c0e74e6d8346aad8cf37c7c5397a997d94b68a4b5ad9c06"
+      },
+      "diagnostic/train/images/vd2-w002-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w002-p0-b.png",
+        "sha256": "bbc3b5ba8daac6aeaa25115f3ba53e2c53c5298f8b7f67165aeb71ff06cd02c4"
+      },
+      "diagnostic/train/images/vd2-w003-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w003-p0-a.png",
+        "sha256": "9aebeeade7b74f57cdb01cbb38fdd3e300827ad1a33d89800a1a4dacfea3e9b2"
+      },
+      "diagnostic/train/images/vd2-w003-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w003-p0-b.png",
+        "sha256": "1768836f9e40902f92d79d6d009abb5927691366cc0073f6c3ddc9ff2c527165"
+      },
+      "diagnostic/train/images/vd2-w004-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w004-p0-a.png",
+        "sha256": "170ae18c224cadd7132a91e2d74d466b5ef866747c83908ddf816f59ac96e561"
+      },
+      "diagnostic/train/images/vd2-w004-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w004-p0-b.png",
+        "sha256": "96f766a80e86701c7a3bd1bd4461877dff10c8cb52c470c07ddb80b10fa7084a"
+      },
+      "diagnostic/train/images/vd2-w005-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w005-p0-a.png",
+        "sha256": "044f5a15920d546f2dcdd4bf969dee8e239aa6c242a6026c399b469170bbf32c"
+      },
+      "diagnostic/train/images/vd2-w005-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w005-p0-b.png",
+        "sha256": "8aa47b0383fbc29b2c01cec9da89cbfd607eef1e75b9f94aac362ba38cf94f44"
+      },
+      "diagnostic/train/images/vd2-w006-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w006-p0-a.png",
+        "sha256": "ab32dfcbb18d65302b1b73fea15bd6f66b5f366b8fcfda3afab110722b2c6b4f"
+      },
+      "diagnostic/train/images/vd2-w006-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w006-p0-b.png",
+        "sha256": "2426bc68d1fdfdb8ea7f8bc5af7e40717caf613d6a79a34c439db66130ec9ce2"
+      },
+      "diagnostic/train/images/vd2-w007-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w007-p0-a.png",
+        "sha256": "b87e425b71e9b9698331bdc05193217057629bcaa77d6915d2bef078c16230bb"
+      },
+      "diagnostic/train/images/vd2-w007-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w007-p0-b.png",
+        "sha256": "51cfa5274c942b048d81e7f849e7e00c2f36054677473c30afeab48be4e11239"
+      },
+      "diagnostic/train/images/vd2-w008-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w008-p0-a.png",
+        "sha256": "e56cd833ddc9a7307414025a22e742472dddd181871a9982dcbfd0e34e561225"
+      },
+      "diagnostic/train/images/vd2-w008-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w008-p0-b.png",
+        "sha256": "0054c7729c7ca782741af8be0835c0227f295ab0db4514d19e0b5aaf6185a625"
+      },
+      "diagnostic/train/images/vd2-w009-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w009-p0-a.png",
+        "sha256": "d8399948fb28c468f58401cf2be0c7bb6a46fa9a3ecea6ab6cf7da87da28ffdd"
+      },
+      "diagnostic/train/images/vd2-w009-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w009-p0-b.png",
+        "sha256": "9ffe49a7dd479795a328699f3a00393a480b6bec96c44c7df4f132cc2799c6b7"
+      },
+      "diagnostic/train/images/vd2-w010-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w010-p0-a.png",
+        "sha256": "8a3b3f3fc21281fa6a57ad677f762ecea030071b4c78ee8ea1b5673f4d25011e"
+      },
+      "diagnostic/train/images/vd2-w010-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w010-p0-b.png",
+        "sha256": "398ce4b15e336b2663940204b5a18de8337f5ff6c33d4e7ae70162637cefbf06"
+      },
+      "diagnostic/train/images/vd2-w011-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w011-p0-a.png",
+        "sha256": "b2a652b4c1fc316db7466fe0c1207bd9e225fb277d7dd8105c1c62650ece401d"
+      },
+      "diagnostic/train/images/vd2-w011-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w011-p0-b.png",
+        "sha256": "1db29b3eec633f691d38815665689693893e39c3afdc3d28846d1cf99aadefcc"
+      },
+      "diagnostic/train/images/vd2-w012-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w012-p0-a.png",
+        "sha256": "985eb2ef51751bc4963ca73d84158a4f0ff115f47479429ef87e41d5e17a36e5"
+      },
+      "diagnostic/train/images/vd2-w012-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w012-p0-b.png",
+        "sha256": "c26b767dc594c6b3bfd191a153cce17664204f8025db2affb6884f64e82a9da9"
+      },
+      "diagnostic/train/images/vd2-w013-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w013-p0-a.png",
+        "sha256": "2c2750a1d6fe9a15f730bdf36d9d8bad606fe1a03cdd29251dfbf143ad24b8e9"
+      },
+      "diagnostic/train/images/vd2-w013-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w013-p0-b.png",
+        "sha256": "991fd983d157dc758b4ae54601112373f26f98382c5ef52d1560bc7692a46285"
+      },
+      "diagnostic/train/images/vd2-w014-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w014-p0-a.png",
+        "sha256": "07bc2cb0f3adeeb36b88111c3e0e53beb11d9d1dc17eccf52d347ef0065fd448"
+      },
+      "diagnostic/train/images/vd2-w014-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w014-p0-b.png",
+        "sha256": "76190786a267735a8ec920aacf0d60ef218624d5b0e294de84521474f143e0a1"
+      },
+      "diagnostic/train/images/vd2-w015-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w015-p0-a.png",
+        "sha256": "7973402d52225813cf6c761f270ce722fbcb3dac037c19ce7529a7e4222ad4d4"
+      },
+      "diagnostic/train/images/vd2-w015-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w015-p0-b.png",
+        "sha256": "59a966af3dc00a50640eda6cac91d925e83270efc2dbd1c68c957eac8dddd547"
+      },
+      "diagnostic/train/images/vd2-w016-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w016-p0-a.png",
+        "sha256": "349e94ac28a04454ec7e71d3ca4f86ecca70598dbc6c8bac1115bc9b98ff7436"
+      },
+      "diagnostic/train/images/vd2-w016-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w016-p0-b.png",
+        "sha256": "b9ebb875efa9fc67ad73d9442c41d6a7d375ff1cb2d3bd4e4f61928a4b5758ab"
+      },
+      "diagnostic/train/images/vd2-w017-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w017-p0-a.png",
+        "sha256": "16c6c70845f7597d51b0daeb6d086022c88e9ce13cb21c35b2d35d6354063dbc"
+      },
+      "diagnostic/train/images/vd2-w017-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w017-p0-b.png",
+        "sha256": "751d282c7d848d4b09e90947cb5b649c6af65c04ff44a5f4957d2cf343696a0b"
+      },
+      "diagnostic/train/images/vd2-w018-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w018-p0-a.png",
+        "sha256": "45c2dcde1137c393a8a7d64f36f452cc0af31f8712ccab1b2a10bf4a85dfb435"
+      },
+      "diagnostic/train/images/vd2-w018-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w018-p0-b.png",
+        "sha256": "34d539ce5f354d0d9527497061ccdfb6246455b4fec09f5b03683ce95802acae"
+      },
+      "diagnostic/train/images/vd2-w019-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w019-p0-a.png",
+        "sha256": "3ed191cafaedf78912dbcb82ec54259054542a06421da6afe33cf1b3215eb799"
+      },
+      "diagnostic/train/images/vd2-w019-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w019-p0-b.png",
+        "sha256": "c41f27f065c08822dc4ab5da9bbf42fc83d4c553190a4e11264a8bb8f896b204"
+      },
+      "diagnostic/train/images/vd2-w020-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w020-p0-a.png",
+        "sha256": "15f067ff8f22c0ec52349366d2fed5addc0082bccf423208f8d5d27e0300fba1"
+      },
+      "diagnostic/train/images/vd2-w020-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w020-p0-b.png",
+        "sha256": "b3f8ddf0ec8540629c5fa5c8a3c7d8627658bb404432c637ca325ce3db848b8d"
+      },
+      "diagnostic/train/images/vd2-w021-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w021-p0-a.png",
+        "sha256": "cf72cdbe68af5dc432f47ef6affc5e5d716e250a7a77b73e89f58d9f8a6c0e86"
+      },
+      "diagnostic/train/images/vd2-w021-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w021-p0-b.png",
+        "sha256": "622c5d12e6ebbdf4f6dff3d46b7059cf6155f3f2af369f010d9e12f4416212f3"
+      },
+      "diagnostic/train/images/vd2-w022-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w022-p0-a.png",
+        "sha256": "35506175968a8f4b15b5dc25dba4101aa32f4aea54137710e692629f53aed37a"
+      },
+      "diagnostic/train/images/vd2-w022-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w022-p0-b.png",
+        "sha256": "665813675f7c68f57d9096eb95899f0171c2fd751556cf4dac5a1e268834e4e1"
+      },
+      "diagnostic/train/images/vd2-w023-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w023-p0-a.png",
+        "sha256": "f58ff6023018401aeba73e6c15099d433edb9b117e9659216fff8fd85bbb4dc2"
+      },
+      "diagnostic/train/images/vd2-w023-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w023-p0-b.png",
+        "sha256": "45e44c80dedc85f470257c73585f104246476eb3e6a9e77be0b38344506f0820"
+      },
+      "diagnostic/train/images/vd2-w024-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w024-p0-a.png",
+        "sha256": "4c1b84fedd23e83204e1427b933cc0b41e8b15de12679e523989933834575d34"
+      },
+      "diagnostic/train/images/vd2-w024-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w024-p0-b.png",
+        "sha256": "7c74d45f5b1bff0df05bc9868263d53e0b4b2bad5d99ddeac7fc8871d9b95d7b"
+      },
+      "diagnostic/train/images/vd2-w025-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w025-p0-a.png",
+        "sha256": "62c8abbac30476e65c730b125c0cd2cd95f57c61c43342228aefcb842b2a4184"
+      },
+      "diagnostic/train/images/vd2-w025-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w025-p0-b.png",
+        "sha256": "ad711e1d1207492bf10092004b60ebc8c5d77a4d37893225975ae541e999e6dc"
+      },
+      "diagnostic/train/images/vd2-w026-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w026-p0-a.png",
+        "sha256": "0260478e2e48973c50824ce258a10ec6d4910bd3718ec79f4095b898ff09f98c"
+      },
+      "diagnostic/train/images/vd2-w026-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w026-p0-b.png",
+        "sha256": "afe08afc8931cb2e08145838e42ce7e2c27f7d8ec471ff3073286b94b4fd19b4"
+      },
+      "diagnostic/train/images/vd2-w027-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w027-p0-a.png",
+        "sha256": "3fb54ff3e57fd534483e453cdb89e5262c43afe690d9377a30f2f020b645a825"
+      },
+      "diagnostic/train/images/vd2-w027-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w027-p0-b.png",
+        "sha256": "fbcebd1f23bbb2c37e2fb6f8a7a7d317c238f206ed7ded16a927ded831c7736b"
+      },
+      "diagnostic/train/images/vd2-w028-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w028-p0-a.png",
+        "sha256": "a26de735fb16563bb008222335257346b5cef538d19a922952456da3b17d982f"
+      },
+      "diagnostic/train/images/vd2-w028-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w028-p0-b.png",
+        "sha256": "15fe26afc9e2e8eba37862939ffe39185aa65de95d5bda91885d044f9ea28a74"
+      },
+      "diagnostic/train/images/vd2-w029-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w029-p0-a.png",
+        "sha256": "af236d6d1cc1c649181285db0f12df82fa698107ea6694fd86e6be26c059da77"
+      },
+      "diagnostic/train/images/vd2-w029-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w029-p0-b.png",
+        "sha256": "4e1a2a87bc36113f3f080eddacd67abd907caf08192e211336f4bc07ece0ab4c"
+      },
+      "diagnostic/train/images/vd2-w030-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w030-p0-a.png",
+        "sha256": "8ff00287470c8c15168f9a68ed27e8917109732355d0c1364a89a1964e89c5df"
+      },
+      "diagnostic/train/images/vd2-w030-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w030-p0-b.png",
+        "sha256": "a94db4d4c5d9b588f3d9ad1a588c9cec5fe3db4ce47d8db513f0a62cdcb190ef"
+      },
+      "diagnostic/train/images/vd2-w031-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w031-p0-a.png",
+        "sha256": "6e728bc686851fba07b8330d18f60c4eea952ffcc418d98852d9fe211874b4a1"
+      },
+      "diagnostic/train/images/vd2-w031-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w031-p0-b.png",
+        "sha256": "0eb7417b53453750c83d83074dccd363e659954b58db4e5957ea71b28ad66cfe"
+      },
+      "diagnostic/train/images/vd2-w032-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w032-p0-a.png",
+        "sha256": "379f409fa7e0da09ebc1b49d9b00353a893d8f183df7df421b186e103f5ab62c"
+      },
+      "diagnostic/train/images/vd2-w032-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w032-p0-b.png",
+        "sha256": "034799acf0ece2416c707d0451275df99f5240272b035123eccf6d0600221e73"
+      },
+      "diagnostic/train/images/vd2-w033-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w033-p0-a.png",
+        "sha256": "5ebe86fb0be0ca1208965fccdf5190d17230123778e306d2472ada460377f53b"
+      },
+      "diagnostic/train/images/vd2-w033-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w033-p0-b.png",
+        "sha256": "357c9edb35924dff401e10feafda964a1cfcdfbddcb3bec5f8edf728588e7d98"
+      },
+      "diagnostic/train/images/vd2-w034-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w034-p0-a.png",
+        "sha256": "4e9d2cc1d1d8f5f96f1120c0059acfa45d30e73a9eac18f0416478b8c9930448"
+      },
+      "diagnostic/train/images/vd2-w034-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w034-p0-b.png",
+        "sha256": "c96714ad564c8c0a6a197ca06aa495184700683a75436e9d1bf33dce83e7ec53"
+      },
+      "diagnostic/train/images/vd2-w035-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w035-p0-a.png",
+        "sha256": "38ecc4a43159ebbf488e163f420059812baede237a2cb5a23ef5672b681f374f"
+      },
+      "diagnostic/train/images/vd2-w035-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w035-p0-b.png",
+        "sha256": "5257ca55802083e4ad020a37d2f32dbdc87bdb77040abd6a575f539a386adb65"
+      },
+      "diagnostic/train/images/vd2-w036-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w036-p0-a.png",
+        "sha256": "c99aa3e61436b98d5a9a12c31f8d2c432b5d187b248904265761a975340186a0"
+      },
+      "diagnostic/train/images/vd2-w036-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w036-p0-b.png",
+        "sha256": "fbc595767ecfb73d3dad066a83b78a347765fd305cabbbf3cbbb671a2b173296"
+      },
+      "diagnostic/train/images/vd2-w037-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w037-p0-a.png",
+        "sha256": "f9f8328320d0f03f0cc90dd74e6553bbe16d22f0dec9f2001d5386874199c30f"
+      },
+      "diagnostic/train/images/vd2-w037-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w037-p0-b.png",
+        "sha256": "14bed54f3706b2e1a22ed27621a45c43d801ccffda4f3eef202ef1d2d7cdd138"
+      },
+      "diagnostic/train/images/vd2-w038-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w038-p0-a.png",
+        "sha256": "cad848f632df13759d9eb82e0a134fe8be317428a984b98c987cacf30de41f19"
+      },
+      "diagnostic/train/images/vd2-w038-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w038-p0-b.png",
+        "sha256": "89bb9f25d31d890fd72a2bc0b357cf1de17dabc1ec331ab50e09e629591f2ce2"
+      },
+      "diagnostic/train/images/vd2-w039-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w039-p0-a.png",
+        "sha256": "178da83e27f26b0ecc8e9fc819cbbe5fdde000e704ea9ae55d2e7d061505c3aa"
+      },
+      "diagnostic/train/images/vd2-w039-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w039-p0-b.png",
+        "sha256": "b5635823d3b9e0f4c87ef9fb5594d1c70a7e4c5dee9638d7ed3ac38a5ddaf698"
+      },
+      "diagnostic/train/images/vd2-w040-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w040-p0-a.png",
+        "sha256": "ec6679ffe07263c5ed29ed8dc641ca33620bb1cb8ff572f80a47c0105241c926"
+      },
+      "diagnostic/train/images/vd2-w040-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w040-p0-b.png",
+        "sha256": "af3ebf8c1aee118eec8b5cc4103cc16650098cfc6363058d56848399a06b6186"
+      },
+      "diagnostic/train/images/vd2-w041-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w041-p0-a.png",
+        "sha256": "3ca798ee384671237e7cc740208cdd0f0ac6a835f3879109a6b95271dde3aaf7"
+      },
+      "diagnostic/train/images/vd2-w041-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w041-p0-b.png",
+        "sha256": "7bfed6e78af672e8777c5d28f829a9499b8b9084bff735ce6df6151535a8eb63"
+      },
+      "diagnostic/train/images/vd2-w042-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w042-p0-a.png",
+        "sha256": "5c6dda2f0fb1f79069fcb6bd2ceabfd184ee48dd1f2640803bd5dd2f9bfd55a2"
+      },
+      "diagnostic/train/images/vd2-w042-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w042-p0-b.png",
+        "sha256": "2921e7814a599e2a35542c98b539063e79074463842e1e34dc961320efe5b05e"
+      },
+      "diagnostic/train/images/vd2-w043-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w043-p0-a.png",
+        "sha256": "3f8d3305968a690429e86fa1237930d114af9cdcc551be1b320c895b24c0d9c6"
+      },
+      "diagnostic/train/images/vd2-w043-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w043-p0-b.png",
+        "sha256": "595ec8344764b3cb1a30b7cbe7b5eb8a647a8edea3a5b087e5a8bc23fb17bc59"
+      },
+      "diagnostic/train/images/vd2-w044-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w044-p0-a.png",
+        "sha256": "750d0633d7d5b0ba31824d700fb898341ff57bf8a4a3f76439fbc290e0c5ed9d"
+      },
+      "diagnostic/train/images/vd2-w044-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w044-p0-b.png",
+        "sha256": "73440ef803f260c5e3c9107b3461ee358a7f85ab5c750cf25fde8154a7e46d08"
+      },
+      "diagnostic/train/images/vd2-w045-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w045-p0-a.png",
+        "sha256": "9c13d6723391f893357112a1983d98bc3ca607ec5be41453e8e54434f8fa56f0"
+      },
+      "diagnostic/train/images/vd2-w045-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w045-p0-b.png",
+        "sha256": "44ef6131bdc9c3eca25ef925ffb1626a145b294a3b5bcb3c37d372deb566533e"
+      },
+      "diagnostic/train/images/vd2-w046-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w046-p0-a.png",
+        "sha256": "8775baaf8cd9c4ff7be0919d6b6d6b9fce00276b5da67e37f703e1da1b620037"
+      },
+      "diagnostic/train/images/vd2-w046-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w046-p0-b.png",
+        "sha256": "77fe3e21d96fba0cd3484206f03732e4d66d6bf012a2b41547b663cb59527eb5"
+      },
+      "diagnostic/train/images/vd2-w047-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w047-p0-a.png",
+        "sha256": "4f2dd2fbd596f576682f7486c83bd39774b5e03224fc614d73d37258e75283c6"
+      },
+      "diagnostic/train/images/vd2-w047-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w047-p0-b.png",
+        "sha256": "d918749253b9adaaccbb376658849b482ad8796f100b9698bc709b69a67d42f3"
+      },
+      "diagnostic/train/images/vd2-w048-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w048-p0-a.png",
+        "sha256": "748b2e0531d350a0b7d14265894cb20de52d7a9839bbab7616faff5dbd97eda0"
+      },
+      "diagnostic/train/images/vd2-w048-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w048-p0-b.png",
+        "sha256": "0c358cbea8ecaa465e44d17b9b65fc5faeeaf5a1628a988d51577fce858e78b1"
+      },
+      "diagnostic/train/images/vd2-w049-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w049-p0-a.png",
+        "sha256": "309d6877b406d2fca135b52d52bbbc569ce4611d9253c2c40c49eab698318ddf"
+      },
+      "diagnostic/train/images/vd2-w049-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w049-p0-b.png",
+        "sha256": "c1eacb5df9ea258b7196a03d17cde08218ae663a493ffe26f5658c3731c7f538"
+      },
+      "diagnostic/train/images/vd2-w050-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w050-p0-a.png",
+        "sha256": "2480e1ff2ba555f2484eb86d53f7698445e808bcadb3562ee81e26a9acc31f14"
+      },
+      "diagnostic/train/images/vd2-w050-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w050-p0-b.png",
+        "sha256": "af815d950e273a9cef64dcd5f1ba22750ccf1c717eb24dfea4dbb8bc60417639"
+      },
+      "diagnostic/train/images/vd2-w051-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w051-p0-a.png",
+        "sha256": "42e9c834779e7cb0d2b7c790fa95561ff310902a606d08e3dbcd6cffc7b59570"
+      },
+      "diagnostic/train/images/vd2-w051-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w051-p0-b.png",
+        "sha256": "28b6f7c7d3e32854e197fdd124a1d6375a2e0a9d04a4db1174b16eb325f61b60"
+      },
+      "diagnostic/train/images/vd2-w052-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w052-p0-a.png",
+        "sha256": "6c6e37a522676af767bb8fd98d0a595c7938a5ddfea6829eb96783e606ff269c"
+      },
+      "diagnostic/train/images/vd2-w052-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w052-p0-b.png",
+        "sha256": "8fce466b6b54eae249dfeb2203eafd812aff522f1400afbcfa3c534368147759"
+      },
+      "diagnostic/train/images/vd2-w053-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w053-p0-a.png",
+        "sha256": "87942fef76c4665000b161ab5aadb71208338a30e5a331453206d41c29c55b95"
+      },
+      "diagnostic/train/images/vd2-w053-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w053-p0-b.png",
+        "sha256": "4cd74202243570e2aacf5809067b8f4e01ebff43c1870213ce8f59016ab8ebfb"
+      },
+      "diagnostic/train/images/vd2-w054-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w054-p0-a.png",
+        "sha256": "d0756adf28f79b5cb91a1acdd38864d4e137154d283a09da15451dc4f40fde23"
+      },
+      "diagnostic/train/images/vd2-w054-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w054-p0-b.png",
+        "sha256": "1900e4a69a2d311c4f08e20866d4dbdf1ed9cefff8a47a8956fd77af0d7f613c"
+      },
+      "diagnostic/train/images/vd2-w055-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w055-p0-a.png",
+        "sha256": "8b56f843a7f5fea7d41c1c0a305afb6c23f670855755681c83474dd555a5997d"
+      },
+      "diagnostic/train/images/vd2-w055-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w055-p0-b.png",
+        "sha256": "550ce655d3a9967774fc1f3e4b88c12ef8ff239a773424f76788a105acaf38d7"
+      },
+      "diagnostic/train/images/vd2-w056-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w056-p0-a.png",
+        "sha256": "643353d62a482ed74434ae2a6cb813d965e877a6cb455dad4df8d6a64848c2df"
+      },
+      "diagnostic/train/images/vd2-w056-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w056-p0-b.png",
+        "sha256": "b3f5b35750fc193dcd0d20fa6befab7fd50eab16f6bff39d32f8fe6a29ed4e36"
+      },
+      "diagnostic/train/images/vd2-w057-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w057-p0-a.png",
+        "sha256": "69ad264dbaf9f7fc8687c8c79cdf6c551e8b201195082a625acc774b95b86fdd"
+      },
+      "diagnostic/train/images/vd2-w057-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w057-p0-b.png",
+        "sha256": "5cd0fef538eb7f2647c7575103d8e96a4969d701185f6acfaf41e5904ff55466"
+      },
+      "diagnostic/train/images/vd2-w058-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w058-p0-a.png",
+        "sha256": "f5ef350ab2d2e029b941a4786680dd5b17e33e0faff490a89bf15b89a822fdfe"
+      },
+      "diagnostic/train/images/vd2-w058-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w058-p0-b.png",
+        "sha256": "e401a286893a65908aa2ef8ced83b3f8639374f40f80ec5ef20b30d193eb9ae1"
+      },
+      "diagnostic/train/images/vd2-w059-p0-a.png": {
+        "path": "diagnostic/train/images/vd2-w059-p0-a.png",
+        "sha256": "affe76b94e79de187ffbaa58cec4049209c544cce05739118ac37cf4624abe64"
+      },
+      "diagnostic/train/images/vd2-w059-p0-b.png": {
+        "path": "diagnostic/train/images/vd2-w059-p0-b.png",
+        "sha256": "a0ca792255516de321aecfab56ddf91379bf9598affdeee6d16e1a9599e07923"
+      },
+      "external/development/images/000054222.jpg": {
+        "path": "external/development/images/000054222.jpg",
+        "sha256": "b2ecabe011085d7831deba27473bf0a57acb86157d663abf19122f57d2739b0e"
+      },
+      "external/development/images/000961551.jpg": {
+        "path": "external/development/images/000961551.jpg",
+        "sha256": "1c06c71cfe3ec093b5027d1787c1f5642aaf274d7b2fcf5a49e88969ccbe146f"
+      },
+      "external/development/images/001725011.jpg": {
+        "path": "external/development/images/001725011.jpg",
+        "sha256": "a5113072725707aea3d26521bf2a7ddfcdb66865c068c076ea82787b85a0a29b"
+      },
+      "external/development/images/003524176.jpg": {
+        "path": "external/development/images/003524176.jpg",
+        "sha256": "ef0703f7e8e58c76267a39a3bfa9388abe664ad666fc812b58d9e7079d197637"
+      },
+      "external/development/images/003902288.jpg": {
+        "path": "external/development/images/003902288.jpg",
+        "sha256": "a16a6fa91d56781b5da472d874bb0fb5298ada74e14640710ab4e907997f2eba"
+      },
+      "external/development/images/004055865.jpg": {
+        "path": "external/development/images/004055865.jpg",
+        "sha256": "7cfdd4030ab4b5e0bce837770766db34734864f70af9fd97befa728c8377f556"
+      },
+      "external/development/images/005507560.jpg": {
+        "path": "external/development/images/005507560.jpg",
+        "sha256": "f66a7f05514f8f6e5fbb65dddfc7f84ccd6b19264931a2d0bef2d448242926b4"
+      },
+      "external/train/images/000284813.jpg": {
+        "path": "external/train/images/000284813.jpg",
+        "sha256": "b36f93bf4168376030fada198cb1ab07cd0d81162d9a6804784a6cc43df80594"
+      },
+      "external/train/images/000456905.jpg": {
+        "path": "external/train/images/000456905.jpg",
+        "sha256": "57363b7adeac59537c7c81c0ae9cdf1d069abbcc3525a83f86b848929c597841"
+      },
+      "external/train/images/000764186.jpg": {
+        "path": "external/train/images/000764186.jpg",
+        "sha256": "be47781e142fc38432d3fe942826478c521342d445113024d886e3781ed9a6bc"
+      },
+      "external/train/images/001104367.jpg": {
+        "path": "external/train/images/001104367.jpg",
+        "sha256": "92a9125f573c5aaaee24faf1cd74eb3ce853f8dd263db661fcf9c18c142d507b"
+      },
+      "external/train/images/001316033.jpg": {
+        "path": "external/train/images/001316033.jpg",
+        "sha256": "925fd5437dd2c3237e4015c9d67038df2fa31fddd6822a9ceb63dc0076f642c7"
+      },
+      "external/train/images/001529205.jpg": {
+        "path": "external/train/images/001529205.jpg",
+        "sha256": "e4d4306245010d98897a8cc755fa55c30838c09a3945e14a840a55e6255b7ccf"
+      },
+      "external/train/images/001719881.jpg": {
+        "path": "external/train/images/001719881.jpg",
+        "sha256": "5159e8d315bda512d22908cc6b47044cf29e45d95b5c391a559d155b6612e599"
+      },
+      "external/train/images/001842798.jpg": {
+        "path": "external/train/images/001842798.jpg",
+        "sha256": "fad8c4fe23a8fedb1a64f3705dbb02469f75f0adc1729bbec618ac31cfd9fc83"
+      },
+      "external/train/images/001939145.jpg": {
+        "path": "external/train/images/001939145.jpg",
+        "sha256": "ec59a33db9ae23be3a6295a7dc757c851fb436783754a17443c1c222bc5f7269"
+      },
+      "external/train/images/002709185.jpg": {
+        "path": "external/train/images/002709185.jpg",
+        "sha256": "ed36fde76317d037f0d9e7e92dd5284ddd7cf6fc9993910a22427545a4ad57ce"
+      },
+      "external/train/images/002710233.jpg": {
+        "path": "external/train/images/002710233.jpg",
+        "sha256": "3c6777db6d1eb66cb8a99ae7c7b4c5f7cbd8747b9fc17487206403255ae2edbb"
+      },
+      "external/train/images/002878530.jpg": {
+        "path": "external/train/images/002878530.jpg",
+        "sha256": "1d8dc0186d5da7c79a538b7c3450ad2802d21be27ce070d1692ea8dc0bb7e26b"
+      },
+      "external/train/images/003982744.jpg": {
+        "path": "external/train/images/003982744.jpg",
+        "sha256": "c3f03999ba7c58014f103f9db1e78e7fb7d131a34eeb5bd9536b0a3d851033e9"
+      },
+      "external/train/images/005525460.jpg": {
+        "path": "external/train/images/005525460.jpg",
+        "sha256": "f0488533e966d343d46574354a6f024e193cbc425d64e783a08377adc6d75381"
+      },
+      "external/train/images/006359771.jpg": {
+        "path": "external/train/images/006359771.jpg",
+        "sha256": "b7ce966a661307c946d69f246ded7dbb19527d81f6ea1517057439b908158db4"
+      },
+      "procedural/assets/vc1-w000-p0-a.png": {
+        "path": "procedural/assets/vc1-w000-p0-a.png",
+        "sha256": "bf2091e5e4ab358749684cca03ef49a9f33ba141eec13909a72ecca320959fce"
+      },
+      "procedural/assets/vc1-w000-p0-b.png": {
+        "path": "procedural/assets/vc1-w000-p0-b.png",
+        "sha256": "76ff0cc28716cca4887dae9101a4ec7386a3a57f08434da0fd98f9e44751fc9a"
+      },
+      "procedural/assets/vc1-w001-p0-a.png": {
+        "path": "procedural/assets/vc1-w001-p0-a.png",
+        "sha256": "8dae9db3e3576c31a6ba3da43e930a7af198266cda653c1b4f24d259822edb82"
+      },
+      "procedural/assets/vc1-w001-p0-b.png": {
+        "path": "procedural/assets/vc1-w001-p0-b.png",
+        "sha256": "fae5955f6d6614fb1d1f2c0b9633f5d4791a6e4d1b3093ed62e31aea4fb12c1a"
+      },
+      "procedural/assets/vc1-w002-p0-a.png": {
+        "path": "procedural/assets/vc1-w002-p0-a.png",
+        "sha256": "43d1815c56f4f12affc0ea3f43a939f868651394410f7925668e8aabdac51ddc"
+      },
+      "procedural/assets/vc1-w002-p0-b.png": {
+        "path": "procedural/assets/vc1-w002-p0-b.png",
+        "sha256": "5b42307397d47aa7338d067bd1060c4506f0e4956f259c3f294748a79ba1632b"
+      },
+      "procedural/assets/vc1-w003-p0-a.png": {
+        "path": "procedural/assets/vc1-w003-p0-a.png",
+        "sha256": "e8d5e7db2e2381cfb9e4301763b91fe40b717d85dbaa485747002af02344a245"
+      },
+      "procedural/assets/vc1-w003-p0-b.png": {
+        "path": "procedural/assets/vc1-w003-p0-b.png",
+        "sha256": "3eb821a7e9dcc23dba35190a787d512a2c7dd1469dd0558a4aa52b1911e6c97e"
+      },
+      "procedural/assets/vc1-w004-p0-a.png": {
+        "path": "procedural/assets/vc1-w004-p0-a.png",
+        "sha256": "09c5af20ca7b982357e67b54826597379d31f216977faca5a8e6d958bf894a53"
+      },
+      "procedural/assets/vc1-w004-p0-b.png": {
+        "path": "procedural/assets/vc1-w004-p0-b.png",
+        "sha256": "8dd605547d95c0eb34f55c679ccf7e40d4e984ce66fcb3b4362e853e9fb528cc"
+      },
+      "procedural/assets/vc1-w005-p0-a.png": {
+        "path": "procedural/assets/vc1-w005-p0-a.png",
+        "sha256": "7b42e0aba06c94a79e00107654ac8c6e035efdede74261c3f50ba273c70019db"
+      },
+      "procedural/assets/vc1-w005-p0-b.png": {
+        "path": "procedural/assets/vc1-w005-p0-b.png",
+        "sha256": "76e5eef3f40f2ee934e03a0c7430f708f3617bdbada1bf14fd8f60f512ef3696"
+      },
+      "procedural/assets/vc1-w006-p0-a.png": {
+        "path": "procedural/assets/vc1-w006-p0-a.png",
+        "sha256": "cedfd8d7ddab84f3e927b749f546c55fff5b4ab8164f2790ce358b11fbb4f359"
+      },
+      "procedural/assets/vc1-w006-p0-b.png": {
+        "path": "procedural/assets/vc1-w006-p0-b.png",
+        "sha256": "fc3c32d352dd2b2cec96dcb91448442d498011ff4cc9d6955ad5d30ad82bc183"
+      },
+      "procedural/assets/vc1-w007-p0-a.png": {
+        "path": "procedural/assets/vc1-w007-p0-a.png",
+        "sha256": "b1d89a5de9a5fd240894c047e7324b0c6ea5c2af6674e6c449c30478008ed913"
+      },
+      "procedural/assets/vc1-w007-p0-b.png": {
+        "path": "procedural/assets/vc1-w007-p0-b.png",
+        "sha256": "dafe1172d26c727924a4ad170edb52792726632c3c8dee67382b0cee69ff155d"
+      },
+      "procedural/assets/vc1-w008-p0-a.png": {
+        "path": "procedural/assets/vc1-w008-p0-a.png",
+        "sha256": "77163f3f8f29208c189a31d26d47a20e63ce3910114d7f827950f8931a351f65"
+      },
+      "procedural/assets/vc1-w008-p0-b.png": {
+        "path": "procedural/assets/vc1-w008-p0-b.png",
+        "sha256": "a75188e31d426b83f0998dfbd85bdeeed97773d10619a4114772b5afae86cf3c"
+      },
+      "procedural/assets/vc1-w009-p0-a.png": {
+        "path": "procedural/assets/vc1-w009-p0-a.png",
+        "sha256": "af11ac3dcaf4a245ce145f9afad8233d5ccdc5edddd6c297d48c3dbb11dafd81"
+      },
+      "procedural/assets/vc1-w009-p0-b.png": {
+        "path": "procedural/assets/vc1-w009-p0-b.png",
+        "sha256": "db24324f935437273653885c1b87fbc2fd1d9cec91ca3291d2f0e9120d571c3f"
+      },
+      "procedural/assets/vc1-w010-p0-a.png": {
+        "path": "procedural/assets/vc1-w010-p0-a.png",
+        "sha256": "db7c77752af74d331e03c594c1bf6a7ceb3277f1189fd1c99421e1494a8fe4cd"
+      },
+      "procedural/assets/vc1-w010-p0-b.png": {
+        "path": "procedural/assets/vc1-w010-p0-b.png",
+        "sha256": "633d00540bfe2a615e1dadce4adc1dc951c994e68ac1731af69096b50f85d1f2"
+      },
+      "procedural/assets/vc1-w011-p0-a.png": {
+        "path": "procedural/assets/vc1-w011-p0-a.png",
+        "sha256": "1bc8d22c5a524a6aeb604094c89295d77b0bc499c1968e2c79cb6dca57dc6ad7"
+      },
+      "procedural/assets/vc1-w011-p0-b.png": {
+        "path": "procedural/assets/vc1-w011-p0-b.png",
+        "sha256": "f304a42e81fc010d971e48ef55d10aadb67eeb36af20cececa9e9a569c138d7a"
+      },
+      "procedural/assets/vc1-w012-p0-a.png": {
+        "path": "procedural/assets/vc1-w012-p0-a.png",
+        "sha256": "1f13e0ad3b243be533a9f8bf6eb83d31b224eebd4a0eefe81fbfb06f7b585dc9"
+      },
+      "procedural/assets/vc1-w012-p0-b.png": {
+        "path": "procedural/assets/vc1-w012-p0-b.png",
+        "sha256": "e9493d1f383b9859f91db410056c727af90d7cd623fa0f77ea12ffd4304ec535"
+      },
+      "procedural/assets/vc1-w013-p0-a.png": {
+        "path": "procedural/assets/vc1-w013-p0-a.png",
+        "sha256": "e61e86bf780abfea26ea05e3fd4725f9531accc92e4933144cefdd867e2f547f"
+      },
+      "procedural/assets/vc1-w013-p0-b.png": {
+        "path": "procedural/assets/vc1-w013-p0-b.png",
+        "sha256": "36ea3d74bcc3418429aac879482dde5e6e351e521fa9e7d532210207bc699a6e"
+      },
+      "procedural/assets/vc1-w014-p0-a.png": {
+        "path": "procedural/assets/vc1-w014-p0-a.png",
+        "sha256": "068e92b6484a720c6957bebb644baa91bc8f2aa5efdff60303aa328de5f46529"
+      },
+      "procedural/assets/vc1-w014-p0-b.png": {
+        "path": "procedural/assets/vc1-w014-p0-b.png",
+        "sha256": "49c6159af2e2dee8d3eccfa400f9f0c69a67b138d3454cd064071b61ad1ed321"
+      },
+      "procedural/assets/vc1-w015-p0-a.png": {
+        "path": "procedural/assets/vc1-w015-p0-a.png",
+        "sha256": "3a7035e8a45eb572a3c45e6c03774e4a1d529d26f82c200e4f39d12f313168f2"
+      },
+      "procedural/assets/vc1-w015-p0-b.png": {
+        "path": "procedural/assets/vc1-w015-p0-b.png",
+        "sha256": "ad66383822528c4590477e4d21e5cd99123160893f63d1d42872fdba18d5ea83"
+      },
+      "procedural/assets/vc1-w016-p0-a.png": {
+        "path": "procedural/assets/vc1-w016-p0-a.png",
+        "sha256": "aa62219a54d967952664fabe40bf7b7eeb816bb58b3b54d158397e9b50de63a3"
+      },
+      "procedural/assets/vc1-w016-p0-b.png": {
+        "path": "procedural/assets/vc1-w016-p0-b.png",
+        "sha256": "197a1d5e8d171d49024cccb789c7754205b954352386cd5d3bf99c5014207f42"
+      },
+      "procedural/assets/vc1-w017-p0-a.png": {
+        "path": "procedural/assets/vc1-w017-p0-a.png",
+        "sha256": "3d9250a7feb22b7f1af07285c335ac768835ba72e7825e287b9865302404660f"
+      },
+      "procedural/assets/vc1-w017-p0-b.png": {
+        "path": "procedural/assets/vc1-w017-p0-b.png",
+        "sha256": "38eed6095209d8da5ca4f0c6297ef78ab4721e398285849ee8e08d7423531650"
+      },
+      "procedural/assets/vc1-w018-p0-a.png": {
+        "path": "procedural/assets/vc1-w018-p0-a.png",
+        "sha256": "fda62b7e9d1f4f76e8f3de34b607ae35e2e09c7a8a24820afcadaee2153410c8"
+      },
+      "procedural/assets/vc1-w018-p0-b.png": {
+        "path": "procedural/assets/vc1-w018-p0-b.png",
+        "sha256": "e2d193fd34472d060c726f81abdd959c454a1cd2093842758c8a431b81aceaa9"
+      },
+      "procedural/assets/vc1-w019-p0-a.png": {
+        "path": "procedural/assets/vc1-w019-p0-a.png",
+        "sha256": "79f7809e58611cd48185d45651458d7224def69d0f93cc30fe5b8ddd20d0e6c9"
+      },
+      "procedural/assets/vc1-w019-p0-b.png": {
+        "path": "procedural/assets/vc1-w019-p0-b.png",
+        "sha256": "ac9be7ecaaa72b48045226100d2d715107164c1a62876b3f14ec4ff13cf87ce7"
+      },
+      "procedural/assets/vc1-w020-p0-a.png": {
+        "path": "procedural/assets/vc1-w020-p0-a.png",
+        "sha256": "bd737c304fadb5e6cbe0b9294b59715e7215fda4f51887acf93f71f5bb68e0f2"
+      },
+      "procedural/assets/vc1-w020-p0-b.png": {
+        "path": "procedural/assets/vc1-w020-p0-b.png",
+        "sha256": "d05b5e1fb67421601bf26d6bde86fb4edad2596498ad4674977d7e734598bdc5"
+      },
+      "procedural/assets/vc1-w021-p0-a.png": {
+        "path": "procedural/assets/vc1-w021-p0-a.png",
+        "sha256": "8589ffc8ed09db14acdcf0b87015de2c2157ea4867d7b14245de780757d5a06d"
+      },
+      "procedural/assets/vc1-w021-p0-b.png": {
+        "path": "procedural/assets/vc1-w021-p0-b.png",
+        "sha256": "bedc0d44e8134cfdceebf8c7053335afec995d57e7890d50bdf8fd9a90d2ccd4"
+      },
+      "procedural/assets/vc1-w022-p0-a.png": {
+        "path": "procedural/assets/vc1-w022-p0-a.png",
+        "sha256": "7a661a284b90f82fb64f896d3d066372dbe12382984ebc5859a2d6afd58b6fe2"
+      },
+      "procedural/assets/vc1-w022-p0-b.png": {
+        "path": "procedural/assets/vc1-w022-p0-b.png",
+        "sha256": "3221a9488dca8983d1e5e9815b3517a9db1b7554e6210003bf931310ce7ed630"
+      },
+      "procedural/assets/vc1-w023-p0-a.png": {
+        "path": "procedural/assets/vc1-w023-p0-a.png",
+        "sha256": "cbc04f841347f76017f8e0b2f3931732e836b2320e093f8c2f3aa0c0921eed1f"
+      },
+      "procedural/assets/vc1-w023-p0-b.png": {
+        "path": "procedural/assets/vc1-w023-p0-b.png",
+        "sha256": "89f0983f7a72d1889f8f9b2ec82b1862fedca0e61edac59fade518c7c4c53259"
+      },
+      "procedural/assets/vc1-w024-p0-a.png": {
+        "path": "procedural/assets/vc1-w024-p0-a.png",
+        "sha256": "5bc86e1ff66a34ede294b470a5bcbf4e995bf28bcce8570b524a72068529381e"
+      },
+      "procedural/assets/vc1-w024-p0-b.png": {
+        "path": "procedural/assets/vc1-w024-p0-b.png",
+        "sha256": "16c6c70845f7597d51b0daeb6d086022c88e9ce13cb21c35b2d35d6354063dbc"
+      },
+      "procedural/assets/vc1-w025-p0-a.png": {
+        "path": "procedural/assets/vc1-w025-p0-a.png",
+        "sha256": "7110e1f32126b3e3a61e0fa13785b182614d35cfa191016cf6a4c8aef31a9516"
+      },
+      "procedural/assets/vc1-w025-p0-b.png": {
+        "path": "procedural/assets/vc1-w025-p0-b.png",
+        "sha256": "3977a852dd4d3d6381e242993901994dba21892d32f9efbb020b1eafe12edda4"
+      },
+      "procedural/assets/vc1-w026-p0-a.png": {
+        "path": "procedural/assets/vc1-w026-p0-a.png",
+        "sha256": "40b7245de433f52685c3b37d589fe1568d4f071f45ba63e17cbb0f95d89f3c02"
+      },
+      "procedural/assets/vc1-w026-p0-b.png": {
+        "path": "procedural/assets/vc1-w026-p0-b.png",
+        "sha256": "abb41fd8799dc3ea329d48cde721da8040ea82b06f457a00e78f87347d67c5ec"
+      },
+      "procedural/assets/vc1-w027-p0-a.png": {
+        "path": "procedural/assets/vc1-w027-p0-a.png",
+        "sha256": "f87c079cf7a843114f087795ce8b67ccb6d726d1044926771e5dd19af56f1029"
+      },
+      "procedural/assets/vc1-w027-p0-b.png": {
+        "path": "procedural/assets/vc1-w027-p0-b.png",
+        "sha256": "c5b890283e815d8e7d454fd413ec586d0935604b804e264beb71cdbb034c2768"
+      },
+      "procedural/assets/vc1-w028-p0-a.png": {
+        "path": "procedural/assets/vc1-w028-p0-a.png",
+        "sha256": "b9d77491ba0ce2928ab1070d9e2277024bda5fd996700f10e57a7bbf973d47be"
+      },
+      "procedural/assets/vc1-w028-p0-b.png": {
+        "path": "procedural/assets/vc1-w028-p0-b.png",
+        "sha256": "cdf5596767c2b991dbc215079674d40bef68b5fd1a928866ac7ab4cf9e298187"
+      },
+      "procedural/assets/vc1-w029-p0-a.png": {
+        "path": "procedural/assets/vc1-w029-p0-a.png",
+        "sha256": "5b6a703f786574df0d1e586085a88843b5e859b8559ca1247602f2f4f9684b2d"
+      },
+      "procedural/assets/vc1-w029-p0-b.png": {
+        "path": "procedural/assets/vc1-w029-p0-b.png",
+        "sha256": "0dd1e9749076c30233122cc6b492365084e55cee8dcc64d50596ee5877f60427"
+      },
+      "procedural/assets/vc1-w030-p0-a.png": {
+        "path": "procedural/assets/vc1-w030-p0-a.png",
+        "sha256": "d6485ee824a0aad6d88a6729d379f2269f8502f033cd10bab2a00e90501222c9"
+      },
+      "procedural/assets/vc1-w030-p0-b.png": {
+        "path": "procedural/assets/vc1-w030-p0-b.png",
+        "sha256": "c14024b83a375f7032483deff9ec4ac0a8c1be7903208b6edd6fd122bf5c3aac"
+      },
+      "procedural/assets/vc1-w031-p0-a.png": {
+        "path": "procedural/assets/vc1-w031-p0-a.png",
+        "sha256": "98d4897bd83e540a75091cb548025110569a96f1849dbbc15fa2b3da73ee2e68"
+      },
+      "procedural/assets/vc1-w031-p0-b.png": {
+        "path": "procedural/assets/vc1-w031-p0-b.png",
+        "sha256": "f4284007709850a05727fc6d5f7b8d405c4d812f272909a5a51c4717ffdd8e41"
+      },
+      "procedural/assets/vc1-w032-p0-a.png": {
+        "path": "procedural/assets/vc1-w032-p0-a.png",
+        "sha256": "095a54e85f58cc70528555eed6f3a2c4fc683dfe710b650b082392a3baa41b72"
+      },
+      "procedural/assets/vc1-w032-p0-b.png": {
+        "path": "procedural/assets/vc1-w032-p0-b.png",
+        "sha256": "ac3ad93f4fcccf8b6aa41f6145a39aa47761ea5f05b0e5d3511a30399fdcc2c0"
+      },
+      "procedural/assets/vc1-w033-p0-a.png": {
+        "path": "procedural/assets/vc1-w033-p0-a.png",
+        "sha256": "29c64b8481c27e7a6fcc0ec42738cefacdb97dbec8c95dad576ce9c167854dd8"
+      },
+      "procedural/assets/vc1-w033-p0-b.png": {
+        "path": "procedural/assets/vc1-w033-p0-b.png",
+        "sha256": "b1d9a6247ac1885a9b338d34af17b98f16607bdc68cdaf5ed751a294000a8191"
+      },
+      "procedural/assets/vc1-w034-p0-a.png": {
+        "path": "procedural/assets/vc1-w034-p0-a.png",
+        "sha256": "42192c004132cbf20d4743efe4328ba116fcacb3a9e1a68f0dbad410d8fd8ffd"
+      },
+      "procedural/assets/vc1-w034-p0-b.png": {
+        "path": "procedural/assets/vc1-w034-p0-b.png",
+        "sha256": "9f2e65fff71b44dcc0661241ba9b05817904cb9b6b14d41c182b02018b30e90a"
+      },
+      "procedural/assets/vc1-w035-p0-a.png": {
+        "path": "procedural/assets/vc1-w035-p0-a.png",
+        "sha256": "dec79edbb26f0b7f779325d09b5837b6a9a7307070bfd18d6f5cf7e0628780ea"
+      },
+      "procedural/assets/vc1-w035-p0-b.png": {
+        "path": "procedural/assets/vc1-w035-p0-b.png",
+        "sha256": "47fc3811639657ec7f7f70b0fa70c4f8e6004895cabbd46d577f1535bd952d57"
+      },
+      "procedural/assets/vc1-w036-p0-a.png": {
+        "path": "procedural/assets/vc1-w036-p0-a.png",
+        "sha256": "76d3e4049465f4f2d98d22effc0b54fa3114af907a2d85913ed196fb0632117b"
+      },
+      "procedural/assets/vc1-w036-p0-b.png": {
+        "path": "procedural/assets/vc1-w036-p0-b.png",
+        "sha256": "fcfe25eb842eaa3c584823f3c2d116d969ae1807062239e755f1323b5821f96f"
+      },
+      "procedural/assets/vc1-w037-p0-a.png": {
+        "path": "procedural/assets/vc1-w037-p0-a.png",
+        "sha256": "4553468f7487a45ff81a122bb3696449967d01e48379d73e779032cc20f7e554"
+      },
+      "procedural/assets/vc1-w037-p0-b.png": {
+        "path": "procedural/assets/vc1-w037-p0-b.png",
+        "sha256": "e5b7cd8b488fb7f2823bf29dd6d5710b3682cb9ce9e649213ec065fd12cd5c10"
+      },
+      "procedural/assets/vc1-w038-p0-a.png": {
+        "path": "procedural/assets/vc1-w038-p0-a.png",
+        "sha256": "71a0af27e88350d66a050fbeeca308f6e68b927e3aa5d12664b216d26836cec4"
+      },
+      "procedural/assets/vc1-w038-p0-b.png": {
+        "path": "procedural/assets/vc1-w038-p0-b.png",
+        "sha256": "6c04686d60350cc308a6b148e7d0eaf04931c6176bacc680267a17b62ce300af"
+      },
+      "procedural/assets/vc1-w039-p0-a.png": {
+        "path": "procedural/assets/vc1-w039-p0-a.png",
+        "sha256": "d1d49f181384df07d8d02eed90114263c6ff95761ad506cac965631ad561b83f"
+      },
+      "procedural/assets/vc1-w039-p0-b.png": {
+        "path": "procedural/assets/vc1-w039-p0-b.png",
+        "sha256": "78f6b74d9271daeb8dced80777289006db374ca5ad5139200eaf90ce3db63bb5"
+      },
+      "procedural/assets/vc1-w040-p0-a.png": {
+        "path": "procedural/assets/vc1-w040-p0-a.png",
+        "sha256": "e78d6b6e92feceeea61385625509140ee9d3b8c1cb3620b1f2a781e353226d2a"
+      },
+      "procedural/assets/vc1-w040-p0-b.png": {
+        "path": "procedural/assets/vc1-w040-p0-b.png",
+        "sha256": "b71792ceb60b13b2a3d8df333363afbd4242295c19887ae6099b9b96ef9f6d7f"
+      },
+      "procedural/assets/vc1-w041-p0-a.png": {
+        "path": "procedural/assets/vc1-w041-p0-a.png",
+        "sha256": "33a7d5594eaa345db71018472f103fb6e97fefb5f89e44518b00ba1abe7fe87f"
+      },
+      "procedural/assets/vc1-w041-p0-b.png": {
+        "path": "procedural/assets/vc1-w041-p0-b.png",
+        "sha256": "7bd4edd785d3a016f1e1af6ca94b54151a93b8dc141e33b3d18031d2df959dcf"
+      },
+      "procedural/assets/vc1-w042-p0-a.png": {
+        "path": "procedural/assets/vc1-w042-p0-a.png",
+        "sha256": "0a53e9ca069b66058141cd70bfc110635404da493ca294e584def1503e4e6e57"
+      },
+      "procedural/assets/vc1-w042-p0-b.png": {
+        "path": "procedural/assets/vc1-w042-p0-b.png",
+        "sha256": "2a517ce676f2e41964e9d1ef225bb68bb4355d58866d3311bd316adfdd4f958b"
+      },
+      "procedural/assets/vc1-w043-p0-a.png": {
+        "path": "procedural/assets/vc1-w043-p0-a.png",
+        "sha256": "23488fffc5fef8ad5bacd7ff4213401f3e4fbafc5f560298eb50dc249eb83b4c"
+      },
+      "procedural/assets/vc1-w043-p0-b.png": {
+        "path": "procedural/assets/vc1-w043-p0-b.png",
+        "sha256": "4be561dad08ac1da10add96dadac6ec16f8688c0432d34c5686d61f4a0d10e85"
+      },
+      "procedural/assets/vc1-w044-p0-a.png": {
+        "path": "procedural/assets/vc1-w044-p0-a.png",
+        "sha256": "8a4773bd1b7bfea669e82c0add08f8a17d5a4c0ef5e01d3c04b142e765222c60"
+      },
+      "procedural/assets/vc1-w044-p0-b.png": {
+        "path": "procedural/assets/vc1-w044-p0-b.png",
+        "sha256": "37448ddb15566a9700ee2c1cedca39d7f1933272025c967c2451766988307cc7"
+      },
+      "procedural/assets/vc1-w045-p0-a.png": {
+        "path": "procedural/assets/vc1-w045-p0-a.png",
+        "sha256": "07a7b4a7a725abbc1448b7262fe7302bbe83c5cdaa9685498497ac97f5d78e64"
+      },
+      "procedural/assets/vc1-w045-p0-b.png": {
+        "path": "procedural/assets/vc1-w045-p0-b.png",
+        "sha256": "b27a15dd197303746d45fe408c61c91bb7b5552c5b3bcca0978ba665a077b41f"
+      },
+      "procedural/assets/vc1-w046-p0-a.png": {
+        "path": "procedural/assets/vc1-w046-p0-a.png",
+        "sha256": "b46d44410eafcddb1862de686659000c332603aae013ca9a8d4f2296e6e31830"
+      },
+      "procedural/assets/vc1-w046-p0-b.png": {
+        "path": "procedural/assets/vc1-w046-p0-b.png",
+        "sha256": "34dfe4c5a4145bec45a48df203656c7a1539324e57914556021d70edabc00f08"
+      },
+      "procedural/assets/vc1-w047-p0-a.png": {
+        "path": "procedural/assets/vc1-w047-p0-a.png",
+        "sha256": "fff754fbf69541e13fd5cf8705dbce90bd18c2ad122c5014de04672a9abe8db6"
+      },
+      "procedural/assets/vc1-w047-p0-b.png": {
+        "path": "procedural/assets/vc1-w047-p0-b.png",
+        "sha256": "10a38e29888a7eccb104fd761943b0516ef05966de9eee1120a5c1830bbe736b"
+      },
+      "procedural/assets/vc1-w048-p0-a.png": {
+        "path": "procedural/assets/vc1-w048-p0-a.png",
+        "sha256": "2fee39fa3f9e50ca540d5e93f4978ea4034d610c38a459ffee3371a0a8256647"
+      },
+      "procedural/assets/vc1-w048-p0-b.png": {
+        "path": "procedural/assets/vc1-w048-p0-b.png",
+        "sha256": "7b0bd4f133bb5159831548dfc77bdb53312c32dc544b3b39da911f650cba6684"
+      },
+      "procedural/assets/vc1-w049-p0-a.png": {
+        "path": "procedural/assets/vc1-w049-p0-a.png",
+        "sha256": "eb490ca56c09aca5d078e61ab54716087ecc369d4d5f8619aacd73841d546cb2"
+      },
+      "procedural/assets/vc1-w049-p0-b.png": {
+        "path": "procedural/assets/vc1-w049-p0-b.png",
+        "sha256": "a5e5b49573b722952ded2b1a468aa1dd26f1f18e12de34376d414a36bca4b436"
+      },
+      "procedural/assets/vc1-w050-p0-a.png": {
+        "path": "procedural/assets/vc1-w050-p0-a.png",
+        "sha256": "ed44844e2804065afbf4fbccd9388dc93bc37bf639eb366ca03a628b27398b59"
+      },
+      "procedural/assets/vc1-w050-p0-b.png": {
+        "path": "procedural/assets/vc1-w050-p0-b.png",
+        "sha256": "806e3d9feb273a1b101b21ec3885a39e5805941e8bd9d3df592a3c88ab6aff06"
+      },
+      "procedural/assets/vc1-w051-p0-a.png": {
+        "path": "procedural/assets/vc1-w051-p0-a.png",
+        "sha256": "6b0615ce28d094f4a836a79e675388621177a000027975f285bffce3dbe7e727"
+      },
+      "procedural/assets/vc1-w051-p0-b.png": {
+        "path": "procedural/assets/vc1-w051-p0-b.png",
+        "sha256": "809d89f5a16f7bac2a972cfdd12df22ecf5016fac1550e5d935e3d7c90a6e41a"
+      },
+      "procedural/assets/vc1-w052-p0-a.png": {
+        "path": "procedural/assets/vc1-w052-p0-a.png",
+        "sha256": "95eedce16ca3e0c234342818f072f5933c8281610dfd7b96ba9d0df075fcbf16"
+      },
+      "procedural/assets/vc1-w052-p0-b.png": {
+        "path": "procedural/assets/vc1-w052-p0-b.png",
+        "sha256": "4729b9df9697eb77926b2b4d12250c96b3c56c5cd074fd51efdaf5c0a9d0522c"
+      },
+      "procedural/assets/vc1-w053-p0-a.png": {
+        "path": "procedural/assets/vc1-w053-p0-a.png",
+        "sha256": "d60cc26a83f8ad167be1b0c37608c63cb310efe04595f1a892dde01064fec64f"
+      },
+      "procedural/assets/vc1-w053-p0-b.png": {
+        "path": "procedural/assets/vc1-w053-p0-b.png",
+        "sha256": "8314364861fe84242e1019bd645fbf9d1dc70c0ed5b0a9bf66fe75ebafd2b656"
+      },
+      "procedural/assets/vc1-w054-p0-a.png": {
+        "path": "procedural/assets/vc1-w054-p0-a.png",
+        "sha256": "ef54a292974b8a489701f66297e2c177c6f218607d522b3a2d9a232bdd22ba69"
+      },
+      "procedural/assets/vc1-w054-p0-b.png": {
+        "path": "procedural/assets/vc1-w054-p0-b.png",
+        "sha256": "3f4db6353b24a71b27714e567ecfc929ac24b5060dfa94e69d2e22c1e5250292"
+      },
+      "procedural/assets/vc1-w055-p0-a.png": {
+        "path": "procedural/assets/vc1-w055-p0-a.png",
+        "sha256": "51a4ebb2e94d08f629c92b9b98fb0d58e8e9b8301a1f6be76f53140fb7d6ae6f"
+      },
+      "procedural/assets/vc1-w055-p0-b.png": {
+        "path": "procedural/assets/vc1-w055-p0-b.png",
+        "sha256": "272b887ee6dd75be8e1b91f94485b5358eff04a826817f5187b7231584eb7b93"
+      },
+      "procedural/assets/vc1-w056-p0-a.png": {
+        "path": "procedural/assets/vc1-w056-p0-a.png",
+        "sha256": "8eab8b5a8df8944fd27950160ad1187fb28b16620cdbee4ad0cd0c2364a0313f"
+      },
+      "procedural/assets/vc1-w056-p0-b.png": {
+        "path": "procedural/assets/vc1-w056-p0-b.png",
+        "sha256": "72aa07771e432f3f85d176fbd91840a6c162d7cf7fb981b7433978ca2b71f7a6"
+      },
+      "procedural/assets/vc1-w057-p0-a.png": {
+        "path": "procedural/assets/vc1-w057-p0-a.png",
+        "sha256": "cbce4c000b4625610dd0d26aff71d295bc1c46e878e54291bb5c24358c9086ed"
+      },
+      "procedural/assets/vc1-w057-p0-b.png": {
+        "path": "procedural/assets/vc1-w057-p0-b.png",
+        "sha256": "99e32a51c52287a2d52f205855c01b0dffda1624987d4f7d88ab8d89dd1205f0"
+      },
+      "procedural/assets/vc1-w058-p0-a.png": {
+        "path": "procedural/assets/vc1-w058-p0-a.png",
+        "sha256": "59d7c88a9fbf43d435469e336af55bbedf68e5c8ba86f93506c718c5bf871e27"
+      },
+      "procedural/assets/vc1-w058-p0-b.png": {
+        "path": "procedural/assets/vc1-w058-p0-b.png",
+        "sha256": "9088cb3f3ba02b94a7a5f85496f29158f300aeccfbeb9e26fdd2a3148287854c"
+      },
+      "procedural/assets/vc1-w059-p0-a.png": {
+        "path": "procedural/assets/vc1-w059-p0-a.png",
+        "sha256": "83231cc7371304d67ae63177ccd7dc7f8d4eac0052633434a7c790ecaf308b1b"
+      },
+      "procedural/assets/vc1-w059-p0-b.png": {
+        "path": "procedural/assets/vc1-w059-p0-b.png",
+        "sha256": "3443d087b7011bd3ad710fc7d60dd95853e1f0d10045c1038b6455fcb18f664e"
+      },
+      "procedural/assets/vc1-w060-p0-a.png": {
+        "path": "procedural/assets/vc1-w060-p0-a.png",
+        "sha256": "e0593bf8b5cf9824bb91021982ba573afd103dc6a74ad70d7e37db3d8a422380"
+      },
+      "procedural/assets/vc1-w060-p0-b.png": {
+        "path": "procedural/assets/vc1-w060-p0-b.png",
+        "sha256": "75004c226f58d28e89589d64f11b5e6df2f8c8d1bea40170a539b703a8033176"
+      },
+      "procedural/assets/vc1-w061-p0-a.png": {
+        "path": "procedural/assets/vc1-w061-p0-a.png",
+        "sha256": "ff807a5a4c2705e14ed61a709210081e51c10f209792336918036942e249cdf7"
+      },
+      "procedural/assets/vc1-w061-p0-b.png": {
+        "path": "procedural/assets/vc1-w061-p0-b.png",
+        "sha256": "7750c654698aa386cb3e25ff98bd0194bc522316a51336fffb3ace3601e3f4af"
+      },
+      "procedural/assets/vc1-w062-p0-a.png": {
+        "path": "procedural/assets/vc1-w062-p0-a.png",
+        "sha256": "f17eb0187fd4fccd8d87e276d50c220b47db17f80d72ec3a19c612c701e5a764"
+      },
+      "procedural/assets/vc1-w062-p0-b.png": {
+        "path": "procedural/assets/vc1-w062-p0-b.png",
+        "sha256": "f17eb0187fd4fccd8d87e276d50c220b47db17f80d72ec3a19c612c701e5a764"
+      },
+      "procedural/assets/vc1-w063-p0-a.png": {
+        "path": "procedural/assets/vc1-w063-p0-a.png",
+        "sha256": "afe93c23665fffca85e1505688f0d07a46b663e0f799990502ae9db6ec8771d4"
+      },
+      "procedural/assets/vc1-w063-p0-b.png": {
+        "path": "procedural/assets/vc1-w063-p0-b.png",
+        "sha256": "f355cf3cbccfb4de6679c5d1e8e4aaa703e8e4f204e6db95dcebdac75cac0697"
+      },
+      "procedural/assets/vc1-w064-p0-a.png": {
+        "path": "procedural/assets/vc1-w064-p0-a.png",
+        "sha256": "1091814f6673b3f849c249a6fc4951521b2fc349ec4b0bab1187e76e3e6700b1"
+      },
+      "procedural/assets/vc1-w064-p0-b.png": {
+        "path": "procedural/assets/vc1-w064-p0-b.png",
+        "sha256": "a781417253e74cc4fced87338e672bdbebf0e2cd743acc666b3068050fe3b677"
+      },
+      "procedural/assets/vc1-w065-p0-a.png": {
+        "path": "procedural/assets/vc1-w065-p0-a.png",
+        "sha256": "753668f963a1686c97ca3ba7aac565e564bbf0a210c1c726d7e7af6b909b7aaf"
+      },
+      "procedural/assets/vc1-w065-p0-b.png": {
+        "path": "procedural/assets/vc1-w065-p0-b.png",
+        "sha256": "753668f963a1686c97ca3ba7aac565e564bbf0a210c1c726d7e7af6b909b7aaf"
+      },
+      "procedural/assets/vc1-w066-p0-a.png": {
+        "path": "procedural/assets/vc1-w066-p0-a.png",
+        "sha256": "36a0c5425b509bac30ba647556bef922641a858c0ffa4d31517f4475dcd7cf81"
+      },
+      "procedural/assets/vc1-w066-p0-b.png": {
+        "path": "procedural/assets/vc1-w066-p0-b.png",
+        "sha256": "dfdaa49541baec9dafe4b7282a512be89058690759aebb7816eb43078bba64de"
+      },
+      "procedural/assets/vc1-w067-p0-a.png": {
+        "path": "procedural/assets/vc1-w067-p0-a.png",
+        "sha256": "1a66652ca8d07f040fc82dff2fae4469bd81f5a48bd212f179323dc395649e9a"
+      },
+      "procedural/assets/vc1-w067-p0-b.png": {
+        "path": "procedural/assets/vc1-w067-p0-b.png",
+        "sha256": "0d95c319e215f25145e994044e0e0c1260f6dac59f5eb8cfdeff30816bca7d54"
+      },
+      "procedural/assets/vc1-w068-p0-a.png": {
+        "path": "procedural/assets/vc1-w068-p0-a.png",
+        "sha256": "f3193eb49f7e535a8dcc60cbc65fa0ef6222baa0859917f97cf5b171ea52c64f"
+      },
+      "procedural/assets/vc1-w068-p0-b.png": {
+        "path": "procedural/assets/vc1-w068-p0-b.png",
+        "sha256": "f3193eb49f7e535a8dcc60cbc65fa0ef6222baa0859917f97cf5b171ea52c64f"
+      },
+      "procedural/assets/vc1-w069-p0-a.png": {
+        "path": "procedural/assets/vc1-w069-p0-a.png",
+        "sha256": "fad4f1a1cffce13b9ac5f7a7b8f09cfba52188efb135acf8158617fc5502972d"
+      },
+      "procedural/assets/vc1-w069-p0-b.png": {
+        "path": "procedural/assets/vc1-w069-p0-b.png",
+        "sha256": "020f515be8420b6879e77c9d9c2bc934501e0fac3faa725442debd150a42462d"
+      },
+      "procedural/assets/vc1-w070-p0-a.png": {
+        "path": "procedural/assets/vc1-w070-p0-a.png",
+        "sha256": "4351b97aa9a8fd34033795303d733d9b215c2ec309ab283e10a313d7a6db6760"
+      },
+      "procedural/assets/vc1-w070-p0-b.png": {
+        "path": "procedural/assets/vc1-w070-p0-b.png",
+        "sha256": "ff20a0f7b270c78110813b1ddf225ae7d848eb03c713d58e35403cffd6436c4e"
+      },
+      "procedural/assets/vc1-w071-p0-a.png": {
+        "path": "procedural/assets/vc1-w071-p0-a.png",
+        "sha256": "69e16c8c2cae44a99a589b2b052aa83b1a99779967a92fb593c0a7ee160cd315"
+      },
+      "procedural/assets/vc1-w071-p0-b.png": {
+        "path": "procedural/assets/vc1-w071-p0-b.png",
+        "sha256": "69e16c8c2cae44a99a589b2b052aa83b1a99779967a92fb593c0a7ee160cd315"
+      },
+      "procedural/assets/vc1-w072-p0-a.png": {
+        "path": "procedural/assets/vc1-w072-p0-a.png",
+        "sha256": "74c7bf7cdf9c9c615a5d8d9d779d98d7a409a5ddf49af2b4e7923e3e7eb1f2b0"
+      },
+      "procedural/assets/vc1-w072-p0-b.png": {
+        "path": "procedural/assets/vc1-w072-p0-b.png",
+        "sha256": "31d39b0ca483e40ac4ef5cdea2bed482bd08d2d97bfa4688ece77ae614a205e8"
+      },
+      "procedural/assets/vc1-w073-p0-a.png": {
+        "path": "procedural/assets/vc1-w073-p0-a.png",
+        "sha256": "f7d002e7c88b002ecafa51d3bbe4693924bda44ce7c739547625bb8719086bf9"
+      },
+      "procedural/assets/vc1-w073-p0-b.png": {
+        "path": "procedural/assets/vc1-w073-p0-b.png",
+        "sha256": "786a6cfe34e2c4ea3e7dcd8fb0f393ce079f597644fbbc96ae781b10c51cc2d8"
+      },
+      "procedural/assets/vc1-w074-p0-a.png": {
+        "path": "procedural/assets/vc1-w074-p0-a.png",
+        "sha256": "5c1b3306dea44af679a686b2c860e85881019a04fb1ca3ebb5fc84b11e919821"
+      },
+      "procedural/assets/vc1-w074-p0-b.png": {
+        "path": "procedural/assets/vc1-w074-p0-b.png",
+        "sha256": "cc8047e0b1a28d7f5750056f01b310801ed1e89fcd235d5773ed9680c9f1f41a"
+      },
+      "procedural/assets/vc1-w075-p0-a.png": {
+        "path": "procedural/assets/vc1-w075-p0-a.png",
+        "sha256": "fa5d7db5d3242a45120662fef39e9656812f12fc25927cfa5fcf04a238330683"
+      },
+      "procedural/assets/vc1-w075-p0-b.png": {
+        "path": "procedural/assets/vc1-w075-p0-b.png",
+        "sha256": "f42c2aed09d4c1781922c305edc0bb548ce18e0294617e609bc9d5f27ffe24ab"
+      },
+      "procedural/assets/vc1-w076-p0-a.png": {
+        "path": "procedural/assets/vc1-w076-p0-a.png",
+        "sha256": "2e3a0de712c6250c984f77419dc1b0ec41d877b96150104f89cc67e801da67ac"
+      },
+      "procedural/assets/vc1-w076-p0-b.png": {
+        "path": "procedural/assets/vc1-w076-p0-b.png",
+        "sha256": "29aa8c5fb6f1abd0e748dbac87c28d576ffed39a608d35ed754996bd777438eb"
+      },
+      "procedural/assets/vc1-w077-p0-a.png": {
+        "path": "procedural/assets/vc1-w077-p0-a.png",
+        "sha256": "ce98f6b7f2e56c2650d02c08e6b847ba24af4ca4ccdd24b9ae157e3c7594491c"
+      },
+      "procedural/assets/vc1-w077-p0-b.png": {
+        "path": "procedural/assets/vc1-w077-p0-b.png",
+        "sha256": "ac8bcbca0849efcac2461ec67009e6e6ac8ad226b36e40a1283da0ed4bbcbd8c"
+      },
+      "procedural/assets/vc1-w078-p0-a.png": {
+        "path": "procedural/assets/vc1-w078-p0-a.png",
+        "sha256": "3e78365408fe9bbed70847c979c4231cde96c677fbcb1cd374b84e690661ea88"
+      },
+      "procedural/assets/vc1-w078-p0-b.png": {
+        "path": "procedural/assets/vc1-w078-p0-b.png",
+        "sha256": "89ef5b369dfb25e3dbf21ec3514e127cc44f0184b7216368aaf9c52a2f57fd5e"
+      },
+      "procedural/assets/vc1-w079-p0-a.png": {
+        "path": "procedural/assets/vc1-w079-p0-a.png",
+        "sha256": "358ba684b7f351f650cae6f3b8d7369ff758c9d7cc57bd499876d14e0720781a"
+      },
+      "procedural/assets/vc1-w079-p0-b.png": {
+        "path": "procedural/assets/vc1-w079-p0-b.png",
+        "sha256": "5d689e725cb7123ed47c83593d8232d2eae26c1c42faa5b48ade2b9d29f3b527"
+      },
+      "procedural/assets/vc1-w080-p0-a.png": {
+        "path": "procedural/assets/vc1-w080-p0-a.png",
+        "sha256": "a5d6849abcae968140a8098327e06bdb5a4eb8ec2f99e69c0b9ef23998681d67"
+      },
+      "procedural/assets/vc1-w080-p0-b.png": {
+        "path": "procedural/assets/vc1-w080-p0-b.png",
+        "sha256": "587dab9005d03eec4f3d96ff92ea42fba7d46299a06b007d0807d0f0477bc91f"
+      },
+      "procedural/assets/vc1-w081-p0-a.png": {
+        "path": "procedural/assets/vc1-w081-p0-a.png",
+        "sha256": "d65c80327ea13b6ad6223b9405606394184017f8af1bc4539217983653c2ccba"
+      },
+      "procedural/assets/vc1-w081-p0-b.png": {
+        "path": "procedural/assets/vc1-w081-p0-b.png",
+        "sha256": "10a551a1465be9abc322a22a45b10d12b4b807ab528779fae86887304ee46649"
+      },
+      "procedural/assets/vc1-w082-p0-a.png": {
+        "path": "procedural/assets/vc1-w082-p0-a.png",
+        "sha256": "e58964e69d86cb3a50ad071ebc81ba432524db72b218053d9b2e39699281f5ce"
+      },
+      "procedural/assets/vc1-w082-p0-b.png": {
+        "path": "procedural/assets/vc1-w082-p0-b.png",
+        "sha256": "a24df2bfa3d28df140ca385481c21bc465e7fc95444c803aa12fbc283fb5c3f8"
+      },
+      "procedural/assets/vc1-w083-p0-a.png": {
+        "path": "procedural/assets/vc1-w083-p0-a.png",
+        "sha256": "bc1e772d019711d849b499e3353039eecd17aa82018775a3031957aec7b67469"
+      },
+      "procedural/assets/vc1-w083-p0-b.png": {
+        "path": "procedural/assets/vc1-w083-p0-b.png",
+        "sha256": "d66d4f5a25c65f33fa495976a9a4498677c3cb3fc0ab0a86487e795b98ad47d3"
+      },
+      "procedural/assets/vc1-w084-p0-a.png": {
+        "path": "procedural/assets/vc1-w084-p0-a.png",
+        "sha256": "011d2ba6f516e4380648468fc5381cbe944617cd13a76ecc2b47c5d2b4432d8c"
+      },
+      "procedural/assets/vc1-w084-p0-b.png": {
+        "path": "procedural/assets/vc1-w084-p0-b.png",
+        "sha256": "5dc06f43e7168cc402bd2ab0b8483f6f31ef261fde6c4c9bd675c702cce004e0"
+      },
+      "procedural/assets/vc1-w085-p0-a.png": {
+        "path": "procedural/assets/vc1-w085-p0-a.png",
+        "sha256": "8b9b6d3d46899ba7b01bc906b582ddea9ab592d04faa51acb3724153dea03c58"
+      },
+      "procedural/assets/vc1-w085-p0-b.png": {
+        "path": "procedural/assets/vc1-w085-p0-b.png",
+        "sha256": "2f53571225ed7fa0e5e3ea00db61701fb085be18c0343af2a6f7850f7a96270e"
+      },
+      "procedural/assets/vc1-w086-p0-a.png": {
+        "path": "procedural/assets/vc1-w086-p0-a.png",
+        "sha256": "da15013e97d778fe7d36b1f50a53f2e586b8b7003606366a10209f5fb719dcb2"
+      },
+      "procedural/assets/vc1-w086-p0-b.png": {
+        "path": "procedural/assets/vc1-w086-p0-b.png",
+        "sha256": "8df407900df418ed31eb20f4054e6cc3052ec1a68ca7115ad46e8eaefe8948e9"
+      },
+      "procedural/assets/vc1-w087-p0-a.png": {
+        "path": "procedural/assets/vc1-w087-p0-a.png",
+        "sha256": "a900289379b0260dff4ef5f536fa91d76399685c99f03eb39acf39f330a75272"
+      },
+      "procedural/assets/vc1-w087-p0-b.png": {
+        "path": "procedural/assets/vc1-w087-p0-b.png",
+        "sha256": "b29fffab876a7b380c4af2eebd7ad9fe3c7c0060863739e4fa27bd2ff701d370"
+      },
+      "procedural/assets/vc1-w088-p0-a.png": {
+        "path": "procedural/assets/vc1-w088-p0-a.png",
+        "sha256": "d9d15b5dbc52fe4b17504431d3528b009638d6b777c938c7f45b7ea7a617dca5"
+      },
+      "procedural/assets/vc1-w088-p0-b.png": {
+        "path": "procedural/assets/vc1-w088-p0-b.png",
+        "sha256": "b5dd00c88b1ac7bc58a4f4be24d41492afa00ddcd9d97a4cc328eb02ca2c091b"
+      },
+      "procedural/assets/vc1-w089-p0-a.png": {
+        "path": "procedural/assets/vc1-w089-p0-a.png",
+        "sha256": "da4d8139f08c85400fc4d330b9ddc2a6061dacc803986ca0ddcd3c0ffe665598"
+      },
+      "procedural/assets/vc1-w089-p0-b.png": {
+        "path": "procedural/assets/vc1-w089-p0-b.png",
+        "sha256": "d196dc67a79d6f77df722f46d170849756c78aa93dd1256a306cbcdcaf679e73"
+      },
+      "procedural/assets/vc1-w090-p0-a.png": {
+        "path": "procedural/assets/vc1-w090-p0-a.png",
+        "sha256": "4a79725afcfbf7667cf2c7113ceb50bc0457a473c91591ccf986bbc63dd3f4aa"
+      },
+      "procedural/assets/vc1-w090-p0-b.png": {
+        "path": "procedural/assets/vc1-w090-p0-b.png",
+        "sha256": "be0b9c7a8f7e84e6b941092d78e87a0d816430f78321d4c89d3c8b341ba15fdc"
+      },
+      "procedural/assets/vc1-w091-p0-a.png": {
+        "path": "procedural/assets/vc1-w091-p0-a.png",
+        "sha256": "1ae0f8a3fd42e64d01276a39bb5e0b446b194581476ff8eb1c86a157d711a610"
+      },
+      "procedural/assets/vc1-w091-p0-b.png": {
+        "path": "procedural/assets/vc1-w091-p0-b.png",
+        "sha256": "eb9f8975bb5b2456a7d83110faf71a0d53a40a86328818c0db6494204a829e56"
+      },
+      "procedural/assets/vc1-w092-p0-a.png": {
+        "path": "procedural/assets/vc1-w092-p0-a.png",
+        "sha256": "872cc28972d909620388bef4b04743b48399dc69ace64241deeba96e75952342"
+      },
+      "procedural/assets/vc1-w092-p0-b.png": {
+        "path": "procedural/assets/vc1-w092-p0-b.png",
+        "sha256": "870e3fe71f9a07f239b0301c65a21d68c9957bb158810fad9b35a1f7725a238d"
+      },
+      "procedural/assets/vc1-w093-p0-a.png": {
+        "path": "procedural/assets/vc1-w093-p0-a.png",
+        "sha256": "e68a19cab16b973dd5d3ac07255eb5d671027ad259b4a99613c1563ff5043ad0"
+      },
+      "procedural/assets/vc1-w093-p0-b.png": {
+        "path": "procedural/assets/vc1-w093-p0-b.png",
+        "sha256": "45c9d774533a165330023fb6f47f7f3605d55a378200de4c084688bb058215ca"
+      },
+      "procedural/assets/vc1-w094-p0-a.png": {
+        "path": "procedural/assets/vc1-w094-p0-a.png",
+        "sha256": "86c75878e64a3e536dacb11496e8f3b6451e5aca21b06e2becb391cbc8098e9e"
+      },
+      "procedural/assets/vc1-w094-p0-b.png": {
+        "path": "procedural/assets/vc1-w094-p0-b.png",
+        "sha256": "56ae22416a171e14a3b5d90cc0bc70474fa66f3205a3272198548713ca6eb527"
+      },
+      "procedural/assets/vc1-w095-p0-a.png": {
+        "path": "procedural/assets/vc1-w095-p0-a.png",
+        "sha256": "f82231d7cb8182ce0274ecdb24e61ee6b5a1a55e5cf8da561c92ed4bf7625030"
+      },
+      "procedural/assets/vc1-w095-p0-b.png": {
+        "path": "procedural/assets/vc1-w095-p0-b.png",
+        "sha256": "efd9ed97fb71be696c2d4b2b45dbcb8badd822ce23a97bd972c9de898e829d6b"
+      },
+      "procedural/assets/vc1-w096-p0-a.png": {
+        "path": "procedural/assets/vc1-w096-p0-a.png",
+        "sha256": "8c52d8a41e3d77052a774954f094a9795f68c52836e46877ad246358dcb989a9"
+      },
+      "procedural/assets/vc1-w096-p0-b.png": {
+        "path": "procedural/assets/vc1-w096-p0-b.png",
+        "sha256": "6bb87059124beb117f7d4984aa235e090979d04914d866544fc585feb603574e"
+      },
+      "procedural/assets/vc1-w097-p0-a.png": {
+        "path": "procedural/assets/vc1-w097-p0-a.png",
+        "sha256": "47e7b9dcaa0171ae3f40901bab1b932fde541f4a7fea83b293e4eac3c4d12cae"
+      },
+      "procedural/assets/vc1-w097-p0-b.png": {
+        "path": "procedural/assets/vc1-w097-p0-b.png",
+        "sha256": "ccf3c4984724d7c4745e99d14e40ef833f0d1e3e61ec52d2d73e8ab90dd37c37"
+      },
+      "procedural/assets/vc1-w098-p0-a.png": {
+        "path": "procedural/assets/vc1-w098-p0-a.png",
+        "sha256": "1034f2a22f26bbf2d77b580942805b25c9dff6965c6cd971d2e184be59ed8c29"
+      },
+      "procedural/assets/vc1-w098-p0-b.png": {
+        "path": "procedural/assets/vc1-w098-p0-b.png",
+        "sha256": "f91d3ead4f5f1951fe22767eba6a05dcb65dee0d5e030a106652b3f8e71f75bd"
+      },
+      "procedural/assets/vc1-w099-p0-a.png": {
+        "path": "procedural/assets/vc1-w099-p0-a.png",
+        "sha256": "93793f04e42720bf6f52cbffc16f1b6fb3fe63e6445730c26509b1840b73354c"
+      },
+      "procedural/assets/vc1-w099-p0-b.png": {
+        "path": "procedural/assets/vc1-w099-p0-b.png",
+        "sha256": "eacfbababb0572ac1c4dcef25da42c7dd9f25d4b8c614e7decc0a537eda62c9d"
+      },
+      "procedural/assets/vc1-w100-p0-a.png": {
+        "path": "procedural/assets/vc1-w100-p0-a.png",
+        "sha256": "82f94f9483e8d524b6839be86815af32f57a0e32b8a5da5653b74167b2be364d"
+      },
+      "procedural/assets/vc1-w100-p0-b.png": {
+        "path": "procedural/assets/vc1-w100-p0-b.png",
+        "sha256": "ea1d4e76c84a8d84cc2dd7dde8d79c13dceae2ca3bbd4d1d13d4c007c85328fc"
+      },
+      "procedural/assets/vc1-w101-p0-a.png": {
+        "path": "procedural/assets/vc1-w101-p0-a.png",
+        "sha256": "a1b7442041292f4f482caa4b3c0ca82b1581e6cf76f56bdc2daf4768a20afb54"
+      },
+      "procedural/assets/vc1-w101-p0-b.png": {
+        "path": "procedural/assets/vc1-w101-p0-b.png",
+        "sha256": "c3504846441f4bf028e985879853ea19a5936dba03dc8c39219d9d9cd9f80739"
+      },
+      "procedural/assets/vc1-w102-p0-a.png": {
+        "path": "procedural/assets/vc1-w102-p0-a.png",
+        "sha256": "40d24f72e53629b855afbe6d25acedff69077280207844dcc0995b6d25041d01"
+      },
+      "procedural/assets/vc1-w102-p0-b.png": {
+        "path": "procedural/assets/vc1-w102-p0-b.png",
+        "sha256": "b1a7bd727fc8451f5c9435f1658835faa60187df332591d2f9a2bff02594c9d9"
+      },
+      "procedural/assets/vc1-w103-p0-a.png": {
+        "path": "procedural/assets/vc1-w103-p0-a.png",
+        "sha256": "476ab7c2a593739c495358da21ae5dad5d245a60f6ff6eb1bd9bb33e5b465e81"
+      },
+      "procedural/assets/vc1-w103-p0-b.png": {
+        "path": "procedural/assets/vc1-w103-p0-b.png",
+        "sha256": "13cb81d77c11f631d916bb78c64a6748ab9b5be11fb81b73bc9ef58d3818a36c"
+      },
+      "procedural/assets/vc1-w104-p0-a.png": {
+        "path": "procedural/assets/vc1-w104-p0-a.png",
+        "sha256": "c2534608fcc32176264d96eac5adc7aef6cbd1803b65aceb580dd83e743aac9d"
+      },
+      "procedural/assets/vc1-w104-p0-b.png": {
+        "path": "procedural/assets/vc1-w104-p0-b.png",
+        "sha256": "2673ed37b20b8316a50f5686935a69ac64b53edc47216aad83c1fb752e450dd2"
+      },
+      "procedural/assets/vc1-w105-p0-a.png": {
+        "path": "procedural/assets/vc1-w105-p0-a.png",
+        "sha256": "f158c867392c7c23a0752dd7987355250de6e86ac4e8f517755ad0dcf43a29c8"
+      },
+      "procedural/assets/vc1-w105-p0-b.png": {
+        "path": "procedural/assets/vc1-w105-p0-b.png",
+        "sha256": "55db00cf1226c479fe452769236ad9fc1cb69aba30ba7875d7d812c9ae93e42b"
+      },
+      "procedural/assets/vc1-w106-p0-a.png": {
+        "path": "procedural/assets/vc1-w106-p0-a.png",
+        "sha256": "5c76fec76b8b2477901aced4356d2e0609467a707c1bc0e3309e1df3404e0c34"
+      },
+      "procedural/assets/vc1-w106-p0-b.png": {
+        "path": "procedural/assets/vc1-w106-p0-b.png",
+        "sha256": "f4e53c8ede361363dfae62d0d4f7e5b7bc2b2b0b531ed6f59f24a6c41dbf66b6"
+      },
+      "procedural/assets/vc1-w107-p0-a.png": {
+        "path": "procedural/assets/vc1-w107-p0-a.png",
+        "sha256": "40852076c3260874f24be2e15a1b393d6294c31bf875516e9e0671531bc0471a"
+      },
+      "procedural/assets/vc1-w107-p0-b.png": {
+        "path": "procedural/assets/vc1-w107-p0-b.png",
+        "sha256": "51f596fcbaaff0a70ab569ace0be3ece376210d8ad7001dd34010310db66e5a3"
+      },
+      "procedural/assets/vc1-w108-p0-a.png": {
+        "path": "procedural/assets/vc1-w108-p0-a.png",
+        "sha256": "8ee34c08bd18b67d33796fac046fbd25ee3526119bb6c92590dc95eff551c8e9"
+      },
+      "procedural/assets/vc1-w108-p0-b.png": {
+        "path": "procedural/assets/vc1-w108-p0-b.png",
+        "sha256": "f228c94e773e571425cb7c9e76630a8c87c88da36bd925643535e37ad4ff7135"
+      },
+      "procedural/assets/vc1-w109-p0-a.png": {
+        "path": "procedural/assets/vc1-w109-p0-a.png",
+        "sha256": "e0e6466f6d9960a7bebd21c71049932df77a47fd672103dd36aa80e4b5bf06ec"
+      },
+      "procedural/assets/vc1-w109-p0-b.png": {
+        "path": "procedural/assets/vc1-w109-p0-b.png",
+        "sha256": "1004529bdb6c13f2364a8ac197f090a810980d2d2ffc8a9e981e104bd5e6a883"
+      },
+      "procedural/assets/vc1-w110-p0-a.png": {
+        "path": "procedural/assets/vc1-w110-p0-a.png",
+        "sha256": "8dbd28a8edf32755611dced3d660d30fcc8a202741d6e27659ae439c69c6748d"
+      },
+      "procedural/assets/vc1-w110-p0-b.png": {
+        "path": "procedural/assets/vc1-w110-p0-b.png",
+        "sha256": "f762b288d2d524f60b5128ab00c663fec44e093b9285f8bf64677d7dd8205ff5"
+      },
+      "procedural/assets/vc1-w111-p0-a.png": {
+        "path": "procedural/assets/vc1-w111-p0-a.png",
+        "sha256": "fae66c8a9624c5288c3de6374a86e4f9759bd190100ef9d4df8beab91d1ee7f6"
+      },
+      "procedural/assets/vc1-w111-p0-b.png": {
+        "path": "procedural/assets/vc1-w111-p0-b.png",
+        "sha256": "97805e2edf1cc3150c37bf36ba62eb9825efc1403823e9cb9e94051b2c7e10a4"
+      },
+      "procedural/assets/vc1-w112-p0-a.png": {
+        "path": "procedural/assets/vc1-w112-p0-a.png",
+        "sha256": "65222da753b0e697e91d8c5387f563bbf0852ab7e932081df5905336abb32ee3"
+      },
+      "procedural/assets/vc1-w112-p0-b.png": {
+        "path": "procedural/assets/vc1-w112-p0-b.png",
+        "sha256": "0344228bf6605bdcda0efbe0115f82cd2f3bbe78bd9befae579dd1219741c9b6"
+      },
+      "procedural/assets/vc1-w113-p0-a.png": {
+        "path": "procedural/assets/vc1-w113-p0-a.png",
+        "sha256": "8140ed51be93a52a3125f6ec544e87195730092e8d8eb80ee2c65bdcbb829aeb"
+      },
+      "procedural/assets/vc1-w113-p0-b.png": {
+        "path": "procedural/assets/vc1-w113-p0-b.png",
+        "sha256": "645b93627cd9509644d06f235c9e1d353ffd20844e937f9500e346a67783b4d0"
+      },
+      "procedural/assets/vc1-w114-p0-a.png": {
+        "path": "procedural/assets/vc1-w114-p0-a.png",
+        "sha256": "fa3c780538134bee1df544625f9ec9513ace2ea0519042459040b7d751192fb6"
+      },
+      "procedural/assets/vc1-w114-p0-b.png": {
+        "path": "procedural/assets/vc1-w114-p0-b.png",
+        "sha256": "a977bd7068d2695eaed27c8c173ad415d6dce0c6fa5c3cc1f75cc55086b06d73"
+      },
+      "procedural/assets/vc1-w115-p0-a.png": {
+        "path": "procedural/assets/vc1-w115-p0-a.png",
+        "sha256": "4c671cea7e9a320593a6c62e961dd065591576bd7540f16e8ed8d4bb6b219ae8"
+      },
+      "procedural/assets/vc1-w115-p0-b.png": {
+        "path": "procedural/assets/vc1-w115-p0-b.png",
+        "sha256": "17369499d8c241e503bd0c738ccf8b24c6630dcfe247bde23fc10261f00e5ea7"
+      },
+      "procedural/assets/vc1-w116-p0-a.png": {
+        "path": "procedural/assets/vc1-w116-p0-a.png",
+        "sha256": "724c6aa3bc119a6de9f1a4487bee2734a6a2a645c62255bb38aa3bf5fd566602"
+      },
+      "procedural/assets/vc1-w116-p0-b.png": {
+        "path": "procedural/assets/vc1-w116-p0-b.png",
+        "sha256": "9ceb41ffe18b81d7cde333e3c37b2e06c93286cf29eb5d6b8db68b079f9e70ad"
+      },
+      "procedural/assets/vc1-w117-p0-a.png": {
+        "path": "procedural/assets/vc1-w117-p0-a.png",
+        "sha256": "e952eeb549d5585a6ccf6c1c95cbbcc99e75c377c3068724be92de0608b3518b"
+      },
+      "procedural/assets/vc1-w117-p0-b.png": {
+        "path": "procedural/assets/vc1-w117-p0-b.png",
+        "sha256": "c606614b850095978afaf2cd50ce7b23a407573767561de114e363adbcd7d914"
+      },
+      "procedural/assets/vc1-w118-p0-a.png": {
+        "path": "procedural/assets/vc1-w118-p0-a.png",
+        "sha256": "be7686e7c32e839185c4d396a38f6b08686db3c89e1835b226a0714e8d08f625"
+      },
+      "procedural/assets/vc1-w118-p0-b.png": {
+        "path": "procedural/assets/vc1-w118-p0-b.png",
+        "sha256": "250de2e5b19d305bd2fd8d822987cf4acd5f0356c30b23885d595b0ed9cc2428"
+      },
+      "procedural/assets/vc1-w119-p0-a.png": {
+        "path": "procedural/assets/vc1-w119-p0-a.png",
+        "sha256": "c2f24868f14eb8450dd9c24eff5fc0e1c8d8a8e5ee01492d870271c67de310ef"
+      },
+      "procedural/assets/vc1-w119-p0-b.png": {
+        "path": "procedural/assets/vc1-w119-p0-b.png",
+        "sha256": "3eb88b662853bc711081fda7e2563d81bd4582e62787490d5b10e058f416828e"
+      },
+      "procedural/assets/vc1-w120-p0-a.png": {
+        "path": "procedural/assets/vc1-w120-p0-a.png",
+        "sha256": "5dcfe72db2368d5fad6317646ede5cfa78e0bed39bde061928f20cdad66b49eb"
+      },
+      "procedural/assets/vc1-w120-p0-b.png": {
+        "path": "procedural/assets/vc1-w120-p0-b.png",
+        "sha256": "10c733ca3fec122af63e8810eae697b8bf422ea260a9ed28de76f08c941792be"
+      },
+      "procedural/assets/vc1-w121-p0-a.png": {
+        "path": "procedural/assets/vc1-w121-p0-a.png",
+        "sha256": "92d9e9b0266fa2abbbce0aaceb7f825dac8f9df6d2df475820a755e87b6c45d0"
+      },
+      "procedural/assets/vc1-w121-p0-b.png": {
+        "path": "procedural/assets/vc1-w121-p0-b.png",
+        "sha256": "74827eeada975084785495fc9d54bbee0d49e52197fd7fb8f1d3bc1dbc853829"
+      },
+      "procedural/assets/vc1-w122-p0-a.png": {
+        "path": "procedural/assets/vc1-w122-p0-a.png",
+        "sha256": "5f0b117fea982bc86bc6d4efdcd0b3c31e42d14780178481e855b977e6fd7ef4"
+      },
+      "procedural/assets/vc1-w122-p0-b.png": {
+        "path": "procedural/assets/vc1-w122-p0-b.png",
+        "sha256": "5f0b117fea982bc86bc6d4efdcd0b3c31e42d14780178481e855b977e6fd7ef4"
+      },
+      "procedural/assets/vc1-w123-p0-a.png": {
+        "path": "procedural/assets/vc1-w123-p0-a.png",
+        "sha256": "0c83c6eea800ff8bf9253853141f90f53e6abb2f3724a679a80ec68245c08f00"
+      },
+      "procedural/assets/vc1-w123-p0-b.png": {
+        "path": "procedural/assets/vc1-w123-p0-b.png",
+        "sha256": "d7bbd2e5b35d1005fa4b98e49bb4211e1a4b5708051060fe1d79014467c8385d"
+      },
+      "procedural/assets/vc1-w124-p0-a.png": {
+        "path": "procedural/assets/vc1-w124-p0-a.png",
+        "sha256": "f2a06842109c515a3168b76159408f4109e5276ea99d30ab71e12c079f384a16"
+      },
+      "procedural/assets/vc1-w124-p0-b.png": {
+        "path": "procedural/assets/vc1-w124-p0-b.png",
+        "sha256": "75b78ae3355692bc6296438f55cfee8e40d4f7004e0afe841a1e701a547fb57c"
+      },
+      "procedural/assets/vc1-w125-p0-a.png": {
+        "path": "procedural/assets/vc1-w125-p0-a.png",
+        "sha256": "eeb1424052f80d7c7fffef73ac598532b8eb537f34422c22d2b5a3c2057dcb38"
+      },
+      "procedural/assets/vc1-w125-p0-b.png": {
+        "path": "procedural/assets/vc1-w125-p0-b.png",
+        "sha256": "eeb1424052f80d7c7fffef73ac598532b8eb537f34422c22d2b5a3c2057dcb38"
+      },
+      "procedural/assets/vc1-w126-p0-a.png": {
+        "path": "procedural/assets/vc1-w126-p0-a.png",
+        "sha256": "21bbf9fd18dafd3e4343065dfa06deda7233bfba6ed6a715a9e751c854fbe5f7"
+      },
+      "procedural/assets/vc1-w126-p0-b.png": {
+        "path": "procedural/assets/vc1-w126-p0-b.png",
+        "sha256": "b955e61f403547409970c340268272c63cbfa28823a17bec36debf3fa6955a42"
+      },
+      "procedural/assets/vc1-w127-p0-a.png": {
+        "path": "procedural/assets/vc1-w127-p0-a.png",
+        "sha256": "f88bdad8d9f84200a8a6fcec097d44ca2d7ebe6c719dacc5bb5e5d0e383ce93b"
+      },
+      "procedural/assets/vc1-w127-p0-b.png": {
+        "path": "procedural/assets/vc1-w127-p0-b.png",
+        "sha256": "e272e6c51e7ef617b5fc212ce4823883d40376156aa3d1be2df1f7c26a01d693"
+      },
+      "procedural/assets/vc1-w128-p0-a.png": {
+        "path": "procedural/assets/vc1-w128-p0-a.png",
+        "sha256": "c9e560120f47b7e320c2d52f56ffb94194dfb5ba1e8826541fdd0f31068989b2"
+      },
+      "procedural/assets/vc1-w128-p0-b.png": {
+        "path": "procedural/assets/vc1-w128-p0-b.png",
+        "sha256": "c9e560120f47b7e320c2d52f56ffb94194dfb5ba1e8826541fdd0f31068989b2"
+      },
+      "procedural/assets/vc1-w129-p0-a.png": {
+        "path": "procedural/assets/vc1-w129-p0-a.png",
+        "sha256": "7475f7b3e1a2d46a3c5a85c98931ea1b5daa999b6396df3f3e10582c2440f7e0"
+      },
+      "procedural/assets/vc1-w129-p0-b.png": {
+        "path": "procedural/assets/vc1-w129-p0-b.png",
+        "sha256": "604b86b43fece89cf254d42af12223c95a53fee56d392a7ded1fd8824d2e726c"
+      },
+      "procedural/assets/vc1-w130-p0-a.png": {
+        "path": "procedural/assets/vc1-w130-p0-a.png",
+        "sha256": "8bf5fad719d450083c30f8c8ace42f1fd04dbc2203f307a7e58bc3e5728f94b6"
+      },
+      "procedural/assets/vc1-w130-p0-b.png": {
+        "path": "procedural/assets/vc1-w130-p0-b.png",
+        "sha256": "5bef3cb8ca1d1c675c6294d1999cc8a1421a246eba10f7fdd73249e1d7724246"
+      },
+      "procedural/assets/vc1-w131-p0-a.png": {
+        "path": "procedural/assets/vc1-w131-p0-a.png",
+        "sha256": "dbcacd184c896be1332f12c213d5985bff098adc29d376427bb6a28115ac730a"
+      },
+      "procedural/assets/vc1-w131-p0-b.png": {
+        "path": "procedural/assets/vc1-w131-p0-b.png",
+        "sha256": "dbcacd184c896be1332f12c213d5985bff098adc29d376427bb6a28115ac730a"
+      },
+      "procedural/assets/vc1-w132-p0-a.png": {
+        "path": "procedural/assets/vc1-w132-p0-a.png",
+        "sha256": "d2496c2596b36d7a0b1ff7c9e06864dd25caf2e55194e296f3c47b9063e84ba4"
+      },
+      "procedural/assets/vc1-w132-p0-b.png": {
+        "path": "procedural/assets/vc1-w132-p0-b.png",
+        "sha256": "1813d3c4ae569573c6df047e68848482864665831007be02207ab679ed8c85d8"
+      },
+      "procedural/assets/vc1-w133-p0-a.png": {
+        "path": "procedural/assets/vc1-w133-p0-a.png",
+        "sha256": "6e1fc06b058d9c64569a5acd36ba3049355e6e120780ee2303c87e4a63db5857"
+      },
+      "procedural/assets/vc1-w133-p0-b.png": {
+        "path": "procedural/assets/vc1-w133-p0-b.png",
+        "sha256": "55e7ce61259aaed009666415014063643b2c6305adf7379fbed4443aa696c0f3"
+      },
+      "procedural/assets/vc1-w134-p0-a.png": {
+        "path": "procedural/assets/vc1-w134-p0-a.png",
+        "sha256": "52acc1bdc37696a1d4038822fc77dac2b0e45f184efb71430ac1d8acf7575b51"
+      },
+      "procedural/assets/vc1-w134-p0-b.png": {
+        "path": "procedural/assets/vc1-w134-p0-b.png",
+        "sha256": "c1fb0d1b0485acb2b9a5ac5c73886b2613748e4522988d8723a1a03b6c89fd00"
+      },
+      "procedural/assets/vc1-w135-p0-a.png": {
+        "path": "procedural/assets/vc1-w135-p0-a.png",
+        "sha256": "583f445c64b2f40a7dc06b261ca693971968ad3261e078e93d3d2e8554bec0d6"
+      },
+      "procedural/assets/vc1-w135-p0-b.png": {
+        "path": "procedural/assets/vc1-w135-p0-b.png",
+        "sha256": "dc3d16f6d4d6cb02f2a0a1a7ade1c8cac28772557e6377cc41fe4cba68c286e5"
+      },
+      "procedural/assets/vc1-w136-p0-a.png": {
+        "path": "procedural/assets/vc1-w136-p0-a.png",
+        "sha256": "7855f315592b5cfaff2bb36d91b0dfd2de0b800b2282e14665c1fd29abf9b483"
+      },
+      "procedural/assets/vc1-w136-p0-b.png": {
+        "path": "procedural/assets/vc1-w136-p0-b.png",
+        "sha256": "2b317b6d3ddd17238e5e709a4de0696a4c5bfb5647fa1abc1bb728edfa286d4f"
+      },
+      "procedural/assets/vc1-w137-p0-a.png": {
+        "path": "procedural/assets/vc1-w137-p0-a.png",
+        "sha256": "6045750c168917cea848c23eb1f51ec3c22e16df764c369cc13e5576d7df704f"
+      },
+      "procedural/assets/vc1-w137-p0-b.png": {
+        "path": "procedural/assets/vc1-w137-p0-b.png",
+        "sha256": "1ba0345de7bfaaf2d8cf99d5a6fe816d85909a5c3277fed8768f2d05330cb95e"
+      },
+      "procedural/assets/vc1-w138-p0-a.png": {
+        "path": "procedural/assets/vc1-w138-p0-a.png",
+        "sha256": "61fe3783c802c9ad9c24fe060c377680a3cbc56ddfaa3dbc6b77dd11af9d78bd"
+      },
+      "procedural/assets/vc1-w138-p0-b.png": {
+        "path": "procedural/assets/vc1-w138-p0-b.png",
+        "sha256": "faf67f2d1fe953af23f007c2562531a772ac37e0cff0c7b92a20b54ab48aefa6"
+      },
+      "procedural/assets/vc1-w139-p0-a.png": {
+        "path": "procedural/assets/vc1-w139-p0-a.png",
+        "sha256": "99f034d93b76115005971c6f84989bdce7c8d32d04d20f48d3824e5a078f4622"
+      },
+      "procedural/assets/vc1-w139-p0-b.png": {
+        "path": "procedural/assets/vc1-w139-p0-b.png",
+        "sha256": "6a5e33888a9a72e8dcefdcb4af78c8d10f411d4594c92c91722f12ec2e79e840"
+      },
+      "procedural/assets/vc1-w140-p0-a.png": {
+        "path": "procedural/assets/vc1-w140-p0-a.png",
+        "sha256": "5c93af9c403d25d0ff271b9e9099201111c482b21e92f6a677164853838bff15"
+      },
+      "procedural/assets/vc1-w140-p0-b.png": {
+        "path": "procedural/assets/vc1-w140-p0-b.png",
+        "sha256": "22335a1950f22e271cfc1f1e7b0e2c35d51d47d8296deec39ab653416c818030"
+      },
+      "procedural/assets/vc1-w141-p0-a.png": {
+        "path": "procedural/assets/vc1-w141-p0-a.png",
+        "sha256": "adc3721116efae22704554cb0dc6cbbc0343b769408973344b661fec745c0e78"
+      },
+      "procedural/assets/vc1-w141-p0-b.png": {
+        "path": "procedural/assets/vc1-w141-p0-b.png",
+        "sha256": "7641753fc68936c745d8f84d80da238092c92c3fd8dfe5814c5234ba8dceea1b"
+      },
+      "procedural/assets/vc1-w142-p0-a.png": {
+        "path": "procedural/assets/vc1-w142-p0-a.png",
+        "sha256": "c08078797402d22da45f6401c28384e7bf95b8c17543a54a073b217e7ceb2e8a"
+      },
+      "procedural/assets/vc1-w142-p0-b.png": {
+        "path": "procedural/assets/vc1-w142-p0-b.png",
+        "sha256": "5a08c9db7f1a1f520bb0003e6a41d905ae58a7ca6e498be6d3493fecc6c38df3"
+      },
+      "procedural/assets/vc1-w143-p0-a.png": {
+        "path": "procedural/assets/vc1-w143-p0-a.png",
+        "sha256": "32b7acf163a784161f260877a5894f03a64517446c1566e9d37fdfb0698adbb6"
+      },
+      "procedural/assets/vc1-w143-p0-b.png": {
+        "path": "procedural/assets/vc1-w143-p0-b.png",
+        "sha256": "e6dcdd5bba777e30cdf4b54c02c2aa4462aa5f242d29c016dbf1bb4955b82dcd"
+      },
+      "procedural/assets/vc1-w144-p0-a.png": {
+        "path": "procedural/assets/vc1-w144-p0-a.png",
+        "sha256": "b1c2c915401e310a1e03853f645804c4d67ba098b92a3008e3a4bc08b5e311e1"
+      },
+      "procedural/assets/vc1-w144-p0-b.png": {
+        "path": "procedural/assets/vc1-w144-p0-b.png",
+        "sha256": "7919049612a864d8ba510a804a740d48e07280771f433ae24d608cd1791bd040"
+      },
+      "procedural/assets/vc1-w145-p0-a.png": {
+        "path": "procedural/assets/vc1-w145-p0-a.png",
+        "sha256": "b3c8becd34cace87c38afe9f50a9f1b1f24fc02c3c96a0310d54fc8e281e0b59"
+      },
+      "procedural/assets/vc1-w145-p0-b.png": {
+        "path": "procedural/assets/vc1-w145-p0-b.png",
+        "sha256": "9210f2282eb5157f4b524991424832b2933d24e491e318bd2fde8c56d46e73e7"
+      },
+      "procedural/assets/vc1-w146-p0-a.png": {
+        "path": "procedural/assets/vc1-w146-p0-a.png",
+        "sha256": "091d8c93758d377f8bd3e9b660c7b7b94fb144adc11111c16232db537ade33d3"
+      },
+      "procedural/assets/vc1-w146-p0-b.png": {
+        "path": "procedural/assets/vc1-w146-p0-b.png",
+        "sha256": "227479d16075880717758e188a9b1736f9fc0addaedac93f93501f776633b9c7"
+      },
+      "procedural/assets/vc1-w147-p0-a.png": {
+        "path": "procedural/assets/vc1-w147-p0-a.png",
+        "sha256": "10768d580767aac2500b5e30ae798cc42303267b0c4df77576e3d52cd918d45a"
+      },
+      "procedural/assets/vc1-w147-p0-b.png": {
+        "path": "procedural/assets/vc1-w147-p0-b.png",
+        "sha256": "a87a1c4457248646cd229dcd9f4a54b07a3a102c9fbc5d1c0bbe5e49624069f1"
+      },
+      "procedural/assets/vc1-w148-p0-a.png": {
+        "path": "procedural/assets/vc1-w148-p0-a.png",
+        "sha256": "e4683e7f8ced048341e4a912f8b890b9b2acd3b3461b52a6d91e555bd8990a9f"
+      },
+      "procedural/assets/vc1-w148-p0-b.png": {
+        "path": "procedural/assets/vc1-w148-p0-b.png",
+        "sha256": "95f066140c559218ec18dab49cea749d0708cbcdc1f2776170b26937200a777e"
+      },
+      "procedural/assets/vc1-w149-p0-a.png": {
+        "path": "procedural/assets/vc1-w149-p0-a.png",
+        "sha256": "92c4b2ac11f400e092cf2dc2639943443684fea39099215dfea6f2dd43df3327"
+      },
+      "procedural/assets/vc1-w149-p0-b.png": {
+        "path": "procedural/assets/vc1-w149-p0-b.png",
+        "sha256": "95c809d6e5b506d0c5f869db10c1ff78ddf2f9bba7b97caafbe3ab2824bc1a95"
+      },
+      "procedural/assets/vc1-w150-p0-a.png": {
+        "path": "procedural/assets/vc1-w150-p0-a.png",
+        "sha256": "7eb7f662d819b81950cf8d2978ac393b9b2e205861531910a147eccb26c10a8c"
+      },
+      "procedural/assets/vc1-w150-p0-b.png": {
+        "path": "procedural/assets/vc1-w150-p0-b.png",
+        "sha256": "815f6e20f22f1d72e8538318edfe0ae7ebefe0ed758f5b8fe738238606d5bb18"
+      },
+      "procedural/assets/vc1-w151-p0-a.png": {
+        "path": "procedural/assets/vc1-w151-p0-a.png",
+        "sha256": "2cf8d6391d2bb4bbc87419f1ecb3f149d5c9f8835c38e2e08d0a08f69b3897f0"
+      },
+      "procedural/assets/vc1-w151-p0-b.png": {
+        "path": "procedural/assets/vc1-w151-p0-b.png",
+        "sha256": "b69f17104f1e18c2f27a480da537fec021d0d272c0e6b88cf1bc85c209004481"
+      },
+      "procedural/assets/vc1-w152-p0-a.png": {
+        "path": "procedural/assets/vc1-w152-p0-a.png",
+        "sha256": "f3ba4200ad77af4b6c7fda201a1552ded548de89793dab09ad6ae8bb3173e652"
+      },
+      "procedural/assets/vc1-w152-p0-b.png": {
+        "path": "procedural/assets/vc1-w152-p0-b.png",
+        "sha256": "476645c8295d6037232a428b7c732378f4e352123176e7729df93c0b86f96e58"
+      },
+      "procedural/assets/vc1-w153-p0-a.png": {
+        "path": "procedural/assets/vc1-w153-p0-a.png",
+        "sha256": "3c18126d1ac97f6bf2c7432be9b6c572faab68fcbc4d6e4fa559c5a272518e07"
+      },
+      "procedural/assets/vc1-w153-p0-b.png": {
+        "path": "procedural/assets/vc1-w153-p0-b.png",
+        "sha256": "e071dcde830eb49e639318a489a539f42ffb393bad9dbc2ffff636e5d2b3cf25"
+      },
+      "procedural/assets/vc1-w154-p0-a.png": {
+        "path": "procedural/assets/vc1-w154-p0-a.png",
+        "sha256": "e1427850acf7cc1676e414c59c7cfd94f52a8bf9260911c497432d89d4f14f60"
+      },
+      "procedural/assets/vc1-w154-p0-b.png": {
+        "path": "procedural/assets/vc1-w154-p0-b.png",
+        "sha256": "8e7841986bb5d886857115c9d730c2b04d47dae410bfed326aa9563c8f64b5b5"
+      },
+      "procedural/assets/vc1-w155-p0-a.png": {
+        "path": "procedural/assets/vc1-w155-p0-a.png",
+        "sha256": "b55baa396e534baa57eabd1ee3a0324ae87507aea8721a8f7bd7a9f0e4f2e2ac"
+      },
+      "procedural/assets/vc1-w155-p0-b.png": {
+        "path": "procedural/assets/vc1-w155-p0-b.png",
+        "sha256": "d1773b36dd3fdace06159011d2e0964d26f1685390a63dc5409f6e20be810f7f"
+      },
+      "procedural/assets/vc1-w156-p0-a.png": {
+        "path": "procedural/assets/vc1-w156-p0-a.png",
+        "sha256": "fa136c8b822d38a9ee4739d33c94b72e7c7ae8dbc5302db053eeda046e0b8b5d"
+      },
+      "procedural/assets/vc1-w156-p0-b.png": {
+        "path": "procedural/assets/vc1-w156-p0-b.png",
+        "sha256": "43b5d40c34adbaa8a1cc07f94ce8a5de918f98ac23f7bfb543e926f46dc1bfb1"
+      },
+      "procedural/assets/vc1-w157-p0-a.png": {
+        "path": "procedural/assets/vc1-w157-p0-a.png",
+        "sha256": "82aeab52cc04ef731b0abf7c3b29fca19a6605c83e949787df47d2db43c77c87"
+      },
+      "procedural/assets/vc1-w157-p0-b.png": {
+        "path": "procedural/assets/vc1-w157-p0-b.png",
+        "sha256": "51d1bdb18dc1c5076a766fdbfaaec9ba2ba0d449e6bdc5175e9b251615fe1f0c"
+      },
+      "procedural/assets/vc1-w158-p0-a.png": {
+        "path": "procedural/assets/vc1-w158-p0-a.png",
+        "sha256": "83ce97e923c7ab768c92d5d5e77e0c1e42cdb59eb3629c7f05b1f8d2083d0330"
+      },
+      "procedural/assets/vc1-w158-p0-b.png": {
+        "path": "procedural/assets/vc1-w158-p0-b.png",
+        "sha256": "ddf1305bfa7753dc353e8362854838fcba4236efdba5dd1d55f4b60c09445626"
+      },
+      "procedural/assets/vc1-w159-p0-a.png": {
+        "path": "procedural/assets/vc1-w159-p0-a.png",
+        "sha256": "e902ecb835011ad14c7e4e474e34a5ec867849f42ee22d7925fcfbb4c0e35491"
+      },
+      "procedural/assets/vc1-w159-p0-b.png": {
+        "path": "procedural/assets/vc1-w159-p0-b.png",
+        "sha256": "e7bec3f08251b8b7be5e80faf761979cf73127152b7354aa73c62fddec86409b"
+      },
+      "procedural/assets/vc1-w160-p0-a.png": {
+        "path": "procedural/assets/vc1-w160-p0-a.png",
+        "sha256": "1f1e62fa474ed679cf2bdbd4c375523027be1318c8efd6092832fd092b1b4ae1"
+      },
+      "procedural/assets/vc1-w160-p0-b.png": {
+        "path": "procedural/assets/vc1-w160-p0-b.png",
+        "sha256": "71811f4d0f28c69193ec7cf1373a096ae08e7dd2f4937267e8c9f2aaab957d9e"
+      },
+      "procedural/assets/vc1-w161-p0-a.png": {
+        "path": "procedural/assets/vc1-w161-p0-a.png",
+        "sha256": "4aee8226e90ab1e076fc80c831ee17dbef9ac514db81e491051b4053e90322fe"
+      },
+      "procedural/assets/vc1-w161-p0-b.png": {
+        "path": "procedural/assets/vc1-w161-p0-b.png",
+        "sha256": "45473e9d3b245f7bd5edc17bccb39a2b0c0fd9aa1c47f31079d1309d0f0ac719"
+      },
+      "procedural/assets/vc1-w162-p0-a.png": {
+        "path": "procedural/assets/vc1-w162-p0-a.png",
+        "sha256": "55bcad095aeb95104a68a0dd49fca9df9b8b88cc80d4fd7dae782574511d0a59"
+      },
+      "procedural/assets/vc1-w162-p0-b.png": {
+        "path": "procedural/assets/vc1-w162-p0-b.png",
+        "sha256": "839c649c8d9154f5e70132ea50fd8fc5be9d9fc048842ae5b312be77ad02bdfe"
+      },
+      "procedural/assets/vc1-w163-p0-a.png": {
+        "path": "procedural/assets/vc1-w163-p0-a.png",
+        "sha256": "8b986b5650f8fe588c3f9a37c76b8f85bc87980d3cb34a45ff9dccdfdeabded4"
+      },
+      "procedural/assets/vc1-w163-p0-b.png": {
+        "path": "procedural/assets/vc1-w163-p0-b.png",
+        "sha256": "4f144316b5e2f62bc38c17a79663948225b6a81fa3d41d508a3ed2ac61accca8"
+      },
+      "procedural/assets/vc1-w164-p0-a.png": {
+        "path": "procedural/assets/vc1-w164-p0-a.png",
+        "sha256": "8bc96ba1822be95d35c294ae55ede4419eaee35a6e33939757fb3fe6a0b000dc"
+      },
+      "procedural/assets/vc1-w164-p0-b.png": {
+        "path": "procedural/assets/vc1-w164-p0-b.png",
+        "sha256": "56f7154be02a007e7de193ba7e37aabfe3fbf41ee3836c2371ef5dc5e6bbbd30"
+      },
+      "procedural/assets/vc1-w165-p0-a.png": {
+        "path": "procedural/assets/vc1-w165-p0-a.png",
+        "sha256": "b3fbdf03709e0d52294c7ff2ede89ce6403c2070a5e27bb138e36858932f6740"
+      },
+      "procedural/assets/vc1-w165-p0-b.png": {
+        "path": "procedural/assets/vc1-w165-p0-b.png",
+        "sha256": "79ec94eaab705dfbddc6406ac86a996a290484a2b0afd0203f9aa999808ec0a4"
+      },
+      "procedural/assets/vc1-w166-p0-a.png": {
+        "path": "procedural/assets/vc1-w166-p0-a.png",
+        "sha256": "13a234d9eec469a5a124d425e184ee33a28a26ba624c8657ab6ea1605030cae1"
+      },
+      "procedural/assets/vc1-w166-p0-b.png": {
+        "path": "procedural/assets/vc1-w166-p0-b.png",
+        "sha256": "0ca381cf8bf84b57807915a0149f7af01efa63fca431d5333f26b361cba71079"
+      },
+      "procedural/assets/vc1-w167-p0-a.png": {
+        "path": "procedural/assets/vc1-w167-p0-a.png",
+        "sha256": "98f7319e00642e96a38dcbbecebbe580cfd60fcd958f45d803139dbcb3f297aa"
+      },
+      "procedural/assets/vc1-w167-p0-b.png": {
+        "path": "procedural/assets/vc1-w167-p0-b.png",
+        "sha256": "93fef1118d31d4f63d2cabfed656e60396fda300158403e363a096077293dd98"
+      },
+      "procedural/assets/vc1-w168-p0-a.png": {
+        "path": "procedural/assets/vc1-w168-p0-a.png",
+        "sha256": "a5911b221f88f4459939dbe61a11af250cdb1d2786b673fe858d1f3e0c233bef"
+      },
+      "procedural/assets/vc1-w168-p0-b.png": {
+        "path": "procedural/assets/vc1-w168-p0-b.png",
+        "sha256": "458a77b5a6b1a5e52db5e4ce7905d6a765d772b43a3bff6ecad7917ddf78f359"
+      },
+      "procedural/assets/vc1-w169-p0-a.png": {
+        "path": "procedural/assets/vc1-w169-p0-a.png",
+        "sha256": "83f9ee8b5b8929adcd0f5235f51c3890f69b10e554f88ec6c441fd16dea5ae8b"
+      },
+      "procedural/assets/vc1-w169-p0-b.png": {
+        "path": "procedural/assets/vc1-w169-p0-b.png",
+        "sha256": "a42a007f0e6e28a0277418647c3b3d46a4e7b3294269425cbb9dd98ead15e8ca"
+      },
+      "procedural/assets/vc1-w170-p0-a.png": {
+        "path": "procedural/assets/vc1-w170-p0-a.png",
+        "sha256": "fc8940e2ec6fbb3c82bfe22f5fa26a584f0b5424d812ea1b0b355e6169a38f65"
+      },
+      "procedural/assets/vc1-w170-p0-b.png": {
+        "path": "procedural/assets/vc1-w170-p0-b.png",
+        "sha256": "e9dd25529eb7c233250ad3ad01841f4231bd9f879ce822bdf21954771a538d5c"
+      },
+      "procedural/assets/vc1-w171-p0-a.png": {
+        "path": "procedural/assets/vc1-w171-p0-a.png",
+        "sha256": "14796afbd0f1bc926478dda1498f73020e4c8229d006c4f2f438ecb1cba1c77b"
+      },
+      "procedural/assets/vc1-w171-p0-b.png": {
+        "path": "procedural/assets/vc1-w171-p0-b.png",
+        "sha256": "9ec48bac3bd2ed4228c25e6933376d008a6676dc63cea7dab92d659799026ebc"
+      },
+      "procedural/assets/vc1-w172-p0-a.png": {
+        "path": "procedural/assets/vc1-w172-p0-a.png",
+        "sha256": "470987009e6dda76bfb3ccc3a805cebb15e0006a8f28412cb9c7bbbf5049f920"
+      },
+      "procedural/assets/vc1-w172-p0-b.png": {
+        "path": "procedural/assets/vc1-w172-p0-b.png",
+        "sha256": "605580b9994ed9cd095c83bcdcb3a612d0be28c5960cb42aaac9f5a124617a1e"
+      },
+      "procedural/assets/vc1-w173-p0-a.png": {
+        "path": "procedural/assets/vc1-w173-p0-a.png",
+        "sha256": "c80a63f6c27e8a177954c0ceb66b69335d443b57dca43b388c65d1fd1164db13"
+      },
+      "procedural/assets/vc1-w173-p0-b.png": {
+        "path": "procedural/assets/vc1-w173-p0-b.png",
+        "sha256": "7ddac976a73343e4c97b6b171aa7f2d1913df433043412fcea178a6a6d8773f3"
+      },
+      "procedural/assets/vc1-w174-p0-a.png": {
+        "path": "procedural/assets/vc1-w174-p0-a.png",
+        "sha256": "8876109aafd05397f90ede29e10a461e90f12ae9761a111bd3a7951eb0a21baf"
+      },
+      "procedural/assets/vc1-w174-p0-b.png": {
+        "path": "procedural/assets/vc1-w174-p0-b.png",
+        "sha256": "449dbf31df4ec613ff64f263fda16fd2c866bff89eaffd923b6a974b000ca2c7"
+      },
+      "procedural/assets/vc1-w175-p0-a.png": {
+        "path": "procedural/assets/vc1-w175-p0-a.png",
+        "sha256": "cc9f734cc550c61e2019ed8f32e11031921771a1ee9f35f0afe53be906e3d79c"
+      },
+      "procedural/assets/vc1-w175-p0-b.png": {
+        "path": "procedural/assets/vc1-w175-p0-b.png",
+        "sha256": "3ab0706d952fb1ccbd3a96315e7c63b7d71fc1687d0dee160ab675be82eab158"
+      },
+      "procedural/assets/vc1-w176-p0-a.png": {
+        "path": "procedural/assets/vc1-w176-p0-a.png",
+        "sha256": "af27dfbe49f808e815373c9d777b66f7c7039cae26d8d23e045fe757035f8e4b"
+      },
+      "procedural/assets/vc1-w176-p0-b.png": {
+        "path": "procedural/assets/vc1-w176-p0-b.png",
+        "sha256": "bc6e98ca637633c4d26c86812f469ad9392f723210443ef6707c634700ea9ff6"
+      },
+      "procedural/assets/vc1-w177-p0-a.png": {
+        "path": "procedural/assets/vc1-w177-p0-a.png",
+        "sha256": "095a0ae2eee6a8010640729f278f85dba6e70139a60632610683b4ec06417ef3"
+      },
+      "procedural/assets/vc1-w177-p0-b.png": {
+        "path": "procedural/assets/vc1-w177-p0-b.png",
+        "sha256": "45113312a2ad1d9d874c6624b6cda978b1bd9d68835d2b48bcab4741928b8ca3"
+      },
+      "procedural/assets/vc1-w178-p0-a.png": {
+        "path": "procedural/assets/vc1-w178-p0-a.png",
+        "sha256": "92260bd878b1e8ae1542f7f22b391835c72c3d7b08e094284028298bd70666cd"
+      },
+      "procedural/assets/vc1-w178-p0-b.png": {
+        "path": "procedural/assets/vc1-w178-p0-b.png",
+        "sha256": "067fc30c68a9752a540d2f63e744946e690a0b9361845ed2dd37598c0d5a48cc"
+      },
+      "procedural/assets/vc1-w179-p0-a.png": {
+        "path": "procedural/assets/vc1-w179-p0-a.png",
+        "sha256": "1507a87a5a3222ece9ec83a9ab9c7fed13ddee4a7436ad4bc8b4b2c3b4de3279"
+      },
+      "procedural/assets/vc1-w179-p0-b.png": {
+        "path": "procedural/assets/vc1-w179-p0-b.png",
+        "sha256": "18b5ccc748ab0a400dbba6b743360c7a8986971a1a61dc02fcd888aae17f6195"
+      },
+      "procedural/assets/vc1-w180-p0-a.png": {
+        "path": "procedural/assets/vc1-w180-p0-a.png",
+        "sha256": "f2522018a6bcee888f1534c2f193a0f64baaace8baab52f6ff158c2f841fdaba"
+      },
+      "procedural/assets/vc1-w180-p0-b.png": {
+        "path": "procedural/assets/vc1-w180-p0-b.png",
+        "sha256": "ad27186e9f9e66d7fb2b29a580628c60f38a9dee3b51906da969a6ad47755614"
+      },
+      "procedural/assets/vc1-w181-p0-a.png": {
+        "path": "procedural/assets/vc1-w181-p0-a.png",
+        "sha256": "e24c103157b1b403454ef1c298432f12eaacab349de5972843dd05b7653ae5ac"
+      },
+      "procedural/assets/vc1-w181-p0-b.png": {
+        "path": "procedural/assets/vc1-w181-p0-b.png",
+        "sha256": "a97af2d11fec309df156d8a073cf974d0e227cf05cf394bc1c8f518b0b10626f"
+      },
+      "procedural/assets/vc1-w182-p0-a.png": {
+        "path": "procedural/assets/vc1-w182-p0-a.png",
+        "sha256": "42b10d5d1fb1a50cf662371ad3f2e4aba29824a97c147f2f9fe0b3cb5002470b"
+      },
+      "procedural/assets/vc1-w182-p0-b.png": {
+        "path": "procedural/assets/vc1-w182-p0-b.png",
+        "sha256": "42b10d5d1fb1a50cf662371ad3f2e4aba29824a97c147f2f9fe0b3cb5002470b"
+      },
+      "procedural/assets/vc1-w183-p0-a.png": {
+        "path": "procedural/assets/vc1-w183-p0-a.png",
+        "sha256": "a8948b6a8271cebfc6ba8cf3a0257b6e56c5defbf08e20e8ba54d1721e4412aa"
+      },
+      "procedural/assets/vc1-w183-p0-b.png": {
+        "path": "procedural/assets/vc1-w183-p0-b.png",
+        "sha256": "8aabc584dbed4fd41f1c3afb6495f1ee1010323b1b32021a3432647fba42526f"
+      },
+      "procedural/assets/vc1-w184-p0-a.png": {
+        "path": "procedural/assets/vc1-w184-p0-a.png",
+        "sha256": "2ac419893c9361327ae90a15b3b40561f088d86a653f8416ca921c86eca05dce"
+      },
+      "procedural/assets/vc1-w184-p0-b.png": {
+        "path": "procedural/assets/vc1-w184-p0-b.png",
+        "sha256": "e9fc7a01faf2dd4b67d3494ace43b9e3190ea1427f88925e27d13d4a2d60e3d6"
+      },
+      "procedural/assets/vc1-w185-p0-a.png": {
+        "path": "procedural/assets/vc1-w185-p0-a.png",
+        "sha256": "6ec70ef96a991ae4b177971b2a51a376c5734461b983ef216f1d29bfae4db919"
+      },
+      "procedural/assets/vc1-w185-p0-b.png": {
+        "path": "procedural/assets/vc1-w185-p0-b.png",
+        "sha256": "6ec70ef96a991ae4b177971b2a51a376c5734461b983ef216f1d29bfae4db919"
+      },
+      "procedural/assets/vc1-w186-p0-a.png": {
+        "path": "procedural/assets/vc1-w186-p0-a.png",
+        "sha256": "c72777d14cb67d304eca3dcd5f2935be8a6f8e997333e532e8bdcb62299104d9"
+      },
+      "procedural/assets/vc1-w186-p0-b.png": {
+        "path": "procedural/assets/vc1-w186-p0-b.png",
+        "sha256": "db31a97494a09c7a70dba07962203c40ec0ada4e49612a1f05d46185c27e65d8"
+      },
+      "procedural/assets/vc1-w187-p0-a.png": {
+        "path": "procedural/assets/vc1-w187-p0-a.png",
+        "sha256": "a127ad1519af7b6e69c7ffa0bb1b04a4cbd50aa60403849d72606ca58fb6dbe3"
+      },
+      "procedural/assets/vc1-w187-p0-b.png": {
+        "path": "procedural/assets/vc1-w187-p0-b.png",
+        "sha256": "0600440ec95ea01f7e3e8444cff765d104e43283af45357f3bbec14a3e0e93d0"
+      },
+      "procedural/assets/vc1-w188-p0-a.png": {
+        "path": "procedural/assets/vc1-w188-p0-a.png",
+        "sha256": "fa8b0d1ec7552dac2cb982ac0f1fe5ca824bd8536f9313b7ee31c72b252b7cda"
+      },
+      "procedural/assets/vc1-w188-p0-b.png": {
+        "path": "procedural/assets/vc1-w188-p0-b.png",
+        "sha256": "fa8b0d1ec7552dac2cb982ac0f1fe5ca824bd8536f9313b7ee31c72b252b7cda"
+      },
+      "procedural/assets/vc1-w189-p0-a.png": {
+        "path": "procedural/assets/vc1-w189-p0-a.png",
+        "sha256": "c90465a3f3b35a55023bce16864ffbbf1ecbc606811abf2857ccfd48ee3a2657"
+      },
+      "procedural/assets/vc1-w189-p0-b.png": {
+        "path": "procedural/assets/vc1-w189-p0-b.png",
+        "sha256": "3368680b5493ae2efd9ea7fbe5222f6906e3f4ac7fe1ec78aedbb642ba599dc6"
+      },
+      "procedural/assets/vc1-w190-p0-a.png": {
+        "path": "procedural/assets/vc1-w190-p0-a.png",
+        "sha256": "8d10f1c38b91ef992853c7a17079d02b0e03cceca82d91dfe6338389f9a7215d"
+      },
+      "procedural/assets/vc1-w190-p0-b.png": {
+        "path": "procedural/assets/vc1-w190-p0-b.png",
+        "sha256": "0b875245ded72c5b7ef68439aa35e0f00831c363887bc67405524c35aa00641e"
+      },
+      "procedural/assets/vc1-w191-p0-a.png": {
+        "path": "procedural/assets/vc1-w191-p0-a.png",
+        "sha256": "bc06bc5f20185e9da836aa20fca06fd3cfc921079333e9eb8707d4d961ba3066"
+      },
+      "procedural/assets/vc1-w191-p0-b.png": {
+        "path": "procedural/assets/vc1-w191-p0-b.png",
+        "sha256": "bc06bc5f20185e9da836aa20fca06fd3cfc921079333e9eb8707d4d961ba3066"
+      },
+      "procedural/audit_manifest.json": {
+        "path": "procedural/audit_manifest.json",
+        "sha256": "608565c5d88ac6747d5f5b49c956a4bf053e91c3819d326467c3effd76f5618c"
+      },
+      "procedural/development_manifest.json": {
+        "path": "procedural/development_manifest.json",
+        "sha256": "f3c71e8a8f733f3273547245404a3b14dbd1d8334df45a7412032ae1f15355f3"
+      },
+      "procedural/manifest.json": {
+        "path": "procedural/manifest.json",
+        "sha256": "2e6ad884f3d5a8f2d35afce86e4668d85ecad7951a7df8403ce98df2fec93ade"
+      },
+      "procedural/model_rows.jsonl": {
+        "path": "procedural/model_rows.jsonl",
+        "sha256": "eb4fe37f015e95bbd8e79e1f30be6532b70867adc30bf221fa45f18b154b3c39"
+      },
+      "procedural/verifier_cases.jsonl": {
+        "path": "procedural/verifier_cases.jsonl",
+        "sha256": "a01c4aae2e413d2743fe9fdc616bc5f538e22aa92ea5b9d260cd9abfd294fec0"
+      },
+      "procedural/verifier_pairs.jsonl": {
+        "path": "procedural/verifier_pairs.jsonl",
+        "sha256": "f7dc028ab9a372be8e3bc6330a302fe0240d91e3d10e436e828d97c5cc59967c"
+      },
+      "procedural/verifier_scenes.jsonl": {
+        "path": "procedural/verifier_scenes.jsonl",
+        "sha256": "04ab4827b882a66c96a5873977b40318cf64ce9a24915c87807830f553b74cb3"
+      },
+      "schedule.json": {
+        "path": "schedule.json",
+        "sha256": "443732de5083f6acfaefaca095ed58204a2afbacd021c5748ff5440f955e3168"
+      },
+      "seals.json": {
+        "path": "seals.json",
+        "sha256": "d6950f182930def4ed83148ffcc3081287fdd82651adfdbba7cc5a9ab8143b65"
+      },
+      "stage_a/development/labels.jsonl": {
+        "path": "stage_a/development/labels.jsonl",
+        "sha256": "e2477e58e1e8f0e1070d41d3bcb765800d406864ee3334d1fb063c65506f75a2"
+      },
+      "stage_a/development/model_rows.jsonl": {
+        "path": "stage_a/development/model_rows.jsonl",
+        "sha256": "d65487fde5ebc2df1169431ee710ab8d65366f0555d0b3d9e91cd674a8452637"
+      },
+      "stage_a/final_sealed.json": {
+        "path": "stage_a/final_sealed.json",
+        "sha256": "842cf546c5f9516525dc4081478221c6babb3950c56205e706c8898e626450e2"
+      },
+      "stage_a/train/labels.jsonl": {
+        "path": "stage_a/train/labels.jsonl",
+        "sha256": "34bf2ceff1881aa17f86ad245122d99c7218b74513d1e9c7f1b4c27529111025"
+      },
+      "stage_a/train/model_rows.jsonl": {
+        "path": "stage_a/train/model_rows.jsonl",
+        "sha256": "c372b8c01b53b7ca261f4ed0b41ed7e0aebaf315f54d9f044f29d43efc35d6a4"
+      },
+      "stage_b/audit/labels.jsonl": {
+        "path": "stage_b/audit/labels.jsonl",
+        "sha256": "6809910c4e097f224ff84daee8a577c664e7a8beecee919ebf2801d47f0860d0"
+      },
+      "stage_b/audit/model_rows.jsonl": {
+        "path": "stage_b/audit/model_rows.jsonl",
+        "sha256": "ae948a88d84e3a00347e0562a61ab4e71d23ac189ff59383cd47e2a0add16a2a"
+      },
+      "stage_b/dev/labels.jsonl": {
+        "path": "stage_b/dev/labels.jsonl",
+        "sha256": "ba6f1b8a35c31b34484fb6955f3522ee48dc203133ebc0fcabec63de2b1250e7"
+      },
+      "stage_b/dev/model_rows.jsonl": {
+        "path": "stage_b/dev/model_rows.jsonl",
+        "sha256": "a7a2cd3646afe2bb99a21a28fe847da8edf6161470bd7fcdeec2cc3e8a67e701"
+      },
+      "stage_b/diagnostic_dev/labels.jsonl": {
+        "path": "stage_b/diagnostic_dev/labels.jsonl",
+        "sha256": "892a66fc5e8134baf9799db168b263044589b64a1d94a76ab4649f6a61088e24"
+      },
+      "stage_b/diagnostic_dev/model_rows.jsonl": {
+        "path": "stage_b/diagnostic_dev/model_rows.jsonl",
+        "sha256": "1ea63afbf14092a777a511df344c5cf847d3ddc1202be3c4ec9916bc8f3827ca"
+      },
+      "stage_b/diagnostic_train/labels.jsonl": {
+        "path": "stage_b/diagnostic_train/labels.jsonl",
+        "sha256": "aea872d484bb7b746f06132b966c1bce4a108f42914aede3eb61561e1c120306"
+      },
+      "stage_b/diagnostic_train/model_rows.jsonl": {
+        "path": "stage_b/diagnostic_train/model_rows.jsonl",
+        "sha256": "87908c25a3138ecfcd74ce5aaf566a5b1088f67e1a82a03187e2fd368eb0b7bd"
+      },
+      "stage_b/train/labels.jsonl": {
+        "path": "stage_b/train/labels.jsonl",
+        "sha256": "e66bdc34f0cb6a930a173b1f292794ebd5b5a71c3cb394585d30923af3bd687d"
+      },
+      "stage_b/train/model_rows.jsonl": {
+        "path": "stage_b/train/model_rows.jsonl",
+        "sha256": "a7db72270b47d650e688ad62bedf112aa796f9252a870e8193d477480add810a"
+      }
+    },
+    "label_coverage": {
+      "abstain": {
+        "audit": [
+          "unknown"
+        ],
+        "dev": [
+          "unknown"
+        ],
+        "train": [
+          "unknown"
+        ]
+      },
+      "color": {
+        "audit": [
+          "purple",
+          "yellow"
+        ],
+        "dev": [
+          "blue",
+          "orange"
+        ],
+        "train": [
+          "blue",
+          "orange",
+          "purple",
+          "red",
+          "yellow"
+        ]
+      },
+      "count": {
+        "audit": [
+          "2",
+          "3"
+        ],
+        "dev": [
+          "2",
+          "3"
+        ],
+        "train": [
+          "2",
+          "3"
+        ]
+      },
+      "presence": {
+        "audit": [
+          "no",
+          "yes"
+        ],
+        "dev": [
+          "no",
+          "yes"
+        ],
+        "train": [
+          "no",
+          "yes"
+        ]
+      },
+      "shape": {
+        "audit": [],
+        "dev": [],
+        "train": [
+          "circle",
+          "square"
+        ]
+      },
+      "spatial": {
+        "audit": [
+          "no",
+          "yes"
+        ],
+        "dev": [
+          "no",
+          "yes"
+        ],
+        "train": [
+          "no",
+          "yes"
+        ]
+      }
+    },
+    "manifest": {
+      "path": "manifest.json",
+      "sha256": "1b46bfb4c0e072ba197614e37941345ba2b0bfe5b71fe4ae8541cad926870b91"
+    },
+    "root": "data/vision_curriculum_20261025",
+    "seals": {
+      "audit": "593dc5406ebea4a09403ef597f81b513ad143025d3823ae0c3e9f45904d505d5",
+      "dev": "77a7c76b4645ff53c9fd4a88c63866fe19525fc3c0c32877e83efd53fdf29a1a",
+      "external_final": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d",
+      "external_final_pointer": "e0d139d1699e9db7b6e5a34ee6cfdf87148cc17db53357d5ad03e4be7ae2b0f5",
+      "train": "4ced9bfb5f7501267e4f10bfb259a4e4b7ee8d3843b9f43b60daa4ad1fb5df4f"
+    },
+    "unknown_coverage": {
+      "audit": {
+        "absent_referent": 8,
+        "ambiguous_referent": 8,
+        "occluded_relation": 8
+      },
+      "dev": {
+        "absent_referent": 8,
+        "ambiguous_referent": 8,
+        "occluded_relation": 8
+      },
+      "train": {
+        "absent_referent": 8,
+        "ambiguous_referent": 8,
+        "occluded_relation": 8
+      }
+    }
+  },
+  "evaluation": {
+    "audit_split": "curriculum_audit",
+    "batch": 1,
+    "beam_width": 1,
+    "bootstrap": {
+      "cluster": "world",
+      "confidence": 0.95,
+      "resamples": 1000
+    },
+    "caption_max_new_tokens": 32,
+    "caption_metric": {
+      "claim": "narrow_alignment_metric_only_no_semantic_quality_claim",
+      "name": "normalized_token_f1",
+      "normalization": "casefold_whitespace_strip_punctuation.v1",
+      "teacher_forced_loss": "response_mean_nll"
+    },
+    "controls": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage"
+    ],
+    "dev_splits": [
+      "curriculum_dev",
+      "diagnostic_dev",
+      "external_development"
+    ],
+    "do_sample": false,
+    "external_final_split": "external_final_eval_untouched",
+    "gates": {
+      "max_false_abstention_on_answerable": 0.15,
+      "max_false_answer_on_abstain": 0.2,
+      "max_text_retention_drop": 0.0,
+      "max_unknown_rate": 0.15,
+      "min_correct_accuracy": 0.6,
+      "min_correct_margin_noimage": 0.15,
+      "min_correct_margin_shuffled": 0.15,
+      "min_correct_margin_wrong": 0.15,
+      "min_text_retention_accuracy": 0.75,
+      "min_unique_families": 32,
+      "min_unknown_accuracy": 0.7
+    },
+    "greedy": true,
+    "max_new_tokens": 8,
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "shuffle_policy": "deterministic_derangement_within_split",
+    "shuffle_seed_offset": 7919,
+    "wrong_control": "different_world_same_task"
+  },
+  "external": {
+    "consumed": false,
+    "corpus": {
+      "path": "corpus.jsonl",
+      "sha256": "100f28c226cfd27913f0750d959d41de2faea0eb1857670e178d53278064da90"
+    },
+    "development": {
+      "path": "manifests/development.json",
+      "rows": 7,
+      "sha256": "46df3145fa9eef0d0bf2bd4e47ff5de995b2a7082d82d5325acbdbe63da75993"
+    },
+    "final_pointer": {
+      "consumed": false,
+      "manifest": "manifests/final_eval_untouched.json",
+      "manifest_sha256": "e4d951e09ce5eb0ce7b1bc213c8af3448fcddbf6fa9a491817b96a4ad74db26a",
+      "policy": "sealed_unconsumed_pointer_only",
+      "row_ids_sha256": "5f6f3ae3cf8ef26f8f8dafde20e6377900ea1a29eb4b0497b06fbc41ed0a95ff",
+      "rows": 8,
+      "seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d"
+    },
+    "final_sealed": {
+      "path": "manifests/final_eval_untouched.json",
+      "rows": 8,
+      "seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d",
+      "sha256": "e4d951e09ce5eb0ce7b1bc213c8af3448fcddbf6fa9a491817b96a4ad74db26a"
+    },
+    "root": "data/external_caption_tranche_20261025_v2",
+    "train": {
+      "path": "manifests/train.json",
+      "rows": 15,
+      "sha256": "5cd231d151ddedc3c373556a46a29c92c19c6f918a09ef66ac15e4c1f3ff9a72"
+    }
+  },
+  "format": "replica.vision_curriculum.protocol.v1",
+  "implementation_sha256": {
+    "configs/vision_curriculum_v1.json": "f0db805f216bb2d21a3d861b84a09d19e9329828760cb9e46a89aa7c6a85414c",
+    "scripts/prepare_vision_curriculum.py": "0976a385a7d997d92008a1ae606723b79c09d504ee2c6637c4d5686b23282460",
+    "scripts/run_capacity_preflight.py": "343d595e85316797c41d5d64c9568ae8dc55c627b9bceb77b8f67e2509b22c16",
+    "scripts/run_vision_curriculum.py": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+    "src/replica_lab/architecture/__init__.py": "5212d0ecf9d93b891f00e41efd42a926702ea50575f20e8a2337e0e726f0317d",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/core.py": "07117046230d9db4e7be50d6c50deddd573d0b6825768fa841cbcd181710677d",
+    "src/replica_lab/architecture/heads.py": "ac54a4c2f466eea5c668fa7187ebedac223db94a3aa03a62ad1e36392bff1fbf",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/architecture/vision.py": "c83a57b3511a9ea6c9c5e8d50a0215e3f141d41e2a13a77b76b9c4a1242827f5",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/external_intake.py": "31ad508ec962be4dfb32a2ec3a1b1443aef50a53c0e6a86454d9947a78bdd317",
+    "src/replica_lab/memory_system/__init__.py": "a53de281442f8d4cfd94a28256c4ed5a6002c42e58e05f0a19cf297fbc21ae7a",
+    "src/replica_lab/memory_system/index.py": "fb9a15dd4d3b032f9627a4481fef4d056b8a74081da25835dc825389d88fbdbf",
+    "src/replica_lab/memory_system/ledger.py": "732c98bb1103b4f78549935846f8751f4bcd6691b56f2d510a81f6d4ba67dec8",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/memory_system/writer.py": "db38fbc53977c0ea314d09ceb1b1873878e67f3bbe94de542b00a46cf2c4d68f",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/neural.py": "da6c4f2107757424ddd680f5203411814209f6c4d0895219d2ea3a204fc49604",
+    "src/replica_lab/optimizers.py": "4e977d9a88de749afd292628ba028cca43e0e831ee3e7905ae1b2f4801fc63b3",
+    "src/replica_lab/replica/reader.py": "6c23c6f64350f25711f40c41756d03984a2b879cf5fce28cc56b5e4ee0751271",
+    "src/replica_lab/vision_curriculum.py": "3a931964b27fec2c658eef0afd59d86fb6cb63c991ce954f7dedb68eb95fe1cc",
+    "src/replica_lab/vision_dependence.py": "1399eb0b69d1d8baa82207496efea9aec6d6851766055c35894b802626c3e30a",
+    "src/replica_lab/vision_qualification.py": "0958f87d789631938f47c1800c649d482bd8af59958ec9a1c503461e5c958439",
+    "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397"
+  },
+  "limits": {
+    "max_bootstrap_resamples": 2000,
+    "max_cache_bytes": 8388608,
+    "max_driver_bytes": 53687091200,
+    "max_eval_cases": 600,
+    "max_export_bytes": 134217728,
+    "max_new_tokens": 8,
+    "max_probe_updates": 64,
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 32,
+    "max_rows": 4096,
+    "max_seconds": 3600,
+    "max_sequence_tokens": 288,
+    "max_updates": 320,
+    "min_free_disk_bytes": 5368709120
+  },
+  "model": {
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "procedural_source": {
+    "development_split": "final_already_scored_reused_as_development",
+    "manifest_sha256": "712a34f8ca3c809ba79dc7bcb78a3c56fe088eb8da26794d5c9f10f7ea9c5195",
+    "model_rows_sha256": "d102d2bbb98a56d11fe2e9a90a32b51ac7f99b4a26dc20c261d0b97f2a865e23",
+    "protocol_sha256": "944a2a98c64f3360c8a4b2f68255e99c21adefd31f2e315bd0dddd8b1488d3f9",
+    "root": "data/vision_dependence_v2",
+    "train_split": "train",
+    "verifier_cases_sha256": "12cca8bb920d58f3544d2234b2cc278637e0ceb1c09f50f1a401c7073d27a361"
+  },
+  "purpose": "Staged MiniCPM5 projector curriculum after rejected V1 arms: bounded external caption alignment, then procedural spatial/grounding and abstention instruction. Two equal-compute arms from identical fresh 4096-wide seeded initialization; fresh-process reload and independent scoring; external final eval sealed and untouched.",
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "initial_free_admission": true,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "sustained_swap_growth_bytes": 536870912,
+    "workers": 1
+  },
+  "retention": {
+    "baseline": {
+      "accuracy": 0.6875,
+      "cases": 32,
+      "correct": 22,
+      "source": "execution_state.md#measured-projector-only-v1-disposition-and-wide-arm"
+    },
+    "labels": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+      "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+    },
+    "max_cases": 32,
+    "policy": "component_nonregression.v1",
+    "prompts": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+      "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+    },
+    "require_token_parity": true,
+    "role": "Reported separately from component nonregression; the declared 22/32 baseline stays overall ineligible."
+  },
+  "root": ".",
+  "schedule": {
+    "arm_selection": {
+      "both_arms_required": true,
+      "measure": "mean_dev_response_loss",
+      "tie_break": "declared_arm_order"
+    },
+    "dev_probe_case_ids": [
+      "vc1-w072-p0-a",
+      "vc1-w072-p0-b",
+      "vc1-w073-p0-a",
+      "vc1-w073-p0-b",
+      "vc1-w074-p0-a",
+      "vc1-w084-p0-a",
+      "vc1-w084-p0-b",
+      "vc1-w085-p0-a",
+      "vc1-w085-p0-b",
+      "vc1-w086-p0-a",
+      "vc1-w096-p0-a",
+      "vc1-w096-p0-b",
+      "vc1-w097-p0-a",
+      "vc1-w097-p0-b",
+      "vc1-w098-p0-a",
+      "vc1-w108-p0-a",
+      "vc1-w108-p0-b",
+      "vc1-w109-p0-a",
+      "vc1-w109-p0-b",
+      "vc1-w110-p0-a",
+      "vc1-w120-p0-a",
+      "vc1-w120-p0-b",
+      "vc1-w121-p0-a",
+      "vc1-w121-p0-b"
+    ],
+    "examples": 512,
+    "probe": {
+      "batch": 2,
+      "measure": "mean_dev_response_loss",
+      "selection_split": "procedural_dev",
+      "tie_break": "lowest_lr",
+      "total_probe_examples": 128,
+      "total_probe_updates": 64,
+      "updates_per_candidate": 16
+    },
+    "schedule_file_sha256": "443732de5083f6acfaefaca095ed58204a2afbacd021c5748ff5440f955e3168",
+    "schedule_sha256": "fbf5cfa2c0ba71ed9d8ec9acb64cf72b12ae18837dbe133ab37804930a46199e",
+    "stages": [
+      {
+        "batch": 4,
+        "stage": "A",
+        "updates": 16
+      },
+      {
+        "batch": 4,
+        "stage": "B",
+        "updates": 112
+      }
+    ],
+    "updates": 128
+  },
+  "seed": 20261025,
+  "splits": {
+    "audit": {
+      "roles": [
+        "curriculum_procedural_audit"
+      ],
+      "rows": 120,
+      "seal_sha256": "593dc5406ebea4a09403ef597f81b513ad143025d3823ae0c3e9f45904d505d5",
+      "usage": "scored_once_after_freeze"
+    },
+    "dev": {
+      "external_caption_rows": 7,
+      "procedural_rows": 240,
+      "roles": [
+        "external_development",
+        "diagnostic_final_as_development",
+        "curriculum_procedural_dev"
+      ],
+      "rows": 247,
+      "seal_sha256": "77a7c76b4645ff53c9fd4a88c63866fe19525fc3c0c32877e83efd53fdf29a1a",
+      "usage": "bounded_selection_only"
+    },
+    "external_final": {
+      "roles": [
+        "external_final_eval_untouched"
+      ],
+      "rows": 8,
+      "seal_sha256": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d",
+      "usage": "scored_once_after_freeze_untouched"
+    },
+    "train": {
+      "roles": [
+        "external_train",
+        "diagnostic_train",
+        "curriculum_procedural_train"
+      ],
+      "rows": 279,
+      "seal_sha256": "4ced9bfb5f7501267e4f10bfb259a4e4b7ee8d3843b9f43b60daa4ad1fb5df4f"
+    }
+  },
+  "stage": "curriculum_v1",
+  "stop_conditions": [
+    "Stop before native execution if the protocol, data seals, model lock, vision spec or implementation pins differ.",
+    "Stop if free disk falls below 5 GiB or the sampled MPS driver guard reaches the declared 50 GiB ceiling.",
+    "Stop on sustained host swap growth above 512 MiB or host free percentage at or below 15% for three samples.",
+    "Stop if any non-projector parameter becomes trainable, receives a gradient, or changes.",
+    "Stop if the fresh initialization differs from the declared seeded recipe or matches a rejected parent weight hash.",
+    "Stop if the two arms differ in update count, example count, schedule hash or probe budget.",
+    "Stop before audit scoring until the exact frozen dev report hash is supplied and the selected checkpoint is frozen.",
+    "Score the procedural audit and the sealed external final split exactly once; refuse every later finalize attempt.",
+    "Stop without a CPU fallback, a model download or a duplicate base checkpoint."
+  ],
+  "train": {
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ],
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "init_seed": 17,
+    "max_grad_norm": 1.0,
+    "max_seconds": 2400,
+    "optimizer_order": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "response_only_labels": true,
+    "schedule_version": "curriculum_two_stage.v1",
+    "seed": 17,
+    "warm_start": null
+  },
+  "trainable_groups": {
+    "adamw_aux": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "lr": 0.0001,
+      "param_names": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.bias",
+        "vision_projector.3.bias"
+      ]
+    },
+    "adamw_control": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "lr": 0.0003,
+      "param_names": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.weight",
+        "vision_projector.1.bias",
+        "vision_projector.3.weight",
+        "vision_projector.3.bias"
+      ]
+    },
+    "frozen": [
+      "base.",
+      "record_writer.",
+      "memory_ports.",
+      "sense_ports.",
+      "reranker."
+    ],
+    "muon8bit": {
+      "block_size": 2048,
+      "lr": 0.0001,
+      "momentum": 0.95,
+      "ns_steps": 5,
+      "param_names": [
+        "vision_projector.1.weight",
+        "vision_projector.3.weight"
+      ]
+    },
+    "parameter_count": 11542016,
+    "response_only_labels": true,
+    "scope": "vision_projector.",
+    "tensors": [
+      "vision_projector.0.weight",
+      "vision_projector.0.bias",
+      "vision_projector.1.weight",
+      "vision_projector.1.bias",
+      "vision_projector.3.weight",
+      "vision_projector.3.bias"
+    ]
+  },
+  "version": "replica.vision_curriculum.v1",
+  "vision": {
+    "compute_dtype": "float32",
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "encoder_width": 768,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "image_size": 224,
+    "max_visual_tokens": 196,
+    "patch_size": 16,
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "projector_hidden": 4096
+  },
+  "vision_digest": "71209159fe9c26a44be4a84e3d630d3f69f27588049868edcb955a1f5b5747fe",
+  "vision_source": {
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "scope": {
+      "as_of": 0,
+      "branch_id": "curriculum-run01",
+      "mode": "parallel_replica",
+      "purpose": "staged_vision_curriculum",
+      "snapshot_at": null,
+      "subject_id": "owned-curriculum-v1"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1"
+  }
+}

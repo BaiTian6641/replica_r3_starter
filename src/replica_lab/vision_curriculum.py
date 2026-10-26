@@ -129,6 +129,7 @@ PROJECTOR_1D_TENSORS = ("vision_projector.0.weight", "vision_projector.0.bias",
 PROJECTOR_PARAMETER_COUNT = 11_542_016
 RUN_ARTIFACTS = (
     "training_trace.jsonl", "lr_probe.json", "backward_probe.json",
+    "reload_report.json",
     "dev_cases.jsonl", "dev_generations.jsonl", "caption_cases.jsonl",
     "caption_labels.jsonl", "caption_generations.jsonl",
     "retention_pre.jsonl", "retention_post.jsonl",
@@ -140,9 +141,12 @@ def lr_probe_artifact_name(lr: float) -> str:
     return f"lr_probe/probe_{format(float(lr), '.0e')}.jsonl"
 
 
-def run_artifact_names(protocol: Mapping[str, Any]) -> tuple[str, ...]:
+def run_artifact_names(protocol: Mapping[str, Any], *,
+                       include_reload: bool = True) -> tuple[str, ...]:
     candidates = protocol["arms"]["arms"]["muon8bit"]["lr_probe_candidates"]
     names = list(RUN_ARTIFACTS)
+    if not include_reload:
+        names = [name for name in names if name != "reload_report.json"]
     for lr in candidates:
         name = lr_probe_artifact_name(lr)
         if name not in names:
@@ -188,6 +192,7 @@ IMPLEMENTATION_FILES = (
     "src/replica_lab/memory_system/writer.py",
     "src/replica_lab/replica/reader.py",
     "configs/vision_curriculum_v1.json",
+    "scripts/run_capacity_preflight.py",
     "scripts/prepare_vision_curriculum.py",
     "scripts/run_vision_curriculum.py",
 )
@@ -3835,7 +3840,8 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
                           generations: Sequence[Mapping[str, Any]],
                           caption_labels: Sequence[Mapping[str, Any]],
                           caption_generations: Sequence[Mapping[str, Any]],
-                          retention: Mapping[str, Any]) -> dict[str, Any]:
+                          retention: Mapping[str, Any],
+                          reload_report_sha256: str) -> dict[str, Any]:
     validation = validate_run_report(run_report, protocol)
     gates = protocol["evaluation"]["gates"]
     score = score_procedural(
@@ -3873,6 +3879,8 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
         "external_development_caption": caption,
         "retention": retention_result,
     }
+    _require(_is_sha256(reload_report_sha256),
+             "Reload report hash is invalid")
     report = {
         "format": SCORE_REPORT_FORMAT,
         "version": VERSION,
@@ -3880,6 +3888,7 @@ def assemble_score_report(*, protocol: Mapping[str, Any],
         "arm": run_report["arm"],
         "protocol_sha256": run_report["protocol_sha256"],
         "run_report_sha256": run_report["_run_report_sha256"],
+        "reload_report_sha256": reload_report_sha256,
         "data_pins": protocol["data"]["manifest"],
         "engineering": engineering,
         "learned_quality": learned,
@@ -4132,7 +4141,8 @@ def validate_score_report(report: Mapping[str, Any],
                           protocol: Mapping[str, Any] | None = None) -> None:
     _exact_keys(report, {
         "format", "version", "stage", "arm", "protocol_sha256",
-        "run_report_sha256", "data_pins", "engineering", "learned_quality",
+        "run_report_sha256", "reload_report_sha256", "data_pins",
+        "engineering", "learned_quality",
         "eligibility", "claims", "audit_scored",
         "external_final_consumed"}, "score_report")
     _require(report["format"] == SCORE_REPORT_FORMAT,
@@ -4140,7 +4150,8 @@ def validate_score_report(report: Mapping[str, Any],
     _require(report["stage"] == "dev" and report["arm"] in ARMS,
              "Score report stage or arm differs")
     _require(_is_sha256(report["protocol_sha256"])
-             and _is_sha256(report["run_report_sha256"]),
+             and _is_sha256(report["run_report_sha256"])
+             and _is_sha256(report["reload_report_sha256"]),
              "Score report hashes are invalid")
     _validate_pin(report["data_pins"], "score_report.data_pins")
     _require(report["audit_scored"] is False
@@ -4579,7 +4590,8 @@ def validate_run_report(report: Mapping[str, Any],
              "Dev evaluation may not touch the audit split")
     artifacts = report["artifacts"]
     _require(isinstance(artifacts, Mapping)
-             and set(artifacts) == set(run_artifact_names(protocol)),
+             and set(artifacts) == set(run_artifact_names(
+                 protocol, include_reload=False)),
              "Run artifact inventory differs from the declared inventory")
     for name, value in artifacts.items():
         _require(_is_sha256(value), f"Run artifact hash is invalid: {name}")
@@ -4671,6 +4683,27 @@ def validate_run_report(report: Mapping[str, Any],
     _require(costs.get("workers") == 1, "Exactly one worker is required")
     _require(costs.get("train_end_sampled") is True,
              "train_end guard sample is missing from the report")
+    runtime = report["implementation_runtime"]
+    guard = runtime.get("guard") if isinstance(runtime, Mapping) else None
+    if isinstance(guard, Mapping):
+        observed_peak = guard.get("driver_peak",
+                                  guard.get("peak_driver_bytes"))
+        _require(observed_peak == costs.get("peak_driver_bytes"),
+                 "Peak driver cost differs from the guard snapshot")
+        events = guard.get("events")
+        _require(isinstance(events, list), "Guard events are missing")
+        _require(costs.get("train_end_sampled")
+                 == any(event.get("event") == "train_end"
+                        for event in events),
+                 "train_end cost flag differs from guard events")
+        sampled = [event.get("mps_driver_bytes") for event in events
+                   if event.get("mps_driver_bytes") is not None]
+        if sampled:
+            _require(max(sampled) <= observed_peak,
+                     "A sampled driver reading exceeds the guard peak")
+        _require(guard.get("workers") == 1
+                 and guard.get("cpu_fallback") is False,
+                 "Guard snapshot differs from the one-worker MPS policy")
     _require(costs.get("peak_driver_bytes", 0)
              < protocol["resource_policy"]["driver_limit_bytes"],
              "Driver guard was exceeded")
@@ -4760,10 +4793,14 @@ def validate_reload_report(report: Mapping[str, Any],
         "dev_generations_equal", "retention_generations_equal",
         "extension_unchanged", "dev_cases_sha256",
         "dataset_dev_cases_sha256", "dev_generations_sha256",
-        "retention_sha256", "checks", "claims", "guard",
+        "retention_sha256", "payload_sha256", "checks", "claims", "guard",
         "packages"}, "reload_report")
     _require(report["format"] == RELOAD_REPORT_FORMAT,
              "Unknown reload report format")
+    payload = {key: value for key, value in report.items()
+               if key != "payload_sha256"}
+    _require(report["payload_sha256"] == fingerprint(payload),
+             "Reload report self-hash differs")
     _require(report["arm"] == run_report["arm"], "Reload arm differs")
     _require(report["protocol_sha256"] == _protocol_sha(protocol),
              "Reload protocol hash differs")
@@ -5277,21 +5314,25 @@ def validate_finalize_receipt(receipt: Mapping[str, Any],
 
 
 def write_finalize_receipt(paths: Mapping[str, str | Path],
-                           receipt: Mapping[str, Any]) -> dict[str, str]:
+                           receipt: Mapping[str, Any]) -> dict[str, Any]:
     payload = _json_bytes(receipt)
-    written = {}
+    written: dict[str, Any] = {}
     external = Path(paths["external_receipt"])
     audit = Path(paths["audit_receipt"])
     _require(not external.exists() and not audit.exists(),
              "Finalize receipt already exists; repeat finalize is refused")
     try:
-        written["external_receipt"] = _atomic_create(external, payload)
-        written["audit_receipt"] = _atomic_create(audit, payload)
+        external_hash = _atomic_create(external, payload)
+        audit_hash = _atomic_create(audit, payload)
     except BaseException:
         if external.exists() and not audit.exists():
             external.unlink()
             _fsync_parent(external)
         raise
-    _require(written["external_receipt"] == written["audit_receipt"],
+    _require(external_hash == audit_hash,
              "Audit and external final receipts differ")
+    written["external_receipt"] = {"path": str(external),
+                                    "sha256": external_hash}
+    written["audit_receipt"] = {"path": str(audit),
+                                 "sha256": audit_hash}
     return written

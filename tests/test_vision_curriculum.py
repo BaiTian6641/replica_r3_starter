@@ -81,9 +81,10 @@ def dataset(built):
 
 @pytest.fixture(scope="session")
 def prepared_protocol():
-    assert PREPARED.joinpath("protocol.json").is_file(), (
-        "run scripts/prepare_vision_curriculum.py first")
-    protocol = json.loads((PREPARED / "protocol.json").read_text())
+    assert PREPARED.joinpath("protocol_next.json").is_file(), (
+        "run scripts/prepare_vision_curriculum.py --protocol-out "
+        "data/vision_curriculum_20261025/protocol_next.json")
+    protocol = json.loads((PREPARED / "protocol_next.json").read_text())
     validate_protocol(protocol)
     return protocol
 
@@ -930,7 +931,8 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
             "audit_touched": False,
         },
         "artifacts": {name: "9" * 64
-                      for name in run_artifact_names(protocol)},
+                      for name in run_artifact_names(
+                          protocol, include_reload=False)},
         "extension": {
             "label": "final", "format": "replica.minicpm5.extensions.v4",
             "base_saved": False, "weights_sha256": "c" * 64,
@@ -956,6 +958,28 @@ def _run_report(protocol, *, arm="muon8bit", init_hash="a" * 64,
     }
     return report
 
+
+
+def test_run_guard_costs_are_cross_checked_against_snapshot(prepared_protocol):
+    report = _run_report(prepared_protocol)
+    report["implementation_runtime"]["guard"] = {
+        "peak_driver_bytes": 1024, "driver_peak": 1024,
+        "events": [{"event": "train_end", "mps_driver_bytes": 1024}],
+        "workers": 1, "cpu_fallback": False}
+    validate_run_report(report, prepared_protocol)
+    bad = copy.deepcopy(report)
+    bad["costs"]["peak_driver_bytes"] = 2048
+    with pytest.raises(VisionCurriculumError):
+        validate_run_report(bad, prepared_protocol)
+    bad = copy.deepcopy(report)
+    bad["implementation_runtime"]["guard"]["events"] = [{"event": "other"}]
+    with pytest.raises(VisionCurriculumError):
+        validate_run_report(bad, prepared_protocol)
+    bad = copy.deepcopy(report)
+    bad["implementation_runtime"]["guard"]["events"] = [
+        {"event": "train_end", "mps_driver_bytes": 4096}]
+    with pytest.raises(VisionCurriculumError):
+        validate_run_report(bad, prepared_protocol)
 
 def test_run_report_validation_accepts_declared_evidence(prepared_protocol):
     report = _run_report(prepared_protocol)
@@ -1025,12 +1049,20 @@ def test_reload_report_validation_requires_bitwise_equality(
         "claims": {"bitwise_reload": True, "quality_claim": False},
         "guard": {}, "packages": {},
     }
+    reload["payload_sha256"] = fingerprint(
+        {key: value for key, value in reload.items()
+         if key != "payload_sha256"})
     validate_reload_report(reload, run, prepared_protocol)
     reload["dev_generations_equal"] = False
     with pytest.raises(VisionCurriculumError):
         validate_reload_report(reload, run, prepared_protocol)
     reload["dev_generations_equal"] = True
     reload["zero_updates"] = False
+    with pytest.raises(VisionCurriculumError):
+        validate_reload_report(reload, run, prepared_protocol)
+    reload = json.loads(json.dumps(reload))
+    reload["zero_updates"] = True
+    reload["payload_sha256"] = "0" * 64
     with pytest.raises(VisionCurriculumError):
         validate_reload_report(reload, run, prepared_protocol)
 
@@ -1047,7 +1079,8 @@ def test_score_report_separates_engineering_quality_and_baseline(
         protocol=prepared_protocol, run_report=run, cases=cases,
         generations=generations, caption_labels=labels,
         caption_generations=caption_rows,
-        retention={"measured_correct": 22, "token_parity": True})
+        retention={"measured_correct": 22, "token_parity": True},
+        reload_report_sha256="5" * 64)
     validate_score_report(report)
     assert report["engineering"]["pass"] is True
     assert report["eligibility"]["overall_baseline_eligible"] is False
@@ -1186,7 +1219,14 @@ def test_global_reservation_and_finalize_receipt(tmp_path, prepared_protocol):
                                 for index in range(8)]}})
     validate_finalize_receipt(receipt, prepared_protocol, "a" * 64)
     written = write_finalize_receipt(paths, receipt)
-    assert written["external_receipt"] == written["audit_receipt"]
+    assert written["external_receipt"]["path"] == str(paths["external_receipt"])
+    assert written["audit_receipt"]["path"] == str(paths["audit_receipt"])
+    assert written["external_receipt"]["sha256"] ==         written["audit_receipt"]["sha256"]
+    for name in ("external_receipt", "audit_receipt"):
+        value = json.loads(Path(written[name]["path"]).read_text())
+        assert value["format"] == "replica.vision_curriculum.finalize_receipt.v1"
+        assert value["scored_once"] is True
+        assert value["format"] != "replica.vision_curriculum.finalize_reservation.v1"
     with pytest.raises(VisionCurriculumError):
         write_finalize_receipt(paths, receipt)
     with pytest.raises(VisionCurriculumError):
@@ -1277,11 +1317,16 @@ def test_score_report_rejects_self_contradictory_acceptance(prepared_protocol):
         caption_labels=[{"case_id": "cap", "answer": "a red car"}],
         caption_generations=[{"case_id": "cap", "generated_text": "a red car",
                               "response_loss": 0.5}],
-        retention={"measured_correct": 22, "token_parity": True})
+        retention={"measured_correct": 22, "token_parity": True},
+        reload_report_sha256="5" * 64)
     validate_score_report(report)
     bad = copy.deepcopy(report)
     bad["learned_quality"]["pass"] = True
     bad["learned_quality"]["failures"] = ["min_correct_accuracy"]
+    with pytest.raises(VisionCurriculumError):
+        validate_score_report(bad)
+    bad = copy.deepcopy(report)
+    del bad["reload_report_sha256"]
     with pytest.raises(VisionCurriculumError):
         validate_score_report(bad)
     bad = copy.deepcopy(report)
@@ -1493,7 +1538,7 @@ def test_prepared_occlusion_pairs_are_identical_unknown_controls():
 
 def test_protocol_split_seals_must_match_verified_dataset_seals():
     dataset = audit_dataset(PREPARED)
-    protocol = json.loads((PREPARED / "protocol.json").read_text())
+    protocol = json.loads((PREPARED / "protocol_next.json").read_text())
     verified = verified_finalize_seals(
         protocol, dataset.seals, dataset.seal_receipts)
     assert verified["audit"] == dataset.seals["audit_seal_sha256"]
@@ -1561,6 +1606,20 @@ def test_prepared_protocol_preregisters_every_required_field(
     assert protocol["action_limits"]["success_claims"] == "none"
     assert len(protocol["stop_conditions"]) >= 5
 
+
+
+def test_run_artifacts_include_reload_report_and_missing_reload_is_rejected(tmp_path):
+    protocol = json.loads((PREPARED / "protocol_next.json").read_text())
+    assert "reload_report.json" in run_artifact_names(protocol)
+    assert "reload_report.json" not in run_artifact_names(
+        protocol, include_reload=False)
+    find = _runner_import("find_reload_report")
+    with pytest.raises(VisionCurriculumError):
+        find(tmp_path)
+    report = {"artifacts": {"reload_report.json": "0" * 64}}
+    verify = _runner_import("verify_run_artifacts")
+    with pytest.raises(VisionCurriculumError):
+        verify(tmp_path, report)
 
 def test_prepared_data_pins_and_implementation_pins(prepared_protocol):
     verify_data_pins(prepared_protocol["data"],
