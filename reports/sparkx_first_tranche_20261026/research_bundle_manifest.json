@@ -3,9 +3,9 @@
   "kind": "hashed_manifest_not_an_asset_copy",
   "generator": "scripts/prepare_sparkx_research_bundle.py",
   "root_policy": "all paths are repository-relative; no absolute path, home directory or temporary directory is recorded",
-  "input_count": 66,
-  "total_input_bytes": 1669722,
-  "bundle_digest": "d5efae6ba5c401cb48eca69b82bdf8d6f25d7c5f9885c1afa08d4269996f14eb",
+  "input_count": 89,
+  "total_input_bytes": 3958309,
+  "bundle_digest": "a03e055904771381c47bbb797928f9272f2cea2c064e26515dd27fbe47dfee51",
   "clean_checkout_ready": true,
   "untracked_inputs": [],
   "tracking_enforced": true,
@@ -15,6 +15,20 @@
       "role": "runtime dataset registry (quarantined, read-only for this bundle)",
       "bytes": 13977,
       "sha256": "45b812da965ebc605f6d63abc7250b91730fbc6f96d0e309e2776ea6503b13c4",
+      "tracked_in_git": true
+    },
+    {
+      "path": "configs/nested_learning_nl0_v1.json",
+      "role": "NL0 standalone software/math qualification contract",
+      "bytes": 6031,
+      "sha256": "b1122467e788a360dbfd262ab2ffac18c5474235c0fee1e3792f3a7722af4e76",
+      "tracked_in_git": true
+    },
+    {
+      "path": "configs/real_image_tranche_v1.json",
+      "role": "predeclared bounded public-domain/CC0 real-image acquisition protocol",
+      "bytes": 17044,
+      "sha256": "e18ce054aeaa9a9bdfa3d3a2cd0c13971927c71465bfb959a1236f82ae2e6714",
       "tracked_in_git": true
     },
     {
@@ -55,8 +69,8 @@
     {
       "path": "docs/08_Dataset_Acquisition_and_Curriculum.md",
       "role": "acquisition guide retained with its known snapshot drift",
-      "bytes": 19707,
-      "sha256": "a980d61d2507bcece2f2b8b63cdd9eaeccdbea1f178436a0b11e75669d4d46f2",
+      "bytes": 20246,
+      "sha256": "cf1e4f9136a3c4d60186cbda40cf3b34d2e8f0e30c0b59ddddd875c855127e36",
       "tracked_in_git": true
     },
     {
@@ -69,8 +83,8 @@
     {
       "path": "docs/architecture/22_State_Mechanism_and_RSI_Contracts.md",
       "role": "state ownership, transaction and bounded-RSI contracts",
-      "bytes": 39322,
-      "sha256": "bad93766962f4972f9cc4271e330722842b92f71dbfab0b0cc9298fa3cc911cb",
+      "bytes": 40058,
+      "sha256": "b68d0c9fef40902b27c4b813d86ca126a57762bb33c6f1f31ee0cb78fb5b89d1",
       "tracked_in_git": true
     },
     {
@@ -109,6 +123,20 @@
       "tracked_in_git": true
     },
     {
+      "path": "docs/experiments/20261026_Nested_Learning_NL0.md",
+      "role": "NL0 implementation, independent review and qualification boundaries",
+      "bytes": 3264,
+      "sha256": "d68371278b97529834612da47d2f1be96481de521efdce48281e48ae39ade0ec",
+      "tracked_in_git": true
+    },
+    {
+      "path": "docs/experiments/20261026_Real_Image_Tranche.md",
+      "role": "real-image rights, provenance, QA and admission report",
+      "bytes": 6287,
+      "sha256": "a3bb9e39e0e38bdebb24413bb6280b3484fd6b8588e19fe633bad052ca6b5816",
+      "tracked_in_git": true
+    },
+    {
       "path": "docs/experiments/20261026_Spark_Dataset_Preparation.md",
       "role": "dataset preparation, provisioning and tranche documentation",
       "bytes": 16518,
@@ -118,8 +146,8 @@
     {
       "path": "docs/experiments/20261026_Spark_Residency_Reconciliation.md",
       "role": "residency reconciliation note: 18-byte formula, dtype inventory and gates",
-      "bytes": 23569,
-      "sha256": "0785bc0a4a760274f3be0da0427c864914719938b0e388b1b77e0f4190ee1a06",
+      "bytes": 25721,
+      "sha256": "cc9bb4da8abc6a49fa234d65bb3a884b20eb051ae62bea63d8076f8a946af370",
       "tracked_in_git": true
     },
     {
@@ -183,6 +211,111 @@
       "role": "repository driver-guard policy values",
       "bytes": 1809,
       "sha256": "55741d7e063adcf3928789dff1e2a4f3d37a455cc0391e21e667a972936736cc",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/nested_learning_nl0_20261026/qualification.json",
+      "role": "NL0 software/math qualification receipt",
+      "bytes": 4616,
+      "sha256": "d46ff7a3d286b0a172bf53c5400f4ef08cb07020fecf41d8c0850f552b3c413d",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/nested_learning_nl0_20261026/tests.xml",
+      "role": "preserved NL0 status-only failed JUnit evidence",
+      "bytes": 6903,
+      "sha256": "61d0bc01cf55dfa796a3884af72edcc110ab12a35afb69540aebb90cdff798ca",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/nested_learning_nl0_20261026/tests_final.xml",
+      "role": "NL0 final 28-test JUnit evidence",
+      "bytes": 3957,
+      "sha256": "20719dbc14be9bfd4998c645974a68884214e5de40ddee231c0d5b2c677a7428",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/acquisition.json",
+      "role": "stable seven-request real-image acquisition receipt",
+      "bytes": 6503,
+      "sha256": "90db20ddce8fa660f2552a74169d0c0a95816ce7397ea02db3bb6e1592f2171a",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/apollo11_buzz_flag.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 296954,
+      "sha256": "deecff91f88e8b66ad282d16a2cbbe0dcb0c71585109cf8d15ac52c74b9c3dc2",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/apollo17_blue_marble.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 267290,
+      "sha256": "16eaa54446f761a80ee8de604107b66432a1e6b489aa99d4777dc92765fae80a",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/loc_migrant_mother.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 255383,
+      "sha256": "95b09023d7478eee8d245a3d8fe55bc2a88cf1f8bb680057230feccfca8738c5",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/met_neptune_columns.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 307422,
+      "sha256": "df0c3df3caf7c76fb24d1f62f8641252a9bf0cfe124ab76e282fb60d560f9db1",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/nara_lbj_oath_1963.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 164851,
+      "sha256": "0245d5a08ea47f18dcf44c48d387c70d7ca1f16b4615045e5f5735546f51a8b8",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/rijksmuseum_night_watch.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 181490,
+      "sha256": "54d8ad29b61fd70d837fa74f434d95d6a37dc10c637bb0d1c2a8f922e50c8107",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/assets/usgs_mameyes_landslide.jpg",
+      "role": "bounded 960px public-domain/CC0 real-image derivative",
+      "bytes": 261593,
+      "sha256": "833c2ead80bed3c7020ddb1c8da7c51a24709784d4a521a727fd2d3829231960",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/manifest.json",
+      "role": "content-addressed real-image source and derivative manifest",
+      "bytes": 20696,
+      "sha256": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/report.json",
+      "role": "combined real-image acquisition and offline verification receipt",
+      "bytes": 50177,
+      "sha256": "9b5f651718e9691fe3dc12b42168a07f4d5ba3c7ad794599581c8893025637e6",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/attempt03/verification.json",
+      "role": "stable offline real-image recomputation and drift-check receipt",
+      "bytes": 50090,
+      "sha256": "84738886e728eea7bea241a76cfd6a54ccef92258098f78fa220641c3584668c",
+      "tracked_in_git": true
+    },
+    {
+      "path": "reports/real_image_tranche_20261026/independent_review.json",
+      "role": "independent real-image rights, hash and split review",
+      "bytes": 44961,
+      "sha256": "45cbd115ae32cc938839e1f6682572a615af988f1edfbfda0f90bb7274ad0271",
       "tracked_in_git": true
     },
     {
@@ -452,6 +585,13 @@
       "tracked_in_git": true
     },
     {
+      "path": "scripts/prepare_real_image_tranche.py",
+      "role": "bounded real-image downloader and offline QA verifier",
+      "bytes": 125446,
+      "sha256": "567abbda5dd345e753ab3f507f490c4323ee1c6712655607d3138539b01bc358",
+      "tracked_in_git": true
+    },
+    {
       "path": "scripts/prepare_sparkx_first_tranche.py",
       "role": "bounded first-tranche admission implementation",
       "bytes": 27329,
@@ -461,8 +601,8 @@
     {
       "path": "scripts/prepare_sparkx_research_bundle.py",
       "role": "bundle manifest generator/verifier (this file's hash is pinned separately)",
-      "bytes": 20095,
-      "sha256": "5b6e46258626efe6331c09817f11f47422868816251c7cd67466a0a7a64bb852",
+      "bytes": 22809,
+      "sha256": "5ec7e626d8fa3489b4a1305e7a384479cf33409d64f1ceef364da2037c92165c",
       "tracked_in_git": true
     },
     {
@@ -470,6 +610,27 @@
       "role": "offline nested source cache provisioner",
       "bytes": 15763,
       "sha256": "561e836bfae22a2bf4f3b9317ee93d5ca591fdc5b355ec413bba3b948d43a2c4",
+      "tracked_in_git": true
+    },
+    {
+      "path": "src/replica_lab/nested_learning.py",
+      "role": "NL0 plastic, recurrence, observation and persistence implementation",
+      "bytes": 88111,
+      "sha256": "05b97f78733db173255bed08800d9b73a373def7e62f295edc482e4b0da6c820",
+      "tracked_in_git": true
+    },
+    {
+      "path": "tests/test_nested_learning.py",
+      "role": "NL0 numerical, causality, transaction and rollback contracts",
+      "bytes": 75299,
+      "sha256": "b2a7d21e1c89d96681581ff4544a1feed3db9ca9247f6b0ad2d87a0889ac72c8",
+      "tracked_in_git": true
+    },
+    {
+      "path": "tests/test_real_image_tranche.py",
+      "role": "real-image admission, failure-atomicity and drift-verification contracts",
+      "bytes": 38078,
+      "sha256": "79fc3289fa65857498814177702fa70ede888257c3cd31cb0c3dbee362a4665d",
       "tracked_in_git": true
     }
   ],

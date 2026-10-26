@@ -269,6 +269,85 @@ INPUT_ROLES: list[tuple[str, str]] = [
             "synthetic_av_0002.json",
         )
     ],
+    (
+        "configs/real_image_tranche_v1.json",
+        "predeclared bounded public-domain/CC0 real-image acquisition protocol",
+    ),
+    (
+        "scripts/prepare_real_image_tranche.py",
+        "bounded real-image downloader and offline QA verifier",
+    ),
+    (
+        "tests/test_real_image_tranche.py",
+        "real-image admission, failure-atomicity and drift-verification contracts",
+    ),
+    (
+        "docs/experiments/20261026_Real_Image_Tranche.md",
+        "real-image rights, provenance, QA and admission report",
+    ),
+    (
+        "reports/real_image_tranche_20261026/attempt03/manifest.json",
+        "content-addressed real-image source and derivative manifest",
+    ),
+    (
+        "reports/real_image_tranche_20261026/attempt03/acquisition.json",
+        "stable seven-request real-image acquisition receipt",
+    ),
+    (
+        "reports/real_image_tranche_20261026/attempt03/verification.json",
+        "stable offline real-image recomputation and drift-check receipt",
+    ),
+    (
+        "reports/real_image_tranche_20261026/attempt03/report.json",
+        "combined real-image acquisition and offline verification receipt",
+    ),
+    (
+        "reports/real_image_tranche_20261026/independent_review.json",
+        "independent real-image rights, hash and split review",
+    ),
+    *[
+        (
+            f"reports/real_image_tranche_20261026/attempt03/assets/{asset_id}.jpg",
+            "bounded 960px public-domain/CC0 real-image derivative",
+        )
+        for asset_id in (
+            "apollo17_blue_marble",
+            "apollo11_buzz_flag",
+            "loc_migrant_mother",
+            "rijksmuseum_night_watch",
+            "met_neptune_columns",
+            "usgs_mameyes_landslide",
+            "nara_lbj_oath_1963",
+        )
+    ],
+    (
+        "configs/nested_learning_nl0_v1.json",
+        "NL0 standalone software/math qualification contract",
+    ),
+    (
+        "src/replica_lab/nested_learning.py",
+        "NL0 plastic, recurrence, observation and persistence implementation",
+    ),
+    (
+        "tests/test_nested_learning.py",
+        "NL0 numerical, causality, transaction and rollback contracts",
+    ),
+    (
+        "docs/experiments/20261026_Nested_Learning_NL0.md",
+        "NL0 implementation, independent review and qualification boundaries",
+    ),
+    (
+        "reports/nested_learning_nl0_20261026/qualification.json",
+        "NL0 software/math qualification receipt",
+    ),
+    (
+        "reports/nested_learning_nl0_20261026/tests_final.xml",
+        "NL0 final 28-test JUnit evidence",
+    ),
+    (
+        "reports/nested_learning_nl0_20261026/tests.xml",
+        "preserved NL0 status-only failed JUnit evidence",
+    ),
 ]
 
 # Large payloads that must never be copied into this bundle. They are either

@@ -1,0 +1,879 @@
+{
+  "format": "replica.real_image_tranche_independent_review.v1",
+  "reviewed_at_utc": "2026-10-26T18:10:01Z",
+  "reviewer": "RealImageIndependentReview",
+  "verdict": "verified_with_declared_limits",
+  "material_defects_found": false,
+  "training_admitted": false,
+  "selected": {
+    "protocol_commit": "59d98c6",
+    "protocol_commit_subject": "experiment: predeclare real-image evidence tranche",
+    "protocol_commit_time_utc": "2026-10-26T17:30:53Z",
+    "protocol_path": "configs/real_image_tranche_v1.json",
+    "protocol_sha256": "e18ce054aeaa9a9bdfa3d3a2cd0c13971927c71465bfb959a1236f82ae2e6714",
+    "protocol_frozen_before_acquisition": true,
+    "protocol_freeze_evidence": "The config commit 59d98c6 at 2026-10-26T17:30:53Z precedes every acquisition attempt; the committed config hash equals the attempt03 protocol hash.",
+    "script_path": "scripts/prepare_real_image_tranche.py",
+    "script_sha256": "567abbda5dd345e753ab3f507f490c4323ee1c6712655607d3138539b01bc358",
+    "script_commit": "1571e4e",
+    "script_commit_time_utc": "2026-10-26T18:07:49Z",
+    "script_commit_note": "The fix commit precedes the attempt03 acquisition start 2026-10-26T18:08:02Z; the acquisition receipt, manifest, verification receipt, and report all bind this script SHA-256.",
+    "tests_path": "tests/test_real_image_tranche.py",
+    "tests_sha256": "79fc3289fa65857498814177702fa70ede888257c3cd31cb0c3dbee362a4665d",
+    "evidence_dir": "reports/real_image_tranche_20261026/attempt03",
+    "evidence_files": {
+      "acquisition.json": "90db20ddce8fa660f2552a74169d0c0a95816ce7397ea02db3bb6e1592f2171a",
+      "manifest.json": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "verification.json": "84738886e728eea7bea241a76cfd6a54ccef92258098f78fa220641c3584668c",
+      "report.json": "9b5f651718e9691fe3dc12b42168a07f4d5ba3c7ad794599581c8893025637e6"
+    },
+    "attempt01_evidence_dir": "reports/real_image_tranche_20261026",
+    "attempt01_status": "superseded; assets and manifest retained locally, no acquisition receipt",
+    "selection_matches_parent_claim": true,
+    "attempt02_evidence_dir": "reports/real_image_tranche_20261026/attempt02",
+    "selected_attempt": "attempt03"
+  },
+  "independent_recomputation": {
+    "method": "Direct local byte reads, hashlib SHA-256/MD5, Pillow 12.0.0 decode, urllib Commons API and institutional metadata requests, and HEAD requests to the seven pinned thumb URLs. Attempt03 receipts were recomputed and compared with attempt02. No asset body was downloaded and no test or native job was run.",
+    "counts": {
+      "asset_count": 7,
+      "source_count": 6,
+      "group_count": 6,
+      "total_derivative_bytes": 1734983,
+      "max_asset_bytes_observed": 307422,
+      "declared_max_asset_bytes": 2097152,
+      "declared_max_total_bytes": 8388608,
+      "caps_respected": true
+    },
+    "format_and_decode": {
+      "all_pillow_format_jpeg": true,
+      "all_mime_image_jpeg": true,
+      "all_full_decode": true,
+      "all_dimensions_positive": true,
+      "all_width_960": true,
+      "all_aspect_ratio_consistent_with_pinned_original": true,
+      "pillow_modes": {
+        "apollo17_blue_marble": "RGB",
+        "apollo11_buzz_flag": "RGB",
+        "loc_migrant_mother": "L",
+        "met_neptune_columns": "RGB",
+        "nara_lbj_oath_1963": "L",
+        "rijksmuseum_night_watch": "RGB",
+        "usgs_mameyes_landslide": "RGB"
+      },
+      "exif_orientation_present": false,
+      "geometry_semantics": "The protocol declares derivative_width=960. All seven derivatives have decoded width 960; four have height greater than 960. The receipts explicitly disclaim a max-dimension=960 claim and verify width plus original aspect ratio. No unsupported max-dimension claim was found."
+    },
+    "dedup": {
+      "exact_sha256_unique": true,
+      "unique_asset_ids": 7,
+      "unique_pageids": 7,
+      "unique_source_pages": 7,
+      "unique_thumb_urls": 7,
+      "exact_duplicate_rate": 0.0,
+      "declared_max_duplicate_rate": 0.0,
+      "perceptual_or_near_duplicate_detection_claimed": false
+    },
+    "split_assignment": {
+      "method": "sha256_first_64_bits_mod_10000",
+      "salt": "sparkx-first-tranche-20261026",
+      "recomputed_group_splits": {
+        "nasa_apollo": "train",
+        "loc_fsa_owi": "audit",
+        "rijksmuseum": "train",
+        "met_open_access": "audit",
+        "usgs": "train",
+        "us_national_archives": "development"
+      },
+      "declared_group_splits": {
+        "nasa_apollo": "train",
+        "loc_fsa_owi": "audit",
+        "rijksmuseum": "train",
+        "met_open_access": "audit",
+        "usgs": "train",
+        "us_national_archives": "development"
+      },
+      "group_splits_match": true,
+      "recomputed_buckets": {
+        "nasa_apollo": 4703,
+        "loc_fsa_owi": 9161,
+        "rijksmuseum": 471,
+        "met_open_access": 8880,
+        "usgs": 3633,
+        "us_national_archives": 7953
+      },
+      "expected_asset_counts": {
+        "train": 4,
+        "development": 1,
+        "audit": 2
+      },
+      "recomputed_asset_counts": {
+        "train": 4,
+        "development": 1,
+        "audit": 2
+      },
+      "asset_counts_match": true,
+      "split_bytes": {
+        "train": 1007327,
+        "development": 164851,
+        "audit": 562805
+      },
+      "all_splits_nonempty": true,
+      "one_group_one_split": true,
+      "group_splits_disjoint": true
+    },
+    "source_counts": {
+      "nasa_apollo": {
+        "assets": 2,
+        "bytes": 564244
+      },
+      "loc_fsa_owi": {
+        "assets": 1,
+        "bytes": 255383
+      },
+      "rijksmuseum": {
+        "assets": 1,
+        "bytes": 181490
+      },
+      "met_open_access": {
+        "assets": 1,
+        "bytes": 307422
+      },
+      "usgs": {
+        "assets": 1,
+        "bytes": 261593
+      },
+      "us_national_archives": {
+        "assets": 1,
+        "bytes": 164851
+      }
+    },
+    "benchmark_exclusion_check": {
+      "source_ids_in_excluded_source_ids": [],
+      "source_ids_matching_excluded_fragments": [],
+      "asset_ids_matching_excluded_fragments": [],
+      "group_keys_matching_excluded_fragments": [],
+      "passed": true
+    },
+    "attempt_byte_identity": {
+      "attempt02_vs_attempt03": {
+        "all_seven_asset_bytes_identical": true,
+        "asset_sha256_equal": {
+          "apollo11_buzz_flag": true,
+          "apollo17_blue_marble": true,
+          "loc_migrant_mother": true,
+          "met_neptune_columns": true,
+          "nara_lbj_oath_1963": true,
+          "rijksmuseum_night_watch": true,
+          "usgs_mameyes_landslide": true
+        },
+        "note": "Every attempt03 asset was read locally and compared byte-for-byte with attempt02; all seven are identical."
+      },
+      "attempt01_vs_attempt02": {
+        "all_seven_asset_bytes_identical": true,
+        "asset_sha256_equal": {
+          "apollo11_buzz_flag": true,
+          "apollo17_blue_marble": true,
+          "loc_migrant_mother": true,
+          "met_neptune_columns": true,
+          "nara_lbj_oath_1963": true,
+          "rijksmuseum_night_watch": true,
+          "usgs_mameyes_landslide": true
+        },
+        "note": "All seven attempt01 assets are byte-identical to attempt02, as recorded in the prior review."
+      },
+      "attempt01_manifest_sha256": "8515632ede82087b9a68813c0e742c0a95eb6cdf27802152057f1f3fd859a2a5",
+      "attempt02_manifest_sha256": "a85e24a6c20eaa39d48e2cd19f3a39ebb086ce35e9497ba9c63bb4e672b35162",
+      "attempt03_manifest_sha256": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "manifest_difference": "Attempt02 to attempt03: implementation.sha256 changes from e48322c5d30d4e62978c691bfc6a90302b7eaa5ca7ebc5ed85e4f535a9099fa0 to 567abbda5dd345e753ab3f507f490c4323ee1c6712655607d3138539b01bc358; asset blocks are identical. Attempt01 to attempt02 likewise differed only in implementation.sha256.",
+      "attempt01_acquisition_receipt_present": false,
+      "attempt02_acquisition_receipt_present": true,
+      "attempt03_acquisition_receipt_present": true
+    }
+  },
+  "per_asset_checks": [
+    {
+      "asset_id": "apollo11_buzz_flag",
+      "source_id": "nasa_apollo",
+      "group_key": "nasa_apollo",
+      "split": "train",
+      "filename": "apollo11_buzz_flag.jpg",
+      "commons": {
+        "title": "File:Buzz salutes the U.S. Flag.jpg",
+        "pageid": 137926,
+        "pinned_revision_id": 1202084977,
+        "pinned_revision_timestamp": "2026-04-23T06:27:51Z",
+        "current_revision_id": 1202084977,
+        "current_revision_timestamp": "2026-04-23T06:27:51Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "a5b625c89aa850cb838de0fbd96a5ac04515b565",
+        "original_sha1_api": "a5b625c89aa850cb838de0fbd96a5ac04515b565",
+        "original_bytes_pinned": 4681298,
+        "original_bytes_api": 4681298,
+        "original_width": 3929,
+        "original_height": 3967,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "pd",
+        "license_short_name": "Public domain",
+        "usage_terms_api": "Public domain",
+        "restrictions_api": "",
+        "copyrighted_api": false,
+        "attribution_required_api": false,
+        "author": "Neil A. Armstrong / NASA",
+        "commons_artist_api": "NASA / Neil A. Armstrong",
+        "credit": "NASA, AS11-40-5874",
+        "commons_credit_api": "Apollo 11 Image Library (image link)",
+        "institutional_source": "https://images.nasa.gov/details/as11-40-5874",
+        "institutional_check": "NASA images API item as11-40-5874 identifies Apollo 11, Aldrin beside the flag, and states Armstrong took the photograph; the details page returned HTTP 200. Commons extmetadata marks Public domain, Copyrighted=False, AttributionRequired=False, Restrictions empty."
+      },
+      "derivative": {
+        "bytes": 296954,
+        "sha256": "deecff91f88e8b66ad282d16a2cbbe0dcb0c71585109cf8d15ac52c74b9c3dc2",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 969,
+        "max_dimension": 969,
+        "pillow_mode": "RGB"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 296954,
+        "content_length_matches_local": true,
+        "etag": "3449cef3ef57d36e76dc2574035b0a89",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Astronaut in a white suit salutes the U.S. flag on the lunar surface, with the lunar module at left and footprints in the foreground."
+      }
+    },
+    {
+      "asset_id": "apollo17_blue_marble",
+      "source_id": "nasa_apollo",
+      "group_key": "nasa_apollo",
+      "split": "train",
+      "filename": "apollo17_blue_marble.jpg",
+      "commons": {
+        "title": "File:The Earth seen from Apollo 17.jpg",
+        "pageid": 43894484,
+        "pinned_revision_id": 1193076862,
+        "pinned_revision_timestamp": "2026-04-07T08:16:19Z",
+        "current_revision_id": 1193076862,
+        "current_revision_timestamp": "2026-04-07T08:16:19Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "229ec1e5d613a8c328a1d5955a7abc407e6968b1",
+        "original_sha1_api": "229ec1e5d613a8c328a1d5955a7abc407e6968b1",
+        "original_bytes_pinned": 6511067,
+        "original_bytes_api": 6511067,
+        "original_width": 3000,
+        "original_height": 3002,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "pd",
+        "license_short_name": "Public domain",
+        "usage_terms_api": "Public domain",
+        "restrictions_api": "",
+        "copyrighted_api": false,
+        "attribution_required_api": false,
+        "author": "NASA / Apollo 17 crew",
+        "commons_artist_api": "NASA/Apollo 17 crew; taken by either Harrison Schmitt or Ron Evans",
+        "credit": "NASA, AS17-148-22727",
+        "commons_credit_api": "https://web.archive.org/web/20160112123725/http://grin.hq.nasa.gov/ABSTRACTS/GPN-2000-001138.html (image link); see also https://www.nasa.gov/multimedia/imagegallery/image_feature_329.html",
+        "institutional_source": "https://images.nasa.gov/details/as17-148-22727",
+        "institutional_check": "NASA images API item as17-148-22727 identifies the Apollo 17 translunar view of Earth and the crew provenance; the details page returned HTTP 200. Commons extmetadata marks Public domain, Copyrighted=False, AttributionRequired=False, Restrictions empty."
+      },
+      "derivative": {
+        "bytes": 267290,
+        "sha256": "16eaa54446f761a80ee8de604107b66432a1e6b489aa99d4777dc92765fae80a",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 961,
+        "max_dimension": 961,
+        "pillow_mode": "RGB"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 267290,
+        "content_length_matches_local": true,
+        "etag": "3c5e37ff999e6192ed374b3e1265240e",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Full Earth disk with Africa, Antarctica, and heavy Southern Hemisphere cloud cover, consistent with the Apollo 17 Blue Marble photograph."
+      }
+    },
+    {
+      "asset_id": "loc_migrant_mother",
+      "source_id": "loc_fsa_owi",
+      "group_key": "loc_fsa_owi",
+      "split": "audit",
+      "filename": "loc_migrant_mother.jpg",
+      "commons": {
+        "title": "File:Lange-MigrantMother02.jpg",
+        "pageid": 52734,
+        "pinned_revision_id": 1263514887,
+        "pinned_revision_timestamp": "2026-08-18T23:58:41Z",
+        "current_revision_id": 1263514887,
+        "current_revision_timestamp": "2026-08-18T23:58:41Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "afd61dd006bce3ffd26eaf872fef95d588088f73",
+        "original_sha1_api": "afd61dd006bce3ffd26eaf872fef95d588088f73",
+        "original_bytes_pinned": 5835684,
+        "original_bytes_api": 5835684,
+        "original_width": 6205,
+        "original_height": 8066,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "pd",
+        "license_short_name": "Public domain",
+        "usage_terms_api": "Public domain",
+        "restrictions_api": "",
+        "copyrighted_api": false,
+        "attribution_required_api": false,
+        "author": "Dorothea Lange / Farm Security Administration",
+        "commons_artist_api": "Dorothea Lange",
+        "credit": "Library of Congress, LC-DIG-fsa-8b29516",
+        "commons_credit_api": "United States Library of Congress's Prints and Photographs division, digital ID fsa.8b29516",
+        "institutional_source": "https://www.loc.gov/pictures/item/2017762891/",
+        "institutional_check": "LOC item 2017762891 JSON gives the title 'Destitute pea pickers in California...', reproduction number LC-DIG-fsa-8b29516, and rights_information 'No known restrictions'; Commons marks Public domain, Copyrighted=False, AttributionRequired=False, Restrictions empty."
+      },
+      "derivative": {
+        "bytes": 255383,
+        "sha256": "95b09023d7478eee8d245a3d8fe55bc2a88cf1f8bb680057230feccfca8738c5",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 1248,
+        "max_dimension": 1248,
+        "pillow_mode": "L"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 255383,
+        "content_length_matches_local": true,
+        "etag": "584841260ee61bfba920bcfb421bebc0",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Black-and-white portrait of a woman with three children, consistent with Dorothea Lange's Migrant Mother."
+      }
+    },
+    {
+      "asset_id": "met_neptune_columns",
+      "source_id": "met_open_access",
+      "group_key": "met_open_access",
+      "split": "audit",
+      "filename": "met_neptune_columns.jpg",
+      "commons": {
+        "title": "File:“Columns of the Temple of Neptune at Paestum” by Constantin Hansen (Danish, Rome 1804–1880 Frederiksberg) via The Metropolitan Museum of Art is licensed under CC0 1.0.jpg",
+        "pageid": 56007251,
+        "pinned_revision_id": 1031305049,
+        "pinned_revision_timestamp": "2025-05-13T09:54:25Z",
+        "current_revision_id": 1031305049,
+        "current_revision_timestamp": "2025-05-13T09:54:25Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "a8feb6fe32074e4b47e1de4402851235869bcc6b",
+        "original_sha1_api": "a8feb6fe32074e4b47e1de4402851235869bcc6b",
+        "original_bytes_pinned": 2773317,
+        "original_bytes_api": 2773317,
+        "original_width": 3085,
+        "original_height": 3862,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "cc0",
+        "license_short_name": "CC0",
+        "usage_terms_api": "Creative Commons Zero, Public Domain Dedication",
+        "restrictions_api": "",
+        "copyrighted_api": true,
+        "attribution_required_api": false,
+        "author": "Constantin Hansen (1804-1880)",
+        "commons_artist_api": "Constantin Hansen",
+        "credit": "The Metropolitan Museum of Art, object 438949",
+        "commons_credit_api": "https://www.metmuseum.org/art/collection/search/438949",
+        "institutional_source": "https://www.metmuseum.org/art/collection/search/438949",
+        "institutional_check": "The Met Collection API object 438949 returns isPublicDomain=true, title 'Columns of the Temple of Neptune at Paestum', artist Constantin Hansen, and credit line 'Gift of Eugene V. Thaw, 2007'. The declared CC0 license, AttributionRequired=False flag, and Copyrighted=True generic metadata flag are consistent with the Commons record and the CC0 explanation in the protocol. The declared credit is an institutional object reference, not the museum's gift credit line; CC0 imposes no attribution requirement."
+      },
+      "derivative": {
+        "bytes": 307422,
+        "sha256": "df0c3df3caf7c76fb24d1f62f8641252a9bf0cfe124ab76e282fb60d560f9db1",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 1202,
+        "max_dimension": 1202,
+        "pillow_mode": "RGB"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 307422,
+        "content_length_matches_local": true,
+        "etag": "7e11dd46eeddd4097e5e56f5dbcd4f8b",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Oil painting of the Temple of Neptune columns at Paestum, with a landscape and distant temple visible between the columns."
+      }
+    },
+    {
+      "asset_id": "usgs_mameyes_landslide",
+      "source_id": "usgs",
+      "group_key": "usgs",
+      "split": "train",
+      "filename": "usgs_mameyes_landslide.jpg",
+      "commons": {
+        "title": "File:Landslide in Mameyes, Ponce, Puerto Rico, in 1985, photographed by USGS Jibson.jpg",
+        "pageid": 126407541,
+        "pinned_revision_id": 996690690,
+        "pinned_revision_timestamp": "2025-02-10T14:02:11Z",
+        "current_revision_id": 996690690,
+        "current_revision_timestamp": "2025-02-10T14:02:11Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "4c3a4e2c3ee0f5c772ab969679b7728d3ee8fa46",
+        "original_sha1_api": "4c3a4e2c3ee0f5c772ab969679b7728d3ee8fa46",
+        "original_bytes_pinned": 522236,
+        "original_bytes_api": 522236,
+        "original_width": 2157,
+        "original_height": 1452,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "pd",
+        "license_short_name": "Public domain",
+        "usage_terms_api": "Public domain",
+        "restrictions_api": "",
+        "copyrighted_api": false,
+        "attribution_required_api": false,
+        "author": "Randall W. Jibson / U.S. Geological Survey",
+        "commons_artist_api": "Randall Jibson, USGS, Public Domain",
+        "credit": "USGS, Mameyes, Puerto Rico landslide, 1985",
+        "commons_credit_api": "https://www.usgs.gov/media/images/catastrophic-landslide-0",
+        "institutional_source": "https://www.usgs.gov/media/images/catastrophic-landslide-0",
+        "institutional_check": "The USGS page identifies the 1985 Mameyes, Puerto Rico landslide and states 'Sources/Usage: Public Domain'; it names Randall Jibson. Commons marks Public domain, Copyrighted=False, AttributionRequired=False, Restrictions empty."
+      },
+      "derivative": {
+        "bytes": 261593,
+        "sha256": "833c2ead80bed3c7020ddb1c8da7c51a24709784d4a521a727fd2d3829231960",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 646,
+        "max_dimension": 960,
+        "pillow_mode": "RGB"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 261593,
+        "content_length_matches_local": true,
+        "etag": "7dc28ef3503bbeb8bdfa93dc27bcb2b8",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Aerial view of a large landslide scar with destroyed and damaged houses in tropical terrain, consistent with the 1985 Mameyes landslide."
+      }
+    },
+    {
+      "asset_id": "rijksmuseum_night_watch",
+      "source_id": "rijksmuseum",
+      "group_key": "rijksmuseum",
+      "split": "train",
+      "filename": "rijksmuseum_night_watch.jpg",
+      "commons": {
+        "title": "File:The Nightwatch by Rembrandt - Rijksmuseum.jpg",
+        "pageid": 29589409,
+        "pinned_revision_id": 1228043161,
+        "pinned_revision_timestamp": "2026-06-08T18:21:01Z",
+        "current_revision_id": 1228043161,
+        "current_revision_timestamp": "2026-06-08T18:21:01Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "53db595a5a1bca243b152b175d65f0f2f1ab1ff8",
+        "original_sha1_api": "53db595a5a1bca243b152b175d65f0f2f1ab1ff8",
+        "original_bytes_pinned": 36661073,
+        "original_bytes_api": 36661073,
+        "original_width": 14168,
+        "original_height": 11528,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "pd",
+        "license_short_name": "Public domain",
+        "usage_terms_api": "Public domain",
+        "restrictions_api": "",
+        "copyrighted_api": false,
+        "attribution_required_api": false,
+        "author": "Rembrandt van Rijn (1606-1669)",
+        "commons_artist_api": "Rembrandt",
+        "credit": "Rijksmuseum, Amsterdam; on loan from the City of Amsterdam",
+        "commons_credit_api": "http://hdl.handle.net/10934/RM0001.COLLECT.5216",
+        "institutional_source": "https://hdl.handle.net/10934/RM0001.COLLECT.5216",
+        "institutional_check": "The handle resolves to the Rijksmuseum object record for The Night Watch, with 'On loan from the City of Amsterdam', object number SK-C-5, dated 1642, and a Public Domain statement. Commons marks Public domain, Copyrighted=False, AttributionRequired=False, Restrictions empty."
+      },
+      "derivative": {
+        "bytes": 181490,
+        "sha256": "54d8ad29b61fd70d837fa74f434d95d6a37dc10c637bb0d1c2a8f922e50c8107",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 781,
+        "max_dimension": 960,
+        "pillow_mode": "RGB"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 181490,
+        "content_length_matches_local": true,
+        "etag": "b469b3e41e3f236253087faa3d79680d",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Rembrandt's group portrait of a militia company, with the central figures, flag, drum, and dog characteristic of The Night Watch."
+      }
+    },
+    {
+      "asset_id": "nara_lbj_oath_1963",
+      "source_id": "us_national_archives",
+      "group_key": "us_national_archives",
+      "split": "development",
+      "filename": "nara_lbj_oath_1963.jpg",
+      "commons": {
+        "title": "File:Lyndon Baines Johnson takes Presidential Oath of Office. Jay Gildner, Judge Sarah Hughes, Jack Valenti, Congressman... - NARA - 194235.jpg",
+        "pageid": 16896452,
+        "pinned_revision_id": 1269297271,
+        "pinned_revision_timestamp": "2026-08-29T14:31:31Z",
+        "current_revision_id": 1269297271,
+        "current_revision_timestamp": "2026-08-29T14:31:31Z",
+        "current_equals_pinned": true,
+        "original_sha1_pinned": "cd64cbde71cc7d7b55620a9ea3ca33f0a090a978",
+        "original_sha1_api": "cd64cbde71cc7d7b55620a9ea3ca33f0a090a978",
+        "original_bytes_pinned": 1292349,
+        "original_bytes_api": 1292349,
+        "original_width": 3000,
+        "original_height": 2333,
+        "mime_api": "image/jpeg"
+      },
+      "rights": {
+        "license": "pd",
+        "license_short_name": "Public domain",
+        "usage_terms_api": "Public domain",
+        "restrictions_api": "",
+        "copyrighted_api": false,
+        "attribution_required_api": false,
+        "author": "Cecil W. Stoughton / The White House",
+        "commons_artist_api": "Cecil W. Stoughton",
+        "credit": "U.S. National Archives and Records Administration, NAID 194235",
+        "commons_credit_api": "U.S. National Archives and Records Administration",
+        "institutional_source": "https://catalog.archives.gov/id/194235",
+        "institutional_check": "The NARA catalog proxy record for NAID 194235 gives useRestriction.status 'Unrestricted', accessRestriction.status 'Unrestricted', the LBJ oath title aboard Air Force One, and the ancestor series \"Cecil Stoughton's White House Photographs\". Commons marks Public domain, Copyrighted=False, AttributionRequired=False, Restrictions empty."
+      },
+      "derivative": {
+        "bytes": 164851,
+        "sha256": "0245d5a08ea47f18dcf44c48d387c70d7ca1f16b4615045e5f5735546f51a8b8",
+        "format": "JPEG",
+        "mime": "image/jpeg",
+        "width": 960,
+        "height": 747,
+        "max_dimension": 960,
+        "pillow_mode": "L"
+      },
+      "remote_head": {
+        "status": 200,
+        "final_url_equal_pinned_thumb_url": true,
+        "content_type": "image/jpeg",
+        "content_length": 164851,
+        "content_length_matches_local": true,
+        "etag": "176b7762b2d8d7042a9b1cd76a63f978",
+        "etag_matches_local_md5": true
+      },
+      "content_check": {
+        "matches_declared_title_subject": true,
+        "observation": "Black-and-white photograph of Lyndon B. Johnson taking the presidential oath aboard Air Force One, with Jacqueline Kennedy at right and a judge administering the oath."
+      }
+    }
+  ],
+  "remote_metadata_checks": {
+    "commons_api": "https://commons.wikimedia.org/w/api.php (action=query, prop=imageinfo/revisions)",
+    "all_seven_pageids_found": true,
+    "all_seven_current_revisions_equal_pinned": true,
+    "current_revision_differences": [],
+    "all_seven_original_sha1_equal_pinned": true,
+    "all_seven_original_bytes_and_dimensions_equal_pinned": true,
+    "all_seven_mime_image_jpeg": true,
+    "all_seven_license_short_names_allowed": true,
+    "all_seven_restrictions_empty": true,
+    "all_seven_attribution_required_false": true,
+    "institutional_metadata_spot_checked": {
+      "nasa_api": "items found for as11-40-5874 and as17-148-22727; details pages HTTP 200",
+      "loc": "item 2017762891 JSON; rights_information 'No known restrictions'; reproduction number LC-DIG-fsa-8b29516",
+      "rijksmuseum": "handle resolves to object record; Public Domain; on loan from the City of Amsterdam; SK-C-5; 1642",
+      "met": "object 438949 API; isPublicDomain=true; title/artist verified",
+      "usgs": "media page; Sources/Usage Public Domain; Randall Jibson",
+      "nara": "catalog proxy record NAID 194235; useRestriction Unrestricted; accessRestriction Unrestricted; Cecil Stoughton's White House Photographs"
+    },
+    "remote_thumbnail_check": "HEAD requests to all seven pinned thumb.wikimedia.org URLs returned HTTP 200, image/jpeg, a final URL equal to the pinned URL, Content-Length equal to the local derivative byte size, and an ETag equal to the local MD5 digest. This is strong evidence that the local bytes equal the currently served thumbnail bytes at review time; no asset body was downloaded.",
+    "remote_sha256_of_derivative_available": false,
+    "remote_sha256_limitation": "Wikimedia did not expose a thumbnail SHA-256 via the metadata used here; local SHA-256 was recomputed from the local bytes and the local MD5/ETag match plus Content-Length match supports the remote byte-identity check.",
+    "checked_at_utc": "2026-10-26T18:10:01Z",
+    "attempt03_revalidation": "Commons revisions and imageinfo were re-queried for attempt03: all seven current page revisions equal their pins, and original SHA-1/bytes/dimensions still match. HEAD requests to all seven pinned thumb URLs returned Content-Length and ETag equal to the local attempt03 bytes."
+  },
+  "acquisition_verification_and_receipts": {
+    "acquisition": {
+      "path": "reports/real_image_tranche_20261026/attempt03/acquisition.json",
+      "sha256": "90db20ddce8fa660f2552a74169d0c0a95816ce7397ea02db3bb6e1592f2171a",
+      "format": "replica.real_image_tranche_acquisition.v1",
+      "kind": "bounded_real_image_derivative_acquisition_receipt",
+      "mode": "download",
+      "status": "admitted",
+      "asset_count": 7,
+      "admitted_count": 7,
+      "protocol_sha256": "e18ce054aeaa9a9bdfa3d3a2cd0c13971927c71465bfb959a1236f82ae2e6714",
+      "implementation_sha256": "567abbda5dd345e753ab3f507f490c4323ee1c6712655607d3138539b01bc358",
+      "manifest_sha256": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "requests": {
+        "attempted": 7,
+        "failed": 0,
+        "max_requests": 7,
+        "succeeded": 7
+      },
+      "network_used": true,
+      "bytes": {
+        "admitted": 1734983,
+        "max_asset_bytes": 2097152,
+        "max_total_bytes": 8388608,
+        "received": 1734983,
+        "staged": 1734983
+      },
+      "storage": {
+        "asset_bytes": 1734983,
+        "asset_count": 7,
+        "manifest_bytes": 20696,
+        "source_count": 6,
+        "total_stored_bytes": 1755679
+      },
+      "splits": {
+        "audit": {
+          "assets": 2,
+          "bytes": 562805
+        },
+        "development": {
+          "assets": 1,
+          "bytes": 164851
+        },
+        "train": {
+          "assets": 4,
+          "bytes": 1007327
+        }
+      },
+      "failures": [],
+      "warnings": [],
+      "started_at_utc": "2026-10-26T18:08:02Z",
+      "completed_at_utc": "2026-10-26T18:08:03Z",
+      "wall_time_seconds": 1.199012,
+      "training_admitted": false,
+      "perceptual_dedup_claimed": false,
+      "model_quality_evaluated": false
+    },
+    "verification": {
+      "path": "reports/real_image_tranche_20261026/attempt03/verification.json",
+      "sha256": "84738886e728eea7bea241a76cfd6a54ccef92258098f78fa220641c3584668c",
+      "format": "replica.real_image_tranche_verification.v1",
+      "mode": "verify",
+      "status": "verified",
+      "verified": true,
+      "asset_count": 7,
+      "admitted_count": 7,
+      "protocol_sha256": "e18ce054aeaa9a9bdfa3d3a2cd0c13971927c71465bfb959a1236f82ae2e6714",
+      "implementation_sha256": "567abbda5dd345e753ab3f507f490c4323ee1c6712655607d3138539b01bc358",
+      "manifest_sha256": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "acquisition_receipt": "included",
+      "acquisition_receipt_sha256": "90db20ddce8fa660f2552a74169d0c0a95816ce7397ea02db3bb6e1592f2171a",
+      "implementation_matches_manifest": true,
+      "requests": {
+        "attempted": 0,
+        "failed": 0,
+        "max_requests": 7,
+        "succeeded": 0
+      },
+      "network_used": false,
+      "bytes": {
+        "admitted": 1734983,
+        "max_asset_bytes": 2097152,
+        "max_total_bytes": 8388608,
+        "received": 0,
+        "staged": 0
+      },
+      "storage": {
+        "asset_bytes": 1734983,
+        "asset_count": 7,
+        "assets_dir": "reports/real_image_tranche_20261026/attempt03/assets",
+        "manifest_bytes": 20696,
+        "report_dir": "reports/real_image_tranche_20261026/attempt03",
+        "source_count": 6,
+        "total_stored_bytes": 1755679
+      },
+      "checks_total": 41,
+      "checks_true": 41,
+      "failures": [],
+      "warnings": [],
+      "training_admitted": false
+    },
+    "report": {
+      "path": "reports/real_image_tranche_20261026/attempt03/report.json",
+      "sha256": "9b5f651718e9691fe3dc12b42168a07f4d5ba3c7ad794599581c8893025637e6",
+      "status": "verified",
+      "verified": true,
+      "asset_count": 7,
+      "admitted_count": 7,
+      "checks_total": 41,
+      "checks_true": 41,
+      "failures": [],
+      "warnings": [],
+      "manifest_sha256": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "verification_receipt_sha256": "84738886e728eea7bea241a76cfd6a54ccef92258098f78fa220641c3584668c",
+      "acquisition_receipt_sha256": "90db20ddce8fa660f2552a74169d0c0a95816ce7397ea02db3bb6e1592f2171a",
+      "implementation_matches_manifest": true,
+      "evidence_verification_sha256": "84738886e728eea7bea241a76cfd6a54ccef92258098f78fa220641c3584668c",
+      "training_admitted": false
+    },
+    "manifest": {
+      "path": "reports/real_image_tranche_20261026/attempt03/manifest.json",
+      "sha256": "018109b86acc8069fa6eb6a885c94cbabe9cf6c8f431163b16a0e7edd4c61485",
+      "asset_count": 7,
+      "source_count": 6,
+      "total_bytes": 1734983,
+      "status": "admitted_derivative_set",
+      "training_admitted": false
+    },
+    "bindings": {
+      "protocol_sha256_matches_in_protocol_manifest_acquisition_verification_report": true,
+      "manifest_sha256_matches_in_acquisition_verification_report": true,
+      "implementation_sha256_matches_script_and_manifest_and_acquisition": true,
+      "acquisition_sha256_matches_in_verification_and_report": true,
+      "verification_sha256_matches_in_report_evidence": true,
+      "manifest_asset_hashes_match_acquisition_asset_hashes": true,
+      "manifest_asset_derivatives_match_acquisition_asset_derivatives": true,
+      "manifest_source_blocks_match_protocol": true
+    },
+    "accounting": {
+      "acquisition_received_equals_staged_equals_admitted": true,
+      "verification_received_and_staged_are_zero": true,
+      "verification_admitted_equals_acquisition_admitted": true,
+      "storage_total_equals_assets_plus_manifest": true,
+      "storage_total_expected": 1755679,
+      "requests_not_double_counted": true,
+      "network_flags_consistent_with_mode": true
+    },
+    "acquisition_receipt_unchanged_assessment": {
+      "current_sha256_matches_verification_binding": true,
+      "pre_verification_copy_available_for_byte_comparison": false,
+      "assessment": "The selected attempt03 acquisition.json hashes to 90db20ddce8fa660f2552a74169d0c0a95816ce7397ea02db3bb6e1592f2171a, exactly the SHA-256 recorded by verification.json and report.json. No second copy exists in the selected directory to prove byte-level non-modification across the verify step; the runner test asserts non-rewrite, but that test was not run by this review."
+    },
+    "request_history_assessment": {
+      "receipt_declares_seven_successful_logical_asset_fetches": true,
+      "independent_network_observation_of_acquisition": false,
+      "remote_head_evidence": "All seven pinned URLs currently return the same Content-Length and a matching ETag/MD5 for the attempt03 bytes; the original seven GET transactions remain receipt-declared, not observed by this review."
+    }
+  },
+  "test_evidence": {
+    "supplied_by_parent": true,
+    "reviewer_ran_tests": false,
+    "reviewer_ran_native_jobs": false,
+    "pillow_environment": {
+      "tests_run": 14,
+      "intentional_skips": 1,
+      "skip_reason_supplied": "Pillow-present boundary test is intentionally skipped when Pillow is installed",
+      "parent_observed": true
+    },
+    "base_environment": {
+      "tests_run": 8,
+      "decode_skips": 7,
+      "skip_reason_supplied": "Pillow is unavailable for JPEG fixture generation/verification",
+      "parent_observed": true
+    },
+    "static_test_file_check": {
+      "test_functions": 15,
+      "requires_pillow_markers": 7,
+      "pillow_present_conditional_skips": 1,
+      "consistent_with_supplied_counts": true,
+      "note": "15 total tests minus the one Pillow-present conditional skip gives 14 executed in the Pillow environment; seven requires_pillow skips give 8 executed in the base environment. After commit 1571e4e the acquisition-history test also asserts that deleting acquisition.json yields acquisition_missing and verified=false."
+    },
+    "test_file_sha256": "79fc3289fa65857498814177702fa70ede888257c3cd31cb0c3dbee362a4665d",
+    "parent_reran_after_fix": true
+  },
+  "issues": [
+    {
+      "severity": "info",
+      "id": "implementation_drift_warning_only",
+      "affected_selected_evidence": false,
+      "description": "A manifest implementation SHA-256 mismatch remains a warning rather than a hard verification failure by design, so a different runner version can still produce status=\"verified\" while the manifest binds another implementation.",
+      "evidence": "scripts/prepare_real_image_tranche.py:2620-2640 (implementation_matches_manifest warning path).",
+      "impact": "Attempt03 manifest and acquisition bind implementation SHA-256 567abbda..., which matches the current committed script and verification implementation_matches_manifest=true. This is retained as a declared limit, not a defect in attempt03."
+    },
+    {
+      "severity": "info",
+      "id": "request_accounting_is_logical_not_http_hops",
+      "affected_selected_evidence": false,
+      "description": "The acquisition request counter increments once per _fetch_one call. Redirects are followed by the allowlisted urllib opener and revalidated, but redirect hops are not counted against max_requests. The receipt's seven attempted requests are logical asset fetches.",
+      "evidence": "scripts/prepare_real_image_tranche.py:929-958 (redirect handler), 2028-2200 (per-asset fetch loop and counters).",
+      "impact": "At review time all seven pinned thumb URLs returned HTTP 200 with the final URL equal to the pinned URL, so the attempt03 seven logical requests correspond to seven direct GET targets. The caveat matters only if future URLs redirect."
+    }
+  ],
+  "limitations_and_non_claims": [
+    "This is a provenance and evidence-integrity review, not legal advice. License and rights conclusions are limited to the declared U.S. jurisdiction and to the metadata quoted at review time.",
+    "No legal clearance or exhaustive rights audit is claimed. Commons and institutional metadata were spot-checked for every pinned asset, but third-party rights, privacy, publicity, trademark, or jurisdictional issues beyond the declared fields were not exhaustively analyzed.",
+    "No asset body was downloaded during this review. Remote byte identity was checked with HEAD Content-Length and ETag/MD5 against local bytes and local MD5; remote SHA-256 was not available from the metadata used.",
+    "No training admission or training authorization is made. training_admitted is false, no model was trained, and no model-quality evaluation was performed.",
+    "No perceptual or near-duplicate detection is claimed. Only exact byte-level SHA-256 dedup and source-identity uniqueness were checked.",
+    "No exhaustive semantic decontamination or benchmark-overlap analysis is claimed. The check is limited to the declared excluded source IDs and fragments against source_id, group_key, and asset_id.",
+    "Content consistency was assessed visually against the declared title/subject for all seven derivatives. This is not a semantic or exhaustive content audit.",
+    "All seven current Commons page revisions equal the pinned revisions at review time; no current-revision difference required recording. Future page or file changes could invalidate the pins.",
+    "The split assignment is deterministic and was frozen before acquisition, but the protocol note states that a National Archives collection was added because the initial six-candidate set had no development group. Nonempty split coverage is therefore design-conditioned, not a claim of random sampling.",
+    "The acquisition receipt is not independently authenticated; its request history is receipt-declared. The selected evidence is internally consistent and its asset hashes/geometry are independently reproducible.",
+    "Attempt03 was acquired after the runner fix commit 1571e4e at 2026-10-26T18:07:49Z; the receipt, manifest, verification, and report all bind implementation SHA-256 567abbda5dd345e753ab3f507f490c4323ee1c6712655607d3138539b01bc358.",
+    "The prior missing-receipt fail-open is resolved for attempt03: a missing acquisition.json now yields acquisition_missing and verified=false. The prior verification metadata gaps are resolved: assets_dir is set and geometry_policy and implementation_matches_manifest are present.",
+    "Implementation-drift warning-only behavior and logical (non-HTTP-hop) request counting remain declared limits; neither affects the selected attempt03 facts.",
+    "The parent-supplied test results after the fix were not re-executed. Test counts were checked against the static test file structure only.",
+    "Attempt01 and attempt02 are superseded. All seven image bytes in attempt01, attempt02, and attempt03 are identical; attempt02 and attempt03 differ in implementation SHA-256 and receipts only.",
+    "Only reports/real_image_tranche_20261026/independent_review.json was written by this review. No code, config, asset, test, or documentation file was edited, and no commit was made."
+  ],
+  "material_defect_assessment": "No material defect was found in the selected attempt03 evidence. All seven local derivatives are byte-identical to attempt02 and match the attempt03 receipt hashes and byte sizes; the 960-px width and original-aspect geometry are correct; exact dedup and source identities are unique; the frozen group splits and counts recompute exactly; all seven pinned Commons page revisions and original SHA-1/dimensions agree with the protocol; and the rights/provenance fields are supported by Commons and institutional metadata. The prior medium missing-receipt fail-open is resolved by commit 1571e4e and is covered by new test assertions; the prior low metadata gaps are resolved in attempt03 verification. Remaining implementation-drift warning-only and logical-request-count behaviors are declared limits, not material defects.",
+  "verdict_rationale": "verified_with_declared_limits: the selected attempt03 evidence is internally consistent and independently reproducible, the missing-acquisition fail-open and verification metadata gaps from the prior review are resolved, and the remaining limits are explicitly declared: implementation drift is warning-only, request counting is logical rather than HTTP-hop, remote SHA-256 is not available, and no legal, semantic-decontamination, perceptual-dedup, training-admission, or model-quality claim is made.",
+  "prior_findings_resolution": [
+    {
+      "id": "missing_acquisition_receipt_not_fail_closed",
+      "prior_severity": "medium",
+      "status": "resolved_for_attempt03",
+      "resolution": "Commit 1571e4e adds an else-branch that sets acquisition_state=\"missing\" and records fail(\"acquisition\",\"acquisition_missing\",...). The verification failure path uses _base_report verified=False, so a missing receipt now yields status verification_failed and verified=false while still recomputing asset QA. The new test covers deleting acquisition.json.",
+      "selected_evidence_affected": false
+    },
+    {
+      "id": "verification_metadata_gaps",
+      "prior_severity": "low",
+      "status": "resolved_for_attempt03",
+      "resolution": "Commit 1571e4e sets storage.assets_dir in the verify success path and includes geometry_policy plus top-level implementation_matches_manifest in verification.json. Attempt03 verification/report record assets_dir, geometry_policy, and implementation_matches_manifest=true.",
+      "selected_evidence_affected": true
+    }
+  ]
+}
