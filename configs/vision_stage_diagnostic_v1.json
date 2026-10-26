@@ -1,0 +1,107 @@
+{
+  "format": "replica.vision_stage_diagnostic.config.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Diagnose the rejected projector collapse with native fused AdamW: caption alignment checkpoint, procedural instruction checkpoint, stage-wise controls, forgetting, fresh evaluation and fresh-process reload. No scaling or promotion.",
+  "project_root": ".",
+  "data_root": "data/vision_stage_diagnostic_20261026/prepared01",
+  "seed": 20261026,
+  "parent_data_config": {
+    "path": "configs/vision_curriculum_v1.json",
+    "sha256": "f0db805f216bb2d21a3d861b84a09d19e9329828760cb9e46a89aa7c6a85414c"
+  },
+  "parent_protocol": {
+    "path": "data/vision_curriculum_20261025/protocol.json",
+    "sha256": "43a6d0f9130a1599d0dd7132cad328ee56fbebebd5ae5a2951311a3a5e7da044"
+  },
+  "procedural_overrides": {
+    "id_prefix": "vc2",
+    "split_layouts": {
+      "audit": ["row_major"]
+    }
+  },
+  "train": {
+    "seed": 17,
+    "init_seed": 17,
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "optimizer": "adamw_fused",
+    "optimizer_class": "torch.optim.AdamW",
+    "fused": true,
+    "lr": 0.0001,
+    "weight_decay": 0.01,
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1200,
+    "response_only_labels": true,
+    "warm_start": null,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ]
+  },
+  "schedule": {
+    "stage_a": {
+      "updates": 16,
+      "batch": 4,
+      "source": "external_train",
+      "policy": "deterministic_epoch_cycle",
+      "role": "caption alignment"
+    },
+    "stage_b": {
+      "updates": 16,
+      "batch": 4,
+      "sources": ["procedural_source_train", "procedural_train"],
+      "policy": "deterministic_epoch_cycle",
+      "role": "procedural instruction and abstention"
+    }
+  },
+  "evaluation": {
+    "cases_per_split": 24,
+    "stage_a_roles": ["fresh procedural development controls", "fresh owned caption development", "text retention"],
+    "stage_b_roles": ["repeat development for forgetting", "fresh one-shot audit controls", "fresh owned caption audit", "text retention"],
+    "correct_wrong_shuffled_noimage_required": true,
+    "balanced_answers_unknown_and_per_task_required": true,
+    "min_caption_token_f1": 0.2,
+    "min_correct_margin": 0.15,
+    "min_unknown_accuracy": 0.5,
+    "max_caption_f1_forgetting_drop": 0.1,
+    "max_procedural_accuracy_forgetting_drop": 0.15,
+    "max_text_retention_drop": 0.05,
+    "audit_policy": "sealed until stage B is frozen and scored once; no further candidate selection"
+  },
+  "checkpoint_policy": {
+    "stage_checkpoints": ["stage_a", "stage_b"],
+    "export": "strict extension only; no base copy and no optimizer state export",
+    "reload": "stage_b extension in a fresh process with bitwise audit output equality",
+    "keep_all_trajectories": true,
+    "promotion": false,
+    "base_copies": 0
+  },
+  "implementation_paths": [
+    "scripts/prepare_vision_stage_diagnostic.py",
+    "scripts/run_vision_stage_diagnostic.py",
+    "scripts/run_vision_curriculum.py",
+    "scripts/run_capacity_preflight.py",
+    "src/replica_lab/vision_stage_data.py",
+    "src/replica_lab/vision_curriculum.py",
+    "src/replica_lab/vision_qualification.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/architecture/loading.py",
+    "src/replica_lab/architecture/minicpm5.py",
+    "src/replica_lab/architecture/vision.py",
+    "src/replica_lab/architecture/contracts.py",
+    "src/replica_lab/architecture/ports.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/visual_data.py",
+    "src/replica_lab/external_intake.py",
+    "src/replica_lab/memory_system/session.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/contracts.py"
+  ],
+  "limitations": [
+    "Fresh owned procedural scenes/captions are not real-image or broad perception evidence.",
+    "Stage A/B development is repeated only for forgetting diagnosis; audit is one-shot.",
+    "A short stage diagnostic cannot establish convergence equivalence or justify a larger projector, backbone unfreezing or promotion.",
+    "Native fused AdamW is the declared implementation, not a Muon comparison arm."
+  ]
+}

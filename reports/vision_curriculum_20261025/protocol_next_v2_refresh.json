@@ -1,0 +1,409 @@
+{
+  "abstention_kinds": [
+    "absent_referent",
+    "ambiguous_referent",
+    "occluded_relation"
+  ],
+  "arms": {
+    "adamw_aux": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "lr": 0.0001,
+      "param_names": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.bias",
+        "vision_projector.3.bias"
+      ]
+    },
+    "adamw_control": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "lr": 0.0003,
+      "param_names": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.weight",
+        "vision_projector.1.bias",
+        "vision_projector.3.weight",
+        "vision_projector.3.bias"
+      ]
+    },
+    "equal_compute": {
+      "examples_per_arm": 512,
+      "probe_examples_per_arm": 64,
+      "probe_updates_per_arm": 32,
+      "response_only_labels": true,
+      "same_initialization_for_both_arms": true,
+      "same_schedule_for_both_arms": true,
+      "updates_per_arm": 128
+    },
+    "muon8bit": {
+      "block_size": 2048,
+      "lr": 0.0001,
+      "momentum": 0.95,
+      "ns_steps": 5,
+      "param_names": [
+        "vision_projector.1.weight",
+        "vision_projector.3.weight"
+      ]
+    },
+    "order": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "projector_hidden": 4096,
+    "projector_parameter_count": 11542016
+  },
+  "audit_policy": {
+    "external_final_untouched": true,
+    "refuse_repeat_finalize": true,
+    "requires_frozen_dev_report_sha256": true,
+    "score_once": true
+  },
+  "checkpoint_policy": {
+    "audit_scoring": "once",
+    "base_copies": 0,
+    "export": "strict_extension_v4",
+    "keep_arms": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "optimizer_state_saved": false,
+    "policy": "one_final_extension_per_arm",
+    "probe_checkpoints": false,
+    "reload": "zero_update_fresh_process_bitwise",
+    "selection_freeze": "freeze_selected_checkpoint_before_audit"
+  },
+  "claims": {
+    "component_nonregression_separate": true,
+    "overall_baseline_eligible": false,
+    "perception_quality": false,
+    "scope": "staged_curriculum_engineering_and_learned_quality_only",
+    "semantic_quality": false
+  },
+  "counts": {
+    "audit_cases": 120,
+    "dev_cases": 240,
+    "dev_procedural_rows": 240,
+    "diagnostic_source": {
+      "development": 120,
+      "train": 120
+    },
+    "external": {
+      "development": 7,
+      "final_sealed": 8,
+      "train": 15
+    },
+    "external_caption_rows": 7,
+    "probe_cases": 24,
+    "probe_examples": 128,
+    "probe_updates": 64,
+    "procedural": {
+      "asset_bytes": 118831,
+      "assets": 384,
+      "model_rows": 384,
+      "pairs": 192,
+      "split_assets": {
+        "audit": 120,
+        "dev": 120,
+        "train": 144
+      },
+      "split_model_rows": {
+        "audit": 120,
+        "dev": 120,
+        "train": 144
+      },
+      "split_worlds": {
+        "audit": 60,
+        "dev": 60,
+        "train": 72
+      },
+      "task_histogram": {
+        "abstain": 72,
+        "color": 72,
+        "count": 72,
+        "presence": 72,
+        "shape": 24,
+        "spatial": 72
+      },
+      "unknown_worlds": {
+        "audit": 12,
+        "dev": 12,
+        "train": 12
+      },
+      "verifier_cases": 384,
+      "verifier_scenes": 384,
+      "worlds": 192
+    },
+    "schedule_examples": 512,
+    "schedule_updates": 128,
+    "stage_a_examples": 15,
+    "stage_b_examples": 264,
+    "train_examples": 279
+  },
+  "data_root": "data/vision_curriculum_20261025",
+  "descriptor_holdout": {
+    "audit_disjoint_from_curriculum_train_dev": true,
+    "audit_disjoint_from_diagnostic": true,
+    "audit_pool": [
+      [
+        "orange",
+        "triangle"
+      ],
+      [
+        "purple",
+        "rectangle"
+      ],
+      [
+        "yellow",
+        "rectangle"
+      ]
+    ],
+    "world_combinations_disjoint": true
+  },
+  "implementation_pins": [
+    "configs/vision_curriculum_v1.json",
+    "scripts/prepare_vision_curriculum.py",
+    "scripts/run_capacity_preflight.py",
+    "scripts/run_vision_curriculum.py",
+    "src/replica_lab/architecture/__init__.py",
+    "src/replica_lab/architecture/contracts.py",
+    "src/replica_lab/architecture/core.py",
+    "src/replica_lab/architecture/heads.py",
+    "src/replica_lab/architecture/loading.py",
+    "src/replica_lab/architecture/minicpm5.py",
+    "src/replica_lab/architecture/ports.py",
+    "src/replica_lab/architecture/vision.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/contracts.py",
+    "src/replica_lab/external_intake.py",
+    "src/replica_lab/memory_system/__init__.py",
+    "src/replica_lab/memory_system/index.py",
+    "src/replica_lab/memory_system/ledger.py",
+    "src/replica_lab/memory_system/session.py",
+    "src/replica_lab/memory_system/writer.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/neural.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/replica/reader.py",
+    "src/replica_lab/vision_curriculum.py",
+    "src/replica_lab/vision_dependence.py",
+    "src/replica_lab/vision_qualification.py",
+    "src/replica_lab/visual_data.py"
+  ],
+  "label_coverage": {
+    "abstain": {
+      "audit": [
+        "unknown"
+      ],
+      "dev": [
+        "unknown"
+      ],
+      "train": [
+        "unknown"
+      ]
+    },
+    "color": {
+      "audit": [
+        "purple",
+        "yellow"
+      ],
+      "dev": [
+        "blue",
+        "orange"
+      ],
+      "train": [
+        "blue",
+        "orange",
+        "purple",
+        "red",
+        "yellow"
+      ]
+    },
+    "count": {
+      "audit": [
+        "2",
+        "3"
+      ],
+      "dev": [
+        "2",
+        "3"
+      ],
+      "train": [
+        "2",
+        "3"
+      ]
+    },
+    "presence": {
+      "audit": [
+        "no",
+        "yes"
+      ],
+      "dev": [
+        "no",
+        "yes"
+      ],
+      "train": [
+        "no",
+        "yes"
+      ]
+    },
+    "shape": {
+      "audit": [],
+      "dev": [],
+      "train": [
+        "circle",
+        "square"
+      ]
+    },
+    "spatial": {
+      "audit": [
+        "no",
+        "yes"
+      ],
+      "dev": [
+        "no",
+        "yes"
+      ],
+      "train": [
+        "no",
+        "yes"
+      ]
+    }
+  },
+  "limits": {
+    "max_bootstrap_resamples": 2000,
+    "max_cache_bytes": 8388608,
+    "max_driver_bytes": 53687091200,
+    "max_eval_cases": 600,
+    "max_export_bytes": 134217728,
+    "max_new_tokens": 8,
+    "max_probe_updates": 64,
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 32,
+    "max_rows": 4096,
+    "max_seconds": 3600,
+    "max_sequence_tokens": 288,
+    "max_updates": 320,
+    "min_free_disk_bytes": 5368709120
+  },
+  "manifest_sha256": "1b46bfb4c0e072ba197614e37941345ba2b0bfe5b71fe4ae8541cad926870b91",
+  "protocol": "/Users/flare/replica_r3_starter/data/vision_curriculum_20261025/protocol_next_v2.json",
+  "protocol_sha256": "03ee4e1e05b07685d9e0e4cccb3653a09189c61c06788db0740c1f2325ed18bc",
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "initial_free_admission": true,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "sustained_swap_growth_bytes": 536870912,
+    "workers": 1
+  },
+  "retention": {
+    "baseline": {
+      "accuracy": 0.6875,
+      "cases": 32,
+      "correct": 22,
+      "source": "execution_state.md#measured-projector-only-v1-disposition-and-wide-arm"
+    },
+    "policy": "component_nonregression.v1",
+    "require_token_parity": true
+  },
+  "sanity": {
+    "arms": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "examples_per_arm": 512,
+    "probe_examples_per_arm": 64,
+    "probe_updates_per_arm": 32,
+    "projector_hidden": 4096,
+    "projector_parameter_count": 11542016,
+    "projector_tensors": 6,
+    "retention_baseline": "22/32",
+    "stage_a_updates": 16,
+    "stage_b_updates": 112,
+    "updates_per_arm": 128
+  },
+  "schedule": {
+    "examples": 512,
+    "probe": {
+      "batch": 2,
+      "measure": "mean_dev_response_loss",
+      "selection_split": "procedural_dev",
+      "tie_break": "lowest_lr",
+      "total_probe_examples": 128,
+      "total_probe_updates": 64,
+      "updates_per_candidate": 16
+    },
+    "probe_cases": 24,
+    "schedule_sha256": "fbf5cfa2c0ba71ed9d8ec9acb64cf72b12ae18837dbe133ab37804930a46199e",
+    "stages": [
+      {
+        "batch": 4,
+        "stage": "A",
+        "updates": 16
+      },
+      {
+        "batch": 4,
+        "stage": "B",
+        "updates": 112
+      }
+    ],
+    "updates": 128
+  },
+  "seals": {
+    "audit": "593dc5406ebea4a09403ef597f81b513ad143025d3823ae0c3e9f45904d505d5",
+    "audit_manifest": "593dc5406ebea4a09403ef597f81b513ad143025d3823ae0c3e9f45904d505d5",
+    "dev": "77a7c76b4645ff53c9fd4a88c63866fe19525fc3c0c32877e83efd53fdf29a1a",
+    "external_final": "a29566736a46bc2079f81c502ecb6fbb081481ffaae05fdca604e003bea7b48d",
+    "external_final_consumed": false,
+    "train": "4ced9bfb5f7501267e4f10bfb259a4e4b7ee8d3843b9f43b60daa4ad1fb5df4f"
+  },
+  "seed": 20261025,
+  "status": "prepared_staged_not_admitted",
+  "train": {
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ],
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "init_seed": 17,
+    "max_grad_norm": 1.0,
+    "max_seconds": 2400,
+    "optimizer_order": [
+      "muon8bit",
+      "adamw_control"
+    ],
+    "response_only_labels": true,
+    "schedule_version": "curriculum_two_stage.v1",
+    "seed": 17,
+    "warm_start": null
+  },
+  "unknown_coverage": {
+    "audit": {
+      "absent_referent": 8,
+      "ambiguous_referent": 8,
+      "occluded_relation": 8
+    },
+    "dev": {
+      "absent_referent": 8,
+      "ambiguous_referent": 8,
+      "occluded_relation": 8
+    },
+    "train": {
+      "absent_referent": 8,
+      "ambiguous_referent": 8,
+      "occluded_relation": 8
+    }
+  }
+}

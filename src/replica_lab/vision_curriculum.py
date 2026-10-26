@@ -394,10 +394,14 @@ def validate_config(config: Mapping[str, Any]) -> dict[str, Any]:
              "Diagnostic final split is development evidence")
     _nonempty(source["development_note"], "procedural_source.development_note")
 
-    procedural = _exact_keys(config["procedural"], {
+    raw_procedural = dict(config["procedural"])
+    prefix = raw_procedural.pop("id_prefix", "vc1")
+    procedural = _exact_keys(raw_procedural, {
         "renderer", "worlds_per_task", "tasks", "count_labels", "splits",
         "descriptor_pools", "split_layouts", "abstain_kinds",
         "unknown_label"}, "procedural")
+    _require(isinstance(prefix, str) and re.fullmatch(r"[a-z][a-z0-9_]*", prefix),
+             "procedural.id_prefix must be a lowercase identifier")
     renderer = _exact_keys(procedural["renderer"], {
         "version", "width", "height", "image_format",
         "standard_library_only"}, "procedural.renderer")
@@ -1495,7 +1499,7 @@ def build_procedural(config: Mapping[str, Any]) -> dict[str, Any]:
     for split in SPLITS:
         for task in SPLIT_TASKS[split]:
             for index in range(int(config["procedural"]["worlds_per_task"])):
-                world_id = f"vc1-w{global_index:03d}"
+                world_id = f"{config['procedural'].get('id_prefix', 'vc1')}-w{global_index:03d}"
                 chosen = None
                 for salt in range(32):
                     materialized = _materialize_world(

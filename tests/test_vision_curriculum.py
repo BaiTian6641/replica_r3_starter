@@ -124,10 +124,10 @@ def dataset(built):
 
 @pytest.fixture(scope="session")
 def prepared_protocol():
-    assert PREPARED.joinpath("protocol_next.json").is_file(), (
+    assert PREPARED.joinpath("protocol_next_v2.json").is_file(), (
         "run scripts/prepare_vision_curriculum.py --protocol-out "
-        "data/vision_curriculum_20261025/protocol_next.json")
-    protocol = json.loads((PREPARED / "protocol_next.json").read_text())
+        "data/vision_curriculum_20261025/protocol_next_v2.json")
+    protocol = json.loads((PREPARED / "protocol_next_v2.json").read_text())
     validate_protocol(protocol)
     return protocol
 
@@ -1583,7 +1583,7 @@ def test_prepared_occlusion_pairs_are_identical_unknown_controls():
 
 def test_protocol_split_seals_must_match_verified_dataset_seals():
     dataset = audit_dataset(PREPARED)
-    protocol = json.loads((PREPARED / "protocol_next.json").read_text())
+    protocol = json.loads((PREPARED / "protocol_next_v2.json").read_text())
     verified = verified_finalize_seals(
         protocol, dataset.seals, dataset.seal_receipts)
     assert verified["audit"] == dataset.seals["audit_seal_sha256"]
@@ -1654,7 +1654,7 @@ def test_prepared_protocol_preregisters_every_required_field(
 
 
 def test_run_artifacts_include_reload_report_and_missing_reload_is_rejected(tmp_path):
-    protocol = json.loads((PREPARED / "protocol_next.json").read_text())
+    protocol = json.loads((PREPARED / "protocol_next_v2.json").read_text())
     assert "reload_report.json" in run_artifact_names(protocol)
     assert "reload_report.json" not in run_artifact_names(
         protocol, include_reload=False)

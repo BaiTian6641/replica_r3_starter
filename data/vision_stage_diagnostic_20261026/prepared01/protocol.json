@@ -1,0 +1,265 @@
+{
+  "action_limits": {
+    "core_impl": "none",
+    "enabled_branches": [
+      "memory"
+    ],
+    "enabled_ports": [],
+    "host_actions": "none",
+    "success_claims": "none"
+  },
+  "checkpoint_policy": {
+    "base_copies": 0,
+    "export": "strict extension only; no base copy and no optimizer state export",
+    "keep_all_trajectories": true,
+    "promotion": false,
+    "reload": "stage_b extension in a fresh process with bitwise audit output equality",
+    "stage_checkpoints": [
+      "stage_a",
+      "stage_b"
+    ]
+  },
+  "claims": {
+    "overall_baseline_eligible": false,
+    "perception_quality": false,
+    "scope": "bounded stage-wise collapse diagnostic only",
+    "semantic_quality": false
+  },
+  "config_sha256": "8c63428c5cd7c39d90131a21c064359bd642e39b9dac4697ed5627e151880b1d",
+  "data": {
+    "counts": {
+      "audit": 24,
+      "caption_audit": 24,
+      "caption_dev": 24,
+      "dev": 24,
+      "procedural_assets": 384,
+      "procedural_worlds": 192,
+      "stage_a": 15,
+      "stage_b": 264
+    },
+    "fresh_evaluation": true,
+    "manifest": {
+      "path": "manifest.json",
+      "sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1"
+    },
+    "root": "data/vision_stage_diagnostic_20261026/prepared01",
+    "seals": {
+      "audit_case_ids": "2518d2d0f8f60e3176beb7f9bd26593d67a08aa5a2c7d707616679b33d5bf3d1",
+      "audit_cases_payload": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067",
+      "caption_audit_case_ids": "2518d2d0f8f60e3176beb7f9bd26593d67a08aa5a2c7d707616679b33d5bf3d1",
+      "caption_audit_payload": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10",
+      "caption_dev_case_ids": "ec9eaa7c0cbd0c9edeb84c74a416ab744d15afa17d0a1a767a9ebf6efc6d5b29",
+      "caption_dev_payload": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db",
+      "dev_case_ids": "ec9eaa7c0cbd0c9edeb84c74a416ab744d15afa17d0a1a767a9ebf6efc6d5b29",
+      "dev_cases_payload": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+    }
+  },
+  "evaluation": {
+    "audit_split": "curriculum_audit",
+    "batch": 1,
+    "beam_width": 1,
+    "bootstrap": {
+      "cluster": "world",
+      "confidence": 0.95,
+      "resamples": 1000
+    },
+    "caption_max_new_tokens": 32,
+    "caption_metric": {
+      "claim": "narrow_alignment_metric_only_no_semantic_quality_claim",
+      "name": "normalized_token_f1",
+      "normalization": "casefold_whitespace_strip_punctuation.v1",
+      "teacher_forced_loss": "response_mean_nll"
+    },
+    "cases_per_split": 24,
+    "controls": [
+      "correct",
+      "wrong",
+      "shuffled",
+      "noimage"
+    ],
+    "dev_splits": [
+      "curriculum_dev",
+      "diagnostic_dev",
+      "external_development"
+    ],
+    "do_sample": false,
+    "external_final_split": "external_final_eval_untouched",
+    "gates": {
+      "max_false_abstention_on_answerable": 0.15,
+      "max_false_answer_on_abstain": 0.2,
+      "max_text_retention_drop": 0.0,
+      "max_unknown_rate": 0.15,
+      "min_correct_accuracy": 0.6,
+      "min_correct_margin_noimage": 0.15,
+      "min_correct_margin_shuffled": 0.15,
+      "min_correct_margin_wrong": 0.15,
+      "min_text_retention_accuracy": 0.75,
+      "min_unique_families": 32,
+      "min_unknown_accuracy": 0.7
+    },
+    "greedy": true,
+    "max_new_tokens": 8,
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "shuffle_policy": "deterministic_derangement_within_split",
+    "shuffle_seed_offset": 7919,
+    "wrong_control": "different_world_same_task"
+  },
+  "format": "replica.vision_stage_diagnostic.protocol.v1",
+  "implementation_sha256": {
+    "scripts/prepare_vision_stage_diagnostic.py": "c2e0ee7cc4ae062541c856a59f2b57b0f5c484bf8070d0f454d41c9a43003403",
+    "scripts/run_capacity_preflight.py": "b391d92349166c44a96001ecb137c94bea0b3338b14b95ec5cdf3bff12cda386",
+    "scripts/run_vision_curriculum.py": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+    "scripts/run_vision_stage_diagnostic.py": "234af8bafb140d25a9e189f4f9afd49f48af60708c67833deb2ba5448e7d31cf",
+    "src/replica_lab/architecture/contracts.py": "be6024ac7f3179f46d497169b962889d3524bb6733aad80fe8e927f7e8c3b8d0",
+    "src/replica_lab/architecture/loading.py": "7169376c2a5cf35dd2d2d66a46b18c088d2c3909c86dc47d6709d7390455bd2a",
+    "src/replica_lab/architecture/minicpm5.py": "9c4b42e7f3ace361cf212dc05bd3579a4d1b44f3d295b22f2959b22e71ba6850",
+    "src/replica_lab/architecture/ports.py": "6089b1d8ae06e9e107b17cdb0ccc601b244d3e38fd177ed7ada8e20fca581e5f",
+    "src/replica_lab/architecture/vision.py": "c83a57b3511a9ea6c9c5e8d50a0215e3f141d41e2a13a77b76b9c4a1242827f5",
+    "src/replica_lab/capacity_guard.py": "01618936e326bd317425d1a723dfb34c956eddcf1a47659dcc319880bb57c5f6",
+    "src/replica_lab/contracts.py": "68b2586c1796795386fc44bec2b46bf82ff36a927857611ee4a6eeef9ee255ea",
+    "src/replica_lab/external_intake.py": "31ad508ec962be4dfb32a2ec3a1b1443aef50a53c0e6a86454d9947a78bdd317",
+    "src/replica_lab/memory_system/session.py": "f475d0fde3a825bce54d007f54eaafc97470da5ca348cc2e52e331e6ce518305",
+    "src/replica_lab/model_adapter.py": "cfbc25977391ec9e185db500429c4287ec97374c855a5dc9a3f161cff2ee3ac9",
+    "src/replica_lab/optimizers.py": "b4889c5af62b388dd322f56cd65868e7ba4ac917802861e8fda5a2fafeb28862",
+    "src/replica_lab/profiling.py": "cccadf47093c8858418148724261c2952878d3cedb9157a7f3b78acd288876d0",
+    "src/replica_lab/vision_curriculum.py": "6a6f708ef5e644f70bb28253f977b01133ef30f7ea0a2728e01ec6941054e386",
+    "src/replica_lab/vision_qualification.py": "0958f87d789631938f47c1800c649d482bd8af59958ec9a1c503461e5c958439",
+    "src/replica_lab/vision_stage_data.py": "5e64f41322c4f66bebef0f0a6d2d6bc0fe29853b2012952ec39d8cde83334cc3",
+    "src/replica_lab/visual_data.py": "00b9ea7d529de0e0ec6218f6616c6b3aaa2da00f01a7a13bcc07d35680aa4397"
+  },
+  "limits": {
+    "max_bootstrap_resamples": 2000,
+    "max_cache_bytes": 8388608,
+    "max_driver_bytes": 53687091200,
+    "max_eval_cases": 24,
+    "max_export_bytes": 134217728,
+    "max_new_tokens": 8,
+    "max_probe_updates": 64,
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 32,
+    "max_rows": 4096,
+    "max_seconds": 1200,
+    "max_sequence_tokens": 288,
+    "max_updates": 320,
+    "min_free_disk_bytes": 5368709120
+  },
+  "model": {
+    "lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+  },
+  "parent": {
+    "protocol": "data/vision_curriculum_20261025/protocol.json",
+    "protocol_sha256": "43a6d0f9130a1599d0dd7132cad328ee56fbebebd5ae5a2951311a3a5e7da044",
+    "role": "accepted V0 integration/source contracts only; no warm start"
+  },
+  "purpose": "Diagnose the rejected projector collapse with native fused AdamW: caption alignment checkpoint, procedural instruction checkpoint, stage-wise controls, forgetting, fresh evaluation and fresh-process reload. No scaling or promotion.",
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "initial_free_admission": true,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "sustained_swap_growth_bytes": 536870912,
+    "workers": 1
+  },
+  "retention": {
+    "baseline": {
+      "accuracy": 0.6875,
+      "cases": 32,
+      "correct": 22,
+      "source": "execution_state.md#measured-projector-only-v1-disposition-and-wide-arm"
+    },
+    "labels": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_labels.jsonl",
+      "sha256": "e593d6174ae2f6a0ea13e7c06c33c0102475ac6e0312d9b775baa554c673a211"
+    },
+    "max_cases": 32,
+    "policy": "component_nonregression.v1",
+    "prompts": {
+      "path": "data/vision_alignment_v1_20261025/intake02/retention_prompts.jsonl",
+      "sha256": "0f694dcdd376d5890654a81a86d3d628f9b71cafa7109b9efc243f6c84fc5151"
+    },
+    "require_token_parity": true,
+    "role": "Reported separately from component nonregression; the declared 22/32 baseline stays overall ineligible."
+  },
+  "root": "/Users/flare/replica_r3_starter",
+  "schedule": {
+    "response_only_labels": true,
+    "stage_a": {
+      "batch": 4,
+      "policy": "deterministic_epoch_cycle",
+      "role": "caption alignment",
+      "source": "external_train",
+      "updates": 16
+    },
+    "stage_b": {
+      "batch": 4,
+      "policy": "deterministic_epoch_cycle",
+      "role": "procedural instruction and abstention",
+      "sources": [
+        "procedural_source_train",
+        "procedural_train"
+      ],
+      "updates": 16
+    },
+    "total_examples": 128,
+    "total_updates": 32
+  },
+  "seed": 20261026,
+  "train": {
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ],
+    "fused": true,
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "init_seed": 17,
+    "lr": 0.0001,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1200,
+    "optimizer": "adamw_fused",
+    "optimizer_class": "torch.optim.AdamW",
+    "response_only_labels": true,
+    "seed": 17,
+    "warm_start": null,
+    "weight_decay": 0.01
+  },
+  "version": "replica.vision_stage_diagnostic.v1",
+  "vision": {
+    "compute_dtype": "float32",
+    "encoder_repo": "google/siglip2-base-patch16-224",
+    "encoder_revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+    "encoder_source_digest": "612923381c76ec5a9bed335d1c48827e3f2e506ac31b044b63b2031fadee6a0b",
+    "encoder_width": 768,
+    "feature_version": "siglip_patch_last_hidden.v1",
+    "image_size": 224,
+    "max_visual_tokens": 196,
+    "patch_size": 16,
+    "processor_digest": "9b36b57ebaf20f09bf4c22100ccc21877ea6bfe5aead0c00c59f8af8ccefacfc",
+    "projector_hidden": 4096
+  },
+  "vision_digest": "71209159fe9c26a44be4a84e3d630d3f69f27588049868edcb955a1f5b5747fe",
+  "vision_source": {
+    "manifest": {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024"
+    },
+    "path": "checkpoints/siglip2_base_patch16_224_source",
+    "scope": {
+      "as_of": 0,
+      "branch_id": "curriculum-run01",
+      "mode": "parallel_replica",
+      "purpose": "staged_vision_curriculum",
+      "snapshot_at": null,
+      "subject_id": "owned-curriculum-v1"
+    },
+    "source_id": "replica_lab:procedural_scene_png_v1"
+  }
+}
