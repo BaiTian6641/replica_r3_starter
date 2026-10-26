@@ -22,6 +22,7 @@ pending run disposition.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import os
@@ -43,6 +44,10 @@ from replica_lab.vision_balanced_alignment import (  # noqa: E402
     score_caption_controls_v2, score_counterfactual_answers,
     score_caption_controls, scorer_contract_preflight_v2,
     train_fit_gate_report,
+)
+from replica_lab.vision_collapse_diagnostic import (  # noqa: E402
+    EXPECTED_STOP_TOKENS, fit_contract_row_report, fit_coverage,
+    require_fit_coverage, resolve_stop_tokens,
 )
 
 
@@ -362,47 +367,44 @@ def _delta_norm(before, after):
 
 
 def _verify_fit_tensor_contract(tokenizer, row, prompt_tensor, input_ids,
-                                labels, protocol):
+                                labels, protocol, *, stop_tokens=None):
+    """Check one row's prompt mask, labels, shifted supervision and EOS.
+
+    The explicit per-row field names come from the shared diagnostic module so a
+    caption row and an answer row are checked by the same contract.  The stop
+    set is the model's declared set (``{1, 130073}``); the target EOS remains
+    the tokenizer ``</s>``.
+    """
     fit = protocol.get("fit_contract")
     if fit is None:
         return None
-    prompt_length = int(prompt_tensor.shape[1])
     _require(labels.shape == input_ids.shape,
              "Fit labels and inputs differ in shape")
-    _require(bool((labels[:, :prompt_length] == -100).all()),
-             "Prompt labels are not fully masked")
-    response_labels = labels[:, prompt_length:]
-    _require(bool((response_labels != -100).all()),
-             "Response labels are masked")
-    _require(int(labels[0, -1]) == int(tokenizer.eos_token_id),
-             "Response does not end with the explicit EOS token")
-    response_ids = [int(value) for value in
-                    input_ids[0, prompt_length:].tolist()]
-    _require(response_ids[-1] == int(tokenizer.eos_token_id),
-             "Input response does not end with EOS")
-    pad = getattr(tokenizer, "pad_token_id", None)
-    if fit["pad_tokens_forbidden"] and pad is not None:
-        _require(int(pad) not in response_ids[:-1],
-                 "A pad token appears before the final EOS")
-    _require(input_ids.shape[1] <= int(protocol["limits"][
-        "max_sequence_tokens"]), "Fit example exceeds the token budget")
-    if row.get("kind") == "caption":
-        _require(row["question"] == fit["caption_template"],
-                 "Caption prompt template differs from the fit contract")
-    _require(isinstance(row.get("response"), str) and row["response"],
-             "Fit response is missing")
-    return {
-        "prompt_tokens": prompt_length,
-        "response_tokens": len(response_ids),
-        "supervised_tokens": int((labels != -100).sum()),
-        "eos_token_id": int(tokenizer.eos_token_id),
-        "prompt_masked": True,
-        "response_eos": True,
-        "pad_free_response": True,
-        "template_checked": True,
-        "loss": fit["loss"],
-        "response_only_labels": True,
-    }
+    _require(tokenizer.eos_token_id is not None,
+             "Tokenizer requires an explicit EOS token")
+    if stop_tokens is None:
+        # The declared native set plus the tokenizer EOS keeps CPU doubles
+        # checkable; production callers pass the model-derived set explicitly.
+        stops = tuple(sorted(set(EXPECTED_STOP_TOKENS)
+                             | {int(tokenizer.eos_token_id)}))
+    else:
+        stops = tuple(stop_tokens)
+    identifier = (row.get("example_id") or row.get("case_id")
+                  or "unidentified")
+    return fit_contract_row_report(
+        example_id=str(identifier),
+        case_id=str(row.get("case_id") or identifier),
+        kind=str(row.get("kind", "answer")),
+        prompt_tokens=int(prompt_tensor.shape[1]),
+        input_ids=[int(value) for value in input_ids[0].tolist()],
+        labels=[int(value) for value in labels[0].tolist()],
+        eos_token=int(tokenizer.eos_token_id),
+        stop_tokens=stops,
+        pad_token=getattr(tokenizer, "pad_token_id", None),
+        question=row.get("question"),
+        caption_template=fit["caption_template"],
+        loss=fit["loss"],
+        max_sequence_tokens=int(protocol["limits"]["max_sequence_tokens"]))
 
 
 def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
@@ -414,12 +416,21 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
     limits = protocol["limits"]
     records = []
     fit = protocol.get("fit_contract")
+    stops = tuple(EXPECTED_STOP_TOKENS)
+    stop_source = "declared_native_set"
     if fit is not None:
         _require(protocol["evaluation"]["question_template"]
                  == fit["question_template"],
                  "Protocol question template differs from the fit contract")
         _require(tokenizer.eos_token_id is not None,
                  "Tokenizer requires an explicit EOS token")
+        if batches:
+            base = getattr(getattr(adapter, "base", None), "config", None)
+            stops, stop_source = resolve_stop_tokens(
+                getattr(base, "eos_token_id", None) if base is not None else None,
+                getattr(tokenizer, "eos_token_id", None))
+            _require(tuple(stops) == tuple(EXPECTED_STOP_TOKENS),
+                     f"Fit stop set {stops} differs from {EXPECTED_STOP_TOKENS}")
     for update_index, rows in enumerate(batches, 1):
         if time.monotonic() - start_time > train["max_seconds"]:
             raise RuntimeError("Alignment exceeded its wall budget")
@@ -429,6 +440,7 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
         gradient_names: set[str] = set()
         output_rms, output_max = [], []
         processed = supervised = 0
+        fit_checks = []
         roles = {"caption": 0, "answer": 0}
         for row in rows:
             visual = observe(
@@ -446,7 +458,10 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
                 maximum_prompt=limits["max_prompt_tokens"],
                 maximum_sequence=limits["max_sequence_tokens"])
             fit_check = _verify_fit_tensor_contract(
-                tokenizer, row, prompt_tensor, input_ids, labels, protocol)
+                tokenizer, row, prompt_tensor, input_ids, labels, protocol,
+                stop_tokens=stops)
+            if fit_check is not None:
+                fit_checks.append(fit_check)
             prompt_text = curriculum_prompt(row["question"])
             with session.training_request(
                     prompt_ids=prompt_tensor,
@@ -497,6 +512,11 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
             "projector_output_max": max(output_max),
             "processed_tokens": processed,
             "supervised_tokens": supervised,
+            "supervised_label_tokens": (sum(
+                check["supervised_label_tokens"] for check in fit_checks)
+                if fit is not None else None),
+            "shifted_supervision_tokens": (supervised
+                                           if fit is not None else None),
             "response_only_labels": True,
             "nonprojector_gradient_names": nonprojector,
             "base_stamp_unchanged": (
@@ -504,12 +524,47 @@ def run_updates(adapter, session, tokenizer, service, protocol, scope, batches,
                 == adapter._initial_base_stamp),
         }
         if fit is not None:
+            _require(len(fit_checks) == len(rows),
+                     "A fit row skipped the per-row contract checks")
             record["fit_contract_checked"] = True
-            record["fit_contract"] = fit_check
+            record["fit_contract_rows"] = fit_checks
+            record["fit_contract"] = {
+                "rows": len(fit_checks),
+                "kinds": dict(sorted(
+                    Counter(check["kind"] for check in fit_checks).items())),
+                "all_valid": all(check["contract_valid"]
+                                 for check in fit_checks),
+                "supervised_label_tokens": sum(
+                    check["supervised_label_tokens"] for check in fit_checks),
+                "loss_tokens": sum(check["loss_tokens"] for check in fit_checks),
+                "label_shift": 1,
+                "stop_tokens": list(stops),
+                "stop_set_source": stop_source,
+            }
         if not record["base_stamp_unchanged"]:
             raise RuntimeError("Training changed the sealed base")
         records.append(record)
         _write_jsonl(trace_path, records)
+    if fit is not None and records:
+        retained = [check for record in records
+                    for check in record.get("fit_contract_rows", [])]
+        expected = {str(row["example_id"]): str(row.get("kind", "answer"))
+                    for batch in batches for row in batch}
+        coverage = fit_coverage(retained, list(expected))
+        require_fit_coverage(coverage, expected_kinds=dict(
+            sorted(Counter(expected.values()).items())))
+        coverage["stop_tokens"] = list(stops)
+        coverage["stop_set_source"] = stop_source
+        require(all(check["eos_in_stop_set"] for check in retained),
+                "A fit row target EOS is outside the declared stop set")
+        if trace_path is not None:
+            _write_json(Path(trace_path).with_name(
+                "fit_contract_coverage.json"), coverage)
+        for record in records:
+            record["fit_coverage_all_rows_checked"] = coverage[
+                "all_rows_checked"]
+        if trace_path is not None:
+            _write_jsonl(trace_path, records)
     return records
 
 
@@ -918,6 +973,20 @@ def _execute_train_v2(args, protocol, manifest, implementation, data_root):
             _require(all(record.get("fit_contract_checked")
                          for record in trace),
                      "A v2 update skipped the fit contract checks")
+            coverage_path = output / "fit_contract_coverage.json"
+            _require(coverage_path.is_file(),
+                     "The v2 fit contract coverage receipt is missing")
+            coverage = json.loads(coverage_path.read_text())
+            require_fit_coverage(coverage, expected_kinds={
+                "answer": protocol["data"]["counts"]["train_answers"],
+                "caption": protocol["data"]["counts"]["train_captions"],
+            })
+            _require(coverage["checked_rows"]
+                     == protocol["schedule"]["unique_examples"],
+                     "Fit contract coverage did not check every unique row")
+            _require(all(record.get("fit_coverage_all_rows_checked")
+                         for record in trace),
+                     "A v2 update lacks the retained fit coverage flag")
             extension = export_extension(
                 adapter, output / "alignment/extension", protocol,
                 label="alignment")

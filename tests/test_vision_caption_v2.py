@@ -533,9 +533,19 @@ def test_v2_runner_imports_and_uses_corrected_target_contract():
 
 def test_prepared_v2_roles_load_separately_with_bound_assignments():
     import importlib.util
-    protocol, manifest, implementation, data_root = vba.load_prepared(
-        ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
-        "protocol.json", ROOT)
+    protocol_path = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"
+                     "protocol.json")
+    with pytest.raises(ValueError, match="Implementation bytes changed"):
+        vba.load_prepared(protocol_path, ROOT)
+    diagnostic_spec = importlib.util.spec_from_file_location(
+        "vision_collapse_runner_for_roles",
+        ROOT / "scripts/run_vision_collapse_diagnostic.py")
+    diagnostic_module = importlib.util.module_from_spec(diagnostic_spec)
+    diagnostic_spec.loader.exec_module(diagnostic_module)
+    diagnostic_config = diagnostic_module.load_config(
+        ROOT / "configs/vision_collapse_diagnostic_v1.json")
+    verified = diagnostic_module.verify_pins(diagnostic_config)
+    protocol, manifest = verified["protocol"], verified["manifest"]
     assert protocol["format"] == vba.PROTOCOL_FORMAT_V2
     spec = importlib.util.spec_from_file_location(
         "vision_balanced_runner_v2_roles",

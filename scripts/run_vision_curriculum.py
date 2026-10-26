@@ -783,6 +783,18 @@ def generate_row(session, tokenizer, *, control, case, question, visual,
         request.release()
     require(1 <= len(generated) <= maximum_new,
             "Generation exceeded its declared token budget")
+    # Stop evidence must use the declared stop set.  The native snapshot
+    # declares eos_token_id = [1, 130073] (</s> and <|im_end|>); reporting only
+    # tokenizer.eos_token_id silently loses every <|im_end|> stop.
+    from replica_lab.vision_collapse_diagnostic import (
+        resolve_stop_tokens, stop_evidence)
+    adapter = getattr(session, "adapter", None)
+    base = getattr(adapter, "base", None) if adapter is not None else None
+    config = getattr(base, "config", None) if base is not None else None
+    stops, stop_source = resolve_stop_tokens(
+        getattr(config, "eos_token_id", None) if config is not None else None,
+        getattr(tokenizer, "eos_token_id", None))
+    evidence = stop_evidence(generated, stops)
     return {"control": control, "case_id": case["case_id"],
             "generated_ids": generated,
             "generated_text": _generated_text(tokenizer, generated),
@@ -792,7 +804,14 @@ def generate_row(session, tokenizer, *, control, case, question, visual,
                              else (case["image_sha256"]
                                    if image_sha256 is None else image_sha256)),
             "image_case_id": image_case_id,
-            "ended_by_eos": generated[-1] == tokenizer.eos_token_id,
+            "stop_tokens": list(stops),
+            "stop_set_source": stop_source,
+            "ended_by_eos": evidence["ended_by_eos"],
+            "stop_token": evidence["stop_token"],
+            "stop_reason": evidence["stop_reason"],
+            "stop_token_before_final": evidence["stop_token_before_final"],
+            "hit_token_budget": ((not evidence["ended_by_eos"])
+                                 and len(generated) >= maximum_new),
             "max_new_tokens": maximum_new}
 
 

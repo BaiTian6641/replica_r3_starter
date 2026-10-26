@@ -1666,10 +1666,11 @@ def test_run_artifacts_include_reload_report_and_missing_reload_is_rejected(tmp_
     with pytest.raises(VisionCurriculumError):
         verify(tmp_path, report)
 
-def test_prepared_data_pins_and_implementation_pins(prepared_protocol):
+def test_prepared_data_pins_and_implementation_drift_rejected(prepared_protocol):
     verify_data_pins(prepared_protocol["data"],
                      PREPARED)
-    verify_implementation_pins(prepared_protocol, ROOT)
+    with pytest.raises(VisionCurriculumError, match="Implementation bytes changed"):
+        verify_implementation_pins(prepared_protocol, ROOT)
     manifest = json.loads((PREPARED / "manifest.json").read_text())
     assert manifest["format"] == "replica.vision_curriculum_manifest.v1"
     assert manifest["status"] == "staged_not_admitted"

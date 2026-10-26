@@ -1,0 +1,159 @@
+{
+  "format": "replica.vision_collapse_diagnostic_config.v1",
+  "version": "replica.vision_collapse_diagnostic.v1",
+  "name": "vision_collapse_diagnostic_v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Training-only first-order evidence for the MiniCPM5 vision-collapse question. Two stages that differ only in the six vision projector tensors are compared on the same sealed training rows, prompt/response builders, controls, teacher-forced logits, greedy generations and feature scales. No optimizer step, gradient, checkpoint or extension write occurs. No evaluation split is read and no learned-quality promotion is made.",
+  "prepared": {
+    "root": "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "protocol": "data/vision_balanced_alignment_v2_20261026/prepared04/protocol.json",
+    "protocol_sha256": "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77",
+    "manifest": "data/vision_balanced_alignment_v2_20261026/prepared04/manifest.json",
+    "manifest_sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227",
+    "training": "data/vision_balanced_alignment_v2_20261026/prepared04/training/alignment.jsonl",
+    "training_sha256": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+    "training_examples": 26,
+    "answer_examples": 14,
+    "caption_examples": 12,
+    "answer_pairs": 5,
+    "caption_pair_ids": 7,
+    "read_only_training": true,
+    "forbidden_access": [
+      "evaluation/",
+      "dev",
+      "heldout",
+      "semantic_audit"
+    ]
+  },
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "vision_source_manifest": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+    "vision_source_manifest_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+    "protocol_authorities": [
+      "model.lock_sha256",
+      "model.revision",
+      "vision_digest",
+      "vision",
+      "vision_source",
+      "resource_policy",
+      "limits"
+    ]
+  },
+  "extension": {
+    "path": "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+    "run": "train04",
+    "updates_consumed": 24,
+    "format": "replica.minicpm5.extensions.v4",
+    "regime": "modules_only",
+    "manifest_sha256": "593075106dfa6b91c5c0f27096861e1a57e0afc77b7838388e848926d666756a",
+    "weights_sha256": "76b8f7defcabb113e7c96f2eb9f5a4be8b8ed3886cd147264bb51cf013df2e3e",
+    "manifest_digest": "a11c1dac668172cab0bf0280c70706e111ebdfa6f2bc46e6cc9c9712a1becaf8",
+    "weights_bytes": 65688472
+  },
+  "stages": [
+    {
+      "name": "fresh_init_seed29",
+      "kind": "fresh_projector",
+      "init_seed": 29,
+      "updates": 0,
+      "frozen_component_source": "pinned_train04_extension",
+      "note": "Seed-29 projector initialization exactly as the training recipe performs it, with the pinned train04 frozen sidecars copied in first so the six projector tensors are the only difference from the extension stage."
+    },
+    {
+      "name": "train04_extension",
+      "kind": "extension",
+      "updates": 0,
+      "extension": "train04",
+      "note": "The pinned train04 extension reloaded into the same process and model instance; no save and no update."
+    }
+  ],
+  "stop_tokens": [
+    1,
+    130073
+  ],
+  "target_eos_token": 1,
+  "controls": [
+    "correct",
+    "sibling",
+    "shuffled",
+    "noimage"
+  ],
+  "prompt_contract": {
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "caption_template": "Describe the image briefly.",
+    "response_only_labels": true,
+    "label_shift": 1,
+    "loss": "mean_response_nll"
+  },
+  "limits": {
+    "max_seconds": 1200,
+    "artifact_bytes": 134217728,
+    "max_prompt_tokens": 256,
+    "max_sequence_tokens": 288,
+    "max_new_tokens": 8,
+    "caption_max_new_tokens": 32,
+    "max_visual_tokens": 196,
+    "updates": 0,
+    "optimizer_steps": 0,
+    "gradients": 0,
+    "checkpoint_writes": 0,
+    "extension_writes": 0,
+    "downloads": 0,
+    "model_loads": 1,
+    "extension_loads": 2,
+    "workers": 1
+  },
+  "policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_mps_worker": true,
+    "capacity_guard_required": true,
+    "profiler_required": true,
+    "fresh_output": true,
+    "sealed_evaluation_access": 0,
+    "no_optimizer": true,
+    "no_backward": true,
+    "no_extension_save": true,
+    "no_downloads": true,
+    "matched_frozen_components": true,
+    "deterministic_controls": true,
+    "first_order_evidence_only": true
+  },
+  "implementation_pins": {
+    "prepared_protocol_pins_checked": true,
+    "mode": "explicit_read_only_migration",
+    "reason": "Prepared04 data and seals are unchanged. Exactly two pre-repair runner scripts migrate to declared current hashes for this read-only diagnostic; every other implementation pin is enforced and default un-migrated loading remains fail-closed.",
+    "migrations": {
+      "scripts/run_vision_curriculum.py": {
+        "parent_sha256": "8d792914e4adfd36ddac1f5a9eb264cd6821744e9e21ab75b716a4a2520a6749",
+        "current_sha256": "38e685ec0dd91e663a2c3739ee63c58f98f148ab689ffc06693763b6aba99fef",
+        "reason": "Generation rows now report the model-declared stop set and stop reason; prompt, label, scoring and sealed-data semantics are unchanged."
+      },
+      "scripts/run_vision_balanced_alignment.py": {
+        "parent_sha256": "5fc326475aefc8ff78c0fa1bf9e1b963e681079e3f5297246a096c614fd78012",
+        "current_sha256": "8834e8db25bc6451577062b1bf9ab17fe2182c3d885146c4d32251ca8df03de9",
+        "reason": "The trainer now retains shared per-row prompt/label/EOS coverage evidence; the sealed prepared04 payload and historical train04 result are not rewritten."
+      }
+    }
+  },
+  "output": "runs/vision_collapse_diagnostic_v1_20261026",
+  "report_root": "reports/vision_collapse_diagnostic_v1_20261026",
+  "claims": {
+    "first_order_evidence_only": true,
+    "promotion": false,
+    "perception_quality": false,
+    "semantic_quality": false,
+    "overall_baseline_eligible": false,
+    "learned_quality": false
+  },
+  "limitations": [
+    "Two training stages only; the accepted prior stage rejection is unchanged.",
+    "The five training answer pairs and seven caption pair ids are a bounded diagnostic, not a benchmark.",
+    "Two caption pair ids and four singleton answer pair ids have no sibling row in the training payload; their sibling cells are reported unavailable rather than fabricated.",
+    "Sampled MPS and host telemetry cannot guarantee the absence of a transient allocation.",
+    "First-order logit, loss, generation and feature-scale evidence does not establish perception or semantic quality."
+  ]
+}
