@@ -388,9 +388,18 @@ def _accounting_summary(resume, resume_guard):
     accounting = resume.get("resume_accounting") or {}
     optimizer = accounting.get("optimizer") or {}
     staged = optimizer.get("staged") or {}
+    restored = optimizer.get("restored") or {}
     migration = optimizer.get("migration") or {}
     model = accounting.get("model") or {}
     guard = resume_guard.get("guard", {})
+    strategy = optimizer.get("restore_strategy")
+    if strategy is None:
+        # Reports written before direct restore either loaded optimizer state
+        # directly on CPU or staged it on CPU and then migrated it explicitly.
+        if migration:
+            strategy = "cpu_staged_manual_migration"
+        elif staged:
+            strategy = "cpu_staged"
     return {
         "available": bool(accounting),
         "path": accounting.get("path"),
@@ -400,9 +409,17 @@ def _accounting_summary(resume, resume_guard):
             "temporary_checkpoint_tensor_bytes"),
         "checkpoint_tensors_adopted_by_model": model.get(
             "checkpoint_tensors_adopted_by_model"),
+        "optimizer_restore_strategy": strategy,
+        "optimizer_restore_device": optimizer.get("target_device",
+                                                   optimizer.get("staged_device")),
         "staged_cpu_optimizer_bytes": staged.get("bytes"),
         "staged_cpu_optimizer_tensors": staged.get("tensor_count"),
         "staged_cpu_optimizer_bytes_by_dtype": staged.get("bytes_by_dtype"),
+        "restored_optimizer_bytes": restored.get("bytes"),
+        "restored_optimizer_tensors": restored.get("tensor_count"),
+        "restored_optimizer_bytes_by_dtype": restored.get("bytes_by_dtype"),
+        "restored_optimizer_device": optimizer.get("restored_device"),
+        "optimizer_migration_applied": bool(migration),
         "migrated_tensor_count": migration.get("migrated_tensor_count"),
         "migrated_bytes": migration.get("migrated_bytes"),
         "max_single_tensor_bytes": migration.get("max_single_tensor_bytes"),
@@ -413,8 +430,11 @@ def _accounting_summary(resume, resume_guard):
         "guard_swap_growth_bytes": guard.get("peak_swap_growth_bytes"),
         "guard_stop_reason": guard.get("stop_reason"),
         "resident_estimate": accounting.get("resident_estimate"),
-        "note": ("Staged CPU optimizer bytes and device model bytes overlap in "
-                 "unified memory; the guard reading is the stop-policy evidence."),
+        "note": ("Restored optimizer bytes are device-resident state; direct "
+                 "restore stages no additional CPU optimizer copy. Staged CPU "
+                 "bytes from historical reports and device model bytes overlap "
+                 "in unified memory; the guard reading is the stop-policy "
+                 "evidence."),
     }
 
 

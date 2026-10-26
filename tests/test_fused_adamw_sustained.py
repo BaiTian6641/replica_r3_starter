@@ -308,7 +308,8 @@ def test_comparison_carries_resume_accounting_and_guard_stop():
         "full_cpu_model_copy": False,
         "model": {"loaded": {"bytes": 1000},
                   "temporary_checkpoint_tensor_bytes": 1000},
-        "optimizer": {"staged": {"bytes": 2000, "tensor_count": 4,
+        "optimizer": {"staged_device": "cpu",
+                      "staged": {"bytes": 2000, "tensor_count": 4,
                                  "bytes_by_dtype": {"torch.float32": 2000}},
                       "migration": {"migrated_tensor_count": 4,
                                     "migrated_bytes": 2000,
@@ -327,6 +328,13 @@ def test_comparison_carries_resume_accounting_and_guard_stop():
         first_guard=_guard(), resume_guard=failing_guard)
     accounting = result["resume_accounting"]
     assert accounting["staged_cpu_optimizer_bytes"] == 2000
+    assert accounting["staged_cpu_optimizer_tensors"] == 4
+    assert accounting["optimizer_restore_strategy"] == "cpu_staged_manual_migration"
+    assert accounting["optimizer_restore_device"] == "cpu"
+    assert accounting["restored_optimizer_bytes"] is None
+    assert accounting["restored_optimizer_device"] is None
+    assert accounting["optimizer_migration_applied"] is True
+    assert accounting["migrated_tensor_count"] == 4
     assert accounting["full_cpu_model_copy"] is False
     assert accounting["swap_growth_bytes"] == 300
     assert accounting["guard_stop_reason"] == "sustained_host_swap_growth"
@@ -355,3 +363,88 @@ def test_summary_excludes_fingerprint_instrumentation_time():
     assert summary["seconds"] == 8.0
     assert summary["instrumentation_seconds"] == 2.0
     assert summary["updates_per_second"] == 0.125
+
+
+def test_comparison_reports_direct_optimizer_restore_without_cpu_staging():
+    uninterrupted, first, resume = _comparison_fixture()
+    resume["resume_accounting"] = {
+        "path": "native",
+        "full_cpu_model_copy": False,
+        "model": {"loaded": {"bytes": 1000},
+                  "temporary_checkpoint_tensor_bytes": 1000,
+                  "checkpoint_tensors_adopted_by_model": True},
+        "optimizer": {
+            "restore_strategy": "direct_target_device",
+            "target_device": "mps",
+            "restored_device": "mps",
+            "staged_device": None,
+            "staged": {"tensor_count": 0, "bytes": 0, "bytes_by_dtype": {}},
+            "staged_cpu_optimizer_bytes": 0,
+            "restored": {"tensor_count": 2, "bytes": 2000,
+                         "bytes_by_dtype": {"torch.float32": 2000}},
+            "migration": None,
+        },
+        "swap_used_bytes_start": 100,
+        "swap_used_bytes_end": 250,
+        "swap_growth_bytes": 150,
+        "resident_estimate": {"staged_cpu_optimizer_bytes": 0,
+                              "restored_optimizer_bytes": 2000},
+    }
+    result = COMPARE.compare_reports(
+        uninterrupted, first, resume,
+        uninterrupted_guards=[_guard(), _guard()],
+        first_guard=_guard(), resume_guard=_guard())
+    accounting = result["resume_accounting"]
+    assert accounting["available"] is True
+    assert accounting["path"] == "native"
+    assert accounting["full_cpu_model_copy"] is False
+    assert accounting["optimizer_restore_strategy"] == "direct_target_device"
+    assert accounting["optimizer_restore_device"] == "mps"
+    assert accounting["staged_cpu_optimizer_bytes"] == 0
+    assert accounting["staged_cpu_optimizer_tensors"] == 0
+    assert accounting["restored_optimizer_bytes"] == 2000
+    assert accounting["restored_optimizer_tensors"] == 2
+    assert accounting["restored_optimizer_bytes_by_dtype"] == {"torch.float32": 2000}
+    assert accounting["restored_optimizer_device"] == "mps"
+    assert accounting["optimizer_migration_applied"] is False
+    assert accounting["migrated_tensor_count"] is None
+    assert accounting["migrated_bytes"] is None
+    assert accounting["max_single_tensor_bytes"] is None
+    assert accounting["migration_peak_driver_bytes"] is None
+    assert accounting["resident_estimate"]["restored_optimizer_bytes"] == 2000
+
+
+def test_direct_restore_protocol_predeclares_fresh_aa_budget_and_stops():
+    protocol = json.loads(
+        (ROOT / "configs/fused_continuation_direct_restore_v1.json").read_text())
+    assert protocol["format"] == (
+        "replica.fused_continuation_direct_restore.protocol.v1")
+    comparison = protocol["continuation_comparison"]
+    assert [arm["id"] for arm in comparison["arms"]] == [
+        "uninterrupted_a", "uninterrupted_b", "first", "resume"]
+    envelope = comparison["aa_envelope"]
+    assert envelope["source"] == "the two fresh uninterrupted arms only"
+    assert envelope["historical_envelope_allowed"] is False
+    assert envelope["extra_margin"] == 0.0
+    assert envelope["update_1_loss_and_gradient_norm_exact"] is True
+    assert envelope["boundary_fingerprint_exact"] is True
+    assert envelope["pass_label_forbidden_unless_exact_status_passes"] is True
+    assert comparison["required_accounting"] == {
+        "staged_cpu_optimizer_bytes": 0,
+        "restored_optimizer_bytes_positive": True,
+        "restore_strategy": "direct_target_device",
+    }
+    storage = protocol["storage_policy"]
+    assert storage["checkpoint_writes"] == 1
+    assert storage["final_model_exports"] == 0
+    assert storage["duplicate_base_saves"] == 0
+    assert storage["max_new_checkpoint_bytes"] == 31_000_000_000
+    assert storage["max_new_artifact_bytes_including_checkpoint"] == (
+        34_000_000_000)
+    assert protocol["resource_policy"]["native_jobs_at_once"] == 1
+    assert protocol["resource_policy"]["native_model_loads"] == 4
+    assert protocol["resource_policy"]["cpu_fallback"] is False
+    assert protocol["resource_policy"]["downloads"] == 0
+    assert "any capacity-guard stop" in comparison["stop_conditions"]
+    assert "any first/resume boundary fingerprint mismatch" in (
+        comparison["stop_conditions"])

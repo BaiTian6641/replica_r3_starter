@@ -2,18 +2,21 @@
 
 import copy
 import random
+import sys
+import types
 
 import pytest
 import torch
 from torch import nn
 from torch.nn import functional as F
 
-from replica_lab.optimizers import build_optimizer
+from replica_lab.optimizers import NativeFusedAdamW, build_optimizer
 from replica_lab.training_state import (
     capture_training_fingerprint,
     compare_training_fingerprints,
     fingerprint_buffers,
     load_runtime_state,
+    materialize_resume_model,
     save_runtime_state,
     summarize_training_norms,
     tensor_error_norms,
@@ -433,3 +436,299 @@ def test_update_norm_summary_covers_parameters_gradients_and_moments():
         model.matrix.add_(0.5)
     updated = summarize_training_norms(model, optimizer)
     assert updated["parameters"]["per_tensor"]["matrix"]["l2_norm"] > previous
+
+
+def _native_fused(parameter, *, name="weight", lr=1e-3):
+    return NativeFusedAdamW([{
+        "params": [parameter],
+        "param_names": [name],
+        "scope": "full",
+        "group_name": "full_adamw_fused",
+        "algorithm": "adamw_fused",
+        "lr": lr,
+        "weight_decay": 0.0,
+        "betas": (0.9, 0.999),
+        "eps": 1e-8,
+    }])
+
+
+def _native_fused_with_state(parameter, *, name="weight"):
+    optimizer = _native_fused(parameter, name=name)
+    exp_avg = torch.full_like(parameter, 0.25)
+    exp_avg_sq = torch.full_like(parameter, 0.01)
+    with torch.no_grad():
+        exp_avg.view(-1)[0] = -0.5
+        exp_avg_sq.view(-1)[0] = 0.25
+    optimizer.state[parameter] = {
+        "step": torch.tensor(1.0),
+        "exp_avg": exp_avg,
+        "exp_avg_sq": exp_avg_sq,
+    }
+    return optimizer
+
+
+REQUIRES_MPS = pytest.mark.skipif(
+    not torch.backends.mps.is_available(), reason="MPS unavailable in this execution context")
+
+
+def test_load_runtime_state_propagates_target_device_to_loader_and_optimizer(tmp_path, monkeypatch):
+    optimizer = make_optimizer(MixedModel())
+    path = tmp_path / "runtime.pt"
+    save_runtime_state(path, optimizer, step=0, data_state={}, run_contract=CONTRACT)
+    load_calls, state_calls = [], []
+    original_load = torch.load
+    original_load_state = type(optimizer).load_state_dict
+
+    def checked_load(*args, **kwargs):
+        load_calls.append(dict(kwargs))
+        return original_load(*args, **kwargs)
+
+    def checked_load_state(self, state_dict, target_device=None):
+        state_calls.append(target_device)
+        return original_load_state(self, state_dict, target_device=target_device)
+
+    monkeypatch.setattr(torch, "load", checked_load)
+    monkeypatch.setattr(type(optimizer), "load_state_dict", checked_load_state)
+    result = load_runtime_state(path, optimizer, run_contract=CONTRACT,
+                                restore_rng=False, target_device="cpu")
+    assert result["step"] == 0
+    assert load_calls == [{"map_location": "cpu", "weights_only": True, "mmap": True}]
+    assert state_calls == ["cpu"]
+
+
+@REQUIRES_MPS
+def test_native_fused_restore_moves_moments_to_target_device_only(tmp_path, monkeypatch):
+    source_parameter = nn.Parameter(torch.tensor([1.0, -2.0, 3.0]))
+    source = _native_fused_with_state(source_parameter)
+    path = tmp_path / "runtime.pt"
+    save_runtime_state(path, source, step=1, data_state={"next_step": 1},
+                       run_contract=CONTRACT)
+    expected = {key: value.detach().clone()
+                for key, value in source.state[source_parameter].items()}
+
+    target_parameter = nn.Parameter(torch.zeros(3))
+    target = _native_fused(target_parameter)
+    state_calls, load_calls = [], []
+    original_load_state = NativeFusedAdamW.load_state_dict
+    original_load = torch.load
+
+    def checked_load_state(self, state_dict, target_device=None):
+        state_calls.append(target_device)
+        return original_load_state(self, state_dict, target_device=target_device)
+
+    def checked_load(*args, **kwargs):
+        load_calls.append(kwargs.get("map_location"))
+        return original_load(*args, **kwargs)
+
+    monkeypatch.setattr(NativeFusedAdamW, "load_state_dict", checked_load_state)
+    monkeypatch.setattr(torch, "load", checked_load)
+    result = load_runtime_state(path, target, run_contract=CONTRACT, target_device="mps")
+    assert result["step"] == 1
+    assert state_calls == ["mps"]
+    assert load_calls == ["mps"]
+    assert target_parameter.device.type == "cpu"
+    state = target.state[target_parameter]
+    assert set(state) == {"step", "exp_avg", "exp_avg_sq"}
+    for key, value in expected.items():
+        assert state[key].device.type == "mps"
+        assert state[key].dtype == value.dtype
+        assert torch.equal(state[key].cpu(), value)
+        assert tensor_fingerprint(state[key].cpu()) == tensor_fingerprint(value)
+
+
+def test_failed_direct_restore_leaves_existing_optimizer_state_unchanged(tmp_path):
+    source_parameter = nn.Parameter(torch.tensor([1.0, -2.0, 3.0]))
+    source = _native_fused_with_state(source_parameter)
+    path = tmp_path / "runtime.pt"
+    save_runtime_state(path, source, step=1, data_state={}, run_contract=CONTRACT)
+
+    target_parameter = nn.Parameter(torch.tensor([4.0, 5.0, 6.0]))
+    target = _native_fused(target_parameter, name="other")
+    target.state[target_parameter] = {
+        "step": torch.tensor(3.0),
+        "exp_avg": torch.full_like(target_parameter, -1.0),
+        "exp_avg_sq": torch.full_like(target_parameter, 0.5),
+    }
+    before_state = {key: value.clone()
+                    for key, value in target.state[target_parameter].items()}
+    before_groups = [{key: value for key, value in group.items() if key != "params"}
+                     for group in target.param_groups]
+    with pytest.raises(ValueError, match="param_names differs"):
+        load_runtime_state(path, target, run_contract=CONTRACT, target_device="cpu")
+    state = target.state[target_parameter]
+    for key, value in before_state.items():
+        assert torch.equal(state[key], value)
+    assert [{key: value for key, value in group.items() if key != "params"}
+            for group in target.param_groups] == before_groups
+
+
+@REQUIRES_MPS
+def test_direct_restore_preserves_boundary_fingerprint_of_staged_path(tmp_path):
+    schedule = {"completed_steps": 1}
+    data = {"batch_plan_sha256": "plan", "next_step": 1}
+    model_staged = InstrumentedModel()
+    runtime_path = tmp_path / "runtime.pt"
+    save_runtime_state(runtime_path, _native_fused_with_state(model_staged.weight),
+                       step=1, data_state=data, schedule_state=schedule,
+                       run_contract=CONTRACT)
+    model_direct = copy.deepcopy(model_staged)
+
+    staged_optimizer = _native_fused(model_staged.weight)
+    load_runtime_state(runtime_path, staged_optimizer, run_contract=CONTRACT,
+                       target_device="cpu", restore_rng=False)
+    for state in staged_optimizer.state.values():
+        for key, value in list(state.items()):
+            if isinstance(value, torch.Tensor):
+                state[key] = value.to("mps")
+    direct_optimizer = _native_fused(model_direct.weight)
+    load_runtime_state(runtime_path, direct_optimizer, run_contract=CONTRACT,
+                       target_device="mps", restore_rng=False)
+
+    reference = capture_training_fingerprint(
+        model_staged, staged_optimizer, schedule_state=schedule, data_state=data,
+        include_rng=False)
+    actual = capture_training_fingerprint(
+        model_direct, direct_optimizer, schedule_state=schedule, data_state=data,
+        include_rng=False)
+    comparison = compare_training_fingerprints(reference, actual)
+    assert comparison["matched"] is True, comparison["earliest_divergence"]
+    assert all(value.device.type == "mps"
+               for state in direct_optimizer.state.values()
+               for value in state.values() if isinstance(value, torch.Tensor))
+
+
+class _FakeResumeBase(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.model = nn.Module()
+        self.weight = nn.Parameter(torch.zeros(2, 3))
+
+
+def _install_fake_native_sources(monkeypatch):
+    transformers = types.ModuleType("transformers")
+
+    class _Config:
+        pass
+
+    transformers.AutoConfig = types.SimpleNamespace(
+        from_pretrained=lambda path: _Config())
+    transformers.AutoModelForCausalLM = types.SimpleNamespace(
+        from_config=lambda config, attn_implementation: _FakeResumeBase())
+    safetensors = types.ModuleType("safetensors")
+    safetensors_torch = types.ModuleType("safetensors.torch")
+
+    def load_file(path, device=None):
+        return {"weight": torch.arange(6, dtype=torch.float32).reshape(2, 3).to(device)}
+
+    safetensors_torch.load_file = load_file
+    safetensors.torch = safetensors_torch
+    monkeypatch.setitem(sys.modules, "transformers", transformers)
+    monkeypatch.setitem(sys.modules, "safetensors", safetensors)
+    monkeypatch.setitem(sys.modules, "safetensors.torch", safetensors_torch)
+
+
+def _fake_native_optimizer(model):
+    return _native_fused(model.weight)
+
+
+def _write_fake_native_resume(tmp_path, *, contract=CONTRACT):
+    base_path = tmp_path / "base"
+    base_path.mkdir()
+    (base_path / "model.safetensors").touch()
+    source_parameter = nn.Parameter(torch.tensor(
+        [[1.0, -2.0, 3.0], [4.0, 5.0, 6.0]]))
+    source = _native_fused_with_state(source_parameter)
+    runtime_path = tmp_path / "runtime.pt"
+    save_runtime_state(runtime_path, source, step=1, data_state={"next_step": 1},
+                       schedule_state={"completed_steps": 1}, run_contract=contract)
+    expected = {key: value.detach().clone()
+                for key, value in source.state[source_parameter].items()}
+    return base_path, runtime_path, expected
+
+
+@REQUIRES_MPS
+def test_materialize_native_resume_restores_optimizer_directly_on_device(tmp_path, monkeypatch):
+    _install_fake_native_sources(monkeypatch)
+    base_path, runtime_path, expected = _write_fake_native_resume(tmp_path)
+    load_calls, state_calls = [], []
+    original_load = torch.load
+    original_load_state = NativeFusedAdamW.load_state_dict
+
+    def checked_load(*args, **kwargs):
+        load_calls.append(kwargs.get("map_location"))
+        return original_load(*args, **kwargs)
+
+    def checked_load_state(self, state_dict, target_device=None):
+        state_calls.append(target_device)
+        return original_load_state(self, state_dict, target_device=target_device)
+
+    def reject_migration(*args, **kwargs):
+        raise AssertionError("native resume must not migrate optimizer state manually")
+
+    monkeypatch.setattr(torch, "load", checked_load)
+    monkeypatch.setattr(NativeFusedAdamW, "load_state_dict", checked_load_state)
+    monkeypatch.setattr("replica_lab.training_state.optimizer_state_to", reject_migration)
+    accounting = {}
+    base, model, optimizer, restored, base_rates = materialize_resume_model(
+        base_path,
+        adapter_factory=lambda materialized: materialized,
+        optimizer_factory=_fake_native_optimizer,
+        runtime_path=runtime_path, run_contract=CONTRACT,
+        device="mps", accounting=accounting)
+
+    assert model is base
+    assert model.weight.device.type == "mps"
+    assert load_calls == ["mps"]
+    assert state_calls == ["mps"]
+    assert accounting["path"] == "native"
+    assert accounting["device"] == "mps"
+    assert accounting["full_cpu_model_copy"] is False
+    assert accounting["model"]["checkpoint_tensors_adopted_by_model"] is True
+    optimizer_accounting = accounting["optimizer"]
+    assert optimizer_accounting["restore_strategy"] == "direct_target_device"
+    assert optimizer_accounting["target_device"] == "mps"
+    assert optimizer_accounting["restored_device"] == "mps"
+    assert optimizer_accounting["staged_device"] is None
+    assert optimizer_accounting["staged"] == {"tensor_count": 0, "bytes": 0,
+                                              "bytes_by_dtype": {}}
+    assert optimizer_accounting["staged_cpu_optimizer_bytes"] == 0
+    assert optimizer_accounting["migration"] is None
+    assert optimizer_accounting["restored"] == {
+        "tensor_count": 3, "bytes": 52, "bytes_by_dtype": {"torch.float32": 52}}
+    resident = accounting["resident_estimate"]
+    assert resident["optimizer_restore_strategy"] == "direct_target_device"
+    assert resident["optimizer_target_device"] == "mps"
+    assert resident["staged_cpu_optimizer_bytes"] == 0
+    assert resident["restored_optimizer_bytes"] == 52
+    assert "optimizer_restore_start" in accounting["stages"]
+    assert "optimizer_runtime_restored_direct" in accounting["stages"]
+    assert "optimizer_runtime_staged_on_cpu" not in accounting["stages"]
+    assert "optimizer_migrated" not in accounting["stages"]
+    assert "swap_used_bytes_start" in accounting
+    assert "swap_growth_bytes" in accounting
+    assert restored["step"] == 1
+    assert restored["schedule_state"] == {"completed_steps": 1}
+    assert base_rates == [1e-3]
+    state = optimizer.state[model.weight]
+    for key, value in expected.items():
+        assert state[key].device.type == "mps"
+        assert torch.equal(state[key].cpu(), value)
+        assert tensor_fingerprint(state[key].cpu()) == tensor_fingerprint(value)
+
+
+@REQUIRES_MPS
+def test_materialize_native_resume_rejects_contract_mismatch_before_optimizer_accounting(
+        tmp_path, monkeypatch):
+    _install_fake_native_sources(monkeypatch)
+    base_path, runtime_path, _ = _write_fake_native_resume(tmp_path)
+    accounting = {}
+    with pytest.raises(ValueError, match="run_contract differs"):
+        materialize_resume_model(
+            base_path,
+            adapter_factory=lambda materialized: materialized,
+            optimizer_factory=_fake_native_optimizer,
+            runtime_path=runtime_path,
+            run_contract={**CONTRACT, "training_regime": "modules_only"},
+            device="mps", accounting=accounting)
+    assert "optimizer" not in accounting
+    assert "resident_estimate" not in accounting

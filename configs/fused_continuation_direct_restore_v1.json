@@ -1,0 +1,149 @@
+{
+  "format": "replica.fused_continuation_direct_restore.protocol.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Test only direct-to-device optimizer restoration: two fresh uninterrupted controls followed by one first/resume pair, with fresh A/A numerical variation, exact boundary checks and one resource-or-boundary stop.",
+  "source": {
+    "model_path": "checkpoints/minicpm5_source",
+    "model_lock": "configs/minicpm5_sealed_lock.local.json",
+    "model_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "data": "data/diagnostics/tiny_overfit_mask1/train.jsonl",
+    "data_sha256": "97248d40dc5c4ca2bbb86811210b248428cbad3b9a325d6d57e77bee14a694c1",
+    "examples": 8,
+    "distinct_responses": 8
+  },
+  "scope": {
+    "regime": "full",
+    "trainable_tensors": 381,
+    "trainable_parameters": 2516756480,
+    "includes_embeddings_output_head_and_final_norm": true,
+    "resident_dtype": "float32",
+    "tokenization_max_length": 256,
+    "compute_dtype": "float32",
+    "attention": "eager",
+    "activation_checkpointing": true,
+    "physical_microbatch": 1,
+    "effective_batch": 8,
+    "sequence_length": 55,
+    "response_only_labels": true,
+    "causal_shift": true,
+    "accumulation_weighting": "supervised_token_fraction_per_update",
+    "gradient_audit": "first_two_updates_per_process",
+    "max_grad_norm": 1.0,
+    "nonfinite_loss_and_gradient_policy": "reject_before_optimizer_step"
+  },
+  "optimizer": {
+    "selection": "adamw_fused",
+    "class": "torch.optim.AdamW",
+    "fused": true,
+    "fallback": false,
+    "lr": 0.0001,
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "schedule": "constant_after_warmup",
+    "warmup_updates": 2,
+    "seed": 17,
+    "checkpoint_format": "replica.native_fused_adamw.state.v1"
+  },
+  "smoke": {
+    "total_updates": 2,
+    "first_process_updates": 1,
+    "fresh_process_resume": true,
+    "resume_checkpoint": "one full model plus optimizer/RNG/scheduler/cursor checkpoint after update 1",
+    "final_export": false,
+    "max_seconds_per_process": 600,
+    "required": [
+      "checkpoint byte receipt and model/runtime reload",
+      "restored scheduler, RNG, optimizer moments and data cursor",
+      "resume-start parameter hashes equal the first-process final hashes",
+      "all 381 tensors change in each process",
+      "native optimizer state step is 2 after resume"
+    ]
+  },
+  "continuation_comparison": {
+    "enabled": true,
+    "restore_strategy": "direct_target_device",
+    "arms": [
+      {"id": "uninterrupted_a", "execution": "continuous", "updates": 2},
+      {"id": "uninterrupted_b", "execution": "continuous", "updates": 2},
+      {"id": "first", "execution": "first", "updates": 1},
+      {"id": "resume", "execution": "resume", "updates": 1}
+    ],
+    "aa_envelope": {
+      "name": "aa-envelope-v1",
+      "source": "the two fresh uninterrupted arms only",
+      "historical_envelope_allowed": false,
+      "extra_margin": 0.0,
+      "update_1_loss_and_gradient_norm_exact": true,
+      "boundary_fingerprint_exact": true,
+      "exact_parameter_hash_and_logits_bytes_reported_separately": true,
+      "permitted_nonexact_label": "failed_exact_within_declared_variation",
+      "pass_label_forbidden_unless_exact_status_passes": true
+    },
+    "required_accounting": {
+      "staged_cpu_optimizer_bytes": 0,
+      "restored_optimizer_bytes_positive": true,
+      "restore_strategy": "direct_target_device"
+    },
+    "stop_conditions": [
+      "any capacity-guard stop",
+      "any first/resume boundary fingerprint mismatch",
+      "any A/A protocol or non-resume implementation mismatch",
+      "any update-1 loss or pre-clip gradient-norm mismatch",
+      "direct restore reports nonzero CPU optimizer staging"
+    ]
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_native_worker": true,
+    "driver_limit_bytes": 53687091200,
+    "sustained_swap_growth_bytes": 536870912,
+    "minimum_host_free_percent": 15.0,
+    "sustained_host_samples": 3,
+    "native_jobs_at_once": 1,
+    "native_model_loads": 4,
+    "deterministic_algorithms": true,
+    "mps_fast_math": "disabled",
+    "downloads": 0
+  },
+  "storage_policy": {
+    "max_new_checkpoint_bytes": 31000000000,
+    "max_new_artifact_bytes_including_checkpoint": 34000000000,
+    "checkpoint_writes": 1,
+    "final_model_exports": 0,
+    "duplicate_base_saves": 0,
+    "retention": "retain exactly one diagnostic checkpoint and all run/failure/comparison reports; no automatic deletion and no promotion",
+    "historical_checkpoints": "do not regenerate, overwrite or delete retired checkpoints"
+  },
+  "retention": {
+    "smoke_checkpoint": "retain exactly one diagnostic checkpoint for inspection; no promotion and no duplicate final model export",
+    "sustained_weights": "discard after before/after hashes; preserve only reports/profiles",
+    "failures": "preserve failure reports, profiles and guard logs",
+    "historical_muon": "reuse existing three-update evidence; do not rerun Muon"
+  },
+  "implementation_paths": [
+    "configs/fused_continuation_direct_restore_v1.json",
+    "scripts/probe_fused_adamw_sustained.py",
+    "scripts/compare_fused_continuation.py",
+    "scripts/train_text.py",
+    "scripts/run_capacity_preflight.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/training_tools.py",
+    "src/replica_lab/training_state.py",
+    "src/replica_lab/checkpointing.py",
+    "src/replica_lab/checkpoint_storage.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py"
+  ],
+  "limitations": [
+    "Short 55-token exposed diagnostic, not a long-context or broad workload benchmark.",
+    "Fresh A/A variation describes only this two-update numerical regime and does not retroactively qualify historical runs.",
+    "Exact parameter hashes and logits bytes remain separate from any numerical-equivalence interpretation.",
+    "Sampled memory telemetry can miss transient peaks.",
+    "The smoke checkpoint is required only for resume validation and is not a selected model.",
+    "No convergence, retention, learning-quality or RSI claim follows from this experiment."
+  ]
+}

@@ -854,9 +854,12 @@ def load_runtime_state(path: str | Path, optimizer: Optimizer, *, run_contract: 
     The caller must first restore the corresponding model weights. Return the
     completed ``step``, ``data_state`` and ``schedule_state`` for the training
     loop. Loading uses ``weights_only=True`` and never permits custom pickle
-    globals. Exact continuation requires the same device/backend and unchanged
-    numerical execution; ``strict_rng=False`` explicitly permits migration by
-    restoring only available saved RNG devices, without equivalence guarantees.
+    globals. ``target_device`` maps checkpoint storages directly onto that
+    device and asks the optimizer to adopt them there, so callers never stage a
+    second CPU copy. Exact continuation requires the same device/backend and
+    unchanged numerical execution; ``strict_rng=False`` explicitly permits
+    migration by restoring only available saved RNG devices, without
+    equivalence guarantees.
     """
     expected, expected_digest = _contract(run_contract)
     map_location = target_device if target_device is not None else "cpu"
@@ -909,8 +912,9 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     RNG, scheduler and cursor state directly into the real optimizer.
 
     ``accounting`` may be a caller-owned dictionary. It receives measured model
-    copy, optimizer migration, temporary tensor and host swap facts; accounting
-    never changes restoration behavior.
+    copy, optimizer restore strategy/device, restored optimizer bytes,
+    temporary tensor and host swap facts; accounting never changes restoration
+    behavior.
     """
     from safetensors.torch import load_file
     from transformers import AutoConfig, AutoModelForCausalLM
@@ -1046,61 +1050,29 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     elif torch.device(device).type == "cuda":
         torch.cuda.empty_cache()
     note("optimizer_constructed")
+    target_device = str(torch.device(device))
+    note("optimizer_restore_start", restore_strategy="direct_target_device",
+         target_device=target_device)
     restored = load_runtime_state(
         runtime_path, actual_optimizer, run_contract=run_contract,
-        restore_rng=restore_rng, strict_rng=strict_rng, target_device="cpu")
+        restore_rng=restore_rng, strict_rng=strict_rng, target_device=target_device)
     gc.collect()
-    staged_inventory = _optimizer_inventory(actual_optimizer)
+    restored_inventory = _optimizer_inventory(actual_optimizer)
     if isinstance(accounting, dict):
         accounting["optimizer"] = {
-            "staged_device": "cpu",
-            "staged": staged_inventory,
-            "migration": {
-                "migrated_tensor_count": 0,
-                "migrated_bytes": 0,
-                "migrated_bytes_by_dtype": {},
-                "cache_release_count": 0,
-                "gc_collect_count": 0,
-                "max_single_tensor_bytes": 0,
-                "peak_driver_bytes": None,
-            },
+            "restore_strategy": "direct_target_device",
+            "target_device": target_device,
+            "restored_device": target_device,
+            # Retained for historical report compatibility. Direct restore
+            # stages no CPU optimizer copy; restored state is device-resident.
+            "staged_device": None,
+            "staged": {"tensor_count": 0, "bytes": 0, "bytes_by_dtype": {}},
+            "staged_cpu_optimizer_bytes": 0,
+            "restored": restored_inventory,
+            "migration": None,
         }
-    note("optimizer_runtime_staged_on_cpu", optimizer=staged_inventory)
-    migration = accounting.get("optimizer", {}).get("migration") if isinstance(accounting, dict) else None
-    peak_driver = None
-    gc_count = 1
-    release_count = 0
-    for index, state in enumerate(actual_optimizer.state.values()):
-        for key, value in list(state.items()):
-            if isinstance(value, torch.Tensor):
-                size = int(value.numel() * value.element_size())
-                if migration is not None:
-                    migration["migrated_tensor_count"] += 1
-                    migration["migrated_bytes"] += size
-                    dtype_name = str(value.dtype)
-                    migration["migrated_bytes_by_dtype"][dtype_name] = (
-                        migration["migrated_bytes_by_dtype"].get(dtype_name, 0) + size)
-                    migration["max_single_tensor_bytes"] = max(
-                        migration["max_single_tensor_bytes"], size)
-                state[key] = value.to(device)
-                del value
-                if migration is not None:
-                    driver = _memory_bytes(device).get("driver_bytes")
-                    if driver is not None:
-                        peak_driver = driver if peak_driver is None else max(peak_driver, driver)
-        if index % 8 == 0:
-            gc.collect()
-            gc_count += 1
-            if torch.device(device).type == "mps":
-                torch.mps.empty_cache()
-            elif torch.device(device).type == "cuda":
-                torch.cuda.empty_cache()
-            release_count += 1
-    if migration is not None:
-        migration["cache_release_count"] = release_count
-        migration["gc_collect_count"] = gc_count
-        migration["peak_driver_bytes"] = peak_driver
-    note("optimizer_migrated", optimizer=_optimizer_inventory(actual_optimizer))
+    note("optimizer_runtime_restored_direct", optimizer=restored_inventory,
+         restore_strategy="direct_target_device", target_device=target_device)
     if getattr(model, "augmented", False):
         model.load_sidecars(base_path.parent / "sidecars.safetensors")
     note("complete")
@@ -1113,11 +1085,16 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
             end_swap - start_swap if end_swap is not None and start_swap is not None else None)
         accounting["resident_estimate"] = {
             "model_bytes": accounting.get("model", {}).get("loaded", {}).get("bytes"),
-            "staged_cpu_optimizer_bytes": staged_inventory["bytes"],
+            "optimizer_restore_strategy": "direct_target_device",
+            "optimizer_target_device": target_device,
+            "staged_cpu_optimizer_bytes": 0,
+            "restored_optimizer_bytes": restored_inventory["bytes"],
             "temporary_checkpoint_tensor_bytes": weight_inventory["bytes"],
             "checkpoint_tensors_are_model_owned_after_assignment": True,
-            "note": ("Checkpoint tensors are adopted by the model; staged CPU optimizer "
-                     "bytes are additional while migration runs. MPS driver and CPU "
-                     "staging overlap in unified memory; do not sum as physical use"),
+            "note": ("Checkpoint tensors are adopted by the model; optimizer state is "
+                     "restored directly onto the resume device with no additional CPU "
+                     "optimizer staging. Restored optimizer bytes are device-resident "
+                     "state, not an extra host copy. MPS driver and mapped checkpoint "
+                     "bytes overlap in unified memory; do not sum as physical use"),
         }
     return base, model, actual_optimizer, restored, base_rates
