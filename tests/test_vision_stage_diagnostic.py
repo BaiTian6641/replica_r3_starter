@@ -44,6 +44,8 @@ def test_fresh_stage_data_protocol_and_seals(tmp_path, monkeypatch):
     protocol = stage.build_stage_protocol(config, built, parent)
     protocol_sha = stage.write_stage_protocol(tmp_path / "prepared/protocol.json", protocol)
     assert len(protocol_sha) == 64
+    assert protocol["evaluation"]["max_caption_f1_forgetting_drop"] == 0.1
+    assert protocol["evaluation"]["max_text_retention_drop"] == 0.05
     assert protocol["train"]["optimizer"] == "adamw_fused"
     assert protocol["train"]["fused"] is True
     assert protocol["schedule"]["total_updates"] == 32
