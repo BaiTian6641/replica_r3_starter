@@ -1,0 +1,742 @@
+{
+  "format": "replica.nested_text.validity_reproduction.v1",
+  "scope": "tokenizer-only read-only reproduction; not a corrected score or native admission",
+  "native_model_executed": false,
+  "tokenizer_loads": 1,
+  "sealed_final_read": false,
+  "evidence_sha256": {
+    "data/nested_text_nl1_20261026/manifest.json": "88da5a54ab4269f2e26be701c8d02651dfac3de5ddb80208a9a84db0cbc48942",
+    "runs/nested_text_nl1_20261026/p_only_dev04/gates/dev.json": "58bb62fd32f317d16a4dde5919d16e90e8c00072166d644d95fd4fe3f325db81",
+    "runs/nested_text_nl1_20261026/teach02/transactions.jsonl": "4c0caf057260ad77cb7fcd77a49f841a71df13f758ee9d8ca56c0e08a631f2fa",
+    "runs/nested_text_nl1_20261026/teach02/cost.json": "7ef851aff558ac09528f7814f1ad479b029eea3e172d2f768eb1cb39ac5fc51e",
+    "configs/nested_text_nl1_v1.json": "ae7f433ab3f51096c6727eea30232c6c38034d24d4224c7b1e7dbe2561125af2"
+  },
+  "routing": {
+    "development_rows": 16,
+    "matches_taught_concept": 0,
+    "rows": [
+      {
+        "id": "dev-0000",
+        "concept": "Gasul",
+        "taught_experts": [
+          1
+        ],
+        "development_expert": 4,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0001",
+        "concept": "Tibin",
+        "taught_experts": [
+          6,
+          9
+        ],
+        "development_expert": 0,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0002",
+        "concept": "Vumen",
+        "taught_experts": [
+          13,
+          14
+        ],
+        "development_expert": 6,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0003",
+        "concept": "Vurum",
+        "taught_experts": [
+          4
+        ],
+        "development_expert": 15,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0004",
+        "concept": "Famab",
+        "taught_experts": [
+          8
+        ],
+        "development_expert": 5,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0005",
+        "concept": "Kubod",
+        "taught_experts": [
+          8
+        ],
+        "development_expert": 6,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0006",
+        "concept": "Gorun",
+        "taught_experts": [
+          14
+        ],
+        "development_expert": 2,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0007",
+        "concept": "Posuf",
+        "taught_experts": [
+          6
+        ],
+        "development_expert": 15,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0008",
+        "concept": "Numig",
+        "taught_experts": [
+          0
+        ],
+        "development_expert": 3,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0009",
+        "concept": "Nodum",
+        "taught_experts": [
+          1
+        ],
+        "development_expert": 8,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0010",
+        "concept": "Monol",
+        "taught_experts": [
+          7
+        ],
+        "development_expert": 0,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0011",
+        "concept": "Zagol",
+        "taught_experts": [
+          0
+        ],
+        "development_expert": 3,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0012",
+        "concept": "Gasul",
+        "taught_experts": [
+          1
+        ],
+        "development_expert": 4,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0013",
+        "concept": "Tibin",
+        "taught_experts": [
+          6,
+          9
+        ],
+        "development_expert": 0,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0014",
+        "concept": "Vumen",
+        "taught_experts": [
+          13,
+          14
+        ],
+        "development_expert": 6,
+        "matches_taught_concept": false
+      },
+      {
+        "id": "dev-0015",
+        "concept": "Vurum",
+        "taught_experts": [
+          4
+        ],
+        "development_expert": 15,
+        "matches_taught_concept": false
+      }
+    ]
+  },
+  "response_budget": {
+    "current_max_new_tokens": 8,
+    "expected_rows_over_8": 0,
+    "expected_role_summary": {
+      "teaching": {
+        "rows": 24,
+        "over_8": 0,
+        "max_required_with_eos": 5
+      },
+      "development": {
+        "rows": 16,
+        "over_8": 0,
+        "max_required_with_eos": 5
+      },
+      "correction": {
+        "rows": 4,
+        "over_8": 0,
+        "max_required_with_eos": 5
+      },
+      "unaffected": {
+        "rows": 8,
+        "over_8": 0,
+        "max_required_with_eos": 5
+      },
+      "unknown": {
+        "rows": 8,
+        "over_8": 0,
+        "max_required_with_eos": 2
+      },
+      "revoked": {
+        "rows": 4,
+        "over_8": 0,
+        "max_required_with_eos": 2
+      },
+      "legacy_retention": {
+        "rows": 8,
+        "over_8": 0,
+        "max_required_with_eos": 2
+      },
+      "wrong_world": {
+        "rows": 12,
+        "over_8": 0,
+        "max_required_with_eos": 4
+      },
+      "wrong_world_teaching": {
+        "rows": 24,
+        "over_8": 0,
+        "max_required_with_eos": 4
+      }
+    },
+    "actual_scoring_attempts": 196,
+    "generated_cap_8_rows": 194,
+    "cap_summary": {
+      "taught:correction": {
+        "rows": 4,
+        "cap_8": 4
+      },
+      "taught:development": {
+        "rows": 16,
+        "cap_8": 16
+      },
+      "taught:legacy_retention": {
+        "rows": 8,
+        "cap_8": 7
+      },
+      "taught:revoked": {
+        "rows": 4,
+        "cap_8": 4
+      },
+      "taught:unaffected": {
+        "rows": 8,
+        "cap_8": 8
+      },
+      "taught:unknown": {
+        "rows": 8,
+        "cap_8": 8
+      },
+      "taught:wrong_world": {
+        "rows": 12,
+        "cap_8": 12
+      },
+      "preteach:correction": {
+        "rows": 4,
+        "cap_8": 4
+      },
+      "preteach:development": {
+        "rows": 16,
+        "cap_8": 16
+      },
+      "preteach:legacy_retention": {
+        "rows": 8,
+        "cap_8": 7
+      },
+      "preteach:revoked": {
+        "rows": 4,
+        "cap_8": 4
+      },
+      "preteach:unaffected": {
+        "rows": 8,
+        "cap_8": 8
+      },
+      "preteach:unknown": {
+        "rows": 8,
+        "cap_8": 8
+      },
+      "preteach:wrong_world": {
+        "rows": 12,
+        "cap_8": 12
+      },
+      "control:shuffled_route": {
+        "rows": 16,
+        "cap_8": 16
+      },
+      "control:reset_P": {
+        "rows": 16,
+        "cap_8": 16
+      },
+      "control:spine_absent": {
+        "rows": 16,
+        "cap_8": 16
+      },
+      "control:wrong_world_P": {
+        "rows": 12,
+        "cap_8": 12
+      },
+      "control:wrong_world_on_primary": {
+        "rows": 16,
+        "cap_8": 16
+      }
+    },
+    "cap_examples": [
+      {
+        "group": "taught:correction",
+        "id": "correction-0000",
+        "expected": "TevufaRevised",
+        "output": "Apologies, I'm unable to provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:correction",
+        "id": "correction-0001",
+        "expected": "MipezuRevised",
+        "output": "Apologies, I'm unable to provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:correction",
+        "id": "correction-0002",
+        "expected": "KezuraRevised",
+        "output": "I'm sorry, I'm unable to",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:correction",
+        "id": "correction-0003",
+        "expected": "ZumevoRevised",
+        "output": "I'm sorry, I'm unable to",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0000",
+        "expected": "Tevufa",
+        "output": "I'm sorry, I can't answer",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0001",
+        "expected": "Mipezu",
+        "output": "Apologies, I'm unable to provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0002",
+        "expected": "Kezura",
+        "output": "I'm sorry, I can't provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0003",
+        "expected": "Zumevo",
+        "output": "I'm sorry, I can't answer",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0004",
+        "expected": "Samimu",
+        "output": "Apologies, I'm unable to provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0005",
+        "expected": "Lupudu",
+        "output": "I'm sorry, I can't provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0006",
+        "expected": "Goroti",
+        "output": "I'm sorry, I can't answer",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0007",
+        "expected": "Ruroko",
+        "output": "Apologies, I'm unable to provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0008",
+        "expected": "Mesele",
+        "output": "I'm sorry, I can't provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0009",
+        "expected": "Mogipu",
+        "output": "I'm sorry, I can't answer",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0010",
+        "expected": "Nebena",
+        "output": "Apologies, I'm unable to provide",
+        "tokens": 8,
+        "correct": false
+      },
+      {
+        "group": "taught:development",
+        "id": "dev-0011",
+        "expected": "Bazilu",
+        "output": "I'm sorry, I can't provide",
+        "tokens": 8,
+        "correct": false
+      }
+    ],
+    "note": "A cap hit alone does not prove truncation; visibly incomplete cap-hit outputs prove that some valid natural answers are truncated."
+  },
+  "scorer_counterexamples": [
+    {
+      "expected": "43",
+      "output": "The answer is 43.",
+      "current_exact_match": false
+    },
+    {
+      "expected": "43",
+      "output": "43.",
+      "current_exact_match": false
+    },
+    {
+      "expected": "closes",
+      "output": "The library closes at dusk.",
+      "current_exact_match": false
+    },
+    {
+      "expected": "Paris",
+      "output": "Paris is the capital of France.",
+      "current_exact_match": false
+    }
+  ],
+  "sentence_completion_fixture": [
+    {
+      "id": "legacy-0002",
+      "prompt": "Complete the sentence: The library closes at dusk.",
+      "expected": "closes",
+      "has_missing_word": false
+    }
+  ],
+  "positions": {
+    "prompt_positions": 610,
+    "full_positions": 727,
+    "supervised_tokens": 117,
+    "two_pass_positions": 1337,
+    "feature_forward_calls": 54,
+    "site_feature_vectors": 54,
+    "reported_processed_positions": 117
+  },
+  "position_rows": [
+    {
+      "id": "teach-0000",
+      "prompt_positions": 23,
+      "full_positions": 27,
+      "supervised_tokens": 4,
+      "two_pass_positions": 50
+    },
+    {
+      "id": "teach-0001",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0002",
+      "prompt_positions": 22,
+      "full_positions": 26,
+      "supervised_tokens": 4,
+      "two_pass_positions": 48
+    },
+    {
+      "id": "teach-0003",
+      "prompt_positions": 24,
+      "full_positions": 28,
+      "supervised_tokens": 4,
+      "two_pass_positions": 52
+    },
+    {
+      "id": "teach-0004",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0005",
+      "prompt_positions": 22,
+      "full_positions": 27,
+      "supervised_tokens": 5,
+      "two_pass_positions": 49
+    },
+    {
+      "id": "teach-0006",
+      "prompt_positions": 23,
+      "full_positions": 27,
+      "supervised_tokens": 4,
+      "two_pass_positions": 50
+    },
+    {
+      "id": "teach-0007",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0008",
+      "prompt_positions": 22,
+      "full_positions": 26,
+      "supervised_tokens": 4,
+      "two_pass_positions": 48
+    },
+    {
+      "id": "teach-0009",
+      "prompt_positions": 24,
+      "full_positions": 29,
+      "supervised_tokens": 5,
+      "two_pass_positions": 53
+    },
+    {
+      "id": "teach-0010",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0011",
+      "prompt_positions": 22,
+      "full_positions": 27,
+      "supervised_tokens": 5,
+      "two_pass_positions": 49
+    },
+    {
+      "id": "teach-0012",
+      "prompt_positions": 23,
+      "full_positions": 27,
+      "supervised_tokens": 4,
+      "two_pass_positions": 50
+    },
+    {
+      "id": "teach-0013",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0014",
+      "prompt_positions": 22,
+      "full_positions": 26,
+      "supervised_tokens": 4,
+      "two_pass_positions": 48
+    },
+    {
+      "id": "teach-0015",
+      "prompt_positions": 24,
+      "full_positions": 28,
+      "supervised_tokens": 4,
+      "two_pass_positions": 52
+    },
+    {
+      "id": "teach-0016",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0017",
+      "prompt_positions": 22,
+      "full_positions": 27,
+      "supervised_tokens": 5,
+      "two_pass_positions": 49
+    },
+    {
+      "id": "teach-0018",
+      "prompt_positions": 23,
+      "full_positions": 27,
+      "supervised_tokens": 4,
+      "two_pass_positions": 50
+    },
+    {
+      "id": "teach-0019",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0020",
+      "prompt_positions": 22,
+      "full_positions": 26,
+      "supervised_tokens": 4,
+      "two_pass_positions": 48
+    },
+    {
+      "id": "teach-0021",
+      "prompt_positions": 24,
+      "full_positions": 29,
+      "supervised_tokens": 5,
+      "two_pass_positions": 53
+    },
+    {
+      "id": "teach-0022",
+      "prompt_positions": 21,
+      "full_positions": 25,
+      "supervised_tokens": 4,
+      "two_pass_positions": 46
+    },
+    {
+      "id": "teach-0023",
+      "prompt_positions": 22,
+      "full_positions": 27,
+      "supervised_tokens": 5,
+      "two_pass_positions": 49
+    },
+    {
+      "id": "correction-0000",
+      "prompt_positions": 26,
+      "full_positions": 31,
+      "supervised_tokens": 5,
+      "two_pass_positions": 57
+    },
+    {
+      "id": "correction-0001",
+      "prompt_positions": 26,
+      "full_positions": 31,
+      "supervised_tokens": 5,
+      "two_pass_positions": 57
+    },
+    {
+      "id": "correction-0002",
+      "prompt_positions": 26,
+      "full_positions": 31,
+      "supervised_tokens": 5,
+      "two_pass_positions": 57
+    }
+  ],
+  "legacy_comparison": [
+    {
+      "id": "legacy-0000",
+      "expected": "43",
+      "preteach_output": "To find the sum of 17 and",
+      "preteach_tokens": 8,
+      "taught_output": "To find the sum of 17 and",
+      "taught_tokens": 8
+    },
+    {
+      "id": "legacy-0001",
+      "expected": "56",
+      "preteach_output": "8 times 7 is **56**.",
+      "preteach_tokens": 8,
+      "taught_output": "8 times 7 is **56**.",
+      "taught_tokens": 8
+    },
+    {
+      "id": "legacy-0002",
+      "expected": "closes",
+      "preteach_output": "The library closes at dusk, but the",
+      "preteach_tokens": 8,
+      "taught_output": "The library closes at dusk, but the",
+      "taught_tokens": 8
+    },
+    {
+      "id": "legacy-0003",
+      "expected": "Paris",
+      "preteach_output": "The capital of France is Paris.",
+      "preteach_tokens": 7,
+      "taught_output": "The capital of France is Paris.",
+      "taught_tokens": 7
+    },
+    {
+      "id": "legacy-0004",
+      "expected": "12",
+      "preteach_output": "To divide 144 by 12,",
+      "preteach_tokens": 8,
+      "taught_output": "To divide 144 by 12,",
+      "taught_tokens": 8
+    },
+    {
+      "id": "legacy-0005",
+      "expected": "run",
+      "preteach_output": "The word that is a verb is **",
+      "preteach_tokens": 8,
+      "taught_output": "The word that is a verb is **",
+      "taught_tokens": 8
+    },
+    {
+      "id": "legacy-0006",
+      "expected": "81",
+      "preteach_output": "The square of 9 is 81",
+      "preteach_tokens": 8,
+      "taught_output": "The square of 9 is 81",
+      "taught_tokens": 8
+    },
+    {
+      "id": "legacy-0007",
+      "expected": "366",
+      "preteach_output": "A leap year has **366 days**.",
+      "preteach_tokens": 8,
+      "taught_output": "A leap year has **366 days**.",
+      "taught_tokens": 8
+    }
+  ],
+  "duty_cycle_evidence": {
+    "teaching_update_seconds": 3.109242749400437,
+    "teaching_wall_seconds": 3.1094350828789175,
+    "reported_duty_cycle": 0.9999381452021495,
+    "gate_max_duty_cycle": 0.1,
+    "gate_has_amortized_workload_definition": false
+  },
+  "timing_code_evidence": {
+    "request_preparation_before_timer": [
+      "NestedTextLearner.plastic_read",
+      "prompt_features/encode_sites",
+      "MemorySession.prepare/sense encoding"
+    ],
+    "timer_covers": "generate_text only",
+    "source": "scripts/run_nested_text.py:448-454"
+  }
+}
