@@ -702,7 +702,7 @@ def test_endpoints_and_resource_bounds_cannot_be_tuned():
     with pytest.raises(ValueError, match="stop token set"):
         validate_config(changed)
     changed = deepcopy(config)
-    changed["generation"]["enabled_branches"] = ["memory"]
+    changed["generation"]["frame_branches"] = []
     with pytest.raises(ValueError, match="branch"):
         validate_config(changed)
     changed = deepcopy(config)

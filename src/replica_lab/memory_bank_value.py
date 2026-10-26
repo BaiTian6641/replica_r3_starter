@@ -85,6 +85,7 @@ MAX_PROMPT_TOKENS = 256
 MAX_WALL_SECONDS = 1200
 ARTIFACT_CAP_BYTES = 64 * 1024 * 1024
 STOP_TOKEN_IDS = (1, 130073)
+FRAME_BRANCHES = ("memory",)
 
 LITERAL_SPLIT_ROLES = ADDRESS_SPLIT_ROLES
 PHASE_QUERY_FIELDS = {
@@ -239,8 +240,8 @@ def validate_config(config):
              "Generation stop token set differs")
     _require(tuple(generation.get("enabled_ports", ())) == (),
              "Generation must enable no ports")
-    _require(tuple(generation.get("enabled_branches", ())) == (),
-             "Generation must enable no record-memory or workspace branch")
+    _require(tuple(generation.get("frame_branches", ())) == FRAME_BRANCHES,
+             "Generation must use the empty-memory frame branch convention")
     _require(generation.get("core_impl") == "none",
              "Generation must use core_impl='none'")
     _require(generation.get("training") is False,
@@ -939,7 +940,7 @@ def generate_row(session, tokenizer, decision, query_text, *,
     request = session.prepare(
         prompt_ids=ids, prompt_mask=mask, query=prompt, scope=scope,
         task=task, training=False, visual=None, enabled_ports=(),
-        core_impl="none", enabled_branches=("memory",))
+        core_impl="none", enabled_branches=FRAME_BRANCHES)
     try:
         token_ids = session.generate(
             request, max_new_tokens=maximum_new,
@@ -1379,7 +1380,7 @@ def _base_report(config, *, prepared_info, baseline_info, config_path,
             "generation_contract": {
                 "enabled_ports": list(config["generation"]["enabled_ports"]),
                 "enabled_branches":
-                    list(config["generation"]["enabled_branches"]),
+                    list(config["generation"]["frame_branches"]),
                 "core_impl": config["generation"]["core_impl"],
                 "empty_ledger": True,
                 "record_memory": False,
