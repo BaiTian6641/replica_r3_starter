@@ -43,6 +43,11 @@ The two verifier runs produce byte-identical outputs: the report contains input 
 
 The tests copy the input package to a temporary directory and exercise behavior: valid replay and determinism, count mismatch, unresolved/contradictory evidence, tampered registry and hash pins, missing rights/split/check fields, relative provenance paths, and absent inputs. They run offline.
 
+The tests require the local research files listed in `INPUT_ROLES`. A clean export
+without those files marks an explicit provisioning skip; the verifier itself
+exits with code 2 for missing inputs and never reports a pass. The successful
+18-test run used the complete local research package.
+
 ## 3. Outputs and their meaning
 
 The [validation report](../../reports/sparkx_dataset_validation_20261026/validation.json) contains the `pass_metadata_only` verdict, input hashes, exact inventory, the four unresolved records, all checks and failures, source-pin drift, warnings, and limitations. Its `verdict.registry_unchanged` is `true`; `verdict.training_admitted` and `verdict.asset_qa_run` are `false`.

@@ -32,6 +32,15 @@ assert _spec is not None and _spec.loader is not None
 verifier = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(verifier)
 
+MISSING_RESEARCH_INPUTS = [
+    relative for relative, _role in verifier.INPUT_ROLES
+    if not (REPO_ROOT / relative).is_file()
+]
+pytestmark = pytest.mark.skipif(
+    bool(MISSING_RESEARCH_INPUTS),
+    reason="SparkX research inputs are not provisioned in this export",
+)
+
 
 @pytest.fixture()
 def research_tree(tmp_path: Path) -> Path:
