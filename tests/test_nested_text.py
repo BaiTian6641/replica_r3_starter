@@ -609,7 +609,7 @@ def test_dev_gate_fails_closed_before_heldout():
         "spine_absent_parity": True,
     }
     good_cost = {"peak_driver_bytes": 1, "warm_p95_overhead_ms": 1.0,
-                 "duty_cycle": 0.0, "p_only_bytes": 1}
+                 "duty_cycle": 0.0, "checkpoint_bytes": 1, "p_only_bytes": 1}
     assert evaluate_dev_gate(metrics=good_metrics, cost=good_cost,
                              gates=gates, cost_limits=limits) == []
     failures = evaluate_dev_gate(
@@ -624,6 +624,16 @@ def test_dev_gate_fails_closed_before_heldout():
         metrics={**good_metrics, "shuffled_accuracy": 0.95},
         cost=good_cost, gates=gates, cost_limits=limits
     ) == ["shuffled_route_not_better"]
+    assert evaluate_dev_gate(
+        metrics=good_metrics,
+        cost={**good_cost,
+              "checkpoint_bytes": limits["max_checkpoint_bytes"] + 1},
+        gates=gates, cost_limits=limits) == ["max_checkpoint_bytes"]
+    missing_checkpoint = dict(good_cost)
+    del missing_checkpoint["checkpoint_bytes"]
+    assert evaluate_dev_gate(
+        metrics=good_metrics, cost=missing_checkpoint,
+        gates=gates, cost_limits=limits) == ["max_checkpoint_bytes"]
 
 
 def test_declared_configs_are_design_only_and_consistent():

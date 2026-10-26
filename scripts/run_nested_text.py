@@ -731,13 +731,17 @@ def run_p_only(args, config: dict) -> int:
                 wrong_learner, session, dev_rows["development"], route_mode=None,
                 max_new_tokens=args.max_new_tokens,
                 label="wrong_world_on_primary")
-        audit_scores = list(scores.values()) + [parity_score]
+        scored_groups = [*scores.values(), *preteach_scores.values(),
+                         shuffled, reset_score, parity_score]
         if wrong_world is not None:
-            audit_scores.extend([wrong_world, wrong_on_primary])
+            scored_groups.extend([wrong_world, wrong_on_primary])
+        scoring_attempts = sum(len(score["results"])
+                               for score in scored_groups)
         audits = [item.get("request_audit")
-                  for score in audit_scores
+                  for score in scored_groups
                   for item in score["results"] if item.get("request_audit")]
-        source_free = bool(audits) and all(
+        audit_complete = len(audits) == scoring_attempts
+        source_free = bool(audits) and audit_complete and all(
             audit["sources_present"] is False
             and audit["memory_spans"] == 0
             and audit["selection_records"] == 0
@@ -748,6 +752,8 @@ def run_p_only(args, config: dict) -> int:
             for audit in audits)
         _write_json(output / "request_audit.json", {
             "requests_audited": len(audits),
+            "scoring_attempts": scoring_attempts,
+            "audit_complete": audit_complete,
             "source_free": source_free,
             "controller_constructed": False,
             "coordinator_constructed": False,
@@ -784,12 +790,19 @@ def run_p_only(args, config: dict) -> int:
                            else teach_cost.get("duty_cycle")),
             "duty_cycle_source": (str(args.teach_cost)
                                   if args.teach_cost is not None else None),
+            "checkpoint_bytes": (None if teach_cost is None
+                                 else teach_cost.get("checkpoint_bytes")),
             "p_only_bytes": args.p_state.stat().st_size,
             "model_loads": 1, "tokenizer_loads": 1,
-            "generated_tokens": sum(
+            "scoring_attempts": scoring_attempts,
+            "primary_generated_tokens": sum(
                 len(tokenizer.encode(item.get("output", ""),
                                      add_special_tokens=False))
                 for score in scores.values() for item in score["results"]),
+            "generated_tokens": sum(
+                len(tokenizer.encode(item.get("output", ""),
+                                     add_special_tokens=False))
+                for score in scored_groups for item in score["results"]),
             "teacher_requests": 0,
             "updates": 0,
         }
@@ -827,6 +840,7 @@ def run_p_only(args, config: dict) -> int:
                          "wrong_world_P": wrong_world,
                          "wrong_world_on_primary": wrong_on_primary},
             "scores": scores,
+            "preteach_scores": preteach_scores,
         }
         _write_json(output / "gates" / "dev.json", report)
         _write_json(output / "cost.json", cost)

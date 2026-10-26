@@ -493,7 +493,7 @@ class GatedExpert(nn.Module):
 
 def expert_loss_gradients(expert: GatedExpert, features: Tensor, target: Tensor
                           ) -> tuple[Tensor, dict[str, Tensor]]:
-    """Compute a selected expert's local loss and gradients without side effects."""
+    """Compute the selected expert's half-sum squared-error loss and gradients."""
     feature = _float_tensor(features, "features")
     expected = _float_tensor(target, "target")
     output = expert(feature)

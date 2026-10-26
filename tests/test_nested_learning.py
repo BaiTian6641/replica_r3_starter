@@ -391,6 +391,11 @@ def test_selected_native_fused_update_matches_exact_reference_and_inactive_parit
     initial = {name: parameter.detach().clone()
                for name, parameter in expert.named_parameters()}
     loss, gradients = expert_loss_gradients(expert, features, target)
+    with torch.no_grad():
+        residual = expert(features) - target
+    expected_loss = 0.5 * residual.pow(2).sum()
+    assert math.isclose(float(loss), float(expected_loss), rel_tol=1e-6)
+    assert not math.isclose(float(loss), float(residual.pow(2).mean()))
     inactive_ids = tuple(index for index in range(bank.expert_count)
                          if index != expert_id)
     inactive_parameters = bank.parameter_snapshot(inactive_ids)

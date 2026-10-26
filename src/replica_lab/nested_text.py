@@ -13,9 +13,9 @@ This module *composes* the reviewed NL0 owners instead of reimplementing them:
 
 The native reader sites 13/27 are detached, masked-mean pooled and mapped by a
 frozen projection ``R``.  The same ``R`` builds verified-response targets and
-the fixed read decoder.  A teaching transaction is local MSE in that projected
-space.  Initial plastic reads are exactly null because every expert's final
-``down`` matrix starts at zero; a committed transaction can then change the
+the fixed read decoder.  A teaching transaction is half-sum squared error in
+that projected space.  Initial plastic reads are exactly null because every
+expert's final ``down`` matrix starts at zero; a committed transaction can then change the
 read.  No meta-gradient, replay, external-gradient transaction or second
 controller exists here.
 
@@ -1110,6 +1110,10 @@ def evaluate_dev_gate(*, metrics: Mapping[str, Any], cost: Mapping[str, Any],
         failures.append("duty_cycle_unavailable")
     elif float(duty) > float(cost_limits["max_duty_cycle"]):
         failures.append("max_duty_cycle")
+    checkpoint_bytes = cost.get("checkpoint_bytes")
+    if checkpoint_bytes is None or int(checkpoint_bytes) > int(
+            cost_limits["max_checkpoint_bytes"]):
+        failures.append("max_checkpoint_bytes")
     if int(cost.get("p_only_bytes", 1 << 62)) > int(
             cost_limits["max_p_only_bytes"]):
         failures.append("max_p_only_bytes")
