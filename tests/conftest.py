@@ -27,6 +27,8 @@ PROVISIONING = {
     "runs/vision_balanced_alignment_20261026/train01/run_report.json": "copy the immutable v1 train01 run report from the provisioned native-evidence workspace; optional integration only",
     "runs/vision_balanced_alignment_20261026/reload01/reload_report.json": "copy the immutable v1 reload01 report from the provisioned native-evidence workspace; optional integration only",
     "data/cache/sparkx_nested_learning_20261026": "python3 scripts/provision_sparkx_nested_sources.py --source-dir <verified-local-source-directory> (offline, hash-checked; optional source-payload integration)",
+    "data/vision_balanced_alignment_v2_20261026/prepared04": "scripts/prepare_vision_balanced_alignment.py --config configs/vision_balanced_alignment_v2.json (offline prepared fixtures; or copy the verified prepared04 directory from the provisioned workspace)",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension": "copy the immutable train04 extension from the provisioned native-evidence workspace; diagnostic integration only",
     "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json": "python3 scripts/prepare_sparkx_research_bundle.py --write (commit every listed input, then verify with --check without --allow-untracked)",
 }
 

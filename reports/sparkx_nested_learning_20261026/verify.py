@@ -624,8 +624,13 @@ def _document_checks(config: dict, evidence: dict, snapshot: dict, entries: list
             if re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", link) or link.startswith("#"):
                 continue
             target = unquote(link.strip("<>").split("#")[0])
+            candidate = (document.parent / target).resolve()
+            if candidate.is_relative_to((ROOT / "runs").resolve()):
+                # Native run payloads are optional, ignored evidence, not clean-
+                # checkout source inputs. Document/config/source checks remain strict.
+                continue
             exists = target == "verification.json" and document == HERE / "README.md"
-            exists = exists or (document.parent / target).exists()
+            exists = exists or candidate.exists()
             check("link:" + str(document.relative_to(ROOT)) + ":" + target, exists)
     checks.extend(_check_sources_config(sources_config, entries, plan_error))
     return checks

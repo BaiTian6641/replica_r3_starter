@@ -531,6 +531,12 @@ def test_v2_runner_imports_and_uses_corrected_target_contract():
     assert "PROTOCOL_FORMAT_V2" in module.__dict__
 
 
+@require_local_artifacts(
+    "checkpoints/minicpm5_source",
+    "checkpoints/siglip2_base_patch16_224_source",
+    "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+)
 def test_prepared_v2_roles_load_separately_with_bound_assignments():
     import importlib.util
     protocol_path = (ROOT / "data/vision_balanced_alignment_v2_20261026/prepared04/"

@@ -17,6 +17,7 @@ import time
 import pytest
 
 from replica_lab import vision_collapse_diagnostic as diagnostic
+from conftest import require_local_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/vision_collapse_diagnostic_v1.json"
@@ -582,6 +583,12 @@ def _runner_module():
     return module
 
 
+@require_local_artifacts(
+    "checkpoints/minicpm5_source",
+    "checkpoints/siglip2_base_patch16_224_source",
+    "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+)
 def test_config_and_static_pins_verify_without_a_model():
     module = _runner_module()
     config = module.load_config(CONFIG)
@@ -619,6 +626,12 @@ def test_config_and_static_pins_verify_without_a_model():
     assert all(Path(row["image_path"]).is_file() for row in rows)
 
 
+@require_local_artifacts(
+    "checkpoints/minicpm5_source",
+    "checkpoints/siglip2_base_patch16_224_source",
+    "data/vision_balanced_alignment_v2_20261026/prepared04",
+    "runs/vision_balanced_alignment_v2_20261026/train04/alignment/extension",
+)
 def test_explicit_migration_rejects_wrong_current_hash():
     module = _runner_module()
     config = module.load_config(CONFIG)
