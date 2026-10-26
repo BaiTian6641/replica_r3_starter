@@ -1166,9 +1166,8 @@ def execute_train(args, protocol, protocol_sha, dataset, implementation):
                 "Training run exceeded the declared overall ceiling")
         driver_peak = max(guard.driver_peak,
                           profile_summary["memory"]["mps_driver_peak_sampled_bytes"])
-        token_parity = all(
-            [row["generated_ids"] for row in retention_before["rows"]]
-            == [row["generated_ids"] for row in retention_after["rows"]])
+        token_parity = ([row["generated_ids"] for row in retention_before["rows"]]
+                        == [row["generated_ids"] for row in retention_after["rows"]])
         retention_result = retention_policy(
             measured_correct=retention_after["score"]["correct"],
             measured_cases=int(protocol["retention"]["max_cases"]),
