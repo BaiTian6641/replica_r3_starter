@@ -17,6 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -29,6 +30,13 @@ MIB = 2**20
 HEADER_PATH = "reports/spark_preparation_20261025/run_01/headers/official_bf16_control/tensor_index.json"
 MINICPM_RUN_PATH = "runs/fused_adamw_20261025/sustained01/run_report.json"
 MINICPM_GUARD_PATH = "reports/fused_adamw_20261025/sustained01.guard.json"
+ARCHITECTURE_DOC_PATH = (
+    "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md"
+)
+PRODUCT_PLAN_PATH = "configs/sparkx_2_6_4b_product_plan_v4.json"
+SIGLIP_MANIFEST_PATH = (
+    "checkpoints/siglip2_base_patch16_224_source/source_manifest.json"
+)
 CALCULATOR_PATH = "reports/sparkx_residency_20261026/calculate_residency.py"
 RECEIPT_PATH = "reports/sparkx_residency_20261026/residency.json"
 
@@ -48,6 +56,14 @@ EXCLUSIONS = [
     "data loaders, raw media, replay buffers, KV cache and long-context state",
     "per-session or per-worker replication of any of the above",
     "checkpoint serialization peaks and export copies",
+]
+
+COMBINED_EXCLUSIONS = [
+    "spatial/temporal bridges and the SigLIP2 projector/resampler: width 768 -> 1024 and 1024 -> 2560 stages are not counted here",
+    "lexical/core encoder, vocabulary extensions, native memory machinery and spine attachments",
+    "fast/expert plastic state from the revision 4.2 and 4.3 ledgers, including update staging and replay",
+    "encoder streaming transients, feature queues and per-camera/per-microphone session state",
+    "every item excluded from the backbone-only figures, which applies unchanged",
 ]
 
 HISTORICAL_NOTE = (
@@ -135,6 +151,133 @@ def audit_header(header: dict) -> dict:
             for t in tensors
             if len(t["shape"]) != 2 or t["name"] == "model.embedding.weight"
         ),
+    }
+
+
+def encoder_scope() -> dict:
+    """Parse the revision's declared encoder pair and validate it against sources.
+
+    The declaration in the architecture document is scope metadata for the current
+    revision: it is not a tensor inventory of the encoders and not a native
+    measurement. Its parameter total is required to equal the sum of the two
+    component declarations and its rounded GiB claim is required to match the
+    16-byte recomputation.
+    """
+    doc_text = (ROOT / ARCHITECTURE_DOC_PATH).read_text()
+    declaration = re.search(
+        r"SigLIP2/SPEAR pair alone adds ([\d,]+) parameters and roughly "
+        r"([\d.]+) GiB",
+        doc_text,
+    )
+    if declaration is None:
+        raise SystemExit("encoder declaration sentence not found in the architecture document")
+    doc_revision = re.search(
+        r"`google/siglip2-base-patch16-224` revision `([0-9a-f]{40})`", doc_text
+    )
+    if doc_revision is None:
+        raise SystemExit("SigLIP2 revision pin not found in the architecture document")
+    doc_audio = re.search(
+        r"spear-base-speech-audio-v2`[^\n]*official metadata ([\d,]+) parameters",
+        doc_text,
+    )
+    if doc_audio is None:
+        raise SystemExit("SPEAR parameter declaration not found in the architecture document")
+    doc_audio_parameters = int(doc_audio.group(1).replace(",", ""))
+
+    declared_parameters = int(declaration.group(1).replace(",", ""))
+    declared_GiB = float(declaration.group(2))
+    declared_line = doc_text[: declaration.start()].count("\n") + 1
+
+    plan = load_json(PRODUCT_PLAN_PATH)["vision"]
+    plan_audio = load_json(PRODUCT_PLAN_PATH)["audio"]["candidate"]
+    manifest = load_json(SIGLIP_MANIFEST_PATH)
+    inventory = manifest["tensor_inventory"]
+
+    vision_parameters = plan["encoder_parameters_observed"]
+    audio_parameters = plan_audio["parameters_metadata"]
+    combined = vision_parameters + audio_parameters
+    recomputed_16_GiB = combined * 16 / GIB
+
+    checks = {
+        "declaration_equals_component_sum": declared_parameters == combined,
+        "declaration_GiB_matches_16_byte_recomputation": abs(
+            declared_GiB - recomputed_16_GiB
+        )
+        <= 0.01,
+        "product_plan_matches_sealed_vision_inventory": vision_parameters
+        == inventory["vision_parameter_elements"],
+        "product_plan_matches_sealed_vision_revision": plan["revision"]
+        == manifest["revision"],
+        "architecture_doc_matches_sealed_vision_revision": doc_revision.group(1)
+        == manifest["revision"],
+        "component_revisions_are_pinned": all(
+            re.fullmatch(r"[0-9a-f]{40}", value)
+            for value in (plan["revision"], plan_audio["revision"])
+        ),
+        "architecture_doc_matches_audio_metadata": doc_audio_parameters
+        == audio_parameters,
+    }
+    failed = sorted(k for k, ok in checks.items() if not ok)
+    if failed:
+        raise SystemExit(f"encoder scope declaration failed validation: {failed}")
+
+    return {
+        "role": (
+            "declared scope metadata for the current revision; not a fresh encoder "
+            "tensor inventory, not a compiled model, and not a native measurement"
+        ),
+        "declaration": {
+            "path": ARCHITECTURE_DOC_PATH,
+            "sha256": sha256_file(ROOT / ARCHITECTURE_DOC_PATH),
+            "line": declared_line,
+            "text": declaration.group(0),
+            "declared_parameters": declared_parameters,
+            "declared_GiB_at_16_bytes": declared_GiB,
+            "recomputed_GiB_at_16_bytes": round(recomputed_16_GiB, 6),
+        },
+        "components": [
+            {
+                "name": "SigLIP2 base patch16-224 vision encoder",
+                "repo_id": plan["repo_id"],
+                "revision": plan["revision"],
+                "parameters": vision_parameters,
+                "evidence": {
+                    "path": PRODUCT_PLAN_PATH,
+                    "field": "vision.encoder_parameters_observed",
+                    "sha256": sha256_file(ROOT / PRODUCT_PLAN_PATH),
+                },
+                "sealed_inventory": {
+                    "path": SIGLIP_MANIFEST_PATH,
+                    "field": "tensor_inventory.vision_parameter_elements",
+                    "sha256": sha256_file(ROOT / SIGLIP_MANIFEST_PATH),
+                    "seal_digest": manifest.get("seal_digest"),
+                    "vision_tensor_count": inventory.get("vision_tensor_count"),
+                    "note": (
+                        "sealed source manifest reports the vision tower only "
+                        f"({inventory.get('vision_tensor_count')} of "
+                        f"{inventory.get('tensor_count')} tensors); the text tower and "
+                        "the paired projector are not part of this declared scope"
+                    ),
+                },
+            },
+            {
+                "name": "SPEAR base speech/audio v2 encoder",
+                "repo_id": plan_audio["repo_id"],
+                "revision": plan_audio["revision"],
+                "parameters": audio_parameters,
+                "evidence": {
+                    "path": PRODUCT_PLAN_PATH,
+                    "field": "audio.candidate.parameters_metadata",
+                    "sha256": sha256_file(ROOT / PRODUCT_PLAN_PATH),
+                    "note": (
+                        "official repository metadata count; no sealed tensor index "
+                        "for this candidate exists in the repository"
+                    ),
+                },
+            },
+        ],
+        "combined_parameters": combined,
+        "checks": checks,
     }
 
 
@@ -310,7 +453,57 @@ def calculate() -> dict:
         ),
     }
 
+    encoder = encoder_scope()
+    encoder_parameters = encoder["combined_parameters"]
+    combined_parameters = parameters + encoder_parameters
+    combined_state = [
+        state_scenario(
+            "combined_bf16_weight_gradient_two_fp32_moments_no_master",
+            "Backbone plus declared encoder pair, BF16 weight and gradient, two FP32 moments, no master",
+            12,
+            "2 + 2 + 4 + 4 bytes/parameter",
+            "Declared revision scope at the most optimistic accounting rate. The "
+            "encoder increment is declared metadata, not a sealed tensor inventory, "
+            "so this row is a lower bound over an assumption.",
+            combined_parameters,
+            guard,
+        ),
+        state_scenario(
+            "combined_bf16_weight_fp32_gradient_two_fp32_moments_no_master",
+            "Backbone plus declared encoder pair, BF16 stored weight, FP32 gradient, two FP32 moments, no master",
+            14,
+            "2 + 4 + 4 + 4 bytes/parameter",
+            "Autocast-shaped mixed precision over the declared revision scope.",
+            combined_parameters,
+            guard,
+        ),
+        state_scenario(
+            "combined_bf16_weight_gradient_two_fp32_moments_fp32_master",
+            "Backbone plus declared encoder pair, BF16 stored weights with FP32 masters, FP32 gradients, two FP32 moments",
+            16,
+            "2 + 4 + 4 + 4 + 4 bytes/parameter",
+            "Mixed precision with explicit FP32 masters over the declared revision "
+            "scope; byte-identical to all-FP32 accounting, which the current fused "
+            "AdamW selection makes the realistic full-scope shape.",
+            combined_parameters,
+            guard,
+        ),
+    ]
+    for row in combined_state:
+        increment = encoder_parameters * row["bytes_per_parameter"]
+        row["encoder_increment_bytes"] = increment
+        row["encoder_increment_GiB"] = round(increment / GIB, 6)
+        row["declared_parameters"] = combined_parameters
+
+    combined_over_guard = [
+        row["id"] for row in combined_state if not row["below_driver_guard_lower_bound"]
+    ]
+    combined_under_guard = [
+        row["id"] for row in combined_state if row["below_driver_guard_lower_bound"]
+    ]
+
     over_guard = [s["id"] for s in training_state if not s["below_driver_guard_lower_bound"]]
+
     under_guard = [s["id"] for s in training_state if s["below_driver_guard_lower_bound"]]
 
     return {
@@ -346,6 +539,24 @@ def calculate() -> dict:
                 "role": "driver guard policy value and sampled peak driver bytes",
                 "sha256": sha256_file(ROOT / MINICPM_GUARD_PATH),
                 "bytes": (ROOT / MINICPM_GUARD_PATH).stat().st_size,
+            },
+            {
+                "path": ARCHITECTURE_DOC_PATH,
+                "role": "current revision declaration of the SigLIP2/SPEAR encoder pair and its training scope",
+                "sha256": sha256_file(ROOT / ARCHITECTURE_DOC_PATH),
+                "bytes": (ROOT / ARCHITECTURE_DOC_PATH).stat().st_size,
+            },
+            {
+                "path": PRODUCT_PLAN_PATH,
+                "role": "structured vision/audio component declarations and pinned revisions",
+                "sha256": sha256_file(ROOT / PRODUCT_PLAN_PATH),
+                "bytes": (ROOT / PRODUCT_PLAN_PATH).stat().st_size,
+            },
+            {
+                "path": SIGLIP_MANIFEST_PATH,
+                "role": "sealed SigLIP2 vision tensor inventory and revision pin",
+                "sha256": sha256_file(ROOT / SIGLIP_MANIFEST_PATH),
+                "bytes": (ROOT / SIGLIP_MANIFEST_PATH).stat().st_size,
             },
         ],
         "driver_guard": {
@@ -388,6 +599,50 @@ def calculate() -> dict:
             },
         },
         "training_state_scenarios": training_state,
+        "encoder_scope": encoder,
+        "combined_scope": {
+            "scope": (
+                f"backbone {parameters} + declared encoder pair {encoder_parameters} = "
+                f"{combined_parameters} parameters"
+            ),
+            "backbone_parameters": parameters,
+            "encoder_parameters": encoder_parameters,
+            "combined_parameters": combined_parameters,
+            "weight_payload_lower_bounds": {
+                "fp8_weights_only": {
+                    "bytes": combined_parameters * 1,
+                    "GiB": round(combined_parameters * 1 / GIB, 6),
+                    "formula": "combined_parameters * 1 byte",
+                },
+                "bf16_weights_only": {
+                    "bytes": combined_parameters * 2,
+                    "GiB": round(combined_parameters * 2 / GIB, 6),
+                    "formula": "combined_parameters * 2 bytes",
+                },
+                "fp32_weights_only": {
+                    "bytes": combined_parameters * 4,
+                    "GiB": round(combined_parameters * 4 / GIB, 6),
+                    "formula": "combined_parameters * 4 bytes",
+                },
+            },
+            "training_state_scenarios": combined_state,
+            "excluded_beyond_backbone_only": COMBINED_EXCLUSIONS,
+            "interpretation": {
+                "over_driver_guard_on_lower_bound_alone": combined_over_guard,
+                "under_driver_guard_on_lower_bound_alone": combined_under_guard,
+                "full_scope_local_admission": "not_admitted",
+                "admission_statement": (
+                    "The combined revision scope is not admitted locally either. "
+                    "Two of its three accounting rates already exceed the guard on "
+                    "the parameter and state inventory alone, and the remaining "
+                    "12-byte rate leaves a headroom far smaller than the excluded "
+                    "bridge, projector, fast/expert state, activation, logits, KV "
+                    "and media budgets. The encoder total is a declared scope "
+                    "figure, so even its parameter count is an assumption rather "
+                    "than a sealed inventory."
+                ),
+            },
+        },
         "historical_unselected_scenarios": historical,
         "minicpm_measured_cross_check": cross_check,
         "excluded_from_every_figure": EXCLUSIONS,
@@ -404,11 +659,18 @@ def calculate() -> dict:
                 "peak. No figure here is a native fit, allocator peak, throughput "
                 "or convergence result."
             ),
+            "scope_note": (
+                "The training_state_scenarios rows cover the backbone only. The "
+                "current revision trains the backbone plus the declared SigLIP2/SPEAR "
+                "encoder pair, so combined_scope is the applicable full-scope "
+                "inventory."
+            ),
             "rounding": "byte counts are exact integers; GiB values are bytes / 2**30 rounded to 6 decimals",
         },
         "non_claims": [
-            "no Spark weight, tokenizer, dataset or other asset was downloaded or inspected beyond the committed tensor index header",
-            "no native Spark training, export, adapter or inference run was performed or implied",
+            "no Spark weight, tokenizer, dataset or other asset was downloaded or inspected beyond the committed tensor index header and the sealed SigLIP2 source manifest",
+            "the encoder pair total comes from a declarative scope statement validated against component declarations, not from a fresh encoder tensor index and not from a compiled or executed multimodal model",
+            "no native Spark training, export, adapter, multimodal or inference run was performed or implied",
             "the Spark adapter remains design_only_not_implemented; FP8/BF16 source preparation is offline-only",
             "dataset admission, the source registry and optimizer/adapter status are unchanged by this receipt",
         ],

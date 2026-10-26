@@ -4,7 +4,7 @@
   "regeneration": "deterministic; re-running the calculator reproduces this file byte for byte",
   "calculator": {
     "path": "reports/sparkx_residency_20261026/calculate_residency.py",
-    "sha256": "b92f8ead21cb138e94e84e49c292b2b00648b1df09dc3e1de48d58ecc1e6550d",
+    "sha256": "62642643c7e0d068971e002b23ddb20ba422b30439de6c3d5fc98c5aa98e0ab2",
     "language": "python3 standard library only",
     "invocation": "python3 reports/sparkx_residency_20261026/calculate_residency.py"
   },
@@ -34,6 +34,24 @@
       "role": "driver guard policy value and sampled peak driver bytes",
       "sha256": "55741d7e063adcf3928789dff1e2a4f3d37a455cc0391e21e667a972936736cc",
       "bytes": 1809
+    },
+    {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "role": "current revision declaration of the SigLIP2/SPEAR encoder pair and its training scope",
+      "sha256": "2837b9793410eab432e4115aa1af26630ec80b77022000bf3a60cfc4483e11b9",
+      "bytes": 60055
+    },
+    {
+      "path": "configs/sparkx_2_6_4b_product_plan_v4.json",
+      "role": "structured vision/audio component declarations and pinned revisions",
+      "sha256": "2c0cd6ba18031858b14014a3699b479251d5b3bcdf8b327104a02b3f758d467b",
+      "bytes": 17172
+    },
+    {
+      "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+      "role": "sealed SigLIP2 vision tensor inventory and revision pin",
+      "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+      "bytes": 5734
     }
   ],
   "driver_guard": {
@@ -148,6 +166,152 @@
       "note": "Mixed precision with an explicit FP32 master copy, as required for faithful AdamW updates from BF16 storage. Byte-identical to the FP32 row and therefore also outside the guard before any activations."
     }
   ],
+  "encoder_scope": {
+    "role": "declared scope metadata for the current revision; not a fresh encoder tensor inventory, not a compiled model, and not a native measurement",
+    "declaration": {
+      "path": "docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md",
+      "sha256": "2837b9793410eab432e4115aa1af26630ec80b77022000bf3a60cfc4483e11b9",
+      "line": 292,
+      "text": "SigLIP2/SPEAR pair alone adds 186,173,700 parameters and roughly 2.77 GiB",
+      "declared_parameters": 186173700,
+      "declared_GiB_at_16_bytes": 2.77,
+      "recomputed_GiB_at_16_bytes": 2.774204
+    },
+    "components": [
+      {
+        "name": "SigLIP2 base patch16-224 vision encoder",
+        "repo_id": "google/siglip2-base-patch16-224",
+        "revision": "75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2",
+        "parameters": 92884224,
+        "evidence": {
+          "path": "configs/sparkx_2_6_4b_product_plan_v4.json",
+          "field": "vision.encoder_parameters_observed",
+          "sha256": "2c0cd6ba18031858b14014a3699b479251d5b3bcdf8b327104a02b3f758d467b"
+        },
+        "sealed_inventory": {
+          "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+          "field": "tensor_inventory.vision_parameter_elements",
+          "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+          "seal_digest": "ee6274db57b3b590c3b1abf99c849afc349374d9abd9ae693e720b8634065e1d",
+          "vision_tensor_count": 208,
+          "note": "sealed source manifest reports the vision tower only (208 of 408 tensors); the text tower and the paired projector are not part of this declared scope"
+        }
+      },
+      {
+        "name": "SPEAR base speech/audio v2 encoder",
+        "repo_id": "marcoyang/spear-base-speech-audio-v2",
+        "revision": "7447901d44bf265b3c304cc4ccf25ca741527b6c",
+        "parameters": 93289476,
+        "evidence": {
+          "path": "configs/sparkx_2_6_4b_product_plan_v4.json",
+          "field": "audio.candidate.parameters_metadata",
+          "sha256": "2c0cd6ba18031858b14014a3699b479251d5b3bcdf8b327104a02b3f758d467b",
+          "note": "official repository metadata count; no sealed tensor index for this candidate exists in the repository"
+        }
+      }
+    ],
+    "combined_parameters": 186173700,
+    "checks": {
+      "declaration_equals_component_sum": true,
+      "declaration_GiB_matches_16_byte_recomputation": true,
+      "product_plan_matches_sealed_vision_inventory": true,
+      "product_plan_matches_sealed_vision_revision": true,
+      "architecture_doc_matches_sealed_vision_revision": true,
+      "component_revisions_are_pinned": true,
+      "architecture_doc_matches_audio_metadata": true
+    }
+  },
+  "combined_scope": {
+    "scope": "backbone 4112079360 + declared encoder pair 186173700 = 4298253060 parameters",
+    "backbone_parameters": 4112079360,
+    "encoder_parameters": 186173700,
+    "combined_parameters": 4298253060,
+    "weight_payload_lower_bounds": {
+      "fp8_weights_only": {
+        "bytes": 4298253060,
+        "GiB": 4.00306,
+        "formula": "combined_parameters * 1 byte"
+      },
+      "bf16_weights_only": {
+        "bytes": 8596506120,
+        "GiB": 8.00612,
+        "formula": "combined_parameters * 2 bytes"
+      },
+      "fp32_weights_only": {
+        "bytes": 17193012240,
+        "GiB": 16.01224,
+        "formula": "combined_parameters * 4 bytes"
+      }
+    },
+    "training_state_scenarios": [
+      {
+        "id": "combined_bf16_weight_gradient_two_fp32_moments_no_master",
+        "label": "Backbone plus declared encoder pair, BF16 weight and gradient, two FP32 moments, no master",
+        "bytes_per_parameter": 12,
+        "formula": "2 + 2 + 4 + 4 bytes/parameter",
+        "total_bytes": 51579036720,
+        "total_GiB": 48.036721,
+        "below_driver_guard_lower_bound": true,
+        "headroom_to_driver_guard_bytes": 2108054480,
+        "headroom_to_driver_guard_GiB": 1.963279,
+        "status": "analytical_lower_bound_not_admitted",
+        "note": "Declared revision scope at the most optimistic accounting rate. The encoder increment is declared metadata, not a sealed tensor inventory, so this row is a lower bound over an assumption.",
+        "encoder_increment_bytes": 2234084400,
+        "encoder_increment_GiB": 2.080653,
+        "declared_parameters": 4298253060
+      },
+      {
+        "id": "combined_bf16_weight_fp32_gradient_two_fp32_moments_no_master",
+        "label": "Backbone plus declared encoder pair, BF16 stored weight, FP32 gradient, two FP32 moments, no master",
+        "bytes_per_parameter": 14,
+        "formula": "2 + 4 + 4 + 4 bytes/parameter",
+        "total_bytes": 60175542840,
+        "total_GiB": 56.042841,
+        "below_driver_guard_lower_bound": false,
+        "headroom_to_driver_guard_bytes": -6488451640,
+        "headroom_to_driver_guard_GiB": -6.042841,
+        "status": "analytical_lower_bound_not_admitted",
+        "note": "Autocast-shaped mixed precision over the declared revision scope.",
+        "encoder_increment_bytes": 2606431800,
+        "encoder_increment_GiB": 2.427429,
+        "declared_parameters": 4298253060
+      },
+      {
+        "id": "combined_bf16_weight_gradient_two_fp32_moments_fp32_master",
+        "label": "Backbone plus declared encoder pair, BF16 stored weights with FP32 masters, FP32 gradients, two FP32 moments",
+        "bytes_per_parameter": 16,
+        "formula": "2 + 4 + 4 + 4 + 4 bytes/parameter",
+        "total_bytes": 68772048960,
+        "total_GiB": 64.048962,
+        "below_driver_guard_lower_bound": false,
+        "headroom_to_driver_guard_bytes": -15084957760,
+        "headroom_to_driver_guard_GiB": -14.048962,
+        "status": "analytical_lower_bound_not_admitted",
+        "note": "Mixed precision with explicit FP32 masters over the declared revision scope; byte-identical to all-FP32 accounting, which the current fused AdamW selection makes the realistic full-scope shape.",
+        "encoder_increment_bytes": 2978779200,
+        "encoder_increment_GiB": 2.774204,
+        "declared_parameters": 4298253060
+      }
+    ],
+    "excluded_beyond_backbone_only": [
+      "spatial/temporal bridges and the SigLIP2 projector/resampler: width 768 -> 1024 and 1024 -> 2560 stages are not counted here",
+      "lexical/core encoder, vocabulary extensions, native memory machinery and spine attachments",
+      "fast/expert plastic state from the revision 4.2 and 4.3 ledgers, including update staging and replay",
+      "encoder streaming transients, feature queues and per-camera/per-microphone session state",
+      "every item excluded from the backbone-only figures, which applies unchanged"
+    ],
+    "interpretation": {
+      "over_driver_guard_on_lower_bound_alone": [
+        "combined_bf16_weight_fp32_gradient_two_fp32_moments_no_master",
+        "combined_bf16_weight_gradient_two_fp32_moments_fp32_master"
+      ],
+      "under_driver_guard_on_lower_bound_alone": [
+        "combined_bf16_weight_gradient_two_fp32_moments_no_master"
+      ],
+      "full_scope_local_admission": "not_admitted",
+      "admission_statement": "The combined revision scope is not admitted locally either. Two of its three accounting rates already exceed the guard on the parameter and state inventory alone, and the remaining 12-byte rate leaves a headroom far smaller than the excluded bridge, projector, fast/expert state, activation, logits, KV and media budgets. The encoder total is a declared scope figure, so even its parameter count is an assumption rather than a sealed inventory."
+    }
+  },
   "historical_unselected_scenarios": [
     {
       "id": "historical_bf16_weight_gradient_two_int8_moments_no_master",
@@ -224,11 +388,13 @@
     ],
     "full_scope_local_admission": "not_admitted",
     "admission_statement": "No full-scope configuration is admitted. Any row at or above the guard is excluded outright, because the excluded terms can only add bytes. Any row below the guard remains unqualified: a lower bound below a ceiling is not evidence that the measured peak stays below it, and no Spark training run exists to measure that peak. No figure here is a native fit, allocator peak, throughput or convergence result.",
+    "scope_note": "The training_state_scenarios rows cover the backbone only. The current revision trains the backbone plus the declared SigLIP2/SPEAR encoder pair, so combined_scope is the applicable full-scope inventory.",
     "rounding": "byte counts are exact integers; GiB values are bytes / 2**30 rounded to 6 decimals"
   },
   "non_claims": [
-    "no Spark weight, tokenizer, dataset or other asset was downloaded or inspected beyond the committed tensor index header",
-    "no native Spark training, export, adapter or inference run was performed or implied",
+    "no Spark weight, tokenizer, dataset or other asset was downloaded or inspected beyond the committed tensor index header and the sealed SigLIP2 source manifest",
+    "the encoder pair total comes from a declarative scope statement validated against component declarations, not from a fresh encoder tensor index and not from a compiled or executed multimodal model",
+    "no native Spark training, export, adapter, multimodal or inference run was performed or implied",
     "the Spark adapter remains design_only_not_implemented; FP8/BF16 source preparation is offline-only",
     "dataset admission, the source registry and optimizer/adapter status are unchanged by this receipt"
   ]

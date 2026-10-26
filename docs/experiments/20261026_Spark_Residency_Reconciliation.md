@@ -11,11 +11,12 @@ Artefacts:
   calculator; recomputes every total from the pinned tensor header.
 - `reports/sparkx_residency_20261026/residency.json` — generated receipt with
   source SHA256 values, the calculator SHA256, header audit, payload bounds,
-  training-state scenarios and the guard comparison.
+  backbone-only and combined training-state scenarios, the parsed encoder scope
+  declaration and the guard comparisons.
 
 Reproduce with `python3 reports/sparkx_residency_20261026/calculate_residency.py`.
-The output is deterministic. The calculator reads three local evidence files
-and nothing else; it downloads no weights or assets and starts no native job.
+The output is deterministic. The calculator reads six local evidence files and
+nothing else; it downloads no weights or assets and starts no native job.
 
 ## Inputs
 
@@ -29,6 +30,8 @@ and nothing else; it downloads no weights or assets and starts no native job.
 | Header SHA256 | `05fa1b80b4888f319b2c42233b95ce43b5c1783ed335e830667298a1da91e590` | receipt `sources[0]` |
 | Selected optimizer | `NativeFusedAdamW`, `torch.optim.AdamW(fused=True)` | `docs/experiments/20261026_Fused_AdamW_Integration_and_Sustained_Performance.md` |
 | Guard | 50 GiB = 53,687,091,200 bytes sampled driver stop, with a 512 MiB sustained swap-growth limit and a 15% minimum host-free rule | guard receipt policy |
+| Declared encoder scope | SigLIP2 92,884,224 + SPEAR 93,289,476 = **186,173,700** parameters | parsed from the revision declaration, validated against component declarations |
+| Combined revision scope | 4,112,079,360 + 186,173,700 = **4,298,253,060** parameters | computed, not copied |
 
 The header audit asserts duplicate-name absence, `data_offsets` consistency
 against shape and dtype, shard payload and tensor-count agreement, and
@@ -38,7 +41,41 @@ receipt.
 None of these figures is a native Spark measurement, and no Spark training run
 exists at all.
 
-## Weight payload lower bounds
+## Encoder scope declaration
+
+The current revision trains more than the language backbone. Line 292 of
+`docs/architecture/21_SparkX_2_6_4B_Consolidated_Architecture_and_MiniCPM_Validation.md`
+declares that "the current SigLIP2/SPEAR pair alone adds 186,173,700 parameters
+and roughly 2.77 GiB under the same FP32 weight/gradient/Adam accounting, before
+activations". The calculator parses that sentence instead of restating scout
+arithmetic, and refuses to write a receipt unless all of these hold:
+
+| Validation | Result |
+|---|---|
+| Declared 186,173,700 equals the component sum 92,884,224 + 93,289,476 | passes |
+| Declared "roughly 2.77 GiB" matches the 16-byte recomputation of 2.774204 GiB within 0.01 GiB | passes |
+| `vision.encoder_parameters_observed` equals the sealed manifest's `tensor_inventory.vision_parameter_elements` (92,884,224) | passes |
+| Architecture doc, product plan and sealed manifest agree on revision `75de2d55ec2d0b4efc50b3e9ad70dba96a7b2fa2` | passes |
+| Both component revisions and the manifest seal are present | passes |
+
+Encoder evidence, each hashed into the receipt:
+
+| Component | Parameters | Evidence | SHA256 |
+|---|---:|---|---|
+| SigLIP2 base patch16-224 vision tower | 92,884,224 | `configs/sparkx_2_6_4b_product_plan_v4.json` `vision.encoder_parameters_observed`; sealed `checkpoints/siglip2_base_patch16_224_source/source_manifest.json` (`tensor_inventory.vision_parameter_elements`, seal digest `ee6274db57b3b590c3b1abf99c849afc349374d9abd9ae693e720b8634065e1d`) | config `2c0cd6ba18031858b14014a3699b479251d5b3bcdf8b327104a02b3f758d467b`, manifest `8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024` |
+| SPEAR base speech/audio v2 | 93,289,476 | `configs/sparkx_2_6_4b_product_plan_v4.json` `audio.candidate.parameters_metadata` (official repository metadata; no sealed tensor index in the repository) | config `2c0cd6ba18031858b14014a3699b479251d5b3bcdf8b327104a02b3f758d467b` |
+
+The declaration is scope metadata for the revision, not a fresh encoder tensor
+inventory and not a compiled model. The sealed SigLIP2 manifest describes 208 of
+408 tensors as the vision tower, so the paired text tower and the projector are
+outside this count; the SPEAR figure is an official metadata count only. The
+architecture document is read for its declaration and SHA256 and is never
+modified by this work.
+
+## Weight payload lower bounds (backbone only)
+
+These rows cover the 4,112,079,360 indexed parameters only; the combined
+revision-scope payloads are in the section below.
 
 | Storage | Bytes | GiB | Formula |
 |---|---:|---:|---|
@@ -51,11 +88,14 @@ BF16 row is exactly the serialized payload of the indexed shards. The FP32 row
 is the materialization used by the current fused optimizer path in the MiniCPM
 probe; it is not a Spark runtime measurement.
 
-## Training-state scenarios
+## Training-state scenarios (backbone only)
 
 Every selected scenario is `parameters × bytes/parameter`, an analytical lower
 bound over the declared tensors only; the historical Muon row uses its recorded
-`9p + 7·aux` expression instead.
+`9p + 7·aux` expression instead. These rows are **not** the full revision
+training inventory, which also trains the encoder pair. They remain the
+published backbone floors for comparison, and no absolute claim should use them
+once the encoders are in scope.
 
 | Scenario | Bytes/param | Formula | GiB | vs 50 GiB guard |
 |---|---:|---|---:|---|
@@ -78,41 +118,90 @@ vocabulary, gradient clipping and reduction buffers, optimizer temporaries
 dequantization buffers), allocator and compiler overhead, data loaders, media,
 replay, KV cache, and checkpoint/export copies.
 
+## Combined backbone plus encoder scenarios
+
+The 186,173,700 declared encoder parameters raise the scope to
+**4,298,253,060**. Weight payloads at that scope are 4,298,253,060 bytes (4.003
+GiB) in FP8, 8,596,506,120 (8.006 GiB) in BF16 and 17,193,012,240 (16.012 GiB)
+in FP32.
+
+| Scenario | Bytes/param | Formula | Bytes | GiB | vs 50 GiB guard |
+|---|---:|---|---:|---:|---|
+| BF16 weight and gradient, two FP32 moments, no master | 12 | `2+2+4+4` | 51,579,036,720 | 48.037 | 1.963 GiB headroom |
+| BF16 weight, FP32 gradient, two FP32 moments, no master | 14 | `2+4+4+4` | 60,175,542,840 | 56.043 | **exceeds** by 6.043 GiB |
+| BF16 weight, FP32 master, FP32 gradient, two FP32 moments | 16 | `2+4+4+4+4` | 68,772,048,960 | 64.049 | **exceeds** by 14.049 GiB |
+
+The encoder increment over the matching backbone-only row is 2.080653 GiB at 12
+bytes/parameter, 2.427429 GiB at 14 and 2.774204 GiB at 16 — the last matching
+the revision's declared "roughly 2.77 GiB" after recomputation.
+
+Beyond the encoder parameters, the combined rows still exclude:
+
+- spatial/temporal bridges and the SigLIP2 projector/resampler: the width
+  768 → 1024 and 1024 → 2560 stages;
+- lexical/core encoder, vocabulary extensions, native memory machinery and
+  spine attachments;
+- fast/expert plastic state from the revision 4.2 and 4.3 ledgers, including
+  update staging and replay;
+- encoder streaming transients, feature queues and per-camera/per-microphone
+  session state;
+- every activation, logits, clipping, optimizer-temporary, allocator, media, KV
+  and checkpoint term already excluded from the backbone-only figures.
+
+**Non-admission.** Two of the three combined rates exceed the 50 GiB guard on
+the parameter and state inventory alone. The remaining 12-byte rate leaves
+**1.963 GiB** for the entire bridge/projector/fast-state/activation/logits/KV/
+media budget, which is smaller than the excluded terms already measured on a
+much smaller model. The combined encoder total is itself a declared scope
+figure, so even its parameter count carries an assumption that a sealed encoder
+inventory would have to replace.
+
 ## Verdict
 
 **Full-scope Spark is not admitted locally, and this note does not infer that it
 fits.** The reasoning is one-directional: the excluded terms can only add bytes,
 so any row already at or above the guard is excluded outright, and a row below
-the guard is merely unqualified.
+the guard is merely unqualified. The applicable full scope is the combined
+4,298,253,060-parameter revision inventory, not the language backbone alone.
 
-- FP32 all-AdamW over the full 4,112,079,360-parameter scope needs
-  **65,793,269,760 bytes (61.275 GiB)** for parameters, gradients and two moments
-  before a single activation, logit, clipping buffer or allocator arena. That is
-  **11.275 GiB above the 50 GiB guard**.
-- Adding an FP32 master copy to BF16 storage is byte-identical at 16
-  bytes/parameter and is excluded for the same reason. Storing BF16 weights but
-  accumulating FP32 gradients — the usual autocast/AMP shape, and the reason the
-  12-byte row assumes BF16 gradients only as an optimistic case — costs 14
-  bytes/parameter: **57,569,111,040 bytes (53.615 GiB)**, which crosses the guard
-  by 3.615 GiB on the parameter and state inventory alone.
-- The one BF16 row that lands under the guard is the most optimistic one,
-  **49,344,952,320 bytes (45.956 GiB)** at 12 bytes/parameter, leaving **4.044
-  GiB** for every excluded term. A lower bound under a ceiling is not evidence
-  that a measured peak stays under it.
+- At the combined scope the realistic all-FP32 accounting
+  (**68,772,048,960 bytes, 64.049 GiB**) and the autocast-shaped 14-byte
+  accounting (**60,175,542,840 bytes, 56.043 GiB**) both exceed the 50 GiB guard
+  before a single activation, logit, bridge, projector, fast-state, clipping
+  buffer or allocator arena. They are excluded outright.
+- The optimistic combined 12-byte rate, **51,579,036,720 bytes (48.037 GiB)**,
+  leaves **1.963 GiB** for every excluded term — bridge and projector weights,
+  fast/expert state, activations, logits, clipping, allocator, media and KV. A
+  lower bound under a ceiling is not evidence that a measured peak stays under
+  it, and this headroom is smaller than the excluded overhead measured on a
+  2.52B-parameter probe.
+- Backbone-only floors remain published for comparison: FP32 all-AdamW over the
+  4,112,079,360 indexed parameters needs **65,793,269,760 bytes (61.275 GiB)**,
+  **11.275 GiB above the guard**; the BF16 weight/gradient, FP32-moment row
+  without a master is **49,344,952,320 bytes (45.956 GiB)**, leaving 4.044 GiB.
+  An FP32 master copy makes the BF16 storage byte-identical at 16
+  bytes/parameter and excluded for the same reason, and the 14-byte
+  FP32-gradient shape is **57,569,111,040 bytes (53.615 GiB)**, 3.615 GiB over
+  the guard.
 
-So full-scope local admission cannot be inferred. What remains unqualified for
-BF16 is the whole activation and logits budget at any sequence length, the clip
-path, fused-optimizer temporaries, allocator behaviour, checkpoint peaks, and
-whether the driver stays sampled below 53,687,091,200 bytes with the 512 MiB
-swap-growth and 15% host-free companion rules. Each of those needs a native
-measurement under a matched protocol and code pin; none of it follows from a
-lower bound, and none of it is claimed here.
+So full-scope local admission cannot be inferred for either scope. What remains
+unqualified for BF16 is the encoder-pair parameter count itself (declared
+metadata rather than a sealed inventory), the whole activation and logits budget
+at any sequence length, the bridges and projector, fast/expert plastic state,
+the clip path, fused-optimizer temporaries, allocator behaviour, checkpoint
+peaks, and whether the driver stays sampled below 53,687,091,200 bytes with the
+512 MiB swap-growth and 15% host-free companion rules. Each of those needs a
+native measurement under a matched protocol and code pin; none of it follows
+from a lower bound, and none of it is claimed here.
 
 This is consistent with the earlier research notes, which already placed full
 FP32 Adam at about 61.27 GiB and outside the local envelope
 (`docs/research/sparkx_2_6_4b_20261024/README.md`,
-`docs/research/sparkx_2_6_product_20261025/Resources_and_Full_Finetuning.md`).
-Those documents are unchanged.
+`docs/research/sparkx_2_6_product_20261025/Resources_and_Full_Finetuning.md`)
+and which recorded the same two encoder component counts (93,289,476 and
+92,884,224) in `docs/research/sparkx_2_6_product_20261025/Resources_and_Full_Finetuning.md`.
+Those documents are unchanged, as is the architecture document whose declaration
+this receipt parses.
 
 ## The MiniCPM 8-byte/param cross-check
 
@@ -135,14 +224,20 @@ guard, or treated as a Spark activation estimate.
 
 ## Non-claims and unchanged state
 
-- No Spark weights, tokenizer, dataset or other asset was downloaded; the only
-  Spark artefact read is the committed tensor index header.
-- No native Spark training, export, adapter, inference or memory-guard job was
-  run. No weights were loaded.
+- No Spark weights, tokenizer, dataset or other asset was downloaded; the Spark
+  artefacts read are the committed tensor index header and the sealed SigLIP2
+  source manifest. No encoder weights were downloaded or inspected.
+- The 186,173,700 encoder total is the revision's declarative scope statement,
+  validated against component declarations and a sealed vision inventory. It is
+  not a fresh encoder tensor index, not a compiled multimodal model and not a
+  measurement. The SPEAR figure remains official repository metadata.
+- No native Spark training, export, adapter, multimodal, inference or
+  memory-guard job was run. No weights were loaded.
 - The Spark adapter remains `design_only_not_implemented`; FP8/BF16 source
   preparation stays offline-only.
 - Dataset admission, the source registry, optimizer selection and adapter status
-  are unchanged. The historical calculators and reports under
+  are unchanged. The architecture document, the research notes and the
+  historical calculators and reports under
   `reports/sparkx_2_6_product_refinement_20261025/` are unmodified.
 - No figure here is a native fit, allocator peak, throughput prediction,
   convergence result or learning-quality claim.
