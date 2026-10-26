@@ -14,6 +14,7 @@ contract is compared before any optimizer or global RNG state is changed.
 
 from __future__ import annotations
 
+import gc
 import hashlib
 import json
 import math
@@ -283,6 +284,12 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     model._apply(lambda tensor: tensor)
     del weights
     actual_optimizer = optimizer_factory(model)
+    # Release temporary model-load allocations before mapping optimizer state.
+    gc.collect()
+    if torch.device(device).type == "mps":
+        torch.mps.empty_cache()
+    elif torch.device(device).type == "cuda":
+        torch.cuda.empty_cache()
     restored = load_runtime_state(
         runtime_path, actual_optimizer, run_contract=run_contract,
         restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
