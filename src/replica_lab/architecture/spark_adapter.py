@@ -201,6 +201,7 @@ class Spark2_5Adapter(nn.Module):
         self.heads = int(heads)
         self._port_layers: tuple[int, ...] = ()
         self._original_identity: tuple | None = None
+        self.extension.to(device)
         self.assert_scope()
 
     # ------------------------------------------------------------------
