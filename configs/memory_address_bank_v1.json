@@ -1,0 +1,165 @@
+{
+  "format": "replica.memory_address_bank.config.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Deterministic explicit-record address-bank control before any bank-plus-compressed hybrid; selection is label-free and scoring is post-freeze only.",
+  "classification": {
+    "package": "explicit_record_address_bank_control",
+    "native": false,
+    "model_execution": false,
+    "tokenizer_load": false,
+    "generation": false,
+    "calibrated": false,
+    "learned_selector": false,
+    "bank_plus_compressed_arm": false,
+    "compressed_value_comparison": false,
+    "oracle": "diagnostic_only_not_executed",
+    "bank_output": "selection_evidence_only"
+  },
+  "prepared": {
+    "root": "data/memory_causal_fresh_20261026/prepared04",
+    "selection_inputs": [
+      "episodes.json",
+      "revocations.json"
+    ],
+    "scoring_only_inputs": [
+      "labels.json"
+    ],
+    "formats": {
+      "episodes": "replica.memory_causal_fresh.episodes.v2",
+      "revocations": "replica.memory_causal_fresh.revocations.v2",
+      "labels": "replica.memory_causal_fresh.labels.v2",
+      "manifest": "replica.memory_causal_fresh.prepared.v2"
+    },
+    "pins": {
+      "episodes_sha256": "aaf77d0aa4b6f1fd861b760aaf06c4d699641bbea6b7114c6c876564b3ca02c9",
+      "revocations_sha256": "7037d34fe3ec9b5c20fabf78082f8bc07729652d2d0b483a460e76a6515ee130",
+      "labels_sha256": "2cb282284c223802bc691b512474a4e051074d5490af5fb1db5748f63f81049c",
+      "manifest_sha256": "3a3395db16f3dcc3332c6e4e309dcadf77e1685d22c3738a0ab0d6c1ef7579da"
+    },
+    "manifest_requirements": {
+      "native_computation": false,
+      "model_loaded": false,
+      "tokenizer_loaded": false
+    }
+  },
+  "bank": {
+    "address_key": [
+      "entity",
+      "attribute"
+    ],
+    "match": "exact",
+    "state_views": "memory_matched.episode_states then memory_matched._record_views",
+    "decision_unit": "episode/state/phase/query",
+    "phase_order": [
+      "first_process",
+      "restart",
+      "revocation"
+    ],
+    "phase_query_fields": {
+      "first_process": "queries",
+      "restart": "restart_queries",
+      "revocation": "revocation_queries"
+    },
+    "scope": "episode_world",
+    "duplicate_record_id": "dedupe_if_identical_else_reject",
+    "duplicate_address": "abstain_ambiguous",
+    "abstain_reasons": [
+      "abstain_no_address",
+      "abstain_ambiguous_address",
+      "abstain_superseded_only_address",
+      "abstain_revoked_only_address"
+    ],
+    "revocation": {
+      "scope": "view_only",
+      "cached_history_retained": true,
+      "applies_at_phase_map": {
+        "post_restart": [
+          "restart",
+          "revocation"
+        ],
+        "revocation_only": [
+          "revocation"
+        ],
+        "all": [
+          "first_process",
+          "restart",
+          "revocation"
+        ]
+      }
+    },
+    "value_comparison": false
+  },
+  "reader": {
+    "declared_source_layers": [
+      0,
+      2
+    ],
+    "decision_count_multiplier": 1,
+    "rule": "one decision per episode/state/phase/query; reader layers never multiply or alter a decision"
+  },
+  "endpoint": {
+    "split": "dev",
+    "dev_fact_selection_identity_min": 0.9,
+    "dev_unknown_selections_max": 0,
+    "dev_revoked_selections_max": 0,
+    "heldout": "evaluate_after_dev_pass_only",
+    "tuning": "forbidden"
+  },
+  "roles": {
+    "train": {
+      "role": "descriptive_only",
+      "endpoint": false,
+      "requires_dev_pass": false
+    },
+    "dev": {
+      "role": "primary_endpoint_gate",
+      "endpoint": true,
+      "requires_dev_pass": false
+    },
+    "heldout": {
+      "role": "post_freeze_confirmation",
+      "endpoint": false,
+      "requires_dev_pass": true
+    }
+  },
+  "reporting": {
+    "groups": [
+      "split",
+      "cohort",
+      "world",
+      "phase",
+      "state",
+      "complexity"
+    ],
+    "raw_output_policy": {
+      "fresh_output_required": true,
+      "immutable_first_write": true,
+      "files": [
+        "decisions_dev.jsonl",
+        "decisions_train.jsonl",
+        "decisions_heldout.jsonl",
+        "report.json"
+      ],
+      "heldout_file_only_after_dev_pass": true
+    }
+  },
+  "budget": {
+    "model_loads": 0,
+    "tokenizer_loads": 0,
+    "forward_passes": 0,
+    "optimizer_updates": 0,
+    "gradients": 0,
+    "checkpoints_written": 0,
+    "native_jobs": 0,
+    "native_resource_reports": 0
+  },
+  "limitations": [
+    "Exact string address matching is not learned, semantic or calibrated retrieval.",
+    "The bank emits record identities only; no literal bank value is compared with a compressed-vector accepted-correct result.",
+    "There is no bank-plus-compressed hybrid arm; the oracle remains diagnostic-only and is not executed.",
+    "No model, tokenizer, forward pass, generation, optimizer, checkpoint or native resource path is used.",
+    "Heldout evidence is reported only after the frozen rule passes the predeclared dev endpoint; no threshold or fixture is tuned.",
+    "Declared independent-world distractor targets are episode inputs; a correct distractor selection is counted separately from false recall.",
+    "Selection evidence does not establish a language, generation or general-memory capability."
+  ]
+}

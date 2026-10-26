@@ -1,0 +1,61 @@
+{
+  "format": "replica.memory_address_bank.evidence_summary.v1",
+  "protocol": "configs/memory_address_bank_v1.json",
+  "prepared": "data/memory_causal_fresh_20261026/prepared04",
+  "raw_report": {
+    "path": "runs/memory_address_bank_v1/replay01/report.json",
+    "sha256": "765170cb05aa7b079341a69c2533b0c6ffe83f4cd19751789384a42e74fe0a09"
+  },
+  "decision_files": {
+    "dev": {
+      "path": "runs/memory_address_bank_v1/replay01/decisions_dev.jsonl",
+      "sha256": "9f67eb2eee9f1b1c811500d749c850c537d101418066763a1a2a9e3a5677efd8"
+    },
+    "heldout": {
+      "path": "runs/memory_address_bank_v1/replay01/decisions_heldout.jsonl",
+      "sha256": "bc14d262f28e63a87dc60a0f93627569b364e29e58e474ae4790a41522293bd3"
+    },
+    "train": {
+      "path": "runs/memory_address_bank_v1/replay01/decisions_train.jsonl",
+      "sha256": "79d85fc6bc9d0194622a8b9f26e1a1aac4921530d81eefb08d79f12a98ea7e5e"
+    }
+  },
+  "decision_rows": 456,
+  "decision_keys_unique": 456,
+  "dev": {
+    "decisions": 152,
+    "fact_n": 128,
+    "identity_n": 124,
+    "identity_rate": 0.96875,
+    "unknown_selections": 0,
+    "revoked_selections": 0,
+    "correction_identity": "16/16",
+    "unaffected_identity": "40/40",
+    "gate": "passed"
+  },
+  "heldout": {
+    "decisions": 152,
+    "fact_n": 128,
+    "identity_n": 124,
+    "identity_rate": 0.96875,
+    "unknown_selections": 0,
+    "revoked_selections": 0,
+    "correction_identity": "16/16",
+    "unaffected_identity": "40/40",
+    "role": "post_freeze_observation_only"
+  },
+  "classification": {
+    "native": false,
+    "model_execution": false,
+    "generation": false,
+    "learned_selector": false,
+    "bank_plus_compressed_arm": false,
+    "bank_output": "selection_evidence_only",
+    "oracle": "diagnostic_only_not_executed"
+  },
+  "limitations": [
+    "Exact string addressing is not learned, semantic or calibrated retrieval.",
+    "This proves address selection only; literal value and model generation are evaluated separately.",
+    "No bank+compressed hybrid was run and no general memory capability is claimed."
+  ]
+}
