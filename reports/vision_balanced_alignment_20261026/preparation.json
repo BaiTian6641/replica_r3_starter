@@ -1,0 +1,259 @@
+{
+  "balance": {
+    "dev": {
+      "answer_cases": 27,
+      "answer_histogram_selected": {
+        "task=abstain|answer=unknown": 3,
+        "task=color|answer=blue": 3,
+        "task=color|answer=orange": 3,
+        "task=count|answer=2": 3,
+        "task=count|answer=3": 3,
+        "task=presence|answer=no": 3,
+        "task=presence|answer=yes": 3,
+        "task=spatial|answer=no": 3,
+        "task=spatial|answer=yes": 3
+      },
+      "answers": {
+        "task=abstain|answer=unknown": 24,
+        "task=color|answer=blue": 12,
+        "task=color|answer=orange": 12,
+        "task=count|answer=2": 12,
+        "task=count|answer=3": 12,
+        "task=presence|answer=no": 12,
+        "task=presence|answer=yes": 12,
+        "task=spatial|answer=no": 12,
+        "task=spatial|answer=yes": 12
+      },
+      "caption_cases": 12,
+      "caption_histogram_selected": {
+        "objects=1": 2,
+        "objects=2": 2,
+        "objects=3": 2,
+        "objects=4": 2,
+        "objects=5": 2,
+        "objects=6": 2
+      },
+      "captions": {
+        "objects=1": 6,
+        "objects=2": 11,
+        "objects=3": 27,
+        "objects=4": 7,
+        "objects=5": 6,
+        "objects=6": 3
+      }
+    },
+    "heldout": {
+      "answer_cases": 18,
+      "answer_histogram_selected": {
+        "task=abstain|answer=unknown": 2,
+        "task=color|answer=purple": 2,
+        "task=color|answer=yellow": 2,
+        "task=count|answer=2": 2,
+        "task=count|answer=3": 2,
+        "task=presence|answer=no": 2,
+        "task=presence|answer=yes": 2,
+        "task=spatial|answer=no": 2,
+        "task=spatial|answer=yes": 2
+      },
+      "answers": {
+        "task=abstain|answer=unknown": 24,
+        "task=color|answer=purple": 12,
+        "task=color|answer=yellow": 12,
+        "task=count|answer=2": 12,
+        "task=count|answer=3": 12,
+        "task=presence|answer=no": 12,
+        "task=presence|answer=yes": 12,
+        "task=spatial|answer=no": 12,
+        "task=spatial|answer=yes": 12
+      },
+      "caption_cases": 12,
+      "caption_histogram_selected": {
+        "objects=1": 2,
+        "objects=2": 2,
+        "objects=3": 2,
+        "objects=4": 2,
+        "objects=5": 2,
+        "objects=6": 2
+      },
+      "captions": {
+        "objects=1": 9,
+        "objects=2": 13,
+        "objects=3": 27,
+        "objects=4": 6,
+        "objects=5": 7,
+        "objects=6": 4
+      }
+    },
+    "train": {
+      "answer_cases": 28,
+      "answer_histogram_selected": {
+        "task=abstain|answer=unknown": 2,
+        "task=color|answer=blue": 2,
+        "task=color|answer=orange": 2,
+        "task=color|answer=purple": 2,
+        "task=color|answer=red": 2,
+        "task=color|answer=yellow": 2,
+        "task=count|answer=2": 2,
+        "task=count|answer=3": 2,
+        "task=presence|answer=no": 2,
+        "task=presence|answer=yes": 2,
+        "task=shape|answer=circle": 2,
+        "task=shape|answer=square": 2,
+        "task=spatial|answer=no": 2,
+        "task=spatial|answer=yes": 2
+      },
+      "answers": {
+        "task=abstain|answer=unknown": 24,
+        "task=color|answer=blue": 5,
+        "task=color|answer=orange": 6,
+        "task=color|answer=purple": 5,
+        "task=color|answer=red": 4,
+        "task=color|answer=yellow": 4,
+        "task=count|answer=2": 12,
+        "task=count|answer=3": 12,
+        "task=presence|answer=no": 12,
+        "task=presence|answer=yes": 12,
+        "task=shape|answer=circle": 12,
+        "task=shape|answer=square": 12,
+        "task=spatial|answer=no": 12,
+        "task=spatial|answer=yes": 12
+      },
+      "caption_cases": 18,
+      "caption_histogram_selected": {
+        "objects=1": 3,
+        "objects=2": 3,
+        "objects=3": 3,
+        "objects=4": 3,
+        "objects=5": 3,
+        "objects=6": 3
+      },
+      "captions": {
+        "objects=1": 8,
+        "objects=2": 13,
+        "objects=3": 42,
+        "objects=4": 6,
+        "objects=5": 7,
+        "objects=6": 4
+      }
+    }
+  },
+  "checks": {
+    "all_used_images_disjoint_from_prior_assets": true,
+    "balanced_answer_and_caption_classes": true,
+    "counterfactual_controls_prepared": true,
+    "dev_disjoint_from_prior_evaluation": true,
+    "fresh_namespace": true,
+    "heldout_disjoint_from_prior_evaluation": true,
+    "labels_outside_model_cases": true,
+    "native_execution": false,
+    "prior_stage_result_preserved": true,
+    "protocol_verified_after_write": true,
+    "semantic_image_caption_checks": true,
+    "train_disjoint_from_prior_evaluation": true
+  },
+  "config": "configs/vision_balanced_alignment_v1.json",
+  "counts": {
+    "assets": 185,
+    "dev_answers": 27,
+    "dev_captions": 12,
+    "heldout_answers": 18,
+    "heldout_captions": 12,
+    "procedural_worlds": 192,
+    "semantic_audit_cases": 185,
+    "train_answers": 28,
+    "train_captions": 18,
+    "train_examples": 46,
+    "train_examples_scheduled": 60,
+    "train_updates": 10
+  },
+  "format": "replica.vision_balanced_alignment.preparation_report.v1",
+  "freshness": {
+    "all_used_cases": {
+      "case_overlap": 0,
+      "cases": 185,
+      "image_overlap": 0,
+      "scene_overlap": 0
+    },
+    "all_used_prior_assets": {
+      "geometry": {
+        "height": 120,
+        "width": 160
+      },
+      "image_overlap": 0,
+      "images": 185,
+      "policy": "all used images are newly rendered at the declared geometry, not just disjoint from prior evaluation"
+    },
+    "dev": {
+      "case_overlap": 0,
+      "image_overlap": 0,
+      "scene_overlap": 0
+    },
+    "heldout": {
+      "case_overlap": 0,
+      "image_overlap": 0,
+      "scene_overlap": 0
+    },
+    "namespace": "vba1",
+    "namespace_disjoint_from_prior": true,
+    "policy": "every train/dev/held-out case, control donor and counterfactual sibling excludes prior evaluation case ids, image hashes and scene hashes; all used images are newly rendered at fresh geometry and are disjoint from every prior prepared asset; the prior rejected stage result is preserved and not rerun",
+    "prior": {
+      "counts": {
+        "all_manifest_assets": 521,
+        "cases": 48,
+        "images": 48,
+        "scenes": 48
+      },
+      "files": [
+        {
+          "path": "evaluation/dev_cases.jsonl",
+          "rows": 24,
+          "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+        },
+        {
+          "path": "evaluation/audit_cases.jsonl",
+          "rows": 24,
+          "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+        },
+        {
+          "path": "evaluation/caption_dev_cases.jsonl",
+          "rows": 24,
+          "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+        },
+        {
+          "path": "evaluation/caption_audit_cases.jsonl",
+          "rows": 24,
+          "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+        }
+      ],
+      "manifest_sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1",
+      "namespaces": [
+        "vc2"
+      ],
+      "protocol_sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7"
+    },
+    "prior_namespaces": [
+      "vc2"
+    ],
+    "train": {
+      "case_overlap": 0,
+      "image_overlap": 0,
+      "scene_overlap": 0
+    },
+    "train_overlap_with_all_prior_assets": 0
+  },
+  "manifest_sha256": "1bc1cbdf20b963f78688f1c4648286ff3405eadea2c5a9037892b0cf581df3a1",
+  "native_command": "python scripts/run_vision_balanced_alignment.py --mode train --protocol <prepared>/protocol.json --device mps --output <fresh-report-dir> --model-path <MiniCPM5> --model-lock <lock>",
+  "note": "CPU preparation only. Native training is run by the parent after protocol review. The rejected stage result is preserved and is not reused as a target.",
+  "output": "data/vision_balanced_alignment_20261026/prepared01",
+  "protocol_sha256": "6a334e7337d0c0394c9a2237a1a510e20a0440d9895cf13e0f14ee9388ebaa5e",
+  "reload_command": "python scripts/run_vision_balanced_alignment.py --mode reload --protocol <prepared>/protocol.json --device mps --run <train-report-dir> --output <fresh-reload-dir> --model-path <MiniCPM5> --model-lock <lock>",
+  "semantic_audit": {
+    "all_passed": true,
+    "cases_checked": 185,
+    "format": "replica.vision_balanced_alignment.semantic_audit.v1",
+    "occluded_centres_hidden": 6,
+    "occluded_pixels_inspected": 6,
+    "visible_pixels_verified": 554
+  },
+  "status": "prepared"
+}

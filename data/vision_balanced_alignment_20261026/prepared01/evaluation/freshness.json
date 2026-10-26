@@ -1,0 +1,74 @@
+{
+  "all_used_cases": {
+    "case_overlap": 0,
+    "cases": 185,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "all_used_prior_assets": {
+    "geometry": {
+      "height": 120,
+      "width": 160
+    },
+    "image_overlap": 0,
+    "images": 185,
+    "policy": "all used images are newly rendered at the declared geometry, not just disjoint from prior evaluation"
+  },
+  "dev": {
+    "case_overlap": 0,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "heldout": {
+    "case_overlap": 0,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "namespace": "vba1",
+  "namespace_disjoint_from_prior": true,
+  "policy": "every train/dev/held-out case, control donor and counterfactual sibling excludes prior evaluation case ids, image hashes and scene hashes; all used images are newly rendered at fresh geometry and are disjoint from every prior prepared asset; the prior rejected stage result is preserved and not rerun",
+  "prior": {
+    "counts": {
+      "all_manifest_assets": 521,
+      "cases": 48,
+      "images": 48,
+      "scenes": 48
+    },
+    "files": [
+      {
+        "path": "evaluation/dev_cases.jsonl",
+        "rows": 24,
+        "sha256": "bc17078d4377ded8f62bf17a01a3cba5237e21265f9e4c18f65461ed9a6db351"
+      },
+      {
+        "path": "evaluation/audit_cases.jsonl",
+        "rows": 24,
+        "sha256": "a8049c42adda6b9c9f56b6491252b40afcabcfdca068784802a380ac3159e067"
+      },
+      {
+        "path": "evaluation/caption_dev_cases.jsonl",
+        "rows": 24,
+        "sha256": "c596d59878286ffe2fddead473fcf97f82ff6d7014ad700e1a4bd9e7ff0c31db"
+      },
+      {
+        "path": "evaluation/caption_audit_cases.jsonl",
+        "rows": 24,
+        "sha256": "aaeb4402a6b234296d4001e80344d3d513067983286735597c46273ae3518b10"
+      }
+    ],
+    "manifest_sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1",
+    "namespaces": [
+      "vc2"
+    ],
+    "protocol_sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7"
+  },
+  "prior_namespaces": [
+    "vc2"
+  ],
+  "train": {
+    "case_overlap": 0,
+    "image_overlap": 0,
+    "scene_overlap": 0
+  },
+  "train_overlap_with_all_prior_assets": 0
+}

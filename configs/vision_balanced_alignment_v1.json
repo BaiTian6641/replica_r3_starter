@@ -1,0 +1,190 @@
+{
+  "format": "replica.vision_balanced_alignment.config.v1",
+  "version": "replica.vision_balanced_alignment.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Balanced caption/answer projector overfit-alignment diagnostic with semantic image-caption verification and fresh sealed held-out counterfactual evaluation. It reuses the existing sealed vision source, preprocessor, projector-only fused AdamW path and retention policy. It is a diagnostic only: no promotion, no scaling, no backbone unfreezing and no claim over the preserved rejected stage result.",
+  "project_root": ".",
+  "data_root": "data/vision_balanced_alignment_20261026/prepared01",
+  "seed": 20261027,
+  "parent_data_config": {
+    "path": "configs/vision_curriculum_v1.json",
+    "sha256": "f0db805f216bb2d21a3d861b84a09d19e9329828760cb9e46a89aa7c6a85414c"
+  },
+  "parent_protocol": {
+    "path": "data/vision_curriculum_20261025/protocol.json",
+    "sha256": "43a6d0f9130a1599d0dd7132cad328ee56fbebebd5ae5a2951311a3a5e7da044"
+  },
+  "prior_consumed": {
+    "data_root": "data/vision_stage_diagnostic_20261026/prepared01",
+    "protocol": {
+      "path": "data/vision_stage_diagnostic_20261026/prepared01/protocol.json",
+      "sha256": "9b97cbc98b4adc98d6b781e7ed198ab0c03dbb5ca010836b6ff5e278cafaf8a7"
+    },
+    "manifest": {
+      "path": "data/vision_stage_diagnostic_20261026/prepared01/manifest.json",
+      "sha256": "8ca0d8807d2fe7eae63625879c27865daef1d220e6a04ed1dc9e4087756ecad1"
+    },
+    "role": "The rejected stage result is preserved unchanged. Only its evaluation case IDs, image hashes and scene hashes are read, for freshness exclusion and lineage; its run outputs and labels are never reused as targets."
+  },
+  "procedural_overrides": {
+    "id_prefix": "vba1",
+    "worlds_per_task": 12,
+    "renderer": {
+      "width": 160,
+      "height": 120
+    },
+    "split_layouts": {
+      "train": ["column_major"],
+      "dev": ["row_major_shift"],
+      "audit": ["column_major_shift"]
+    }
+  },
+  "selection": {
+    "answer_class": "task_and_answer",
+    "caption_class": "visible_object_count",
+    "train_answers_per_class": 2,
+    "train_captions_per_class": 3,
+    "dev_answers_per_class": 3,
+    "dev_captions_per_class": 2,
+    "heldout_answers_per_class": 2,
+    "heldout_captions_per_class": 2,
+    "control_seed_offset": 7919,
+    "require_semantic_counterfactual": true,
+    "require_role_case_disjointness": true,
+    "exclude_prior_evaluation_hashes": true,
+    "max_visible_objects": 6
+  },
+  "train": {
+    "seed": 17,
+    "init_seed": 17,
+    "init_recipe": "fresh_seeded_normal_std0.02",
+    "optimizer": "adamw_fused",
+    "optimizer_class": "torch.optim.AdamW",
+    "fused": true,
+    "lr": 0.0001,
+    "weight_decay": 0.01,
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "max_grad_norm": 1.0,
+    "max_seconds": 1800,
+    "response_only_labels": true,
+    "warm_start": null,
+    "forbidden_parent_weights_sha256": [
+      "bdc367424b2afcb2e88dba04b6b29495a3e440b5d850f8ae5bc55dbfa428c3a4"
+    ]
+  },
+  "schedule": {
+    "alignment": {
+      "updates": 10,
+      "batch": 6,
+      "caption_per_batch": 3,
+      "answer_per_batch": 3,
+      "policy": "deterministic_epoch_cycle",
+      "role": "balanced caption and answer projector alignment overfit probe"
+    }
+  },
+  "evaluation": {
+    "dev_answer_controls": ["correct", "wrong", "shuffled", "noimage"],
+    "heldout_answer_controls": ["correct", "wrong", "counterfactual", "shuffled", "noimage"],
+    "caption_controls": ["correct", "counterfactual", "shuffled", "noimage"],
+    "train_probe_controls": ["correct"],
+    "question_template": "Question: {question}\nReply briefly with the answer alone.",
+    "caption_question": "Describe the image briefly.",
+    "counterfactual_policy": "sealed sibling image from the same procedural pair; for answer tasks the sibling answer differs by construction; answerable-only margin because abstain has no answer-changing counterfactual",
+    "caption_dependence_policy": "correct image is compared with its semantically different sibling image, a deterministic shuffled donor and no image; teacher-forced loss and generated descriptor agreement are kept separate",
+    "audit_policy": "held-out cases and labels are not read during training; scored once after the alignment extension is exported; a fresh-process reload must reproduce the same raw generations bitwise",
+    "min_correct_accuracy": 0.5,
+    "min_margin_wrong": 0.1,
+    "min_margin_shuffled": 0.1,
+    "min_margin_noimage": 0.15,
+    "min_counterfactual_margin_answerable": 0.1,
+    "min_caption_token_f1": 0.2,
+    "min_caption_semantic_descriptor_f1": 0.5,
+    "min_caption_dependence_f1_margin": 0.1,
+    "min_caption_dependence_loss_margin": 0.1,
+    "min_unknown_accuracy": 0.5,
+    "max_false_answer_on_abstain": 0.5,
+    "max_false_abstention_on_answerable": 0.5,
+    "bootstrap": {
+      "cluster": "world",
+      "confidence": 0.95,
+      "resamples": 1000
+    },
+    "gates_scope": "diagnostic only; failures are reported verbatim and never trigger promotion",
+    "semantic_metric": "descriptor_multiset_precision_recall_f1_from_generated_caption_against_verifier_scene",
+    "caption_metric": "normalized_token_f1_and_response_mean_nll"
+  },
+  "limits": {
+    "max_updates": 10,
+    "max_eval_cases": 240,
+    "max_new_tokens": 8,
+    "caption_max_new_tokens": 32,
+    "max_prompt_tokens": 256,
+    "max_sequence_tokens": 288,
+    "max_seconds": 1800,
+    "max_export_bytes": 134217728,
+    "max_cache_bytes": 8388608,
+    "max_bootstrap_resamples": 1000,
+    "max_control_pool": 384,
+    "max_tool_calls": 0,
+    "max_rollout_steps": 1
+  },
+  "stopping": {
+    "updates": 10,
+    "wall_seconds": 1800,
+    "fail_fast_on_nonfinite_loss": true,
+    "fail_fast_on_nonprojector_gradient": true,
+    "fail_fast_on_budget_exhaustion": true,
+    "early_stopping": false,
+    "audit_after_export": true,
+    "reload_must_be_bitwise": true
+  },
+  "resource_policy": {
+    "cpu_fallback": false,
+    "device": "mps",
+    "downloads": 0,
+    "driver_limit_bytes": 53687091200,
+    "exclusive_mps_worker": true,
+    "initial_free_admission": true,
+    "minimum_host_free_percent": 15,
+    "sustained_host_samples": 3,
+    "sustained_swap_growth_bytes": 536870912,
+    "workers": 1
+  },
+  "checkpoint_policy": {
+    "stage_checkpoints": ["alignment"],
+    "export": "strict extension only; no base copy and no optimizer state export",
+    "reload": "fresh process, zero updates, bitwise held-out generation and retention equality",
+    "keep_all_trajectories": true,
+    "promotion": false,
+    "base_copies": 0
+  },
+  "implementation_paths": [
+    "scripts/prepare_vision_balanced_alignment.py",
+    "scripts/run_vision_balanced_alignment.py",
+    "scripts/run_vision_curriculum.py",
+    "src/replica_lab/vision_balanced_alignment.py",
+    "src/replica_lab/vision_curriculum.py",
+    "src/replica_lab/vision_stage_data.py",
+    "src/replica_lab/vision_qualification.py",
+    "src/replica_lab/optimizers.py",
+    "src/replica_lab/architecture/loading.py",
+    "src/replica_lab/architecture/minicpm5.py",
+    "src/replica_lab/architecture/vision.py",
+    "src/replica_lab/architecture/contracts.py",
+    "src/replica_lab/architecture/ports.py",
+    "src/replica_lab/model_adapter.py",
+    "src/replica_lab/visual_data.py",
+    "src/replica_lab/memory_system/session.py",
+    "src/replica_lab/profiling.py",
+    "src/replica_lab/capacity_guard.py",
+    "src/replica_lab/contracts.py"
+  ],
+  "limitations": [
+    "Procedural scenes and owned captions are not real-image or broad perception evidence.",
+    "Positive trained-set fit and held-out counterfactual margins demonstrate a bounded projector diagnostic, not convergence, capability or semantic quality.",
+    "The balanced sets are small by design; confidence intervals are world-clustered but cannot compensate for limited worlds.",
+    "The held-out counterfactual split is scored once after export; it cannot justify further candidate selection or a V2 retry.",
+    "No base weights are saved, no optimizer state is exported, no backbone tensor is trained and the preserved rejected stage result is unchanged."
+  ]
+}
