@@ -278,6 +278,7 @@ def run_causal_refresh(model, tokenizer, protocol, *, output_dir, episodes,
         for episode in episodes:
             for state in episode_states(episode):
                 contexts.append(_state_context(model, tokenizer, episode, state, layers))
+        contexts = [_unpack_context(_pack_context(context)) for context in contexts]
         checkpoint_path = output_dir / "policy_checkpoint.pt"
         save_policy_checkpoint(checkpoint_path, contexts,
                                protocol_sha256=protocol_sha, writer_sha256=writer_sha)
