@@ -882,7 +882,8 @@ def execute_ablation(args, config, pins):
                                          "receipt_invariants", "image_invariants",
                                          "mean_preservation", "full_generations",
                                          "mean_generations", "baseline_identity",
-                                         "paired_ablation", "ablation_decision")}})
+                                         "paired_ablation", "ablation_decision",
+                                         "full_normalized", "mean_normalized")}})
         raise
 
 
