@@ -1,0 +1,713 @@
+{
+  "format": "replica.fused_adamw_continuation_comparison.receipt.v2",
+  "status": "failed",
+  "exact_status": "failed",
+  "variation_status": "divergent",
+  "production_scope": false,
+  "claim_boundary": "Fixture restore-mechanics diagnostic only. It cannot establish, convert or replace production MiniCPM5 full-scope exact continuation, and it cannot turn the stopped 381-tensor direct-restore result into passed. No model-quality, throughput or production-resume claim is made.",
+  "scope_binding": {
+    "expected_tensor_count": 21,
+    "expected_production_scope": false,
+    "expected_protocol_sha256": "830bce50b56fdffd354e3edb08fa0d582368ede07aab016b7ddb40287ea15fe5",
+    "expected_policy_sha256": "ce76abfac7b1a75f3b7c205e967eedd73ef46c63e8d6312e7538d89f32105fa8",
+    "rulebook_policy_sha256": "ce76abfac7b1a75f3b7c205e967eedd73ef46c63e8d6312e7538d89f32105fa8",
+    "require_boundary_fingerprint": true,
+    "require_direct_restore_accounting": true,
+    "minimum_uninterrupted_arms": 2
+  },
+  "policy": {
+    "name": "aa-envelope-v1",
+    "applied": true,
+    "definition": {
+      "name": "aa-envelope-v1",
+      "declared": true,
+      "rule": "an A/B absolute delta is within the envelope only when it is less than or equal to the largest pairwise A/A delta for the same update and metric from independent uninterrupted arms",
+      "requires": [
+        "at least two uninterrupted arms with identical protocol and implementation",
+        "no differing implementation path outside resume-only code",
+        "update 1 exactly equal across all arms",
+        "first/resume boundary fingerprints exactly equal when present"
+      ],
+      "applies_to": [
+        "scalar loss",
+        "gradient norm",
+        "output loss",
+        "aggregate and per-tensor norm summaries"
+      ],
+      "excludes": [
+        "exact parameter value hashes",
+        "exact logits bytes"
+      ],
+      "does_not_alter": [
+        "exact_status",
+        "historical receipts",
+        "probe behavior"
+      ]
+    },
+    "definition_sha256": "ce76abfac7b1a75f3b7c205e967eedd73ef46c63e8d6312e7538d89f32105fa8",
+    "bound_sha256": "ce76abfac7b1a75f3b7c205e967eedd73ef46c63e8d6312e7538d89f32105fa8",
+    "does_not_relax_exact_status": true
+  },
+  "checks": {
+    "uninterrupted_arm_count_sufficient": true,
+    "uninterrupted_0_completed": true,
+    "uninterrupted_0_execution_mode": true,
+    "uninterrupted_0_changed_tensors": true,
+    "uninterrupted_0_not_exported": true,
+    "uninterrupted_0_production_scope": true,
+    "uninterrupted_0_policy_hash_bound": true,
+    "uninterrupted_1_completed": true,
+    "uninterrupted_1_execution_mode": true,
+    "uninterrupted_1_changed_tensors": true,
+    "uninterrupted_1_not_exported": true,
+    "uninterrupted_1_production_scope": true,
+    "uninterrupted_1_policy_hash_bound": true,
+    "interrupted_first_completed": true,
+    "interrupted_first_execution_mode": true,
+    "interrupted_first_changed_tensors": true,
+    "interrupted_first_not_exported": true,
+    "interrupted_first_production_scope": true,
+    "interrupted_first_policy_hash_bound": true,
+    "interrupted_resume_completed": true,
+    "interrupted_resume_execution_mode": true,
+    "interrupted_resume_changed_tensors": true,
+    "interrupted_resume_not_exported": true,
+    "interrupted_resume_production_scope": true,
+    "interrupted_resume_policy_hash_bound": true,
+    "protocol_identical": true,
+    "protocol_hash_matches_declared": true,
+    "implementation_identical": true,
+    "initial_weights_identical": true,
+    "resume_start_matches_first": true,
+    "resume_checkpoint_receipt_validated": true,
+    "resume_report_hash_validated": true,
+    "first_checkpoint_only": true,
+    "first_step_one": true,
+    "uninterrupted_two_steps": true,
+    "resume_second_step": true,
+    "final_parameter_hashes_identical": false,
+    "update_losses_rates_and_counts_identical": true,
+    "final_logits_and_loss_identical": true,
+    "boundary_fingerprint_present": true,
+    "boundary_fingerprint_identical": true,
+    "uninterrupted_0_guard_completed": true,
+    "uninterrupted_0_guard_not_stopped": true,
+    "uninterrupted_0_driver_within_limit": true,
+    "uninterrupted_0_swap_within_limit": true,
+    "uninterrupted_0_free_within_limit": true,
+    "uninterrupted_1_guard_completed": true,
+    "uninterrupted_1_guard_not_stopped": true,
+    "uninterrupted_1_driver_within_limit": true,
+    "uninterrupted_1_swap_within_limit": true,
+    "uninterrupted_1_free_within_limit": true,
+    "interrupted_first_guard_completed": true,
+    "interrupted_first_guard_not_stopped": true,
+    "interrupted_first_driver_within_limit": true,
+    "interrupted_first_swap_within_limit": true,
+    "interrupted_first_free_within_limit": true,
+    "interrupted_resume_guard_completed": true,
+    "interrupted_resume_guard_not_stopped": true,
+    "interrupted_resume_driver_within_limit": true,
+    "interrupted_resume_swap_within_limit": true,
+    "interrupted_resume_free_within_limit": true,
+    "resume_accounting_accounting_available": true,
+    "resume_accounting_staged_cpu_optimizer_bytes_zero": true,
+    "resume_accounting_restored_optimizer_bytes_positive": true,
+    "resume_accounting_direct_target_device_restore": true,
+    "resume_accounting_no_full_cpu_model_copy": true
+  },
+  "failures": [
+    "final_parameter_hashes_identical"
+  ],
+  "final_parameter_hash_difference_count": 1,
+  "final_parameter_hash_differences": [
+    "base.model.embed_tokens.weight"
+  ],
+  "update_differences": [],
+  "continuous_output_fingerprint": {
+    "example_index": 0,
+    "logits_shape": [
+      1,
+      55,
+      130560
+    ],
+    "logits_dtype": "torch.float32",
+    "logits_sha256": "009d5bbeaccb6f86e258f8773e71aaa06d2aa11e84b0dac833fb5cc2c33ebea8",
+    "loss": 11.856216430664062,
+    "source": "fixed encoded train row 0 after final update"
+  },
+  "resumed_output_fingerprint": {
+    "example_index": 0,
+    "logits_shape": [
+      1,
+      55,
+      130560
+    ],
+    "logits_dtype": "torch.float32",
+    "logits_sha256": "009d5bbeaccb6f86e258f8773e71aaa06d2aa11e84b0dac833fb5cc2c33ebea8",
+    "loss": 11.856216430664062,
+    "source": "fixed encoded train row 0 after final update"
+  },
+  "aa_variation": {
+    "available": true,
+    "arm_count": 2,
+    "pair_count": 1,
+    "protocol_identical": true,
+    "implementation_identical": true,
+    "execution_implementation_identical": true,
+    "implementation_differences": [],
+    "implementation_note": "training_state.py contains the resume-materialization path; the continuous arms do not execute that path, so equal non-resume code is required for A/A variation.",
+    "updates": {
+      "1": {
+        "loss": {
+          "min": 11.77417540550232,
+          "max": 11.77417540550232,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norm_before_clipping": {
+          "min": 4.182214260101318,
+          "max": 4.182214260101318,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "parameter_norms.l1_norm": {
+          "min": 268362.89363479614,
+          "max": 268362.89363479614,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "parameter_norms.l2_norm": {
+          "min": 83.89969190261341,
+          "max": 83.89969190261341,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "parameter_norms.max_abs": {
+          "min": 1.0000499486923218,
+          "max": 1.0000499486923218,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norms_pre_clip.l1_norm": {
+          "min": 461.59439596161246,
+          "max": 461.59439596161246,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norms_pre_clip.l2_norm": {
+          "min": 4.182224790593974,
+          "max": 4.182224790593974,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norms_pre_clip.max_abs": {
+          "min": 0.47121697664260864,
+          "max": 0.47121697664260864,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "optimizer_moment_norms.l1_norm": {
+          "min": 11.038081353273855,
+          "max": 11.038081353273855,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "optimizer_moment_norms.l2_norm": {
+          "min": 0.10000026092774299,
+          "max": 0.10000026092774299,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "optimizer_moment_norms.max_abs": {
+          "min": 0.011267164722084999,
+          "max": 0.011267164722084999,
+          "pairwise_max_abs_delta": 0.0
+        }
+      },
+      "2": {
+        "loss": {
+          "min": 11.751126766204834,
+          "max": 11.751126766204834,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norm_before_clipping": {
+          "min": 4.1871724128723145,
+          "max": 4.1871724128723145,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "parameter_norms.l1_norm": {
+          "min": 268352.17459487915,
+          "max": 268352.17459487915,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "parameter_norms.l2_norm": {
+          "min": 83.89647108239303,
+          "max": 83.89647108239303,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "parameter_norms.max_abs": {
+          "min": 1.0001500844955444,
+          "max": 1.0001500844955444,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norms_pre_clip.l1_norm": {
+          "min": 461.5540283732116,
+          "max": 461.5540283732116,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norms_pre_clip.l2_norm": {
+          "min": 4.187183245569335,
+          "max": 4.187183245569335,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "gradient_norms_pre_clip.max_abs": {
+          "min": 0.48026061058044434,
+          "max": 0.48026061058044434,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "optimizer_moment_norms.l1_norm": {
+          "min": 20.94862456460049,
+          "max": 20.94862456460049,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "optimizer_moment_norms.l2_norm": {
+          "min": 0.18994351894875647,
+          "max": 0.18994351894875647,
+          "pairwise_max_abs_delta": 0.0
+        },
+        "optimizer_moment_norms.max_abs": {
+          "min": 0.021610256284475327,
+          "max": 0.021610256284475327,
+          "pairwise_max_abs_delta": 0.0
+        }
+      }
+    },
+    "output_loss": {
+      "min": 11.856216430664062,
+      "max": 11.856216430664062,
+      "pairwise_max_abs_delta": 0.0
+    },
+    "earliest_divergence": null,
+    "fingerprints": {
+      "available": true,
+      "pair_count": 1,
+      "max_l2_norm_delta": 3.895204991888335e-11,
+      "max_relative_l2_delta": 3.3609666280874907e-10,
+      "max_hash_differences": 3,
+      "pairs": [
+        {
+          "tensor_paths": 86,
+          "missing_paths": [],
+          "extra_paths": [],
+          "hash_differences": 3,
+          "metadata_differences": 0,
+          "max_l2_norm_delta": 3.895204991888335e-11,
+          "max_relative_l2_delta": 3.3609666280874907e-10,
+          "worst_paths": [
+            {
+              "path": "optimizer.base.model.embed_tokens.weight.exp_avg",
+              "l2_norm_delta": 3.895204991888335e-11,
+              "relative_l2_delta": 3.3609666280874907e-10
+            },
+            {
+              "path": "optimizer.base.model.embed_tokens.weight.exp_avg_sq",
+              "l2_norm_delta": 3.0665574246580007e-15,
+              "relative_l2_delta": 5.0870176909892166e-11
+            },
+            {
+              "path": "parameters.base.model.norm.weight",
+              "l2_norm_delta": 0.0,
+              "relative_l2_delta": 0.0
+            },
+            {
+              "path": "parameters.base.model.layers.1.self_attn.v_proj.weight",
+              "l2_norm_delta": 0.0,
+              "relative_l2_delta": 0.0
+            },
+            {
+              "path": "parameters.base.model.layers.1.self_attn.q_proj.weight",
+              "l2_norm_delta": 0.0,
+              "relative_l2_delta": 0.0
+            },
+            {
+              "path": "parameters.base.model.layers.1.self_attn.o_proj.weight",
+              "l2_norm_delta": 0.0,
+              "relative_l2_delta": 0.0
+            },
+            {
+              "path": "parameters.base.model.layers.1.self_attn.k_proj.weight",
+              "l2_norm_delta": 0.0,
+              "relative_l2_delta": 0.0
+            },
+            {
+              "path": "parameters.base.model.layers.1.post_attention_layernorm.weight",
+              "l2_norm_delta": 0.0,
+              "relative_l2_delta": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    "parameter_hash_differences": {
+      "pairwise_counts": [
+        1
+      ],
+      "min": 1,
+      "max": 1,
+      "tensor_count": 21
+    },
+    "unique_output_logits_sha256": 2
+  },
+  "ab_variation": {
+    "reference_execution_mode": "continuous",
+    "updates": {
+      "1": {
+        "loss": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norm_before_clipping": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "parameter_norms.l1_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "parameter_norms.l2_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "parameter_norms.max_abs": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norms_pre_clip.l1_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norms_pre_clip.l2_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norms_pre_clip.max_abs": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "optimizer_moment_norms.l1_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "optimizer_moment_norms.l2_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "optimizer_moment_norms.max_abs": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        }
+      },
+      "2": {
+        "loss": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norm_before_clipping": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "parameter_norms.l1_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "parameter_norms.l2_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "parameter_norms.max_abs": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norms_pre_clip.l1_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norms_pre_clip.l2_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "gradient_norms_pre_clip.max_abs": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "optimizer_moment_norms.l1_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "optimizer_moment_norms.l2_norm": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        },
+        "optimizer_moment_norms.max_abs": {
+          "delta": 0.0,
+          "aa_pairwise_max_abs_delta": 0.0,
+          "within_aa_envelope": true
+        }
+      }
+    },
+    "output_loss": {
+      "delta": 0.0,
+      "aa_pairwise_max_abs_delta": 0.0,
+      "within_aa_envelope": true
+    },
+    "parameter_hash_differences": 1,
+    "aa_parameter_hash_differences": 3,
+    "exact_logits_byte_match": true,
+    "earliest_divergence": null,
+    "within_aa_envelope": false,
+    "exceeding_fields": [
+      "final_fingerprint"
+    ],
+    "final_fingerprint": {
+      "available": true,
+      "tensor_paths": 86,
+      "missing_paths": [],
+      "extra_paths": [],
+      "hash_differences": 3,
+      "metadata_differences": 0,
+      "max_l2_norm_delta": 1.294957752140391e-10,
+      "max_relative_l2_delta": 1.1191873944360978e-09,
+      "worst_paths": [
+        {
+          "path": "optimizer.base.model.embed_tokens.weight.exp_avg",
+          "l2_norm_delta": 1.294957752140391e-10,
+          "relative_l2_delta": 1.1173506397713652e-09
+        },
+        {
+          "path": "optimizer.base.model.embed_tokens.weight.exp_avg_sq",
+          "l2_norm_delta": 6.746688575648072e-14,
+          "relative_l2_delta": 1.1191873944360978e-09
+        },
+        {
+          "path": "parameters.base.model.norm.weight",
+          "l2_norm_delta": 0.0,
+          "relative_l2_delta": 0.0
+        },
+        {
+          "path": "parameters.base.model.layers.1.self_attn.v_proj.weight",
+          "l2_norm_delta": 0.0,
+          "relative_l2_delta": 0.0
+        },
+        {
+          "path": "parameters.base.model.layers.1.self_attn.q_proj.weight",
+          "l2_norm_delta": 0.0,
+          "relative_l2_delta": 0.0
+        },
+        {
+          "path": "parameters.base.model.layers.1.self_attn.o_proj.weight",
+          "l2_norm_delta": 0.0,
+          "relative_l2_delta": 0.0
+        },
+        {
+          "path": "parameters.base.model.layers.1.self_attn.k_proj.weight",
+          "l2_norm_delta": 0.0,
+          "relative_l2_delta": 0.0
+        },
+        {
+          "path": "parameters.base.model.layers.1.post_attention_layernorm.weight",
+          "l2_norm_delta": 0.0,
+          "relative_l2_delta": 0.0
+        }
+      ]
+    }
+  },
+  "earliest_divergence": {
+    "aa": null,
+    "ab": null,
+    "boundary": null
+  },
+  "boundary_fingerprint_comparison": {
+    "format": "replica.training_fingerprint_comparison.v1",
+    "matched": true,
+    "difference_count": 0,
+    "section_differences": {},
+    "earliest_divergence": null,
+    "differences": [],
+    "differences_truncated": false,
+    "numerical": {
+      "tensor_pairs": 88,
+      "max_l1_norm_delta": 0.0,
+      "max_l2_norm_delta": 0.0,
+      "max_relative_l2_delta": 0.0
+    },
+    "status": "matched"
+  },
+  "resume_accounting": {
+    "available": true,
+    "path": "native",
+    "full_cpu_model_copy": false,
+    "model_bytes": 67175744,
+    "temporary_checkpoint_tensor_bytes": 67175680,
+    "checkpoint_tensors_adopted_by_model": true,
+    "optimizer_restore_strategy": "direct_target_device",
+    "optimizer_restore_device": "mps",
+    "staged_cpu_optimizer_bytes": 0,
+    "staged_cpu_optimizer_tensors": 0,
+    "staged_cpu_optimizer_bytes_by_dtype": {},
+    "restored_optimizer_bytes": 134351444,
+    "restored_optimizer_tensors": 63,
+    "restored_optimizer_bytes_by_dtype": {
+      "torch.float32": 134351444
+    },
+    "restored_optimizer_device": "mps",
+    "optimizer_migration_applied": false,
+    "migrated_tensor_count": null,
+    "migrated_bytes": null,
+    "max_single_tensor_bytes": null,
+    "migration_peak_driver_bytes": null,
+    "swap_used_bytes_start": 3164403138,
+    "swap_used_bytes_end": 3164403138,
+    "swap_growth_bytes": 0,
+    "guard_swap_growth_bytes": 0,
+    "guard_stop_reason": null,
+    "resident_estimate": {
+      "model_bytes": 67175744,
+      "optimizer_restore_strategy": "direct_target_device",
+      "optimizer_target_device": "mps",
+      "staged_cpu_optimizer_bytes": 0,
+      "restored_optimizer_bytes": 134351444,
+      "temporary_checkpoint_tensor_bytes": 67175680,
+      "checkpoint_tensors_are_model_owned_after_assignment": true,
+      "note": "Checkpoint tensors are adopted by the model; optimizer state is restored directly onto the resume device with no additional CPU optimizer staging. Restored optimizer bytes are device-resident state, not an extra host copy. MPS driver and mapped checkpoint bytes overlap in unified memory; do not sum as physical use"
+    },
+    "note": "Restored optimizer bytes are device-resident state; direct restore stages no additional CPU optimizer copy. Staged CPU bytes from historical reports and device model bytes overlap in unified memory; the guard reading is the stop-policy evidence."
+  },
+  "guard_summary": [
+    {
+      "arm": "uninterrupted_0",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null,
+      "peak_driver_bytes": 1116405760,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 89.0,
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "elapsed_seconds": 4.382050332613289
+    },
+    {
+      "arm": "uninterrupted_1",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null,
+      "peak_driver_bytes": 1116405760,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 89.0,
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "elapsed_seconds": 4.397901999764144
+    },
+    {
+      "arm": "interrupted_first",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null,
+      "peak_driver_bytes": 1116405760,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 89.0,
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "elapsed_seconds": 4.413642916828394
+    },
+    {
+      "arm": "interrupted_resume",
+      "status": "completed_within_declared_sampled_limits",
+      "stop_reason": null,
+      "peak_driver_bytes": 1183580160,
+      "peak_swap_growth_bytes": 0,
+      "minimum_observed_free_percent": 89.0,
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "elapsed_seconds": 4.415992583148181
+    }
+  ],
+  "evidence": {
+    "uninterrupted_0": {
+      "path": "runs/fused_continuation_fixture_v1/uninterrupted_a/run_report.json",
+      "sha256": "87d0949633581273e8167c5c734c4c56680b2adee0d6f243599936aa3a1d6825"
+    },
+    "uninterrupted_1": {
+      "path": "runs/fused_continuation_fixture_v1/uninterrupted_b/run_report.json",
+      "sha256": "0d3510dad6a7bf09f28c9cf775a3663467b3d7653856e249809e65da87217a1d"
+    },
+    "uninterrupted_0_guard": {
+      "path": "reports/fused_continuation_fixture_v1/uninterrupted_a_guard.json",
+      "sha256": "724de41df57345e9749dff634cff7149f09d78f325cdb2d899d11cff687f68b8"
+    },
+    "uninterrupted_1_guard": {
+      "path": "reports/fused_continuation_fixture_v1/uninterrupted_b_guard.json",
+      "sha256": "9f2bb7cef5292c496bd90182fdc7a2fa2ab39467f3fa7cfede08bc5c912dbaf6"
+    },
+    "interrupted_first": {
+      "path": "runs/fused_continuation_fixture_v1/first/run_report.json",
+      "sha256": "cd5f7208fae2744b0933541aa27ca1da635cc8c5c63d002ca5fe6820eda39cf4"
+    },
+    "interrupted_resume": {
+      "path": "runs/fused_continuation_fixture_v1/resume/run_report.json",
+      "sha256": "4d5dc90160d54a5ca4cb94a8bd9dbe660226d122a6af7808edc3de65999d0530"
+    },
+    "interrupted_first_guard": {
+      "path": "reports/fused_continuation_fixture_v1/first_guard.json",
+      "sha256": "1a12084ddd51992e6757241bd34dc159d39dcd59a01e29bccc02d56d19f83894"
+    },
+    "interrupted_resume_guard": {
+      "path": "reports/fused_continuation_fixture_v1/resume_guard.json",
+      "sha256": "6deafd0648d7a74e96f9ba011b12e1e73653d924bdae9e5fbcbb9b43dc5b8eae"
+    },
+    "protocol": {
+      "path": "configs/fused_continuation_fixture_v1.json",
+      "sha256": "830bce50b56fdffd354e3edb08fa0d582368ede07aab016b7ddb40287ea15fe5"
+    }
+  },
+  "scope": "CPU comparison of raw native reports; exact checks remain authoritative and no model/quality claim is made",
+  "historical_retry_policy": {
+    "stopped": true,
+    "reason": "comparison09 already showed A/B deltas inside A/A variation while exact hashes differed; repeating the same native comparison is uninformative",
+    "preserved_failures": [
+      "comparison01/05/09 exact hash, update-2 loss and logits mismatch",
+      "comparison02/04/06/07/08/10/11 resume swap-growth stop",
+      "comparison03 checkpoint tensor device comparison rejection"
+    ]
+  },
+  "protocol_binding": {
+    "format": "replica.fused_continuation_fixture.binding.v1",
+    "production_scope": false,
+    "protocol_sha256": "830bce50b56fdffd354e3edb08fa0d582368ede07aab016b7ddb40287ea15fe5",
+    "expected_tensor_count": 21,
+    "expected_production_scope": false,
+    "require_boundary_fingerprint": true,
+    "require_direct_restore_accounting": true,
+    "aa_envelope_policy_sha256": "ce76abfac7b1a75f3b7c205e967eedd73ef46c63e8d6312e7538d89f32105fa8",
+    "claim_boundary": "Fixture restore-mechanics diagnostic only. It cannot establish, convert or replace production MiniCPM5 full-scope exact continuation, and it cannot turn the stopped 381-tensor direct-restore result into passed. No model-quality, throughput or production-resume claim is made.",
+    "fixture": {
+      "config_sha256": "8a3467c2e28abf7a032111e4f4b944a8fedd2e68ed90b2a7dedbb445b7669765",
+      "tensor_count": 21,
+      "parameter_count": 16793920,
+      "init_seed": 20261026,
+      "tokenizer_lock_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792"
+    }
+  }
+}

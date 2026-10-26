@@ -1,0 +1,62 @@
+{
+  "format": "replica.fused_continuation_fixture.summary.v1",
+  "date_utc": "2026-10-26",
+  "production_scope": false,
+  "scope": "Two-layer FP32 Llama restore-mechanics fixture; cannot establish production MiniCPM5 full-scope continuation",
+  "protocol": "configs/fused_continuation_fixture_v1.json",
+  "comparison_receipt": "reports/fused_continuation_fixture_v1/comparison_receipt.json",
+  "arms": {
+    "uninterrupted_a": {"updates": 2, "status": "completed", "guard": "reports/fused_continuation_fixture_v1/uninterrupted_a_guard.json"},
+    "uninterrupted_b": {"updates": 2, "status": "completed", "guard": "reports/fused_continuation_fixture_v1/uninterrupted_b_guard.json"},
+    "first": {"updates": 1, "status": "completed", "checkpoint": "runs/fused_continuation_fixture_v1/first/resume_checkpoint", "guard": "reports/fused_continuation_fixture_v1/first_guard.json"},
+    "resume": {"updates": 1, "status": "completed", "guard": "reports/fused_continuation_fixture_v1/resume_guard.json"}
+  },
+  "implementation": {
+    "expected_tensor_count": 21,
+    "parameter_count": 16793920,
+    "protocol_identical": true,
+    "implementation_identical": true,
+    "initial_weights_identical": true,
+    "resume_start_matches_first": true,
+    "boundary_fingerprint_present": true,
+    "boundary_fingerprint_identical": true,
+    "direct_restore_strategy": "direct_target_device",
+    "staged_cpu_optimizer_bytes": 0,
+    "restored_optimizer_bytes_positive": true,
+    "full_cpu_model_copy": false
+  },
+  "outcome": {
+    "exact_status": "failed",
+    "variation_status": "divergent",
+    "final_parameter_hash_difference_count": 1,
+    "final_parameter_hash_differences": ["base.model.embed_tokens.weight"],
+    "update_losses_rates_and_counts_identical": true,
+    "final_logits_and_loss_identical": true,
+    "aa_envelope_within": false,
+    "aa_envelope_exceeding_fields": ["final_fingerprint"],
+    "long_training_authorized": false,
+    "retry_authorized": false,
+    "production_resume_claim": false
+  },
+  "interpretation": "Output loss and logits match, but exact parameter equality fails and the preregistered A/A numerical envelope is exceeded. Exact failure cannot be relabeled numerical equivalence or a continuation pass.",
+  "resources": {
+    "peak_driver_bytes_max": 1183580160,
+    "peak_swap_growth_bytes": 0,
+    "minimum_observed_free_percent": 89.0,
+    "guard_seconds": [4.382050332613289, 4.397901999764144, 4.413642916828394, 4.415992583148181],
+    "checkpoint_bytes_approx": 206000000,
+    "fixture_artifact_kib": 1708,
+    "max_artifact_bytes_allowed": 2500000000,
+    "final_model_exports": 0
+  },
+  "preserved_failure_classes": {
+    "historical_numerical_exact_mismatch": "comparison01/05/09",
+    "constructor_and_device_defects": "comparison01/03/05",
+    "model_materialization_swap_stops": "comparison02/04",
+    "staged_optimizer_restore_swap_stops": "comparison06/07/08/10/11",
+    "direct_torch_load_swap_stop": "direct_restore_v1",
+    "historical_aa_implementation_mismatch": "comparison_aa_ab",
+    "current_exact_and_envelope_failure": "fused_continuation_fixture_v1"
+  },
+  "next_gate": "Stop. Do not retry the fixture or the 381-tensor full-scope resume and do not start long training. A new experiment would require a separately justified mechanism and resource hypothesis, not another blind resume."
+}
