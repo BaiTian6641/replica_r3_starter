@@ -217,6 +217,7 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     without allocating model storage. The checkpoint optimizer is restored on
     the target backend first, then full weights and any sidecars are materialized.
     """
+    from safetensors.torch import load_file
     from transformers import AutoConfig, AutoModelForCausalLM
 
     base_path = Path(base_path)
@@ -229,11 +230,55 @@ def materialize_resume_model(base_path, *, adapter_factory, optimizer_factory,
     restored = load_runtime_state(
         runtime_path, optimizer, run_contract=run_contract,
         restore_rng=restore_rng, strict_rng=strict_rng, target_device=device)
-    base = AutoModelForCausalLM.from_pretrained(
-        base_path, local_files_only=True, trust_remote_code=False,
-        dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
-    model = adapter_factory(base)
-    model.to(device)
+    if torch.device(device).type == "cpu":
+        base = AutoModelForCausalLM.from_pretrained(
+            base_path, local_files_only=True, trust_remote_code=False,
+            dtype=torch.float32, attn_implementation="eager", use_safetensors=True)
+        model = adapter_factory(base)
+        model.to(device)
+        actual_optimizer = optimizer_factory(model)
+        actual_optimizer.load_state_dict(optimizer.state_dict(), target_device=device)
+        if getattr(model, "augmented", False):
+            model.load_sidecars(base_path.parent / "sidecars.safetensors")
+        return base, model, actual_optimizer, restored, base_rates
+    model.to_empty(device=device)
+    # Llama rotary inverse-frequency buffers are non-persistent and therefore
+    # absent from safetensors. Rebuild them deterministically after to_empty.
+    rotary = getattr(base.model, "rotary_emb", None)
+    if rotary is not None:
+        base.model.rotary_emb = type(rotary)(base.config).to(device)
+    index_path = base_path / "model.safetensors.index.json"
+    single_path = base_path / "model.safetensors"
+    if index_path.is_file():
+        index = json.loads(index_path.read_text())
+        weight_map = index.get("weight_map")
+        if not isinstance(weight_map, dict) or not weight_map:
+            raise ValueError("Invalid sharded checkpoint weight map")
+        shard_names = sorted(set(weight_map.values()))
+    elif single_path.is_file():
+        shard_names = [single_path.name]
+    else:
+        raise ValueError("Checkpoint has no supported safetensors weight inventory")
+    weights = {}
+    for shard_name in shard_names:
+        shard_relative = Path(shard_name)
+        if shard_relative.is_absolute() or ".." in shard_relative.parts:
+            raise ValueError("Checkpoint shard path is invalid")
+        shard_path = base_path / shard_relative
+        if not shard_path.is_file():
+            raise ValueError(f"Missing checkpoint shard: {shard_name}")
+        shard = load_file(str(shard_path), device=device)
+        if set(weights) & set(shard):
+            raise ValueError("Duplicate checkpoint tensor names")
+        weights.update(shard)
+    expected_device = torch.device(device)
+    if any(value.device != expected_device for value in weights.values()):
+        raise RuntimeError("Checkpoint tensor device differs from requested resume device")
+    base.load_state_dict(weights, assign=True, strict=True)
+    # Assignment preserves checkpoint storage but replaces Parameter objects;
+    # refresh the adapter's ownership map without a device conversion.
+    model._apply(lambda tensor: tensor)
+    del weights
     actual_optimizer = optimizer_factory(model)
     actual_optimizer.load_state_dict(optimizer.state_dict(), target_device=device)
     if getattr(model, "augmented", False):
