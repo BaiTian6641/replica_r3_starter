@@ -1,0 +1,66 @@
+{
+  "format": "replica.nested_learning_nl0.qualification.v1",
+  "date_utc": "2026-10-26",
+  "status": "software_math_qualified",
+  "scope": "Deterministic standalone NL0 software and numerical contracts only",
+  "implemented": {
+    "plastic_experts": "Declared 16-expert width-256/hidden-1024 shape reference with tiny fixture widths; selected-expert-only updates, no inactive gradients or optimizer state",
+    "optimizer": "NativeFusedAdamW production interface plus differentiable exact AdamW reference, bias correction, nonzero decoupled weight decay, one/two/four-step reference horizons and first-order identity-adaptation distinction",
+    "gradient_control": "Per-step global selected-expert norm clipping before AdamW, including a later-step activation regression",
+    "recurrence": "Bounded normalized associative transition/read/loss with direct and later-read finite-difference gradient checks",
+    "transaction": "Exactly-once event identity, changed-identity rejection, atomic candidate publication and rollback across weights, moments, counters, clock, dedup and revision",
+    "observation": "One shared pre-chunk read, canonical event-order reduction, at-most-one transition per sealed chunk, zero transitions for empty/ineligible chunks, reader-count independence",
+    "causality": "Scope/cutoff validation, fail-closed backdated views/seals, cutoff-bound FrozenView IDs, visible-write revision advance and cache invalidation",
+    "persistence": "Atomic checkpoint save/load, complete live-state rollback on late failure, FP32-only finite plastic and observation weights, post-copy finiteness, content-derived transition/revision accounting, dedup and retry restoration",
+    "identity_and_controls": "Stable frozen personality identity inherited consistently, revision cache invalidation, fixed and shuffled mechanical route controls, optional observer/spine absence parity"
+  },
+  "verification": {
+    "command": ".venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=reports/nested_learning_nl0_20261026/tests_final.xml tests/test_nested_learning.py",
+    "passed": 28,
+    "failed": 0,
+    "seconds": 1.17,
+    "junit_xml": "reports/nested_learning_nl0_20261026/tests_final.xml",
+    "junit_sha256": "20719dbc14be9bfd4998c645974a68884214e5de40ddee231c0d5b2c677a7428",
+    "preserved_status_only_failure_xml": "reports/nested_learning_nl0_20261026/tests.xml",
+    "failure_note": "The first XML records the expected old-status assertion failure after qualification status changed to software_math_qualified; the assertion was updated and the final suite passed. It is not a numerical or state-contract failure."
+  },
+  "independent_review": {
+    "verdict": "correct",
+    "confidence": 0.99,
+    "all_findings_resolved": true,
+    "reviewed_failure_paths": [
+      "causal cutoff views and backdated seals",
+      "late checkpoint-load atomic rollback",
+      "zero-transition visible writes and cache invalidation",
+      "per-step and second-step gradient clipping",
+      "mutable canonical state isolation",
+      "reader-view restore invalidation",
+      "FP32 and finite checkpoint values including Float64 overflow",
+      "canonical event-order reduction",
+      "personality consistency",
+      "content-derived chunk transition and revision accounting"
+    ],
+    "note": "The reviewer did not rerun the suite; parent executed the recorded 28-test pass."
+  },
+  "implementation_hashes": {
+    "src/replica_lab/nested_learning.py": "05b97f78733db173255bed08800d9b73a373def7e62f295edc482e4b0da6c820",
+    "tests/test_nested_learning.py": "b2a7d21e1c89d96681581ff4544a1feed3db9ca9247f6b0ad2d87a0889ac72c8",
+    "configs/nested_learning_nl0_v1.json": "b1122467e788a360dbfd262ab2ffac18c5474235c0fee1e3792f3a7722af4e76"
+  },
+  "not_executed_or_qualified": {
+    "native_model_execution": false,
+    "optimizer_training_run": false,
+    "one_clock_text_baseline_integrated": false,
+    "source_free_p_only_evaluation": false,
+    "new_instance_learning_gain": false,
+    "correction_or_retention_benefit": false,
+    "adaptive_router_utility": false,
+    "fast_slow_timing": false,
+    "multimodal_learning": false,
+    "personality_content_authored_or_evaluated": false,
+    "recursive_self_improvement": false,
+    "training_admitted": false,
+    "capability_or_promotion_claim": false
+  },
+  "next_gate": "Integrate the qualified contracts into the declared one-clock MiniCPM text baseline with fixed routing and a separate predeclared source-free evaluation; do not add clocks or claim learned utility before new-instance, correction, retention and cost evidence exists."
+}

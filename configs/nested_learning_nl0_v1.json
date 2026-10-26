@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "kind": "nl0_software_math_qualification_contract",
+  "artifact": "configs/nested_learning_nl0_v1.json",
+  "date": "2026-10-26",
+  "status": "software_math_qualified",
+  "software_only": true,
+  "native_execution": false,
+  "training_admitted": false,
+  "capability_claim": false,
+  "fast_slow_timing_claimed": false,
+  "adaptive_router_utility_claimed": false,
+  "multimodal_work": false,
+  "one_clock_control_only": true,
+  "scope_note": "Executable deterministic contracts and math qualification only. This file is not training authorization, a native run configuration, an NL1 protocol, or evidence of learning, nested timing, adaptive routing, personality, or any capability.",
+  "not_authorization_for": [
+    "native model execution",
+    "training or fine-tuning",
+    "final-test evaluation",
+    "adaptive router claims",
+    "fast/slow nested-clock utility claims",
+    "multimodal acquisition",
+    "capability admission",
+    "recursive self-improvement"
+  ],
+  "bank": {
+    "experts": 16,
+    "width": 256,
+    "hidden_width": 1024,
+    "matrices_per_expert": 3,
+    "bias": false,
+    "declared_parameters_reference": 12582912,
+    "declare_shape_only": true,
+    "fixture_widths_allowed": true,
+    "selected_only_updates": true,
+    "selected_experts_per_transaction": 1,
+    "inactive_grad": null,
+    "inactive_optimizer_state_created": false,
+    "inactive_moment_decay": false,
+    "parameter_ownership_preserved_on_rollback": true
+  },
+  "optimizer": {
+    "implementation": "NativeFusedAdamW",
+    "dtype": "FP32",
+    "lr": 0.0001,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "gradient_norm_max": 1.0,
+    "total_steps_per_transaction_max": 4,
+    "selected_steps_per_transaction_max": 2,
+    "exact_reference": "differentiable_out_of_place_AdamW_with_moments_and_bias_correction",
+    "exact_reference_horizons": [
+      1,
+      2,
+      4
+    ],
+    "first_order_estimator": "identity_adaptation_Jacobian",
+    "first_order_must_equal_exact": false,
+    "clip_before_adamw": true,
+    "gradient_norm_scope": "selected_expert_global"
+  },
+  "recurrence": {
+    "transition": "F_next = rho*F + eta*(v-F*k)*k^T",
+    "loss": "0.5*||F*k-v||^2",
+    "normalized_keys": true,
+    "bounded_values": true,
+    "finite_checks": true,
+    "rho_bounds": [
+      0.9,
+      1.0
+    ],
+    "eta_bounds": [
+      0.0,
+      1.0
+    ],
+    "max_vectors_per_chunk": 32,
+    "one_transition_per_chunk": true,
+    "no_optimizer_instantiated": true,
+    "gradient_checks": [
+      "direct_outer_gradient_finite_difference",
+      "later_read_to_earlier_write_finite_difference"
+    ]
+  },
+  "transaction": {
+    "decision_state_immutable": true,
+    "exactly_once_event_ids": true,
+    "retry_same_identity_returns_original_outcome": true,
+    "changed_duplicate_identity_fails_closed": true,
+    "atomic_candidate_publication_rollback": true,
+    "rollback_includes": [
+      "weights",
+      "moments",
+      "step_counters",
+      "teaching_clock_phase",
+      "dedup_keys",
+      "revision"
+    ],
+    "checkpoint_atomic": true,
+    "checkpoint_preserves_previous_on_failure": true,
+    "cache_invalidation_only_on_success": true,
+    "storage_inside_forward_or_autograd_hooks": false,
+    "teaching_clock_units": "eligible_verified_transactions",
+    "one_clock_only": true,
+    "checkpoint_load_atomic": true,
+    "checkpoint_load_rollback_includes": [
+      "weights",
+      "moments",
+      "step_counters",
+      "clock",
+      "dedup",
+      "revision",
+      "observation_state"
+    ]
+  },
+  "observation": {
+    "transitions_per_reader": 0,
+    "reader_count_multiplies_updates": false,
+    "all_readers_share_pre_chunk_state": true,
+    "aggregate_once_before_transition": true,
+    "scope_and_cutoff_fail_closed": true,
+    "wrong_world_read_fails_closed": true,
+    "future_read_fails_closed": true,
+    "dedup_survives_checkpoint_restore": true,
+    "observer_read_only": true,
+    "absence_parity": true,
+    "spine_optional": true,
+    "cutoff_state_views_fail_closed": true,
+    "backdated_seals_fail_closed": true,
+    "fast_state_public_mutation_isolated": true,
+    "fast_state_dtype": "FP32",
+    "canonical_reduction_order": "event_id",
+    "visible_write_advances_revision": true,
+    "restore_clears_reader_views": true,
+    "transitions_per_sealed_chunk_max": 1,
+    "transitions_when_no_eligible": 0,
+    "transitions_when_any_eligible": 1
+  },
+  "controls": {
+    "one_clock_only": true,
+    "routing": [
+      "fixed",
+      "shuffled"
+    ],
+    "routing_is_mechanical_interface_only": true,
+    "no_adaptive_router_utility_claim": true,
+    "no_fast_slow_timing_claim": true,
+    "stable_versioned_personality": true,
+    "personality_rewritten_by_learning": false,
+    "controller_inherits_coordinator_personality": true
+  },
+  "persistence": {
+    "dedup_survives_restore": true,
+    "moments_and_step_counters_survive_restore": true,
+    "clock_phase_survives_restore": true,
+    "revision_survives_restore": true,
+    "personality_identity_survives_restore": true,
+    "wrong_scope_restore_fails_closed": true
+  },
+  "integration_points": {
+    "plastic_transaction": "replica_lab.nested_learning.PlasticLearningController.apply_teaching_transaction",
+    "expert_bank": "replica_lab.nested_learning.ExpertBank",
+    "observation_coordinator": "replica_lab.nested_learning.ObservationCoordinator.seal_observation_chunk",
+    "fast_state": "replica_lab.nested_learning.associative_transition",
+    "exact_reference": "replica_lab.nested_learning.exact_adamw_unroll",
+    "first_order_reference": "replica_lab.nested_learning.first_order_identity_adaptation",
+    "routing_control": "replica_lab.nested_learning.RouteControl",
+    "checkpoint": "replica_lab.nested_learning.PlasticLearningController.save_checkpoint",
+    "later_one_clock_text_baseline": "one eligible teaching transaction per verified text teaching event; one shared fast-state transition per sealed observation chunk; fixed routing only"
+  }
+}

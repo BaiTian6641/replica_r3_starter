@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="28" time="1.177" timestamp="2026-10-26T13:02:23.772863-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_nested_learning" name="test_declared_recurrence_matches_formula_and_rejects_bad_inputs" time="0.222" /><testcase classname="tests.test_nested_learning" name="test_direct_outer_gradient_matches_finite_differences" time="0.011" /><testcase classname="tests.test_nested_learning" name="test_later_read_to_earlier_write_gradient_matches_finite_differences" time="0.004" /><testcase classname="tests.test_nested_learning" name="test_exact_adamw_recurrence_matches_closed_form_and_finite_differences" time="0.003" /><testcase classname="tests.test_nested_learning" name="test_first_order_identity_estimator_differs_from_exact_short_adaptation" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_selected_native_fused_update_matches_exact_reference_and_inactive_parity" time="0.241" /><testcase classname="tests.test_nested_learning" name="test_global_gradient_norm_cap_is_applied_before_adamw" time="0.002" /><testcase classname="tests.test_nested_learning" name="test_gradient_clipping_activates_on_second_selected_step" time="0.005" /><testcase classname="tests.test_nested_learning" name="test_native_fused_two_step_nonzero_decay_matches_exact_reference" time="0.003" /><testcase classname="tests.test_nested_learning" name="test_transaction_rollback_restores_all_state_and_keeps_parameter_ownership" time="0.005" /><testcase classname="tests.test_nested_learning" name="test_duplicate_event_retry_returns_original_and_changed_identity_fails" time="0.003" /><testcase classname="tests.test_nested_learning" name="test_observation_chunk_has_one_transition_independent_of_reader_count" time="0.002" /><testcase classname="tests.test_nested_learning" name="test_causal_reads_fail_closed_on_wrong_scope_and_future_cutoff" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_backdated_cutoff_views_and_seals_fail_closed" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_public_fast_state_is_mutation_isolated" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_observation_reduction_uses_canonical_event_order" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_chunk_dedup_retry_and_changed_identity_fail_closed" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_observer_and_spine_absence_parity_and_read_only_snapshot" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_checkpoint_roundtrip_preserves_state_and_dedup" time="0.020" /><testcase classname="tests.test_nested_learning" name="test_used_controller_load_failures_are_atomic" time="0.031" /><testcase classname="tests.test_nested_learning" name="test_observation_restore_rejects_non_fp32_and_clears_views" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_chunk_accounting_validation_rejects_tampered_payloads" time="0.013" /><testcase classname="tests.test_nested_learning" name="test_personality_identity_is_stable_frozen_and_versioned" time="0.003" /><testcase classname="tests.test_nested_learning" name="test_no_forward_or_backward_hooks_store_state" time="0.002" /><testcase classname="tests.test_nested_learning" name="test_dedup_ledger_retry_and_changed_identity_are_explicit" time="0.000" /><testcase classname="tests.test_nested_learning" name="test_fixed_and_shuffled_routing_are_deterministic_mechanical_controls" time="0.001" /><testcase classname="tests.test_nested_learning" name="test_config_declares_software_only_nl0_and_not_training_authorization" time="0.001"><failure message="AssertionError: assert 'software_math_qualified' == 'specified_not_executed'&#10;  &#10;  - specified_not_executed&#10;  + software_math_qualified">def test_config_declares_software_only_nl0_and_not_training_authorization():
+        config = load_nl0_config()
+        assert config["software_only"] is True
+        for key in ("native_execution", "training_admitted", "capability_claim",
+                    "fast_slow_timing_claimed", "adaptive_router_utility_claimed",
+                    "multimodal_work"):
+            assert config[key] is False
+        assert config["bank"]["experts"] == DECLARED_EXPERT_COUNT == 16
+        assert config["bank"]["width"] == 256
+        assert config["bank"]["hidden_width"] == 1024
+        assert config["bank"]["selected_only_updates"] is True
+        assert config["bank"]["inactive_moment_decay"] is False
+        assert config["optimizer"]["implementation"] == "NativeFusedAdamW"
+        assert config["optimizer"]["exact_reference_horizons"] == [1, 2, 4]
+        assert config["optimizer"]["gradient_norm_max"] == 1.0
+        assert config["optimizer"]["clip_before_adamw"] is True
+        assert config["transaction"]["checkpoint_atomic"] is True
+        assert config["transaction"]["checkpoint_load_atomic"] is True
+        assert config["observation"]["transitions_per_sealed_chunk_max"] == 1
+        assert config["observation"]["transitions_when_no_eligible"] == 0
+        assert config["observation"]["transitions_when_any_eligible"] == 1
+        assert "transitions_per_sealed_chunk" not in config["observation"]
+        assert config["observation"]["cutoff_state_views_fail_closed"] is True
+        assert config["observation"]["backdated_seals_fail_closed"] is True
+        assert config["observation"]["fast_state_dtype"] == "FP32"
+        assert config["observation"]["canonical_reduction_order"] == "event_id"
+        assert config["observation"]["visible_write_advances_revision"] is True
+        assert config["controls"]["controller_inherits_coordinator_personality"] is True
+        assert config["observation"]["reader_count_multiplies_updates"] is False
+        assert config["recurrence"]["transition"] == "F_next = rho*F + eta*(v-F*k)*k^T"
+        assert config["recurrence"]["loss"] == "0.5*||F*k-v||^2"
+        assert config["controls"]["routing"] == ["fixed", "shuffled"]
+        assert "PlasticLearningController" in config["integration_points"]["plastic_transaction"]
+        assert "ObservationCoordinator" in config["integration_points"]["observation_coordinator"]
+    
+        raw = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+&gt;       assert validate_nl0_config(raw)["status"] == "specified_not_executed"
+E       AssertionError: assert 'software_math_qualified' == 'specified_not_executed'
+E         
+E         - specified_not_executed
+E         + software_math_qualified
+
+tests/test_nested_learning.py:1557: AssertionError</failure></testcase><testcase classname="tests.test_nested_learning" name="test_revision_cache_staleness_and_invalidation_are_explicit" time="0.000" /></testsuite></testsuites>

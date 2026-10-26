@@ -24,6 +24,15 @@ recursive-improvement cycle has run.
 
 **Revision 4.5 learning refinement:** the [nested-learning contract](../research/sparkx_nested_learning_20261026/Nested_Learning_Contract.md) specifies the `Pf/Ps` clocks, future-query objective, explicit first-order `P` meta-gradient and replay/causal schedule. Its [validation ledger](../research/sparkx_nested_learning_20261026/Validation_and_Open_Issues.md) supplies the missing experiments without changing the authority rules below. The latest [vision train04](../experiments/20261026_Vision_Balanced_Alignment.md) remains rejected at 3/14 train-fit and 2/18 dev answers, stopping before audit; the earlier 6/24 result above is historical. No nested-learning or RSI capability is promoted.
 
+**NL0 implementation status:** the standalone
+[software/math qualification](../experiments/20261026_Nested_Learning_NL0.md)
+now passes 28 focused tests and independent correctness review. It implements
+selected-expert `P` transactions, bounded associative `F` recurrence, exact
+AdamW comparison, causal one-clock observation writes and atomic persistence.
+These are `implemented contract` results only. Native model integration,
+one-clock text behavior, source-free evaluation and learned utility remain
+unrun; no capability, training or promotion claim is made.
+
 ### Status vocabulary
 
 | Label | Meaning |
@@ -64,9 +73,11 @@ The boundary follows four rules:
 The rows are the intended categories, not claims that every row is implemented.
 `Theta`, `E`, `C`, the identity store and narrow publication contracts have
 implemented pieces. Native memory readers and a diagnostic `F` state exist, but
-the v5 writer is rejected and learned memory is unqualified. `A`, `P`, the
-trained memory machinery beyond the qualified readers, and the UAP are largely
-design-only or interface-only.
+the v5 writer is rejected and learned memory is unqualified. Standalone NL0
+`P`/`F` software and numerical contracts are implemented and reviewed, but are
+not integrated into a native model or a learned-utility result. `A`, integrated
+trained `P`, the trained memory machinery beyond the qualified readers, and the
+UAP remain design-only or interface-only.
 
 ### 2.1 Ownership, timing, reset, persistence and version key
 
