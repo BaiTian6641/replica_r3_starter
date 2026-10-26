@@ -10,6 +10,7 @@ fail-closed stale bindings.
 
 from __future__ import annotations
 
+import hashlib
 import copy
 import importlib.util
 import json
@@ -689,3 +690,42 @@ def test_synthetic_episode_bundle_is_deterministic_and_label_free(tmp_path):
     assert (output / "manifest.json").exists()
     with pytest.raises(ValueError):
         module.write_bundle(first, config, output)
+
+
+def test_v2_episode_correction_is_minimal_and_v1_bytes_are_unchanged(tmp_path):
+    spec = importlib.util.spec_from_file_location(
+        "prepare_nested_text_episodes_v2_test",
+        ROOT / "scripts" / "prepare_nested_text_episodes.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    config_v1 = json.loads((ROOT / "configs" / "nested_text_episodes_v1.json")
+                           .read_text())
+    config_v2 = json.loads((ROOT / "configs" / "nested_text_episodes_v2.json")
+                           .read_text())
+    first = module.build_episode_bundle(config_v1)
+    second = module.build_episode_bundle(config_v2)
+    differences = []
+    for role, rows in first.items():
+        assert len(rows) == len(second[role])
+        for old, new in zip(rows, second[role]):
+            changed = sorted(key for key in set(old) | set(new)
+                             if old.get(key) != new.get(key))
+            if changed:
+                differences.append((role, old["id"], changed))
+    assert differences == [
+        ("legacy_retention", "legacy-0002", ["prompt", "prompt_sha256"])]
+    corrected = second["legacy_retention"][2]
+    assert corrected["prompt"] == "Complete the sentence: The library ____ at dusk."
+    assert corrected["expected_response"] == "closes"
+    assert "closes" not in corrected["prompt"]
+    output_v1 = tmp_path / "v1"
+    module.write_bundle(first, config_v1, output_v1)
+    assert ((output_v1 / "manifest.json").read_bytes()
+            == (ROOT / "data" / "nested_text_nl1_20261026" / "manifest.json").read_bytes())
+    output_v2 = tmp_path / "v2"
+    manifest = module.write_bundle(second, config_v2, output_v2)
+    assert manifest["schema_version"] == 2
+    assert manifest["parent"]["manifest_sha256"] == config_v2["parent"]["manifest_sha256"]
+    assert manifest["corrections"] == config_v2["corrections"]
+    for name, digest in manifest["files_sha256"].items():
+        assert hashlib.sha256((output_v2 / name).read_bytes()).hexdigest() == digest

@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "format": "replica.nested_text.episodes.v2",
+  "status": "synthetic_plumbing_only",
+  "seed": 20261026,
+  "primary_world": "world_alpha",
+  "wrong_world": "world_beta",
+  "session_id": "nested-text-session-v1",
+  "facts_per_world": 12,
+  "teaching_events": 24,
+  "development_events": 16,
+  "sealed_final_events": 16,
+  "correction_pairs": 4,
+  "unaffected_events": 8,
+  "unknown_events": 8,
+  "revoked_events": 4,
+  "retention_events": 8,
+  "max_prompt_tokens": 128,
+  "max_response_tokens": 24,
+  "parent": {
+    "manifest": "data/nested_text_nl1_20261026/manifest.json",
+    "manifest_sha256": "88da5a54ab4269f2e26be701c8d02651dfac3de5ddb80208a9a84db0cbc48942"
+  },
+  "corrections": [
+    {
+      "role": "legacy_retention",
+      "id": "legacy-0002",
+      "prompt": "Complete the sentence: The library ____ at dusk.",
+      "reason": "The v1 sentence contained the expected word and had no blank; replace only this prompt and its digest, leaving every other row byte-identical."
+    }
+  ],
+  "role_files": {
+    "teaching": "teaching.jsonl",
+    "development": "development.jsonl",
+    "correction": "correction.jsonl",
+    "unaffected": "unaffected.jsonl",
+    "unknown": "unknown.jsonl",
+    "revoked": "revoked.jsonl",
+    "wrong_world": "wrong_world.jsonl",
+    "legacy_retention": "legacy_retention.jsonl",
+    "sealed_final": "sealed_final.jsonl",
+    "wrong_world_teaching": "wrong_world_teaching.jsonl"
+  },
+  "routing": {
+    "route_key_source": "constant_single_expert",
+    "labels_used_for_routing": false,
+    "world_used_for_routing": false,
+    "observation_source": "verified_feedback_or_correction_only",
+    "answer_labels_used_for_observations": false
+  },
+  "non_claims": [
+    "Synthetic plumbing episodes; not a personal memory benchmark.",
+    "No authentic personal records, benchmark items or heldout access are created here.",
+    "Generation is not evaluation; do not open sealed_final during preparation.",
+    "V2 changes only the declared legacy-0002 prompt; it does not rewrite v1 scores or make any learned-utility claim."
+  ]
+}

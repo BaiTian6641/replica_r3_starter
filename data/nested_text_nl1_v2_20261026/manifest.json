@@ -1,0 +1,76 @@
+{
+  "access_guidance": {
+    "development": "development, unaffected, unknown, revoked and retention controls",
+    "sealed_final": "open once after development gates pass; never retry after failure",
+    "teaching": "teaching and correction rows only",
+    "wrong_world": "reserved wrong-world controls and optional wrong-world teaching"
+  },
+  "corrections": [
+    {
+      "id": "legacy-0002",
+      "prompt": "Complete the sentence: The library ____ at dusk.",
+      "reason": "The v1 sentence contained the expected word and had no blank; replace only this prompt and its digest, leaving every other row byte-identical.",
+      "role": "legacy_retention"
+    }
+  ],
+  "counts": {
+    "correction": 4,
+    "development": 16,
+    "legacy_retention": 8,
+    "revoked": 4,
+    "sealed_final": 16,
+    "teaching": 24,
+    "unaffected": 8,
+    "unknown": 8,
+    "wrong_world": 12,
+    "wrong_world_teaching": 24
+  },
+  "deterministic": true,
+  "files_sha256": {
+    "correction.jsonl": "c7172ab463087a9cf5312d71c110c76938ab1a3d7975b60bd0a19373ad442690",
+    "development.jsonl": "567816a3e5ec12ce1b6462b1bc0a7132d286815d9fd7a18d031892d46eddb4e0",
+    "legacy_retention.jsonl": "7a33e27a3cc38d6e70489b4bf76c88370c6835c4f992b61ccb1e694f24cb42d6",
+    "revoked.jsonl": "4e27073772b0a14d49a60a56b347f8d4851f45fa5184e87fb28cbad8be3cc818",
+    "sealed_final.jsonl": "02523a76b7ba1f9a4c236c10ab5fa6f9d9aef0d92591ed81704f7b337b7fee0b",
+    "teaching.jsonl": "7d21819218e1eb70c596ea99cd94151ad8018ce91ee4de6db269be246fbffb10",
+    "unaffected.jsonl": "19f18c1de7ec351e59c74ef2aa9d973e790e0e7dd60116335155424af8e6eef6",
+    "unknown.jsonl": "ba841bae5732d6e01b52c426a9fdd667ade7e72f4dbe11116929609fefaba377",
+    "wrong_world.jsonl": "4608fcde74c861c3ac31d241f80e6c7c4b1d82851f78d269d81e4ad54b9cc4e9",
+    "wrong_world_teaching.jsonl": "3b5a5b716f676b1fd10becbd8125946d3dfe6b1101da463a06083b920570fbb7"
+  },
+  "format": "replica.nested_text.episode_manifest.v2",
+  "non_claims": [
+    "Synthetic plumbing episodes; not a personal memory benchmark.",
+    "No authentic personal records, benchmark items or heldout access are created here.",
+    "Generation is not evaluation; do not open sealed_final during preparation.",
+    "V2 changes only the declared legacy-0002 prompt; it does not rewrite v1 scores or make any learned-utility claim."
+  ],
+  "parent": {
+    "manifest": "data/nested_text_nl1_20261026/manifest.json",
+    "manifest_sha256": "88da5a54ab4269f2e26be701c8d02651dfac3de5ddb80208a9a84db0cbc48942"
+  },
+  "primary_world": "world_alpha",
+  "role_files": {
+    "correction": "correction.jsonl",
+    "development": "development.jsonl",
+    "legacy_retention": "legacy_retention.jsonl",
+    "revoked": "revoked.jsonl",
+    "sealed_final": "sealed_final.jsonl",
+    "teaching": "teaching.jsonl",
+    "unaffected": "unaffected.jsonl",
+    "unknown": "unknown.jsonl",
+    "wrong_world": "wrong_world.jsonl",
+    "wrong_world_teaching": "wrong_world_teaching.jsonl"
+  },
+  "routing": {
+    "answer_labels_used_for_observations": false,
+    "labels_used_for_routing": false,
+    "observation_source": "verified_feedback_or_correction_only",
+    "route_key_source": "constant_single_expert",
+    "world_used_for_routing": false
+  },
+  "schema_version": 2,
+  "seed": 20261026,
+  "session_id": "nested-text-session-v1",
+  "wrong_world": "world_beta"
+}

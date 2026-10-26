@@ -301,6 +301,28 @@ def build_episode_bundle(config: dict) -> dict[str, list[dict]]:
             source="observation", feedback_type="observed_outcome",
             target_available_at=base_time(index) + 180,
             causal_cutoff=base_time(index) + 190))
+    version = config.get("schema_version", 1)
+    if version == 1:
+        return rows
+    if version != 2:
+        raise ValueError(f"unsupported episode schema version: {version}")
+    corrections = config.get("corrections")
+    if not isinstance(corrections, list) or not corrections:
+        raise ValueError("schema v2 requires explicit corrections")
+    for correction in corrections:
+        if set(correction) != {"role", "id", "prompt", "reason"}:
+            raise ValueError("each v2 correction must name role, id, prompt and reason")
+        role = correction["role"]
+        matches = [row for row in rows.get(role, []) if row["id"] == correction["id"]]
+        if len(matches) != 1:
+            raise ValueError(f"v2 correction does not identify exactly one row: {correction}")
+        row = matches[0]
+        if not isinstance(correction["prompt"], str) or not correction["prompt"].strip():
+            raise ValueError("v2 correction prompt must be nonempty")
+        if not isinstance(correction["reason"], str) or not correction["reason"].strip():
+            raise ValueError("v2 correction reason must be nonempty")
+        row["prompt"] = correction["prompt"]
+        row["prompt_sha256"] = sha256_text(row["prompt"])
     return rows
 
 
@@ -322,9 +344,10 @@ def write_bundle(bundle: dict[str, list[dict]], config: dict, output: Path) -> d
         path.write_text(payload, encoding="utf-8")
         files[name] = hashlib.sha256(payload.encode("utf-8")).hexdigest()
         counts[role] = len(rows)
+    version = config.get("schema_version", 1)
     manifest = {
-        "schema_version": 1,
-        "format": "replica.nested_text.episode_manifest.v1",
+        "schema_version": version,
+        "format": f"replica.nested_text.episode_manifest.v{version}",
         "deterministic": True,
         "seed": config["seed"],
         "session_id": config["session_id"],
@@ -342,6 +365,11 @@ def write_bundle(bundle: dict[str, list[dict]], config: dict, output: Path) -> d
         },
         "non_claims": config["non_claims"],
     }
+    if version == 2:
+        manifest["parent"] = config["parent"]
+        manifest["corrections"] = config["corrections"]
+    elif version != 1:
+        raise ValueError(f"unsupported episode schema version: {version}")
     (output / "manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return manifest
