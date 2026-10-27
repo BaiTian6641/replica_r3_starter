@@ -14,7 +14,7 @@
   "notes": [
     "Benchmark correction only. V1 hashed routing and all negative results remain immutable.",
     "One shared expert makes paraphrase-independent routing a structural invariant; no evaluation labels, world/family labels or gold IDs are used.",
-    "This declaration admits initialization and development-only P-only evaluation. It does not admit teaching, resumed learning, sealed-final access or a learned-capability claim.",
+    "This declaration admits initialization and development-first P-only evaluation. It does not admit teaching or resumed learning. Sealed-final is admitted only once after all corrected development gates pass.",
     "A separate protocol is required for the frozen-decoder behavioral training reference."
   ],
   "parent": {
@@ -109,11 +109,12 @@
     "spine_read_only_optional": true
   },
   "generation": {
-    "scoring_version": "replica.nested_text.scoring.v2",
+    "scoring_version": "replica.nested_text.scoring.v2.1",
     "max_new_tokens": 24,
     "stop_tokens": [1, 130073],
     "sentence_stop": {
       "enabled": true,
+      "version": "replica.nested_text.sentence_stop.v1",
       "boundary": "first_complete_sentence",
       "terminators": [".", "!", "?"],
       "min_words": 1,
@@ -152,7 +153,7 @@
     "heldout_retry_after_failure": false
   },
   "workload": {
-    "id": "nl1_v2_development_196_attempts_v1",
+    "id": "nl1_v2_development_196_attempts_v2_1",
     "scoring_attempts": 196,
     "attempts": {
       "taught_primary": 60,
@@ -164,12 +165,13 @@
       "wrong_world_on_primary": 16
     },
     "teaching_events_for_this_baseline": 0,
-    "duty_cycle": "learning_update_seconds / (teaching_end_to_end_seconds + evaluation_end_to_end_seconds)",
-    "end_to_end_seconds": "model/protocol initialization, all sensing, request preparation, generation, scoring, checkpoint/export and report phases; no arbitrary idle insertion",
+    "duty_cycle": "(learning_update_seconds + wrong_world_learning_update_seconds) / (teaching_end_to_end_seconds + wrong_world_teaching_end_to_end_seconds + evaluation_end_to_end_seconds)",
+    "end_to_end_seconds": "primary and wrong-world model/protocol initialization, all sensing, request preparation, generation, scoring, checkpoint/export and report phases; no arbitrary idle insertion",
     "evaluation_latency": "per-request plastic-read preparation + session preparation + generation/finalization + release; p50/p95 reported for each phase and total",
+    "wrong_world_initialization_cost_required": true,
     "position_accounting": "Every prompt/full position is counted separately for plastic feature sensing, session sensing and generation prefill; every generated decode position and backward call is counted separately; response supervision is a separate token count",
     "forward_accounting": "Teaching prompt/response feature passes and evaluation plastic/session sensing, generation prefill and decode steps are counted as actual calls, not inferred from response tokens",
-    "sealed_final_access": "not part of this workload"
+    "sealed_final_access": "not part of the development workload; after all corrected development gates pass, one read-only heldout evaluation is admitted once"
   },
   "gates": {
     "dev": {
@@ -190,7 +192,7 @@
       "max_warm_p95_overhead_ms": 2000.0,
       "warm_p95_overhead_ms_semantics": "end-to-end request preparation, feature sensing, generation/finalization and release, not generation-only",
       "max_duty_cycle": 0.1,
-      "duty_cycle_semantics": "amortized over the complete declared teaching+evaluation workload; a teaching-only ratio cannot satisfy this gate",
+      "duty_cycle_semantics": "amortized over the complete primary and wrong-world teaching+evaluation workload; a primary-only teaching ratio cannot satisfy this gate",
       "max_checkpoint_bytes": 268435456,
       "max_p_only_bytes": 134217728
     },
@@ -227,7 +229,7 @@
     ],
     "non_claims": [
       "No learned utility, nested-timescale, adaptive-routing or RSI claim.",
-      "No held-out evaluation, new training, full-backbone update or Spark execution is admitted by this benchmark correction.",
+      "No held-out evaluation before corrected development gates pass, no retry after failure, no new training, full-backbone update or Spark execution is admitted by this benchmark correction.",
       "The detached local feature objective is not admitted as a behavioral reference."
     ]
   }

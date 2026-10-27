@@ -11,7 +11,8 @@ from dataclasses import dataclass
 import re
 from typing import Callable, Iterable, Sequence
 
-SCORING_VERSION = "replica.nested_text.scoring.v2"
+SCORING_VERSION = "replica.nested_text.scoring.v2.1"
+STOP_POLICY_VERSION = "replica.nested_text.sentence_stop.v1"
 STOP_TOKENS = (1, 130073)
 DEFAULT_MAX_NEW_TOKENS = 24
 _STATUS_ANSWERS = frozenset({"unknown", "revoked"})
@@ -163,8 +164,5 @@ def score_response(expected: str, output: str, *, candidate_answers: Iterable[st
     return ResponseScore(True, "correct", expected_norm, output_norm)
 
 
-__all__ = [
-    "DEFAULT_MAX_NEW_TOKENS", "GenerationResult", "ResponseScore",
-    "SCORING_VERSION", "STOP_TOKENS", "finalize_generation", "score_response",
-    "is_truncated_stop_reason", "sentence_complete_text",
-]
+    "SCORING_VERSION", "STOP_POLICY_VERSION", "STOP_TOKENS", "finalize_generation",
+    "score_response", "is_truncated_stop_reason", "sentence_complete_text",

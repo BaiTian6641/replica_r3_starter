@@ -17,8 +17,7 @@ from replica_lab.nested_text_scoring import SCORING_VERSION, score_response
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "runs/nested_text_nl1_20261026/p_only_dev04/gates/dev.json"
 
-
-def main() -> int:
+REPLAY_SCORING_VERSION = "replica.nested_text.scoring.v2"
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -82,7 +81,7 @@ def main() -> int:
     }
     result = {
         "format": "replica.nested_text.scoring_replay.v2",
-        "scoring_version": SCORING_VERSION,
+        "scoring_version": REPLAY_SCORING_VERSION,
         "input": str(INPUT.relative_to(ROOT)),
         "input_sha256": hashlib.sha256(INPUT.read_bytes()).hexdigest(),
         "history_rewrite": False,
@@ -103,7 +102,7 @@ def main() -> int:
     print(json.dumps({
         "output": str(args.output), "scoring_attempts": len(replay_rows),
         "legacy_preteach": f"{legacy['preteach_correct']}/{legacy['preteach_count']}",
-        "legacy_taught": f"{legacy['taught_correct']}/{legacy['taught_count']}",
+        "scoring_version": REPLAY_SCORING_VERSION,
         "retention_decline": legacy["retention_decline"],
     }, sort_keys=True))
     return 0

@@ -16,12 +16,14 @@ import functools
 import importlib.util
 import json
 import sys
+from types import SimpleNamespace
 from pathlib import Path
 
 import pytest
 import torch
 
-from replica_lab.architecture.contracts import (EvidencePin, MemoryRead,
+from replica_lab.architecture.contracts import (DifferentiablePlasticRead,
+                                                EvidencePin, MemoryRead,
                                                 PlasticRead, PlasticSpec,
                                                 SenseFrame, DecisionFrame)
 from replica_lab.architecture.plastic import (PlasticKnowledgePort,
@@ -597,6 +599,90 @@ def test_session_p_only_request_has_no_source_state(tmp_path):
     assert ids_out.shape[1] >= ids.shape[1]
 
 
+
+
+def test_response_loss_reaches_prompt_sites_and_selected_expert(tmp_path):
+    from architecture_helpers import tiny_adapter
+    from replica_lab.architecture.contracts import TaskGraph
+    from replica_lab.memory_system.ledger import EligibilityScope, RecordLedger
+    from replica_lab.memory_system.session import MemorySession
+
+    adapter = tiny_adapter().eval()
+    adapter.install_plastic(PlasticSpec(experts=EXPERTS, width=WIDTH,
+                                        hidden_width=HIDDEN_WIDTH,
+                                        sites=(0, 2), route_mode="fixed",
+                                        route_seed=0, projection_seed=1,
+                                        read_gain=0.5))
+    protocol_value = protocol(seed=1, hidden_size=16, feature_sites=(0, 2))
+    learner = NestedTextLearner(adapter, bank=bank(),
+                                protocol=protocol_value)
+    for expert in learner.bank.experts:
+        expert.down.data.normal_(0.0, 0.05)
+    captured = {}
+    original_encode_sites = adapter.encode_sites
+    sensor = torch.nn.Parameter(torch.tensor(0.1))
+
+    def retain_sites(ids, valid, sites=None):
+        result = original_encode_sites(ids, valid, sites)
+        for site in result:
+            result[site] = result[site] + sensor
+            if result[site].requires_grad:
+                result[site].retain_grad()
+            captured[site] = result[site]
+        return result
+
+    adapter.encode_sites = retain_sites
+    prompt_ids = torch.tensor([[1, 2, 3]])
+    mask = torch.ones_like(prompt_ids, dtype=torch.bool)
+    read = learner.differentiable_plastic_read(prompt_ids, mask)
+    assert isinstance(read, DifferentiablePlasticRead)
+    assert read.slot.requires_grad is True
+    input_ids = torch.tensor([[1, 2, 3, 4, 5]])
+    labels = torch.full((1, 5), -100, dtype=torch.long)
+    labels[:, 3:] = input_ids[:, 3:]
+    mask = torch.ones_like(input_ids, dtype=torch.bool)
+    ledger = RecordLedger(tmp_path / "ledger.sqlite")
+    session = MemorySession(adapter, None, ledger)
+    scope = EligibilityScope(subject_id="subject", branch_id="branch",
+                             purpose="purpose", as_of=10)
+    task = TaskGraph(task_id="task", goal="query", revision=0)
+    with session.training_request(
+            prompt_ids=prompt_ids, prompt_mask=prompt_ids.bool(), query="query",
+            scope=scope, task=task, enabled_ports=(), core_impl="none",
+            enabled_branches=("plastic",), plastic=read,
+            identity=None, identity_enabled=False) as request:
+        output = session.forward(request, input_ids, labels=labels,
+                                 attention_mask=mask)
+        assert output.loss is not None and bool(torch.isfinite(output.loss))
+        assert output.loss.requires_grad is True
+        session.backward(request, output.loss)
+    for site, value in captured.items():
+        assert value.grad is not None and bool(value.grad.abs().sum() > 0), site
+    for index, expert in enumerate(learner.bank.experts):
+        for parameter in expert.parameters():
+            if index == read.expert_id:
+                assert parameter.grad is not None
+                assert bool(parameter.grad.abs().sum() > 0)
+            else:
+                assert parameter.grad is None
+    assert sensor.grad is not None and bool(sensor.grad.abs().sum() > 0)
+    assert all(parameter.grad is None for parameter in adapter.base.parameters())
+    assert request.state == "released"
+
+    with pytest.raises(ValueError, match="requires a training request"):
+        session.prepare(
+            prompt_ids=prompt_ids, prompt_mask=prompt_ids.bool(), query="query",
+            scope=scope, task=task, training=False, enabled_ports=(),
+            core_impl="none", enabled_branches=("plastic",), plastic=read,
+            identity=None, identity_enabled=False)
+    detached = learner.plastic_read(prompt_ids, prompt_ids.bool())
+    with pytest.raises(ValueError, match="requires a differentiable plastic input"):
+        with session.training_request(
+                prompt_ids=prompt_ids, prompt_mask=prompt_ids.bool(), query="query",
+                scope=scope, task=task, enabled_ports=(), core_impl="none",
+                enabled_branches=("plastic",), plastic=detached,
+                identity=None, identity_enabled=False):
+            pass
 def test_dev_gate_fails_closed_before_heldout():
     config = json.loads((ROOT / "configs" / "nested_text_nl1_v1.json").read_text())
     gates = config["gates"]["dev"]
@@ -746,7 +832,7 @@ def test_v2_protocol_declares_corrected_benchmark_and_no_training():
     generation = config["generation"]
     assert generation["max_new_tokens"] == 24
     assert generation["stop_tokens"] == [1, 130073]
-    assert generation["scoring_version"] == "replica.nested_text.scoring.v2"
+    assert generation["scoring_version"] == "replica.nested_text.scoring.v2.1"
     assert generation["token_budget_credit"] is False
     workload = config["workload"]
     assert generation["sentence_stop"]["enabled"] is True
@@ -1006,3 +1092,44 @@ def test_v2_candidate_answers_cover_conflict_roles_only():
                         for row in module.load_rows(directory, manifest, role))
     assert set(answers) == expected
     assert list(answers) == sorted(expected)
+
+
+def test_v2_episode_binding_rejects_alternate_root_and_manifest_hash():
+    module = runner_module()
+    config = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
+    args = SimpleNamespace(episodes=ROOT / "data" / "nested_text_nl1_v2_20261026")
+    manifest = json.loads((ROOT / "data" / "nested_text_nl1_v2_20261026" / "manifest.json").read_text())
+    module.validate_episode_binding(args, config, manifest)
+    with pytest.raises(module.RunnerError, match="pinned root"):
+        args.episodes = ROOT / "configs"
+        module.validate_episode_binding(args, config, manifest)
+    with pytest.raises(module.RunnerError, match="digest differs"):
+        drifted = copy.deepcopy(config)
+        drifted["episodes"]["manifest_sha256"] = "0" * 64
+        args.episodes = ROOT / "data" / "nested_text_nl1_v2_20261026"
+        module.validate_episode_binding(args, drifted, manifest)
+
+
+def test_v2_duty_cycle_includes_wrong_world_initialization():
+    module = runner_module()
+    duty = module.workload_duty_cycle(
+        learning_update_seconds=2.0, teaching_end_to_end_seconds=4.0,
+        evaluation_end_to_end_seconds=6.0,
+        wrong_world_learning_update_seconds=1.0,
+        wrong_world_teaching_end_to_end_seconds=2.0)
+    assert duty == 0.25
+    with pytest.raises(module.RunnerError, match="nonnegative"):
+        module.workload_duty_cycle(
+            learning_update_seconds=0.0, teaching_end_to_end_seconds=1.0,
+            evaluation_end_to_end_seconds=1.0,
+            wrong_world_teaching_end_to_end_seconds=-1.0)
+
+
+def test_v2_amended_scoring_and_stop_policy_are_explicit():
+    config = json.loads((ROOT / "configs" / "nested_text_nl1_v2.json").read_text())
+    assert config["generation"]["scoring_version"] == "replica.nested_text.scoring.v2.1"
+    assert config["generation"]["sentence_stop"]["version"] == (
+        "replica.nested_text.sentence_stop.v1")
+    assert config["workload"]["id"] == "nl1_v2_development_196_attempts_v2_1"
+    assert config["workload"]["wrong_world_initialization_cost_required"] is True
+    assert "after all corrected development gates pass" in config["workload"]["sealed_final_access"]

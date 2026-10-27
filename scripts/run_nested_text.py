@@ -63,9 +63,9 @@ from replica_lab.nested_text import (NestedTextLearner, P_ONLY_FORMAT,  # noqa: 
                                      TextAccessOrder, TextProtocol,
                                      TextTeachingEvent, evaluate_dev_gate,
                                      prompt_route_key, validate_p_only_payload)
-from replica_lab.nested_text_scoring import (SCORING_VERSION, STOP_TOKENS,  # noqa: E402
-                                             finalize_generation, score_response,
-                                             is_truncated_stop_reason,
+from replica_lab.nested_text_scoring import (SCORING_VERSION, STOP_POLICY_VERSION,
+                                             STOP_TOKENS, finalize_generation,
+                                             score_response, is_truncated_stop_reason,
                                              sentence_complete_text)
 
 PROMPT_FORM = "replica.nested_text.run.v1"
@@ -152,6 +152,18 @@ def load_episode_manifest(directory: Path) -> dict:
     return manifest
 
 
+def validate_episode_binding(args, config: Mapping[str, Any], manifest: Mapping[str, Any]) -> None:
+    episodes = config["episodes"]
+    expected_root = (ROOT / episodes["root"]).resolve()
+    _require(Path(args.episodes).resolve() == expected_root,
+             "CLI episode root differs from the v2 pinned root")
+    _require(_sha256_file(args.episodes / "manifest.json")
+             == episodes["manifest_sha256"],
+             "Episode manifest digest differs from the v2 pin")
+    _require(manifest.get("schema_version") == 2,
+             "v2 requires the corrected schema-v2 episode manifest")
+
+
 def config_format(config: Mapping[str, Any]) -> str:
     value = config.get("format")
     _require(value in (CONFIG_FORMAT_V1, CONFIG_FORMAT_V2),
@@ -161,6 +173,12 @@ def config_format(config: Mapping[str, Any]) -> str:
 
 def is_v2(config: Mapping[str, Any]) -> bool:
     return config_format(config) == CONFIG_FORMAT_V2
+
+def version_metadata(args) -> dict:
+    return {"config_sha256": _sha256_file(args.protocol),
+            "stop_policy_version": STOP_POLICY_VERSION}
+
+
 
 
 def validate_run_mode(config: Mapping[str, Any], mode: str) -> None:
@@ -601,22 +619,28 @@ def p50(values: list[float]) -> float:
 
 def workload_duty_cycle(*, learning_update_seconds: float,
                         teaching_end_to_end_seconds: float,
-                        evaluation_end_to_end_seconds: float) -> float:
-    """Amortized duty over the declared teaching + evaluation workload.
+                        evaluation_end_to_end_seconds: float,
+                        wrong_world_learning_update_seconds: float = 0.0,
+                        wrong_world_teaching_end_to_end_seconds: float = 0.0) -> float:
+    """Amortized duty over the complete declared teaching + evaluation workload.
 
-    A missing or negative component fails closed; idle time is never added.
+    Missing or negative components fail closed; idle time is never added.
     """
     values = {"learning_update_seconds": learning_update_seconds,
               "teaching_end_to_end_seconds": teaching_end_to_end_seconds,
-              "evaluation_end_to_end_seconds": evaluation_end_to_end_seconds}
+              "evaluation_end_to_end_seconds": evaluation_end_to_end_seconds,
+              "wrong_world_learning_update_seconds": wrong_world_learning_update_seconds,
+              "wrong_world_teaching_end_to_end_seconds": wrong_world_teaching_end_to_end_seconds}
     for name, value in values.items():
         _require(isinstance(value, (int, float)) and not isinstance(value, bool)
                  and float(value) >= 0.0,
                  f"duty-cycle component {name} is required and nonnegative")
     denominator = (float(teaching_end_to_end_seconds)
+                   + float(wrong_world_teaching_end_to_end_seconds)
                    + float(evaluation_end_to_end_seconds))
     _require(denominator > 0.0, "duty-cycle denominator must be positive")
-    return float(learning_update_seconds) / denominator
+    return (float(learning_update_seconds)
+            + float(wrong_world_learning_update_seconds)) / denominator
 
 
 _MISSING = object()
@@ -916,6 +940,7 @@ def run_init(args, config: dict) -> int:
     _require(is_v2(config), "init mode requires the v2 protocol")
     validate_v2_config(config)
     manifest = load_episode_manifest(args.episodes)
+    validate_episode_binding(args, config, manifest)
     world_uid = (manifest["primary_world"] if args.world_role == "primary"
                  else manifest["wrong_world"])
     started = time.perf_counter()
@@ -1020,6 +1045,8 @@ def run_init(args, config: dict) -> int:
         wall = time.perf_counter() - started
         cost = {
             "mode": "init",
+            "config_sha256": _sha256_file(args.protocol),
+            "stop_policy_version": STOP_POLICY_VERSION,
             "events": 0,
             "eligible_events": 0,
             "optimizer_steps": 0,
@@ -1049,6 +1076,8 @@ def run_init(args, config: dict) -> int:
         _write_json(output / "cost.json", cost)
         _write_json(output / "run.json", {
             "format": PROMPT_FORM, "mode": "init", "status": "completed",
+            "config_sha256": _sha256_file(args.protocol),
+            "stop_policy_version": STOP_POLICY_VERSION,
             "world_uid": world_uid, "protocol_sha256": protocol.protocol_sha256,
             "episodes_manifest_sha256": _sha256_file(
                 args.episodes / "manifest.json"),
@@ -1491,6 +1520,7 @@ def run_p_only_v2(args, config: dict) -> int:
     stop_tokens = tuple(int(token)
                         for token in config["generation"]["stop_tokens"])
     manifest = load_episode_manifest(args.episodes)
+    validate_episode_binding(args, config, manifest)
     primary_world = manifest["primary_world"]
     wrong_world_uid = manifest["wrong_world"]
     state = torch.load(args.p_state, map_location="cpu", weights_only=True)
@@ -1504,6 +1534,7 @@ def run_p_only_v2(args, config: dict) -> int:
             ("optimizer", "dedup", "clock", "revision", "coordinator",
              "observations", "moments", "sources")),
         "scoring_version": SCORING_VERSION,
+        **version_metadata(args),
     })
     _require(args.wrong_world_p is not None,
              "the declared v2 workload requires the wrong-world P control")
@@ -1640,6 +1671,7 @@ def run_p_only_v2(args, config: dict) -> int:
             "ledger_records": audits[0]["ledger_records"] if audits else None,
             "source_text_present": not source_free,
             "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
             "candidate_answers": len(candidates),
             "declared_attempts": declared_attempts,
             "group_attempts": group_counts,
@@ -1677,6 +1709,24 @@ def run_p_only_v2(args, config: dict) -> int:
             _require(learning_update_seconds is not None
                      and teaching_end_to_end_seconds is not None,
                      "teach cost report lacks a duty-cycle component")
+        wrong_teach_cost = None
+        wrong_learning_update_seconds = None
+        wrong_teaching_end_to_end_seconds = None
+        if args.wrong_world_teach_cost is not None:
+            wrong_teach_cost = json.loads(
+                Path(args.wrong_world_teach_cost).read_text())
+            _require(wrong_teach_cost.get("protocol_sha256")
+                     == wrong_protocol.protocol_sha256,
+                     "wrong-world teach cost report belongs to another protocol")
+            wrong_learning_update_seconds = wrong_teach_cost.get(
+                "learning_update_seconds", wrong_teach_cost.get("update_seconds"))
+            wrong_teaching_end_to_end_seconds = wrong_teach_cost.get(
+                "teaching_end_to_end_seconds", wrong_teach_cost.get("end_to_end_seconds"))
+            _require(wrong_learning_update_seconds is not None
+                     and wrong_teaching_end_to_end_seconds is not None,
+                     "wrong-world teach cost report lacks a duty-cycle component")
+        _require(args.wrong_world_teach_cost is not None,
+                 "v2 requires wrong-world teaching/init cost for complete duty accounting")
         metrics = {
             "new_instance_accuracy": new_accuracy,
             "preteach_accuracy": preteach_accuracy,
@@ -1707,16 +1757,23 @@ def run_p_only_v2(args, config: dict) -> int:
                     teaching_end_to_end_seconds=float(
                         teaching_end_to_end_seconds),
                     evaluation_end_to_end_seconds=float(
-                        evaluation_end_to_end_seconds))
+                        evaluation_end_to_end_seconds),
+                    wrong_world_learning_update_seconds=float(
+                        wrong_learning_update_seconds),
+                    wrong_world_teaching_end_to_end_seconds=float(
+                        wrong_teaching_end_to_end_seconds))
             cost_value = {
                 "peak_driver_bytes": peak,
                 "warm_p95_overhead_ms": warm_p95,
                 "warm_p95_excludes_first_request": len(totals) > 1,
                 "duty_cycle": duty,
-                "duty_cycle_source": (str(args.teach_cost)
-                                      if teach_cost is not None else None),
+                "duty_cycle_source": ({
+                    "primary": str(args.teach_cost),
+                    "wrong_world": str(args.wrong_world_teach_cost)}
+                    if teach_cost is not None else None),
                 "duty_cycle_formula": (
-                    "learning_update_seconds / (teaching_end_to_end_seconds + "
+                    "(learning_update_seconds + wrong_world_learning_update_seconds) / "
+                    "(teaching_end_to_end_seconds + wrong_world_teaching_end_to_end_seconds + "
                     "evaluation_end_to_end_seconds)"),
                 "checkpoint_bytes": (None if teach_cost is None
                                      else teach_cost.get("checkpoint_bytes")),
@@ -1731,8 +1788,14 @@ def run_p_only_v2(args, config: dict) -> int:
                 "teacher_requests": 0,
                 "updates": 0,
                 "scoring_version": SCORING_VERSION,
+                **version_metadata(args),
                 "learning_update_seconds": learning_update_seconds,
                 "teaching_end_to_end_seconds": teaching_end_to_end_seconds,
+                "wrong_world_learning_update_seconds": wrong_learning_update_seconds,
+                "wrong_world_teaching_end_to_end_seconds": wrong_teaching_end_to_end_seconds,
+                "wrong_world_duty_cycle_source": (
+                    str(args.wrong_world_teach_cost)
+                    if wrong_teach_cost is not None else None),
                 "evaluation_end_to_end_seconds": float(
                     evaluation_end_to_end_seconds),
                 "evaluation_end_to_end_includes": (
@@ -1762,6 +1825,7 @@ def run_p_only_v2(args, config: dict) -> int:
                 "scores": scores,
                 "preteach_scores": preteach_scores,
                 "scoring_version": SCORING_VERSION,
+                **version_metadata(args),
                 "workload": {"declared_attempts": declared_attempts,
                              "declared_groups": declared_groups,
                              "measured_groups": group_counts,
@@ -1781,6 +1845,7 @@ def run_p_only_v2(args, config: dict) -> int:
         phase_work_report = {
             "format": "replica.nested_text.phase_work.v2",
             "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
             "attempts": len(work_rows),
             "failed_attempts": scoring_attempts - len(work_rows),
             "scoring_attempts": scoring_attempts,
@@ -1800,6 +1865,7 @@ def run_p_only_v2(args, config: dict) -> int:
                 "format": PROMPT_FORM, "mode": "p_only_eval",
                 "status": "stopped_before_heldout", "gate_failures": failures,
                 "heldout_opened": False, "scoring_version": SCORING_VERSION,
+                **version_metadata(args),
                 "scoring_attempts": scoring_attempts,
                 "descriptive_only": True})
             return 2
@@ -1810,7 +1876,7 @@ def run_p_only_v2(args, config: dict) -> int:
                 "format": PROMPT_FORM, "mode": "p_only_eval",
                 "status": "development_passed_heldout_closed",
                 "heldout_opened": False, "no_heldout": True,
-                "scoring_version": SCORING_VERSION,
+                **version_metadata(args),
                 "scoring_attempts": scoring_attempts,
                 "descriptive_only": True})
             return 0
@@ -1845,12 +1911,14 @@ def run_p_only_v2(args, config: dict) -> int:
             "attempts": len(work_rows) - heldout_work_start,
             "latency_ms": heldout_latency, "work": heldout_work,
             "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
             "descriptive_only": True, "single_seed": True})
         _write_json(output / "gates" / "access_final.json", order.snapshot())
         _write_json(output / "run.json", {
             "format": PROMPT_FORM, "mode": "p_only_eval",
             "status": "completed", "heldout_opened": True,
             "scoring_version": SCORING_VERSION,
+            **version_metadata(args),
             "descriptive_only": True, "promotion": False,
             "non_claims": ["single-seed descriptive diagnostic only",
                            "no promotion or capability claim"]})
@@ -1973,6 +2041,8 @@ def main() -> int:
     parser.add_argument("--wrong-world-p", type=Path)
     parser.add_argument("--teach-cost", type=Path,
                         help="measured teach/init cost.json for the duty-cycle gate")
+    parser.add_argument("--wrong-world-teach-cost", type=Path,
+                        help="measured wrong-world teach/init cost.json for complete workload duty")
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--next-event")
     parser.add_argument("--expected-state", type=Path)
@@ -1990,7 +2060,8 @@ def main() -> int:
         parser.error("teach mode must perform its declared update transaction")
     if args.mode != "p-only-eval" and (args.p_state is not None
                                        or args.wrong_world_p is not None
-                                       or args.teach_cost is not None):
+                                       or args.teach_cost is not None
+                                       or args.wrong_world_teach_cost is not None):
         parser.error("P-only state paths are only valid for p-only-eval")
     if args.mode == "p-only-eval" and args.checkpoint is not None:
         parser.error("a full checkpoint is not a P-only input")
@@ -2002,6 +2073,8 @@ def main() -> int:
         with RunProfiler("mps", args.output) as profiler:
             config = json.loads(args.protocol.read_text(encoding="utf-8"))
             validate_run_mode(config, args.mode)
+            if args.wrong_world_teach_cost is not None and not is_v2(config):
+                parser.error("--wrong-world-teach-cost is only valid for v2")
             _require(config.get("one_clock_control_only") is True,
                      "the baseline must remain one-clock only")
             _require(config.get("replay_bytes") == 0,
