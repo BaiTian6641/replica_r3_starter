@@ -27,6 +27,72 @@ retain their original evidence scope and are not instructions to repeat
 rejected arms. See [execution state](../execution_state.md) for current metrics
 and preserved failure receipts.
 
+## 27 October admission, provenance and accounting remediation
+
+Behavioral `p-only-eval` now requires a passing fit receipt bound to the exact
+P-state, config/protocol, episode manifest, scorer/stopping versions, required
+coverage/attempts and teaching run/cost/state. Validation occurs before native
+loading and before development-role access. Historical dev replay is not a new
+evaluation and cannot satisfy this admission boundary. See the
+[conditional RSI plan](experiments/20261027_Conditional_RSI_Candidate_Plan.md)
+for the unchanged promotion boundary.
+
+The four historical vision pin failures and the continuation guard-launcher
+drift are reproduced under `reports/remediation_20261027/`. Historical replay
+uses immutable source blobs; current qualification requires a separate reviewed
+receipt. The continuation snapshot is
+`reports/nested_text_continuation_comparison_20261026/source_snapshot.json`
+(digest `8a3cd882a48ea29698b8a5e07077f066268af604ecd9d8b52c6203b50870a1ef`).
+Replay it on the host without launching native work:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  scripts/compare_nested_text_continuation.py \
+  --mode historical --artifact-root . \
+  --source-root reports/nested_text_continuation_comparison_20261026/source_snapshot.json \
+  --guard-binding configs/nested_text_continuation_guard_binding_v1.json \
+  --protocol configs/nested_text_continuation_comparison_v1.json \
+  --continuous-a runs/nested_text_continuation_comparison_20261026/continuous_a \
+  --continuous-b runs/nested_text_continuation_comparison_20261026/continuous_b \
+  --resume runs/nested_text_continuation_comparison_20261026/resume \
+  --guard-a reports/nested_text_continuation_comparison_20261026/continuous_a.guard.json \
+  --guard-b reports/nested_text_continuation_comparison_20261026/continuous_b.guard.json \
+  --guard-resume reports/nested_text_continuation_comparison_20261026/resume.guard.json \
+  --record-inputs omit \
+  --output reports/remediation_20261027/continuation_historical_replay.json
+```
+
+The expected result is `status=exact_match`, `exact_status=passed`, and zero
+failures. Use a fresh output path if that receipt already exists. Genuine source,
+snapshot, artifact or guard tampering must still fail.
+
+The historical vision accounting correction uses direct sums of saved generation
+IDs: **7,695 scoring decoder passes and 7,755 including training/probe work**.
+The old 1,470 count is prepare/sense work only. Replay the correction with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  scripts/run_vision_learnability_curve_v2.py replay-accounting \
+  --check reports/remediation_20261027/vision_learnability_curve_v1_accounting_correction.json
+```
+
+Spark final-product verification is portable and uses no temporary source cache:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  scripts/prepare_sparkx_research_bundle.py --profile final-product --check
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \
+  reports/sparkx_final_product_20261026/verify.py \
+  --root . --out reports/sparkx_final_product_20261026
+```
+
+The bundle has 43 inputs, 3,733,780 bytes and digest `ceebdb95…`; the verifier
+passes 436 checks. The
+[caption asset-QA record](experiments/20261027_External_Caption_Asset_QA.md)
+documents actual media decoding, label review and an explicit admission
+rejection; it does not authorize Spark training or reuse exposed evaluation data.
+
+
 ## Historical reader-only recovery result and commands
 
 The historical reader-only comparison is documented in the

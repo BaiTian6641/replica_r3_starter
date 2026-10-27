@@ -1,5 +1,16 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
+
+**Current priority — 27 October 2026:** use the
+[remediation evidence and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
+Behavioral development now requires an exact passing fit receipt before native
+loading or role access. Immutable historical replay is separate from reviewed
+current-source qualification. The bounded step-1 experiment supports first-
+update loss overshoot only; answer accuracy and caption semantic F1 remain zero.
+Memory's next bottleneck is value readout plus abstention. The caption tranche is
+rejected and its exposed evaluation rows are quarantined. No further native
+retry, development/held-out evaluation or neural RSI is authorized.
+
 The [comprehensive Spark research report](docs/research/sparkx_2_6_4b_20261024/README.md)
 adds a current-code audit, model-native spatial/temporal vision and learning
 architecture, a 12-stage proposal, resource estimates and primary-source review.

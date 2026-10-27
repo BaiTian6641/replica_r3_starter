@@ -34,6 +34,31 @@ flowchart TD
     P -->|reject| L
 ```
 
+## Evaluation admission and replay provenance
+
+The fit receipt binds the exact P-state, protocol/config, episode manifest,
+scorer/stopping versions, required coverage and attempts, and the actual teaching
+run, cost and resulting state. Historical replay and current qualification use
+separate source authorities.
+
+```mermaid
+flowchart LR
+    T[Teaching run and actual cost] --> F[Fit evaluation]
+    P[Exact P-only state] --> F
+    F --> R{Valid passing fit receipt?}
+    R -->|no| X[Reject before native load or role access]
+    R -->|yes| D[Development evaluation]
+    H[Historical artifacts] --> S[Immutable source snapshot]
+    S --> HR[Historical replay]
+    L[Live source] --> C[Reviewed current receipt]
+    C --> Q[Current qualification]
+```
+
+Historical source bytes remain immutable; current-source migrations require a
+separate reviewed receipt. A replay receipt never authorizes a new evaluation
+role or promotes a candidate.
+
+
 ## Native decoder integration
 
 [SVG](../diagrams/02_native_llama_integration.svg) | [PNG](../diagrams/02_native_llama_integration.png) | [Mermaid source](../diagrams/02_native_llama_integration.mmd)

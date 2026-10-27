@@ -1,5 +1,72 @@
 # Execution state — integrated memory, cognition and learning
 
+
+## Review remediation and bounded step-1 — 27 October 2026
+
+**Current status — evaluation admission, immutable replay and measured
+accounting are implemented. The step-1 overshoot hypothesis is supported, but
+useful memory, generated visual answers, development evaluation and RSI remain
+closed.** MiniCPM5 and NativeFusedAdamW remain the baseline/default. The native
+guard remains 50 GiB / 512 MiB / 15%, one exclusive worker and no CPU fallback.
+The protected runtime pilot was not read, imported, modified or staged.
+
+- Behavioral development evaluation now requires a passing fit receipt bound to
+  exact P-state, protocol/config, episode manifest, scorer/stopping versions,
+  coverage/attempts and actual teaching run/cost/state. Validation precedes
+  native loading and role access. Negative scoring has explicit
+  unknown/revoked/generation-failure gates and versioned grammar
+  `replica.nested_text.answer_grammar.v2.1.1`. **232 tests pass**; the derived
+  196-attempt replay has no group-count changes and is not a new evaluation.
+- Historical replay uses immutable source blobs; current qualification requires
+  separate reviewed receipts. The four old vision pin failures and continuation
+  guard-launcher drift were reproduced first. The continuation historical replay
+  now returns `exact_match` with zero failures and **148 replay tests pass**.
+  Spark final-product verification passes **436 checks** over a 43-input bundle;
+  acceptance v4, calibration, independent continuation and the vision curve are
+  reconciled without temporary source-cache requirements.
+- Historical accounting is corrected from raw generation IDs: **5,245** tokens,
+  **7,695** scoring decoder passes and **7,755** including training/probe work.
+  The old 1,470 count is prepare/sense only. The superseded 5,254-token
+  reconstruction is preserved. New counters separate logical operations,
+  forwards, generation, visual work, backward and optimizer steps; **51 v2 tests
+  pass**.
+- Memory diagnosis separates address, value, abstention and aggregation. Address
+  is 62/62 correct accepted layers but 4/256 strict groups, with 54 partial
+  groups and zero wrong address layers. Candidate value readout is 57/156
+  correct accepted layers and 14/256 strict groups; value readout plus
+  abstention is the next bottleneck. Only selected-expert `gate/up/down`
+  parameters receive current teaching/correction gradients; unaffected rows have
+  no teaching gradient. **32 memory tests pass**.
+- The authorized step-1 run used one MPS worker, one model load, four backward
+  calls and one NativeFusedAdamW step. Attempt 01 failed before training on
+  missing Pillow; attempt 02 stopped on an update-omitted visual budget; attempt
+  03 completed. A CPU-derived replay preserves the original validator failure
+  and returns **`step1_reproduction_supported`**: answer/caption NLL increase
+  from 10.704499/9.773421 to 11.741904/13.448152 after one update, with exact
+  prefix-0 null parity. Answer accuracy and prefill-gold accuracy remain 0/14;
+  caption semantic F1 remains zero. Generated-answer correctness and causal
+  image dependence are not established. Development, held-out, V0 and further
+  retry remain closed.
+- Attempt-03 measured **5,644 decoder forwards**, 4,166 generated tokens, 220
+  visual observations, 218 encoder misses plus 2 hits, 4,594 projector passes,
+  637.686 s wall time, 1,498,052 artifact bytes and 11,932,663,808 guard-peak
+  driver bytes. Swap growth is zero and the host guard did not stop. Raw failed
+  attempts and the derived validator correction are all preserved.
+- The local caption tranche passed 2,656 machine checks and decoded 30 images,
+  but training admission is rejected after 9 match / 1 mismatch / 5 unclear
+  training reviews. Seven validation rows stay separate. Eight accidentally
+  exposed sealed rows are quarantined; no training output or untouched-evaluation
+  claim follows. The [asset-QA record](docs/experiments/20261027_External_Caption_Asset_QA.md)
+  and incident receipt preserve the failure.
+- The [conditional RSI plan](docs/experiments/20261027_Conditional_RSI_Candidate_Plan.md)
+  keeps neural RSI deferred pending useful recall, correction, unaffected
+  retention and visual grounding. Candidate publication/rollback/deferral tests
+  pass **19/19**; no RSI cycle or personality training occurred.
+
+Read the [consolidated evidence and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
+Protocol/authorization/evidence commits are `dfe39a07`, `f38bab72`, `d9c7393e`,
+`cf37d85`, `ca8669b9`, `ac12ad0`, `3c9c7cf` and `3194d37`.
+
 ## Native one-clock baseline and vision learnability — 26 October 2026
 
 **Current status — native engineering integration passes; learned utility is

@@ -1,5 +1,20 @@
 # Coding-agent continuation instruction
 
+
+**Current priority — 27 October 2026:** use the
+[remediation evidence and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
+Behavioral development now requires a passing fit receipt before native loading
+or role access; historical replay uses immutable source snapshots and current
+qualification uses reviewed receipts. The raw-accounting correction is 7,695
+scoring passes / 7,755 total events. Memory's next bottleneck is value readout
+plus abstention, not address lookup. The authorized step-1 experiment is
+`step1_reproduction_supported` after a CPU-derived validator correction, but
+answers remain 0/14 and development/held-out/V0/RSI remain closed. No further
+native retry is authorized. The local caption tranche is rejected and its eight
+exposed sealed rows are quarantined. Next work is CPU verification and a fresh
+one-clock future-answer/correction/retention hypothesis; do not revive budget02,
+repeat step 1 or infer capability from rank changes.
+
 **Current priority — 26 October 2026:** preserve sealed evaluation and failed
 quality results. Native one-clock integration is `1648f72d`; the vision
 diagnostics were predeclared at `0caf14fa`. Earlier evidence commits include

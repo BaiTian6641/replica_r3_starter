@@ -1,5 +1,17 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
+
+**Current priority — 27 October 2026:** read the
+[consolidated remediation and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
+Evaluation admission now requires an exact passing fit receipt before native
+loading or dependent development access. Historical replay and current source
+qualification are separate. The bounded step-1 run supports first-update loss
+overshoot only; answer accuracy and caption semantic F1 remain zero, so
+development, held-out, V0 and RSI remain closed. Value readout plus abstention
+is the next memory bottleneck. Preserve the rejected caption tranche and its
+quarantined evaluation rows. Do not launch another native run from this handoff;
+use the documented CPU replay commands and a fresh one-clock learning hypothesis.
+
 **Current priority — 26 October 2026:** preserve sealed evaluation and keep
 mechanical acceptance separate from learned quality. The
 [one-clock text baseline](docs/experiments/20261026_Nested_Text_One_Clock.md)

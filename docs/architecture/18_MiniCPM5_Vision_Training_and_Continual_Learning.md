@@ -29,6 +29,17 @@ Answer accuracy is 0/14, caption semantic F1 is zero and all nine answer gates
 fail. This is an engineering pass and a learnability rejection, not a perception
 promotion. Development, held-out and semantic-audit payloads were not read.
 
+**27 October bounded hypothesis:** the
+[step-1 reproduction](../experiments/20261027_Remediation_and_Next_Steps.md)
+supports first-update overshoot under NativeFusedAdamW: answer/caption NLL rise
+from 10.704499/9.773421 to 11.741904/13.448152 after one update, with exact
+prefix-0 null parity. It does not establish generated-answer correctness or
+causal image dependence; both remain at zero answer accuracy and zero caption
+semantic F1. The v1 curve verdict is unchanged, and development, held-out,
+visual memory, V0 and RSI remain closed. The accounting correction and all
+failed attempts are preserved beside the derived receipt.
+
+
 ## 1. Admission and model roles
 
 Complete document 17's caller-bound context verification, complete route audits
