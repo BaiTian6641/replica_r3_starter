@@ -2,13 +2,14 @@
 
 
 **Current priority — 27 October 2026:** use
-[independent admission and experiment preparation](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
-Fit admission independently recomputes preserved generation evidence and blocks
-development labels until a validated passing receipt. The memory value-readout
-and smaller-step vision protocols are CPU-verified preparation only; no native
-run is authorized. Nine-row corrected lineage and 24 sealed synthetic scenes
-remain unadmitted for training. NativeFusedAdamW is the default; historical Muon
-and eager AdamW records are unchanged. Neural RSI and personality stay deferred.
+[evidence hardening and the minimal memory runner](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
+Fit scoring now requires sealed-tokenizer decoding and rejects EOS-only or
+mismatched text before native or development access. The 22-class CPU memory
+runner and independent fit/dev/held-out admission are implemented with exact
+resume and measured artifact limits; this is not learned retrieval or general
+persistent learning. The smaller-step launch packet remains unauthorized.
+Nine-row data admission and Spark tolerance/resource scopes are complete.
+NativeFusedAdamW is the default; neural RSI and personality stay deferred.
 
 
 The [comprehensive Spark research report](docs/research/sparkx_2_6_4b_20261024/README.md)

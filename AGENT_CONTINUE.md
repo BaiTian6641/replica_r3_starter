@@ -2,16 +2,18 @@
 
 
 **Current priority — 27 October 2026:** use
-[independent admission and experiment preparation](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
-Fit receipts now independently recompute correctness, stop evidence, coverage,
-source-free audit and the configured minimum before any native or development
-access. The current-source receipt is migrated; immutable replay is unchanged.
-The memory protocol targets value readout and abstention with chronological
-episodes and a treatment-only 24-step fit gate. The smaller-step vision protocol
-isolates lr 3e-5 from the completed 3e-4 overshoot and has a real but unexecuted
-`run` path. Both require separate later authorization; do not launch now.
-Corrected nine-row data lineage and 24 sealed synthetic scenes are prepared but
-not admitted for training. Neural RSI and personality adaptation stay deferred.
+[evidence hardening and the minimal memory runner](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
+Fit scoring now requires sealed-tokenizer decoding and rejects EOS-only or
+mismatched saved text before any native/development access. The memory runner
+writes real checkpoints, per-case predictions and chained fit/dev/held-out
+receipts; only the treatment's 24 updates admits development, while control fits
+remain separate. Actual CPU smoke and independent admission pass 27/27 fit,
+10/10 dev and 10/10 held-out, with exact resume and a measured 32 MiB budget.
+This is synthetic software integration, not learned retrieval or persistent
+learning. The smaller-step launch packet remains unauthorized. Nine-row data
+admission and Spark tolerance/resource scopes are complete; RSI/personality stay
+deferred.
+
 
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and failed

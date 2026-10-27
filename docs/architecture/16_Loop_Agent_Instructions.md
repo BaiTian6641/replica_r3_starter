@@ -8,19 +8,19 @@ does not launch training, download weights/corpora, create a chat or schedule wo
 Continue TAIS Obsidian / Replica R3 in the existing checkout. Keep sealed
 MiniCPM5-2B as the baseline and the 50 GiB native guard. New training uses
 NativeFusedAdamW/`adamw_fused` after integration checks; historical Muon and
-custom eager AdamW experiments retain their provenance. The current priority is
-**independent fit-evidence verification, label-role admission and CPU-only
-experiment preparation**, not another larger arm. Native full-size resume,
+custom eager AdamW retain their provenance. The current priority is **exact
+generation/tokenizer evidence, independently verifiable memory admission and
+minimal CPU integration**, not architecture expansion. Native full-size resume,
 visual memory, Spark training and RSI remain unqualified or gated. Prepare Spark
 FP8/BF16 interfaces alongside this work without replacing the MiniCPM5 baseline.
 
-Read [independent admission and experiment preparation](../experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
-Fit receipts must recompute correctness from targets and generation evidence;
-upstream pass flags are not authority. Development labels stay unreadable until
-a fully validated passing receipt. The next memory runner must preserve the
-treatment-only 24-step fit gate and 24+24+24 independent arm ceilings. The
-smaller-step vision runner changes only lr to 3e-5 and requires separate later
-authorization. No native execution follows from reading these instructions.
+Read [evidence hardening and the minimal memory runner](../experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
+Fit scoring must decode preserved IDs with the sealed tokenizer before scoring;
+saved text alone is not evidence. The 22-class runner must preserve one event
+clock per arm, treatment-only 24-step fit admission, separate control fits,
+query-time immutability and exact resume. Its synthetic CPU pass is not learned
+retrieval or persistent learning. The smaller-step launch packet and reviewed
+nine-row data admission do not authorize native execution.
 
 ## 1. Establish current evidence once
 

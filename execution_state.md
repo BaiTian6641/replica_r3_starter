@@ -1,6 +1,57 @@
 # Execution state — integrated memory, cognition and learning
 
 
+## Evidence hardening and minimal memory runner — 27 October 2026
+
+**Current status — tokenizer-backed fit evidence and the 22-class CPU memory
+runner are implemented and independently verified. The smaller-step launch
+packet is complete but unauthorized; Spark and neural RSI remain blocked.**
+MiniCPM5 and NativeFusedAdamW remain the baseline/default. The protected runtime
+pilot restriction and all native guards are unchanged.
+
+- Fit receipt schema v2 binds sealed tokenizer files and decode policy. Preserved
+  IDs are decoded before scoring, rejecting EOS-only nonempty text, decoded-text
+  mismatches, invalid IDs, hidden stops and resealed inconsistent evidence.
+  **272 tests pass**, including real offline pinned-tokenizer decoding. The
+  current continuation receipt is migrated; historical blobs remain unchanged.
+- Memory admission resolves actual checkpoints, fit reports and per-case
+  predictions, recomputing correctness/coverage/gates and verifying parent,
+  treatment, optimizer scope, update counts and resulting state. Construction
+  audits are explicitly separate from runtime label access: fit opens dev,
+  development opens held-out, and missing/failed/tampered receipts open neither.
+  Only treatment's actual 24 updates admits development; both control fits are
+  separate. Development and held-out repeat the same evidence requirements.
+- The actual CPU runner implements 22-class readout, fixed addressing, one event
+  clock per arm, three 24-update arms and all seven controls. Actual fit is
+  **27/27**, development **10/10**, held-out **10/10** with independent admission.
+  Fresh-process resume is byte-identical for checkpoint, predictions, reports
+  and receipts. This is deterministic software integration, not learned
+  retrieval, open-ended generation or general persistent learning.
+- The initial 29,107,600-byte output exceeded the old 16 MiB cap and is preserved.
+  The measured 32 MiB amendment now enforces the complete artifact tree after all
+  writes; final output is **29,116,864 bytes** and independently admitted.
+  **34 memory tests pass**, with actual entry-point provenance.
+- The smaller-step packet binds config `931851…`, exact limits and the real run
+  command. **85 tests pass** and preflight refuses before model loading without
+  a committed protocol and separate authorization. No native run was launched.
+- The reviewed caption receipt admits exactly nine rows with digest `8ca18314…`;
+  21 exclusions and eight exposed rows are preserved. The 24 scenes are
+  diagnostic-only. Spark same-weight identity requires exact zero, candidate
+  FP8 tolerance is explicitly undeveloped, small-extension estimates are not
+  complete-architecture evidence, and full Spark training remains blocked.
+  **54 data/Spark tests pass**.
+
+Read the [complete evidence and launch handoff](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
+
+Final verification at `1702a1ff` is recorded in
+[the evidence-hardening receipt](reports/verification_20261027/summary.json).
+The clean suite passes **2,804 tests plus 21 subtests**, with 95 explicit
+artifact/Pillow skips and no failures. Earlier missing-manifest and
+missing-precondition failures are preserved and fixed with tracked metadata
+fixtures rather than skips. Artifact guards pass over 11,122 files and clean
+Spark verification passes 436 checks. No native run was launched.
+
+
 ## Independent fit admission and experiment preparation — 27 October 2026
 
 **Current status — fit receipts independently verify generation evidence and

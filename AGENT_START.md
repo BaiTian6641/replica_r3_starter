@@ -2,14 +2,14 @@
 
 
 **Current priority — 27 October 2026:** read
-[independent admission and experiment preparation](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
-Fit receipts now independently rescore preserved generation evidence, and every
-evaluation-label role is denied until a fully validated passing receipt. Next
-work is CPU-side memory admission-runner review and the smaller-step protocol;
-neither authorizes native execution here. Historical fit, memory, vision and
-caption failures remain rejected. NativeFusedAdamW is the default optimizer;
-Muon and custom eager AdamW remain separate historical comparisons. Keep the
-50 GiB / 512 MiB / 15% guard and protected draft rules.
+[evidence hardening and the minimal memory runner](docs/experiments/20261027_Evidence_Hardening_and_Minimal_Memory_Runner.md).
+Fit evidence now requires exact tokenizer decoding before scoring, with EOS-only
+and mismatched-text rejection. The 22-class CPU memory runner is implemented and
+passes fit/dev/held-out with independent admission and byte-identical resume, but
+establishes no learned retrieval or general persistent learning. The smaller-step
+vision launch packet and nine-row data admission are complete; neither authorizes
+native execution. NativeFusedAdamW remains the default; historical Muon and eager
+AdamW remain separate. Keep the 50 GiB / 512 MiB / 15% guard and protected draft.
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and keep
 mechanical acceptance separate from learned quality. The

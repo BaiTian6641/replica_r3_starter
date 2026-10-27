@@ -1,0 +1,2116 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="47" failures="0" skipped="0" tests="85" time="1.253" timestamp="2026-10-27T13:43:12.301179-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_packet_is_deterministic_complete_and_matches_the_repository" time="0.007"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_limits_are_exact_and_include_the_final_report" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_single_variable_parent_seed_batch_and_scope_are_preserved" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_image_controls_and_raw_generation_evidence_are_required" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_launch_command_offline_environment_and_fresh_output" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_authorization_is_separate_declared_and_never_minted" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_preflight_lists_every_check_and_native_gap" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_packet_hash_tamper_is_refused" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_stale_hashes_and_config_bindings_are_refused[&lt;lambda&gt;-implementation0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_stale_hashes_and_config_bindings_are_refused[&lt;lambda&gt;-implementation1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_stale_hashes_and_config_bindings_are_refused[&lt;lambda&gt;-lineage0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_stale_hashes_and_config_bindings_are_refused[&lt;lambda&gt;-lineage1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_stale_hashes_and_config_bindings_are_refused[&lt;lambda&gt;-protocol0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_stale_hashes_and_config_bindings_are_refused[&lt;lambda&gt;-protocol1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[decoder_forward_calls-4825]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[visual_observation_calls-169]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[backward_calls-5]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[optimizer_steps-2]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[wall_seconds-1201]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[artifact_bytes-33554433]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[artifact_includes_final_report-False]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[model_loads-2]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[downloads-1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[retries-1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[workers-2]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_limits_are_refused[cpu_fallback-True]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates2]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates3]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates4]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates5]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates6]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates7]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates8]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-gates9]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-scope0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-scope1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-scope2]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-launch0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-launch1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-authorization0]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-authorization1]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_wrong_gates_scope_environment_and_authorization_are_refused[&lt;lambda&gt;-authorization2]" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_launch_is_refused_before_any_native_loading" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_builder_and_preflight_create_no_authorization_or_run_artifacts" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_launch_packet_v1" name="test_clean_root_rebuild_is_byte_identical_to_the_checked_in_packet" time="0.000"><error message="failed on setup with &quot;ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'&quot;">builder = &lt;module 'vision_smaller_step_launch_packet_for_tests' from '/Users/flare/replica_r3_starter/scripts/build_vision_smaller_step_launch_packet_v1.py'&gt;
+clean_config = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0/configs/vision_smaller_step_lr3e5_v1.json')
+clean_root = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+
+    @pytest.fixture(scope="module")
+    def packet(builder, clean_config, clean_root):
+&gt;       return builder.build_packet(clean_config, root=clean_root)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_vision_smaller_step_launch_packet_v1.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_vision_smaller_step_launch_packet_v1.py:1003: in build_packet
+    packet = _build_packet_body(config_path, root=root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+scripts/build_vision_smaller_step_launch_packet_v1.py:951: in _build_packet_body
+    _relative_path = config_path.relative_to(root_path).as_posix()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json')
+other = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0')
+walk_up = False, _deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/Users/flare/replica_r3_starter/configs/vision_smaller_step_lr3e5_v1.json' is not in the subpath of '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1386/vision_smaller_step_clean_root0'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</error></testcase><testcase classname="tests.test_vision_smaller_step_v1" name="test_protocol_is_valid_deterministic_and_preparation_only" time="0.013" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_lr_is_rejected[0.0003]" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_lr_is_rejected[0.0001]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_lr_is_rejected[3e-06]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_budget_is_rejected[&lt;lambda&gt;-backward_calls]" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_budget_is_rejected[&lt;lambda&gt;-prepare]" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_budget_is_rejected[&lt;lambda&gt;-decoder_forward_calls0]" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_budget_is_rejected[&lt;lambda&gt;-max_visual_encoder_calls]" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_budget_is_rejected[&lt;lambda&gt;-artifact]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_budget_is_rejected[&lt;lambda&gt;-decoder_forward_calls1]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_scope_is_rejected[&lt;lambda&gt;-Gradient scope differs]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_scope_is_rejected[&lt;lambda&gt;-exactly six]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_scope_is_rejected[&lt;lambda&gt;-NativeFusedAdamW]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_scope_is_rejected[&lt;lambda&gt;-four rows]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_scope_is_rejected[&lt;lambda&gt;-Backbone gradients]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_role_access_is_rejected[&lt;lambda&gt;-development]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_role_access_is_rejected[&lt;lambda&gt;-Role access differs]" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_role_access_is_rejected[&lt;lambda&gt;-Sealed evaluation]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_wrong_role_access_is_rejected[&lt;lambda&gt;-predeclared protocol]" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_review_launch_refuses_without_authorization_receipt" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_review_launch_refuses_receipt_for_wrong_config" time="0.003" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_review_launch_refuses_malformed_receipt" time="0.003" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_review_launch_refuses_nonhex_or_uncommitted_commit" time="0.019" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_review_only_success_never_executes_native" time="0.003" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_run_refuses_before_native_load_without_receipt" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_run_refuses_malformed_authorization_before_native_load" time="0.003" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_run_refuses_uncommitted_receipt_before_native_load" time="0.016" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_run_authorizes_once_before_mocked_native_dispatch" time="0.003" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_native_environment_overrides_caller_values" time="0.000" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_run_forces_native_environment_before_dispatch" time="0.003" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_artifact_budget_includes_the_final_report" time="0.002" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_artifact_overflow_preserves_report_and_evidence" time="0.020" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_schedule_is_exact_and_training_only" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_pre_and_post_update_batch_accounting_is_stage_exact" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_optimization_gate_rejects_completed_overshoot" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_functional_fit_gate_rejects_empty_outputs_and_rank_only" time="0.001" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_cli_run_refusal_is_nonzero_and_loads_no_model" time="0.004" /><testcase classname="tests.test_vision_smaller_step_v1" name="test_protocol_hash_cli_matches_file_digest" time="0.001" /></testsuite></testsuites>
