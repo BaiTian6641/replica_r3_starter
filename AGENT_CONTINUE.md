@@ -1,19 +1,18 @@
 # Coding-agent continuation instruction
 
 
-**Current priority — 27 October 2026:** use the
-[remediation evidence and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
-Behavioral development now requires a passing fit receipt before native loading
-or role access; historical replay uses immutable source snapshots and current
-qualification uses reviewed receipts. The raw-accounting correction is 7,695
-scoring passes / 7,755 total events. Memory's next bottleneck is value readout
-plus abstention, not address lookup. The authorized step-1 experiment is
-`step1_reproduction_supported` after a CPU-derived validator correction, but
-answers remain 0/14 and development/held-out/V0/RSI remain closed. No further
-native retry is authorized. The local caption tranche is rejected and its eight
-exposed sealed rows are quarantined. Next work is CPU verification and a fresh
-one-clock future-answer/correction/retention hypothesis; do not revive budget02,
-repeat step 1 or infer capability from rank changes.
+**Current priority — 27 October 2026:** use
+[independent admission and experiment preparation](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
+Fit receipts now independently recompute correctness, stop evidence, coverage,
+source-free audit and the configured minimum before any native or development
+access. The current-source receipt is migrated; immutable replay is unchanged.
+The memory protocol targets value readout and abstention with chronological
+episodes and a treatment-only 24-step fit gate. The smaller-step vision protocol
+isolates lr 3e-5 from the completed 3e-4 overshoot and has a real but unexecuted
+`run` path. Both require separate later authorization; do not launch now.
+Corrected nine-row data lineage and 24 sealed synthetic scenes are prepared but
+not admitted for training. Neural RSI and personality adaptation stay deferred.
+
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and failed
 quality results. Native one-clock integration is `1648f72d`; the vision

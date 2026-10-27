@@ -1,0 +1,338 @@
+{
+  "schema": "replica.spark_backend_parity_preparation.v1",
+  "created_on": "2026-10-27",
+  "status": "preparation_only_not_executed",
+  "scope": "Bounded, offline Spark backend/parity preparation. It separates official BF16, official FP8 storage, dequantized derivative artifacts and actual native FP8 execution, defines analytical-only resource inputs, and fails closed on any claim that storage dtype or a small reload success qualifies training. No model is loaded, no download occurs, no native command is authorized, and the MiniCPM5 baseline remains the unchanged default.",
+  "baseline": {
+    "model": "MiniCPM5-2B",
+    "repo_id": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "local_source": "checkpoints/minicpm5_source",
+    "config_sha256": "59613157e5357d62bcb121e04cb90f2170b43d789b142380c12c3d4277d95180",
+    "unique_parameters": 2516756480,
+    "pin_reference": {
+      "path": "configs/sparkx_2_6_4b_consolidated_plan_v2.json",
+      "sha256": "9574b364eaa98c82a8d3873d9d52d47154e770923a12a5903d5b02dd1034f6f5",
+      "pointer": "models.minicpm5"
+    },
+    "default_optimizer": "NativeFusedAdamW",
+    "training_default_unchanged": true,
+    "isolation": "Spark preparation must not edit MiniCPM5 configs, pins, checkpoints, training defaults or optimizer behavior. No Spark artifact may be loaded as a MiniCPM5 baseline replacement."
+  },
+  "authorization": {
+    "native_execution_admitted": false,
+    "downloads_admitted": false,
+    "bulk_assets_admitted": false,
+    "requires_separate_reviewed_authorization_receipt": true,
+    "authorization_receipt_path": "configs/spark_backend_parity_authorization_20261027.json",
+    "authorization_receipt_must_not_be_created_by_preparation": true,
+    "single_exclusive_worker": true,
+    "guards": {
+      "driver_limit_bytes": 53687091200,
+      "swap_growth_limit_bytes": 536870912,
+      "minimum_free_percent": 15,
+      "sustained_host_samples": 3,
+      "cpu_fallback": false,
+      "pytorch_enable_mps_fallback": "0",
+      "native_jobs_at_once": 1,
+      "offline_hub": true,
+      "trust_remote_code": "sealed local source only, hash-verified before load",
+      "local_files_only": true
+    },
+    "stop_conditions": [
+      "driver bytes exceed 53687091200",
+      "swap growth exceeds 536870912 bytes over sustained samples",
+      "host free space falls below 15 percent",
+      "any CPU fallback or non-exclusive worker is observed"
+    ]
+  },
+  "precision_identities": {
+    "official_bf16": {
+      "identity": "official_bf16",
+      "kind": "artifact",
+      "is_official_release": true,
+      "source_reference": "configs/spark_qualification_v1.json#sources.official_bf16_control",
+      "repo_id": "XHToken/Spark-X2.6-4B",
+      "revision": "66e3ae7bee54e0a523d692cb8ef841f35409807b",
+      "storage_dtype": "bfloat16",
+      "storage_bytes": 8224192408,
+      "parameter_elements": 4112079360,
+      "activation_quantization": "none declared by the checkpoint",
+      "compute_semantics": "BF16 arithmetic; unmeasured locally",
+      "load_admitted": false,
+      "training_qualified": false,
+      "qualification_reason": "no native execution or gradient/update evidence exists"
+    },
+    "official_fp8": {
+      "identity": "official_fp8",
+      "kind": "artifact",
+      "is_official_release": true,
+      "source_reference": "configs/spark_qualification_v1.json#sources.official_fp8_adaptation_base",
+      "repo_id": "XHToken/Spark-X2.6-4B-FP8",
+      "revision": "0318d6f6ab070c7b5b43052db571489b2508006c",
+      "storage_dtype": "float8_e4m3fn",
+      "scale_dtype": "bfloat16",
+      "scale_tensor_count": 180,
+      "scale_tensor_elements": 1142784,
+      "quantized_parameter_elements": 3774873600,
+      "storage_bytes": 4451626120,
+      "activation_quantization": "dynamic symmetric per-token F8_E4M3 declared by compressed-tensors",
+      "compute_semantics": "quantized kernels required; device support unqualified and no MPS result is established",
+      "load_admitted": false,
+      "training_qualified": false,
+      "qualification_reason": "float8_e4m3fn storage and dynamic activation quantization are not evidence of kernels, gradients or optimizer support"
+    },
+    "dequantized_fp8_derivative": {
+      "identity": "dequantized_fp8_derivative",
+      "kind": "artifact",
+      "is_official_release": false,
+      "parent": "official_fp8",
+      "repo_id": "replica/spark-x2.6-4b-dequantized-fp8-v1",
+      "revision": "derivative-1",
+      "derivative_root": "checkpoints/spark_fp8_derivative_v1",
+      "storage_dtype": "bfloat16",
+      "storage_bytes": 8224192408,
+      "dequantization_formula": "weight_bf16 = round_bf16(e4m3fn_to_f32(stored_byte) * weight_scale[output_channel])",
+      "activation_quantization": "none; BF16/FP32 activations with no per-token F8 quantization",
+      "compute_semantics": "not the official FP8 forward semantics; a new named artifact",
+      "equivalent_to_bf16_release": false,
+      "must_not_load_under_official_identity": true,
+      "load_admitted": false,
+      "training_qualified": false
+    },
+    "native_fp8_execution": {
+      "identity": "native_fp8_execution",
+      "kind": "execution_capability",
+      "is_artifact": false,
+      "storage_dtype": null,
+      "distinction": "native FP8 execution is not implied by FP8 storage; it requires actual float8 kernels and quantized activations on the target device",
+      "required_kernels": [
+        "float8_e4m3fn linear forward",
+        "dynamic per-token activation quantization",
+        "fp8 weight and activation backward",
+        "optimizer support for the declared parameter groups"
+      ],
+      "device_evidence": "none; no MPS or MLX FP8 kernel result is established",
+      "evidenced": false,
+      "training_qualified": false,
+      "qualification_reason": "no kernel trace, gradient receipt or update receipt exists"
+    }
+  },
+  "parity_protocol": {
+    "bounded": true,
+    "prompt_set": {
+      "kind": "frozen_text_only",
+      "reference": "configs/spark_qualification_v1.json#qualification.prompts",
+      "max_prompts": 4,
+      "dataset_access": false,
+      "heldout_access": "forbidden",
+      "thinking_modes": ["none", "low", "high"],
+      "greedy": true,
+      "max_new_tokens": 8
+    },
+    "comparisons": [
+      {
+        "id": "bf16_vs_official_fp8_inference",
+        "left": "official_bf16",
+        "right": "official_fp8",
+        "status": "unexecuted",
+        "requires": ["official FP8 kernels on device", "paired token/logit receipt"],
+        "bitwise_equality_required": false
+      },
+      {
+        "id": "bf16_vs_dequantized_derivative",
+        "left": "official_bf16",
+        "right": "dequantized_fp8_derivative",
+        "status": "unexecuted",
+        "requires": ["derivative identity pin", "paired token/logit receipt", "explicit non-equivalence annotation"]
+      },
+      {
+        "id": "native_fp8_training_capability",
+        "left": "official_fp8",
+        "right": "native_fp8_execution",
+        "status": "unqualified",
+        "requires": ["kernel trace", "input-gradient receipt", "single-update receipt", "export/reload receipt"]
+      }
+    ],
+    "small_reload_probe": {
+      "purpose": "artifact identity and reload consistency only",
+      "max_new_tokens": 8,
+      "grants_training_qualification": false,
+      "grants_fp8_training_qualification": false,
+      "prohibited_inferences": [
+        "reload success proves forward parity",
+        "reload success proves gradient support",
+        "reload success proves optimizer support or training qualification"
+      ]
+    },
+    "quality_tolerances": {
+      "status": "must_be_pinned_before_any_execution",
+      "numeric_values": null
+    }
+  },
+  "resource_model": {
+    "analytical_only": true,
+    "measured": false,
+    "units": "bytes",
+    "inputs": {
+      "parameter_elements": 4112079360,
+      "quantized_parameter_elements": 3774873600,
+      "hidden_size": 2560,
+      "layers": 36,
+      "kv_heads": 4,
+      "head_dim": 256,
+      "official_bf16_storage_bytes": 8224192408,
+      "official_fp8_storage_bytes": 4451626120,
+      "fp8_scale_bytes": 2285568,
+      "sequence_tokens": 512,
+      "activation_dtype_bytes": 2,
+      "activation_saved_tensor_multiplier": 18,
+      "new_module_parameters": 5242880,
+      "new_module_parameter_components_bytes": {
+        "parameter": 2,
+        "gradient": 2,
+        "exp_avg": 4,
+        "exp_avg_sq": 4,
+        "master": 4
+      },
+      "base_full_tuning_state_bytes_per_parameter": 16,
+      "overhead_fraction": 0.15,
+      "kv_bytes_per_element": 2,
+      "driver_limit_bytes": 53687091200,
+      "usable_headroom_fraction": 0.8
+    },
+    "formulas": {
+      "activations": "sequence_tokens * hidden_size * activation_dtype_bytes * activation_saved_tensor_multiplier * layers",
+      "kv_cache": "2 * kv_heads * head_dim * kv_bytes_per_element * layers * sequence_tokens",
+      "extension_state": "new_module_parameters * sum(new_module_parameter_components_bytes)",
+      "extension_training_resident": "(weights_resident + extension_state + activations + kv_cache) * (1 + overhead_fraction)",
+      "full_tuning_resident": "(weights_resident + parameter_elements * base_full_tuning_state_bytes_per_parameter + extension_state + activations + kv_cache) * (1 + overhead_fraction)",
+      "usable_budget": "driver_limit_bytes * usable_headroom_fraction"
+    },
+    "estimates_expected": {
+      "extension_training_bf16_resident": "defined",
+      "extension_training_dequantized_derivative_resident": "same numerical floor as BF16 resident, distinct identity",
+      "extension_training_official_fp8_resident": "unquantified because activation/optimizer semantics are undefined without kernels",
+      "extension_training_native_fp8_resident": "unquantified",
+      "full_base_tuning_bf16_resident": "defined as an analytical upper bound only"
+    },
+    "interpretation": "Analytical estimates can block a plan; they can never qualify training. No value here is a measured memory result."
+  },
+  "claims_policy": {
+    "training_qualified": false,
+    "native_fp8_training_qualified": false,
+    "fp8_training_on_mps_claimed": false,
+    "capability_claim": "none",
+    "storage_dtype_implies_compute": false,
+    "storage_dtype_implies_training_qualification": false,
+    "small_reload_success_implies_training_qualification": false,
+    "dequantized_derivative_implies_official_fp8": false,
+    "header_or_config_parse_implies_forward_parity": false,
+    "forbidden_statements": [
+      "storage dtype implies training qualification",
+      "small reload success implies training qualification",
+      "dequantized derivative output is official FP8 output",
+      "official FP8 storage means native FP8 training",
+      "BF16 storage means BF16 training qualification",
+      "a successful small reload or smoke generation qualifies training",
+      "a dequantized derivative is equivalent to the official FP8 release",
+      "a dequantized derivative is equivalent to the official BF16 release",
+      "config or safetensors-header parsing proves forward parity",
+      "MiniCPM5 baseline behavior changed because a Spark path was prepared",
+      "MPS FP8 training is supported"
+    ],
+    "training_qualification_gates": [
+      {
+        "id": "authorization_receipt",
+        "must_evidence": "separate reviewed authorization receipt naming this exact preparation sha256"
+      },
+      {
+        "id": "sealed_source_load",
+        "must_evidence": "hash-verified local load receipt for the exact source identity"
+      },
+      {
+        "id": "forward_parity",
+        "must_evidence": "paired prompt tokens/logits with pre-pinned tolerances"
+      },
+      {
+        "id": "input_gradients",
+        "must_evidence": "projector input-gradient receipt with finite nonzero new gradients and unchanged base stamp"
+      },
+      {
+        "id": "single_update",
+        "must_evidence": "one NativeFusedAdamW step receipt with named delta and unchanged base digest"
+      },
+      {
+        "id": "export_reload",
+        "must_evidence": "fresh-process export/reload receipt with unchanged format identity"
+      },
+      {
+        "id": "resource_evidence",
+        "must_evidence": "profile samples under the 50 GiB driver, 512 MiB swap growth and 15 percent free-space guards"
+      },
+      {
+        "id": "fp8_kernel_evidence",
+        "must_evidence": "actual float8 kernel trace, not storage dtype inspection; required only for native FP8 claims"
+      }
+    ],
+    "non_qualifying_evidence": [
+      "storage dtype inspection",
+      "config parse",
+      "safetensors header inventory",
+      "model import success",
+      "small reload success",
+      "one short generation smoke test",
+      "dequantization success",
+      "analytical resource estimate"
+    ]
+  },
+  "later_ablation": {
+    "name": "filtered_pre_finetuning_self_replay_text_retention_ablation",
+    "status": "proposed_not_authorized",
+    "authorized_by_this_config": false,
+    "trigger": "only after a separately authorized and evidenced Spark training qualification, and never as part of this preparation",
+    "purpose": "Test whether filtered self-replay text during pre-finetuning preserves text retention without contaminating visual supervision.",
+    "replay_source": "text-only self-generated continuations from the qualified model; no image-conditioned answers are replayed",
+    "filters": [
+      "keep text-only rows; drop any row whose observation or target references an image, scene, caption task or visual token",
+      "drop rows that fail the existing response-contract checks",
+      "drop rows that duplicate training text or eval prompts",
+      "drop rows containing unqualified factual or numeric claims",
+      "cap replay at a declared fraction of the text batch and pin the exact replay file hash",
+      "keep replay rows in a separate split with explicit provenance"
+    ],
+    "ground_truth_policy": {
+      "unqualified_visual_answers_as_ground_truth": false,
+      "model_generated_captions_as_ground_truth": false,
+      "dequantized_derivative_output_as_teacher": false,
+      "allowed_reference_labels": [
+        "programmatic verifier output",
+        "independently sealed synthetic scene labels",
+        "human-adjudicated external labels",
+        "frozen baseline text for retention measurement only"
+      ]
+    },
+    "controls": [
+      "no-replay control",
+      "filtered-replay treatment",
+      "unfiltered replay is not admitted"
+    ],
+    "measurement": "held-out text continuation loss and accuracy against the frozen MiniCPM5 baseline; visual claims are out of scope",
+    "non_claims": {
+      "visual_quality_improvement": false,
+      "benchmark_superiority": false,
+      "native_execution_authorized": false
+    }
+  },
+  "non_claims": {
+    "native_execution_performed": false,
+    "downloads_performed": false,
+    "model_loaded": false,
+    "training_qualified": false,
+    "fp8_native_training_qualified": false,
+    "measured_resources": false,
+    "baseline_changed": false,
+    "mini_cpm5_default_optimizer_changed": false,
+    "authorization_granted": false
+  }
+}

@@ -1,0 +1,253 @@
+{
+  "answer_vocabulary": [
+    "UNKNOWN",
+    "value_dev_alpha_amber",
+    "value_dev_alpha_cobalt",
+    "value_dev_alpha_jade",
+    "value_dev_beta_amber",
+    "value_dev_beta_cobalt",
+    "value_dev_beta_jade",
+    "value_heldout_alpha_amber",
+    "value_heldout_alpha_cobalt",
+    "value_heldout_alpha_jade",
+    "value_heldout_beta_amber",
+    "value_heldout_beta_cobalt",
+    "value_heldout_beta_jade",
+    "value_train_alpha_amber",
+    "value_train_alpha_cobalt",
+    "value_train_alpha_jade",
+    "value_train_beta_amber",
+    "value_train_beta_cobalt",
+    "value_train_beta_jade",
+    "value_train_gamma_amber",
+    "value_train_gamma_cobalt",
+    "value_train_gamma_jade"
+  ],
+  "config": {
+    "path": "configs/value_readout_abstention_protocol_v1.json",
+    "sha256": "49b8bc451fe78f29e79ddbf5af2ea1a787739e98eedd9ef504025dfc758d5e32"
+  },
+  "controls": {
+    "arm_ids": [
+      "learned_value_readout",
+      "exact_context",
+      "selected_record_literal_readout",
+      "memory_disabled",
+      "memory_reset",
+      "shuffled_values",
+      "wrong_world_values"
+    ],
+    "count": 7
+  },
+  "counts": {
+    "cases": 47,
+    "cases_dev": 10,
+    "cases_heldout": 10,
+    "cases_train": 15,
+    "cases_train_replay": 12,
+    "episodes": 7,
+    "episodes_dev": 2,
+    "episodes_heldout": 2,
+    "episodes_train": 3,
+    "events": 68,
+    "events_dev": 16,
+    "events_heldout": 16,
+    "events_train": 36,
+    "labels_dev": 10,
+    "labels_heldout": 10,
+    "optimizer_steps": 24,
+    "queries": 47,
+    "retention_diagnostic_cases": 3,
+    "teaching_cases": 24,
+    "teaching_cases_base": 12,
+    "teaching_cases_replay": 12,
+    "write_events": 21
+  },
+  "deterministic": true,
+  "disjointness": {
+    "all_case_ids_unique": true,
+    "dev_worlds_disjoint_from_heldout": true,
+    "heldout_labels_sealed": true,
+    "replay_cases_disjoint_from_dev": true,
+    "replay_cases_disjoint_from_heldout": true,
+    "train_cases_disjoint_from_dev": true,
+    "train_cases_disjoint_from_heldout": true,
+    "train_worlds_disjoint_from_dev": true,
+    "train_worlds_disjoint_from_heldout": true,
+    "training_semantics_disjoint_from_evaluation": true
+  },
+  "downloads": 0,
+  "files": {
+    "cases_dev.jsonl": "9cc50540f1ba9aae26cc7817c188fb7f752e9a2f708211c3d721ffe1887fefcc",
+    "cases_heldout.jsonl": "56514527d5d321045a1feca5f85ae5566ba88fffdf7b5d16e430c1edb43d64b0",
+    "cases_train.jsonl": "f93bd77bbbee4dee4625892ac7b30220ca8b49b08f7494928231880aba371e14",
+    "cases_train_replay.jsonl": "a2d8e48afb17d7bb2940670516249f905412000eca3d21eeba2ba2d11206afc5",
+    "controls.jsonl": "baafd76a1dfd7fd705d90062f8ab13049e497b5a2ebbbf910c6ddd0b3a1e93ca",
+    "episodes.jsonl": "a4b0b99b042249805d4e941967416650d1c605b15081d30493e0c0844bdf63b3",
+    "labels_dev.jsonl": "73205d0e13b87d234a1e361e0160e5aff37a79c209a3390ea6a7bd2f5b15115a",
+    "labels_heldout.jsonl": "313f475de54cbd5354c666c084537ccded8b4c3210fb7d8762e5a1c76343b1b7"
+  },
+  "fit_receipt_requirements": {
+    "created_by": "future_authorized_runner",
+    "exact_values": {
+      "created_by": "future_authorized_runner",
+      "dev_labels_read": false,
+      "earlier_write_gradient": false,
+      "heldout_opened": false,
+      "mode": "fit",
+      "optimizer": "NativeFusedAdamW",
+      "optimizer_steps": 24,
+      "protocol_id": "value_readout_abstention_v1",
+      "replay_case_count": 12,
+      "seed": 20261027,
+      "status": "passed",
+      "train_case_count": 15,
+      "tuning_performed": false
+    },
+    "fields": [
+      "artifacts",
+      "config_sha256",
+      "created_by",
+      "dev_labels_read",
+      "earlier_write_gradient",
+      "fit_gates",
+      "format",
+      "heldout_opened",
+      "losses",
+      "mode",
+      "optimizer",
+      "optimizer_steps",
+      "prepared_manifest_sha256",
+      "protocol_id",
+      "replay_case_count",
+      "seed",
+      "status",
+      "train_case_count",
+      "trainable_parameters",
+      "tuning_performed"
+    ],
+    "format": "replica.value_readout_abstention.fit_receipt.v1",
+    "required_before_development": true,
+    "scope": {
+      "arm_id": "learned_value_readout",
+      "excluded_trained_controls": [
+        "shuffled_values",
+        "wrong_world_values"
+      ],
+      "optimizer_steps": 24,
+      "phase": "fit_treatment",
+      "reason": "the fit receipt admits the treatment arm only; the two trained control arms run under the experiment ceiling and are never part of development admission"
+    }
+  },
+  "format": "replica.value_readout_abstention.prepared.v1",
+  "generated_by": "scripts/prepare_value_readout_abstention_v1.py",
+  "generator_contract": "scripts/value_readout_abstention_contract_v1.py",
+  "heldout_opened": false,
+  "label_seal": {
+    "dev_label_cases": 10,
+    "dev_labels_sha256": "73205d0e13b87d234a1e361e0160e5aff37a79c209a3390ea6a7bd2f5b15115a",
+    "heldout_label_cases": 10,
+    "heldout_labels_sha256": "313f475de54cbd5354c666c084537ccded8b4c3210fb7d8762e5a1c76343b1b7",
+    "heldout_opened": false
+  },
+  "loss_counts": {
+    "correction_readout": 6,
+    "future_answer_readout": 6,
+    "unknown_abstention_readout": 6,
+    "wrong_world_abstention_readout": 6
+  },
+  "manifest_sha256": "6024eb7a089a99c9a0ae277e2567bb6472b1c02f83f7d54c2103254a36ae7dce",
+  "model_loaded": false,
+  "native_computation": false,
+  "planned_workload": {
+    "backward_calls_total": 72,
+    "checkpoint_writes": 3,
+    "context_reference_cases": 20,
+    "context_tokens_total": 480,
+    "generated_tokens_total": 0,
+    "optimizer_updates_total": 72,
+    "readout_forward_calls_total": 221,
+    "write_events_total": 105
+  },
+  "protocol_id": "value_readout_abstention_v1",
+  "seed": 20261027,
+  "splits": {
+    "dev": {
+      "cases": 10,
+      "episodes": 2,
+      "events": 16,
+      "teaching_cases": 0,
+      "writes": 6
+    },
+    "heldout": {
+      "cases": 10,
+      "episodes": 2,
+      "events": 16,
+      "teaching_cases": 0,
+      "writes": 6
+    },
+    "train": {
+      "base_cases": 15,
+      "cases": 27,
+      "episodes": 3,
+      "events": 36,
+      "replay_cases": 12,
+      "teaching_cases": 24,
+      "writes": 9
+    }
+  },
+  "tokenizer_loaded": false,
+  "workload_derivation": {
+    "arms": [
+      {
+        "arm_id": "learned_value_readout",
+        "backward_calls": 24,
+        "fit_receipt_binding": true,
+        "optimizer_steps": 24,
+        "phase": "fit_treatment",
+        "teaching_cases": 24
+      },
+      {
+        "arm_id": "shuffled_values",
+        "backward_calls": 24,
+        "fit_receipt_binding": false,
+        "optimizer_steps": 24,
+        "phase": "control_fit",
+        "teaching_cases": 24
+      },
+      {
+        "arm_id": "wrong_world_values",
+        "backward_calls": 24,
+        "fit_receipt_binding": false,
+        "optimizer_steps": 24,
+        "phase": "control_fit",
+        "teaching_cases": 24
+      }
+    ],
+    "basis": "three independent trained arms, each with its own one-step-per-teaching-event clock; no arm shares or replays another arm's optimizer step",
+    "checkpoint_writes_derivation": {
+      "checkpoints_per_trained_arm": 1,
+      "total": 3,
+      "trained_arms": 3
+    },
+    "control_fit_optimizer_steps": 48,
+    "extra_steps_per_event": 0,
+    "fit_receipt_arm_id": "learned_value_readout",
+    "fit_receipt_optimizer_steps": 24,
+    "independent_arm_clocks": 3,
+    "one_step_per_teaching_event": true,
+    "readout_forward_calls_derivation": {
+      "evaluation_forwards": 140,
+      "retention_diagnostic_forwards": 9,
+      "total": 221,
+      "training_forwards": 72
+    },
+    "shared_clock_across_arms": false,
+    "total_optimizer_steps": 72,
+    "write_events_derivation": {
+      "total": 105,
+      "writes_per_arm": 21,
+      "writing_arms": 5
+    }
+  }
+}

@@ -1,0 +1,749 @@
+{
+  "format": "replica.value_readout_abstention.protocol.v1",
+  "protocol_id": "value_readout_abstention_v1",
+  "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "purpose": "Predeclare a chronological, one-step-per-event value-readout and abstention protocol over the selected plastic expert, with a deterministic CPU fixture, disjoint training replay and sealed evaluation cases, distinct controls, and fail-closed admission before any native execution.",
+  "classification": {
+    "package": "value_readout_abstention_protocol",
+    "preparation_only": true,
+    "native": false,
+    "model_execution": false,
+    "tokenizer_load": false,
+    "generation": false,
+    "persistent_learning": false,
+    "calibrated": false,
+    "learned_selector": false,
+    "oracle": "diagnostic_only_not_executed",
+    "answer_source": "fixed_record_view_through_selected_expert_and_fixed_read_projection",
+    "heldout_opened": false,
+    "native_execution_allowed": false
+  },
+  "hypothesis": {
+    "id": "VRA-H1",
+    "statement": "A selected-expert readout trained only by cross-entropy on authoritative chronological query labels can produce useful later value answers, corrected values, unaffected retention, and UNKNOWN abstention for absent and wrong-world addresses, without gradients crossing earlier writes and without any local associative-loss gate.",
+    "primary_claim": "readout and abstention behaviour on untouched development cases, with training replay disjoint from evaluation cases.",
+    "excluded_claims": [
+      "persistent learning across processes",
+      "calibrated confidence",
+      "open-ended generation",
+      "learned retrieval or learned routing",
+      "architecture expansion",
+      "native execution in this preparation package"
+    ]
+  },
+  "architecture": {
+    "expert_bank": {
+      "declared_count": 16,
+      "declared_width": 256,
+      "declared_hidden_width": 1024,
+      "bias": false,
+      "matrices": [
+        "gate",
+        "up",
+        "down"
+      ],
+      "selected_expert_id": 0,
+      "selection": "fixed route to expert 0 for every event in this protocol"
+    },
+    "trainable_parameters": [
+      "selected_expert.gate",
+      "selected_expert.up",
+      "selected_expert.down"
+    ],
+    "fixed": {
+      "backbone": "fixed MiniCPM5 backbone; requires_grad false; no backbone loss",
+      "read_projection": "fixed FP32 [answer_vocabulary, 256] projection; buffer; requires_grad false",
+      "decoder": "fixed FP32 [2048, answer_vocabulary] decoder; buffer; requires_grad false",
+      "writer": "fixed exact-address record writer; no parameters; no writer loss",
+      "router": "fixed expert-0 route; no parameters; no router loss",
+      "personality": "fixed PersonalityIdentity; no gradient",
+      "fast_state": "fixed episodic observation state; detached before readout; no gradient",
+      "input_encoder": "fixed record/query encoder producing a 256-wide readout input; no gradient",
+      "selector": "fixed exact-address selector over the current world; no gradient"
+    },
+    "no_architecture_expansion": true,
+    "answer_vocabulary_size": 22,
+    "answer_vocabulary": [
+      "UNKNOWN",
+      "value_dev_alpha_amber",
+      "value_dev_alpha_cobalt",
+      "value_dev_alpha_jade",
+      "value_dev_beta_amber",
+      "value_dev_beta_cobalt",
+      "value_dev_beta_jade",
+      "value_heldout_alpha_amber",
+      "value_heldout_alpha_cobalt",
+      "value_heldout_alpha_jade",
+      "value_heldout_beta_amber",
+      "value_heldout_beta_cobalt",
+      "value_heldout_beta_jade",
+      "value_train_alpha_amber",
+      "value_train_alpha_cobalt",
+      "value_train_alpha_jade",
+      "value_train_beta_amber",
+      "value_train_beta_cobalt",
+      "value_train_beta_jade",
+      "value_train_gamma_amber",
+      "value_train_gamma_cobalt",
+      "value_train_gamma_jade"
+    ],
+    "status_vocabulary": [
+      "UNKNOWN"
+    ],
+    "readout": {
+      "objective": "closed_vocabulary_cross_entropy",
+      "input": "selected expert slot [1, 256]",
+      "projection": "fixed_read_projection[22, 256]",
+      "decoder": "fixed_decoder[2048, 22]",
+      "output": "logits over the closed answer vocabulary; UNKNOWN is the sole abstention token",
+      "training_readout_positions_per_case": 1,
+      "evaluation_readout_positions_per_case": 1
+    }
+  },
+  "transaction": {
+    "objective": "closed_vocabulary_value_and_abstention_readout",
+    "steps_per_event": 1,
+    "clock_steps_per_event": 1,
+    "max_optimizer_steps_per_event": 1,
+    "optimizer_steps_per_teaching_event": 1,
+    "optimizer_steps_per_write_event": 0,
+    "optimizer_steps_per_query_event": 0,
+    "optimizer_steps_per_evaluation_query": 0,
+    "batch_size": 1,
+    "gradient_accumulation": "none",
+    "epochs_per_case": 1,
+    "retries": 0,
+    "eligible_events_only": true,
+    "duplicate_returns_original": true,
+    "changed_duplicate_fails": true,
+    "optimizer": "NativeFusedAdamW",
+    "optimizer_hyperparameters": {
+      "lr": 0.001,
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "weight_decay": 0.0
+    },
+    "gradient_norm_max": 1.0,
+    "seed": 20261027,
+    "one_step_schedule": {
+      "rule": "one clock step per event; at most one optimizer step per event; every teaching query consumes exactly one optimizer step; write events, retention diagnostics and all evaluation queries consume zero optimizer steps",
+      "teaching_events": 24,
+      "write_events": 21,
+      "retention_diagnostic_events": 3,
+      "evaluation_query_events": 20,
+      "total_events": 68
+    }
+  },
+  "losses": {
+    "enabled": true,
+    "terms": [
+      {
+        "name": "future_answer_readout",
+        "case_type": "future_answer",
+        "weight": 1.0,
+        "objective": "cross_entropy",
+        "target": "authoritative_value_token",
+        "expected_teaching_cases": 6,
+        "affects": [
+          "selected_expert.gate",
+          "selected_expert.up",
+          "selected_expert.down"
+        ]
+      },
+      {
+        "name": "correction_readout",
+        "case_type": "correction",
+        "weight": 1.0,
+        "objective": "cross_entropy",
+        "target": "authoritative_corrected_value_token",
+        "expected_teaching_cases": 6,
+        "affects": [
+          "selected_expert.gate",
+          "selected_expert.up",
+          "selected_expert.down"
+        ]
+      },
+      {
+        "name": "unknown_abstention_readout",
+        "case_type": "unknown_abstention",
+        "weight": 1.0,
+        "objective": "cross_entropy",
+        "target": "UNKNOWN",
+        "expected_teaching_cases": 6,
+        "affects": [
+          "selected_expert.gate",
+          "selected_expert.up",
+          "selected_expert.down"
+        ]
+      },
+      {
+        "name": "wrong_world_abstention_readout",
+        "case_type": "wrong_world_abstention",
+        "weight": 1.0,
+        "objective": "cross_entropy",
+        "target": "UNKNOWN",
+        "expected_teaching_cases": 6,
+        "affects": [
+          "selected_expert.gate",
+          "selected_expert.up",
+          "selected_expert.down"
+        ]
+      }
+    ],
+    "retention_teaching_loss": {
+      "enabled": false,
+      "weight": 0.0,
+      "reason": "unaffected retention is evaluated without a teaching gradient; no loss is computed on retained records or retention queries"
+    },
+    "local_associative_loss": {
+      "enabled": false,
+      "weight": 0.0,
+      "reason": "this is a readout and abstention protocol, not a writer-only experiment; local associative loss is neither optimized nor gated"
+    },
+    "writer_loss": {
+      "enabled": false,
+      "weight": 0.0
+    },
+    "backbone_loss": {
+      "enabled": false,
+      "weight": 0.0
+    },
+    "router_loss": {
+      "enabled": false,
+      "weight": 0.0
+    },
+    "evaluation_loss": {
+      "enabled": false,
+      "weight": 0.0,
+      "reason": "development and heldout queries never produce a gradient"
+    },
+    "gradient_contract": {
+      "gradient_scope": "selected_expert_gate_up_down_only",
+      "backprop_through_earlier_writes": false,
+      "backprop_through_stored_state": false,
+      "backprop_through_retention_evaluation": false,
+      "backprop_through_dev_or_heldout": false,
+      "write_path_stop_gradient": true,
+      "stored_state_detached": true,
+      "cross_event_gradient": "none",
+      "inactive_experts_receive_gradients": false,
+      "optimizer_state_touched": "selected_expert_only",
+      "earlier_write_gradient_policy": "none; each readout loss is local to the current teaching query and stops before every earlier write"
+    }
+  },
+  "prepared": {
+    "root": "data/value_readout_abstention_20261027/fixture01",
+    "manifest": "manifest.json",
+    "formats": {
+      "manifest": "replica.value_readout_abstention.prepared.v1",
+      "event": "replica.value_readout_abstention.event.v1",
+      "case": "replica.value_readout_abstention.case.v1",
+      "label": "replica.value_readout_abstention.label.v1",
+      "control": "replica.value_readout_abstention.control.v1"
+    },
+    "files": {
+      "episodes": "episodes.jsonl",
+      "cases_train": "cases_train.jsonl",
+      "cases_train_replay": "cases_train_replay.jsonl",
+      "cases_dev": "cases_dev.jsonl",
+      "cases_heldout": "cases_heldout.jsonl",
+      "labels_dev": "labels_dev.jsonl",
+      "labels_heldout": "labels_heldout.jsonl",
+      "controls": "controls.jsonl"
+    },
+    "expected_counts": {
+      "episodes": 7,
+      "episodes_train": 3,
+      "episodes_dev": 2,
+      "episodes_heldout": 2,
+      "events": 68,
+      "events_train": 36,
+      "events_dev": 16,
+      "events_heldout": 16,
+      "queries": 47,
+      "write_events": 21,
+      "cases": 47,
+      "cases_train": 15,
+      "cases_train_replay": 12,
+      "cases_dev": 10,
+      "cases_heldout": 10,
+      "teaching_cases": 24,
+      "teaching_cases_base": 12,
+      "teaching_cases_replay": 12,
+      "retention_diagnostic_cases": 3,
+      "optimizer_steps": 24,
+      "labels_dev": 10,
+      "labels_heldout": 10
+    },
+    "loss_counts": {
+      "future_answer_readout": 6,
+      "correction_readout": 6,
+      "unknown_abstention_readout": 6,
+      "wrong_world_abstention_readout": 6
+    },
+    "manifest_requirements": {
+      "native_computation": false,
+      "model_loaded": false,
+      "tokenizer_loaded": false,
+      "downloads": 0,
+      "heldout_opened": false,
+      "deterministic": true
+    }
+  },
+  "episode_schedule": {
+    "base_event_epochs": [
+      {
+        "epoch": 0,
+        "kind": "observation",
+        "role": "write_initial_value"
+      },
+      {
+        "epoch": 1,
+        "kind": "query",
+        "case_type": "future_answer"
+      },
+      {
+        "epoch": 2,
+        "kind": "observation",
+        "role": "write_unrelated_value"
+      },
+      {
+        "epoch": 3,
+        "kind": "correction",
+        "role": "write_correction",
+        "supersedes_epoch": 0
+      },
+      {
+        "epoch": 4,
+        "kind": "query",
+        "case_type": "correction"
+      },
+      {
+        "epoch": 5,
+        "kind": "query",
+        "case_type": "unaffected_retention"
+      },
+      {
+        "epoch": 6,
+        "kind": "query",
+        "case_type": "unknown_abstention"
+      },
+      {
+        "epoch": 7,
+        "kind": "query",
+        "case_type": "wrong_world_abstention"
+      }
+    ],
+    "replay_event_epochs": [
+      {
+        "epoch": 8,
+        "kind": "query",
+        "case_type": "future_answer",
+        "replay_of": "future_answer"
+      },
+      {
+        "epoch": 9,
+        "kind": "query",
+        "case_type": "correction",
+        "replay_of": "correction"
+      },
+      {
+        "epoch": 10,
+        "kind": "query",
+        "case_type": "unknown_abstention",
+        "replay_of": "unknown_abstention"
+      },
+      {
+        "epoch": 11,
+        "kind": "query",
+        "case_type": "wrong_world_abstention",
+        "replay_of": "wrong_world_abstention"
+      }
+    ],
+    "train_events_per_episode": 12,
+    "evaluation_events_per_episode": 8,
+    "replay_split": "train_only",
+    "one_clock_step_per_event": true
+  },
+  "case_semantics": {
+    "future_answer": "a later query returns the current non-superseded value for the addressed record",
+    "correction": "a query after a correction returns the corrected value, never the superseded value",
+    "unaffected_retention": "a query about an unrelated record returns that record's current value and receives no teaching gradient",
+    "unknown_abstention": "a query whose address is absent from every world at the query epoch returns UNKNOWN",
+    "wrong_world_abstention": "a query whose address exists only in a sibling world of the same split returns UNKNOWN and never the sibling value",
+    "evaluation_rule": "development and heldout cases contain no target fields; authoritative targets are sealed in labels_dev.jsonl and labels_heldout.jsonl"
+  },
+  "controls": {
+    "arms": [
+      {
+        "arm_id": "learned_value_readout",
+        "role": "treatment",
+        "training": "selected_expert_readout_on_disjoint_training_and_replay_cases",
+        "writes": "fixed_writer",
+        "state": "episodic",
+        "gate": "primary",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false
+      },
+      {
+        "arm_id": "exact_context",
+        "role": "quality_and_cost_reference",
+        "training": "none",
+        "writes": "none",
+        "state": "full_exact_context",
+        "gate": "none",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false,
+        "quality_metric": "case_accuracy",
+        "cost_metric": "context_tokens_per_query"
+      },
+      {
+        "arm_id": "selected_record_literal_readout",
+        "role": "diagnostic_reference",
+        "training": "none",
+        "writes": "fixed_writer",
+        "state": "literal_selected_record",
+        "gate": "none",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false
+      },
+      {
+        "arm_id": "memory_disabled",
+        "role": "control",
+        "training": "none",
+        "writes": "none",
+        "state": "empty_memory",
+        "gate": "must_abstain_all",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false
+      },
+      {
+        "arm_id": "memory_reset",
+        "role": "control",
+        "training": "none",
+        "writes": "writes_then_reset_before_queries",
+        "state": "reset_memory",
+        "gate": "must_abstain_all",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false
+      },
+      {
+        "arm_id": "shuffled_values",
+        "role": "control",
+        "training": "same_schedule_with_deterministic_value_permutation",
+        "writes": "fixed_writer_with_shuffled_values",
+        "state": "episodic_shuffled",
+        "gate": "must_not_pass_primary_gates",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false,
+        "max_any_case_accuracy": 0.5
+      },
+      {
+        "arm_id": "wrong_world_values",
+        "role": "control",
+        "training": "same_schedule_with_wrong_world_values",
+        "writes": "fixed_writer_with_wrong_world_values",
+        "state": "episodic_wrong_world",
+        "gate": "must_not_pass_primary_gates",
+        "treatment_required_to_beat": false,
+        "combine_with_other_arms": false,
+        "max_any_case_accuracy": 0.5
+      }
+    ],
+    "distinctness": {
+      "exact_context_separate_from_literal": true,
+      "disabled_separate_from_reset": true,
+      "shuffled_separate_from_wrong_world": true,
+      "reference_arms_never_gated": true,
+      "no_arm_combination": true
+    }
+  },
+  "evaluation": {
+    "order": [
+      "fit_receipt",
+      "development",
+      "heldout"
+    ],
+    "fit": {
+      "cases": 27,
+      "teaching_cases": 24,
+      "retention_diagnostic_cases": 3,
+      "thresholds": {
+        "future_answer_accuracy_min": 0.8,
+        "correction_accuracy_min": 0.7,
+        "unaffected_retention_accuracy_min": 0.8,
+        "unknown_abstention_accuracy_min": 0.9,
+        "wrong_world_abstention_accuracy_min": 0.9,
+        "stale_value_rate_max": 0.05
+      },
+      "local_associative_loss_gate": false
+    },
+    "dev": {
+      "cases": 10,
+      "thresholds": {
+        "future_answer_accuracy_min": 0.8,
+        "correction_accuracy_min": 0.7,
+        "unaffected_retention_accuracy_min": 0.8,
+        "unknown_abstention_accuracy_min": 0.9,
+        "wrong_world_abstention_accuracy_min": 0.9,
+        "stale_value_rate_max": 0.05
+      },
+      "gate_basis": [
+        "future_answer",
+        "correction",
+        "unaffected_retention",
+        "unknown_abstention",
+        "wrong_world_abstention"
+      ],
+      "training_loss_gate": false,
+      "local_associative_loss_gate": false,
+      "requires_fit_receipt": true,
+      "tuning": "forbidden"
+    },
+    "heldout": {
+      "cases": 10,
+      "after_development_pass_only": true,
+      "attempts": 1,
+      "labels_sealed_until_admission": true,
+      "tuning": "forbidden"
+    },
+    "control_gates": {
+      "memory_disabled": {
+        "max_non_abstain_rate": 0.0
+      },
+      "memory_reset": {
+        "max_non_abstain_rate": 0.0
+      },
+      "shuffled_values": {
+        "max_any_case_accuracy": 0.5,
+        "must_not_pass_primary_gates": true
+      },
+      "wrong_world_values": {
+        "max_any_case_accuracy": 0.5,
+        "must_not_pass_primary_gates": true
+      }
+    },
+    "exact_context_reference": {
+      "arm_id": "exact_context",
+      "quality_metric": "case_accuracy",
+      "cost_metric": "context_tokens_per_query",
+      "gate": false,
+      "treatment_required_to_beat": false,
+      "report_quality_and_cost": true
+    },
+    "selected_record_literal_reference": {
+      "arm_id": "selected_record_literal_readout",
+      "gate": false,
+      "diagnostic_only": true
+    }
+  },
+  "admission": {
+    "fit_receipt": {
+      "format": "replica.value_readout_abstention.fit_receipt.v1",
+      "required_before_development": true,
+      "created_by": "future_authorized_runner",
+      "scope": {
+        "arm_id": "learned_value_readout",
+        "phase": "fit_treatment",
+        "optimizer_steps": 24,
+        "excluded_trained_controls": [
+          "shuffled_values",
+          "wrong_world_values"
+        ],
+        "reason": "the fit receipt admits the treatment arm only; the two trained control arms run under the experiment ceiling and are never part of development admission"
+      },
+      "fields": [
+        "artifacts",
+        "config_sha256",
+        "created_by",
+        "dev_labels_read",
+        "earlier_write_gradient",
+        "fit_gates",
+        "format",
+        "heldout_opened",
+        "losses",
+        "mode",
+        "optimizer",
+        "optimizer_steps",
+        "prepared_manifest_sha256",
+        "protocol_id",
+        "replay_case_count",
+        "seed",
+        "status",
+        "train_case_count",
+        "trainable_parameters",
+        "tuning_performed"
+      ],
+      "exact_values": {
+        "created_by": "future_authorized_runner",
+        "dev_labels_read": false,
+        "earlier_write_gradient": false,
+        "heldout_opened": false,
+        "mode": "fit",
+        "optimizer": "NativeFusedAdamW",
+        "optimizer_steps": 24,
+        "protocol_id": "value_readout_abstention_v1",
+        "replay_case_count": 12,
+        "seed": 20261027,
+        "status": "passed",
+        "train_case_count": 15,
+        "tuning_performed": false
+      }
+    },
+    "development": {
+      "format": "replica.value_readout_abstention.development_receipt.v1",
+      "requires_fit_receipt": true,
+      "one_shot": true,
+      "attempt": 1,
+      "dev_labels_unsealed": "after_passing_fit_receipt_only",
+      "tuning_forbidden": true,
+      "heldout_opened": false
+    },
+    "heldout": {
+      "format": "replica.value_readout_abstention.heldout_receipt.v1",
+      "after_development_pass_only": true,
+      "attempts": 1,
+      "labels_sealed_until_admission": true,
+      "tuning_forbidden": true
+    }
+  },
+  "budget": {
+    "preparation": {
+      "device": "cpu",
+      "network": "disabled",
+      "native_jobs": 0,
+      "model_loads": 0,
+      "tokenizer_loads": 0,
+      "optimizer_updates": 0,
+      "gradients": 0,
+      "checkpoints_written": 0,
+      "downloads": 0,
+      "wall_seconds_max": 120,
+      "rss_bytes_max": 536870912,
+      "artifact_bytes_max": 1048576
+    },
+    "authorized_run_ceiling": {
+      "model_loads": 1,
+      "tokenizer_loads": 1,
+      "optimizer_updates_total": 72,
+      "backward_calls_total": 72,
+      "readout_forward_calls_total": 221,
+      "write_events_total": 105,
+      "context_reference_cases": 20,
+      "context_tokens_total": 480,
+      "generated_tokens_total": 0,
+      "checkpoint_writes": 3,
+      "artifact_bytes_max": 16777216,
+      "wall_seconds_max": 1200,
+      "gpu_minutes_max": 20,
+      "peak_driver_bytes_max": 53687091200,
+      "sustained_swap_growth_bytes_max": 536870912,
+      "min_host_free_fraction": 0.15,
+      "exclusive_worker": true,
+      "cpu_fallback": false,
+      "downloads": 0,
+      "workload_derivation": {
+        "basis": "three independent trained arms, each with its own one-step-per-teaching-event clock; no arm shares or replays another arm's optimizer step",
+        "arms": [
+          {
+            "arm_id": "learned_value_readout",
+            "phase": "fit_treatment",
+            "teaching_cases": 24,
+            "optimizer_steps": 24,
+            "backward_calls": 24,
+            "fit_receipt_binding": true
+          },
+          {
+            "arm_id": "shuffled_values",
+            "phase": "control_fit",
+            "teaching_cases": 24,
+            "optimizer_steps": 24,
+            "backward_calls": 24,
+            "fit_receipt_binding": false
+          },
+          {
+            "arm_id": "wrong_world_values",
+            "phase": "control_fit",
+            "teaching_cases": 24,
+            "optimizer_steps": 24,
+            "backward_calls": 24,
+            "fit_receipt_binding": false
+          }
+        ],
+        "fit_receipt_arm_id": "learned_value_readout",
+        "fit_receipt_optimizer_steps": 24,
+        "control_fit_optimizer_steps": 48,
+        "total_optimizer_steps": 72,
+        "readout_forward_calls_derivation": {
+          "training_forwards": 72,
+          "evaluation_forwards": 140,
+          "retention_diagnostic_forwards": 9,
+          "total": 221
+        },
+        "write_events_derivation": {
+          "writing_arms": 5,
+          "writes_per_arm": 21,
+          "total": 105
+        },
+        "checkpoint_writes_derivation": {
+          "trained_arms": 3,
+          "checkpoints_per_trained_arm": 1,
+          "total": 3
+        },
+        "one_step_per_teaching_event": true,
+        "independent_arm_clocks": 3,
+        "shared_clock_across_arms": false,
+        "extra_steps_per_event": 0
+      }
+    },
+    "data_limits": {
+      "episodes": 7,
+      "events": 68,
+      "queries": 47,
+      "cases": 47,
+      "teaching_cases": 24,
+      "optimizer_steps": 24,
+      "write_events": 21,
+      "answer_vocabulary_size": 22,
+      "prepared_bytes_max": 1048576,
+      "max_events_per_episode": 12,
+      "max_cases_per_split": 27
+    }
+  },
+  "launch": {
+    "review_only": true,
+    "native_execution": false,
+    "command": "python3 scripts/preflight_value_readout_abstention_v1.py --config configs/value_readout_abstention_protocol_v1.json --prepared data/value_readout_abstention_20261027/fixture01 --receipt runs/value_readout_abstention_20261027/preflight01.json --review",
+    "receipt_format": "replica.value_readout_abstention.preflight_receipt.v1",
+    "review_receipt_path": "runs/value_readout_abstention_20261027/preflight01.json",
+    "requires_authorization_receipt": true,
+    "authorization_receipt_format": "replica.value_readout_abstention.authorization.v1",
+    "authorization_fields": [
+      "format",
+      "protocol_id",
+      "config_sha256",
+      "prepared_manifest_sha256",
+      "authorized_by",
+      "native_execution_allowed",
+      "single_attempt",
+      "receipt_sha256"
+    ],
+    "on_missing_receipt": "refuse_nonzero",
+    "on_receipt_without_separate_admission_runner": "refuse_nonzero",
+    "native_execution_status": "refused_preparation_only"
+  },
+  "limitations": [
+    "The fixture is synthetic and deterministic; passing validation establishes protocol preparation and label consistency, not model capability.",
+    "No model, tokenizer, optimizer, gradient, checkpoint or native job is executed by this preparation package.",
+    "The closed answer vocabulary is protocol-local and is not a claim about open-ended generation.",
+    "UNKNOWN is used for both absent addresses and rejected wrong-world addresses; the case labels keep the reasons distinct.",
+    "Training and replay labels are disjoint from development and heldout cases, but wrong-world cases may reference a sibling world only within the same split.",
+    "Exact context is a quality and cost reference and is not required to be beaten.",
+    "Unaffected retention is evaluated and has no teaching gradient.",
+    "Any later native run requires a separate authorization receipt and a passing fit receipt before development labels are opened.",
+    "Heldout evaluation is a single post-development attempt and is never used for tuning."
+  ]
+}

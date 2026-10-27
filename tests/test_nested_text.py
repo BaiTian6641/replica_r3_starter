@@ -1208,17 +1208,40 @@ def test_v2_native_forward_counter_tracks_actual_calls():
     assert unphased.records == []
 
 
-def test_v2_candidate_answers_cover_conflict_roles_only():
+def test_v2_candidate_answers_are_fit_scoped_and_dev_blocked():
     module = runner_module()
     directory = v2_directory()
     manifest = module.load_episode_manifest(directory)
-    answers = module.candidate_answers_for(directory, manifest)
-    expected = set()
-    for role in ("development", "correction", "unaffected", "wrong_world"):
-        expected.update(row["expected_response"]
-                        for row in module.load_rows(directory, manifest, role))
-    assert set(answers) == expected
-    assert list(answers) == sorted(expected)
+    module.reset_role_access()
+    world = manifest["primary_world"]
+    scope = f"{world}/text"
+    fit_answers = module.fit_candidate_answers_for(
+        directory, manifest, world_uid=world, scope=scope)
+    fit_expected = {row["expected_response"]
+                    for role in module.FIT_CANDIDATE_ROLES
+                    for row in module.load_rows(directory, manifest, role)
+                    if row["eligible"] and row["world_uid"] == world
+                    and row["scope_uid"] == scope}
+    assert set(fit_answers) == fit_expected
+    assert list(fit_answers) == sorted(fit_expected)
+    with pytest.raises(module.RunnerError,
+                       match="cannot be parsed before a validated fit receipt"):
+        module.development_candidate_answers_for(directory, manifest)
+    with pytest.raises(module.RunnerError,
+                       match="cannot be parsed before a validated fit receipt"):
+        module.load_rows(directory, manifest, "sealed_final")
+    baseline = json.loads((ROOT / "configs" /
+                           "nested_text_nl1_v2.json").read_text())
+    module.ROLE_ACCESS.admit_without_fit_receipt(baseline)
+    try:
+        answers = module.development_candidate_answers_for(directory, manifest)
+        expected = set()
+        for role in module.DEVELOPMENT_CANDIDATE_ROLES:
+            expected.update(row["expected_response"]
+                            for row in module.load_rows(directory, manifest, role))
+        assert set(answers) == expected
+    finally:
+        module.reset_role_access()
 
 
 def test_v2_episode_binding_rejects_alternate_root_and_manifest_hash():
@@ -1380,11 +1403,14 @@ def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
                   "expected": row["expected_response"],
                   "prompt_sha256": row["prompt_sha256"],
                   "scoring_version": module.SCORING_VERSION,
-                  "generated_ids": [1], "stop_reason": "stop_token",
-                  "truncated": False}
+                  "answer_grammar_version": module.ANSWER_GRAMMAR_VERSION,
+                  "generated_ids": [1], "content_ids": [],
+                  "stop_reason": "stop_token", "stop_token": 1,
+                  "max_new_tokens": 24, "truncated": False}
         if index < failing_attempts:
-            record.pop("generated_ids")
-            record.pop("stop_reason")
+            for field in ("generated_ids", "content_ids", "stop_reason",
+                          "stop_token", "max_new_tokens", "truncated"):
+                record.pop(field)
             record.update({"correct": False, "reason": "generation_failure",
                            "truncated": None,
                            "error": "RuntimeError: dropped request"})
@@ -1398,8 +1424,12 @@ def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
               "failures": failing_attempts,
               "accuracy": correct / len(results), "results": results,
               "scoring_version": module.SCORING_VERSION}
-    gate_failures = ([] if correct / len(results) >= 0.5
-                     else ["min_fit_accuracy"])
+    gate_failures = []
+    if correct / len(results) < 0.5:
+        gate_failures.append("min_fit_accuracy")
+    if failing_attempts:
+        gate_failures.extend(["generation_failures",
+                              "incomplete_request_audit"])
     gate = {
         "label": "fit", "fit_accuracy": correct / len(results),
         "all_declared_gates_passed": not gate_failures,
@@ -1439,6 +1469,29 @@ def validate_bundle(bundle, receipt=None, *, state="default", state_path=None):
 def resealed(bundle, mutate) -> dict:
     receipt = copy.deepcopy(bundle.receipt)
     mutate(receipt)
+    return bundle.module.seal_fit_receipt(receipt)
+
+
+def _rebuild_with_gate(bundle, mutate):
+    """Rewrite/rebuild the preserved fit gate, then reseal its admission."""
+    gate = copy.deepcopy(bundle.gate)
+    mutate(gate)
+    gate_path = _write_json_file(bundle.gate_path, gate)
+    return bundle.module.build_fit_receipt(
+        config=bundle.config, config_path=bundle.config_path,
+        manifest=bundle.manifest, manifest_path=bundle.manifest_path,
+        episodes_root=bundle.episodes, state_path=bundle.state_path,
+        state=bundle.state, protocol=bundle.protocol, teach_dir=bundle.teach,
+        teach_expected_updates=FIT_UPDATES, fit_gate_path=gate_path)
+
+
+def _receipt_for_gate(bundle, mutate) -> dict:
+    """Replace the gate file and bind the existing receipt to it."""
+    gate = copy.deepcopy(bundle.gate)
+    mutate(gate)
+    gate_path = _write_json_file(bundle.gate_path, gate)
+    receipt = copy.deepcopy(bundle.receipt)
+    receipt["gate_report"]["sha256"] = bundle.module._sha256_file(gate_path)
     return bundle.module.seal_fit_receipt(receipt)
 
 
@@ -1483,8 +1536,10 @@ def test_fit_receipt_round_trip_binds_every_admission_field(tmp_path):
     assert receipt["scoring"]["answer_grammar_version"] == (
         module.ANSWER_GRAMMAR_VERSION)
     assert receipt["scoring"]["candidate_answers_sha256"] == (
-        module._sha256_json(list(module.candidate_answers_for(
-            bundle.episodes, bundle.manifest))))
+        module._sha256_json(list(module.fit_candidate_answers_for(
+            bundle.episodes, bundle.manifest,
+            world_uid=bundle.manifest["primary_world"],
+            scope=f"{bundle.manifest['primary_world']}/text"))))
     primary = receipt["teaching"]["primary"]
     assert primary["p_only_sha256"] == receipt["p_state"]["sha256"]
     assert primary["canonical_state_sha256"] == json.loads(
@@ -1600,6 +1655,132 @@ def test_fit_receipt_rejects_scorer_and_stopping_policy_drift(
     bundle = fit_bundle(tmp_path)
     receipt = resealed(bundle, mutate)
     with pytest.raises(bundle.module.RunnerError, match=message):
+        validate_bundle(bundle, receipt, state=None)
+
+
+def test_fit_receipt_rejects_low_accuracy_despite_upstream_pass_flag(tmp_path):
+    bundle = fit_bundle(tmp_path)
+
+    def mutate(gate):
+        results = gate["scores"]["results"]
+        for item in results[1:]:
+            item["output"] = "nothing relevant"
+            item["correct"] = False
+            item["reason"] = "missing_answer"
+        gate["scores"]["correct"] = 1
+        gate["scores"]["accuracy"] = 1 / len(results)
+        gate["fit_accuracy"] = 1 / len(results)
+        gate["all_declared_gates_passed"] = True
+        gate["gate_failures"] = []
+
+    with pytest.raises(bundle.module.RunnerError,
+                       match="independently recomputed|fit gate"):
+        _rebuild_with_gate(bundle, mutate)
+
+
+def test_fit_receipt_rejects_incorrect_text_marked_correct(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    with pytest.raises(bundle.module.RunnerError, match="contradicts"):
+        _rebuild_with_gate(
+            bundle,
+            lambda gate: gate["scores"]["results"][-1].__setitem__(
+                "output", "Unrelated sentence."))
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda gate: gate.__setitem__("answer_grammar_version", "stale"),
+    lambda gate: gate.pop("answer_grammar_version"),
+    lambda gate: gate["scores"]["results"][0].__setitem__(
+        "answer_grammar_version", "stale"),
+    lambda gate: gate["scores"]["results"][0].pop("answer_grammar_version"),
+])
+def test_fit_receipt_rejects_stale_or_missing_upstream_grammar(tmp_path, mutate):
+    bundle = fit_bundle(tmp_path)
+    with pytest.raises(bundle.module.RunnerError, match="grammar"):
+        _rebuild_with_gate(bundle, mutate)
+
+
+def test_fit_receipt_validate_rejects_resealed_stale_gate_evidence(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    receipt = _receipt_for_gate(
+        bundle, lambda gate: gate.pop("answer_grammar_version"))
+    with pytest.raises(bundle.module.RunnerError, match="grammar"):
+        validate_bundle(bundle, receipt, state=None)
+    forged = _receipt_for_gate(bundle, lambda gate: gate["scores"][
+        "results"][-1].__setitem__("output", "Unrelated sentence."))
+    with pytest.raises(bundle.module.RunnerError, match="contradicts"):
+        validate_bundle(bundle, forged, state=None)
+
+
+@pytest.mark.parametrize("label, mutate, message", [
+    ("truncated flag", lambda r: r.__setitem__("truncated", True),
+     "truncation"),
+    ("stop token", lambda r: r.__setitem__("stop_token", 2), "stop token"),
+    ("missing content", lambda r: r.pop("content_ids"), "content_ids"),
+    ("content prefix", lambda r: r.__setitem__("content_ids", [9]), "content"),
+    ("budget stop", lambda r: r.update(
+        {"stop_reason": "token_budget", "stop_token": None,
+         "content_ids": [1]}), "token-budget"),
+    ("budget value", lambda r: r.__setitem__("max_new_tokens", 8),
+     "generation budget"),
+    ("empty ids", lambda r: r.__setitem__("generated_ids", []),
+     "token budget"),
+    ("missing stop token", lambda r: r.pop("stop_token"), "stop token"),
+    ("sentence stop", lambda r: r.update(
+        {"stop_reason": "sentence_complete", "stop_token": None,
+         "content_ids": [1]}), "sentence"),
+    ("missing generated", lambda r: r.pop("generated_ids"),
+     "generated_ids"),
+])
+def test_fit_receipt_rejects_inconsistent_generation_stop_evidence(
+        tmp_path, label, mutate, message):
+    bundle = fit_bundle(tmp_path)
+    with pytest.raises(bundle.module.RunnerError, match=message):
+        _rebuild_with_gate(
+            bundle,
+            lambda gate: mutate(gate["scores"]["results"][0]))
+
+
+@pytest.mark.parametrize("label, mutate", [
+    ("missing case", lambda gate: gate["scores"]["results"].pop()),
+    ("duplicate case", lambda gate: gate["scores"]["results"].append(
+        copy.deepcopy(gate["scores"]["results"][0]))),
+    ("unexpected case", lambda gate: gate["scores"]["results"][-1].__setitem__(
+        "id", "dev-9999")),
+])
+def test_fit_receipt_rejects_incomplete_or_duplicated_gate_cases(
+        tmp_path, label, mutate):
+    bundle = fit_bundle(tmp_path)
+    with pytest.raises(bundle.module.RunnerError, match="coverage"):
+        _rebuild_with_gate(bundle, mutate)
+
+
+def test_fit_receipt_validate_rejects_resealed_bad_stop_evidence(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    receipt = _receipt_for_gate(
+        bundle,
+        lambda gate: gate["scores"]["results"][0].__setitem__(
+            "truncated", True))
+    with pytest.raises(bundle.module.RunnerError, match="truncation"):
+        validate_bundle(bundle, receipt, state=None)
+
+
+def test_fit_receipt_validate_rejects_resealed_low_accuracy_gate(tmp_path):
+    bundle = fit_bundle(tmp_path)
+
+    def mutate(gate):
+        results = gate["scores"]["results"]
+        for item in results[1:]:
+            item["output"] = "nothing relevant"
+            item["correct"] = False
+            item["reason"] = "missing_answer"
+        gate["fit_accuracy"] = 1 / len(results)
+        gate["all_declared_gates_passed"] = True
+        gate["gate_failures"] = []
+
+    receipt = _receipt_for_gate(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError,
+                       match="aggregates|attempt accounting|independently"):
         validate_bundle(bundle, receipt, state=None)
 
 
@@ -1740,10 +1921,47 @@ def test_non_training_v2_never_requires_a_fit_receipt():
     assert module.require_fit_receipt(
         args, baseline, manifest={}, manifest_path=ROOT / "unused",
         episodes_root=ROOT) is None
+    assert module.ROLE_ACCESS.admission == "protocol_without_fit_receipt"
+    module.reset_role_access()
     with pytest.raises(module.RunnerError, match="fit receipt"):
         module.require_fit_receipt(
             args, behavioral, manifest={}, manifest_path=ROOT / "unused",
             episodes_root=ROOT)
+    assert module.ROLE_ACCESS.admission is None
+    module.reset_role_access()
+
+
+def test_development_labels_stay_unreadable_until_full_receipt_admission(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    module = bundle.module
+    module.reset_role_access()
+    failed = module.seal_fit_receipt(
+        {**copy.deepcopy(bundle.receipt), "status": "failed"})
+    args = _p_only_args(
+        tmp_path,
+        receipt_path=_write_json_file(tmp_path / "failed_receipt.json", failed),
+        state_path=bundle.state_path, config_path=bundle.config_path)
+    with pytest.raises(module.RunnerError, match="status is 'failed'"):
+        module.require_fit_receipt(
+            args, bundle.config, manifest=bundle.manifest,
+            manifest_path=bundle.manifest_path,
+            episodes_root=bundle.episodes)
+    assert module.ROLE_ACCESS.admission is None
+    with pytest.raises(module.RunnerError,
+                       match="cannot be parsed before a validated fit receipt"):
+        module.development_candidate_answers_for(bundle.episodes,
+                                                 bundle.manifest)
+    validate_bundle(bundle)
+    assert module.ROLE_ACCESS.admission is None, (
+        "recording validation must not itself open label parsing")
+    module.ROLE_ACCESS.admit_fit_receipt(bundle.receipt)
+    assert module.ROLE_ACCESS.admission == (
+        f"fit_receipt:{bundle.receipt['receipt_sha256']}")
+    try:
+        assert module.development_candidate_answers_for(
+            bundle.episodes, bundle.manifest)
+    finally:
+        module.reset_role_access()
 
 
 def _p_only_args(tmp_path, *, receipt_path, state_path, config_path=None):
@@ -1782,6 +2000,15 @@ def test_behavioral_p_only_rejects_invalid_fit_evidence_before_native_load(
                         forbidden("development-access"))
     monkeypatch.setattr(module.TextAccessOrder, "advance",
                         forbidden("development-advance"))
+    parsed_roles: list[str] = []
+    original_load_rows = module.load_rows
+
+    def watched_load_rows(directory, manifest, role):
+        if role not in module.FIT_TARGET_ROLES:
+            parsed_roles.append(role)
+        return original_load_rows(directory, manifest, role)
+
+    monkeypatch.setattr(module, "load_rows", watched_load_rows)
     receipt_path = bundle.receipt_path
     state_path = bundle.state_path
     config_path = bundle.config_path
@@ -1806,7 +2033,9 @@ def test_behavioral_p_only_rejects_invalid_fit_evidence_before_native_load(
     with pytest.raises(module.RunnerError, match=message):
         module.run_p_only_v2(args, bundle.config)
     assert calls == [], "receipt admission must precede native/development access"
+    assert parsed_roles == [], "development labels were parsed before admission"
     assert not (tmp_path / "eval" / "p_only_input.json").exists()
+    bundle.module.reset_role_access()
 
 
 def test_behavioral_p_only_accepts_the_bound_receipt_before_native_load(tmp_path,
@@ -1817,6 +2046,8 @@ def test_behavioral_p_only_accepts_the_bound_receipt_before_native_load(tmp_path
     calls: list[str] = []
 
     def stop_at_load(*args, **kwargs):
+        assert module.ROLE_ACCESS.admission == (
+            f"fit_receipt:{bundle.receipt['receipt_sha256']}")
         calls.append("torch.load")
         raise AssertionError("admission reached torch.load")
 
@@ -1833,6 +2064,9 @@ def test_behavioral_p_only_accepts_the_bound_receipt_before_native_load(tmp_path
     args = _p_only_args(tmp_path, receipt_path=bundle.receipt_path,
                         state_path=bundle.state_path,
                         config_path=bundle.config_path)
-    with pytest.raises(AssertionError, match="admission reached torch.load"):
-        module.run_p_only_v2(args, bundle.config)
-    assert calls == ["torch.load"]
+    try:
+        with pytest.raises(AssertionError, match="admission reached torch.load"):
+            module.run_p_only_v2(args, bundle.config)
+        assert calls == ["torch.load"]
+    finally:
+        module.reset_role_access()

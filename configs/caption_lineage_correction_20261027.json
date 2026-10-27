@@ -1,0 +1,252 @@
+{
+  "format": "replica.caption_lineage_correction_config.v1",
+  "lineage_id": "caption_lineage_correction_20261027",
+  "qa_id": "external_caption_asset_qa_20261027",
+  "created_on": "2026-10-27",
+  "status": "corrected_selection_derived_from_rejected_qa",
+  "scope": "New parent/child lineage for the nine caption rows whose recorded semantic verdict is 'match' inside the train role of the rejected external caption QA. The rejected QA decision stays rejected and is never relabeled. Validation-only rows, mismatch/unclear rows and all sealed/exposed rows are excluded. Preparation only: no model execution, no training admission.",
+  "parents": {
+    "tranche_manifest": {
+      "path": "data/external_caption_tranche_20261025_v2/manifest.json",
+      "sha256": "3e9d9e2428079c12cbe45d006512ce97193280f6f66ec235af78553af7851232",
+      "bytes": 43340
+    },
+    "corpus": {
+      "path": "data/external_caption_tranche_20261025_v2/corpus.jsonl",
+      "sha256": "100f28c226cfd27913f0750d959d41de2faea0eb1857670e178d53278064da90",
+      "bytes": 84746,
+      "rows": 30
+    },
+    "image_root": {
+      "path": "data/external_caption_tranche_20261025_v2/raw/images",
+      "aggregate_sha256": "65622f6348032a0ac0bee47321f16916604efce220b7f5c7a292028d3d62f52c",
+      "aggregate_method": "sha256(concat(sorted filename + NUL + bytes))",
+      "files": 30
+    },
+    "train_manifest": {
+      "path": "data/external_caption_tranche_20261025_v2/manifests/train.json",
+      "sha256": "5cd231d151ddedc3c373556a46a29c92c19c6f918a09ef66ac15e4c1f3ff9a72",
+      "rows": 15
+    },
+    "development_manifest": {
+      "path": "data/external_caption_tranche_20261025_v2/manifests/development.json",
+      "sha256": "46df3145fa9eef0d0bf2bd4e47ff5de995b2a7082d82d5325acbdbe63da75993",
+      "rows": 7
+    },
+    "sealed_eval_manifest": {
+      "path": "data/external_caption_tranche_20261025_v2/manifests/final_eval_untouched.json",
+      "sha256": "e4d951e09ce5eb0ce7b1bc213c8af3448fcddbf6fa9a491817b96a4ad74db26a",
+      "rows": 8,
+      "sealed": true
+    },
+    "qa_config": {
+      "path": "configs/external_caption_asset_qa_v1.json",
+      "sha256": "5b45b20912f8c84bb43f2a998cb55affb426f6e2364d1e4b485972553c7481ac"
+    },
+    "qa_decision": {
+      "path": "reports/external_caption_asset_qa_20261027/admission_decision.json",
+      "sha256": "1ed2329a057535d97985a0cfc246b0d07edf7402da67d047974aba70299435ab",
+      "decision": "reject",
+      "training_admitted_row_ids": null,
+      "queue_sha256": "eca352f42068d22c990568ea05faae2bbeeb9d5975d6074fdd9afa28a5902623",
+      "relabeling_forbidden": true
+    },
+    "exposure_incident": {
+      "path": "reports/remediation_20261027/sealed_caption_review_exposure.json",
+      "sha256": "2b2af6de74799b3b98bfcb6e0a275ebf8beba84b5a093078dcef1b6b4053ec62",
+      "status": "quarantined_after_semantic_review_exposure",
+      "exposed_row_ids": [
+        "liuhaotian/LLaVA-Pretrain:001308193#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:000809480#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:000237684#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:000937058#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:003169286#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:000401749#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:002321958#raw_caption",
+        "liuhaotian/LLaVA-Pretrain:003373510#raw_caption"
+      ]
+    }
+  },
+  "selection": {
+    "rule": "admit only rows where split.role == 'train' AND recorded semantic verdict == 'match' AND row is not validation-only AND row is not any sealed/exposed row",
+    "admitted_row_ids": [
+      "liuhaotian/LLaVA-Pretrain:000764186#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000456905#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:002709185#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:001719881#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:002878530#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000284813#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:002710233#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:005525460#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:001939145#raw_caption"
+    ],
+    "admitted_count": 9,
+    "excluded_mismatch_row_ids": [
+      "liuhaotian/LLaVA-Pretrain:001842798#raw_caption"
+    ],
+    "excluded_unclear_row_ids": [
+      "liuhaotian/LLaVA-Pretrain:001529205#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:006359771#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:003982744#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:001104367#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:001316033#raw_caption"
+    ],
+    "validation_only_row_ids": [
+      "liuhaotian/LLaVA-Pretrain:000054222#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:003902288#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000961551#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:005507560#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:004055865#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:003524176#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:001725011#raw_caption"
+    ],
+    "excluded_counts": {
+      "mismatch": 1,
+      "unclear": 5,
+      "validation_only": 7,
+      "sealed_exposed": 8
+    },
+    "total_parent_rows_accounted": 30
+  },
+  "lineage_policy": {
+    "child_namespace": "caption-corrected-20261027",
+    "child_id_template": "caption-corrected-20261027:<upstream_id>#raw_caption",
+    "parent_decision_preserved": "reject",
+    "parent_decision_relabeled": false,
+    "child_is_new_lineage_not_a_verdict": true,
+    "requires_exactly_one_parent_tranche_row": true,
+    "requires_recorded_match_verdict": true,
+    "split_inheritance": {
+      "policy": "inherit the parent tranche role and group; no reassignment",
+      "child_split": "train",
+      "child_role": "train",
+      "group_key_template": "caption-corrected-20261027:<upstream_id>",
+      "validation_and_sealed_never_inherited": true
+    },
+    "duplicate_checks": {
+      "keys": [
+        "row_sha256",
+        "target_sha256",
+        "image_sha256",
+        "normalized_caption_sha256",
+        "root_group_key"
+      ],
+      "require_unique_within_admitted": true,
+      "require_unique_against_eval": true,
+      "record_all_tranche_groups": true
+    },
+    "provenance_requirements": [
+      "parent tranche manifest sha256, row sha256, image sha256 and target sha256",
+      "pinned QA decision sha256 plus recorded reviewer, reviewed_at and verdict",
+      "pinned exposure incident sha256 and explicit non-use of all exposed ids",
+      "source id, revision, split, family, upstream id and local image path",
+      "image bytes re-hashed from the pinned local file at validation time"
+    ],
+    "rights_policy": {
+      "inherit_parent_terms": true,
+      "required_terms": {
+        "acknowledgements": [
+          "Google LLC (CC-3M)",
+          "LAION/CC/SBU",
+          "Salesforce BLIP",
+          "LLaVA (liuhaotian)"
+        ],
+        "permitted_use": "internal_research",
+        "redistribution": "prohibited",
+        "research_use_only": true
+      },
+      "commercial_use": false,
+      "required_acknowledgements": [
+        "Google LLC (CC-3M)",
+        "LAION/CC/SBU",
+        "Salesforce BLIP",
+        "LLaVA (liuhaotian)"
+      ],
+      "note": "Training eligibility, if ever granted, does not change research-use-only rights or permit redistribution."
+    }
+  },
+  "outputs": {
+    "root": "data/caption_corrected_train_20261027",
+    "lineage_manifest": "data/caption_corrected_train_20261027/lineage_manifest.json",
+    "rows": "data/caption_corrected_train_20261027/rows.jsonl",
+    "exclusions": "data/caption_corrected_train_20261027/exclusions.jsonl"
+  },
+  "eval_partition": {
+    "config_path": "configs/synthetic_scene_eval_20261027.json",
+    "data_root": "data/synthetic_scene_eval_20261027",
+    "role": "final_eval_untouched_synthetic",
+    "must_be_disjoint_keys": [
+      "row_id",
+      "root_group_key",
+      "image_sha256",
+      "target_sha256",
+      "normalized_caption_sha256"
+    ],
+    "must_also_be_disjoint_from_exposed_rows": true,
+    "seal_required_before_model_use": true
+  },
+  "admission": {
+    "default_status": "not_admitted",
+    "requires_separate_reviewed_receipt": true,
+    "trust_model": "trusted_local_reviewed_receipt_not_a_signature",
+    "trust_statement": "The receipt is a trusted local review decision, not a cryptographic signature. It proves what a named reviewer decided and which exact artifacts were reviewed; it does not prove reviewer identity or resist a forger with repository write access. No environment secret, key material or cryptographic dependency is used.",
+    "receipt_path": "configs/caption_admission_receipt_20261027.json",
+    "receipt_must_not_be_created_by_generators": true,
+    "receipt_format": "replica.caption_training_admission_receipt.v1",
+    "scope": "training_admission",
+    "required_decision": "admit_training",
+    "decision_values": [
+      "admit_training",
+      "reject_training"
+    ],
+    "self_digest_field": "receipt_sha256",
+    "self_digest_rule": "sha256(canonical_json(receipt without receipt_sha256))",
+    "required_fields": [
+      "format",
+      "scope",
+      "trust",
+      "lineage_id",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "bindings",
+      "admitted_row_ids",
+      "conditions",
+      "receipt_sha256"
+    ],
+    "decided_by_required": true,
+    "decided_at_required": true,
+    "must_bind": [
+      "lineage_config_sha256",
+      "eval_config_sha256",
+      "lineage_manifest_sha256",
+      "lineage_rows_sha256",
+      "lineage_exclusions_sha256",
+      "eval_manifest_sha256",
+      "eval_rows_sha256",
+      "eval_seal_sha256",
+      "validator_version"
+    ],
+    "must_list_exactly_eligible_row_ids": true,
+    "fail_closed_if": [
+      "receipt missing",
+      "receipt self-digest mismatch",
+      "unknown or missing receipt fields",
+      "lineage, config, manifest, rows, exclusions, evaluation manifest/rows or seal binding mismatch",
+      "stale bindings from an earlier build",
+      "decision, decided_by or decided_at missing or invalid",
+      "row set differs from the nine eligible rows",
+      "any excluded, validation-only, sealed or exposed row listed"
+    ]
+  },
+  "non_claims": {
+    "model_execution": false,
+    "training_run": false,
+    "training_admitted": false,
+    "relabels_rejected_decision": false,
+    "clears_exposure_incident": false,
+    "semantic_verdicts_recomputed_by_model": false,
+    "external_image_provenance_changed": false,
+    "benchmark_quality_claim": "none"
+  }
+}

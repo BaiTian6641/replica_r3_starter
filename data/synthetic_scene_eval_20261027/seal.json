@@ -1,0 +1,59 @@
+{
+  "attestations": {
+    "disjoint_from_training_and_exposed_rows": true,
+    "generator_is_deterministic": true,
+    "human_semantic_review_used": false,
+    "labels_from_renderer_scene_spec": true,
+    "model_executions_at_seal": 0,
+    "no_external_images": true,
+    "no_third_party_content": true,
+    "sealed_before_any_model_use": true
+  },
+  "contract_canonical_sha256": "d8e2d57f0bade41334ddb5f04aca0ef52875bafa5bcf98a4a60622fc747aff9c",
+  "created_on": "2026-10-27",
+  "disjointness": {
+    "collisions": [],
+    "compared_external_rows": 30,
+    "compared_keys": [
+      "row_id",
+      "root_group_key",
+      "image_sha256",
+      "target_sha256",
+      "normalized_caption_sha256"
+    ],
+    "compared_training_rows": 9,
+    "exposed_row_ids": [
+      "liuhaotian/LLaVA-Pretrain:001308193#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000809480#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000237684#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000937058#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:003169286#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:000401749#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:002321958#raw_caption",
+      "liuhaotian/LLaVA-Pretrain:003373510#raw_caption"
+    ],
+    "exposure_incident_sha256": "2b2af6de74799b3b98bfcb6e0a275ebf8beba84b5a093078dcef1b6b4053ec62",
+    "external_corpus_sha256": "100f28c226cfd27913f0750d959d41de2faea0eb1857670e178d53278064da90",
+    "training_lineage_id": "caption_lineage_correction_20261027",
+    "training_lineage_manifest_sha256": "b67dd414d07a55ba2be386627860b1675197b46d40619013565cbb8241f8e691",
+    "training_rows_sha256": "b4efd15ad6b97e0df04f3d67233693d2772168e971c313ee2fce67ea554bc69c"
+  },
+  "eval_id": "synthetic_scene_eval_20261027",
+  "format": "replica.synthetic_scene_eval_seal.v1",
+  "role": "final_eval_untouched_synthetic",
+  "seal_digest_rule": "sha256(canonical_json(seal without seal_sha256))",
+  "seal_sha256": "f2179f3c02d30309362ed6c0913604d646327412dceb60600adc42e7b6f30a6e",
+  "sealed_artifacts": {
+    "counts": {
+      "families": 4,
+      "images": 24,
+      "rows": 24,
+      "scenes_per_family": 6
+    },
+    "images_aggregate_sha256": "c1a824f5763d13a0e865bcda5f5b3dc46fe078d5eb30d133ec35c007766aedb3",
+    "manifest_sha256": "843e5da40d9c190585375a363a4d97b6366a8c6c78969fbdedce6cd3d9da3ce1",
+    "rows_sha256": "9ed35b36987ac92268f44333fe6c8e617c86dafd672b9229c797ab30b379314e",
+    "scene_specs_sha256": "33da1ed78f0ce21eaf9100db8ac5272501ef64f3bf48b4d1667feb406cd4d0c7"
+  },
+  "split": "synthetic_scene_eval_sealed"
+}

@@ -14,10 +14,16 @@ This entry point is deliberately conservative:
   never retries held-out);
 * behavioral ``p-only-eval`` additionally requires a preserved passing fit
   receipt that binds the exact P-only file and payload, the live config,
-  protocol, episode manifest, scorer/stopping policy, fit case coverage and
-  attempts, and the teaching run/cost/canonical state hashes.  That receipt is
-  validated before ``torch.load``, before the native worker/model load and
-  before any development-role access; other protocols are unaffected;
+  protocol, episode manifest, scorer/grammar/stopping policy, fit-only
+  candidate vocabulary, case coverage and attempts, and the teaching
+  run/cost/canonical state hashes.  Correctness, minimum accuracy, coverage,
+  generation/stop evidence, source freedom and generation failures are
+  independently recomputed from preserved generations and authoritative fit
+  targets; saved score/gate flags are never trusted alone.  ``load_rows`` is
+  deny-by-default for every role outside teaching/correction, so development,
+  control and sealed labels cannot be parsed before this receipt validates.
+  Validation happens before ``torch.load``, before the native worker/model load
+  and before any development-role access; other protocols are unaffected;
 * ``resume`` restores the full checkpoint and applies exactly one next event,
   comparing its state digest with an uninterrupted reference from the same
   checkpoint.
@@ -85,6 +91,14 @@ CONFIG_FORMAT_V1 = "replica.nested_text.nl1.v1"
 FIT_RECEIPT_FORMAT = "replica.nested_text.fit_receipt.v1"
 FIT_RECEIPT_SCHEMA_VERSION = 1
 FIT_RECEIPT_FILE = "fit_receipt.json"
+# Roles whose targets may be parsed while producing/validating the fit receipt.
+FIT_TARGET_ROLES = frozenset({"teaching", "correction",
+                              "wrong_world_teaching"})
+# Every other role carries development/unaffected/unknown/revoked/retention,
+# wrong-world query or sealed labels and is refused until admission.
+DEVELOPMENT_CANDIDATE_ROLES = ("development", "correction", "unaffected",
+                               "wrong_world")
+FIT_CANDIDATE_ROLES = ("teaching", "correction")
 _AUDIT_FIELDS = ("sources_present", "memory_spans", "selection_records",
                  "ledger_records", "controller_constructed",
                  "coordinator_constructed", "updates_enabled")
@@ -111,6 +125,61 @@ WORK_COUNTERS = ("plastic_feature_forward_calls",
 
 class RunnerError(RuntimeError):
     """A runner contract or data-access gate failed."""
+
+
+class RoleAccessGuard:
+    """Process-scoped deny-by-default gate for non-fit label roles.
+
+    Only admission after a validated fit receipt (or after proving the protocol
+    does not require one) opens development/control/sealed label parsing.  The
+    guard is checked inside :func:`load_rows`, so no candidate-vocabulary or
+    episode helper can read those labels by another route.
+    """
+
+    def __init__(self) -> None:
+        self._admission: str | None = None
+        self._validated: set[str] = set()
+
+    @property
+    def admission(self) -> str | None:
+        return self._admission
+
+    def reset(self) -> None:
+        self._admission = None
+        self._validated.clear()
+
+    def record_validated(self, receipt: Mapping[str, Any]) -> None:
+        """Remember that ``validate_fit_receipt`` accepted this exact receipt."""
+        digest = receipt.get("receipt_sha256")
+        _require(isinstance(digest, str) and len(digest) == 64,
+                 "validated fit receipt lacks its digest")
+        self._validated.add(digest)
+
+    def admit_fit_receipt(self, receipt: Mapping[str, Any]) -> None:
+        digest = receipt.get("receipt_sha256")
+        _require(receipt.get("status") == "passed"
+                 and isinstance(digest, str) and digest in self._validated,
+                 "development labels require a fully validated passing fit receipt")
+        self._admission = f"fit_receipt:{digest}"
+
+    def admit_without_fit_receipt(self, config: Mapping[str, Any]) -> None:
+        _require(not fit_receipt_required(config),
+                 "this protocol requires a fit receipt before development labels")
+        self._admission = "protocol_without_fit_receipt"
+
+    def require(self, role: str) -> None:
+        if role in FIT_TARGET_ROLES:
+            return
+        _require(self._admission is not None,
+                 f"development label role {role!r} cannot be parsed before a "
+                 "validated fit receipt")
+
+
+ROLE_ACCESS = RoleAccessGuard()
+
+
+def reset_role_access() -> None:
+    ROLE_ACCESS.reset()
 
 
 def _require(condition: bool, message: str) -> None:
@@ -270,6 +339,7 @@ def validate_v2_config(config: Mapping[str, Any]) -> None:
 
 def load_rows(directory: Path, manifest: Mapping[str, Any], role: str) -> list[dict]:
     _require(role in manifest["role_files"], f"undeclared episode role {role!r}")
+    ROLE_ACCESS.require(role)
     path = directory / manifest["role_files"][role]
     rows = []
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -1022,11 +1092,33 @@ def _merge_request_rows(work_rows: list[dict],
     return requests
 
 
-def candidate_answers_for(directory: Path, manifest: Mapping[str, Any], *,
-                          roles: tuple[str, ...] = (
-                              "development", "correction", "unaffected",
-                              "wrong_world")) -> tuple[str, ...]:
-    """Expected answers used only to reject conflicting v2 outputs."""
+def fit_candidate_answers_for(directory: Path, manifest: Mapping[str, Any], *,
+                              world_uid: str,
+                              scope: str) -> tuple[str, ...]:
+    """Fit-only conflict vocabulary from authorized teaching/correction targets.
+
+    Development, unaffected, sealed and other evaluation labels are never read
+    here; :func:`load_rows` additionally refuses them until admission.
+    """
+    answers = set()
+    for role in FIT_CANDIDATE_ROLES:
+        if role not in manifest["role_files"]:
+            continue
+        answers.update(
+            row["expected_response"]
+            for row in load_rows(directory, manifest, role)
+            if row["eligible"] and row["world_uid"] == world_uid
+            and row["scope_uid"] == scope)
+    _require(answers, "no authorized fit candidate answers are available")
+    return tuple(sorted(answers))
+
+
+def development_candidate_answers_for(directory: Path,
+                                      manifest: Mapping[str, Any], *,
+                                      roles: tuple[str, ...] =
+                                      DEVELOPMENT_CANDIDATE_ROLES
+                                      ) -> tuple[str, ...]:
+    """Development-time conflict vocabulary, scoped after fit admission."""
     answers = set()
     for role in roles:
         if role not in manifest["role_files"]:
@@ -1125,20 +1217,147 @@ def _case_digest(cases: Iterable[Mapping[str, Any]]) -> str:
     return _sha256_json([dict(case) for case in cases])
 
 
-def _failed_attempt(item: Mapping[str, Any]) -> bool:
-    """A generation failure is explicit; it is never silently a scored attempt."""
-    return (item.get("reason") == "generation_failure"
-            or "error" in item or "correct" not in item)
+_FIT_STOP_REASONS = frozenset({"stop_token", "sentence_complete",
+                               "token_budget", "missing_stop"})
+_FIT_EVIDENCE_FIELDS = ("output", "generated_ids", "content_ids",
+                        "stop_reason", "stop_token", "max_new_tokens")
 
 
-def coverage_summary(cases: list[dict], score: Mapping[str, Any], *,
-                     declared_attempts: int) -> dict:
-    """Coverage derived from the preserved fit-gate attempt rows."""
-    results = [item for item in score["results"] if isinstance(item, Mapping)]
+def _fit_int_ids(value: Any, *, field: str, attempt: str) -> tuple[int, ...]:
+    _require(isinstance(value, (list, tuple))
+             and all(type(item) is int for item in value),
+             f"fit attempt {attempt!r} has an invalid {field} sequence")
+    return tuple(value)
+
+
+def _is_fit_generation_failure(item: Mapping[str, Any]) -> bool:
+    """Recognize only explicit, evidence-free generation failures."""
+    flagged = "error" in item or item.get("reason") == "generation_failure"
+    if not flagged:
+        return False
+    attempt = item.get("id")
+    _require(item.get("reason") == "generation_failure",
+             f"fit attempt {attempt!r} carries an error without a generation failure")
+    _require(isinstance(item.get("error"), str) and item["error"].strip(),
+             f"fit attempt {attempt!r} lacks its generation error")
+    _require(item.get("correct") is False and item.get("truncated") is None,
+             f"fit attempt {attempt!r} generation failure is scored")
+    _require(not any(field in item for field in _FIT_EVIDENCE_FIELDS),
+             f"fit attempt {attempt!r} generation failure carries scored evidence")
+    _require(item.get("scoring_version") == SCORING_VERSION
+             and item.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION,
+             f"fit attempt {attempt!r} failure lacks the declared scorer/grammar")
+    return True
+
+
+def _recompute_fit_attempt(item: Mapping[str, Any], case: Mapping[str, Any], *,
+                           candidates: tuple[str, ...],
+                           max_new_tokens: int,
+                           stop_tokens: frozenset[int]) -> dict:
+    """Independently revalidate one preserved generation and rescore its text."""
+    attempt = case["id"]
+    _require(item.get("label") == "fit",
+             f"fit attempt {attempt!r} belongs to another evaluation label")
+    _require(item.get("expected") == case["expected"]
+             and item.get("prompt_sha256") == case["prompt_sha256"],
+             f"fit attempt {attempt!r} differs from its authoritative fit target")
+    if _is_fit_generation_failure(item):
+        return {"failed": True, "correct": False, "truncated": False,
+                "stop_reason": None, "generated": 0}
+    _require(item.get("scoring_version") == SCORING_VERSION,
+             f"fit attempt {attempt!r} was scored by another scorer")
+    _require(item.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION,
+             f"fit attempt {attempt!r} lacks the current answer grammar")
+    output = item.get("output")
+    _require(isinstance(output, str), f"fit attempt {attempt!r} lacks decoded output")
+    generated = _fit_int_ids(item.get("generated_ids"),
+                             field="generated_ids", attempt=attempt)
+    content = _fit_int_ids(item.get("content_ids"),
+                           field="content_ids", attempt=attempt)
+    _require(generated and len(generated) <= max_new_tokens,
+             f"fit attempt {attempt!r} generation violates the token budget")
+    _require(content == generated[:len(content)],
+             f"fit attempt {attempt!r} content is not the generated prefix")
+    declared_budget = item.get("max_new_tokens")
+    _require(type(declared_budget) is int and declared_budget == max_new_tokens,
+             f"fit attempt {attempt!r} records another generation budget")
+    stop_reason = item.get("stop_reason")
+    _require(stop_reason in _FIT_STOP_REASONS,
+             f"fit attempt {attempt!r} records an unknown stop reason")
+    stop_token = item.get("stop_token")
+    if stop_reason == "stop_token":
+        _require(type(stop_token) is int and stop_token in stop_tokens,
+                 f"fit attempt {attempt!r} stop token is not declared")
+        _require(generated[-1] == stop_token
+                 and len(content) == len(generated) - 1,
+                 f"fit attempt {attempt!r} stop token disagrees with its generation")
+    else:
+        _require(stop_token is None and content == generated,
+                 f"fit attempt {attempt!r} stop disposition disagrees with its generation")
+        if stop_reason == "sentence_complete":
+            _require(sentence_complete_text(output),
+                     f"fit attempt {attempt!r} claims an incomplete sentence stop")
+        elif stop_reason == "token_budget":
+            _require(len(generated) == max_new_tokens,
+                     f"fit attempt {attempt!r} claims a token-budget stop it did not reach")
+        else:
+            _require(len(generated) < max_new_tokens,
+                     f"fit attempt {attempt!r} claims a missing stop after budget exhaustion")
+    truncated = is_truncated_stop_reason(stop_reason)
+    _require(item.get("truncated") is truncated,
+             f"fit attempt {attempt!r} truncation disagrees with its stop reason")
+    scored = score_response(case["expected"], output,
+                            candidate_answers=candidates, truncated=truncated)
+    _require(item.get("reason") == scored.reason
+             and item.get("correct") is scored.correct,
+             f"fit attempt {attempt!r} saved score contradicts the preserved evidence")
+    _require(scored.scoring_version == SCORING_VERSION
+             and scored.grammar_version == ANSWER_GRAMMAR_VERSION,
+             f"fit attempt {attempt!r} was rescored under another contract")
+    return {"failed": False, "correct": scored.correct,
+            "truncated": truncated, "stop_reason": stop_reason,
+            "generated": len(generated)}
+
+
+def recompute_fit_evaluation(cases: list[dict], score: Mapping[str, Any], *,
+                             declared_attempts: int, min_accuracy: float,
+                             max_new_tokens: int,
+                             stop_tokens: Iterable[int],
+                             candidates: tuple[str, ...]) -> dict:
+    """Recompute the whole fit gate from targets and preserved evidence.
+
+    Saved ``correct`` flags, gate pass flags and gate accuracy are only compared
+    against this independent result; none of them is trusted for admission.
+    """
+    _require(len(cases) == int(declared_attempts),
+             "fit case coverage does not match the declared fit workload")
+    _require(len({case["id"] for case in cases}) == len(cases),
+             "fit workload cases are not unique")
+    results = score.get("results")
+    _require(isinstance(results, list), "fit gate report lacks per-attempt scores")
+    results = [item for item in results if isinstance(item, Mapping)]
     ids = [item.get("id") for item in results]
     expected_ids = [case["id"] for case in cases]
     duplicates = sorted({value for value in ids
                          if value is not None and ids.count(value) > 1})
+    missing = [value for value in expected_ids if value not in ids]
+    unexpected = [value for value in ids if value not in expected_ids]
+    _require(not duplicates and not missing and not unexpected,
+             "fit gate case coverage is incomplete, duplicated or unexpected")
+    _require(len(results) == len(expected_ids),
+             "fit gate attempt count differs from its unique fit cases")
+    by_id: dict[Any, Mapping[str, Any]] = {}
+    for item in results:
+        _require(item.get("id") not in by_id,
+                 "fit gate repeats an authoritative fit case")
+        by_id[item.get("id")] = item
+    stop_set = frozenset(int(token) for token in stop_tokens)
+    recomputed = [
+        _recompute_fit_attempt(by_id[case["id"]], case,
+                               candidates=candidates,
+                               max_new_tokens=int(max_new_tokens),
+                               stop_tokens=stop_set)
+        for case in cases]
     audits = [item.get("request_audit") for item in results]
     audit_complete = bool(results) and all(
         isinstance(audit, Mapping)
@@ -1153,47 +1372,64 @@ def coverage_summary(cases: list[dict], score: Mapping[str, Any], *,
         and audit["coordinator_constructed"] is False
         and audit["updates_enabled"] is False
         for audit in audits)
-    return {
+    failures = sum(1 for row in recomputed if row["failed"])
+    correct = sum(1 for row in recomputed if row["correct"])
+    accuracy = correct / len(recomputed)
+    stop_reasons: dict[str, int] = {}
+    for row in recomputed:
+        reason = row["stop_reason"]
+        if isinstance(reason, str):
+            stop_reasons[reason] = stop_reasons.get(reason, 0) + 1
+    gate_failures = []
+    if accuracy < float(min_accuracy):
+        gate_failures.append("min_fit_accuracy")
+    if failures:
+        gate_failures.append("generation_failures")
+    if not audit_complete:
+        gate_failures.append("incomplete_request_audit")
+    coverage = {
         "role": "fit",
         "declared_attempts": int(declared_attempts),
         "measured_attempts": len(results),
         "unique_ids": len(set(ids)),
         "ids": ids,
         "cases_sha256": _case_digest(cases),
-        "missing_ids": [value for value in expected_ids if value not in ids],
-        "unexpected_ids": [value for value in ids if value not in expected_ids],
+        "missing_ids": missing,
+        "unexpected_ids": unexpected,
         "duplicate_ids": duplicates,
-        "failed_attempts": sum(1 for item in results if _failed_attempt(item)),
+        "failed_attempts": failures,
         "source_free": source_free,
         "audit_complete": audit_complete,
     }
-
-
-def attempt_summary(score: Mapping[str, Any], *, min_accuracy: float,
-                    all_declared_gates_passed: bool,
-                    gate_failures: Iterable[str]) -> dict:
-    results = [item for item in score["results"] if isinstance(item, Mapping)]
-    correct = sum(1 for item in results if item.get("correct") is True)
-    failures = sum(1 for item in results if _failed_attempt(item))
-    truncated = sum(1 for item in results if item.get("truncated") is True)
-    stop_reasons: dict[str, int] = {}
-    for item in results:
-        reason = item.get("stop_reason")
-        if isinstance(reason, str):
-            stop_reasons[reason] = stop_reasons.get(reason, 0) + 1
-    return {
+    attempts = {
         "scoring_attempts": len(results),
         "correct": correct,
-        "accuracy": (correct / len(results)) if results else 0.0,
+        "accuracy": accuracy,
         "failures": failures,
-        "truncated": truncated,
+        "truncated": sum(1 for row in recomputed if row["truncated"]),
         "stop_reasons": stop_reasons,
-        "generated_tokens": sum(len(item.get("generated_ids") or ())
-                                for item in results),
+        "generated_tokens": sum(row["generated"] for row in recomputed),
         "min_accuracy": float(min_accuracy),
-        "all_declared_gates_passed": bool(all_declared_gates_passed),
-        "gate_failures": list(gate_failures),
+        "all_declared_gates_passed": not gate_failures,
+        "gate_failures": gate_failures,
     }
+    _require(score.get("label") == "fit"
+             and int(score.get("count", -1)) == len(results)
+             and int(score.get("correct", -1)) == correct
+             and int(score.get("failures", -1)) == failures
+             and math.isclose(float(score.get("accuracy", -1.0)), accuracy,
+                              rel_tol=1e-12, abs_tol=1e-12),
+             "fit gate score aggregates differ from independently recomputed evidence")
+    passed = (not gate_failures
+              and failures == 0
+              and correct > 0
+              and coverage["audit_complete"]
+              and coverage["source_free"]
+              and not missing and not unexpected and not duplicates
+              and coverage["measured_attempts"] == int(declared_attempts)
+              and coverage["unique_ids"] == int(declared_attempts))
+    return {"coverage": coverage, "attempts": attempts,
+            "gate_failures": gate_failures, "passed": passed}
 
 
 def teaching_bundle(directory: Path, *, expected_updates: int | None = None) -> dict:
@@ -1363,17 +1599,29 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
     declared = int(config["workload"]["fit_eval_attempts"])
     rows = teaching_rows(episodes_root, manifest, primary, scope, limit=declared)
     cases = _fit_cases(rows)
-    coverage = coverage_summary(cases, score, declared_attempts=declared)
-    gate_passed = gate.get("all_declared_gates_passed") is True
+    generation = config["generation"]
+    candidates = fit_candidate_answers_for(
+        episodes_root, manifest, world_uid=primary, scope=scope)
+    recomputed = recompute_fit_evaluation(
+        cases, score, declared_attempts=declared,
+        min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
+        max_new_tokens=int(generation["max_new_tokens"]),
+        stop_tokens=generation["stop_tokens"], candidates=candidates)
+    coverage = recomputed["coverage"]
+    attempts = recomputed["attempts"]
     gate_failures = [str(value) for value in gate.get("gate_failures") or ()]
-    attempts = attempt_summary(
-        score, min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
-        all_declared_gates_passed=gate_passed, gate_failures=gate_failures)
-    _require(attempts["scoring_attempts"] == coverage["measured_attempts"],
-             "fit gate attempt and coverage counts differ")
+    _require(gate.get("scoring_version") == SCORING_VERSION
+             and gate.get("stop_policy_version") == STOP_POLICY_VERSION
+             and gate.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION,
+             "fit gate report lacks the declared scorer/grammar/stopping metadata")
+    _require(gate_failures == recomputed["gate_failures"],
+             "fit gate failures differ from independently recomputed evidence")
+    _require((gate.get("all_declared_gates_passed") is True)
+             == recomputed["passed"],
+             "fit gate pass flag differs from independently recomputed evidence")
     _require(math.isclose(float(gate.get("fit_accuracy", -1.0)),
                           attempts["accuracy"], rel_tol=1e-12, abs_tol=1e-12),
-             "fit gate accuracy differs from its scored attempts")
+             "fit gate accuracy differs from independently recomputed evidence")
     teaching = teaching_bundle(teach_dir, expected_updates=teach_expected_updates)
     _require(teaching["world_uid"] == primary,
              "teaching run belongs to another world")
@@ -1394,15 +1642,7 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
     _require(teaching["episodes_manifest_sha256"]
              == _sha256_file(manifest_path),
              "teaching run episodes differ from the fit episodes")
-    generation = config["generation"]
-    candidates = candidate_answers_for(episodes_root, manifest)
-    passed = (gate_passed and not gate_failures
-              and attempts["failures"] == 0 and attempts["correct"] > 0
-              and coverage["audit_complete"] and coverage["source_free"]
-              and coverage["missing_ids"] == []
-              and coverage["unexpected_ids"] == []
-              and coverage["duplicate_ids"] == []
-              and coverage["measured_attempts"] == declared)
+    passed = recomputed["passed"]
     receipt = {
         "format": FIT_RECEIPT_FORMAT,
         "schema_version": FIT_RECEIPT_SCHEMA_VERSION,
@@ -1452,7 +1692,7 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
         "gate_report": {
             "path": str(fit_gate_path),
             "sha256": _sha256_file(fit_gate_path),
-            "all_declared_gates_passed": gate_passed,
+            "all_declared_gates_passed": recomputed["passed"],
             "gate_failures": gate_failures,
         },
         "heldout_opened": False,
@@ -1638,7 +1878,10 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
              and scoring["empty_generation_credit"] is False,
              "fit receipt credits empty or budget-truncated generations")
     _require(scoring["candidate_answers_sha256"]
-             == _sha256_json(list(candidate_answers_for(episodes_root, manifest))),
+             == _sha256_json(list(fit_candidate_answers_for(
+                 episodes_root, manifest,
+                 world_uid=manifest["primary_world"],
+                 scope=f"{manifest['primary_world']}/text"))),
              "fit receipt candidate answers differ")
 
     gate_block = receipt["gate_report"]
@@ -1653,9 +1896,11 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
              and gate_block["all_declared_gates_passed"] is True,
              "fit receipt records a failed fit gate")
     _require(gate.get("scoring_version") == SCORING_VERSION
+             and gate.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION
              and gate.get("stop_policy_version") == STOP_POLICY_VERSION
              and gate.get("config_sha256") == config_block["sha256"],
-             "fit gate report was produced by another scorer or config")
+             "fit gate report was produced by another scorer, grammar, "
+             "stopping policy or config")
     _require(list(gate.get("gate_failures") or ()) == []
              and list(gate_block["gate_failures"]) == [],
              "fit receipt records fit gate failures")
@@ -1667,22 +1912,31 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
     rows = teaching_rows(episodes_root, manifest, manifest["primary_world"],
                          f"{manifest['primary_world']}/text", limit=declared)
     cases = _fit_cases(rows)
-    coverage = coverage_summary(cases, score, declared_attempts=declared)
+    candidates = fit_candidate_answers_for(
+        episodes_root, manifest, world_uid=manifest["primary_world"],
+        scope=f"{manifest['primary_world']}/text")
+    recomputed = recompute_fit_evaluation(
+        cases, score, declared_attempts=declared,
+        min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
+        max_new_tokens=int(generation["max_new_tokens"]),
+        stop_tokens=generation["stop_tokens"], candidates=candidates)
+    coverage = recomputed["coverage"]
+    attempts = recomputed["attempts"]
     _require(receipt["coverage"] == coverage,
              "fit receipt case coverage differs from the declared fit workload")
-    attempts = attempt_summary(
-        score, min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
-        all_declared_gates_passed=True, gate_failures=[])
     _require(receipt["attempts"] == attempts,
              "fit receipt attempt accounting differs from the preserved fit gate")
-    _require(attempts["failures"] == 0 and coverage["audit_complete"]
-             and coverage["source_free"],
-             "fit receipt does not record a complete source-free fit pass")
-    _require(attempts["correct"] > 0,
-             "fit receipt records no correct fit attempt")
+    _require(recomputed["passed"],
+             "fit gate does not independently satisfy the declared accuracy, "
+             f"coverage and generation rules: {recomputed['gate_failures']}")
+    _require(list(gate.get("gate_failures") or ())
+             == recomputed["gate_failures"]
+             and (gate.get("all_declared_gates_passed") is True)
+             == recomputed["passed"],
+             "fit gate report disagrees with independently recomputed evidence")
     _require(math.isclose(float(gate.get("fit_accuracy", -1.0)),
                           attempts["accuracy"], rel_tol=1e-12, abs_tol=1e-12),
-             "fit gate accuracy differs from its scored attempts")
+             "fit gate accuracy differs from independently recomputed evidence")
 
     teaching = receipt["teaching"]
     _require(isinstance(teaching, Mapping) and "primary" in teaching,
@@ -1725,6 +1979,7 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
 
     if state is not None:
         verify_fit_receipt_payload(receipt, state=state)
+    ROLE_ACCESS.record_validated(receipt)
 
 
 def bound_teach_cost(receipt: Mapping[str, Any], role: str,
@@ -1744,9 +1999,11 @@ def require_fit_receipt(args, config: Mapping[str, Any], *,
                         manifest: Mapping[str, Any], manifest_path: Path,
                         episodes_root: Path) -> dict | None:
     """Admission gate run before ``torch.load`` and any native/development access."""
+    reset_role_access()
     if not fit_receipt_required(config):
         _require(getattr(args, "fit_receipt", None) is None,
                  "--fit-receipt is only valid for the behavioral protocol")
+        ROLE_ACCESS.admit_without_fit_receipt(config)
         return None
     path = getattr(args, "fit_receipt", None)
     _require(path is not None,
@@ -1758,6 +2015,7 @@ def require_fit_receipt(args, config: Mapping[str, Any], *,
         manifest=manifest, manifest_path=manifest_path,
         episodes_root=episodes_root, state_path=Path(args.p_state),
         lock=load_model_lock(args.model_lock))
+    ROLE_ACCESS.admit_fit_receipt(receipt)
     return receipt
 
 
@@ -2317,7 +2575,9 @@ def run_fit_eval(args, config: dict) -> int:
             max_prompt_tokens=args.max_prompt_tokens,
             max_response_tokens=args.max_response_tokens,
             limit=required_attempts)
-        candidates = candidate_answers_for(args.episodes, manifest)
+        candidates = fit_candidate_answers_for(
+            args.episodes, manifest, world_uid=manifest["primary_world"],
+            scope=f"{manifest['primary_world']}/text")
         latency_rows, work_rows = [], []
         score = score_episodes_v2(
             learner, session, episodes, route_mode=None,
@@ -2443,6 +2703,8 @@ def run_fit_eval(args, config: dict) -> int:
 
 def run_p_only_v1(args, config: dict) -> int:
     output: Path = args.output
+    reset_role_access()
+    ROLE_ACCESS.admit_without_fit_receipt(config)
     manifest = load_episode_manifest(args.episodes)
     primary_world = manifest["primary_world"]
     wrong_world = manifest["wrong_world"]
@@ -2829,7 +3091,7 @@ def run_p_only_v2(args, config: dict) -> int:
         }
         preteach = build_read_only_learner(protocol, config, adapter, None)
         reset = build_read_only_learner(protocol, config, adapter, None)
-        candidates = candidate_answers_for(args.episodes, manifest)
+        candidates = development_candidate_answers_for(args.episodes, manifest)
         taught_answers = {row["expected_response"]
                           for role in ("development", "correction", "unaffected")
                           for row in (r.row for r in dev_rows[role])}

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="36" time="5.877" timestamp="2026-10-27T09:21:46.207591-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_real_artifacts_are_valid_and_training_is_not_admitted" time="0.442" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_generators_are_deterministic_and_do_not_change_the_seal" time="0.017"><failure message="ValueError: '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_generators_are_determinis0/ws/data/external_caption_tranche_20261025_v2/raw/images/000284813.jpg' is not in the subpath of '/Users/flare/replica_r3_starter'">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_generators_are_determinis0')
+
+    def test_generators_are_deterministic_and_do_not_change_the_seal(tmp_path):
+        root = _workspace(tmp_path)
+        lineage_config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+        eval_config = json.loads((root / EVAL_CONFIG).read_text(encoding="utf-8"))
+&gt;       first = BUILDER.build(lineage_config, project_root=root)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_caption_lineage_and_eval_20261027.py:201: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/build_caption_lineage_20261027.py:320: in build
+    "local_path": str(image_path.relative_to(ROOT)),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_generators_are_determinis0/ws/data/external_caption_tranche_20261025_v2/raw/images/000284813.jpg')
+other = PosixPath('/Users/flare/replica_r3_starter'), walk_up = False
+_deprecated = ()
+
+    def relative_to(self, other, /, *_deprecated, walk_up=False):
+        """Return the relative path to another path identified by the passed
+        arguments.  If the operation is not possible (because this is not
+        related to the other path), raise ValueError.
+    
+        The *walk_up* parameter controls whether `..` may be used to resolve
+        the path.
+        """
+        if _deprecated:
+            msg = ("support for supplying more than one positional argument "
+                   "to pathlib.PurePath.relative_to() is deprecated and "
+                   "scheduled for removal in Python {remove}")
+            warnings._deprecated("pathlib.PurePath.relative_to(*args)", msg,
+                                 remove=(3, 14))
+        other = self.with_segments(other, *_deprecated)
+        for step, path in enumerate([other] + list(other.parents)):
+            if self.is_relative_to(path):
+                break
+            elif not walk_up:
+&gt;               raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+E               ValueError: '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_generators_are_determinis0/ws/data/external_caption_tranche_20261025_v2/raw/images/000284813.jpg' is not in the subpath of '/Users/flare/replica_r3_starter'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:682: ValueError</failure></testcase><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_all_external_rows_are_accounted_and_exposed_rows_excluded" time="0.013" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_duplicate_group_helper_rejects_shared_keys" time="0.018" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_validator_duplicate_check_is_wired_to_lineage_validation" time="0.016" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_rows_file_tamper_is_rejected" time="0.016" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_manifest_tamper_is_rejected" time="0.017" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_eval_image_tamper_is_rejected" time="0.018" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_eval_seal_tamper_is_rejected" time="0.024" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_scene_spec_and_row_tamper_are_rejected" time="0.039" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_eval_training_leakage_fails_closed[row_id]" time="0.428" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_eval_training_leakage_fails_closed[image_sha256]" time="0.419" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_eval_training_leakage_fails_closed[caption]" time="0.417" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_exposed_row_cannot_be_marked_eligible_or_omitted" time="0.037"><failure message="AssertionError: assert 'lineage.counts' == 'lineage.exclusions'&#10;  &#10;  - lineage.exclusions&#10;  + lineage.counts">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_exposed_row_cannot_be_mar0')
+
+    def test_exposed_row_cannot_be_marked_eligible_or_omitted(tmp_path):
+        root = _workspace(tmp_path)
+        config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+        exposure = json.loads((root / "reports/remediation_20261027/"
+                              "sealed_caption_review_exposure.json")
+                              .read_text(encoding="utf-8"))
+        excluded_id = exposure["exposed_row_ids"][0]
+    
+        exclusions = VALIDATOR.load_rows(root / config["outputs"]["exclusions"])
+        for item in exclusions:
+            if item["row_id"] == excluded_id:
+                item["training_eligible"] = True
+        _refresh_lineage(root, exclusions=exclusions)
+        with pytest.raises(VALIDATOR.GuardError) as error:
+            VALIDATOR.validate_lineage(json.loads((root / LINEAGE_CONFIG)
+                                                  .read_text(encoding="utf-8")),
+                                       project_root=root, checks=[])
+        assert error.value.check == "lineage.exclusions"
+    
+        root = _workspace(tmp_path / "second")
+        exclusions = VALIDATOR.load_rows(root / config["outputs"]["exclusions"])
+        exclusions = [item for item in exclusions if item["row_id"] != excluded_id]
+        _refresh_lineage(root, exclusions=exclusions)
+        with pytest.raises(VALIDATOR.GuardError) as error:
+            VALIDATOR.validate_lineage(json.loads((root / LINEAGE_CONFIG)
+                                                  .read_text(encoding="utf-8")),
+                                       project_root=root, checks=[])
+&gt;       assert error.value.check == "lineage.exclusions"
+E       AssertionError: assert 'lineage.counts' == 'lineage.exclusions'
+E         
+E         - lineage.exclusions
+E         + lineage.counts
+
+tests/test_caption_lineage_and_eval_20261027.py:386: AssertionError</failure></testcase><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_config_cannot_admit_an_exposed_parent" time="0.020" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_eval_row_with_exposed_identity_is_rejected" time="0.428"><failure message="AssertionError: assert 'separation.exposed' == 'separation.keys'&#10;  &#10;  - separation.keys&#10;  ?            - ^&#10;  + separation.exposed&#10;  ?             ^^^ ++">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_eval_row_with_exposed_ide0')
+
+    def test_eval_row_with_exposed_identity_is_rejected(tmp_path):
+        root = _workspace(tmp_path)
+        config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+        lineage = VALIDATOR.validate_lineage(config, project_root=root, checks=[])
+        evals = VALIDATOR.validate_eval(json.loads((root / EVAL_CONFIG)
+                                                    .read_text(encoding="utf-8")),
+                                        project_root=root, lineage=lineage, checks=[])
+        evals["rows"][0]["row_id"] = lineage["exposed"][0]
+        with pytest.raises(VALIDATOR.GuardError) as error:
+            VALIDATOR.validate_separation(lineage, evals, config, checks=[])
+&gt;       assert error.value.check == "separation.keys"
+E       AssertionError: assert 'separation.exposed' == 'separation.keys'
+E         
+E         - separation.keys
+E         ?            - ^
+E         + separation.exposed
+E         ?             ^^^ ++
+
+tests/test_caption_lineage_and_eval_20261027.py:412: AssertionError</failure></testcase><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_missing_receipt_never_admits_even_with_a_key" time="0.884" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_valid_signed_receipt_admits_only_the_nine_rows" time="0.417"><failure message="KeyError: 'eligible_row_ids'">tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1361/test_valid_signed_receipt_admi0')
+
+    def test_valid_signed_receipt_admits_only_the_nine_rows(tmp_path):
+        root = _workspace(tmp_path)
+        _receipt(root)
+        report = _validate(root, environ={KEY_ENV: KEY})
+        assert report["status"] == "valid"
+        assert report["admission"]["status"] == "admitted"
+        assert len(report["admission"]["admitted_row_ids"]) == 9
+        assert set(report["admission"]["admitted_row_ids"]) == {
+&gt;           row["row_id"] for row in report["admission"]["eligible_row_ids"]}
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'eligible_row_ids'
+
+tests/test_caption_lineage_and_eval_20261027.py:437: KeyError</failure></testcase><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_receipt_without_key_signature_or_binding_is_blocked" time="1.245" /><testcase classname="tests.test_caption_lineage_and_eval_20261027" name="test_expired_or_partial_receipt_is_blocked" time="0.827" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_preparation_passes_and_never_qualifies_training" time="0.001" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_four_precision_identities_are_distinct" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_resource_estimates_are_analytical_and_block_full_fine_tuning" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_training_claim_requires_all_measured_hashed_gates" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_storage_dtype_and_small_reload_cannot_qualify[storage_dtype]" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_storage_dtype_and_small_reload_cannot_qualify[small_reload]" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_storage_dtype_and_small_reload_cannot_qualify[config_parse]" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_config_claiming_qualification_fails_closed" time="0.002" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_derivative_cannot_be_relabelled_official" time="0.001" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_storage_dtype_inference_cannot_be_enabled" time="0.001" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_guard_values_and_native_admission_cannot_be_loosened" time="0.002" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_baseline_pin_change_is_rejected" time="0.001" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_oversized_extension_estimate_is_blocked" time="0.001" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_ablation_cannot_use_unqualified_visual_answers" time="0.001" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_ablation_is_documented_but_unauthorized" time="0.000" /><testcase classname="tests.test_spark_backend_parity_20261027" name="test_checker_is_lineage_offline_and_imports_no_tensor_library" time="0.000" /></testsuite></testsuites>

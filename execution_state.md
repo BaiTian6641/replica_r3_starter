@@ -1,6 +1,52 @@
 # Execution state — integrated memory, cognition and learning
 
 
+## Independent fit admission and experiment preparation — 27 October 2026
+
+**Current status — fit receipts independently verify generation evidence and
+evaluation labels are deny-by-default. Memory, smaller-step vision and clean-data
+protocols are CPU-verified preparation only; no native run is authorized.**
+MiniCPM5 and NativeFusedAdamW remain the baseline/default. The existing native
+guard and protected runtime-pilot restriction are unchanged.
+
+- `build_fit_receipt()` / `validate_fit_receipt()` now recompute correctness,
+  minimum accuracy, unique coverage, generation failures, stop/truncation
+  consistency and source-free audit from targets and preserved evidence. Saved
+  correct/pass flags are comparisons only. Fit candidates exclude every
+  development/unaffected/sealed answer; later development vocabulary is separate.
+  **255 tests pass**, including 1/28 upstream-pass, false-correct, stale grammar,
+  bad stop evidence and incomplete/duplicate rejection. The reviewed current
+  continuation receipt is migrated without changing historical blobs.
+- Source-provenance suites pass **174 tests**. Fresh continuation replay is
+  `exact_match`; accounting replay is 7,695/7,755; the corrected step-one replay
+  preserves the original engineering failure and derived supported verdict.
+- `value_readout_abstention_v1` provides 7 chronological episodes, 68 events and
+  47 query cases with replay/evaluation separation. Only selected-expert
+  `gate/up/down` receive future-answer/correction/abstention losses; earlier-write
+  gradients are none and all other components stay fixed. Three independent
+  24-step arms give a 72-step ceiling, but only the treatment's 24 steps can
+  admit development. **10 tests pass**; no native admission runner exists yet.
+- `vision_smaller_step_lr3e5_v1` isolates lr 3e-5 from the completed 3e-4
+  overshoot with the same parent/seed/batch/projector/NativeFusedAdamW. It
+  measures update-batch loss separately from the wider cohort, generated
+  correctness, caption quality, EOS/empty behavior and all four controls.
+  Physical caps include 4,824 decoder forwards, 168 visual observations, 4
+  backward calls, 1 optimizer step, 1,200 seconds and 32 MiB artifacts including
+  the final report. **38 tests pass** and the real `run` path refuses before
+  native loading without a committed protocol and separate authorization.
+- The corrected data lineage has nine eligible reviewed training rows and 21
+  exclusions; the parent rejection and eight exposed rows are unchanged. A new
+  24-scene synthetic evaluation partition is independently sealed before model
+  use. Admission defaults to `not_admitted`. Spark preparation distinguishes
+  official BF16/FP8, dequantized derivatives and native FP8 execution; estimates
+  are not training qualification. **38 tests pass** and both refusal paths exit 2.
+
+Read the [complete preparation record and continuation prompt](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
+No native training, development/held-out evaluation, neural RSI or personality
+adaptation was launched. Publication, rollback and recovery remain
+infrastructure evidence, not learned improvement.
+
+
 ## Review remediation and bounded step-1 — 27 October 2026
 
 **Current status — evaluation admission, immutable replay and measured

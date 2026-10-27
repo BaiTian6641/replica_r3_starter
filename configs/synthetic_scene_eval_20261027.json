@@ -1,0 +1,226 @@
+{
+  "format": "replica.synthetic_scene_eval_contract.v1",
+  "eval_id": "synthetic_scene_eval_20261027",
+  "created_on": "2026-10-27",
+  "status": "sealed_preparation_only_no_model_use",
+  "scope": "A genuinely fresh, project-owned synthetic image/caption evaluation partition. Images are rendered programmatically from an authoritative scene specification. Captions are generated from the same specification, so agreement is checkable by geometry, color and count predicates plus exact caption derivation; no model or human semantic judgement is involved. The partition is sealed before any model use.",
+  "data_root": "data/synthetic_scene_eval_20261027",
+  "artifacts": {
+    "scene_specs": "data/synthetic_scene_eval_20261027/scene_specs.json",
+    "rows": "data/synthetic_scene_eval_20261027/rows.jsonl",
+    "manifest": "data/synthetic_scene_eval_20261027/manifest.json",
+    "seal": "data/synthetic_scene_eval_20261027/seal.json",
+    "images": "data/synthetic_scene_eval_20261027/images"
+  },
+  "generation": {
+    "seed": 20261027,
+    "width": 128,
+    "height": 128,
+    "mode": "RGB",
+    "bit_depth": 8,
+    "png_filter": 0,
+    "renderer_version": "synthetic-raster-v1",
+    "image_extension": ".png",
+    "prompt": "Describe the shapes and colors in the image.",
+    "task": "image_captioning",
+    "palette": {
+      "red": [220, 32, 40],
+      "green": [32, 152, 72],
+      "blue": [36, 76, 200],
+      "yellow": [236, 196, 32],
+      "cyan": [32, 196, 208],
+      "white": [255, 255, 255],
+      "gray": [168, 168, 168],
+      "black": [16, 16, 16],
+      "navy": [20, 32, 92]
+    },
+    "shape_order": [
+      "circle",
+      "square",
+      "triangle"
+    ],
+    "families": [
+      {
+        "id": "counted_circles",
+        "template": "counted_plural",
+        "shape": "circle",
+        "color": "red",
+        "background": "white",
+        "layout": "horizontal_centered",
+        "counts": [1, 2, 3, 4, 5, 6],
+        "radius": 8,
+        "spacing": 18,
+        "y": 64
+      },
+      {
+        "id": "positioned_square",
+        "template": "positioned_square",
+        "shape": "square",
+        "color": "green",
+        "background": "gray",
+        "half": 12,
+        "positions": [
+          {"phrase": "upper left", "center": [32, 32]},
+          {"phrase": "upper right", "center": [96, 32]},
+          {"phrase": "top center", "center": [64, 32]},
+          {"phrase": "center", "center": [64, 64]},
+          {"phrase": "lower left", "center": [32, 96]},
+          {"phrase": "lower right", "center": [96, 96]}
+        ]
+      },
+      {
+        "id": "shape_pair",
+        "template": "pair_left_right",
+        "layout": "pair_left_right",
+        "y": 64,
+        "left_x": 40,
+        "right_x": 88,
+        "variants": [
+          {"left": {"shape": "triangle", "color": "blue"}, "right": {"shape": "circle", "color": "yellow"}, "background": "black"},
+          {"left": {"shape": "circle", "color": "red"}, "right": {"shape": "square", "color": "green"}, "background": "white"},
+          {"left": {"shape": "square", "color": "yellow"}, "right": {"shape": "triangle", "color": "cyan"}, "background": "gray"},
+          {"left": {"shape": "triangle", "color": "green"}, "right": {"shape": "square", "color": "blue"}, "background": "navy"},
+          {"left": {"shape": "circle", "color": "cyan"}, "right": {"shape": "triangle", "color": "red"}, "background": "black"},
+          {"left": {"shape": "square", "color": "red"}, "right": {"shape": "circle", "color": "green"}, "background": "navy"}
+        ],
+        "circle_radius": 14,
+        "square_half": 12,
+        "triangle_radius": 14
+      },
+      {
+        "id": "row_squares",
+        "template": "row_count",
+        "shape": "square",
+        "color": "cyan",
+        "background": "navy",
+        "layout": "horizontal_centered",
+        "counts": [2, 3, 4, 5, 6, 7],
+        "half": 7,
+        "spacing": 18,
+        "y": 64
+      }
+    ],
+    "templates": {
+      "counted_plural": "{count} {color} {shape}{plural} on a {background} background.",
+      "positioned_square": "A {color} {shape} in the {position} of a {background} background.",
+      "pair_left_right": "A {left_color} {left_shape} on the left and a {right_color} {right_shape} on the right, on a {background} background.",
+      "row_count": "{count} {color} {shape}{plural} in a row on a {background} background."
+    },
+    "plural_rule": "append 's' when count != 1",
+    "triangle_vertices": "apex (cx, cy-radius), base (cx-radius, cy+radius-2), (cx+radius, cy+radius-2)"
+  },
+  "label_authority": {
+    "kind": "renderer_scene_spec",
+    "authoritative_source": "scene_specs.json geometry, palette, counts and template parameters",
+    "agreement_checks": [
+      "exact per-pixel analytic geometry and color predicate",
+      "object-center and background pixel probes",
+      "caption re-derived independently from the spec and compared textually",
+      "stored assertion list must equal the independently derived assertions"
+    ],
+    "human_semantic_review_required": false,
+    "model_inference_used_for_labels": false,
+    "model_inference_allowed_for_labels": false
+  },
+  "provenance": {
+    "kind": "synthetic_project_owned",
+    "owner": "replica-lab",
+    "upstream_dataset": null,
+    "external_images": false,
+    "third_party_content": false,
+    "generator": "scripts/build_synthetic_scene_eval_20261027.py",
+    "renderer": "pure-python-rasterizer",
+    "no_downloads": true
+  },
+  "rights": {
+    "permitted_use": "internal_research",
+    "research_use_only": true,
+    "redistribution": "prohibited",
+    "commercial_use": false,
+    "third_party_terms_inherited": false,
+    "note": "Project-generated synthetic images; no upstream image license applies. Distribution rights are still not granted by this artifact."
+  },
+  "seal": {
+    "required": true,
+    "role": "final_eval_untouched_synthetic",
+    "split": "synthetic_scene_eval_sealed",
+    "sealed_before_model_use": true,
+    "model_executions_at_seal": 0,
+    "model_use_after_seal_before_validation": false,
+    "bindings": [
+      "scene_specs_sha256",
+      "rows_sha256",
+      "manifest_sha256",
+      "images_aggregate_sha256",
+      "counts"
+    ],
+    "disjointness_bindings": [
+      "caption_lineage_manifest_sha256",
+      "caption_lineage_rows_sha256",
+      "exposure_incident_sha256",
+      "exposed_row_ids"
+    ],
+    "seal_digest_rule": "sha256(canonical_json(seal without seal_sha256))"
+  },
+  "disjointness": {
+    "caption_lineage_config": {
+      "path": "configs/caption_lineage_correction_20261027.json",
+      "sha256": "bc6446515517082f002b936f1753e13e5b5560f74767319d0be625a6ad36a002"
+    },
+    "caption_lineage_manifest": {
+      "path": "data/caption_corrected_train_20261027/lineage_manifest.json"
+    },
+    "exposure_incident": {
+      "path": "reports/remediation_20261027/sealed_caption_review_exposure.json",
+      "sha256": "2b2af6de74799b3b98bfcb6e0a275ebf8beba84b5a093078dcef1b6b4053ec62"
+    },
+    "external_corpus": {
+      "path": "data/external_caption_tranche_20261025_v2/corpus.jsonl",
+      "sha256": "100f28c226cfd27913f0750d959d41de2faea0eb1857670e178d53278064da90"
+    },
+    "required_disjoint_keys": [
+      "row_id",
+      "root_group_key",
+      "image_sha256",
+      "target_sha256",
+      "normalized_caption_sha256"
+    ],
+    "required_disjoint_sets": [
+      "all nine corrected training rows",
+      "all seven validation-only rows",
+      "all eight sealed/exposed rows",
+      "the complete thirty-row external tranche"
+    ],
+    "namespace": "synthetic-scene-eval-20261027"
+  },
+  "expected": {
+    "rows": 24,
+    "images": 24,
+    "families": 4,
+    "scenes_per_family": 6,
+    "split": "synthetic_scene_eval_sealed",
+    "role": "final_eval_untouched_synthetic",
+    "image_format": "PNG",
+    "width": 128,
+    "height": 128,
+    "unique_image_sha256": 24,
+    "unique_caption_sha256": 24
+  },
+  "benchmark_limits": [
+    "Only flat geometric primitives with a fixed nine-color palette, at 128x128, with templated captions.",
+    "No natural images, textures, occlusion, fine-grained attributes, text, faces, scenes or affordances.",
+    "No spatial relations beyond left/right and named coarse positions; no counting above seven.",
+    "Scores from this partition cannot support claims about natural-image captions, VLM generality, robustness, fairness or external data.",
+    "Zero-shot external-transfer or benchmark-superiority claims are out of scope by construction.",
+    "The partition is a controlled sanity check for image-conditioned grounding and caption agreement, not a quality benchmark."
+  ],
+  "non_claims": {
+    "external_data": false,
+    "human_reviewed": false,
+    "model_generated_labels": false,
+    "benchmark_quality": "none",
+    "model_use": "none",
+    "training_use": false,
+    "replaces_exposed_external_eval": "only as a new, explicitly synthetic partition; no external-untouched status is restored"
+  }
+}

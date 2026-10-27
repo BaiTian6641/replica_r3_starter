@@ -1,16 +1,15 @@
 # Coding-agent start instructions - TAIS Obsidian / Replica R3
 
 
-**Current priority — 27 October 2026:** read the
-[consolidated remediation and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
-Evaluation admission now requires an exact passing fit receipt before native
-loading or dependent development access. Historical replay and current source
-qualification are separate. The bounded step-1 run supports first-update loss
-overshoot only; answer accuracy and caption semantic F1 remain zero, so
-development, held-out, V0 and RSI remain closed. Value readout plus abstention
-is the next memory bottleneck. Preserve the rejected caption tranche and its
-quarantined evaluation rows. Do not launch another native run from this handoff;
-use the documented CPU replay commands and a fresh one-clock learning hypothesis.
+**Current priority — 27 October 2026:** read
+[independent admission and experiment preparation](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
+Fit receipts now independently rescore preserved generation evidence, and every
+evaluation-label role is denied until a fully validated passing receipt. Next
+work is CPU-side memory admission-runner review and the smaller-step protocol;
+neither authorizes native execution here. Historical fit, memory, vision and
+caption failures remain rejected. NativeFusedAdamW is the default optimizer;
+Muon and custom eager AdamW remain separate historical comparisons. Keep the
+50 GiB / 512 MiB / 15% guard and protected draft rules.
 
 **Current priority — 26 October 2026:** preserve sealed evaluation and keep
 mechanical acceptance separate from learned quality. The
@@ -94,7 +93,7 @@ Preserve two stages: full-scope small-model architectural development first; nor
 
 ## Read and establish ground truth
 
-Current setup decision (22 October 2026, America/Chicago): work first on the confirmed Apple M2 Ultra Mac Studio (24 CPU cores, 60 GPU cores, 64 GiB unified memory), using the locked Python 3.12.14 environment and the project's experimental `muon8bit` optimizer on MPS. The same optimizer is planned for the later NVIDIA RTX PRO 4000 Blackwell SFF Edition (24 GB). Keep auxiliary FP32 AdamW for embeddings/head/slot queries and other ineligible parameters; preserve exact D0/D1/D2 scope and separate Muon/base/new rates. Use all-AdamW only as an explicitly selected comparison. Read execution_state.md for completed setup evidence and existing source/sealed locks; do not reacquire a different `main` revision. The FP32 full-text persistent budget alone exceeds 24 GiB, so the later CUDA full-scope path requires P2 offload/sharding or a separately qualified residency change.
+Current setup decision (22 October 2026 hardware; 27 October optimizer reconciliation): work first on the confirmed Apple M2 Ultra Mac Studio (24 CPU cores, 60 GPU cores, 64 GiB unified memory), using the locked Python 3.12.14 environment. New training defaults to NativeFusedAdamW (`adamw_fused`) after integration checks; historical experimental `muon8bit` MPS runs and later CUDA comparisons retain their own provenance and are not the current default. Keep auxiliary FP32 AdamW groups for embeddings/head/slot queries and other ineligible parameters; preserve exact D0/D1/D2 scope and separate optimizer/base/new rates. Use custom eager all-AdamW only as an explicitly selected comparison. Read execution_state.md for completed setup evidence and existing source/sealed locks; do not reacquire a different `main` revision. The FP32 full-text persistent budget alone exceeds 24 GiB, so the later CUDA full-scope path requires P2 offload/sharding or a separately qualified residency change.
 
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.

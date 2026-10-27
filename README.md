@@ -1,15 +1,15 @@
 # TAIS Obsidian / Replica R3 - Project starter
 
 
-**Current priority — 27 October 2026:** use the
-[remediation evidence and next-step prompt](docs/experiments/20261027_Remediation_and_Next_Steps.md).
-Behavioral development now requires an exact passing fit receipt before native
-loading or role access. Immutable historical replay is separate from reviewed
-current-source qualification. The bounded step-1 experiment supports first-
-update loss overshoot only; answer accuracy and caption semantic F1 remain zero.
-Memory's next bottleneck is value readout plus abstention. The caption tranche is
-rejected and its exposed evaluation rows are quarantined. No further native
-retry, development/held-out evaluation or neural RSI is authorized.
+**Current priority — 27 October 2026:** use
+[independent admission and experiment preparation](docs/experiments/20261027_Admission_Hardening_and_Experiment_Preparation.md).
+Fit admission independently recomputes preserved generation evidence and blocks
+development labels until a validated passing receipt. The memory value-readout
+and smaller-step vision protocols are CPU-verified preparation only; no native
+run is authorized. Nine-row corrected lineage and 24 sealed synthetic scenes
+remain unadmitted for training. NativeFusedAdamW is the default; historical Muon
+and eager AdamW records are unchanged. Neural RSI and personality stay deferred.
+
 
 The [comprehensive Spark research report](docs/research/sparkx_2_6_4b_20261024/README.md)
 adds a current-code audit, model-native spatial/temporal vision and learning
@@ -75,7 +75,7 @@ training. The single original model and selected D0/D1/D2 checkpoints remain.
 
 ## Local setup — 22 October 2026 (America/Chicago)
 
-The current development machine is a **Mac Studio, Apple M2 Ultra, 24 CPU cores, 60 GPU cores and 64 GiB unified memory**. The selected optimizer experiment is **Muon 8-bit**, first on PyTorch MPS and later on the **RTX PRO 4000 Blackwell SFF Edition (24 GB)**. See [hardware profiles](configs/hardware_profiles.json) and [experiment settings](configs/experiment_design.json).
+The current development machine is a **Mac Studio, Apple M2 Ultra, 24 CPU cores, 60 GPU cores and 64 GiB unified memory**. New training defaults to **NativeFusedAdamW** after integration checks; the historical selected optimizer experiment was **Muon 8-bit**, first on PyTorch MPS and later on the **RTX PRO 4000 Blackwell SFF Edition (24 GB)**. See [hardware profiles](configs/hardware_profiles.json) and [experiment settings](configs/experiment_design.json).
 
 Python 3.12.14 and all numerical dependencies are pinned in [uv.lock](uv.lock). The local `.venv` is installed. To reproduce the environment and run the offline checks plus tiny MPS updates:
 
@@ -84,7 +84,7 @@ sh scripts/setup_macos.sh
 source .venv/bin/activate
 ~~~
 
-The project implements an experimental eager PyTorch Muon path with INT8 blockwise momentum and FP32 scales/temporary arithmetic. Embeddings, the output head, learned slot queries and other ineligible tensors use auxiliary FP32 AdamW groups. Weights and gradients remain FP32. `--optimizer muon8bit` is the trainer default; `--optimizer adamw` selects the explicit comparison. This quantizes optimizer momentum, not model weights.
+The project retains an experimental eager PyTorch Muon path with INT8 blockwise momentum and FP32 scales/temporary arithmetic for historical comparisons. Embeddings, the output head, learned slot queries and other ineligible tensors use auxiliary FP32 AdamW groups. Weights and gradients remain FP32. New training uses NativeFusedAdamW (`adamw_fused`) by default; historical `--optimizer muon8bit` commands retain their scope and `--optimizer adamw` selects the custom eager comparison. Muon quantizes optimizer momentum, not model weights.
 
 Current checks and limits are recorded in [execution state](execution_state.md), [Mac validation](reports/validation_macos_setup.json) and [tiny MPS optimizer smoke](reports/muon8bit_mps_smoke.json). These setup checks are supplemented by the native experiments below; broader convergence remains unmeasured. The [runbook](docs/03_Implementation_and_Runbook.md) contains acquisition, baseline and preflight commands; the later CUDA build and hardware must be qualified on the Blackwell machine.
 
