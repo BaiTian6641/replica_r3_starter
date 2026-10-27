@@ -77,7 +77,7 @@ def _curve_readout(
     """Score one prefix without writing weights, optimizer state or base."""
     import torch
     from run_vision_curriculum import (
-        curriculum_prompt, generate_row, observe)
+        curriculum_prompt, generate_row, observe, projector_state_sha256)
     from run_vision_balanced_alignment import _teacher_forced_loss
 
     rows_by_case = {str(row["case_id"]): row for row in rows}
@@ -86,7 +86,7 @@ def _curve_readout(
     readout_dir.mkdir(parents=True, exist_ok=True)
 
     before_state = curve.optimizer_state_report(optimizer)
-    before_digest = curriculum.projector_state_sha256(adapter.vision_projector)
+    before_digest = projector_state_sha256(adapter.vision_projector)
     before_base = adapter.parameter_stamp(original_only=True)
     before_snapshot = _snapshot_new_parameters(adapter)
     answer_rows = []
@@ -217,7 +217,7 @@ def _curve_readout(
     finally:
         adapter.train()
     after_state = curve.optimizer_state_report(optimizer)
-    after_digest = curriculum.projector_state_sha256(adapter.vision_projector)
+    after_digest = projector_state_sha256(adapter.vision_projector)
     after_base = adapter.parameter_stamp(original_only=True)
     weight_changes = _changed(before_snapshot,
                               _snapshot_new_parameters(adapter))

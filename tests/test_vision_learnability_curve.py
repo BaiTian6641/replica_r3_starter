@@ -8,6 +8,10 @@ read an evaluation split.
 from __future__ import annotations
 
 import copy
+import time
+from types import SimpleNamespace
+
+import torch
 import hashlib
 import importlib.util
 import json
@@ -285,6 +289,41 @@ def _readout(prefix, *, digest=None, generation_ok=True,
             "curve_decision_input": False,
         }),
     }
+
+def test_curve_readout_uses_imported_projector_digest_helper(tmp_path, monkeypatch):
+    class Adapter(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.vision_projector = torch.nn.Linear(1, 1)
+
+        def new_named_parameters(self):
+            return [("vision_projector.0.weight", self.vision_projector.weight),
+                    ("vision_projector.0.bias", self.vision_projector.bias)]
+
+        def parameter_stamp(self, *, original_only=True):
+            return "sealed-base"
+
+    adapter = Adapter()
+    optimizer = torch.optim.AdamW(adapter.vision_projector.parameters(), lr=0.1)
+    session = SimpleNamespace(device="cpu", ledger=SimpleNamespace(epoch=0))
+    monkeypatch.setattr(learn, "generation_hypothesis_report",
+                        lambda *args, **kwargs: {"ok": True, "violations": []})
+    monkeypatch.setattr(learn, "score_train_fit",
+                        lambda **kwargs: {"answer": {}, "caption": {}})
+    monkeypatch.setattr(curve, "readout_metrics", lambda *args: {})
+    monkeypatch.setattr(curve, "teacher_forced_aggregates", lambda *args: {})
+    readout = _runner_module()._curve_readout(
+        adapter, session, None, None, {}, None, [], {}, [], [],
+        prefix=0, output=tmp_path, guard=None, started=time.monotonic(),
+        limits={"max_seconds": 900, "max_scoring_forwards": 1470,
+                "max_new_tokens": 8, "caption_max_new_tokens": 32},
+        init_hash="initialization", optimizer=optimizer)
+    assert readout["optimizer_state_unchanged"] is True
+    assert readout["projector_unchanged_by_readout"] is True
+    assert readout["adapter_train_restored"] is True
+    assert readout["weight_change_names"] == []
+    assert readout["readout_weight_writes"] == 0
+
 
 
 def _valid_readouts():
