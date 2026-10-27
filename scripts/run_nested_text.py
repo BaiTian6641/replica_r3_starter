@@ -64,7 +64,9 @@ from replica_lab.nested_text import (NestedTextLearner, P_ONLY_FORMAT,  # noqa: 
                                      TextTeachingEvent, evaluate_dev_gate,
                                      prompt_route_key, validate_p_only_payload)
 from replica_lab.nested_text_scoring import (SCORING_VERSION, STOP_TOKENS,  # noqa: E402
-                                             finalize_generation, score_response)
+                                             finalize_generation, score_response,
+                                             is_truncated_stop_reason,
+                                             sentence_complete_text)
 
 PROMPT_FORM = "replica.nested_text.run.v1"
 CONFIG_FORMAT_V1 = "replica.nested_text.nl1.v1"
@@ -196,6 +198,8 @@ def validate_v2_config(config: Mapping[str, Any]) -> None:
     _require(tuple(int(token) for token in generation["stop_tokens"])
              == tuple(STOP_TOKENS),
              "v2 stop tokens differ from the scoring contract")
+    _require(generation.get("sentence_stop", {}).get("enabled") is True,
+             "v2 requires the declared first-sentence completion stop")
     _require(generation.get("scoring_version") == SCORING_VERSION,
              "v2 generation/scoring versions differ")
     _require(generation.get("token_budget_credit") is False
@@ -693,7 +697,7 @@ def phase_work_from_records(records: list[tuple[str, int]], *,
         "response_supervised_tokens": 0,
         "stop_reason": str(stop_reason),
         "stop_token": stop_token,
-        "truncated": str(stop_reason) != "stop_token",
+        "truncated": is_truncated_stop_reason(str(stop_reason)),
     }
 
 
@@ -721,6 +725,16 @@ def generate_episode_v2(learner: NestedTextLearner, session: MemorySession,
     audit = None
     plastic_seconds = prepare_seconds = 0.0
     generation_seconds = release_seconds = 0.0
+    sentence_stopped = False
+
+    def stop_on_sentence(ids):
+        nonlocal sentence_stopped
+        text = session.tokenizer.decode(list(ids), skip_special_tokens=True)
+        if sentence_complete_text(text):
+            sentence_stopped = True
+            return True
+        return False
+
     try:
         with counted_native_forwards(learner.adapter) as counter:
             counter.phase = "plastic_read"
@@ -736,7 +750,8 @@ def generate_episode_v2(learner: NestedTextLearner, session: MemorySession,
             started = time.perf_counter()
             prompt_length = int(request.frame.sense.prompt_ids.shape[1])
             ids = session.generate(request, max_new_tokens=max_new_tokens,
-                                   eos_token_id=tuple(stop_tokens))
+                                   eos_token_id=tuple(stop_tokens),
+                                   stop_predicate=stop_on_sentence)
             generated = tuple(int(token)
                               for token in ids[0, prompt_length:].tolist())
             _require(generated == tuple(int(token)
@@ -746,7 +761,8 @@ def generate_episode_v2(learner: NestedTextLearner, session: MemorySession,
                 generated,
                 decode=lambda content: session.tokenizer.decode(
                     list(content), skip_special_tokens=True),
-                stop_tokens=stop_tokens, max_new_tokens=max_new_tokens)
+                stop_tokens=stop_tokens, max_new_tokens=max_new_tokens,
+                completed_by="sentence_complete" if sentence_stopped else None)
             generation_seconds = time.perf_counter() - started
     finally:
         if request is not None:

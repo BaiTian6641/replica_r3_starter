@@ -5,7 +5,9 @@ import pytest
 
 from replica_lab.nested_text_scoring import (
     finalize_generation,
+    is_truncated_stop_reason,
     score_response,
+    sentence_complete_text,
 )
 
 
@@ -121,3 +123,27 @@ def test_terminal_stop_with_empty_text_is_not_a_valid_answer():
 def test_invalid_generation_contracts_fail_closed(ids, kwargs):
     with pytest.raises(ValueError):
         finalize_generation(ids, decode=lambda values: "x", **kwargs)
+
+
+def test_sentence_boundary_is_completion_not_answer_selection():
+    assert sentence_complete_text("The answer is 43.")
+    assert sentence_complete_text("8 times 7 is **56**.")
+    assert sentence_complete_text("Tevufa?")
+    assert not sentence_complete_text("17 + 26")
+    assert not sentence_complete_text("The value is 3.14")
+    assert not sentence_complete_text("The value is...")
+
+
+def test_sentence_completion_is_not_truncation():
+    result = finalize_generation(
+        [7, 8], decode=lambda ids: "A leap year has **366 days**.",
+        max_new_tokens=24, completed_by="sentence_complete")
+    assert result.stop_reason == "sentence_complete"
+    assert result.stop_token is None
+    assert result.truncated is False
+    assert not is_truncated_stop_reason(result.stop_reason)
+    with pytest.raises(ValueError, match="cannot both"):
+        finalize_generation([7, 1], decode=lambda ids: "x",
+                            completed_by="sentence_complete")
+    with pytest.raises(ValueError, match="completed_by"):
+        finalize_generation([7], decode=lambda ids: "x", completed_by="other")

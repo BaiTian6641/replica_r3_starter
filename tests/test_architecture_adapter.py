@@ -218,6 +218,25 @@ def test_interleaved_requests_keep_frames_separate_and_generation_verifies_each_
     assert not adapter.training
 
 
+def test_generation_stop_predicate_runs_after_each_token():
+    adapter = tiny_adapter().eval()
+    request = RequestContext("request", TaskGraph("task", "test"),
+                             synthetic_frame(adapter), None)
+    calls = []
+
+    def stop_after_two(ids):
+        calls.append(ids)
+        return len(ids) >= 2
+
+    output = adapter.generate_action(
+        request, verify=lambda current: current.assert_ready(),
+        max_new_tokens=4, eos_token_id=[], stop_predicate=stop_after_two)
+    assert len(calls) == 2
+    assert request.generated_ids == calls[-1]
+    assert len(request.generated_ids) == 2
+    assert output.shape[1] == request.frame.sense.prompt_ids.shape[1] + 2
+
+
 def test_known_prefix_target_mask_and_port_map_are_enforced():
     adapter = tiny_adapter().eval()
     frame = synthetic_frame(adapter)

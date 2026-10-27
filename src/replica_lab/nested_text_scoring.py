@@ -63,7 +63,7 @@ class GenerationResult:
 
     @property
     def truncated(self) -> bool:
-        return self.stop_reason != "stop_token"
+        return is_truncated_stop_reason(self.stop_reason)
 
 
 @dataclass(frozen=True)
@@ -75,10 +75,29 @@ class ResponseScore:
     scoring_version: str = SCORING_VERSION
 
 
+def is_truncated_stop_reason(reason: str) -> bool:
+    return reason in {"token_budget", "missing_stop"}
+
+
+def sentence_complete_text(text: str) -> bool:
+    """Recognize the declared first complete-sentence boundary, not an answer."""
+    if not isinstance(text, str):
+        raise ValueError("sentence boundary requires text")
+    stripped = text.strip()
+    if not re.findall(r"[\w']+", stripped) or stripped.endswith("..."):
+        return False
+    if re.search(r"\d\.\d$", stripped):
+        return False
+    return stripped.endswith((".", "!", "?"))
+
+
 def finalize_generation(ids: Sequence[int], *, decode: Callable[[Sequence[int],], str],
                         stop_tokens: Iterable[int] = STOP_TOKENS,
-                        max_new_tokens: int = DEFAULT_MAX_NEW_TOKENS) -> GenerationResult:
-    """Validate one generated sequence and separate stop from token-budget end."""
+                        max_new_tokens: int = DEFAULT_MAX_NEW_TOKENS,
+                        completed_by: str | None = None) -> GenerationResult:
+    """Validate IDs and separate token, sentence and budget completion."""
+    if completed_by not in (None, "sentence_complete"):
+        raise ValueError("completed_by must be sentence_complete or null")
     if type(max_new_tokens) is not int or max_new_tokens < 1:
         raise ValueError("max_new_tokens must be a positive integer")
     stops = frozenset(int(token) for token in stop_tokens)
@@ -92,11 +111,14 @@ def finalize_generation(ids: Sequence[int], *, decode: Callable[[Sequence[int],]
     stop_index = next((index for index, token in enumerate(raw) if token in stops), None)
     if stop_index is None:
         content = raw
-        reason = "token_budget" if len(raw) == max_new_tokens else "missing_stop"
+        reason = (completed_by or
+                  ("token_budget" if len(raw) == max_new_tokens else "missing_stop"))
         stop_token = None
     else:
         if stop_index != len(raw) - 1:
             raise ValueError("generated IDs continue after the first stop token")
+        if completed_by is not None:
+            raise ValueError("stop token and sentence completion cannot both be reported")
         content = raw[:stop_index]
         reason = "stop_token"
         stop_token = raw[stop_index]
@@ -144,4 +166,5 @@ def score_response(expected: str, output: str, *, candidate_answers: Iterable[st
 __all__ = [
     "DEFAULT_MAX_NEW_TOKENS", "GenerationResult", "ResponseScore",
     "SCORING_VERSION", "STOP_TOKENS", "finalize_generation", "score_response",
+    "is_truncated_stop_reason", "sentence_complete_text",
 ]

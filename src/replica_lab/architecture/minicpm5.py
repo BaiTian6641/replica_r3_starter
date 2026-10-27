@@ -786,14 +786,20 @@ class MiniCPM5Adapter(nn.Module):
         return CausalLMOutputWithPast(loss=loss, logits=logits, past_key_values=None)
 
     def generate_action(self, request: RequestContext, *, verify, max_new_tokens=16,
-                        eos_token_id=None, banned_token_ids=None):
-        """Raw greedy proposal. Host verification runs before each outward segment/token.
+                        eos_token_id=None, banned_token_ids=None,
+                        stop_predicate=None):
+        """Raw greedy proposal with optional host-declared completion predicate.
 
         ``banned_token_ids`` is an interface constraint used only for a declared
         action-space experiment; it masks tokens, never supplies a repair value.
+        ``stop_predicate`` receives the current generated content IDs after each
+        token and may stop on a declared grammar boundary.  It never receives
+        the expected answer and cannot manufacture a stop-token receipt.
         """
         if type(max_new_tokens) is not int or max_new_tokens <= 0:
             raise ValueError('Positive generation budget required')
+        if stop_predicate is not None and not callable(stop_predicate):
+            raise TypeError('stop_predicate must be callable or null')
         banned = () if banned_token_ids is None else tuple(banned_token_ids)
         if any(type(token) is not int or token < 0
                or token >= self.base.config.vocab_size for token in banned):
@@ -810,6 +816,7 @@ class MiniCPM5Adapter(nn.Module):
             with torch.no_grad():
                 ids = request.frame.sense.prompt_ids.clone()
                 mask = request.frame.sense.prompt_mask.clone()
+                prompt_length = request.frame.sense.prompt_ids.shape[1]
                 for _ in range(max_new_tokens):
                     verify(request)
                     output = self.forward_with_frame(ids, request.frame, attention_mask=mask, logits_to_keep=1)
@@ -824,8 +831,11 @@ class MiniCPM5Adapter(nn.Module):
                     mask = torch.cat((mask, torch.ones_like(token, dtype=torch.bool)), dim=1)
                     if token.item() in stops:
                         break
+                    if stop_predicate is not None and stop_predicate(
+                            tuple(ids[0, prompt_length:].tolist())):
+                        break
                 verify(request)
-                request.generated_ids = tuple(ids[0, request.frame.sense.prompt_ids.shape[1]:].tolist())
+                request.generated_ids = tuple(ids[0, prompt_length:].tolist())
                 return ids
         finally:
             for module, training in modes:

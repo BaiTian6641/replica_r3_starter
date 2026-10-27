@@ -749,6 +749,8 @@ def test_v2_protocol_declares_corrected_benchmark_and_no_training():
     assert generation["scoring_version"] == "replica.nested_text.scoring.v2"
     assert generation["token_budget_credit"] is False
     workload = config["workload"]
+    assert generation["sentence_stop"]["enabled"] is True
+    assert generation["sentence_stop"]["answer_selection_allowed"] is False
     assert sum(workload["attempts"].values()) == workload["scoring_attempts"] == 196
     assert "teaching_end_to_end_seconds" in workload["duty_cycle"]
     assert "evaluation_end_to_end_seconds" in workload["duty_cycle"]

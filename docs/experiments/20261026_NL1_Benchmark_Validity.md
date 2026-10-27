@@ -55,9 +55,10 @@ routing. The v1 16-expert prompt hash remains a negative control.
 - `unknown` and `revoked` are exact status responses only.
 - Native runs retain raw generated IDs, content IDs, stop token/reason and
   actual token-budget truncation. Empty or truncated output receives no credit.
-- Stop tokens are EOS `1` and `<|im_end|>` `130073`; the generation ceiling is
-  24 tokens, matching the episode recipe's response bound. A clean stop at the
-  ceiling is not mislabeled as truncation.
+- Generation stops at the first complete sentence boundary, EOS `1` or
+  `<|im_end|>` `130073`, or the 24-token hard cap. Sentence completion is not
+  truncation; a token-budget ending receives no credit. The host predicate
+  never receives the expected answer and cannot manufacture a stop receipt.
 
 The scorer is a narrow grammar, not a general semantic-equivalence claim.
 Positive, incorrect, ambiguous, contradictory, truncated, status and stopping

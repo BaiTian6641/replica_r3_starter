@@ -112,6 +112,15 @@
     "scoring_version": "replica.nested_text.scoring.v2",
     "max_new_tokens": 24,
     "stop_tokens": [1, 130073],
+    "sentence_stop": {
+      "enabled": true,
+      "boundary": "first_complete_sentence",
+      "terminators": [".", "!", "?"],
+      "min_words": 1,
+      "decimal_point_is_not_boundary": true,
+      "hard_cap_is_not_clean_stop": true,
+      "answer_selection_allowed": false
+    },
     "target_eos_token": 1,
     "response_grammar": "bare_expected_or_complete_declarative_with_expected_whole_phrase",
     "status_answers_exact_only": ["unknown", "revoked"],
