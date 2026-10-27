@@ -29,12 +29,17 @@ MANIFEST_FIXTURE = (ROOT / "tests/fixtures/"
                            "source_manifest.json")
 PINNED_MANIFEST = ("checkpoints/siglip2_base_patch16_224_source/"
                    "source_manifest.json")
-CLEAN_INPUTS = ("scripts", "src", "tests", "data", "reports", "runs")
+CLEAN_INPUTS = ("scripts", "src", "tests", "data", "reports")
 CONFIG_INPUTS = (
     "configs/minicpm5_sealed_lock.local.json",
     "configs/vision_mean_only_ablation_v1.json",
     "configs/vision_learnability_step1_reproduction_v1.json",
 )
+PRECONDITION_RUN = "vision_mean_only_ablation_v1_20261026_attempt09"
+PRECONDITION_REPORT = f"runs/{PRECONDITION_RUN}/report.json"
+REPORT_FIXTURE = (ROOT / "tests/fixtures/"
+                         "vision_smaller_step_launch_packet" /
+                         PRECONDITION_REPORT)
 
 
 def _module():
@@ -60,6 +65,25 @@ def _populate_clean_root(root):
         destination = root / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.symlink_to(source, target_is_directory=True)
+    runs_directory = root / "runs"
+    runs_directory.mkdir(parents=True, exist_ok=True)
+    source_runs = ROOT / "runs"
+    if source_runs.is_dir():
+        for entry in sorted(source_runs.iterdir()):
+            destination = runs_directory / entry.name
+            if entry.name == PRECONDITION_RUN and entry.is_dir():
+                destination.mkdir()
+                for child in sorted(entry.iterdir()):
+                    if child.name == "report.json":
+                        continue
+                    (destination / child.name).symlink_to(
+                        child, target_is_directory=child.is_dir())
+            else:
+                destination.symlink_to(
+                    entry, target_is_directory=entry.is_dir())
+    report_directory = runs_directory / PRECONDITION_RUN
+    report_directory.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(REPORT_FIXTURE, root / PRECONDITION_REPORT)
     model_directory = root / "checkpoints/minicpm5_source"
     model_directory.mkdir(parents=True, exist_ok=True)
     manifest = root / PINNED_MANIFEST
@@ -543,6 +567,15 @@ def test_clean_root_rebuild_is_byte_identical_to_the_checked_in_packet(
     assert not any(model_directory.iterdir())
     assert not (clean_root / "checkpoints/siglip2_base_patch16_224_source"
                              "/model.safetensors").exists()
+    report = clean_root / PRECONDITION_REPORT
+    assert report.is_file()
+    assert not report.is_symlink()
+    assert not (clean_root / "runs" / PRECONDITION_RUN).is_symlink()
+    assert report.read_bytes() == REPORT_FIXTURE.read_bytes()
+    assert _sha256(report) == packet["lineage"]["precondition"]["report"][
+        "sha256"]
+    assert _sha256(report) == (
+        "c91a1cb703ab7f8048181e17e64f29c761cc7556dc759172bc2fc8f90cea7386")
     rebuilt = builder.build_packet(clean_config, root=clean_root)
     builder.verify_packet(rebuilt, config_path=clean_config,
                           root=clean_root)
