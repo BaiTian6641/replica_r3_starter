@@ -250,6 +250,17 @@ research bundle adds the v5 profile, blueprint, verification/cost artifacts,
 historical snapshots and cleanup receipts. No new model, dataset or native
 Spark job was launched.
 
+Final verification at `bece2a8f` is recorded in
+[the final receipt](reports/final_verification_20261027/summary.json).
+The provisioned workspace suite has **2,434 passes plus 21 subtests**, 8 skips
+and four failures, all historical vision migration-pin checks; those failures
+remain visible rather than being rewritten away. A fresh `--no-hardlinks` clone
+of the same commit has **2,398 passes plus 21 subtests**, 48 explicit
+artifact-dependent skips and no failures. Both workspaces pass the tracked
+artifact guard over 10,867 files. The clean export does not contain local model
+or data payloads and therefore does not qualify native behavior. No new native
+job, training, download or held-out evaluation was started.
+
 ### Verification and next bounded work
 
 | Verification | Result |

@@ -40,6 +40,14 @@ suite now passes 200 tests. A corrected derived teaching total is 3,429
 positions; raw cost bytes remain preserved. No useful baseline is established;
 do not repeat the recipe or open sealed-final rows without a new authorized
 one-clock-compatible hypothesis.
+Spark v5 reconciliation and final verification are committed at `bece2a8f`.
+The [final verification receipt](reports/final_verification_20261027/summary.json)
+records 2,434 workspace passes plus 21 subtests, 8 skips and four preserved
+historical migration-pin failures; the fresh committed-tree clone records
+2,398 passes plus 21 subtests, 48 explicit skips and no failures. The artifact
+guard passes on 10,867 tracked files. No native Spark training, model download
+or held-out evaluation was opened by this verification.
+
 
 [Real images](docs/experiments/20261026_Real_Image_Tranche.md) provide seven
 public-domain/CC0 JPEG derivatives from six source groups with verified rights,

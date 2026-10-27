@@ -66,6 +66,13 @@ The [v5 reconciliation](docs/architecture/23_SparkX_2_6_4B_Final_Product_Bluepri
 distinguishes official BF16, unexecuted native FP8 and the BF16 derivative;
 117 bundle inputs and 40 snapshot inputs are recorded, with 25 official weight
 files acquired. No native Spark training follows from these receipts.
+Final verification at `bece2a8f` is recorded in
+[the final receipt](reports/final_verification_20261027/summary.json): the
+provisioned workspace has 2,434 passes plus 21 subtests, 8 skips and four
+preserved historical migration-pin failures; the fresh committed-tree clone
+has 2,398 passes plus 21 subtests, 48 explicit artifact-dependent skips and no
+failures. The artifact guard passes on 10,867 tracked files. These checks do
+not establish native Spark behavior or learned quality.
 
 ## Mission
 
@@ -80,7 +87,7 @@ Current setup decision (22 October 2026, America/Chicago): work first on the con
 1. Read README.md, docs/01 through docs/06, docs/07_Architecture_Diagrams.md, reports/validation.json, and docs/03_Implementation_and_Runbook.md's status table.
 2. Inspect the actual repository status, remotes, branch, uncommitted changes, current execution notes and latest test failures. Preserve user work. Read applicable repository instructions.
 3. If there is an existing project, use a focused branch/worktree and integrate useful starter components through a migration plan. If this is a genuinely new project with no repository, initialize Git inside this project root and make a local initial commit. Do not invent a remote or push without established authorization.
-4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The last recorded full clean-export suite is 1,311 passed /21 subtests; the latest review independently reran 49 focused tests. Older suite totals are historical snapshots. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
+4. Distinguish original delivered CPU/tiny-Llama evidence from subsequent native execution. D0 actual 256/512 capacity, fixed-context augmented generation and D1/D2 tiny memorization are already qualified. Read execution_state.md and the dated results for completed optimizer/capacity, restart and generation gates. The latest final verification is 2,434 workspace passes plus 21 subtests with 8 skips and four preserved historical migration-pin failures, and 2,398 fresh-clone passes plus 21 subtests with 48 skips and no failures; see `reports/final_verification_20261027/summary.json`. Older suite totals are historical snapshots. Broad quality, useful architecture benefit and Replica fidelity remain unmeasured.
 
 ## First session: do concrete work
 

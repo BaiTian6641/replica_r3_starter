@@ -1,0 +1,76 @@
+{
+  "format": "replica.final_verification.v1",
+  "date": "2026-10-27",
+  "head_commit": "bece2a8fa4151a36ff13c3dfb0228a26c180460c",
+  "scope": "Post-reconciliation software, artifact-policy and fresh committed-tree verification; no new native model job, training, download or evaluation split was opened.",
+  "workspace": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=reports/final_verification_20261027/tests.xml",
+    "junit_xml": "reports/final_verification_20261027/tests.xml",
+    "passed": 2434,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 8,
+    "subtests_passed": 21,
+    "junit_tests": 2467,
+    "junit_time_seconds": 404.701,
+    "console_seconds": 405.14,
+    "failures": [
+      "tests/test_vision_caption_v2.py::test_prepared_v2_roles_load_separately_with_bound_assignments",
+      "tests/test_vision_collapse_diagnostic.py::test_config_and_static_pins_verify_without_a_model",
+      "tests/test_vision_learnability_diagnostic.py::test_static_pins_verify_and_historical_ablation_refuses_drift",
+      "tests/test_vision_learnability_diagnostic.py::test_new_file_pin_drift_is_rejected"
+    ],
+    "failure_scope": "All four failures are historical vision migration-pin checks reporting stale implementation bytes; the historical configurations were not rewritten to obtain a green result.",
+    "preserved": true
+  },
+  "clean_export": {
+    "source": "git clone --no-hardlinks . /tmp/replica_clean_export_20261027; git checkout bece2a8f",
+    "clone": "/tmp/replica_clean_export_20261027",
+    "head_commit": "bece2a8fa4151a36ff13c3dfb0228a26c180460c",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/final_verification_20261027/clean_export/tests.xml",
+    "junit_xml": "reports/final_verification_20261027/clean_export/tests.xml",
+    "passed": 2398,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 48,
+    "subtests_passed": 21,
+    "junit_tests": 2467,
+    "junit_time_seconds": 387.084,
+    "console_seconds": 387.13,
+    "git_status": "clean",
+    "artifact_guard": {
+      "status": "passed",
+      "scope": "tracked",
+      "checked_files": 10867,
+      "largest_checked_blob_bytes": 8148167,
+      "violations": [],
+      "working_files_changed": false
+    }
+  },
+  "workspace_artifact_guard": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python scripts/check_git_artifacts.py --scope tracked",
+    "status": "passed",
+    "scope": "tracked",
+    "checked_files": 10867,
+    "largest_checked_blob_bytes": 8148167,
+    "violations": [],
+    "working_files_changed": false,
+    "guard_tests": "74 passed"
+  },
+  "resource_and_lineage": {
+    "native_jobs_started_by_this_verification": 0,
+    "cpu_fallback_changed": false,
+    "exclusive_mps_worker_policy_unchanged": true,
+    "driver_limit_gib": 50,
+    "sustained_swap_growth_limit_mib": 512,
+    "minimum_host_free_percent": 15,
+    "protected_runtime_pilot_modified": false,
+    "sealed_base_or_model_payloads_modified": false,
+    "heldout_or_sealed_final_rows_opened": false
+  },
+  "scope_limits": [
+    "The clean export omits untracked local model/data payloads; its 48 skips are explicit artifact-dependent tests and do not establish native model behavior.",
+    "The provisioned workspace result retains four historical migration-pin failures; this receipt does not relabel them as passing or as a new regression caused by Spark reconciliation.",
+    "All prior negative learned-quality, capacity, calibration and native-backend limitations remain separate evidence."
+  ]
+}
