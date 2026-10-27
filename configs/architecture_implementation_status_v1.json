@@ -68,11 +68,12 @@
   "caption_asset_qa_decision": "reports/external_caption_asset_qa_20261027/admission_decision.json",
   "sparkx_final_product_verification_v2": "reports/sparkx_final_product_20261026/verification_v2.json",
   "remediation_report": "docs/experiments/20261027_Remediation_and_Next_Steps.md",
+  "final_verification_receipt": "reports/final_remediation_20261027/summary.json",
   "spark_residency_v2_result": "reports/sparkx_residency_20261026/residency_v2.json",
   "spark_research_bundle": "reports/sparkx_first_tranche_20261026/research_bundle_manifest.json",
   "sparkx_final_product_verification": "reports/sparkx_final_product_20261026/verification.json",
   "fused_continuation_instrumentation": "reports/fused_continuation_instrumentation_20261026/comparison_aa_ab.json",
-  "latest_regression": "reports/clean_export_20261026_nested_vision/summary.json",
+  "latest_regression": "reports/final_remediation_20261027/summary.json",
   "workspace_regression_with_concurrent_failures": "reports/regression_20261026_nested_vision/summary.json",
   "interrupted_result": "reports/e3_interrupted_20261023/acceptance.json",
   "fused_sustained_result": "runs/fused_adamw_20261025/sustained01/run_report.json",
@@ -297,7 +298,7 @@
       "qualified": "none"
     }
   },
-  "reviewed_code_head": "3194d37",
+  "reviewed_code_head": "f366a4f",
   "review_scope": "Fit admission, negative scoring, immutable replay, portable Spark verification, physical-work accounting and memory/vision diagnosis implemented; one bounded step-1 NativeFusedAdamW overshoot hypothesis supported by derived replay; useful memory, generated visual answers, development evaluation and neural RSI remain gated.",
   "loop_agent_instructions": "docs/architecture/16_Loop_Agent_Instructions.md",
   "current_construction_order": [
@@ -314,11 +315,11 @@
     "success_uncertainty_calibration_before_control_authority"
   ],
   "last_recorded_validation": {
-    "passed": 1572,
+    "passed": 2677,
     "subtests": 21,
-    "seconds": 183.02,
-    "evidence": "reports/memory_storage_probe_20261025/final_source_validation.json",
-    "scope": "Clean committed source export1c609c3; explicit hash-pinned local model/runtime inputs; no neural capability implication."
+    "seconds": 468.926,
+    "evidence": "reports/final_remediation_20261027/summary.json",
+    "scope": "Provisioned f366a4f suite: 2677 passed, 9 Pillow skips, no failures; complementary overlay 52 passed/1 intentional skip; fresh clone 2630 passed, 56 explicit skips, no failures; 11009-file artifact guard and 436 clean Spark checks pass."
   },
   "current_guard_validation": {
     "date": "2026-10-23",

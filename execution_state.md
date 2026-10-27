@@ -67,6 +67,16 @@ Read the [consolidated evidence and next-step prompt](docs/experiments/20261027_
 Protocol/authorization/evidence commits are `dfe39a07`, `f38bab72`, `d9c7393e`,
 `cf37d85`, `ca8669b9`, `ac12ad0`, `3c9c7cf` and `3194d37`.
 
+Final verification at `f366a4f2d6da7ce26ff76437c9cd5fc0fd7eb575` is recorded in
+[the remediation receipt](reports/final_remediation_20261027/summary.json).
+The provisioned suite passes **2,677 tests plus 21 subtests**, with 9 explicit
+Pillow skips and no failures. The complementary overlay passes 52 tests with
+one intentional skip. A fresh clone passes **2,630 tests plus 21 subtests**,
+with 56 explicit artifact/provisioning skips and no failures. Both artifact
+guards pass over 11,009 files; the clean Spark verifier passes 436 checks with
+no source-cache dependency. The first two-failure suite is preserved; reverting
+an optional link in a pinned document fixed it without rewriting old hashes.
+
 ## Native one-clock baseline and vision learnability — 26 October 2026
 
 **Current status — native engineering integration passes; learned utility is

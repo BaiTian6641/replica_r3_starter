@@ -235,7 +235,27 @@ rollback, recovery and neural-deferral tests pass **19 / 19**. No neural RSI
 candidate was published. Useful recall, correction, unaffected retention and
 visual grounding must pass independently before `NeuralGate` can be reconsidered.
 
-## 8. Next executable instruction prompt
+## 8. Final verification
+
+The [final verification receipt](../../reports/final_remediation_20261027/summary.json)
+binds the tested commit `f366a4f2d6da7ce26ff76437c9cd5fc0fd7eb575`.
+
+| Scope | Result |
+|---|---|
+| Provisioned full suite | **2,677 passed**, 0 failed, 9 skipped, 21 subtests |
+| Complementary Pillow overlay | **52 passed**, 1 intentional complementary skip |
+| Fresh `--no-hardlinks` clone | **2,630 passed**, 0 failed, 56 explicit artifact/Pillow skips, 21 subtests |
+| Tracked artifact guard | Passed on **11,009 files** in both trees; 74 guard tests passed |
+| Clean-clone Spark verifier | **436 / 436 checks passed**, 43 inputs, no source-cache dependency |
+
+The provisioned skips are seven Pillow JPEG tests and two official-PIL branches;
+the overlay covers all nine. Clean-clone skips are explicit missing local
+model/data/run artifacts and provisioning, recorded by name/message in its
+JUnit. The initial two-failure full-suite receipt is preserved; reverting the
+optional link in a pinned RSI document fixed the cause without changing old
+hashes or skipping tests. The clean clone remained clean.
+
+## 9. Next executable instruction prompt
 
 > Continue from the current HEAD; inspect `git status`, intervening commits and
 > `execution_state.md` before editing. Preserve concurrent work and do not read,
