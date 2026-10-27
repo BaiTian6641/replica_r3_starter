@@ -1478,6 +1478,7 @@ class PlasticLearningController:
         self.clock = TeachingClock()
         self.dedup = DedupLedger()
         self.revision = 0
+        self.last_gradient_norm = None
         self.cache = cache if cache is not None else RevisionCache(revision=0)
         _require(self.cache.revision == self.revision,
                  "cache revision must match the controller revision")
@@ -1500,6 +1501,7 @@ class PlasticLearningController:
                 f"transaction scope {expected_scope!r} differs from {self.scope!r}")
         _require(isinstance(event_id, str) and event_id, "event_id must be nonempty")
         self.bank._validate_expert(expert_id)
+        self.last_gradient_norm = None
         _require(type(steps) is int and 1 <= steps <= self.max_steps,
                  f"steps must lie in [1, {self.max_steps}]")
         _require(steps <= self.total_step_cap, "transaction exceeds the total step cap")
@@ -1542,6 +1544,7 @@ class PlasticLearningController:
                 loss_value = float(loss)
                 gradients, _raw_norm, _scale = clip_gradients_to_norm(
                     gradients, max_norm=self.gradient_norm_max)
+                self.last_gradient_norm = float(_raw_norm)
                 for name, parameter in expert.named_parameters():
                     parameter.grad = gradients[name]
                 for inactive in inactive_ids:

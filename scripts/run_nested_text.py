@@ -63,6 +63,7 @@ from replica_lab.nested_text import (NestedTextLearner, P_ONLY_FORMAT,  # noqa: 
                                      TextAccessOrder, TextProtocol,
                                      TextTeachingEvent, evaluate_dev_gate,
                                      prompt_route_key, validate_p_only_payload)
+from replica_lab.nested_continuation import canonical_state  # noqa: E402
 from replica_lab.nested_text_scoring import (SCORING_VERSION, STOP_POLICY_VERSION,
                                              STOP_TOKENS, finalize_generation,
                                              score_response, is_truncated_stop_reason,
@@ -103,6 +104,11 @@ def _require(condition: bool, message: str) -> None:
 
 def _sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def _implementation_pins(config: Mapping[str, Any]) -> dict[str, str]:
+    return {relative: _sha256_file(ROOT / relative)
+            for relative in config.get("implementation_paths", ())}
+
 
 
 def _sha256_json(value: Any) -> str:
@@ -1170,6 +1176,8 @@ def run_teach(args, config: dict) -> int:
             limit=args.max_events)
         _require(episodes, "no eligible teaching episodes")
         transactions, observations = [], []
+        state_history = []
+        canonical_seconds = 0.0
         started = time.perf_counter()
         update_seconds = 0.0
         for episode in episodes:
@@ -1181,7 +1189,18 @@ def run_teach(args, config: dict) -> int:
                 attention_mask=episode.attention_mask,
                 response_mask=episode.response_mask)
             update_seconds += time.perf_counter() - update_started
-            transactions.append(outcome.to_dict())
+            transaction = outcome.to_dict()
+            transaction["gradient_norm_before_clipping"] = controller.last_gradient_norm
+            transactions.append(transaction)
+            canonical_started = time.perf_counter()
+            state_history.append({
+                "event_id": outcome.event_id,
+                "event_index": len(state_history) + 1,
+                "transaction": transaction,
+                "legacy_state_digest": state_digest(learner),
+                "canonical_state": canonical_state(learner),
+            })
+            canonical_seconds += time.perf_counter() - canonical_started
             observations.append({"event_id": outcome.event_id,
                                  "chunk": outcome.chunk.to_dict()})
         wall = time.perf_counter() - started
@@ -1189,10 +1208,13 @@ def run_teach(args, config: dict) -> int:
         _require(stamp_before == stamp_after,
                  "native theta parameter stamp changed during plastic learning")
         _write_jsonl(output / "transactions.jsonl", transactions)
+        _write_jsonl(output / "state_history.jsonl", state_history)
         _write_jsonl(output / "observations.jsonl", observations)
         _write_json(output / "protocol.json", protocol.to_dict())
         checkpoint = learner.save_checkpoint(output / "full_checkpoint.pt")
         p_only_path = learner.save_p_only(output / "p_only" / "state.pt")
+        final_canonical = canonical_state(learner)
+        _write_json(output / "final_state.json", final_canonical)
         p_only = torch.load(p_only_path, map_location="cpu", weights_only=True)
         _write_json(output / "p_only" / "manifest.json", {
             "format": P_ONLY_FORMAT,
@@ -1233,6 +1255,7 @@ def run_teach(args, config: dict) -> int:
             "processed_positions": int(learner.accounting["response_tokens"]),
             "wall_seconds": wall,
             "update_seconds": update_seconds,
+            "canonical_state_seconds": canonical_seconds,
             "duty_cycle": (update_seconds / wall) if wall > 0 else None,
             "protocol_sha256": protocol.protocol_sha256,
             "peak_driver_bytes": peak_driver_bytes(),
@@ -1245,6 +1268,18 @@ def run_teach(args, config: dict) -> int:
             "format": PROMPT_FORM, "mode": "teach", "status": "completed",
             "world_uid": world_uid, "protocol_sha256": protocol.protocol_sha256,
             "episodes_manifest_sha256": _sha256_file(args.episodes / "manifest.json"),
+            "config_sha256": _sha256_file(args.protocol),
+            "implementation_sha256": _implementation_pins(config),
+            "theta_stamp_unchanged": stamp_before == stamp_after,
+            "parameter_audit": "parameter_audit.json",
+            "updates": len(episodes), "learning_events": len(episodes),
+            "state_history": "state_history.jsonl",
+            "final_state": "final_state.json",
+            "canonical_state_sha256": final_canonical["sha256"],
+            "legacy_state_digest": state_digest(learner),
+            "checkpoint_sha256": _sha256_file(checkpoint),
+            "checkpoint_bytes": checkpoint.stat().st_size,
+            "p_only_sha256": _sha256_file(p_only_path),
             "checkpoint": str(checkpoint), "p_only": str(p_only_path),
             "descriptive_only": True, "promotion": False,
             "non_claims": ["no utility, capability or heldout claim",
@@ -2282,34 +2317,26 @@ def run_resume(args, config: dict) -> int:
         adapter.install_plastic(protocol.plastic_spec)
         _require(adapter.plastic_read_digest() == protocol.read_path_sha256,
                  "resume adapter read path differs")
+        stamp_before = adapter.parameter_stamp()
         personality = PersonalityIdentity.from_dict(
             payload["text"]["personality"])
-
-        def make_learner():
-            bank, coordinator, controller = build_learning_owners(
-                protocol, config, personality=personality)
-            return NestedTextLearner(
-                adapter, bank=bank, protocol=protocol, controller=controller,
-                coordinator=coordinator, personality=personality,
-                tokenizer_sha256=protocol.tokenizer_sha256)
-
-        resumed = make_learner()
+        bank, coordinator, controller = build_learning_owners(
+            protocol, config, personality=personality)
+        resumed = NestedTextLearner(
+            adapter, bank=bank, protocol=protocol, controller=controller,
+            coordinator=coordinator, personality=personality,
+            tokenizer_sha256=protocol.tokenizer_sha256)
         resumed.load_checkpoint(payload)
-        reference = make_learner()
-        reference.load_checkpoint(payload)
-        _require(state_digest(resumed) == state_digest(reference),
-                 "two loads of one checkpoint disagree")
+        before = state_digest(resumed)
+        before_canonical = canonical_state(resumed)
+        _write_json(output / "before_state.json", before_canonical)
         rows = []
         for role in ("teaching", "correction"):
             rows.extend(load_rows(args.episodes, manifest, role))
         rows = [row for row in rows if row["eligible"]
                 and row["world_uid"] == protocol.world_uid]
         rows.sort(key=lambda row: (float(row["target_available_at"]), row["id"]))
-        next_row = None
-        for row in rows:
-            if row["id"] == args.next_event:
-                next_row = row
-                break
+        next_row = next((row for row in rows if row["id"] == args.next_event), None)
         _require(next_row is not None,
                  f"next event {args.next_event!r} is not an eligible teaching row")
         _require(args.next_event not in resumed.controller.dedup.event_ids,
@@ -2317,41 +2344,81 @@ def run_resume(args, config: dict) -> int:
         episode = build_episode(next_row, tokenizer, protocol,
                                 max_prompt_tokens=args.max_prompt_tokens,
                                 max_response_tokens=args.max_response_tokens)
-        before = state_digest(resumed)
-        _require(before == state_digest(reference),
-                 "reference and resumed checkpoints start differently")
         resumed_outcome = resumed.learn_event(
             episode.event, prompt_ids=episode.prompt_ids,
             prompt_mask=episode.prompt_mask, input_ids=episode.input_ids,
             attention_mask=episode.attention_mask,
             response_mask=episode.response_mask)
-        reference_outcome = reference.learn_event(
-            episode.event, prompt_ids=episode.prompt_ids,
-            prompt_mask=episode.prompt_mask, input_ids=episode.input_ids,
-            attention_mask=episode.attention_mask,
-            response_mask=episode.response_mask)
+        stamp_after = adapter.parameter_stamp()
+        _require(stamp_before == stamp_after,
+                 "native theta parameter stamp changed during resume")
         after_resumed = state_digest(resumed)
-        after_reference = state_digest(reference)
-        equal = after_resumed == after_reference
+        after_canonical = canonical_state(resumed)
+        transaction = resumed_outcome.to_dict()
+        transaction["gradient_norm_before_clipping"] = controller.last_gradient_norm
+        _write_json(output / "after_state.json", after_canonical)
+        _write_jsonl(output / "state_history.jsonl", [{
+            "event_id": resumed_outcome.event_id,
+            "event_index": int(resumed.controller.revision),
+            "transaction": transaction,
+            "legacy_state_digest": after_resumed,
+            "canonical_state": after_canonical,
+        }])
+        _write_json(output / "parameter_audit.json", {
+            "theta_stamp_unchanged": stamp_before == stamp_after,
+            "plastic_parameters": [
+                f"expert_{index}.{name}"
+                for index in range(bank.expert_count)
+                for name, _ in bank.expert(index).named_parameters()],
+            "plastic_parameter_count": sum(
+                1 for expert in bank.experts for _ in expert.parameters()),
+            "read_path_trainable_parameters": 0,
+            "expert_steps": list(bank.expert_steps),
+        })
+        equal = None
         if args.expected_state is not None:
             expected = json.loads(Path(args.expected_state).read_text())
-            equal = equal and expected.get("after_state") == after_resumed
+            equal = expected.get("after_state") == after_resumed
+        status = ("completed_pending_independent_comparison" if equal is None
+                  else "completed" if equal else "mismatch")
+        checkpoint_sha = _sha256_file(args.checkpoint)
         _write_json(output / "resume.json", {
-            "format": PROMPT_FORM, "mode": "resume",
+            "format": PROMPT_FORM, "mode": "resume", "status": status,
             "next_event": args.next_event,
-            "before_state": before,
-            "after_state": after_resumed,
-            "reference_after_state": after_reference,
-            "restart_equal": equal,
-            "resumed_outcome": resumed_outcome.to_dict(),
-            "reference_outcome": reference_outcome.to_dict(),
+            "before_state": before, "after_state": after_resumed,
+            "before_canonical_sha256": before_canonical["sha256"],
+            "after_canonical_sha256": after_canonical["sha256"],
+            "before_state_file": "before_state.json",
+            "after_state_file": "after_state.json",
+            "state_history": "state_history.jsonl",
+            "checkpoint": str(args.checkpoint),
+            "checkpoint_sha256": checkpoint_sha,
+            "checkpoint_bytes": args.checkpoint.stat().st_size,
+            "config_sha256": _sha256_file(args.protocol),
+            "implementation_sha256": _implementation_pins(config),
+            "protocol_sha256": protocol.protocol_sha256,
+            "episodes_manifest_sha256": _sha256_file(args.episodes / "manifest.json"),
+            "resumed_outcome": transaction,
             "transaction_retried": bool(resumed_outcome.transaction.retried),
+            "restart_equal": equal,
             "descriptive_only": True,
         })
         _write_json(output / "run.json", {
-            "format": PROMPT_FORM, "mode": "resume", "status": "completed",
-            "restart_equal": equal})
-    return 0 if equal else 3
+            "format": PROMPT_FORM, "mode": "resume", "status": status,
+            "restart_equal": equal,
+            "before_state": before, "after_state": after_resumed,
+            "canonical_state_sha256": after_canonical["sha256"],
+            "theta_stamp_unchanged": stamp_before == stamp_after,
+            "parameter_audit": "parameter_audit.json",
+            "checkpoint_sha256": checkpoint_sha,
+            "state_history": "state_history.jsonl",
+            "final_state": "after_state.json",
+            "config_sha256": _sha256_file(args.protocol),
+            "implementation_sha256": _implementation_pins(config),
+        })
+    return 0 if equal is not False else 3
+
+
 
 
 def main() -> int:
