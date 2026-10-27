@@ -1,0 +1,1001 @@
+{
+  "format": "replica.vision_forward_accounting.historical_correction.v2",
+  "version": "replica.vision_learnability_curve.v2",
+  "subject": "vision_learnability_curve_v1",
+  "status": "accounting_correction_only_verdict_preserved",
+  "v1_verdict": "curve_no_optimization_progress",
+  "v1_verdict_preserved": true,
+  "correction": {
+    "original_declared_scoring_forwards": 1470,
+    "original_unit_is": "prepare_sense_pass",
+    "original_label_was": "scoring_forwards",
+    "classification": "reconstructed_not_measured_by_old_run",
+    "measured_by_old_run": false,
+    "generation_lengths_by_prefix": {
+      "0": 1370,
+      "1": 1442,
+      "2": 1396,
+      "4": 721,
+      "7": 325
+    },
+    "preserved_record_token_sums": {
+      "0": 1362,
+      "1": 1442,
+      "2": 1396,
+      "4": 721,
+      "7": 324
+    },
+    "record_token_sum_delta": {
+      "0": 8,
+      "1": 0,
+      "2": 0,
+      "4": 0,
+      "7": 1
+    },
+    "delta_note": "The remediation accounting convention records 1,370/1,442/1,396/721/325 generated tokens. The preserved records sum to 1,362/1,442/1,396/721/324; the 9-token difference is a reconstruction-convention discrepancy and does not change the 7,704 arithmetic. Both sets are emitted and any future drift is a replay failure.",
+    "reconstruction": {
+      "format": "replica.vision_forward_accounting.reconstruction.v2",
+      "classification": "reconstructed_from_preserved_receipts",
+      "measured_by_old_run": false,
+      "units": {
+        "scoring_decoder_passes": "decoder_forward_call",
+        "prepare_sense_passes": "prepare_sense_pass",
+        "explicit_logits_forwards": "explicit_logits_forward",
+        "generated_tokens": "generated_token",
+        "logical_scoring_operations": "logical_scoring_operation"
+      },
+      "available_per_readout": 98,
+      "per_readout": [
+        {
+          "prefix": 0,
+          "generated_tokens": 1370,
+          "prepare_sense_passes": 294,
+          "prefill_logits_forwards": 98,
+          "teacher_forced_logits_forwards": 98,
+          "explicit_logits_forwards": 196,
+          "scoring_decoder_passes": 1860
+        },
+        {
+          "prefix": 1,
+          "generated_tokens": 1442,
+          "prepare_sense_passes": 294,
+          "prefill_logits_forwards": 98,
+          "teacher_forced_logits_forwards": 98,
+          "explicit_logits_forwards": 196,
+          "scoring_decoder_passes": 1932
+        },
+        {
+          "prefix": 2,
+          "generated_tokens": 1396,
+          "prepare_sense_passes": 294,
+          "prefill_logits_forwards": 98,
+          "teacher_forced_logits_forwards": 98,
+          "explicit_logits_forwards": 196,
+          "scoring_decoder_passes": 1886
+        },
+        {
+          "prefix": 4,
+          "generated_tokens": 721,
+          "prepare_sense_passes": 294,
+          "prefill_logits_forwards": 98,
+          "teacher_forced_logits_forwards": 98,
+          "explicit_logits_forwards": 196,
+          "scoring_decoder_passes": 1211
+        },
+        {
+          "prefix": 7,
+          "generated_tokens": 325,
+          "prepare_sense_passes": 294,
+          "prefill_logits_forwards": 98,
+          "teacher_forced_logits_forwards": 98,
+          "explicit_logits_forwards": 196,
+          "scoring_decoder_passes": 815
+        }
+      ],
+      "totals": {
+        "generated_tokens": 5254,
+        "prepare_sense_passes": 1470,
+        "prefill_logits_forwards": 490,
+        "teacher_forced_logits_forwards": 490,
+        "explicit_logits_forwards": 980,
+        "scoring_decoder_passes": 7704,
+        "training_forward_passes": 30,
+        "training_backward_calls": 30,
+        "training_probe_events": 60,
+        "grand_total_decoder_and_backward_events": 7764
+      },
+      "arithmetic": {
+        "scoring_identity": "generated_tokens + 3*available + 2*available per readout",
+        "logical_operations_per_readout": 294,
+        "warning": "the historical 1,470 count is exactly the prepare/sense subset and is not a decoder total"
+      }
+    },
+    "declared_readout_decoder_passes": {
+      "0": 1860,
+      "1": 1932,
+      "2": 1886,
+      "4": 1211,
+      "7": 815
+    },
+    "training_probe_events": 60,
+    "grand_total_events": 7764,
+    "prepares_are_a_subset_of_scoring_passes": true,
+    "logical_operations_total": 1470
+  },
+  "audits": {
+    "response": {
+      "ok": true,
+      "violations": [],
+      "available_records": 490,
+      "eos_only": 103,
+      "whitespace_only": 47,
+      "eos_only_policy": "reported separately and scored as a generated response",
+      "by_prefix": {
+        "0": {
+          "eos_only": 0,
+          "whitespace_only": 0,
+          "available": 98
+        },
+        "1": {
+          "eos_only": 0,
+          "whitespace_only": 13,
+          "available": 98
+        },
+        "2": {
+          "eos_only": 4,
+          "whitespace_only": 14,
+          "available": 98
+        },
+        "4": {
+          "eos_only": 47,
+          "whitespace_only": 20,
+          "available": 98
+        },
+        "7": {
+          "eos_only": 52,
+          "whitespace_only": 0,
+          "available": 98
+        }
+      },
+      "by_kind_control": {
+        "answer:correct:eos_only": 23,
+        "answer:correct:whitespace_only": 10,
+        "answer:shuffled:eos_only": 22,
+        "answer:shuffled:whitespace_only": 10,
+        "answer:sibling:eos_only": 18,
+        "answer:sibling:whitespace_only": 6,
+        "caption:correct:eos_only": 14,
+        "caption:correct:whitespace_only": 7,
+        "caption:shuffled:eos_only": 14,
+        "caption:shuffled:whitespace_only": 8,
+        "caption:sibling:eos_only": 12,
+        "caption:sibling:whitespace_only": 6
+      },
+      "target_equality": {
+        "checked": 490,
+        "answer_checked": 260,
+        "caption_checked": 230,
+        "answer_target_source": "row.response",
+        "caption_target_source": "sealed_caption_answer"
+      },
+      "prefill_self_consistency": {
+        "checked": 490,
+        "label": "not an independent first-token accuracy claim"
+      },
+      "prefill_gold": {
+        "checked": 0,
+        "correct": 0
+      }
+    },
+    "caption_prefill_target_alignment": {
+      "status": "v1_prefill_used_row_response_for_every_kind",
+      "prefill_source": "row.response",
+      "teacher_forced_caption_source": "sealed_caption_answer",
+      "equality_asserted_by_v1": false,
+      "v2_fix": "the v2 measured readout scores the prefill gold token against the exact teacher-forced target text"
+    },
+    "response_masks": {
+      "ok": true,
+      "violations": [],
+      "rows_checked": 28,
+      "unique_rows": 26,
+      "scheduled_repeats_allowed": true,
+      "prompt_fully_masked": true,
+      "response_only_labels": true,
+      "label_shift": 1,
+      "visual_tokens_never_supervised": true
+    },
+    "control_metrics": {
+      "0": {
+        "answer": {
+          "correct": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 10.704498972211566,
+            "mean_prefill_gold_rank": 21413.571428571428,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0,
+            "loss_margin_vs_noimage": -3.6725160734994073,
+            "loss_margin_vs_sibling": 0.39234897068568664,
+            "loss_margin_vs_shuffled": -0.2754170554024835
+          },
+          "noimage": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 14.377015045710973,
+            "mean_prefill_gold_rank": 77.57142857142857,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 10.979916027614049,
+            "mean_prefill_gold_rank": 19853.785714285714,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 10.312150001525879,
+            "mean_prefill_gold_rank": 21084.2,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          }
+        },
+        "caption": {
+          "correct": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 9.773420969645182,
+            "mean_prefill_gold_rank": 98.5,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0,
+            "loss_margin_vs_noimage": 5.428705096244811,
+            "loss_margin_vs_sibling": 0.1674984614054349,
+            "loss_margin_vs_shuffled": 0.09511975447336773
+          },
+          "noimage": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.344715873400371,
+            "mean_prefill_gold_rank": 11.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 9.678301215171814,
+            "mean_prefill_gold_rank": 88.66666666666667,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 9.605922508239747,
+            "mean_prefill_gold_rank": 101.2,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          }
+        }
+      },
+      "1": {
+        "answer": {
+          "correct": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 11.74190446308681,
+            "mean_prefill_gold_rank": 27081.5,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0,
+            "loss_margin_vs_noimage": -2.635110582624163,
+            "loss_margin_vs_sibling": -0.3744595391409735,
+            "loss_margin_vs_shuffled": -0.34756585529872375
+          },
+          "noimage": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 14.377015045710973,
+            "mean_prefill_gold_rank": 77.57142857142857,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 12.089470318385533,
+            "mean_prefill_gold_rank": 29905.428571428572,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 12.116364002227783,
+            "mean_prefill_gold_rank": 20075.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          }
+        },
+        "caption": {
+          "correct": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 13.448152462641398,
+            "mean_prefill_gold_rank": 29182.583333333332,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0,
+            "loss_margin_vs_noimage": 9.103436589241028,
+            "loss_margin_vs_sibling": 0.7119741598765046,
+            "loss_margin_vs_shuffled": 0.38565452893574914
+          },
+          "noimage": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.344715873400371,
+            "mean_prefill_gold_rank": 11.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 13.062497933705648,
+            "mean_prefill_gold_rank": 17778.75,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 12.736178302764893,
+            "mean_prefill_gold_rank": 31525.2,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          }
+        }
+      },
+      "2": {
+        "answer": {
+          "correct": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 8.396318571908134,
+            "mean_prefill_gold_rank": 5845.857142857143,
+            "prefill_argmax_eos_rate": 0.14285714285714285,
+            "eos_only": 2,
+            "loss_margin_vs_noimage": -5.980696473802839,
+            "loss_margin_vs_sibling": 0.4090281895228802,
+            "loss_margin_vs_shuffled": 0.13812317167009702
+          },
+          "noimage": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 14.377015045710973,
+            "mean_prefill_gold_rank": 77.57142857142857,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 8.258195400238037,
+            "mean_prefill_gold_rank": 6491.714285714285,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 7.987290382385254,
+            "mean_prefill_gold_rank": 8417.5,
+            "prefill_argmax_eos_rate": 0.2,
+            "eos_only": 2
+          }
+        },
+        "caption": {
+          "correct": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 7.109048406283061,
+            "mean_prefill_gold_rank": 7202.25,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0,
+            "loss_margin_vs_noimage": 2.7643325328826904,
+            "loss_margin_vs_sibling": -0.3324995597203566,
+            "loss_margin_vs_shuffled": 0.018282691637675264
+          },
+          "noimage": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.344715873400371,
+            "mean_prefill_gold_rank": 11.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 7.090765714645386,
+            "mean_prefill_gold_rank": 4191.583333333333,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 7.441547966003418,
+            "mean_prefill_gold_rank": 8592.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          }
+        }
+      },
+      "4": {
+        "answer": {
+          "correct": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 5.26393587248666,
+            "mean_prefill_gold_rank": 524.5714285714286,
+            "prefill_argmax_eos_rate": 0.6428571428571429,
+            "eos_only": 9,
+            "loss_margin_vs_noimage": -9.113079173224314,
+            "loss_margin_vs_sibling": 0.06777331488473148,
+            "loss_margin_vs_shuffled": -0.01826306751796114
+          },
+          "noimage": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 14.377015045710973,
+            "mean_prefill_gold_rank": 77.57142857142857,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 5.282198940004621,
+            "mean_prefill_gold_rank": 602.5,
+            "prefill_argmax_eos_rate": 0.7142857142857143,
+            "eos_only": 10
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 5.196162557601928,
+            "mean_prefill_gold_rank": 527.9,
+            "prefill_argmax_eos_rate": 0.7,
+            "eos_only": 7
+          }
+        },
+        "caption": {
+          "correct": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.9993998010953264,
+            "mean_prefill_gold_rank": 20.0,
+            "prefill_argmax_eos_rate": 0.5833333333333334,
+            "eos_only": 7,
+            "loss_margin_vs_noimage": 0.6546839276949559,
+            "loss_margin_vs_sibling": -0.13883817593256698,
+            "loss_margin_vs_shuffled": 0.0641402006149292
+          },
+          "noimage": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.344715873400371,
+            "mean_prefill_gold_rank": 11.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.935259600480397,
+            "mean_prefill_gold_rank": 19.416666666666668,
+            "prefill_argmax_eos_rate": 0.6666666666666666,
+            "eos_only": 8
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 5.138237977027893,
+            "mean_prefill_gold_rank": 19.3,
+            "prefill_argmax_eos_rate": 0.6,
+            "eos_only": 6
+          }
+        }
+      },
+      "7": {
+        "answer": {
+          "correct": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 3.704157624925886,
+            "mean_prefill_gold_rank": 103.42857142857143,
+            "prefill_argmax_eos_rate": 0.8571428571428571,
+            "eos_only": 12,
+            "loss_margin_vs_noimage": -10.672857420785087,
+            "loss_margin_vs_sibling": -0.25292653015681665,
+            "loss_margin_vs_shuffled": -0.37614589929580644
+          },
+          "noimage": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 14.377015045710973,
+            "mean_prefill_gold_rank": 77.57142857142857,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 14,
+            "mean_teacher_forced_loss": 4.0803035242216925,
+            "mean_prefill_gold_rank": 339.5,
+            "prefill_argmax_eos_rate": 0.8571428571428571,
+            "eos_only": 12
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 3.9570841550827027,
+            "mean_prefill_gold_rank": 104.2,
+            "prefill_argmax_eos_rate": 0.9,
+            "eos_only": 9
+          }
+        },
+        "caption": {
+          "correct": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 2.963563938935598,
+            "mean_prefill_gold_rank": 35.25,
+            "prefill_argmax_eos_rate": 0.5833333333333334,
+            "eos_only": 7,
+            "loss_margin_vs_noimage": -1.3811519344647727,
+            "loss_margin_vs_sibling": -0.18030450741449977,
+            "loss_margin_vs_shuffled": 0.1578211088975272
+          },
+          "noimage": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 4.344715873400371,
+            "mean_prefill_gold_rank": 11.0,
+            "prefill_argmax_eos_rate": 0.0,
+            "eos_only": 0
+          },
+          "shuffled": {
+            "cases": 12,
+            "mean_teacher_forced_loss": 2.8057428300380707,
+            "mean_prefill_gold_rank": 17.75,
+            "prefill_argmax_eos_rate": 0.5,
+            "eos_only": 6
+          },
+          "sibling": {
+            "cases": 10,
+            "mean_teacher_forced_loss": 3.1438684463500977,
+            "mean_prefill_gold_rank": 39.8,
+            "prefill_argmax_eos_rate": 0.6,
+            "eos_only": 6
+          }
+        }
+      }
+    },
+    "projector_output_scale": {
+      "status": "not_measurable_from_preserved_receipts",
+      "reason": "attempt04 did not persist projected tensors or encoder features; the ablation arm's 83x ratio belongs to a different arm and is not substituted here",
+      "required_in_future_readout": true
+    },
+    "feature_distinguishability": {
+      "status": "measured_from_control_losses_only",
+      "correct_sibling_distinct_image_shas": true,
+      "correct_shuffled_distinct_image_shas": true,
+      "rank_improvement_is_not_conversion": true,
+      "controls": {
+        "0": {
+          "answer": {
+            "correct": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 10.704498972211566,
+              "mean_prefill_gold_rank": 21413.571428571428,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0,
+              "loss_margin_vs_noimage": -3.6725160734994073,
+              "loss_margin_vs_sibling": 0.39234897068568664,
+              "loss_margin_vs_shuffled": -0.2754170554024835
+            },
+            "noimage": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 14.377015045710973,
+              "mean_prefill_gold_rank": 77.57142857142857,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 10.979916027614049,
+              "mean_prefill_gold_rank": 19853.785714285714,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 10.312150001525879,
+              "mean_prefill_gold_rank": 21084.2,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            }
+          },
+          "caption": {
+            "correct": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 9.773420969645182,
+              "mean_prefill_gold_rank": 98.5,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0,
+              "loss_margin_vs_noimage": 5.428705096244811,
+              "loss_margin_vs_sibling": 0.1674984614054349,
+              "loss_margin_vs_shuffled": 0.09511975447336773
+            },
+            "noimage": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.344715873400371,
+              "mean_prefill_gold_rank": 11.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 9.678301215171814,
+              "mean_prefill_gold_rank": 88.66666666666667,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 9.605922508239747,
+              "mean_prefill_gold_rank": 101.2,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            }
+          }
+        },
+        "1": {
+          "answer": {
+            "correct": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 11.74190446308681,
+              "mean_prefill_gold_rank": 27081.5,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0,
+              "loss_margin_vs_noimage": -2.635110582624163,
+              "loss_margin_vs_sibling": -0.3744595391409735,
+              "loss_margin_vs_shuffled": -0.34756585529872375
+            },
+            "noimage": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 14.377015045710973,
+              "mean_prefill_gold_rank": 77.57142857142857,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 12.089470318385533,
+              "mean_prefill_gold_rank": 29905.428571428572,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 12.116364002227783,
+              "mean_prefill_gold_rank": 20075.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            }
+          },
+          "caption": {
+            "correct": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 13.448152462641398,
+              "mean_prefill_gold_rank": 29182.583333333332,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0,
+              "loss_margin_vs_noimage": 9.103436589241028,
+              "loss_margin_vs_sibling": 0.7119741598765046,
+              "loss_margin_vs_shuffled": 0.38565452893574914
+            },
+            "noimage": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.344715873400371,
+              "mean_prefill_gold_rank": 11.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 13.062497933705648,
+              "mean_prefill_gold_rank": 17778.75,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 12.736178302764893,
+              "mean_prefill_gold_rank": 31525.2,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            }
+          }
+        },
+        "2": {
+          "answer": {
+            "correct": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 8.396318571908134,
+              "mean_prefill_gold_rank": 5845.857142857143,
+              "prefill_argmax_eos_rate": 0.14285714285714285,
+              "eos_only": 2,
+              "loss_margin_vs_noimage": -5.980696473802839,
+              "loss_margin_vs_sibling": 0.4090281895228802,
+              "loss_margin_vs_shuffled": 0.13812317167009702
+            },
+            "noimage": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 14.377015045710973,
+              "mean_prefill_gold_rank": 77.57142857142857,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 8.258195400238037,
+              "mean_prefill_gold_rank": 6491.714285714285,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 7.987290382385254,
+              "mean_prefill_gold_rank": 8417.5,
+              "prefill_argmax_eos_rate": 0.2,
+              "eos_only": 2
+            }
+          },
+          "caption": {
+            "correct": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 7.109048406283061,
+              "mean_prefill_gold_rank": 7202.25,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0,
+              "loss_margin_vs_noimage": 2.7643325328826904,
+              "loss_margin_vs_sibling": -0.3324995597203566,
+              "loss_margin_vs_shuffled": 0.018282691637675264
+            },
+            "noimage": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.344715873400371,
+              "mean_prefill_gold_rank": 11.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 7.090765714645386,
+              "mean_prefill_gold_rank": 4191.583333333333,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 7.441547966003418,
+              "mean_prefill_gold_rank": 8592.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            }
+          }
+        },
+        "4": {
+          "answer": {
+            "correct": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 5.26393587248666,
+              "mean_prefill_gold_rank": 524.5714285714286,
+              "prefill_argmax_eos_rate": 0.6428571428571429,
+              "eos_only": 9,
+              "loss_margin_vs_noimage": -9.113079173224314,
+              "loss_margin_vs_sibling": 0.06777331488473148,
+              "loss_margin_vs_shuffled": -0.01826306751796114
+            },
+            "noimage": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 14.377015045710973,
+              "mean_prefill_gold_rank": 77.57142857142857,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 5.282198940004621,
+              "mean_prefill_gold_rank": 602.5,
+              "prefill_argmax_eos_rate": 0.7142857142857143,
+              "eos_only": 10
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 5.196162557601928,
+              "mean_prefill_gold_rank": 527.9,
+              "prefill_argmax_eos_rate": 0.7,
+              "eos_only": 7
+            }
+          },
+          "caption": {
+            "correct": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.9993998010953264,
+              "mean_prefill_gold_rank": 20.0,
+              "prefill_argmax_eos_rate": 0.5833333333333334,
+              "eos_only": 7,
+              "loss_margin_vs_noimage": 0.6546839276949559,
+              "loss_margin_vs_sibling": -0.13883817593256698,
+              "loss_margin_vs_shuffled": 0.0641402006149292
+            },
+            "noimage": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.344715873400371,
+              "mean_prefill_gold_rank": 11.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.935259600480397,
+              "mean_prefill_gold_rank": 19.416666666666668,
+              "prefill_argmax_eos_rate": 0.6666666666666666,
+              "eos_only": 8
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 5.138237977027893,
+              "mean_prefill_gold_rank": 19.3,
+              "prefill_argmax_eos_rate": 0.6,
+              "eos_only": 6
+            }
+          }
+        },
+        "7": {
+          "answer": {
+            "correct": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 3.704157624925886,
+              "mean_prefill_gold_rank": 103.42857142857143,
+              "prefill_argmax_eos_rate": 0.8571428571428571,
+              "eos_only": 12,
+              "loss_margin_vs_noimage": -10.672857420785087,
+              "loss_margin_vs_sibling": -0.25292653015681665,
+              "loss_margin_vs_shuffled": -0.37614589929580644
+            },
+            "noimage": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 14.377015045710973,
+              "mean_prefill_gold_rank": 77.57142857142857,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 14,
+              "mean_teacher_forced_loss": 4.0803035242216925,
+              "mean_prefill_gold_rank": 339.5,
+              "prefill_argmax_eos_rate": 0.8571428571428571,
+              "eos_only": 12
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 3.9570841550827027,
+              "mean_prefill_gold_rank": 104.2,
+              "prefill_argmax_eos_rate": 0.9,
+              "eos_only": 9
+            }
+          },
+          "caption": {
+            "correct": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 2.963563938935598,
+              "mean_prefill_gold_rank": 35.25,
+              "prefill_argmax_eos_rate": 0.5833333333333334,
+              "eos_only": 7,
+              "loss_margin_vs_noimage": -1.3811519344647727,
+              "loss_margin_vs_sibling": -0.18030450741449977,
+              "loss_margin_vs_shuffled": 0.1578211088975272
+            },
+            "noimage": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 4.344715873400371,
+              "mean_prefill_gold_rank": 11.0,
+              "prefill_argmax_eos_rate": 0.0,
+              "eos_only": 0
+            },
+            "shuffled": {
+              "cases": 12,
+              "mean_teacher_forced_loss": 2.8057428300380707,
+              "mean_prefill_gold_rank": 17.75,
+              "prefill_argmax_eos_rate": 0.5,
+              "eos_only": 6
+            },
+            "sibling": {
+              "cases": 10,
+              "mean_teacher_forced_loss": 3.1438684463500977,
+              "mean_prefill_gold_rank": 39.8,
+              "prefill_argmax_eos_rate": 0.6,
+              "eos_only": 6
+            }
+          }
+        }
+      }
+    },
+    "readout_nondeterminism": {
+      "status": "not_measured_by_old_run",
+      "step1_null_repeat_required": true
+    }
+  },
+  "preserved_source_receipts": {
+    "configs/vision_learnability_curve_v1.json": "c97902da2862c8141ab22d98cbb6ad3c01739916854da8e7fd1a15639ec81c40",
+    "configs/vision_learnability_step1_reproduction_v1.json": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+    "data/vision_balanced_alignment_v2_20261026/prepared04/training/alignment.jsonl": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+    "data/vision_balanced_alignment_v2_20261026/prepared04/training/train_caption_labels.jsonl": "84788b08bd6c3a66f9c241e18db73ca8828c8dd15b62aad83e8d3bdf235b1954",
+    "reports/vision_learnability_curve_v1_20261026/summary.json": "3a96e196ba75f9ce5bc915e01ab9b5cd5c9ba0260914dec369ca7203c65874ef",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/backward_probes.json": "87a9d1e484484ad73e628d25662214d63bbf366498b2d105ad494a67b9b7ddbd",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_000/readout.json": "d889fdca5e38697de530800fe3e29d21dcdc921b6c2f5da2271043cc107ffaa6",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_000/records.jsonl": "a0884ee5af0c446eb9f1d63ac5a55831832f4c41513ab2d1b0ee6296307c4cfa",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_000/train_answer_generations.jsonl": "aa66dc9505fe7398b784dc9defa693358d1cf43857e6c2d4a0468c0fce098e28",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_000/train_caption_generations.jsonl": "b03b2f6e8ae87825ee1ba0607b0dbb0450ca381998b7e2ca777ddace79362428",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_001/readout.json": "ffc5d99b73c95c08fcbd44370312a76515cc1804caa350f50cf024747964ed7d",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_001/records.jsonl": "fefb29bfba10c6d98a728d55b6586a812babf7eb34426a3b0478fa1f6e06fae0",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_001/train_answer_generations.jsonl": "6f24adfbcd23102951afd47f562e76f9b335a56552d94a3d5e53204aba0ab28e",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_001/train_caption_generations.jsonl": "8376291234a0f8accb129167eb193f74c036953cffbe72ff1832c35d19adf0a5",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_002/readout.json": "c1f87a28e4bbd0879981625d77adce2eb1438e716dcc3898f2e95b91abea379b",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_002/records.jsonl": "1ff589dec44aa867300f01311c8707306ad279da851188e2f36d656449242169",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_002/train_answer_generations.jsonl": "54190c4f842274e423212b147d03d8fa1c264643187875661ab1d0513c66bff7",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_002/train_caption_generations.jsonl": "cc97fc2dc8f2e0d6cf6fad498dec831651251dbd4a99742146e0156ff85cf823",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_004/readout.json": "485fda4700ac71d102d1c71aa5468b9802ca67020510533cfaaa721967e703a4",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_004/records.jsonl": "85c80f4e47db92d97ca919c5b5f99cbe82c81d84771411b9d7ea984a010a2f8a",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_004/train_answer_generations.jsonl": "8e333a16cc181d4c6d47a99fcc58260c41f07094a6f216ef0871dd40f1b1abfc",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_004/train_caption_generations.jsonl": "718841cf13642cc3fe0bc29175a692f1e80c5c8aa48ddefa19baebe2e0084e4c",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_007/readout.json": "b1422411ddb1607f6caf820701738559236cbb6429e67531340095c2dbc27e90",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_007/records.jsonl": "d8d44ab81dfdc57de0990318858299a57dc4f05a4df15ae5fd433769361a0902",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_007/train_answer_generations.jsonl": "8922f2ad4cef996e802b86b57c18bc077cfb5ebbf592738d5f6eaf6699d0310b",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_007/train_caption_generations.jsonl": "76335b3dd1ff1e5d89142813c92369d2141e37eeb0605ed0ecce6eddd48db974",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/report.json": "c52d3672a32f9baa90f961c5a2ae0fd0d8e597f53d95a12775a2f988c265e6b0",
+    "runs/vision_learnability_curve_v1_20261026_attempt04/training_trace.jsonl": "607f62ce4f57a7540da11c7f3e85ba412940b5a6ef92704734674822485e5d38"
+  },
+  "step1_protocol": {
+    "path": "configs/vision_learnability_step1_reproduction_v1.json",
+    "sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+    "name": "vision_learnability_step1_reproduction_v1",
+    "status": "predeclared_pending_protocol_commit",
+    "native_execution_authorized": false,
+    "expected_measured_work": {
+      "decoder_forward_calls": 5660,
+      "generated_tokens": 4182,
+      "prepare_sense_passes": 882,
+      "explicit_logits_forwards": 588,
+      "update_forwards": 8,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "readouts": 3,
+      "generation_lengths_by_readout": [
+        1370,
+        1370,
+        1442
+      ],
+      "declared_readout_decoder_passes": [
+        1860,
+        1860,
+        1932
+      ],
+      "visual_encoder_calls_max": 216,
+      "projector_passes_max": 5660
+    },
+    "statuses": [
+      "step1_reproduction_supported",
+      "step1_reproduction_refuted",
+      "readout_nondeterminism_detected",
+      "stopped_engineering_failure"
+    ]
+  },
+  "replay": {
+    "command": "python scripts/run_vision_learnability_curve_v2.py replay-accounting --run runs/vision_learnability_curve_v1_20261026_attempt04 --summary reports/vision_learnability_curve_v1_20261026/summary.json --config configs/vision_learnability_curve_v1.json --step1-config configs/vision_learnability_step1_reproduction_v1.json",
+    "deterministic": true,
+    "excludes": [
+      "timestamps",
+      "native execution"
+    ],
+    "checks": [
+      "v1 verdict unchanged",
+      "source receipt hashes",
+      "generation lengths and record sums",
+      "7,704 reconstruction",
+      "EOS/whitespace counts",
+      "target equality",
+      "response masks",
+      "control metrics"
+    ]
+  },
+  "preservation": {
+    "v1_files_byte_identical": true,
+    "attempt04_receipt_unchanged": true,
+    "dev_accessed": false,
+    "heldout_accessed": false,
+    "v0_run": false,
+    "promotion": false,
+    "retry_authorized": false,
+    "next_gate": "accounting correction and one predeclared step-1 protocol; no execution is authorized by this evidence"
+  }
+}

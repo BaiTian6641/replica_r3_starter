@@ -1,0 +1,15 @@
+{
+  "format": "replica.vision_learnability_step1.report.v1.failure",
+  "generated_at_utc": "2026-10-27T05:53:52.814232+00:00",
+  "status": "stopped_engineering_failure",
+  "error_type": "AccountingError",
+  "error": "Cumulative budget exceeded at call time: visual_encoder_cache_misses",
+  "traceback": "Traceback (most recent call last):\n  File \"/Users/flare/replica_r3_starter/scripts/run_vision_learnability_curve_v2.py\", line 638, in execute_step1\n    readout_c = _measured_readout(\n                ^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/run_vision_learnability_curve_v2.py\", line 257, in _measured_readout\n    visual = observe(\n             ^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/scripts/run_vision_curriculum.py\", line 310, in observe\n    visual = service.observe(str(image_path), source_id=source_id,\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/vision_forward_accounting.py\", line 590, in wrapper\n    accounting.budget.check_event(key, value)\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/vision_forward_accounting.py\", line 300, in check_event\n    _require(self._cumulative_total[key] + amount <= total_cap,\n  File \"/Users/flare/replica_r3_starter/src/replica_lab/vision_forward_accounting.py\", line 151, in _require\n    raise AccountingError(message)\nreplica_lab.vision_forward_accounting.AccountingError: Cumulative budget exceeded at call time: visual_encoder_cache_misses\n",
+  "curve_v1_verdict": "curve_no_optimization_progress",
+  "curve_verdict_preserved": true,
+  "dev_accessed": false,
+  "heldout_accessed": false,
+  "v0_run": false,
+  "promotion": false,
+  "retry_authorized": false
+}
