@@ -12,8 +12,9 @@ from safetensors.torch import load_file, save_file
 
 from .ledger import EligibilityScope, RecordLedger
 from .index import RetrievalIndex, DenseRecordVector
-from ..architecture.contracts import (CopyRead, EvidencePin, MemoryRead, PendingWrite,
-                                     PlasticRead, RequestContext, SourceSpan, TaskGraph,
+from ..architecture.contracts import (CopyRead, DifferentiablePlasticRead, EvidencePin,
+                                     MemoryRead, PendingWrite, PlasticRead,
+                                     RequestContext, SourceSpan, TaskGraph,
                                      VisualInput, fingerprint)
 
 
@@ -206,8 +207,12 @@ class MemorySession:
                 identity=None, identity_enabled=True, pattern=None, visual=None,
                 plastic=None):
         if plastic is not None:
-            if not isinstance(plastic, PlasticRead):
-                raise TypeError('Plastic input must use the PlasticRead contract')
+            if not isinstance(plastic, (PlasticRead, DifferentiablePlasticRead)):
+                raise TypeError('Plastic input must use a declared read contract')
+            if isinstance(plastic, DifferentiablePlasticRead) and not training:
+                raise ValueError('Differentiable plastic input requires a training request')
+            if training and isinstance(plastic, PlasticRead):
+                raise ValueError('Training requires a differentiable plastic input')
             if self.adapter.manifest.plastic is None:
                 raise ValueError('Plastic input requires a plastic-bearing manifest')
             plastic.assert_immutable()

@@ -39,7 +39,8 @@ from typing import Any, Mapping, Sequence
 import torch
 from torch import Tensor
 
-from .architecture.contracts import PlasticRead, PlasticSpec, fingerprint
+from .architecture.contracts import (DifferentiablePlasticRead, PlasticRead,
+                                     PlasticSpec, fingerprint)
 from .architecture.plastic import fixed_projection, projection_digest
 from .nested_learning import (ChunkOutcome, DuplicateObservation, ExpertBank,
                               NestedLearningError, Observation,
@@ -865,6 +866,50 @@ class NestedTextLearner:
         slot = slot.to(self._adapter_device())
         _require(slot.requires_grad is False, "plastic slot must be detached")
         read = PlasticRead(
+            slot=slot, expert_id=expert_id, producer=self._producer(),
+            revision=self.revision, route_mode=control.mode,
+            route_permutation=control.permutation,
+            read_path_sha256=self.protocol.read_path_sha256)
+        if self.read_observer is not None:
+            self.read_observer.observe(read)
+        return read
+
+    # -- Differentiable training read path --------------------------------
+
+    def prompt_features_differentiable(self, prompt_ids: Tensor,
+                                       prompt_mask: Tensor) -> dict[int, Tensor]:
+        """Encode prompt sites without inference-mode or detached tensors."""
+        ids, mask = self._ids_mask(prompt_ids, prompt_mask, "prompt")
+        _require(bool(mask.any()), "prompt mask must select at least one position")
+        device = self._adapter_device()
+        ids, mask = ids.to(device), mask.to(device)
+        mask_cpu = mask.to("cpu")
+        hidden = self.adapter.encode_sites(ids, mask, self.protocol.feature_sites)
+        features = {}
+        for site in self.protocol.feature_sites:
+            value = hidden[site].to("cpu", torch.float32)
+            _require(value.shape[0] == 1, "one prompt per extraction")
+            count = mask_cpu.sum(dim=1, keepdim=True).clamp_min(1)
+            pooled = (value * mask_cpu.unsqueeze(-1)).sum(dim=1) / count
+            features[site] = (pooled @ self._projection.T)[0]
+        self.accounting["feature_vectors"] += len(features)
+        return features
+
+    def differentiable_plastic_read(self, prompt_ids: Tensor, prompt_mask: Tensor, *,
+                                    route_mode: str | None = None) -> DifferentiablePlasticRead:
+        """Build an autograd-preserving read for a training request only."""
+        _require(route_mode in (None, "fixed", "shuffled"),
+                 "unknown training read route mode")
+        control = (self.route if route_mode is None or route_mode == self.route.mode
+                   else RouteControl(route_mode, self.protocol.expert_count,
+                                     self.protocol.route_seed))
+        features = self.prompt_features_differentiable(prompt_ids, prompt_mask)
+        mean = self._stacked(features).mean(dim=0, keepdim=True)
+        expert_id = control.route(prompt_route_key(prompt_ids))
+        slot = self.bank.expert(expert_id)(mean)
+        slot = slot.to(self._adapter_device())
+        _require(slot.requires_grad, "training plastic slot must preserve autograd")
+        read = DifferentiablePlasticRead(
             slot=slot, expert_id=expert_id, producer=self._producer(),
             revision=self.revision, route_mode=control.mode,
             route_permutation=control.permutation,

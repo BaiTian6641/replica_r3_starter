@@ -666,6 +666,59 @@ class PlasticRead:
             raise RuntimeError('PlasticRead tensor mutated; rebuild at a decision boundary')
 
 
+
+
+@dataclass(frozen=True)
+class DifferentiablePlasticRead:
+    """Training-only selected-expert read that preserves the autograd graph.
+
+    Unlike detached P-only ``PlasticRead``, this contract permits ``requires_grad``
+    and is accepted only by a training request.  Frame stamps still prevent
+    in-place mutation before backward; optimizer updates occur after release.
+    """
+    slot: torch.Tensor  # [1, width], may require grad
+    expert_id: int
+    producer: str
+    revision: int
+    route_mode: str
+    route_permutation: tuple[int, ...]
+    read_path_sha256: str
+    _tensor_stamps: tuple = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if (self.slot.ndim != 2 or self.slot.shape[0] != 1
+                or not self.slot.is_floating_point()
+                or not bool(torch.isfinite(self.slot).all())):
+            raise ValueError('Training plastic slot must be finite [1, width]')
+        if not self.slot.requires_grad:
+            raise ValueError('Training plastic slot must preserve autograd')
+        if type(self.expert_id) is not int or self.expert_id < 0:
+            raise ValueError('Plastic expert_id must be a nonnegative integer')
+        if not isinstance(self.producer, str) or not self.producer:
+            raise ValueError('Plastic producer identity required')
+        if type(self.revision) is not int or self.revision < 0:
+            raise ValueError('Plastic revision must be a nonnegative integer')
+        if self.route_mode not in {'fixed', 'shuffled'}:
+            raise ValueError('Plastic route mode must be fixed or shuffled')
+        object.__setattr__(self, 'route_permutation', tuple(self.route_permutation))
+        permutation = self.route_permutation
+        if (not permutation or len(permutation) != len(set(permutation))
+                or any(type(item) is not int or item < 0 for item in permutation)):
+            raise ValueError('Plastic route permutation must be distinct nonnegative integers')
+        if (not isinstance(self.read_path_sha256, str)
+                or len(self.read_path_sha256) != 64
+                or any(char not in '0123456789abcdef' for char in self.read_path_sha256)):
+            raise ValueError('Plastic read path identity must be a SHA256')
+        object.__setattr__(self, '_tensor_stamps', (tensor_stamp(self.slot),))
+
+    def tensors(self):
+        return (self.slot,)
+
+    def assert_immutable(self):
+        if self._tensor_stamps != (tensor_stamp(self.slot),):
+            raise RuntimeError('Training plastic read mutated; rebuild at a decision boundary')
+
+
 @dataclass(frozen=True)
 class PendingWrite:
     event_id: str
