@@ -1,0 +1,356 @@
+{
+  "format": "replica.vision_forward_accounting.snapshot.v2",
+  "version": "replica.vision_forward_accounting.v2",
+  "counters": {
+    "decoder_forward_calls": 5644,
+    "prepare_sense_passes": 882,
+    "explicit_logits_forwards": 588,
+    "generation_prefill_calls": 294,
+    "generation_decode_calls": 3872,
+    "generated_tokens": 4166,
+    "processed_text_positions": 205907,
+    "processed_visual_positions": 900424,
+    "visual_forward_calls": 4594,
+    "projector_passes": 4594,
+    "visual_observation_calls": 220,
+    "visual_encoder_calls": 218,
+    "visual_encoder_cache_hits": 2,
+    "visual_encoder_cache_misses": 218,
+    "backward_calls": 4,
+    "optimizer_steps": 1,
+    "logical_scoring_cells": 294,
+    "logical_scoring_operations": 882
+  },
+  "phase_totals": {
+    "prepare_sense": {
+      "forward_calls": 882,
+      "text_positions": 25533,
+      "visual_positions": 127008,
+      "backward_calls": 0,
+      "phase": "prepare_sense"
+    },
+    "explicit_logits_loss": {
+      "forward_calls": 588,
+      "text_positions": 19242,
+      "visual_positions": 84672,
+      "backward_calls": 0,
+      "phase": "explicit_logits_loss"
+    },
+    "generation": {
+      "forward_calls": 4166,
+      "text_positions": 160872,
+      "visual_positions": 687176,
+      "backward_calls": 0,
+      "phase": "generation"
+    },
+    "training": {
+      "forward_calls": 8,
+      "text_positions": 260,
+      "visual_positions": 1568,
+      "backward_calls": 4,
+      "phase": "training"
+    },
+    "probe": {
+      "forward_calls": 0,
+      "text_positions": 0,
+      "visual_positions": 0,
+      "backward_calls": 0,
+      "phase": "probe"
+    }
+  },
+  "readouts": [
+    {
+      "format": "replica.vision_forward_accounting.snapshot.v2",
+      "version": "replica.vision_forward_accounting.v2",
+      "counters": {
+        "decoder_forward_calls": 1852,
+        "prepare_sense_passes": 294,
+        "explicit_logits_forwards": 196,
+        "generation_prefill_calls": 98,
+        "generation_decode_calls": 1264,
+        "generated_tokens": 1362,
+        "processed_text_positions": 67193,
+        "processed_visual_positions": 294392,
+        "visual_forward_calls": 1502,
+        "projector_passes": 1502,
+        "visual_observation_calls": 72,
+        "visual_encoder_calls": 72,
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 72,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 98,
+        "logical_scoring_operations": 294
+      },
+      "units": {
+        "decoder_forward_calls": "decoder_forward_call",
+        "prepare_sense_passes": "prepare_sense_pass",
+        "explicit_logits_forwards": "explicit_logits_forward",
+        "generation_prefill_calls": "generation_prefill_call",
+        "generation_decode_calls": "generation_decode_call",
+        "generated_tokens": "generated_token",
+        "processed_text_positions": "processed_text_position",
+        "processed_visual_positions": "processed_visual_position",
+        "visual_forward_calls": "visual_forward_call",
+        "projector_passes": "projector_pass",
+        "visual_observation_calls": "visual_observation_call",
+        "visual_encoder_calls": "visual_encoder_call",
+        "visual_encoder_cache_hits": "visual_encoder_cache_hit",
+        "visual_encoder_cache_misses": "visual_encoder_cache_miss",
+        "backward_calls": "backward_call",
+        "optimizer_steps": "optimizer_step",
+        "logical_scoring_cells": "logical_scoring_cell",
+        "logical_scoring_operations": "logical_scoring_operation"
+      },
+      "phases": {
+        "prepare_sense": {
+          "forward_calls": 294,
+          "text_positions": 8511,
+          "visual_positions": 42336,
+          "backward_calls": 0,
+          "phase": "prepare_sense"
+        },
+        "explicit_logits_loss": {
+          "forward_calls": 196,
+          "text_positions": 6414,
+          "visual_positions": 28224,
+          "backward_calls": 0,
+          "phase": "explicit_logits_loss"
+        },
+        "generation": {
+          "forward_calls": 1362,
+          "text_positions": 52268,
+          "visual_positions": 223832,
+          "backward_calls": 0,
+          "phase": "generation"
+        },
+        "training": {
+          "forward_calls": 0,
+          "text_positions": 0,
+          "visual_positions": 0,
+          "backward_calls": 0,
+          "phase": "training"
+        },
+        "probe": {
+          "forward_calls": 0,
+          "text_positions": 0,
+          "visual_positions": 0,
+          "backward_calls": 0,
+          "phase": "probe"
+        }
+      },
+      "native_calls_observed": 1852,
+      "wrappers_restored": 0,
+      "logical": {
+        "scoring_cells": 98,
+        "scoring_operations": 294,
+        "physical_decoder_passes": 1852
+      },
+      "readouts_completed": 0,
+      "scope": "measured native taps only; logical cells/operations are separate units and never charged as forwards",
+      "prefix": 0
+    },
+    {
+      "format": "replica.vision_forward_accounting.snapshot.v2",
+      "version": "replica.vision_forward_accounting.v2",
+      "counters": {
+        "decoder_forward_calls": 1852,
+        "prepare_sense_passes": 294,
+        "explicit_logits_forwards": 196,
+        "generation_prefill_calls": 98,
+        "generation_decode_calls": 1264,
+        "generated_tokens": 1362,
+        "processed_text_positions": 67193,
+        "processed_visual_positions": 294392,
+        "visual_forward_calls": 1502,
+        "projector_passes": 1502,
+        "visual_observation_calls": 72,
+        "visual_encoder_calls": 72,
+        "visual_encoder_cache_hits": 0,
+        "visual_encoder_cache_misses": 72,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 98,
+        "logical_scoring_operations": 294
+      },
+      "units": {
+        "decoder_forward_calls": "decoder_forward_call",
+        "prepare_sense_passes": "prepare_sense_pass",
+        "explicit_logits_forwards": "explicit_logits_forward",
+        "generation_prefill_calls": "generation_prefill_call",
+        "generation_decode_calls": "generation_decode_call",
+        "generated_tokens": "generated_token",
+        "processed_text_positions": "processed_text_position",
+        "processed_visual_positions": "processed_visual_position",
+        "visual_forward_calls": "visual_forward_call",
+        "projector_passes": "projector_pass",
+        "visual_observation_calls": "visual_observation_call",
+        "visual_encoder_calls": "visual_encoder_call",
+        "visual_encoder_cache_hits": "visual_encoder_cache_hit",
+        "visual_encoder_cache_misses": "visual_encoder_cache_miss",
+        "backward_calls": "backward_call",
+        "optimizer_steps": "optimizer_step",
+        "logical_scoring_cells": "logical_scoring_cell",
+        "logical_scoring_operations": "logical_scoring_operation"
+      },
+      "phases": {
+        "prepare_sense": {
+          "forward_calls": 294,
+          "text_positions": 8511,
+          "visual_positions": 42336,
+          "backward_calls": 0,
+          "phase": "prepare_sense"
+        },
+        "explicit_logits_loss": {
+          "forward_calls": 196,
+          "text_positions": 6414,
+          "visual_positions": 28224,
+          "backward_calls": 0,
+          "phase": "explicit_logits_loss"
+        },
+        "generation": {
+          "forward_calls": 1362,
+          "text_positions": 52268,
+          "visual_positions": 223832,
+          "backward_calls": 0,
+          "phase": "generation"
+        },
+        "training": {
+          "forward_calls": 0,
+          "text_positions": 0,
+          "visual_positions": 0,
+          "backward_calls": 0,
+          "phase": "training"
+        },
+        "probe": {
+          "forward_calls": 0,
+          "text_positions": 0,
+          "visual_positions": 0,
+          "backward_calls": 0,
+          "phase": "probe"
+        }
+      },
+      "native_calls_observed": 3704,
+      "wrappers_restored": 0,
+      "logical": {
+        "scoring_cells": 98,
+        "scoring_operations": 294,
+        "physical_decoder_passes": 1852
+      },
+      "readouts_completed": 1,
+      "scope": "measured native taps only; logical cells/operations are separate units and never charged as forwards",
+      "prefix": 0
+    },
+    {
+      "format": "replica.vision_forward_accounting.snapshot.v2",
+      "version": "replica.vision_forward_accounting.v2",
+      "counters": {
+        "decoder_forward_calls": 1932,
+        "prepare_sense_passes": 294,
+        "explicit_logits_forwards": 196,
+        "generation_prefill_calls": 98,
+        "generation_decode_calls": 1344,
+        "generated_tokens": 1442,
+        "processed_text_positions": 71261,
+        "processed_visual_positions": 310072,
+        "visual_forward_calls": 1582,
+        "projector_passes": 1582,
+        "visual_observation_calls": 72,
+        "visual_encoder_calls": 71,
+        "visual_encoder_cache_hits": 1,
+        "visual_encoder_cache_misses": 71,
+        "backward_calls": 0,
+        "optimizer_steps": 0,
+        "logical_scoring_cells": 98,
+        "logical_scoring_operations": 294
+      },
+      "units": {
+        "decoder_forward_calls": "decoder_forward_call",
+        "prepare_sense_passes": "prepare_sense_pass",
+        "explicit_logits_forwards": "explicit_logits_forward",
+        "generation_prefill_calls": "generation_prefill_call",
+        "generation_decode_calls": "generation_decode_call",
+        "generated_tokens": "generated_token",
+        "processed_text_positions": "processed_text_position",
+        "processed_visual_positions": "processed_visual_position",
+        "visual_forward_calls": "visual_forward_call",
+        "projector_passes": "projector_pass",
+        "visual_observation_calls": "visual_observation_call",
+        "visual_encoder_calls": "visual_encoder_call",
+        "visual_encoder_cache_hits": "visual_encoder_cache_hit",
+        "visual_encoder_cache_misses": "visual_encoder_cache_miss",
+        "backward_calls": "backward_call",
+        "optimizer_steps": "optimizer_step",
+        "logical_scoring_cells": "logical_scoring_cell",
+        "logical_scoring_operations": "logical_scoring_operation"
+      },
+      "phases": {
+        "prepare_sense": {
+          "forward_calls": 294,
+          "text_positions": 8511,
+          "visual_positions": 42336,
+          "backward_calls": 0,
+          "phase": "prepare_sense"
+        },
+        "explicit_logits_loss": {
+          "forward_calls": 196,
+          "text_positions": 6414,
+          "visual_positions": 28224,
+          "backward_calls": 0,
+          "phase": "explicit_logits_loss"
+        },
+        "generation": {
+          "forward_calls": 1442,
+          "text_positions": 56336,
+          "visual_positions": 239512,
+          "backward_calls": 0,
+          "phase": "generation"
+        },
+        "training": {
+          "forward_calls": 0,
+          "text_positions": 0,
+          "visual_positions": 0,
+          "backward_calls": 0,
+          "phase": "training"
+        },
+        "probe": {
+          "forward_calls": 0,
+          "text_positions": 0,
+          "visual_positions": 0,
+          "backward_calls": 0,
+          "phase": "probe"
+        }
+      },
+      "native_calls_observed": 5644,
+      "wrappers_restored": 1,
+      "logical": {
+        "scoring_cells": 98,
+        "scoring_operations": 294,
+        "physical_decoder_passes": 1932
+      },
+      "readouts_completed": 2,
+      "scope": "measured native taps only; logical cells/operations are separate units and never charged as forwards",
+      "prefix": 1
+    }
+  ],
+  "units": {
+    "decoder_forward_calls": "decoder_forward_call",
+    "prepare_sense_passes": "prepare_sense_pass",
+    "explicit_logits_forwards": "explicit_logits_forward",
+    "generation_prefill_calls": "generation_prefill_call",
+    "generation_decode_calls": "generation_decode_call",
+    "generated_tokens": "generated_token",
+    "processed_text_positions": "processed_text_position",
+    "processed_visual_positions": "processed_visual_position",
+    "visual_forward_calls": "visual_forward_call",
+    "projector_passes": "projector_pass",
+    "visual_observation_calls": "visual_observation_call",
+    "visual_encoder_calls": "visual_encoder_call",
+    "visual_encoder_cache_hits": "visual_encoder_cache_hit",
+    "visual_encoder_cache_misses": "visual_encoder_cache_miss",
+    "backward_calls": "backward_call",
+    "optimizer_steps": "optimizer_step",
+    "logical_scoring_cells": "logical_scoring_cell",
+    "logical_scoring_operations": "logical_scoring_operation"
+  }
+}

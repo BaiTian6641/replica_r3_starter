@@ -1,0 +1,306 @@
+{
+  "format": "replica.vision_learnability_step1.readout.v1",
+  "mode": "curve_step1",
+  "prefix": 0,
+  "label": "prefix_0_null",
+  "optimizer_steps": 0,
+  "optimizer_state_before": {
+    "sha256": "2224512ef44a62e580bb1c0dcb33aff688f4e7da8a488aeb4e7ca402c5cacf45",
+    "state_entries": 0,
+    "parameters_with_state": 0,
+    "steps": [],
+    "max_step": 0,
+    "tensor_bytes": 0,
+    "empty": true
+  },
+  "optimizer_state_after": {
+    "sha256": "2224512ef44a62e580bb1c0dcb33aff688f4e7da8a488aeb4e7ca402c5cacf45",
+    "state_entries": 0,
+    "parameters_with_state": 0,
+    "steps": [],
+    "max_step": 0,
+    "tensor_bytes": 0,
+    "empty": true
+  },
+  "optimizer_state_unchanged": true,
+  "projector_state_sha256": "511ba5c7648851424649962467972f0e926303d64873dfce08ecd3de299314b9",
+  "projector_unchanged_by_readout": true,
+  "weight_change_names": [],
+  "readout_weight_writes": 0,
+  "base_stamp_unchanged": true,
+  "adapter_train_restored": true,
+  "counts": {
+    "records": 104,
+    "available": 98,
+    "placeholders": 6,
+    "generations": 98,
+    "prefill_forwards": 98,
+    "teacher_forced_cells": 98,
+    "generated_tokens": 1362,
+    "logical_scoring_cells": 98,
+    "logical_scoring_operations": 294
+  },
+  "measured": {
+    "format": "replica.vision_forward_accounting.snapshot.v2",
+    "version": "replica.vision_forward_accounting.v2",
+    "counters": {
+      "decoder_forward_calls": 1852,
+      "prepare_sense_passes": 294,
+      "explicit_logits_forwards": 196,
+      "generation_prefill_calls": 98,
+      "generation_decode_calls": 1264,
+      "generated_tokens": 1362,
+      "processed_text_positions": 67193,
+      "processed_visual_positions": 294392,
+      "visual_forward_calls": 1502,
+      "projector_passes": 1502,
+      "visual_observation_calls": 72,
+      "visual_encoder_calls": 72,
+      "visual_encoder_cache_hits": 0,
+      "visual_encoder_cache_misses": 72,
+      "backward_calls": 0,
+      "optimizer_steps": 0,
+      "logical_scoring_cells": 98,
+      "logical_scoring_operations": 294
+    },
+    "units": {
+      "decoder_forward_calls": "decoder_forward_call",
+      "prepare_sense_passes": "prepare_sense_pass",
+      "explicit_logits_forwards": "explicit_logits_forward",
+      "generation_prefill_calls": "generation_prefill_call",
+      "generation_decode_calls": "generation_decode_call",
+      "generated_tokens": "generated_token",
+      "processed_text_positions": "processed_text_position",
+      "processed_visual_positions": "processed_visual_position",
+      "visual_forward_calls": "visual_forward_call",
+      "projector_passes": "projector_pass",
+      "visual_observation_calls": "visual_observation_call",
+      "visual_encoder_calls": "visual_encoder_call",
+      "visual_encoder_cache_hits": "visual_encoder_cache_hit",
+      "visual_encoder_cache_misses": "visual_encoder_cache_miss",
+      "backward_calls": "backward_call",
+      "optimizer_steps": "optimizer_step",
+      "logical_scoring_cells": "logical_scoring_cell",
+      "logical_scoring_operations": "logical_scoring_operation"
+    },
+    "phases": {
+      "prepare_sense": {
+        "forward_calls": 294,
+        "text_positions": 8511,
+        "visual_positions": 42336,
+        "backward_calls": 0,
+        "phase": "prepare_sense"
+      },
+      "explicit_logits_loss": {
+        "forward_calls": 196,
+        "text_positions": 6414,
+        "visual_positions": 28224,
+        "backward_calls": 0,
+        "phase": "explicit_logits_loss"
+      },
+      "generation": {
+        "forward_calls": 1362,
+        "text_positions": 52268,
+        "visual_positions": 223832,
+        "backward_calls": 0,
+        "phase": "generation"
+      },
+      "training": {
+        "forward_calls": 0,
+        "text_positions": 0,
+        "visual_positions": 0,
+        "backward_calls": 0,
+        "phase": "training"
+      },
+      "probe": {
+        "forward_calls": 0,
+        "text_positions": 0,
+        "visual_positions": 0,
+        "backward_calls": 0,
+        "phase": "probe"
+      }
+    },
+    "native_calls_observed": 3704,
+    "wrappers_restored": 0,
+    "logical": {
+      "scoring_cells": 98,
+      "scoring_operations": 294,
+      "physical_decoder_passes": 1852
+    },
+    "readouts_completed": 1,
+    "scope": "measured native taps only; logical cells/operations are separate units and never charged as forwards",
+    "prefix": 0
+  },
+  "generation_summary": {
+    "generated_tokens": 1362,
+    "lengths_by_kind": {
+      "answer": 368,
+      "caption": 994
+    },
+    "generation_cells": 98,
+    "prefill_calls": 98,
+    "decode_calls": 1264,
+    "eos_only": 0,
+    "whitespace_only": 0,
+    "generation_digest": "d3ceec6bec330c3a08c7dc649a3a890a75785a13b3a2c491ce0f24382cc1b18a"
+  },
+  "generation": {
+    "ok": true,
+    "violations": [],
+    "records": 104,
+    "available": 98,
+    "unavailable": 6,
+    "prefill_agreement": 98,
+    "stop_tokens": [
+      1,
+      130073
+    ],
+    "single_hypothesis": true,
+    "scope": "exactly one greedy hypothesis per available (row, control); declared stop set and prefill argmax agreement"
+  },
+  "response_audit": {
+    "ok": true,
+    "violations": [],
+    "available_records": 98,
+    "eos_only": 0,
+    "whitespace_only": 0,
+    "eos_only_policy": "reported separately and scored as a generated response",
+    "by_prefix": {
+      "0": {
+        "eos_only": 0,
+        "whitespace_only": 0,
+        "available": 98
+      }
+    },
+    "by_kind_control": {},
+    "target_equality": {
+      "checked": 98,
+      "answer_checked": 52,
+      "caption_checked": 46,
+      "answer_target_source": "row.response",
+      "caption_target_source": "sealed_caption_answer"
+    },
+    "prefill_self_consistency": {
+      "checked": 98,
+      "label": "not an independent first-token accuracy claim"
+    },
+    "prefill_gold": {
+      "checked": 98,
+      "correct": 1
+    }
+  },
+  "scores": {
+    "answer": {
+      "answer_correct_accuracy": 0.0,
+      "answer_correct_cases": 14,
+      "answer_correct_margin_sibling": 0.0,
+      "answer_sibling_cases": 10,
+      "answer_correct_margin_shuffled": 0.0,
+      "answer_correct_margin_noimage": -0.14285714285714285,
+      "answer_shuffled_cases": 14,
+      "answer_noimage_cases": 14,
+      "answer_sibling_following_accuracy": 0.0,
+      "answer_sibling_following_cases": 10,
+      "answer_prefill_gold_accuracy": 0.0,
+      "answer_prefill_cases": 14,
+      "answer_correct_vs_sibling_identical_rate": 0.0,
+      "answer_correct_vs_sibling_cases": 10,
+      "answer_correct_vs_shuffled_identical_rate": 0.0,
+      "answer_correct_vs_shuffled_cases": 14,
+      "answer_correct_unique_texts": 14,
+      "answer_unique_generation_cases": 14,
+      "scope": "original-label answer correctness; sibling following is scored against the supplied sibling image's response"
+    },
+    "caption": {
+      "caption_token_f1": 0.007575757575757576,
+      "caption_cases": 12,
+      "caption_semantic_f1": 0.0,
+      "caption_following_accuracy": 0.0,
+      "caption_sibling_following_accuracy": 0.0,
+      "caption_sibling_following_cases": 10,
+      "caption_sibling_following_semantic_f1": 0.0,
+      "caption_sibling_original_semantic_drop": 0.0,
+      "caption_sibling_cases": 10,
+      "caption_shuffled_following_accuracy": 0.0,
+      "caption_shuffled_following_cases": 10,
+      "caption_shuffled_original_semantic_drop": 0.0,
+      "caption_shuffled_cases": 12,
+      "caption_noimage_loss_margin": -5.428705096244811,
+      "caption_noimage_cases": 12,
+      "caption_noimage_semantic_f1": 0.0,
+      "caption_dependence_f1_margin": 0.0,
+      "caption_correct_vs_sibling_identical_rate": 0.0,
+      "caption_correct_vs_sibling_cases": 10,
+      "caption_correct_unique_texts": 12,
+      "caption_unique_generation_cases": 12,
+      "scope": "fixed original caption target for teacher-forced loss and original agreement; changed-image following is scored against the supplied image's sealed descriptors; dependence_f1_margin is the mean original-semantic drop across sibling and shuffled"
+    }
+  },
+  "teacher_forced": {
+    "answer": 10.704498972211566,
+    "caption": 9.773420969645182
+  },
+  "teacher_forced_aggregates": {
+    "answer": {
+      "correct": {
+        "mean": 10.704498972211566,
+        "cases": 14
+      },
+      "sibling": {
+        "mean": 10.312150001525879,
+        "cases": 10
+      },
+      "shuffled": {
+        "mean": 10.979916027614049,
+        "cases": 14
+      },
+      "noimage": {
+        "mean": 14.377015045710973,
+        "cases": 14
+      }
+    },
+    "caption": {
+      "correct": {
+        "mean": 9.773420969645182,
+        "cases": 12
+      },
+      "sibling": {
+        "mean": 9.605922508239747,
+        "cases": 10
+      },
+      "shuffled": {
+        "mean": 9.678301215171814,
+        "cases": 12
+      },
+      "noimage": {
+        "mean": 4.344715873400371,
+        "cases": 12
+      }
+    }
+  },
+  "metrics": {
+    "answer_prefill_gold_rank_mean": 21413.571428571428,
+    "answer_prefill_gold_rank_cases": 14,
+    "answer_prefill_gold_rank_min": 48.0,
+    "answer_prefill_gold_rank_max": 54985.0
+  },
+  "gates": null,
+  "files": {
+    "answer_generations": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/readouts/prefix_0_null/train_answer_generations.jsonl",
+    "caption_generations": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/readouts/prefix_0_null/train_caption_generations.jsonl",
+    "records": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt03/readouts/prefix_0_null/records.jsonl"
+  },
+  "validation": {
+    "ok": true,
+    "violations": [],
+    "prefix": 0,
+    "decoder_forward_calls": 1852,
+    "generated_tokens": 1362,
+    "prepare_sense_passes": 294,
+    "explicit_logits_forwards": 196,
+    "generation_prefill_calls": 98,
+    "generation_decode_calls": 1264,
+    "logical_scoring_cells": 98,
+    "logical_scoring_operations": 294
+  }
+}
