@@ -199,6 +199,30 @@ def test_curve_pins_verify_and_historical_gradient_migration_failure_is_preserve
                        match="New implementation bytes differ"):
         curve_runner.verify_pins(drifted)
 
+def test_empty_decoded_response_is_scored_but_empty_ids_fail():
+    row = {
+        "case_id": "empty-example", "control": "correct", "kind": "answer",
+        "available": True, "hypothesis_count": 1,
+        "generated_ids": [130072, 1], "generated_text": "",
+        "prefill_argmax_matches_first_token": True,
+        "stop_tokens": [1, 130073],
+    }
+    report = curve.generation_hypothesis_report(
+        [row], expected_records=1, expected_available=1,
+        expected_unavailable=0)
+    assert report["ok"] is True
+    assert report["empty_decoded_responses"] == 1
+    assert report["empty_text_policy"] == "score_as_wrong_and_record"
+    assert report["violations"] == []
+    assert len(report["empty_text_violations"]) == 1
+    bad = dict(row, generated_ids=[])
+    report = curve.generation_hypothesis_report(
+        [bad], expected_records=1, expected_available=1,
+        expected_unavailable=0)
+    assert report["ok"] is False
+    assert "empty_ids:('empty-example', 'correct')" in report["violations"]
+
+
 
 # ---------------------------------------------------------------------------
 # Readout invariants

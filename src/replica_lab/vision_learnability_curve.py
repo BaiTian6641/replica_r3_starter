@@ -97,7 +97,27 @@ READOUT_CONTRACT = {
     "adapter_train_restored": True,
     "per_prefix_files_before_report": True,
     "readout_weight_writes": 0,
+    "empty_text_policy": "score_as_wrong_and_record",
 }
+
+def generation_hypothesis_report(rows, **kwargs) -> dict[str, Any]:
+    """Preserve empty decoded responses as scored failures, not engineering errors."""
+    report = learn.generation_hypothesis_report(rows, **kwargs)
+    empty = [item for item in report["violations"]
+             if item.startswith("empty_text:")]
+    if not empty:
+        return report
+    remaining = [item for item in report["violations"]
+                 if item not in empty]
+    return {
+        **report,
+        "ok": not remaining,
+        "violations": remaining,
+        "empty_decoded_responses": len(empty),
+        "empty_text_policy": "score_as_wrong_and_record",
+        "empty_text_violations": empty,
+    }
+
 
 _PREPARED_KEYS = {
     "root", "protocol", "protocol_sha256", "manifest", "manifest_sha256",

@@ -221,7 +221,7 @@ def _curve_readout(
     after_base = adapter.parameter_stamp(original_only=True)
     weight_changes = _changed(before_snapshot,
                               _snapshot_new_parameters(adapter))
-    generated_report = learn.generation_hypothesis_report(
+    generated_report = curve.generation_hypothesis_report(
         normalised,
         answer_max_new_tokens=int(limits["max_new_tokens"]),
         caption_max_new_tokens=int(limits["caption_max_new_tokens"]))
