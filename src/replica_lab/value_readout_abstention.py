@@ -1,0 +1,1630 @@
+"""Deterministic CPU integration runner for the value-readout protocol.
+
+This module is deliberately small and local.  It does not load MiniCPM5, a
+tokenizer, a native runtime or any downloaded asset.  It implements the declared
+22-class selected-expert readout over fixed, non-trainable projections, one
+event clock per independent arm, three separately trained arms with exactly 24
+optimizer updates each, and the seven declared control views.
+
+The synthetic feature encoder carries the exact-address selected record value
+into a fixed feature block.  That makes the CPU integration meaningful for
+transaction, accounting, checkpoint, interruption, resume and admission tests,
+but it is *not* evidence of learned retrieval, open-ended generation or general
+persistent learning.  Those claims remain excluded.
+"""
+from __future__ import annotations
+
+from collections import OrderedDict
+from copy import deepcopy
+from dataclasses import dataclass
+import hashlib
+import json
+import os
+from pathlib import Path
+import tempfile
+from typing import Any, Iterable, Mapping, Sequence
+
+import torch
+import torch.nn.functional as F
+from torch import Tensor, nn
+
+from replica_lab.nested_learning import DedupLedger, TeachingClock, TransactionOutcome
+from replica_lab.optimizers import NativeFusedAdamW
+
+READOUT_CHECKPOINT_FORMAT = "replica.value_readout_abstention.checkpoint.v1"
+FIT_REPORT_FORMAT = "replica.value_readout_abstention.fit_report.v1"
+PREDICTION_FORMAT = "replica.value_readout_abstention.prediction.v1"
+EVALUATION_REPORT_FORMAT = "replica.value_readout_abstention.evaluation_report.v1"
+CONTROL_REPORT_FORMAT = "replica.value_readout_abstention.control_report.v1"
+RUNNER_MANIFEST_FORMAT = "replica.value_readout_abstention.run_manifest.v1"
+RESUME_FORMAT = "replica.value_readout_abstention.resume.v1"
+ARTIFACT_BUDGET_FORMAT = "replica.value_readout_abstention.artifact_budget.v1"
+ARTIFACT_OVERFLOW_FORMAT = "replica.value_readout_abstention.artifact_budget_overflow.v1"
+RUNNER_ENTRY_POINT = "scripts/run_value_readout_abstention_v1.py"
+
+TRAINABLE_NAMES = (
+    "selected_expert.gate",
+    "selected_expert.up",
+    "selected_expert.down",
+)
+FIXED_NAMES = ("read_projection", "decoder")
+ARM_IDS = (
+    "learned_value_readout",
+    "exact_context",
+    "selected_record_literal_readout",
+    "memory_disabled",
+    "memory_reset",
+    "shuffled_values",
+    "wrong_world_values",
+)
+TRAINED_ARMS = ("learned_value_readout", "shuffled_values", "wrong_world_values")
+TREATMENT_ARM = "learned_value_readout"
+WIDTH = 256
+HIDDEN_WIDTH = 1024
+VOCAB_SIZE = 22
+EXPERT_SCALE = 0.01
+
+
+class ReadoutError(ValueError):
+    """One runner, artifact or accounting invariant failed."""
+
+
+class RunInterrupted(RuntimeError):
+    """A deliberate interruption after a durably saved resume checkpoint."""
+
+    def __init__(self, completed_updates: int, resume_path: Path):
+        super().__init__(
+            f"interrupted after {completed_updates} updates; resume at {resume_path}")
+        self.completed_updates = completed_updates
+        self.resume_path = Path(resume_path)
+
+
+class ArtifactBudgetExceeded(ReadoutError):
+    """The complete post-write artifact tree exceeded the declared ceiling."""
+
+    def __init__(self, measured_bytes: int, cap_bytes: int,
+                 overflow_path: Path):
+        super().__init__(
+            f"artifact budget exceeded: {measured_bytes} > {cap_bytes}; "
+            f"overflow evidence preserved at {overflow_path}")
+        self.measured_bytes = int(measured_bytes)
+        self.cap_bytes = int(cap_bytes)
+        self.overflow_path = Path(overflow_path)
+
+
+def _require(condition: bool, detail: str) -> None:
+    if not condition:
+        raise ReadoutError(detail)
+
+
+def canonical(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True, allow_nan=False)
+
+
+def sha256_json(value: Any) -> str:
+    return hashlib.sha256(canonical(value).encode("utf-8")).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def read_json(path: Path) -> dict:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def read_jsonl(path: Path) -> list[dict]:
+    rows = []
+    with Path(path).open("r", encoding="utf-8") as stream:
+        for line in stream:
+            if line.strip():
+                rows.append(json.loads(line))
+    return rows
+
+
+def _write_json_atomic(path: Path, value: Mapping[str, Any], *,
+                       sort_keys: bool = True) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_text = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary = Path(temporary_text)
+    os.close(descriptor)
+    try:
+        temporary.write_text(
+            json.dumps(value, indent=2, sort_keys=sort_keys,
+                       allow_nan=False) + "\n",
+            encoding="utf-8")
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def _write_jsonl(path: Path, rows: Iterable[Mapping[str, Any]]) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    body = "".join(json.dumps(dict(row), sort_keys=True, allow_nan=False) + "\n"
+                   for row in rows)
+    path.write_text(body, encoding="utf-8")
+
+
+def _artifact_inventory(root: Path, *, exclude: Iterable[Path] = ()) -> list[dict]:
+    root = Path(root)
+    excluded = {Path(path).resolve() for path in exclude}
+    rows = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        if path.resolve() in excluded:
+            continue
+        rows.append({"path": path.relative_to(root).as_posix(),
+                     "bytes": path.stat().st_size})
+    return rows
+
+
+def _artifact_total(root: Path) -> int:
+    return sum(path.stat().st_size for path in Path(root).rglob("*")
+               if path.is_file())
+
+
+def _render_json(value: Mapping[str, Any]) -> str:
+    return json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n"
+
+
+def enforce_artifact_budget(output: Path, config: Mapping[str, Any], *,
+                            context: str = "run") -> dict:
+    """Measure the complete artifact tree after all final writes.
+
+    The budget report is itself included in the measured total.  Overflow never
+    deletes evidence: it writes a separate overflow receipt and raises.
+    """
+    root = Path(output)
+    root.mkdir(parents=True, exist_ok=True)
+    ceiling = config["budget"]["authorized_run_ceiling"]
+    cap = int(ceiling["artifact_bytes_max"])
+    declared = dict(ceiling.get("artifact_budget", {}))
+    summary_path = root / "artifact_budget.json"
+    overflow_path = root / "artifact_budget_overflow.json"
+    files = _artifact_inventory(root, exclude=(summary_path, overflow_path))
+    files_total = sum(row["bytes"] for row in files)
+    measured = files_total
+    text = ""
+    for _ in range(8):
+        report = {
+            "format": ARTIFACT_BUDGET_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "context": context,
+            "status": "within_budget",
+            "cap_bytes": cap,
+            "old_cap_bytes": declared.get("old_cap_bytes"),
+            "old_cap_underprovisioned": declared.get("old_cap_underprovisioned"),
+            "resume_complete_checkpoints": declared.get(
+                "resume_complete_checkpoints"),
+            "declared_derivation": declared.get("derivation"),
+            "enforcement": "after_final_report_and_receipt_writes_all_artifacts_included",
+            "measured_bytes": measured,
+            "files_total_bytes": files_total,
+            "file_count": len(files) + 1,
+            "files": files,
+        }
+        text = _render_json(report)
+        new_total = files_total + len(text.encode("utf-8"))
+        if new_total == measured:
+            break
+        measured = new_total
+    summary_path.write_text(text, encoding="utf-8")
+    actual = _artifact_total(root)
+    for _ in range(8):
+        if actual == measured:
+            break
+        measured = actual
+        report["measured_bytes"] = measured
+        text = _render_json(report)
+        summary_path.write_text(text, encoding="utf-8")
+        actual = _artifact_total(root)
+    if actual > cap:
+        report["status"] = "overflow"
+        report["measured_bytes"] = actual
+        summary_path.write_text(_render_json(report), encoding="utf-8")
+        overflow_files = _artifact_inventory(root)
+        overflow = {
+            "format": ARTIFACT_OVERFLOW_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "context": context,
+            "status": "overflow",
+            "cap_bytes": cap,
+            "measured_bytes_before_overflow_evidence": actual,
+            "old_cap_bytes": declared.get("old_cap_bytes"),
+            "old_cap_underprovisioned": declared.get("old_cap_underprovisioned"),
+            "declared_derivation": declared.get("derivation"),
+            "summary_path": summary_path.relative_to(root).as_posix(),
+            "files": overflow_files,
+            "preserved": True,
+            "measurement_after_final_report_and_receipt_writes": True,
+            "deleted_artifacts": [],
+        }
+        _write_json_atomic(overflow_path, overflow, sort_keys=False)
+        raise ArtifactBudgetExceeded(actual, cap, overflow_path)
+    report["status"] = "within_budget"
+    report["measured_bytes"] = actual
+    summary_path.write_text(_render_json(report), encoding="utf-8")
+    return report
+
+
+def _canonical_payload(value: Any) -> Any:
+    """Rebuild the object graph deterministically before serialization.
+
+    Torch's pickle memoization depends on object identity.  Fresh/restored runs
+    otherwise share different strings, which changes checkpoint bytes even when
+    the state is identical.  Rebuilding every metadata object (and cloning every
+    tensor) gives the same pickle graph for an identical state.
+    """
+    if isinstance(value, torch.Tensor):
+        return value.detach().clone()
+    if isinstance(value, Mapping):
+        return {str(key).encode("utf-8").decode("utf-8"):
+                _canonical_payload(item)
+                for key, item in sorted(value.items(),
+                                        key=lambda pair: str(pair[0]))}
+    if isinstance(value, (list, tuple)):
+        return [_canonical_payload(item) for item in value]
+    if isinstance(value, str):
+        return value.encode("utf-8").decode("utf-8")
+    if isinstance(value, (bool, int, float)) or value is None:
+        return value
+    return value
+
+
+def _save_torch_atomic(path: Path, payload: Mapping[str, Any]) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # A deterministic temporary name keeps the archive root stable across
+    # processes, so identical checkpoints serialize to identical bytes.
+    temporary = path.parent / f".{path.name}.tmp"
+    try:
+        torch.save(_canonical_payload(dict(payload)), temporary)
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
+def tensor_sha256(name: str, tensor: Tensor) -> str:
+    value = tensor.detach().to("cpu", torch.float32).contiguous()
+    digest = hashlib.sha256()
+    digest.update(name.encode("utf-8"))
+    digest.update(str(tuple(value.shape)).encode("ascii"))
+    digest.update(value.numpy().tobytes())
+    return digest.hexdigest()
+
+
+def state_sha256(state: Mapping[str, Tensor]) -> str:
+    rows = {name: tensor_sha256(name, tensor)
+            for name, tensor in state.items()}
+    return sha256_json(rows)
+
+
+def state_tensor_digests(state: Mapping[str, Tensor]) -> dict[str, str]:
+    return {name: tensor_sha256(name, tensor) for name, tensor in state.items()}
+
+
+def _state_clone(state: Mapping[str, Tensor]) -> "OrderedDict[str, Tensor]":
+    return OrderedDict((name, tensor.detach().clone())
+                       for name, tensor in state.items())
+
+
+# ---------------------------------------------------------------------------
+# Fixed addressing and the declared selected-expert readout
+# ---------------------------------------------------------------------------
+
+
+class SelectedExpertReadout(nn.Module):
+    """Selected expert only: gate/up/down are trainable, the rest is fixed."""
+
+    def __init__(self, *, seed: int, width: int = WIDTH,
+                 hidden_width: int = HIDDEN_WIDTH,
+                 vocabulary_size: int = VOCAB_SIZE,
+                 expert_scale: float = EXPERT_SCALE):
+        super().__init__()
+        self.width = width
+        self.hidden_width = hidden_width
+        self.vocabulary_size = vocabulary_size
+        self.expert_scale = float(expert_scale)
+        generator = torch.Generator(device="cpu").manual_seed(int(seed))
+        self.gate = nn.Linear(width, hidden_width, bias=False)
+        self.up = nn.Linear(width, hidden_width, bias=False)
+        self.down = nn.Linear(hidden_width, width, bias=False)
+        for matrix in (self.gate.weight, self.up.weight, self.down.weight):
+            with torch.no_grad():
+                matrix.copy_(torch.randn(
+                    matrix.shape, generator=generator, dtype=torch.float32) * 0.02)
+        projection = torch.zeros(vocabulary_size, width, dtype=torch.float32)
+        for index in range(min(vocabulary_size, width)):
+            projection[index, index] = 1.0
+        self.register_buffer("read_projection", projection, persistent=True)
+        with torch.no_grad():
+            decoder = torch.randn(2048, vocabulary_size,
+                                  generator=generator, dtype=torch.float32) * 0.02
+        self.register_buffer("decoder", decoder, persistent=True)
+        for parameter in (self.read_projection, self.decoder):
+            parameter.requires_grad_(False)
+
+    def forward(self, features: Tensor) -> Tensor:
+        features = features.to(dtype=torch.float32)
+        delta = self.down(F.silu(self.gate(features)) * self.up(features))
+        slot = features + self.expert_scale * delta
+        return F.linear(slot, self.read_projection)
+
+    def model_state(self) -> "OrderedDict[str, Tensor]":
+        return OrderedDict((
+            ("selected_expert.gate", self.gate.weight),
+            ("selected_expert.up", self.up.weight),
+            ("selected_expert.down", self.down.weight),
+        ))
+
+    def fixed_state(self) -> "OrderedDict[str, Tensor]":
+        return OrderedDict((
+            ("read_projection", self.read_projection),
+            ("decoder", self.decoder),
+        ))
+
+    def trainable_parameters(self) -> list[tuple[str, nn.Parameter]]:
+        return [
+            ("selected_expert.gate", self.gate.weight),
+            ("selected_expert.up", self.up.weight),
+            ("selected_expert.down", self.down.weight),
+        ]
+
+    def state_digest(self) -> str:
+        return state_sha256({**self.model_state(), **self.fixed_state()})
+
+    def model_state_digest(self) -> str:
+        return state_sha256(self.model_state())
+
+    def fixed_state_digest(self) -> str:
+        return state_sha256(self.fixed_state())
+
+
+def build_parent_state_dict(config: Mapping[str, Any], seed: int) -> OrderedDict:
+    """Rebuild the deterministic parent state for independent verification."""
+    width = int(config["architecture"]["expert_bank"]["declared_width"])
+    hidden = int(config["architecture"]["expert_bank"]["declared_hidden_width"])
+    vocabulary = int(config["architecture"]["answer_vocabulary_size"])
+    module = SelectedExpertReadout(seed=seed, width=width,
+                                   hidden_width=hidden,
+                                   vocabulary_size=vocabulary)
+    parent = OrderedDict()
+    parent.update(module.model_state())
+    parent.update(module.fixed_state())
+    return parent
+
+
+def parent_state_sha256(config: Mapping[str, Any], seed: int) -> str:
+    return state_sha256(build_parent_state_dict(config, seed))
+
+
+# ---------------------------------------------------------------------------
+# Fixed record addressing, immutable query snapshots and arm views
+# ---------------------------------------------------------------------------
+
+_PERMUTATION = (7, 12, 18, 2, 20, 9, 15, 4, 21, 11, 1, 16, 6, 19, 3, 13,
+                8, 17, 5, 14, 10, 0)
+
+
+def shuffled_index(index: int) -> int:
+    """A fixed derangement over the closed 22-token vocabulary."""
+    return _PERMUTATION[int(index) % VOCAB_SIZE]
+
+
+def sibling_world(world_id: str) -> str | None:
+    suffix = world_id.removeprefix("world_")
+    stem = suffix.rsplit("_", 1)[0]
+    leaf = suffix.rsplit("_", 1)[-1]
+    if leaf == "alpha":
+        return f"world_{stem}_beta"
+    if leaf == "beta":
+        return f"world_{stem}_alpha"
+    return None
+
+
+@dataclass(frozen=True)
+class QueryView:
+    address: Mapping[str, str]
+    world_id: str
+    epoch: int
+
+    def key(self) -> tuple[str, str, str, int]:
+        return (self.world_id, self.address["entity"],
+                self.address["attribute"], int(self.epoch))
+
+
+class FixedRecordMemory:
+    """Append-only chronological record view with epoch-bounded resolution."""
+
+    def __init__(self) -> None:
+        self._records: list[dict] = []
+        self._superseded: set[str] = set()
+
+    def write(self, event: Mapping[str, Any]) -> None:
+        record = dict(event["record"])
+        record["available_epoch"] = int(event["epoch"])
+        supersedes = record.get("supersedes")
+        if supersedes:
+            self._superseded.add(str(supersedes))
+        self._records.append(record)
+
+    def resolve(self, address: Mapping[str, str], world_id: str,
+                epoch: int) -> dict | None:
+        wanted = (str(world_id), str(address["entity"]),
+                  str(address["attribute"]))
+        selected = None
+        for record in self._records:
+            if record["record_id"] in self._superseded:
+                continue
+            if int(record["available_epoch"]) > int(epoch):
+                continue
+            identity = (record["world_id"], record["entity"], record["attribute"])
+            if identity != wanted:
+                continue
+            if selected is None or int(record["available_epoch"]) >= int(
+                    selected["available_epoch"]):
+                selected = record
+        return None if selected is None else dict(selected)
+
+    def snapshot_records(self) -> list[dict]:
+        return [dict(record) for record in self._records]
+
+    def restore_records(self, records: Sequence[Mapping[str, Any]]) -> None:
+        self._records = [dict(record) for record in records]
+        superseded: set[str] = set()
+        for record in self._records:
+            if record.get("supersedes"):
+                superseded.add(str(record["supersedes"]))
+        self._superseded = superseded
+
+    def digest(self) -> str:
+        return sha256_json(sorted(self.visible_records(), key=lambda row: (
+            row["world_id"], row["entity"], row["attribute"],
+            int(row["available_epoch"]), row["record_id"])))
+
+    def visible_records(self) -> list[dict]:
+        return [dict(record) for record in self._records
+                if record["record_id"] not in self._superseded]
+
+
+def arm_value_index(arm_id: str, *, record: Mapping[str, Any] | None,
+                    address: Mapping[str, str], world_id: str, epoch: int,
+                    memory: FixedRecordMemory, vocabulary: Sequence[str],
+                    wrong_world_id: str | None = None) -> int:
+    """The arm-specific readout index; abstention is only arm-correct for treatment."""
+    if record is None:
+        base = 0
+    else:
+        base = list(vocabulary).index(record["value"])
+    if arm_id == TREATMENT_ARM:
+        return base
+    if arm_id == "shuffled_values":
+        return shuffled_index(base)
+    if arm_id == "wrong_world_values":
+        sibling = wrong_world_id or sibling_world(world_id)
+        other = None if sibling is None else memory.resolve(address, sibling, epoch)
+        if other is not None:
+            return list(vocabulary).index(other["value"])
+        if base == 0:
+            return 1 + (int(sha256_json({"case": address, "epoch": epoch})[:2], 16)
+                        % (VOCAB_SIZE - 1))
+        return 1 + ((base + 3) % (VOCAB_SIZE - 1))
+    raise ReadoutError(f"unknown arm view {arm_id!r}")
+
+
+def encode_features(case_id: str, case: Mapping[str, Any], *,
+                    vocabulary: Sequence[str], index: int) -> Tensor:
+    features = torch.zeros(1, WIDTH, dtype=torch.float32)
+    features[0, int(index)] = 1.0
+    # Deterministic query/address block.  The fixed projection has no weights
+    # here, so this block can only influence the trainable expert residual.
+    seed = hashlib.sha256(
+        f"{case_id}|{case['query_text']}|{case['address']['entity']}|"
+        f"{case['address']['attribute']}".encode("utf-8")).digest()
+    for offset in range(32):
+        position = VOCAB_SIZE + offset
+        if position >= WIDTH:
+            break
+        features[0, position] = (seed[offset] / 255.0) * 0.01
+    return features
+
+
+def _read_train_metadata(prepared: Path, config: Mapping[str, Any]) -> dict:
+    files = config["prepared"]["files"]
+    train = read_jsonl(prepared / files["cases_train"])
+    replay = read_jsonl(prepared / files["cases_train_replay"])
+    events = [row for row in read_jsonl(prepared / files["episodes"])
+              if row["split"] == "train"]
+    events.sort(key=lambda row: (row["world_id"], int(row["epoch"])))
+    cases = {row["case_id"]: row for row in train + replay}
+    teaching = [row for row in train + replay if int(row["optimizer_steps"]) == 1]
+    teaching.sort(key=lambda row: (row["world_id"], int(row["epoch"])))
+    return {"train": train, "replay": replay, "events": events,
+            "cases": cases, "teaching": teaching}
+
+
+def _read_split_inputs(prepared: Path, config: Mapping[str, Any],
+                       split: str) -> dict:
+    files = config["prepared"]["files"]
+    case_name = files["cases_dev"] if split == "dev" else files["cases_heldout"]
+    cases = read_jsonl(prepared / case_name)
+    episodes = [row for row in read_jsonl(prepared / files["episodes"])
+                if row["split"] == split]
+    episodes.sort(key=lambda row: (row["world_id"], int(row["epoch"])))
+    return {"cases": cases, "cases_by_id": {row["case_id"]: row for row in cases},
+            "events": episodes}
+
+
+# ---------------------------------------------------------------------------
+# Arm factory and transaction accounting
+# ---------------------------------------------------------------------------
+
+
+def build_optimizer(module: SelectedExpertReadout,
+                    config: Mapping[str, Any]) -> NativeFusedAdamW:
+    hyper = config["transaction"]["optimizer_hyperparameters"]
+    parameters = [parameter for _name, parameter in module.trainable_parameters()]
+    group = {
+        "group_name": "selected_expert",
+        "scope": "selected_expert_gate_up_down_only",
+        "algorithm": "adamw_fused",
+        "fused": True,
+        "param_names": list(TRAINABLE_NAMES),
+        "params": parameters,
+        "lr": float(hyper["lr"]),
+        "betas": tuple(hyper["betas"]),
+        "eps": float(hyper["eps"]),
+        "weight_decay": float(hyper["weight_decay"]),
+    }
+    return NativeFusedAdamW([group], optimizer_name="adamw_fused")
+
+
+def _optimizer_meta(module: SelectedExpertReadout,
+                    optimizer: NativeFusedAdamW) -> dict:
+    group = optimizer.param_groups[0]
+    steps = {}
+    for name, parameter in module.trainable_parameters():
+        state = optimizer.state.get(parameter, {})
+        step = state.get("step")
+        if isinstance(step, Tensor):
+            step = int(step.detach().cpu().item())
+        steps[name] = int(step or 0)
+    return {
+        "name": "NativeFusedAdamW",
+        "class": "torch.optim.AdamW",
+        "wrapper": "replica_lab.optimizers.NativeFusedAdamW",
+        "algorithm": "adamw_fused",
+        "fused": True,
+        "lr": float(group["lr"]),
+        "betas": [float(group["betas"][0]), float(group["betas"][1])],
+        "eps": float(group["eps"]),
+        "weight_decay": float(group["weight_decay"]),
+        "param_names": list(TRAINABLE_NAMES),
+        "step_counts": steps,
+    }
+
+
+def _optimizer_state(module: SelectedExpertReadout,
+                     optimizer: NativeFusedAdamW) -> dict:
+    result = {}
+    for name, parameter in module.trainable_parameters():
+        state = optimizer.state.get(parameter, {})
+        entry = {}
+        for key, value in state.items():
+            if isinstance(value, Tensor):
+                entry[key] = value.detach().to("cpu", torch.float32).clone()
+            else:
+                entry[key] = value
+        result[name] = entry
+    return result
+
+
+def _restore_optimizer(module: SelectedExpertReadout,
+                       optimizer: NativeFusedAdamW,
+                       state: Mapping[str, Mapping[str, Any]]) -> None:
+    by_name = dict(module.trainable_parameters())
+    for name, entry in state.items():
+        parameter = by_name[name]
+        restored = {}
+        for key, value in entry.items():
+            if isinstance(value, Tensor):
+                restored[key] = value.detach().to(
+                    device=parameter.device, dtype=torch.float32).clone()
+            else:
+                restored[key] = value
+        optimizer.state[parameter] = restored
+
+
+def _model_state_from_checkpoint(state: Mapping[str, Tensor]) -> "OrderedDict[str, Tensor]":
+    return OrderedDict((name, state[name].detach().clone()) for name in TRAINABLE_NAMES)
+
+
+class Arm:
+    def __init__(self, arm_id: str, config: Mapping[str, Any], seed: int):
+        _require(arm_id in TRAINED_ARMS, f"unknown trained arm {arm_id!r}")
+        self.arm_id = arm_id
+        self.seed = int(seed)
+        self.module = SelectedExpertReadout(seed=self.seed)
+        self.optimizer = build_optimizer(self.module, config)
+        self.parent_state_sha256 = state_sha256(
+            {**self.module.model_state(), **self.module.fixed_state()})
+        self.parent_trainable_sha256 = state_sha256(self.module.model_state())
+        self.clock = TeachingClock(0)
+        self.ledger = DedupLedger()
+        self.update_records: list[dict] = []
+        self.event_index = 0
+        self.completed_updates = 0
+
+    def snapshot(self) -> dict:
+        return {
+            "arm_id": self.arm_id,
+            "seed": self.seed,
+            "parent_state_sha256": self.parent_state_sha256,
+            "model_state": {name: tensor.detach().clone()
+                            for name, tensor in self.module.model_state().items()},
+            "optimizer_state": _optimizer_state(self.module, self.optimizer),
+            "clock_events": self.clock.eligible_events,
+            "event_index": self.event_index,
+            "completed_updates": self.completed_updates,
+            "update_records": deepcopy(self.update_records),
+            "ledger": self.ledger.to_dict(),
+        }
+
+    def restore(self, payload: Mapping[str, Any]) -> None:
+        _require(payload["arm_id"] == self.arm_id, "resume arm differs")
+        _require(int(payload["seed"]) == self.seed, "resume seed differs")
+        with torch.no_grad():
+            for name, tensor in payload["model_state"].items():
+                self.module.model_state()[name].copy_(tensor)
+        _restore_optimizer(self.module, self.optimizer, payload["optimizer_state"])
+        self.clock = TeachingClock(int(payload["clock_events"]))
+        self.event_index = int(payload["event_index"])
+        self.completed_updates = int(payload["completed_updates"])
+        self.update_records = deepcopy(list(payload["update_records"]))
+        self.ledger = DedupLedger.from_dict(payload["ledger"])
+
+    def checkpoint_payload(self, *, config: Mapping[str, Any],
+                           config_sha256: str,
+                           prepared_manifest_sha256: str,
+                           events_processed: int,
+                           predictions_sha256: str | None = None) -> dict:
+        model_state = {name: tensor.detach().clone()
+                       for name, tensor in self.module.model_state().items()}
+        fixed_state = {name: tensor.detach().clone()
+                       for name, tensor in self.module.fixed_state().items()}
+        combined = {**model_state, **fixed_state}
+        return {
+            "format": READOUT_CHECKPOINT_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "config_sha256": config_sha256,
+            "prepared_manifest_sha256": prepared_manifest_sha256,
+            "arm_id": self.arm_id,
+            "phase": ("fit_treatment" if self.arm_id == TREATMENT_ARM
+                      else "control_fit"),
+            "seed": self.seed,
+            "completed_steps": self.completed_updates,
+            "event_clock_steps": self.clock.eligible_events,
+            "events_processed": int(events_processed),
+            "trainable_names": list(TRAINABLE_NAMES),
+            "fixed_names": list(FIXED_NAMES),
+            "model_state": model_state,
+            "fixed_state": fixed_state,
+            "trainable_state_sha256": state_tensor_digests(model_state),
+            "fixed_state_sha256": state_tensor_digests(fixed_state),
+            "parent_state_sha256": self.parent_state_sha256,
+            "state_sha256": state_sha256(combined),
+            "optimizer_meta": _optimizer_meta(self.module, self.optimizer),
+            "optimizer_state": _optimizer_state(self.module, self.optimizer),
+            "update_records": deepcopy(self.update_records),
+            "predictions_sha256": predictions_sha256,
+            "classification": {
+                "native_model": False,
+                "tokenizer": False,
+                "downloads": 0,
+                "device": "cpu",
+                "scope": "deterministic_software_integration",
+            },
+        }
+
+
+# ---------------------------------------------------------------------------
+# Fit, evaluation and controls
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class RunnerContext:
+    config: Mapping[str, Any]
+    config_sha256: str
+    manifest_sha256: str
+    prepared: Path
+    config_path: Path
+
+
+def _context(config_path: Path, prepared: Path) -> RunnerContext:
+    config = read_json(config_path)
+    manifest = read_json(prepared / "manifest.json")
+    return RunnerContext(config=config, config_sha256=sha256_file(config_path),
+                         manifest_sha256=sha256_file(prepared / "manifest.json"),
+                         prepared=Path(prepared), config_path=Path(config_path))
+
+
+def _event_case(event: Mapping[str, Any], cases: Mapping[str, Mapping[str, Any]]) -> dict:
+    case_id = event["case_id"]
+    _require(case_id in cases, f"event {event['event_id']} has no case")
+    return dict(cases[case_id])
+
+
+def _features_for_event(arm_id: str, event: Mapping[str, Any],
+                        case: Mapping[str, Any], memory: FixedRecordMemory,
+                        vocabulary: Sequence[str]) -> tuple[Tensor, int, dict | None]:
+    record = memory.resolve(event["address"], event["world_id"], int(event["epoch"]))
+    index = arm_value_index(
+        arm_id, record=record, address=event["address"],
+        world_id=event["world_id"], epoch=int(event["epoch"]),
+        memory=memory, vocabulary=vocabulary,
+        wrong_world_id=event.get("wrong_world_id"))
+    features = encode_features(case["case_id"], case, vocabulary=vocabulary,
+                               index=index)
+    return features, index, record
+
+
+def _train_arm(arm: Arm, *, metadata: Mapping[str, Any],
+               vocabulary: Sequence[str], config: Mapping[str, Any],
+               resume_path: Path | None, interrupt_after: int | None,
+               total_updates_before: int) -> int:
+    memory = FixedRecordMemory()
+    if arm.event_index:
+        # Resume reconstruction is supplied by the caller before this call.
+        memory = getattr(arm, "_resume_memory", FixedRecordMemory())
+    events = metadata["events"]
+    cases = metadata["cases"]
+    torch.set_num_threads(1)
+    while arm.event_index < len(events):
+        event = events[arm.event_index]
+        arm.clock = TeachingClock(arm.clock.eligible_events + 1)
+        if event["kind"] != "query":
+            memory.write(event)
+            arm.event_index += 1
+            continue
+        case = _event_case(event, cases)
+        features, index, record = _features_for_event(
+            arm.arm_id, event, case, memory, vocabulary)
+        if int(event["optimizer_steps"]) == 1:
+            fingerprint = sha256_json({
+                "event_id": event["event_id"],
+                "case_id": event["case_id"],
+                "target_index": index,
+                "clock": arm.clock.eligible_events,
+                "feature": features.detach().cpu().tolist(),
+            })
+            prior = arm.ledger.require(event["event_id"], fingerprint)
+            if prior is None:
+                target = torch.tensor([index], dtype=torch.long)
+                arm.optimizer.zero_grad(set_to_none=True)
+                logits = arm.module(features)
+                loss = F.cross_entropy(logits, target)
+                _require(bool(torch.isfinite(loss)), "training loss is nonfinite")
+                loss.backward()
+                gradient_norm = torch.sqrt(sum(
+                    (parameter.grad.detach() ** 2).sum()
+                    for _name, parameter in arm.module.trainable_parameters()
+                    if parameter.grad is not None))
+                gradient_norm_value = float(gradient_norm.detach().cpu())
+                _require(bool(torch.isfinite(gradient_norm)), "gradient is nonfinite")
+                torch.nn.utils.clip_grad_norm_(
+                    [parameter for _name, parameter in arm.module.trainable_parameters()],
+                    float(config["transaction"]["gradient_norm_max"]))
+                arm.optimizer.step()
+                arm.completed_updates += 1
+                arm.update_records.append({
+                    "step": arm.completed_updates - 1,
+                    "event_id": event["event_id"],
+                    "case_id": event["case_id"],
+                    "world_id": event["world_id"],
+                    "epoch": int(event["epoch"]),
+                    "clock_step": arm.clock.eligible_events,
+                    "loss": float(loss.detach().cpu()),
+                    "gradient_norm": gradient_norm_value,
+                    "gradient_finite": True,
+                    "state_after_sha256": arm.module.state_digest(),
+                })
+                outcome = TransactionOutcome(
+                    status="committed", event_id=event["event_id"],
+                    fingerprint=fingerprint, expert_id=0,
+                    revision=arm.completed_updates,
+                    eligible_events=arm.clock.eligible_events,
+                    steps=1, loss=float(loss.detach().cpu()))
+                arm.ledger.commit(event["event_id"], fingerprint, outcome)
+                arm.event_index += 1
+                if resume_path is not None:
+                    _save_resume(resume_path, arm, memory)
+                total = total_updates_before + arm.completed_updates
+                if interrupt_after is not None and total >= int(interrupt_after):
+                    if resume_path is not None:
+                        _save_resume(resume_path, arm, memory)
+                    raise RunInterrupted(total, resume_path or Path("<memory>"))
+                continue
+        arm.event_index += 1
+    return arm.completed_updates
+
+
+def _save_resume(path: Path, arm: Arm, memory: FixedRecordMemory) -> None:
+    payload = {
+        "format": RESUME_FORMAT,
+        "arm_id": arm.arm_id,
+        "arm": arm.snapshot(),
+        "memory_records": memory.snapshot_records(),
+    }
+    _save_torch_atomic(Path(path), payload)
+
+
+def _load_resume(path: Path) -> dict:
+    return torch.load(Path(path), map_location="cpu", weights_only=True)
+
+
+def _predict_split(arm_id: str, module: SelectedExpertReadout, *,
+                   split: str, events: Sequence[Mapping[str, Any]],
+                   cases: Sequence[Mapping[str, Any]],
+                   vocabulary: Sequence[str], update_digest: str) -> list[dict]:
+    memory = FixedRecordMemory()
+    by_id = {case["case_id"]: case for case in cases}
+    rows = []
+    module.eval()
+    with torch.no_grad():
+        clock = 0
+        for event in events:
+            clock += 1
+            if event["kind"] != "query":
+                memory.write(event)
+                continue
+            case = dict(by_id[event["case_id"]])
+            before_memory = memory.digest()
+            before_state = module.state_digest()
+            features, index, record = _features_for_event(
+                arm_id, event, case, memory, vocabulary)
+            logits = module(features)
+            predicted_index = int(logits.argmax(dim=-1).item())
+            _require(memory.digest() == before_memory,
+                     "query mutated the fixed memory snapshot")
+            _require(module.state_digest() == before_state,
+                     "query mutated the readout state")
+            rows.append({
+                "format": PREDICTION_FORMAT,
+                "protocol_id": "value_readout_abstention_v1",
+                "split": split,
+                "arm_id": arm_id,
+                "case_id": case["case_id"],
+                "event_id": event["event_id"],
+                "world_id": case["world_id"],
+                "epoch": int(case["epoch"]),
+                "case_type": case["case_type"],
+                "predicted_index": predicted_index,
+                "predicted_token": list(vocabulary)[predicted_index],
+                "model_state_sha256": before_state,
+                "memory_state_sha256": before_memory,
+                "clock_step": clock,
+            })
+    rows.sort(key=lambda row: row["case_id"])
+    return rows
+
+
+def _metrics_from_predictions(predictions: Sequence[Mapping[str, Any]],
+                              targets: Mapping[str, Mapping[str, Any]]) -> dict:
+    counts = {case_type: {"correct": 0, "total": 0} for case_type in (
+        "future_answer", "correction", "unaffected_retention",
+        "unknown_abstention", "wrong_world_abstention")}
+    stale_hits = 0
+    stale_total = 0
+    covered = set()
+    for row in predictions:
+        case_id = row["case_id"]
+        _require(case_id not in covered, f"duplicate prediction case {case_id}")
+        covered.add(case_id)
+        _require(case_id in targets, f"prediction has no authoritative target: {case_id}")
+        target = targets[case_id]
+        counts[target["case_type"]]["total"] += 1
+        if row["predicted_token"] == target["target"]:
+            counts[target["case_type"]]["correct"] += 1
+        if target["case_type"] == "correction":
+            stale_total += 1
+            if row["predicted_token"] == target.get("stale_value"):
+                stale_hits += 1
+    metrics = {}
+    for case_type, entry in counts.items():
+        metrics[f"{case_type}_accuracy"] = (
+            entry["correct"] / entry["total"] if entry["total"] else 0.0)
+    metrics["stale_value_rate"] = (stale_hits / stale_total if stale_total else 0.0)
+    return {
+        "per_case": {
+            "count": len(predictions),
+            "covered": len(covered),
+            "unique_ids": len(covered) == len(predictions),
+            "counts": counts,
+        },
+        "metrics": metrics,
+    }
+
+
+def _fit_targets(metadata: Mapping[str, Any]) -> dict:
+    targets = {}
+    for case in metadata["train"] + metadata["replay"]:
+        targets[case["case_id"]] = {
+            "case_type": case["case_type"],
+            "target": case["target"]["token"],
+            "stale_value": case.get("stale_value"),
+        }
+    return targets
+
+
+def _gates_from_metrics(config: Mapping[str, Any], group: str,
+                        metrics: Mapping[str, Any]) -> tuple[dict, bool]:
+    thresholds = dict(config["evaluation"][group]["thresholds"])
+    passed = True
+    for key, limit in thresholds.items():
+        name = key[:-4]
+        value = float(metrics[name])
+        if key.endswith("_min"):
+            passed = passed and value >= float(limit)
+        else:
+            passed = passed and value <= float(limit)
+    return thresholds, passed
+
+
+def _fresh_output(path: Path, *, resume: bool = False) -> Path:
+    path = Path(path)
+    if resume:
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+    if path.exists() and any(path.iterdir()):
+        raise ReadoutError(f"output path is not fresh: {path}")
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def _check_runtime_precheck(prepared: Path, config_path: Path) -> dict:
+    # The runner never parses evaluation labels during fit.  Import the contract
+    # lazily so this module remains usable without the scripts package.
+    import sys
+    scripts = Path(__file__).resolve().parents[2] / "scripts"
+    if str(scripts) not in sys.path:
+        sys.path.insert(0, str(scripts))
+    from value_readout_abstention_contract_v1 import runtime_precheck
+    return runtime_precheck(prepared, config_path)
+
+
+def run_fit(prepared: Path, config_path: Path, output: Path, *,
+            interrupt_after: int | None = None,
+            resume: bool = False) -> dict:
+    """Train the three independent 24-update arms and write fit evidence."""
+    prepared = Path(prepared)
+    config_path = Path(config_path)
+    runtime = _check_runtime_precheck(prepared, config_path)
+    context = _context(config_path, prepared)
+    metadata = _read_train_metadata(prepared, context.config)
+    vocabulary = list(context.config["architecture"]["answer_vocabulary"])
+    output = _fresh_output(Path(output), resume=resume or bool(
+        (Path(output) / "resume.pt").exists()))
+    resume_path = output / "resume.pt"
+    resume_payload = _load_resume(resume_path) if resume_path.exists() else None
+    arms = {arm_id: Arm(arm_id, context.config,
+                        int(context.config["transaction"]["seed"]))
+            for arm_id in TRAINED_ARMS}
+    total_updates = 0
+    if resume_payload is not None:
+        _require(resume_payload.get("format") == RESUME_FORMAT,
+                 "resume format differs")
+        arm_id = resume_payload["arm_id"]
+        _require(arm_id in arms, "resume arm differs")
+        arm = arms[arm_id]
+        arm.restore(resume_payload["arm"])
+        memory = FixedRecordMemory()
+        memory.restore_records(resume_payload["memory_records"])
+        arm._resume_memory = memory
+    for arm_id in TRAINED_ARMS:
+        arm = arms[arm_id]
+        remaining_before = total_updates
+        _train_arm(arm, metadata=metadata, vocabulary=vocabulary,
+                   config=context.config, resume_path=resume_path,
+                   interrupt_after=interrupt_after,
+                   total_updates_before=remaining_before)
+        total_updates = sum(len(other.update_records) for other in arms.values())
+    # Fit predictions are a fresh, no-update replay against the final treatment
+    # checkpoint.  Each arm gets its own no-update replay for control evidence.
+    fit_dir = output / "fit"
+    fit_dir.mkdir(parents=True, exist_ok=True)
+    targets = _fit_targets(metadata)
+    arm_reports = {}
+    prediction_rows = {}
+    for arm_id in TRAINED_ARMS:
+        arm = arms[arm_id]
+        rows = _predict_split(
+            arm_id, arm.module, split="fit", events=metadata["events"],
+            cases=list(metadata["cases"].values()), vocabulary=vocabulary,
+            update_digest=arm.module.state_digest())
+        prediction_rows[arm_id] = rows
+        metrics = _metrics_from_predictions(rows, targets)
+        thresholds, passed = _gates_from_metrics(
+            context.config, "fit", metrics["metrics"])
+        arm_reports[arm_id] = {
+            "arm_id": arm_id,
+            "phase": ("fit_treatment" if arm_id == TREATMENT_ARM
+                      else "control_fit"),
+            "fit_receipt_binding": arm_id == TREATMENT_ARM,
+            "optimizer_steps": arm.completed_updates,
+            "event_clock_steps": arm.clock.eligible_events,
+            "events_processed": len(metadata["events"]),
+            "parent_state_sha256": arm.parent_state_sha256,
+            "state_sha256": arm.module.state_digest(),
+            "model_state_sha256": arm.module.model_state_digest(),
+            "fixed_state_sha256": arm.module.fixed_state_digest(),
+            "optimizer_meta": _optimizer_meta(arm.module, arm.optimizer),
+            "update_records": deepcopy(arm.update_records),
+            "per_case": metrics["per_case"],
+            "metrics": metrics["metrics"],
+            "thresholds": thresholds,
+            "all_declared_gates_passed": bool(passed),
+            "predictions_sha256": sha256_json(rows),
+        }
+        if arm_id == TREATMENT_ARM:
+            _write_jsonl(fit_dir / "fit_predictions.jsonl", rows)
+        else:
+            _write_jsonl(fit_dir / f"control_{arm_id}_predictions.jsonl", rows)
+            _save_torch_atomic(
+                fit_dir / f"control_{arm_id}.pt",
+                arm.checkpoint_payload(
+                    config=context.config,
+                    config_sha256=context.config_sha256,
+                    prepared_manifest_sha256=context.manifest_sha256,
+                    events_processed=len(metadata["events"]),
+                    predictions_sha256=sha256_file(
+                        fit_dir / f"control_{arm_id}_predictions.jsonl")))
+    treatment = arms[TREATMENT_ARM]
+    checkpoint = treatment.checkpoint_payload(
+        config=context.config, config_sha256=context.config_sha256,
+        prepared_manifest_sha256=context.manifest_sha256,
+        events_processed=len(metadata["events"]),
+        predictions_sha256=sha256_file(fit_dir / "fit_predictions.jsonl"))
+    _save_torch_atomic(fit_dir / "checkpoint.pt", checkpoint)
+    fit_report = {
+        "format": FIT_REPORT_FORMAT,
+        "protocol_id": "value_readout_abstention_v1",
+        "mode": "fit",
+        "created_by": RUNNER_ENTRY_POINT,
+        "status": "passed" if arm_reports[TREATMENT_ARM][
+            "all_declared_gates_passed"] else "failed",
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "seed": int(context.config["transaction"]["seed"]),
+        "arm_id": TREATMENT_ARM,
+        "phase": "fit_treatment",
+        "optimizer": "NativeFusedAdamW",
+        "trainable_parameters": list(TRAINABLE_NAMES),
+        "losses": ["future_answer_readout", "correction_readout",
+                   "unknown_abstention_readout", "wrong_world_abstention_readout"],
+        "train_case_count": 15,
+        "replay_case_count": 12,
+        "completed_steps": treatment.completed_updates,
+        "event_clock_steps": treatment.clock.eligible_events,
+        "events_processed": len(metadata["events"]),
+        "parent_state_sha256": treatment.parent_state_sha256,
+        "resulting_state_sha256": treatment.module.state_digest(),
+        "model_state_sha256": treatment.module.model_state_digest(),
+        "fixed_state_sha256": treatment.module.fixed_state_digest(),
+        "optimizer_meta": _optimizer_meta(treatment.module, treatment.optimizer),
+        "update_records": deepcopy(treatment.update_records),
+        "per_case": arm_reports[TREATMENT_ARM]["per_case"],
+        "metrics": arm_reports[TREATMENT_ARM]["metrics"],
+        "thresholds": arm_reports[TREATMENT_ARM]["thresholds"],
+        "all_declared_gates_passed": arm_reports[TREATMENT_ARM][
+            "all_declared_gates_passed"],
+        "predictions_sha256": sha256_file(fit_dir / "fit_predictions.jsonl"),
+        "control_fits": [
+            {"arm_id": row["arm_id"], "phase": row["phase"],
+             "optimizer_steps": row["optimizer_steps"],
+             "checkpoint_sha256": sha256_file(
+                 fit_dir / f"control_{row['arm_id']}.pt"),
+             "fit_receipt_binding": False,
+             "predictions_sha256": row["predictions_sha256"]}
+            for row in arm_reports.values() if row["arm_id"] != TREATMENT_ARM
+        ],
+        "classification": {
+            "native_model": False,
+            "tokenizer": False,
+            "downloads": 0,
+            "device": "cpu",
+            "scope": "deterministic_software_integration",
+            "capability_claim": False,
+        },
+        "dataset_audit": runtime["dataset_audit"],
+        "label_access": {
+            "dev_parsed": False,
+            "heldout_parsed": False,
+            "opened_after_admission": False,
+        },
+        "model_evaluation": {
+            "performed": True,
+            "arm_ids": list(TRAINED_ARMS),
+            "kind": "preserved_fit_predictions",
+        },
+        "limitations": [
+            "This CPU runner is a deterministic software integration; its synthetic features carry the exact-address selected record and do not establish learned retrieval.",
+            "No open-ended generation, write-through meta-gradient, native model or general persistent learning is claimed.",
+            "Fit and control arms share one deterministic parent but own independent parameters, optimizers and clocks; only the treatment's 24 updates bind a fit receipt.",
+            "Exact context is an ungated quality/cost reference and is not required to be beaten.",
+        ],
+        "artifact_budget": {
+            "cap_bytes": context.config["budget"]["authorized_run_ceiling"][
+                "artifact_bytes_max"],
+            "old_cap_bytes": context.config["budget"]["authorized_run_ceiling"][
+                "artifact_budget"]["old_cap_bytes"],
+            "old_cap_underprovisioned": context.config["budget"][
+                "authorized_run_ceiling"]["artifact_budget"][
+                    "old_cap_underprovisioned"],
+            "resume_complete_checkpoints": context.config["budget"][
+                "authorized_run_ceiling"]["artifact_budget"][
+                    "resume_complete_checkpoints"],
+            "derivation": context.config["budget"]["authorized_run_ceiling"][
+                "artifact_budget"]["derivation"],
+            "enforcement": context.config["budget"]["authorized_run_ceiling"][
+                "artifact_budget"]["enforcement"],
+        },
+        "runtime_precheck": runtime,
+    }
+    _write_json_atomic(fit_dir / "fit_report.json", fit_report)
+    artifacts = {
+        "checkpoint_sha256": sha256_file(fit_dir / "checkpoint.pt"),
+        "fit_report_sha256": sha256_file(fit_dir / "fit_report.json"),
+        "fit_predictions_sha256": sha256_file(fit_dir / "fit_predictions.jsonl"),
+    }
+    from value_readout_abstention_contract_v1 import seal_receipt
+    receipt_body = {
+        "format": "replica.value_readout_abstention.fit_receipt.v1",
+        "protocol_id": "value_readout_abstention_v1",
+        "status": "passed" if fit_report["all_declared_gates_passed"] else "failed",
+        "mode": "fit",
+        "created_by": RUNNER_ENTRY_POINT,
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "seed": int(context.config["transaction"]["seed"]),
+        "optimizer": "NativeFusedAdamW",
+        "train_case_count": 15,
+        "replay_case_count": 12,
+        "optimizer_steps": treatment.completed_updates,
+        "losses": ["future_answer_readout", "correction_readout",
+                   "unknown_abstention_readout", "wrong_world_abstention_readout"],
+        "trainable_parameters": list(TRAINABLE_NAMES),
+        "earlier_write_gradient": False,
+        "heldout_opened": False,
+        "dev_labels_read": False,
+        "tuning_performed": False,
+        "artifacts": artifacts,
+        "fit_gates": {
+            "all_declared_gates_passed": fit_report[
+                "all_declared_gates_passed"],
+            "local_associative_loss_gate": False,
+            "metrics": fit_report["metrics"],
+            "thresholds": fit_report["thresholds"],
+        },
+    }
+    receipt = seal_receipt(receipt_body)
+    _write_json_atomic(output / "fit_receipt.json", receipt)
+    if resume_path.exists():
+        try:
+            resume_path.unlink()
+        except FileNotFoundError:
+            pass
+    budget = enforce_artifact_budget(output, context.config, context="fit")
+    return {"status": fit_report["status"], "output": str(output),
+            "fit_evidence": str(fit_dir), "receipt": receipt,
+            "fit_report": fit_report, "runtime_precheck": runtime,
+            "artifact_budget": budget}
+
+
+def _load_arm_from_checkpoint(arm_id: str, path: Path,
+                              config: Mapping[str, Any], seed: int) -> Arm:
+    payload = torch.load(Path(path), map_location="cpu", weights_only=True)
+    _require(payload["format"] == READOUT_CHECKPOINT_FORMAT,
+             "checkpoint format differs")
+    _require(payload["arm_id"] == arm_id, "checkpoint arm differs")
+    arm = Arm(arm_id, config, seed)
+    _require(int(payload["completed_steps"]) == 24,
+             "checkpoint is not a completed 24-step arm")
+    with torch.no_grad():
+        for name, tensor in payload["model_state"].items():
+            arm.module.model_state()[name].copy_(tensor)
+    _restore_optimizer(arm.module, arm.optimizer, payload["optimizer_state"])
+    arm.completed_updates = int(payload["completed_steps"])
+    arm.clock = TeachingClock(int(payload["event_clock_steps"]))
+    arm.update_records = deepcopy(list(payload["update_records"]))
+    _require(arm.module.state_digest() == payload["state_sha256"],
+             "restored checkpoint state differs")
+    return arm
+
+
+def _admit_fit_or_raise(fit_dir: Path, prepared: Path,
+                        config_path: Path) -> dict:
+    import sys
+    scripts = Path(__file__).resolve().parents[2] / "scripts"
+    if str(scripts) not in sys.path:
+        sys.path.insert(0, str(scripts))
+    from value_readout_abstention_contract_v1 import admit_fit_receipt, read_json
+    receipt = read_json(Path(fit_dir) / "fit_receipt.json")
+    return admit_fit_receipt(
+        receipt, prepared, config_path,
+        evidence_dir=Path(fit_dir) / "fit")
+
+
+def _read_eval_targets(split: str, vault, admission: Mapping[str, Any]) -> list[dict]:
+    # Labels are opened only through the vault after a validated admission.
+    return vault.open_evaluation(split, admission=admission)
+
+
+def run_development(prepared: Path, config_path: Path, fit_dir: Path,
+                    output: Path) -> dict:
+    prepared = Path(prepared)
+    fit_dir = Path(fit_dir)
+    context = _context(config_path, prepared)
+    admission = _admit_fit_or_raise(fit_dir, prepared, config_path)
+    from value_readout_abstention_contract_v1 import (
+        LabelVault, read_json, read_jsonl, seal_receipt, sha256_file)
+    vault = LabelVault(prepared, context.config)
+    labels = _read_eval_targets("dev", vault, admission)
+    targets = {label["case_id"]: {
+        "case_type": label["case_type"], "target": label["target"]["token"],
+        "stale_value": label.get("stale_value")} for label in labels}
+    split = _read_split_inputs(prepared, context.config, "dev")
+    checkpoint_path = fit_dir / "fit" / "checkpoint.pt"
+    arm = _load_arm_from_checkpoint(
+        TREATMENT_ARM, checkpoint_path, context.config,
+        int(context.config["transaction"]["seed"]))
+    rows = _predict_split(
+        TREATMENT_ARM, arm.module, split="dev", events=split["events"],
+        cases=split["cases"], vocabulary=list(
+            context.config["architecture"]["answer_vocabulary"]),
+        update_digest=arm.module.state_digest())
+    _require({row["case_id"] for row in rows} == set(targets),
+             "development prediction coverage differs")
+    metrics = _metrics_from_predictions(rows, targets)
+    thresholds, passed = _gates_from_metrics(context.config, "dev",
+                                             metrics["metrics"])
+    output = _fresh_output(output)
+    dev_dir = output / "dev"
+    dev_dir.mkdir(parents=True, exist_ok=True)
+    _write_jsonl(dev_dir / "dev_predictions.jsonl", rows)
+    fit_receipt = read_json(fit_dir / "fit_receipt.json")
+    report = {
+        "format": EVALUATION_REPORT_FORMAT,
+        "protocol_id": "value_readout_abstention_v1",
+        "split": "dev",
+        "mode": "dev-eval",
+        "created_by": RUNNER_ENTRY_POINT,
+        "status": "passed" if passed else "failed",
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "fit_receipt_sha256": fit_receipt["receipt_sha256"],
+        "checkpoint_sha256": sha256_file(checkpoint_path),
+        "model_state_sha256": arm.module.state_digest(),
+        "predictions_sha256": sha256_file(dev_dir / "dev_predictions.jsonl"),
+        "cases": len(rows),
+        "per_case": metrics["per_case"],
+        "metrics": metrics["metrics"],
+        "thresholds": thresholds,
+        "all_declared_gates_passed": bool(passed),
+        "optimizer_steps": 0,
+        "gradient": False,
+        "label_access": {"dev_parsed": True, "heldout_parsed": False,
+                         "after_fit_admission": True},
+        "dataset_audit": {"mode": "runtime_hash_precheck",
+                          "performed": True,
+                          "evaluation_labels_parsed": False},
+        "model_evaluation": {"performed": True,
+                             "arm_ids": [TREATMENT_ARM],
+                             "kind": "preserved_development_predictions"},
+        "classification": {"native_model": False, "tokenizer": False,
+                           "downloads": 0, "device": "cpu"},
+    }
+    _write_json_atomic(dev_dir / "dev_report.json", report)
+    body = {
+        "format": "replica.value_readout_abstention.development_receipt.v1",
+        "protocol_id": "value_readout_abstention_v1",
+        "status": "passed" if passed else "failed",
+        "mode": "dev-eval",
+        "created_by": RUNNER_ENTRY_POINT,
+        "attempt": 1,
+        "fit_receipt_sha256": fit_receipt["receipt_sha256"],
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "heldout_opened": False,
+        "tuning_performed": False,
+        "all_declared_gates_passed": bool(passed),
+        "dev_metrics": report["metrics"],
+        "artifacts": {
+            "predictions_sha256": sha256_file(dev_dir / "dev_predictions.jsonl"),
+            "report_sha256": sha256_file(dev_dir / "dev_report.json"),
+        },
+    }
+    receipt = seal_receipt(body)
+    _write_json_atomic(output / "dev_receipt.json", receipt)
+    budget = enforce_artifact_budget(output, context.config,
+                                     context="development")
+    return {"status": report["status"], "output": str(output),
+            "dev_evidence": str(dev_dir), "receipt": receipt,
+            "report": report, "fit_admission": admission,
+            "artifact_budget": budget}
+
+
+def run_heldout(prepared: Path, config_path: Path, fit_dir: Path,
+                dev_dir: Path, output: Path) -> dict:
+    prepared = Path(prepared)
+    fit_dir = Path(fit_dir)
+    dev_dir = Path(dev_dir)
+    context = _context(config_path, prepared)
+    from value_readout_abstention_contract_v1 import (
+        LabelVault, admit_development, read_json, read_jsonl, seal_receipt,
+        sha256_file)
+    fit_receipt = read_json(fit_dir / "fit_receipt.json")
+    dev_receipt = read_json(dev_dir / "dev_receipt.json")
+    admission = admit_development(
+        dev_receipt, fit_receipt=fit_receipt, prepared_dir=prepared,
+        config_path=config_path, evidence_dir=dev_dir / "dev",
+        fit_evidence_dir=fit_dir / "fit")
+    vault = LabelVault(prepared, context.config)
+    labels = vault.open_evaluation("heldout", admission=admission)
+    targets = {label["case_id"]: {
+        "case_type": label["case_type"], "target": label["target"]["token"],
+        "stale_value": label.get("stale_value")} for label in labels}
+    split = _read_split_inputs(prepared, context.config, "heldout")
+    checkpoint_path = fit_dir / "fit" / "checkpoint.pt"
+    arm = _load_arm_from_checkpoint(
+        TREATMENT_ARM, checkpoint_path, context.config,
+        int(context.config["transaction"]["seed"]))
+    rows = _predict_split(
+        TREATMENT_ARM, arm.module, split="heldout", events=split["events"],
+        cases=split["cases"], vocabulary=list(
+            context.config["architecture"]["answer_vocabulary"]),
+        update_digest=arm.module.state_digest())
+    _require({row["case_id"] for row in rows} == set(targets),
+             "heldout prediction coverage differs")
+    metrics = _metrics_from_predictions(rows, targets)
+    thresholds, passed = _gates_from_metrics(context.config, "dev",
+                                             metrics["metrics"])
+    output = _fresh_output(output)
+    heldout_dir = output / "heldout"
+    heldout_dir.mkdir(parents=True, exist_ok=True)
+    _write_jsonl(heldout_dir / "heldout_predictions.jsonl", rows)
+    report = {
+        "format": EVALUATION_REPORT_FORMAT,
+        "protocol_id": "value_readout_abstention_v1",
+        "split": "heldout",
+        "mode": "heldout-eval",
+        "created_by": RUNNER_ENTRY_POINT,
+        "status": "passed" if passed else "failed",
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "fit_receipt_sha256": fit_receipt["receipt_sha256"],
+        "dev_receipt_sha256": dev_receipt["receipt_sha256"],
+        "checkpoint_sha256": sha256_file(checkpoint_path),
+        "model_state_sha256": arm.module.state_digest(),
+        "predictions_sha256": sha256_file(
+            heldout_dir / "heldout_predictions.jsonl"),
+        "cases": len(rows),
+        "per_case": metrics["per_case"],
+        "metrics": metrics["metrics"],
+        "thresholds": thresholds,
+        "all_declared_gates_passed": bool(passed),
+        "optimizer_steps": 0,
+        "gradient": False,
+        "label_access": {"dev_parsed": False, "heldout_parsed": True,
+                         "after_development_admission": True},
+        "dataset_audit": {"mode": "runtime_hash_precheck",
+                          "performed": True,
+                          "evaluation_labels_parsed": False},
+        "model_evaluation": {"performed": True,
+                             "arm_ids": [TREATMENT_ARM],
+                             "kind": "preserved_heldout_predictions"},
+        "classification": {"native_model": False, "tokenizer": False,
+                           "downloads": 0, "device": "cpu"},
+    }
+    _write_json_atomic(heldout_dir / "heldout_report.json", report)
+    body = {
+        "format": "replica.value_readout_abstention.heldout_receipt.v1",
+        "protocol_id": "value_readout_abstention_v1",
+        "status": "passed" if passed else "failed",
+        "mode": "heldout-eval",
+        "created_by": RUNNER_ENTRY_POINT,
+        "attempt": 1,
+        "dev_receipt_sha256": dev_receipt["receipt_sha256"],
+        "config_sha256": context.config_sha256,
+        "prepared_manifest_sha256": context.manifest_sha256,
+        "tuning_performed": False,
+        "heldout_metrics": report["metrics"],
+        "artifacts": {
+            "predictions_sha256": sha256_file(
+                heldout_dir / "heldout_predictions.jsonl"),
+            "report_sha256": sha256_file(
+                heldout_dir / "heldout_report.json"),
+        },
+    }
+    receipt = seal_receipt(body)
+    _write_json_atomic(output / "heldout_receipt.json", receipt)
+    budget = enforce_artifact_budget(output, context.config, context="heldout")
+    return {"status": report["status"], "output": str(output),
+            "heldout_evidence": str(heldout_dir), "receipt": receipt,
+            "report": report, "development_admission": admission,
+            "artifact_budget": budget}
+
+
+def run_controls(prepared: Path, config_path: Path, fit_dir: Path,
+                 output: Path, *, split: str = "dev",
+                 dev_dir: Path | None = None) -> dict:
+    prepared = Path(prepared)
+    fit_dir = Path(fit_dir)
+    context = _context(config_path, prepared)
+    from value_readout_abstention_contract_v1 import (
+        LabelVault, admit_development, read_json, seal_receipt, sha256_file)
+    if split == "heldout":
+        _require(dev_dir is not None,
+                 "held-out controls require a development evidence directory")
+        fit_receipt = read_json(fit_dir / "fit_receipt.json")
+        dev_receipt = read_json(Path(dev_dir) / "dev_receipt.json")
+        admission = admit_development(
+            dev_receipt, fit_receipt=fit_receipt, prepared_dir=prepared,
+            config_path=config_path, evidence_dir=Path(dev_dir) / "dev",
+            fit_evidence_dir=fit_dir / "fit")
+    else:
+        admission = _admit_fit_or_raise(fit_dir, prepared, config_path)
+    vault = LabelVault(prepared, context.config)
+    labels = vault.open_evaluation(split, admission=admission)
+    targets = {label["case_id"]: {
+        "case_type": label["case_type"], "target": label["target"]["token"],
+        "stale_value": label.get("stale_value")} for label in labels}
+    split_inputs = _read_split_inputs(prepared, context.config, split)
+    vocabulary = list(context.config["architecture"]["answer_vocabulary"])
+    checkpoint_path = fit_dir / "fit" / "checkpoint.pt"
+    treatment = _load_arm_from_checkpoint(
+        TREATMENT_ARM, checkpoint_path, context.config,
+        int(context.config["transaction"]["seed"]))
+    arms = {TREATMENT_ARM: treatment}
+    for arm_id in ("shuffled_values", "wrong_world_values"):
+        arms[arm_id] = _load_arm_from_checkpoint(
+            arm_id, fit_dir / "fit" / f"control_{arm_id}.pt",
+            context.config, int(context.config["transaction"]["seed"]))
+    predictions = {}
+    for arm_id, arm in arms.items():
+        predictions[arm_id] = _predict_split(
+            arm_id, arm.module, split=split, events=split_inputs["events"],
+            cases=split_inputs["cases"], vocabulary=vocabulary,
+            update_digest=arm.module.state_digest())
+    # Non-neural deterministic views.
+    memory = FixedRecordMemory()
+    disabled = []
+    reset = []
+    literal = []
+    exact = []
+    for event in split_inputs["events"]:
+        if event["kind"] != "query":
+            memory.write(event)
+            continue
+        case = split_inputs["cases_by_id"][event["case_id"]]
+        record = memory.resolve(event["address"], event["world_id"],
+                                int(event["epoch"]))
+        base_index = (0 if record is None else vocabulary.index(record["value"]))
+        token = vocabulary[base_index]
+        row_base = {
+            "format": PREDICTION_FORMAT,
+            "protocol_id": "value_readout_abstention_v1",
+            "split": split,
+            "case_id": case["case_id"],
+            "event_id": event["event_id"],
+            "world_id": case["world_id"],
+            "epoch": int(case["epoch"]),
+            "case_type": case["case_type"],
+            "predicted_index": base_index,
+            "predicted_token": token,
+            "model_state_sha256": "0" * 64,
+            "memory_state_sha256": memory.digest(),
+            "clock_step": event["clock_step"],
+            "context_tokens": (len(str(case["query_text"]).split())
+                               + 2 * len(memory.visible_records())),
+        }
+        for arm_id, bucket in (("memory_disabled", disabled),
+                               ("memory_reset", reset),
+                               ("selected_record_literal_readout", literal),
+                               ("exact_context", exact)):
+            row = dict(row_base)
+            row["arm_id"] = arm_id
+            if arm_id in ("memory_disabled", "memory_reset"):
+                row["predicted_index"] = 0
+                row["predicted_token"] = "UNKNOWN"
+            bucket.append(row)
+    for arm_id, rows in (("memory_disabled", disabled),
+                         ("memory_reset", reset),
+                         ("selected_record_literal_readout", literal),
+                         ("exact_context", exact)):
+        predictions[arm_id] = sorted(rows, key=lambda row: row["case_id"])
+    results = {}
+    for arm_id in ARM_IDS:
+        rows = predictions[arm_id]
+        metrics = _metrics_from_predictions(rows, targets)
+        non_abstain = sum(1 for row in rows
+                          if row["predicted_token"] != "UNKNOWN") / len(rows)
+        correct = sum(entry["correct"]
+                      for entry in metrics["per_case"]["counts"].values())
+        entry = {
+            "arm_id": arm_id,
+            "cases": len(rows),
+            "per_case": metrics["per_case"],
+            "metrics": metrics["metrics"],
+            "case_accuracy": correct / len(rows),
+            "non_abstain_rate": non_abstain,
+            "predictions_sha256": sha256_json(rows),
+        }
+        if arm_id == "exact_context":
+            entry["quality_metric"] = "case_accuracy"
+            entry["quality"] = entry["case_accuracy"]
+            entry["cost_metric"] = "context_tokens_per_query"
+            entry["context_tokens_per_query"] = sum(
+                row["context_tokens"] for row in rows) / len(rows)
+        if arm_id == "selected_record_literal_readout":
+            entry["diagnostic_only"] = True
+        if arm_id in ("memory_disabled", "memory_reset"):
+            entry["gate"] = "must_abstain_all"
+            entry["gate_passed"] = non_abstain == 0.0
+        if arm_id in ("shuffled_values", "wrong_world_values"):
+            entry["gate"] = "must_not_pass_primary_gates"
+            entry["max_any_case_accuracy"] = max(
+                metrics["metrics"][key] for key in metrics["metrics"]
+                if key.endswith("_accuracy"))
+            entry["gate_passed"] = entry["max_any_case_accuracy"] <= 0.5
+        results[arm_id] = entry
+    output = _fresh_output(output)
+    controls_dir = output / "controls"
+    controls_dir.mkdir(parents=True, exist_ok=True)
+    _write_jsonl(controls_dir / f"{split}_control_predictions.jsonl",
+                 [row for arm_id in ARM_IDS for row in predictions[arm_id]])
+    report = {
+        "format": CONTROL_REPORT_FORMAT,
+        "protocol_id": "value_readout_abstention_v1",
+        "split": split,
+        "fit_receipt_sha256": read_json(fit_dir / "fit_receipt.json")[
+            "receipt_sha256"],
+        "fit_admission_sha256": admission["fit_receipt_sha256"],
+        "arms": results,
+        "distinct_arms": len(results) == 7,
+        "treatment_required_to_beat_reference": False,
+        "dataset_audit": {"mode": "runtime_hash_precheck",
+                          "performed": True,
+                          "evaluation_labels_parsed": False},
+        "label_access": {"split": split, "opened": True,
+                         "after_fit_admission": True},
+        "model_evaluation": {"performed": True, "arm_ids": list(ARM_IDS),
+                             "kind": "preserved_control_predictions"},
+        "classification": {"native_model": False, "tokenizer": False,
+                           "downloads": 0, "device": "cpu"},
+    }
+    _write_json_atomic(controls_dir / f"{split}_control_report.json", report,
+                       sort_keys=False)
+    budget = enforce_artifact_budget(output, context.config,
+                                     context=f"controls_{split}")
+    return {"status": "passed" if all(
+        arm.get("gate_passed", True) for arm in results.values()) else "failed",
+        "output": str(output), "report": report, "admission": admission,
+        "artifact_budget": budget}

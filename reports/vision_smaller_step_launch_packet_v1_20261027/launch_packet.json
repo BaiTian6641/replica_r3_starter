@@ -1,0 +1,831 @@
+{
+  "authorization": {
+    "closed_roles": {
+      "development": false,
+      "heldout": false,
+      "promotion": false,
+      "retry": false,
+      "semantic_audit": false,
+      "v0": false
+    },
+    "commit_binding_required": true,
+    "commit_bound": false,
+    "config_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "config_sha256_binding_required": true,
+    "created": false,
+    "format": "replica.vision_smaller_step.authorization.v1",
+    "minted_by_packet": false,
+    "native_execution_authorized": false,
+    "path": "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json",
+    "present_at_build": false,
+    "protocol_commit": null,
+    "protocol_commit_required": true,
+    "required": true,
+    "schema": {
+      "additionalProperties": false,
+      "properties": {
+        "config_sha256": {
+          "const": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad"
+        },
+        "dev_authorized": {
+          "const": false
+        },
+        "format": {
+          "const": "replica.vision_smaller_step.authorization.v1"
+        },
+        "heldout_authorized": {
+          "const": false
+        },
+        "issued_at_utc": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "native_execution_authorized": {
+          "const": true
+        },
+        "promotion_authorized": {
+          "const": false
+        },
+        "protocol_commit": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        },
+        "protocol_name": {
+          "const": "vision_smaller_step_lr3e5_v1"
+        },
+        "protocol_path": {
+          "const": "configs/vision_smaller_step_lr3e5_v1.json"
+        },
+        "retry_authorized": {
+          "const": false
+        },
+        "semantic_audit_authorized": {
+          "const": false
+        },
+        "status": {
+          "const": "authorized"
+        },
+        "v0_authorized": {
+          "const": false
+        }
+      },
+      "required": [
+        "format",
+        "status",
+        "protocol_name",
+        "protocol_path",
+        "protocol_commit",
+        "config_sha256",
+        "native_execution_authorized",
+        "dev_authorized",
+        "heldout_authorized",
+        "v0_authorized",
+        "semantic_audit_authorized",
+        "promotion_authorized",
+        "retry_authorized",
+        "issued_at_utc"
+      ],
+      "type": "object"
+    },
+    "separate_from_packet": true,
+    "status": "absent",
+    "verification": "scripts/vision_smaller_step_v1.py review-launch and run validate this receipt, the commit-bound config bytes and the fresh output before any native import or model load"
+  },
+  "authorization_created": false,
+  "deterministic": true,
+  "format": "replica.vision_smaller_step.launch_packet.v1",
+  "gates": {
+    "decision": {
+      "development_authorized_here": false,
+      "development_eligibility": "functional_fit_gate_passed_only",
+      "heldout_authorized": false,
+      "promotion": false,
+      "requires_all_gates": true,
+      "retry_authorized": false,
+      "v0_authorized": false
+    },
+    "decoder_forward_accounting": {
+      "campaign_cumulative": 4824,
+      "declared_expected_measured_work": 4804,
+      "limit": 4824,
+      "note": "The enforceable cap and campaign cumulative are 4824 decoder forwards. The config's separate expected_measured_work field records 4804 and is not the limit."
+    },
+    "expected_measured_work": {
+      "backward_calls": 4,
+      "decoder_forward_calls": 4804,
+      "explicit_logits_forwards": 400,
+      "generated_tokens": 3800,
+      "generation_decode_calls": 3604,
+      "generation_prefill_calls": 196,
+      "optimizer_steps": 1,
+      "prepare_sense_passes": 596,
+      "projector_passes": 4824,
+      "readout_stages": 5,
+      "update_batch_evaluations": 2,
+      "updates": 1,
+      "visual_encoder_cache_misses_max": 168,
+      "visual_encoder_calls_max": 168,
+      "visual_forward_calls": 4824,
+      "visual_observation_calls": 168,
+      "wider_readouts": 2
+    },
+    "functional_fit": {
+      "answer_correct_accuracy_min": 0.07142857142857142,
+      "answer_correct_denominator": 14,
+      "answer_correct_metric": "exact normalized generated answer match; EOS-only and whitespace-only outputs are never correct",
+      "answer_correct_min": 1,
+      "answer_prefill_gold_accuracy_min": 0.07142857142857142,
+      "answer_prefill_gold_min": 1,
+      "caption_quality_metric": "caption token F1 gain and caption semantic descriptor F1 on generated captions",
+      "caption_semantic_f1_min": 0.05,
+      "caption_token_f1_gain_min": 0.1,
+      "correct_vs_noimage_accuracy_margin_min": 0.05,
+      "correct_vs_shuffled_accuracy_margin_min": 0.05,
+      "correct_vs_sibling_accuracy_margin_min": 0.05,
+      "development_on_fail": "closed",
+      "development_on_pass": "requires_new_predeclared_protocol",
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "eos_only_rate_max": 0.5,
+      "evaluated_on": "prefix_1 wider training cohort with prefix_0 reference and matched correct/sibling/shuffled/no-image controls",
+      "rank_or_loss_movement_is_not_conversion": true,
+      "status_on_fail": "smaller_step_functional_fit_failed",
+      "whitespace_only_not_counted_correct": true,
+      "whitespace_only_rate_max": 0.1
+    },
+    "image_controls": [
+      "correct",
+      "sibling",
+      "shuffled",
+      "noimage"
+    ],
+    "optimization": {
+      "backbone_gradient_tensors": 0,
+      "backward_calls": 4,
+      "delta_definition": "post_minus_pre",
+      "evaluated_on": [
+        "update_batch_pre",
+        "update_batch_post",
+        "prefix_0",
+        "prefix_1"
+      ],
+      "finite_grad_norm": true,
+      "finite_losses": true,
+      "loss_movement_is_not_conversion": true,
+      "max_update_batch_mean_nll_delta": 0.25,
+      "max_wider_answer_mean_nll_delta": 0.25,
+      "max_wider_caption_mean_nll_delta": 0.25,
+      "optimizer_owned_tensors": 6,
+      "optimizer_steps": 1,
+      "projector_tensors_only_changed": true,
+      "status_on_fail": "optimization_gate_failed",
+      "update_count": 1
+    },
+    "raw_generation_evidence": {
+      "controls_required": [
+        "correct",
+        "sibling",
+        "shuffled",
+        "noimage"
+      ],
+      "empty_text_policy": "separate_eos_only_from_whitespace_only",
+      "eos_only_not_counted_correct": true,
+      "expected_generated_tokens": 3800,
+      "generation_roles": [
+        "answer",
+        "caption"
+      ],
+      "max_new_tokens_by_kind": {
+        "answer": 8,
+        "caption": 32
+      },
+      "output_root": "runs/vision_smaller_step_lr3e5_v1_20261027",
+      "per_readout": [
+        {
+          "answer_generations": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/train_answer_generations.jsonl",
+          "available": 98,
+          "caption_generations": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/train_caption_generations.jsonl",
+          "controls": [
+            "correct",
+            "sibling",
+            "shuffled",
+            "noimage"
+          ],
+          "label": "prefix_0",
+          "logical_scoring_cells": 98,
+          "logical_scoring_operations": 294,
+          "placeholders": 6,
+          "readout": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/readout.json",
+          "records": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_0/records.jsonl",
+          "records_expected": 104
+        },
+        {
+          "answer_generations": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/train_answer_generations.jsonl",
+          "available": 98,
+          "caption_generations": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/train_caption_generations.jsonl",
+          "controls": [
+            "correct",
+            "sibling",
+            "shuffled",
+            "noimage"
+          ],
+          "label": "prefix_1",
+          "logical_scoring_cells": 98,
+          "logical_scoring_operations": 294,
+          "placeholders": 6,
+          "readout": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/readout.json",
+          "records": "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/prefix_1/records.jsonl",
+          "records_expected": 104
+        }
+      ],
+      "raw_generation_required": true,
+      "readouts": [
+        "prefix_0",
+        "prefix_1"
+      ],
+      "required": true,
+      "update_batch_generation": false,
+      "update_batch_records": [
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/update_batch_pre/records.jsonl",
+        "runs/vision_smaller_step_lr3e5_v1_20261027/readouts/update_batch_post/records.jsonl"
+      ],
+      "whitespace_only_not_counted_correct": true
+    }
+  },
+  "implementation": {
+    "config": {
+      "bytes": 25241,
+      "path": "configs/vision_smaller_step_lr3e5_v1.json",
+      "sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad"
+    },
+    "contract_test": {
+      "bytes": 25149,
+      "path": "tests/test_vision_smaller_step_v1.py",
+      "sha256": "1c63cf429007455d354d048bd2d3d738ed972beedff0d3b162e72284fd3c4408"
+    },
+    "packet_builder": {
+      "bytes": 48784,
+      "path": "scripts/build_vision_smaller_step_launch_packet_v1.py",
+      "sha256": "af12fee9c83e0c392449464e25af06d9766437240988e6391c00734b54267b2f"
+    },
+    "packet_test": {
+      "bytes": 20664,
+      "path": "tests/test_vision_smaller_step_launch_packet_v1.py",
+      "sha256": "42eb3b6fcf2fed756420192efe18be4ffb8ccf7fce5c825a54c8fa51b11cc03e"
+    },
+    "pins": {
+      "scripts/run_vision_learnability_curve_v2.py": {
+        "bytes": 41820,
+        "declared_sha256": "43948066342a704db1514b05c5791479374e40e440af21f97060985808e77a79",
+        "path": "scripts/run_vision_learnability_curve_v2.py",
+        "sha256": "43948066342a704db1514b05c5791479374e40e440af21f97060985808e77a79",
+        "verified": true
+      },
+      "src/replica_lab/vision_balanced_alignment.py": {
+        "bytes": 172855,
+        "declared_sha256": "531dede551fe90d6f394bd3c9dac06eabb65475d3c5f599e15889e0adfa0bf00",
+        "path": "src/replica_lab/vision_balanced_alignment.py",
+        "sha256": "531dede551fe90d6f394bd3c9dac06eabb65475d3c5f599e15889e0adfa0bf00",
+        "verified": true
+      },
+      "src/replica_lab/vision_curriculum.py": {
+        "bytes": 264178,
+        "declared_sha256": "6a6f708ef5e644f70bb28253f977b01133ef30f7ea0a2728e01ec6941054e386",
+        "path": "src/replica_lab/vision_curriculum.py",
+        "sha256": "6a6f708ef5e644f70bb28253f977b01133ef30f7ea0a2728e01ec6941054e386",
+        "verified": true
+      },
+      "src/replica_lab/vision_forward_accounting.py": {
+        "bytes": 43411,
+        "declared_sha256": "b85fff6436ebbdbbcb36566051e4a284a82a0eee8d1bdd5354ed66e355df455a",
+        "path": "src/replica_lab/vision_forward_accounting.py",
+        "sha256": "b85fff6436ebbdbbcb36566051e4a284a82a0eee8d1bdd5354ed66e355df455a",
+        "verified": true
+      },
+      "src/replica_lab/vision_learnability_curve.py": {
+        "bytes": 56786,
+        "declared_sha256": "124676cead4b14c4c055dc4befa40f19b3712a151066262826262bb2aa367751",
+        "path": "src/replica_lab/vision_learnability_curve.py",
+        "sha256": "124676cead4b14c4c055dc4befa40f19b3712a151066262826262bb2aa367751",
+        "verified": true
+      },
+      "src/replica_lab/vision_learnability_curve_v2.py": {
+        "bytes": 82936,
+        "declared_sha256": "afda84c044cfb95f4df48f52a0f720e395fe6f4cbee12d004fe16e428126c466",
+        "path": "src/replica_lab/vision_learnability_curve_v2.py",
+        "sha256": "afda84c044cfb95f4df48f52a0f720e395fe6f4cbee12d004fe16e428126c466",
+        "verified": true
+      },
+      "src/replica_lab/vision_learnability_diagnostic.py": {
+        "bytes": 115632,
+        "declared_sha256": "459ed73379f5b45d16f75f9d471838d71c67a3b0a431a329851e8b69342bf6f1",
+        "path": "src/replica_lab/vision_learnability_diagnostic.py",
+        "sha256": "459ed73379f5b45d16f75f9d471838d71c67a3b0a431a329851e8b69342bf6f1",
+        "verified": true
+      }
+    },
+    "runner": {
+      "bytes": 113582,
+      "path": "scripts/vision_smaller_step_v1.py",
+      "sha256": "1942da8d1dde53b7fcc5e4084a41724408869351a55a10da7c00599511e886f7"
+    }
+  },
+  "kind": "preparation_only_launch_evidence",
+  "launch": {
+    "argv": [
+      "python",
+      "scripts/vision_smaller_step_v1.py",
+      "run",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "--output",
+      "runs/vision_smaller_step_lr3e5_v1_20261027",
+      "--model-path",
+      "checkpoints/minicpm5_source",
+      "--model-lock",
+      "configs/minicpm5_sealed_lock.local.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+    ],
+    "authorization_before_native_imports": true,
+    "authorization_path": "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json",
+    "cwd": ".",
+    "environment": {
+      "HF_DATASETS_OFFLINE": "1",
+      "HF_HUB_OFFLINE": "1",
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "TRANSFORMERS_OFFLINE": "1"
+    },
+    "environment_override_policy": "forced before native imports; caller values are replaced",
+    "fresh_output": {
+      "checked_before_model_load": true,
+      "must_not_exist": true,
+      "path": "runs/vision_smaller_step_lr3e5_v1_20261027"
+    },
+    "model_loads_before_authorization": 0,
+    "mps_cpu_fallback_disabled": true,
+    "native_imports_before_authorization": 0,
+    "offline_required": true,
+    "preflight_command": [
+      "python",
+      "scripts/vision_smaller_step_v1.py",
+      "review-launch",
+      "--config",
+      "configs/vision_smaller_step_lr3e5_v1.json",
+      "--authorization",
+      "reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+    ],
+    "shell": "HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_DATASETS_OFFLINE=1 PYTORCH_ENABLE_MPS_FALLBACK=0 python scripts/vision_smaller_step_v1.py run --config configs/vision_smaller_step_lr3e5_v1.json --output runs/vision_smaller_step_lr3e5_v1_20261027 --model-path checkpoints/minicpm5_source --model-lock configs/minicpm5_sealed_lock.local.json --authorization reports/vision_smaller_step_lr3e5_v1_20261027/authorization.json"
+  },
+  "limitations": [
+    "Preparation only: no native command, model load, backward call, optimizer step or generation has been executed by this packet.",
+    "The authorization receipt is absent and the protocol commit is unbound, so the launch is refused before native loading.",
+    "Numeric losses, gate outcomes, wall time and artifact bytes are unobserved; 4824 forwards, 168 observations, 4 backward calls, 1 optimizer step, 1200 seconds and 33554432 bytes are declarations with exact equality checks, not measurements.",
+    "Native memory-guard behavior, fused AdamW availability on this MPS host and the seed-29 initialization hash remain unverified.",
+    "Generated-answer correctness, caption quality, EOS-only and whitespace-only accounting, and image-control separation remain unverified until raw generations exist.",
+    "A passing optimization gate is only absence of the declared loss excursion; it is not generated-answer conversion or perceptual learning.",
+    "Development, held-out, semantic-audit, V0, promotion and retry access remain closed regardless of this packet or any result.",
+    "This packet is evidence and review material, never an authorization receipt or a promotion decision."
+  ],
+  "limits": {
+    "artifact_bytes": 33554432,
+    "artifact_includes_final_report": true,
+    "backward_calls": 4,
+    "cpu_fallback": false,
+    "decoder_forward_calls": 4824,
+    "downloads": 0,
+    "model_loads": 1,
+    "optimizer_steps": 1,
+    "retries": 0,
+    "visual_observation_calls": 168,
+    "wall_seconds": 1200,
+    "workers": 1
+  },
+  "lineage": {
+    "evidence": {
+      "completed_arm": {
+        "anchor_policy": "Completed-arm values are comparison evidence and historical anchors, not pass/fail gates. The smaller-step gates are declared independently below.",
+        "files": {
+          "config": {
+            "bytes": 16639,
+            "declared_sha256": "4aa95a61dca94e8b69d6b31eb24e2c8e6287d2b306b77faffeb186efb86d259a",
+            "path": "configs/vision_learnability_step1_reproduction_v1.json",
+            "sha256": "4aa95a61dca94e8b69d6b31eb24e2c8e6287d2b306b77faffeb186efb86d259a",
+            "verified": true
+          },
+          "prefix_0_records": {
+            "bytes": 71640,
+            "declared_sha256": "92842f2098bd777c610792f69861434a3e817a568ad853eb85e54da0d1bee950",
+            "path": "reports/remediation_20261027/step1_attempt03/readouts/prefix_0/records.jsonl",
+            "sha256": "92842f2098bd777c610792f69861434a3e817a568ad853eb85e54da0d1bee950",
+            "verified": true
+          },
+          "prefix_1_records": {
+            "bytes": 72005,
+            "declared_sha256": "8e861290744422292c36491488ab1bfceb5c561c885f3befa59a538e916eaf47",
+            "path": "reports/remediation_20261027/step1_attempt03/readouts/prefix_1/records.jsonl",
+            "sha256": "8e861290744422292c36491488ab1bfceb5c561c885f3befa59a538e916eaf47",
+            "verified": true
+          },
+          "report": {
+            "bytes": 88307,
+            "declared_sha256": "4a6a79a77ffaf3800cc6a625974489d475a23c28627805ce77edec7550554100",
+            "path": "reports/remediation_20261027/step1_attempt03/report.json",
+            "sha256": "4a6a79a77ffaf3800cc6a625974489d475a23c28627805ce77edec7550554100",
+            "verified": true
+          },
+          "training_trace": {
+            "bytes": 4836,
+            "declared_sha256": "e9cf35094c178acf2282b32d313d71d425e3af04bbe18316dc8059022dd1c894",
+            "path": "reports/remediation_20261027/step1_attempt03/training_trace.jsonl",
+            "sha256": "e9cf35094c178acf2282b32d313d71d425e3af04bbe18316dc8059022dd1c894",
+            "verified": true
+          }
+        },
+        "values": {
+          "answer_correct_cases": 0,
+          "answer_correct_denominator": 14,
+          "answer_prefill_gold_cases": 0,
+          "caption_semantic_f1": 0.0,
+          "delta_post_minus_pre": 1.5954477787017822,
+          "lr": 0.0003,
+          "post_mean_response_nll": 12.560267925262451,
+          "post_mean_response_nll_rounded": 12.5603,
+          "post_source": "derived from the preserved prefix_1 correct-control records for the four completed update rows; not a new native run",
+          "pre_mean_response_nll": 10.964820146560669
+        },
+        "values_are_comparison_anchors_not_gates": true
+      },
+      "completed_update_batch": {
+        "answer_correct_cases": 0,
+        "answer_correct_denominator": 14,
+        "caption_semantic_f1": 0.0,
+        "case_ids": [
+          "vba2-w013-p0-a",
+          "vba2-w025-p0-a",
+          "vba2-w000-p0-a",
+          "vba2-w036-p0-b"
+        ],
+        "delta_post_minus_pre": 1.5954477787017822,
+        "example_ids": [
+          "caption:vba2-w013-p0-a",
+          "caption:vba2-w025-p0-a",
+          "answer:vba2-w000-p0-a",
+          "answer:vba2-w036-p0-b"
+        ],
+        "post_mean_response_nll": 12.560267925262451,
+        "post_source": "derived from the preserved prefix_1 correct-control records for the four completed update rows; not a new native run",
+        "pre_mean_response_nll": 10.964820146560669
+      }
+    },
+    "initialization": {
+      "expected_init_sha256": "511ba5c7648851424649962467972f0e926303d64873dfce08ecd3de299314b9",
+      "forbidden_parent_weights_sha256": [
+        "bdc367424b2afcb2e88dba04b6b29495e3a440b5d850f8ae5bc55dbfa428c3a4"
+      ],
+      "init_seed": 29,
+      "parameter_count": 11542016,
+      "projector_tensors": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.weight",
+        "vision_projector.1.bias",
+        "vision_projector.3.weight",
+        "vision_projector.3.bias"
+      ],
+      "recipe": "fresh_seeded_normal_std0.02",
+      "verification": "pending_native_initialization_hash_assertion",
+      "warm_start": null
+    },
+    "parent": {
+      "downloads": 0,
+      "model_lock": {
+        "bytes": 1448,
+        "declared_sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+        "path": "configs/minicpm5_sealed_lock.local.json",
+        "sha256": "26dea74b4c543bb000c64ac7509171a399beee611ca0f7b70ebd941da64af792",
+        "verified": true
+      },
+      "model_path": "checkpoints/minicpm5_source",
+      "model_path_present": true,
+      "model_revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+      "note": "The sealed parent is never loaded by this packet builder.",
+      "parent_weights_hashed_here": false,
+      "sealed_parent": true,
+      "vision_source_manifest": {
+        "bytes": 5734,
+        "declared_sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+        "path": "checkpoints/siglip2_base_patch16_224_source/source_manifest.json",
+        "sha256": "8b2351f7b29f2bd7d881405dd978ae714a26c0170b7213d133a9e0059a199024",
+        "verified": true
+      }
+    },
+    "precondition": {
+      "config": "configs/vision_mean_only_ablation_v1.json",
+      "config_sha256": "eb0aca1d860162803235d85f96a2dbdc289f0d49b8e10263ba9807392fac19a1",
+      "note": "The future native run refuses to load a model unless the preserved ablation report records the observed decision and the declared zero-gradient/no-sealed-access stop conditions.",
+      "observed_decision": "spatial_contribution_observed",
+      "observed_mode": "ablation",
+      "report": {
+        "bytes": 3651210,
+        "path": "runs/vision_mean_only_ablation_v1_20261026_attempt09/report.json",
+        "sha256": "c91a1cb703ab7f8048181e17e64f29c761cc7556dc759172bc2fc8f90cea7386"
+      },
+      "required_decision": "spatial_contribution_observed",
+      "required_mode": "ablation",
+      "run": "runs/vision_mean_only_ablation_v1_20261026_attempt09",
+      "satisfied": true,
+      "validation": {
+        "config_sha256": "eb0aca1d860162803235d85f96a2dbdc289f0d49b8e10263ba9807392fac19a1",
+        "decision": "spatial_contribution_observed",
+        "format": "replica.vision_learnability_diagnostic.precondition.v1",
+        "ok": true,
+        "required_decision": "spatial_contribution_observed",
+        "required_mode": "ablation",
+        "scope": "the gradient diagnostic is refused unless this preserved ablation receipt records spatial_contribution_observed",
+        "source_run": "runs/vision_mean_only_ablation_v1_20261026_attempt09",
+        "violations": []
+      }
+    },
+    "prepared": {
+      "answer_examples": 14,
+      "answer_pairs": 5,
+      "caption_examples": 12,
+      "caption_pair_ids": 7,
+      "files": {
+        "manifest": {
+          "bytes": 41618,
+          "declared_sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227",
+          "path": "data/vision_balanced_alignment_v2_20261026/prepared04/manifest.json",
+          "sha256": "12f43b081e147a0c678e2137a321b709eb528099411b46b913735198563e0227",
+          "verified": true
+        },
+        "protocol": {
+          "bytes": 31616,
+          "declared_sha256": "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77",
+          "path": "data/vision_balanced_alignment_v2_20261026/prepared04/protocol.json",
+          "sha256": "3bf636f00dce4e73168eb5f4b2c2454560276b32dfb1122b91d58ffcd44c2d77",
+          "verified": true
+        },
+        "training": {
+          "bytes": 12582,
+          "declared_sha256": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+          "path": "data/vision_balanced_alignment_v2_20261026/prepared04/training/alignment.jsonl",
+          "sha256": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
+          "verified": true
+        }
+      },
+      "forbidden_access": [
+        "evaluation/",
+        "dev",
+        "heldout",
+        "semantic_audit"
+      ],
+      "read_only_training": true,
+      "root": "data/vision_balanced_alignment_v2_20261026/prepared04",
+      "training_examples": 26
+    },
+    "schedule": {
+      "answer_per_update": 2,
+      "batch_size": 4,
+      "caption_labels": {
+        "bytes": 4516,
+        "declared_sha256": "84788b08bd6c3a66f9c241e18db73ca8828c8dd15b62aad83e8d3bdf235b1954",
+        "path": "data/vision_balanced_alignment_v2_20261026/prepared04/training/train_caption_labels.jsonl",
+        "sha256": "84788b08bd6c3a66f9c241e18db73ca8828c8dd15b62aad83e8d3bdf235b1954",
+        "verified": true
+      },
+      "caption_per_update": 2,
+      "completed_batch_reused": true,
+      "expected_answer_rows": 14,
+      "expected_caption_rows": 12,
+      "expected_repeated_rows": 2,
+      "sequence": [
+        "prefix_0",
+        "update_batch_pre",
+        "update_1",
+        "update_batch_post",
+        "prefix_1"
+      ],
+      "slots": 4,
+      "smallest_full_coverage_prefix": false,
+      "source": {
+        "bytes": 4287,
+        "declared_sha256": "08484a4dbc000488c94c54510fad655c06251598a87294837e24d80cad09433a",
+        "path": "data/vision_balanced_alignment_v2_20261026/prepared04/training/batches.jsonl",
+        "sha256": "08484a4dbc000488c94c54510fad655c06251598a87294837e24d80cad09433a",
+        "verified": true
+      },
+      "unique_rows": 26,
+      "update_index": 1,
+      "updates_planned": 1
+    },
+    "update_batch": {
+      "case_ids": [
+        "vba2-w013-p0-a",
+        "vba2-w025-p0-a",
+        "vba2-w000-p0-a",
+        "vba2-w036-p0-b"
+      ],
+      "completed_batch_reused": true,
+      "completed_delta_post_minus_pre": 1.5954477787017822,
+      "completed_post_mean_response_nll": 12.560267925262451,
+      "completed_pre_mean_response_nll": 10.964820146560669,
+      "evaluation_controls": [
+        "correct"
+      ],
+      "evaluation_records": 4,
+      "evaluation_scope": "teacher_forced_loss_only",
+      "example_ids": [
+        "caption:vba2-w013-p0-a",
+        "caption:vba2-w025-p0-a",
+        "answer:vba2-w000-p0-a",
+        "answer:vba2-w036-p0-b"
+      ],
+      "loss_metric": "mean_response_nll",
+      "post_evaluation_label": "update_batch_post",
+      "pre_evaluation_label": "update_batch_pre",
+      "roles": {
+        "answer": 2,
+        "caption": 2
+      },
+      "rows": 4,
+      "separate_from_wider_cohort": true,
+      "source": "training/batches.jsonl",
+      "update_index": 1
+    }
+  },
+  "model_loads": 0,
+  "native_execution": false,
+  "packet_sha256": "3c6408ac62533f266c7460f75669dad4d82d43ca67a5a54f976c3f0b16ebc586",
+  "preflight": [
+    {
+      "id": "protocol_contract",
+      "requirement": "declared protocol validates exactly on CPU",
+      "status": "passed"
+    },
+    {
+      "id": "config_sha256",
+      "requirement": "packet binds the exact config bytes",
+      "status": "passed"
+    },
+    {
+      "id": "implementation_pins",
+      "requirement": "runner, tests, builder and reused modules match their declared hashes",
+      "status": "passed"
+    },
+    {
+      "id": "evidence_lineage",
+      "requirement": "completed arm and update-batch evidence hashes match",
+      "status": "passed"
+    },
+    {
+      "id": "prepared_inputs",
+      "requirement": "prepared protocol, manifest, training and schedule hashes match",
+      "status": "passed"
+    },
+    {
+      "id": "precondition_decision",
+      "requirement": "preserved ablation report records spatial_contribution_observed",
+      "status": "passed"
+    },
+    {
+      "id": "single_variable_scope",
+      "requirement": "only optimizer.lr changes, 3e-05 versus 3e-04",
+      "status": "passed"
+    },
+    {
+      "id": "limits_exact",
+      "requirement": "4824 decoder forwards, 168 visual observations, 4 backward calls, 1 optimizer step, 1200 seconds, 33554432 artifact bytes including the report",
+      "status": "passed"
+    },
+    {
+      "id": "gates_declared",
+      "requirement": "optimization and functional gates are declared and decision access remains closed",
+      "status": "passed"
+    },
+    {
+      "id": "protocol_commit",
+      "requirement": "a 40-character commit containing the exact config bytes must be recorded in the receipt",
+      "status": "pending"
+    },
+    {
+      "id": "authorization_receipt",
+      "requirement": "a separate external receipt must authorize native execution; the packet never creates one",
+      "status": "pending"
+    },
+    {
+      "id": "fresh_output",
+      "requirement": "the output path must not exist at launch",
+      "status": "pending"
+    },
+    {
+      "id": "native_execution",
+      "requirement": "no model load, backward call, optimizer step or native command is run during packet preparation",
+      "status": "not_performed"
+    },
+    {
+      "id": "native_environment",
+      "requirement": "offline hub/datasets/transformers and disabled MPS CPU fallback are forced before native imports",
+      "status": "declared"
+    }
+  ],
+  "protocol": {
+    "completed_lr": 0.0003,
+    "config_bytes": 25241,
+    "config_path": "configs/vision_smaller_step_lr3e5_v1.json",
+    "config_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+    "declared_at_utc": "2026-10-27T00:00:00+00:00",
+    "development_authorized": false,
+    "hypothesis_scope": "smaller_step_only",
+    "lr": 3e-05,
+    "mode": "smaller_step",
+    "name": "vision_smaller_step_lr3e5_v1",
+    "native_execution_authorized": false,
+    "single_discriminating_change": "optimizer lr only: 3e-05 versus completed 3e-04",
+    "version": "replica.vision_smaller_step.v1"
+  },
+  "scope": {
+    "gradient_scope": {
+      "answer_rows": 2,
+      "backbone_gradient_tensors_allowed": 0,
+      "backward_calls": 4,
+      "caption_rows": 2,
+      "changed_tensors_must_be_subset_of_trainable": true,
+      "clip_grad_norm": 1.0,
+      "frozen_components": [
+        "sealed MiniCPM5 parent",
+        "frozen SigLIP2 vision encoder"
+      ],
+      "gradient_accumulation": 1,
+      "nonprojector_gradient_names_allowed": [],
+      "optimizer_owned_parameters": 6,
+      "optimizer_param_groups": 1,
+      "optimizer_steps": 1,
+      "trainable_parameter_count": 11542016,
+      "trainable_tensors": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.weight",
+        "vision_projector.1.bias",
+        "vision_projector.3.weight",
+        "vision_projector.3.bias"
+      ],
+      "update_rows": 4
+    },
+    "optimizer": {
+      "betas": [
+        0.9,
+        0.999
+      ],
+      "eps": 1e-08,
+      "grad_accum": 1,
+      "lr": 3e-05,
+      "max_grad_norm": 1.0,
+      "name": "adamw_fused",
+      "optimizer_class": "torch.optim.AdamW",
+      "weight_decay": 0.01,
+      "wrapper": "NativeFusedAdamW"
+    },
+    "preserved": {
+      "completed_reproduction_repeated": false,
+      "gradient_scope_unchanged": true,
+      "optimizer_wrapper": "NativeFusedAdamW",
+      "parent": "checkpoints/minicpm5_source",
+      "projector_tensors": [
+        "vision_projector.0.weight",
+        "vision_projector.0.bias",
+        "vision_projector.1.weight",
+        "vision_projector.1.bias",
+        "vision_projector.3.weight",
+        "vision_projector.3.bias"
+      ],
+      "response_only_labels": true,
+      "seed": 29,
+      "update_batch_example_ids": [
+        "caption:vba2-w013-p0-a",
+        "caption:vba2-w025-p0-a",
+        "answer:vba2-w000-p0-a",
+        "answer:vba2-w036-p0-b"
+      ]
+    },
+    "single_variable": {
+      "arm": 3e-05,
+      "changed": "optimizer.lr",
+      "completed": 0.0003,
+      "statement": "optimizer lr only: 3e-05 versus completed 3e-04"
+    }
+  },
+  "unverified_native_steps": [
+    "Commit the protocol config (and this packet) and record the resulting full 40-character commit SHA in the separate authorization receipt.",
+    "Issue the external authorization receipt bound to the exact config SHA-256 and commit; this builder never mints one.",
+    "Run review-launch: commit binding, receipt fields and the fresh output path must pass before any native import.",
+    "Acquire the exclusive MPS worker and prove the capacity guard: 50 GiB driver, 512 MiB sustained swap growth, 15% host free, no CPU fallback.",
+    "Load the sealed MiniCPM5 parent once and frozen SigLIP2, then verify the seed-29 projector initialization hash natively.",
+    "Perform exactly 4 backward calls and 1 NativeFusedAdamW optimizer step at lr 3e-05, proving only the six projector tensors change.",
+    "Collect prefix_0, update_batch_pre, update_1, update_batch_post and prefix_1 evidence, including raw answer/caption generations and correct/sibling/shuffled/no-image controls.",
+    "Measure decoder forwards, visual observations, backward calls, optimizer steps, wall seconds and artifact bytes including the final report against the declared caps.",
+    "Evaluate the optimization and functional-fit gates; no outcome authorizes development, held-out, semantic-audit, V0, promotion or retry."
+  ],
+  "version": "1"
+}

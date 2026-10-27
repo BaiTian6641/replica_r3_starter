@@ -1305,12 +1305,44 @@ def _write_json_file(path: Path, value) -> Path:
     return path
 
 
+class FixtureTokenizer:
+    """Deterministic reversible stand-in for the sealed fast tokenizer.
+
+    Fit evidence must decode to the text that was scored, so these CPU fixtures
+    need reversible IDs.  The real pinned tokenizer is exercised separately by
+    the artifact-gated integration test.
+    """
+
+    BASE = 1000
+    VOCAB_SIZE = 200_000
+
+    def __len__(self) -> int:
+        return self.VOCAB_SIZE
+
+    def encode(self, text: str) -> list[int]:
+        return [self.BASE + ord(character) for character in text]
+
+    def decode(self, ids, *, skip_special_tokens=True,
+               clean_up_tokenization_spaces=False) -> str:
+        stops = set(runner_module().STOP_TOKENS)
+        values = [int(value) for value in ids]
+        if skip_special_tokens:
+            values = [value for value in values if value not in stops]
+        return "".join(chr(value - self.BASE) for value in values)
+
+
+FIXTURE_TOKENIZER = FixtureTokenizer()
+
+
 def _protocol_lock() -> dict:
-    return {"snapshot_files_sha256": {
-        "model.safetensors": "a" * 64,
-        "tokenizer.json": "b" * 64,
-        "chat_template.jinja": "c" * 64,
-    }}
+    return {"repo_id": "openbmb/MiniCPM5-2B",
+            "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+            "config_sha256": "d" * 64,
+            "snapshot_files_sha256": {
+                "model.safetensors": "a" * 64,
+                "tokenizer.json": "b" * 64,
+                "chat_template.jinja": "c" * 64,
+            }}
 
 
 def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
@@ -1399,12 +1431,14 @@ def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
              "updates_enabled": False}
     results = []
     for index, row in enumerate(rows):
+        content = FIXTURE_TOKENIZER.encode(row["expected_response"])
         record = {"id": row["id"], "label": "fit",
                   "expected": row["expected_response"],
                   "prompt_sha256": row["prompt_sha256"],
                   "scoring_version": module.SCORING_VERSION,
                   "answer_grammar_version": module.ANSWER_GRAMMAR_VERSION,
-                  "generated_ids": [1], "content_ids": [],
+                  "decode_policy_version": module.DECODE_POLICY_VERSION,
+                  "generated_ids": [*content, 1], "content_ids": list(content),
                   "stop_reason": "stop_token", "stop_token": 1,
                   "max_new_tokens": 24, "truncated": False}
         if index < failing_attempts:
@@ -1415,7 +1449,8 @@ def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
                            "truncated": None,
                            "error": "RuntimeError: dropped request"})
         else:
-            record.update({"output": row["expected_response"],
+            assert FIXTURE_TOKENIZER.decode(content) == row["expected_response"]
+            record.update({"output": FIXTURE_TOKENIZER.decode(content),
                            "correct": True, "reason": "correct",
                            "request_audit": dict(audit)})
         results.append(record)
@@ -1438,6 +1473,7 @@ def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
         "config_sha256": module._sha256_file(config_path),
         "stop_policy_version": module.STOP_POLICY_VERSION,
         "answer_grammar_version": module.ANSWER_GRAMMAR_VERSION,
+        "decode_policy_version": module.DECODE_POLICY_VERSION,
     }
     gate_path = _write_json_file(tmp_path / "gates" / "fit.json", gate)
     receipt = module.build_fit_receipt(
@@ -1445,12 +1481,13 @@ def fit_bundle(tmp_path: Path, *, failing_attempts: int = 0):
         manifest_path=manifest_path, episodes_root=episodes,
         state_path=state_path, state=state, protocol=protocol,
         teach_dir=teach, teach_expected_updates=FIT_UPDATES,
-        fit_gate_path=gate_path)
+        fit_gate_path=gate_path, lock=lock, tokenizer=FIXTURE_TOKENIZER)
     receipt_path = _write_json_file(tmp_path / "fit_receipt.json", receipt)
     return SimpleNamespace(
         module=module, config=config, config_path=config_path,
         manifest=manifest, manifest_path=manifest_path, episodes=episodes,
         lock=lock, lock_path=lock_path, protocol=protocol,
+        tokenizer=FIXTURE_TOKENIZER,
         state_path=state_path, state=state, teach=teach, gate=gate,
         gate_path=gate_path, receipt=receipt, receipt_path=receipt_path,
         rows=rows)
@@ -1463,7 +1500,8 @@ def validate_bundle(bundle, receipt=None, *, state="default", state_path=None):
         manifest=bundle.manifest, manifest_path=bundle.manifest_path,
         episodes_root=bundle.episodes,
         state_path=state_path or bundle.state_path, lock=bundle.lock,
-        state=bundle.state if state == "default" else state)
+        state=bundle.state if state == "default" else state,
+        tokenizer=bundle.tokenizer)
 
 
 def resealed(bundle, mutate) -> dict:
@@ -1482,7 +1520,8 @@ def _rebuild_with_gate(bundle, mutate):
         manifest=bundle.manifest, manifest_path=bundle.manifest_path,
         episodes_root=bundle.episodes, state_path=bundle.state_path,
         state=bundle.state, protocol=bundle.protocol, teach_dir=bundle.teach,
-        teach_expected_updates=FIT_UPDATES, fit_gate_path=gate_path)
+        teach_expected_updates=FIT_UPDATES, fit_gate_path=gate_path,
+        lock=bundle.lock, tokenizer=bundle.tokenizer)
 
 
 def _receipt_for_gate(bundle, mutate) -> dict:
@@ -1510,7 +1549,7 @@ def test_fit_receipt_round_trip_binds_every_admission_field(tmp_path):
     receipt = module.load_fit_receipt(bundle.receipt_path)
     assert receipt == bundle.receipt
     assert receipt["format"] == "replica.nested_text.fit_receipt.v1"
-    assert receipt["schema_version"] == 1
+    assert receipt["schema_version"] == 2
     assert receipt["status"] == "passed"
     assert set(receipt) == module.FIT_RECEIPT_KEYS
     assert receipt["receipt_sha256"] == module.seal_fit_receipt(
@@ -1532,6 +1571,19 @@ def test_fit_receipt_round_trip_binds_every_admission_field(tmp_path):
     assert receipt["attempts"]["all_declared_gates_passed"] is True
     assert receipt["gate_report"]["all_declared_gates_passed"] is True
     assert receipt["heldout_opened"] is False
+    assert receipt["tokenizer"] == module.tokenizer_binding(bundle.lock)
+    assert receipt["tokenizer"]["revision"] == (
+        receipt["protocol"]["theta"]["revision"])
+    assert receipt["tokenizer"]["tokenizer_files_digest"] == (
+        receipt["protocol"]["tokenizer_sha256"])
+    assert receipt["tokenizer"]["decoding"] == module.decode_policy()
+    assert receipt["tokenizer"]["decoding"]["version"] == (
+        module.DECODE_POLICY_VERSION)
+    assert receipt["tokenizer"]["decoding"]["skip_special_tokens"] is True
+    assert receipt["tokenizer"]["decoding"][
+        "clean_up_tokenization_spaces"] is False
+    assert receipt["tokenizer"]["decoding"]["stop_handling"] == (
+        "terminal_stop_token_excluded_before_decode")
     assert receipt["scoring"]["scoring_version"] == module.SCORING_VERSION
     assert receipt["scoring"]["answer_grammar_version"] == (
         module.ANSWER_GRAMMAR_VERSION)
@@ -1590,6 +1642,30 @@ def test_fit_receipt_round_trip_binds_every_admission_field(tmp_path):
      _set(("episodes", "role_files_digest"), "0" * 64), "file digests"),
     ("manifest world",
      _set(("episodes", "primary_world"), "world_beta"), "world pair"),
+    ("tokenizer revision",
+     _set(("tokenizer", "revision"), "0" * 40), "tokenizer"),
+    ("tokenizer lock",
+     _set(("tokenizer", "lock_sha256"), "0" * 64), "tokenizer"),
+    ("tokenizer config",
+     _set(("tokenizer", "config_sha256"), "0" * 64), "tokenizer identity"),
+    ("tokenizer files",
+     _set(("tokenizer", "tokenizer_files_digest"), "0" * 64),
+     "tokenizer identity"),
+    ("tokenizer file digest",
+     _set(("tokenizer", "tokenizer_files_sha256", "tokenizer.json"),
+          "0" * 64), "tokenizer identity"),
+    ("decode skip specials",
+     _set(("tokenizer", "decoding", "skip_special_tokens"), False),
+     "tokenizer identity"),
+    ("decode cleanup",
+     _set(("tokenizer", "decoding", "clean_up_tokenization_spaces"), True),
+     "tokenizer identity"),
+    ("decode stop handling",
+     _set(("tokenizer", "decoding", "stop_handling"), "post_decode"),
+     "tokenizer identity"),
+    ("decode version",
+     _set(("tokenizer", "decoding", "version"), "other"),
+     "tokenizer identity"),
 ])
 def test_fit_receipt_rejects_state_config_protocol_and_manifest_drift(
         tmp_path, label, mutate, message):
@@ -1663,10 +1739,12 @@ def test_fit_receipt_rejects_low_accuracy_despite_upstream_pass_flag(tmp_path):
 
     def mutate(gate):
         results = gate["scores"]["results"]
+        wrong = FIXTURE_TOKENIZER.encode("nothing relevant")
         for item in results[1:]:
-            item["output"] = "nothing relevant"
-            item["correct"] = False
-            item["reason"] = "missing_answer"
+            item.update({"output": "nothing relevant", "correct": False,
+                         "reason": "missing_answer",
+                         "generated_ids": [*wrong, 1],
+                         "content_ids": list(wrong)})
         gate["scores"]["correct"] = 1
         gate["scores"]["accuracy"] = 1 / len(results)
         gate["fit_accuracy"] = 1 / len(results)
@@ -1680,11 +1758,16 @@ def test_fit_receipt_rejects_low_accuracy_despite_upstream_pass_flag(tmp_path):
 
 def test_fit_receipt_rejects_incorrect_text_marked_correct(tmp_path):
     bundle = fit_bundle(tmp_path)
+    wrong = FIXTURE_TOKENIZER.encode("Unrelated sentence.")
+
+    def mutate(gate):
+        item = gate["scores"]["results"][-1]
+        item.update({"output": "Unrelated sentence.",
+                     "generated_ids": [*wrong, 1],
+                     "content_ids": list(wrong)})
+
     with pytest.raises(bundle.module.RunnerError, match="contradicts"):
-        _rebuild_with_gate(
-            bundle,
-            lambda gate: gate["scores"]["results"][-1].__setitem__(
-                "output", "Unrelated sentence."))
+        _rebuild_with_gate(bundle, mutate)
 
 
 @pytest.mark.parametrize("mutate", [
@@ -1706,8 +1789,15 @@ def test_fit_receipt_validate_rejects_resealed_stale_gate_evidence(tmp_path):
         bundle, lambda gate: gate.pop("answer_grammar_version"))
     with pytest.raises(bundle.module.RunnerError, match="grammar"):
         validate_bundle(bundle, receipt, state=None)
-    forged = _receipt_for_gate(bundle, lambda gate: gate["scores"][
-        "results"][-1].__setitem__("output", "Unrelated sentence."))
+    wrong = FIXTURE_TOKENIZER.encode("Unrelated sentence.")
+
+    def forge(gate):
+        item = gate["scores"]["results"][-1]
+        item.update({"output": "Unrelated sentence.",
+                     "generated_ids": [*wrong, 1],
+                     "content_ids": list(wrong)})
+
+    forged = _receipt_for_gate(bundle, forge)
     with pytest.raises(bundle.module.RunnerError, match="contradicts"):
         validate_bundle(bundle, forged, state=None)
 
@@ -1720,7 +1810,7 @@ def test_fit_receipt_validate_rejects_resealed_stale_gate_evidence(tmp_path):
     ("content prefix", lambda r: r.__setitem__("content_ids", [9]), "content"),
     ("budget stop", lambda r: r.update(
         {"stop_reason": "token_budget", "stop_token": None,
-         "content_ids": [1]}), "token-budget"),
+         "generated_ids": list(r["content_ids"])}), "token-budget"),
     ("budget value", lambda r: r.__setitem__("max_new_tokens", 8),
      "generation budget"),
     ("empty ids", lambda r: r.__setitem__("generated_ids", []),
@@ -1728,9 +1818,15 @@ def test_fit_receipt_validate_rejects_resealed_stale_gate_evidence(tmp_path):
     ("missing stop token", lambda r: r.pop("stop_token"), "stop token"),
     ("sentence stop", lambda r: r.update(
         {"stop_reason": "sentence_complete", "stop_token": None,
-         "content_ids": [1]}), "sentence"),
+         "generated_ids": list(r["content_ids"])}), "sentence"),
     ("missing generated", lambda r: r.pop("generated_ids"),
      "generated_ids"),
+    ("out-of-vocabulary id",
+     lambda r: r["content_ids"].__setitem__(0, 1_000_000),
+     "out-of-vocabulary"),
+    ("decode policy",
+     lambda r: r.__setitem__("decode_policy_version", "stale"),
+     "decoded under another policy"),
 ])
 def test_fit_receipt_rejects_inconsistent_generation_stop_evidence(
         tmp_path, label, mutate, message):
@@ -1739,6 +1835,51 @@ def test_fit_receipt_rejects_inconsistent_generation_stop_evidence(
         _rebuild_with_gate(
             bundle,
             lambda gate: mutate(gate["scores"]["results"][0]))
+
+
+def test_fit_receipt_rejects_eos_only_generation_with_correct_text(tmp_path):
+    """The original false pass: [EOS] must never carry nonempty scored text."""
+    bundle = fit_bundle(tmp_path)
+
+    def mutate(gate):
+        for item in gate["scores"]["results"]:
+            item.update({"generated_ids": [1], "content_ids": []})
+
+    with pytest.raises(bundle.module.RunnerError, match="no content IDs"):
+        _rebuild_with_gate(bundle, mutate)
+    receipt = _receipt_for_gate(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError, match="no content IDs"):
+        validate_bundle(bundle, receipt, state=None)
+
+
+def test_fit_receipt_rejects_ids_that_do_not_decode_to_saved_text(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    decoded = FIXTURE_TOKENIZER.encode("Unrelated sentence.")
+
+    def mutate(gate):
+        item = gate["scores"]["results"][0]
+        item.update({"generated_ids": [*decoded, 1],
+                     "content_ids": list(decoded)})
+
+    with pytest.raises(bundle.module.RunnerError,
+                       match="decoded IDs contradict"):
+        _rebuild_with_gate(bundle, mutate)
+    forged = _receipt_for_gate(bundle, mutate)
+    with pytest.raises(bundle.module.RunnerError,
+                       match="decoded IDs contradict"):
+        validate_bundle(bundle, forged, state=None)
+
+
+def test_fit_receipt_rejects_nonempty_ids_with_empty_saved_text(tmp_path):
+    bundle = fit_bundle(tmp_path)
+
+    def mutate(gate):
+        item = gate["scores"]["results"][0]
+        item.update({"output": "", "correct": False, "reason": "empty"})
+
+    with pytest.raises(bundle.module.RunnerError,
+                       match="decoded IDs contradict"):
+        _rebuild_with_gate(bundle, mutate)
 
 
 @pytest.mark.parametrize("label, mutate", [
@@ -1753,6 +1894,19 @@ def test_fit_receipt_rejects_incomplete_or_duplicated_gate_cases(
     bundle = fit_bundle(tmp_path)
     with pytest.raises(bundle.module.RunnerError, match="coverage"):
         _rebuild_with_gate(bundle, mutate)
+
+
+def test_fit_receipt_rejects_gate_report_without_decode_policy(tmp_path):
+    bundle = fit_bundle(tmp_path)
+    receipt = _receipt_for_gate(
+        bundle, lambda gate: gate.pop("decode_policy_version"))
+    with pytest.raises(bundle.module.RunnerError, match="decoder"):
+        validate_bundle(bundle, receipt, state=None)
+    stale = _receipt_for_gate(
+        bundle,
+        lambda gate: gate.__setitem__("decode_policy_version", "stale"))
+    with pytest.raises(bundle.module.RunnerError, match="decoder"):
+        validate_bundle(bundle, stale, state=None)
 
 
 def test_fit_receipt_validate_rejects_resealed_bad_stop_evidence(tmp_path):
@@ -1770,10 +1924,12 @@ def test_fit_receipt_validate_rejects_resealed_low_accuracy_gate(tmp_path):
 
     def mutate(gate):
         results = gate["scores"]["results"]
+        wrong = FIXTURE_TOKENIZER.encode("nothing relevant")
         for item in results[1:]:
-            item["output"] = "nothing relevant"
-            item["correct"] = False
-            item["reason"] = "missing_answer"
+            item.update({"output": "nothing relevant", "correct": False,
+                         "reason": "missing_answer",
+                         "generated_ids": [*wrong, 1],
+                         "content_ids": list(wrong)})
         gate["fit_accuracy"] = 1 / len(results)
         gate["all_declared_gates_passed"] = True
         gate["gate_failures"] = []
@@ -1822,7 +1978,7 @@ def test_fit_receipt_rejects_incomplete_or_duplicate_case_coverage(
      "attempt accounting"),
     ("heldout", _set(("heldout_opened",), True), "heldout"),
     ("mode", _set(("mode",), "teach"), "mode differs"),
-    ("schema", _set(("schema_version",), 2), "schema version"),
+    ("schema", _set(("schema_version",), 1), "schema version"),
     ("extra", _set(("extra",), 1), "declared schema"),
 ])
 def test_fit_receipt_rejects_failed_gate_and_attempt_mismatch(
@@ -1996,6 +2152,8 @@ def test_behavioral_p_only_rejects_invalid_fit_evidence_before_native_load(
     monkeypatch.setattr(module.torch, "load", forbidden("torch.load"))
     monkeypatch.setattr(module, "exclusive_mps_worker", forbidden("worker"))
     monkeypatch.setattr(module, "load_local_mps", forbidden("model"))
+    monkeypatch.setattr(module, "load_pinned_tokenizer",
+                        forbidden("tokenizer"))
     monkeypatch.setattr(module.TextAccessOrder, "access",
                         forbidden("development-access"))
     monkeypatch.setattr(module.TextAccessOrder, "advance",
@@ -2046,11 +2204,17 @@ def test_behavioral_p_only_accepts_the_bound_receipt_before_native_load(tmp_path
     calls: list[str] = []
 
     def stop_at_load(*args, **kwargs):
+        assert calls == ["tokenizer"]
         assert module.ROLE_ACCESS.admission == (
             f"fit_receipt:{bundle.receipt['receipt_sha256']}")
         calls.append("torch.load")
         raise AssertionError("admission reached torch.load")
 
+    def offline_tokenizer(*args, **kwargs):
+        calls.append("tokenizer")
+        return FIXTURE_TOKENIZER
+
+    monkeypatch.setattr(module, "load_pinned_tokenizer", offline_tokenizer)
     monkeypatch.setattr(module.torch, "load", stop_at_load)
     monkeypatch.setattr(module, "exclusive_mps_worker",
                         lambda *a, **k: (_ for _ in ()).throw(
@@ -2067,6 +2231,95 @@ def test_behavioral_p_only_accepts_the_bound_receipt_before_native_load(tmp_path
     try:
         with pytest.raises(AssertionError, match="admission reached torch.load"):
             module.run_p_only_v2(args, bundle.config)
-        assert calls == ["torch.load"]
+        assert calls == ["tokenizer", "torch.load"]
     finally:
         module.reset_role_access()
+
+
+# ---------------------------------------------------------------------------
+# Pinned tokenizer: offline byte seal and real-artifact decode integration
+# ---------------------------------------------------------------------------
+
+
+def test_pinned_tokenizer_load_rejects_unsealed_or_missing_bytes(tmp_path):
+    module = runner_module()
+    root = tmp_path / "model"
+    root.mkdir()
+    (root / "tokenizer.json").write_text("{}\n")
+    lock = {"repo_id": "openbmb/MiniCPM5-2B",
+            "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+            "config_sha256": "d" * 64,
+            "snapshot_files_sha256": {"tokenizer.json": "b" * 64}}
+    with pytest.raises(module.RunnerError,
+                       match="differs from the model lock"):
+        module.load_pinned_tokenizer(root, lock)
+    sealed = copy.deepcopy(lock)
+    sealed["snapshot_files_sha256"] = {
+        "tokenizer.json": module._sha256_file(root / "tokenizer.json"),
+        "chat_template.jinja": "c" * 64,
+    }
+    with pytest.raises(module.RunnerError, match="artifact is missing"):
+        module.load_pinned_tokenizer(root, sealed)
+
+
+PINNED_LOCK_PATH = ROOT / "configs" / "minicpm5_sealed_lock.local.json"
+PINNED_SNAPSHOT = ROOT / "checkpoints" / "minicpm5_source"
+
+
+def pinned_tokenizer_available() -> bool:
+    """The sealed lock and every tokenizer file must be present and unmodified."""
+    if not PINNED_LOCK_PATH.is_file():
+        return False
+    try:
+        module = runner_module()
+        lock = json.loads(PINNED_LOCK_PATH.read_text(encoding="utf-8"))
+        files = module.tokenizer_binding(lock)["tokenizer_files_sha256"]
+    except Exception:
+        return False
+    return all((PINNED_SNAPSHOT / name).is_file()
+               and module._sha256_file(PINNED_SNAPSHOT / name) == digest
+               for name, digest in files.items())
+
+
+@pytest.mark.skipif(not pinned_tokenizer_available(),
+                    reason="the pinned MiniCPM5 tokenizer artifact is unavailable")
+def test_pinned_tokenizer_decodes_preserved_fit_evidence_offline():
+    """Preserved fit IDs are re-decoded with the sealed artifact, never the model."""
+    pytest.importorskip("transformers")
+    module = runner_module()
+    lock = json.loads(PINNED_LOCK_PATH.read_text(encoding="utf-8"))
+    tokenizer = module.load_pinned_tokenizer(PINNED_SNAPSHOT, lock)
+    binding = module.tokenizer_binding(lock)
+    assert binding["format"] == "replica.nested_text.tokenizer_binding.v1"
+    assert binding["decoding"] == module.decode_policy()
+    assert binding["tokenizer_files_digest"] == module._tokenizer_digest(lock)
+    assert binding["revision"] == lock["revision"]
+    content = tokenizer("Tevufa", add_special_tokens=False)["input_ids"]
+    assert module.decode_content(tokenizer, content) == "Tevufa"
+    assert module.decode_content(tokenizer, []) == ""
+    assert module.decode_content(tokenizer, [1]) == ""
+    case = {"id": "fit-1", "expected": "Tevufa",
+            "prompt_sha256": "p" * 64, "response_sha256": "r" * 64}
+    item = {"id": "fit-1", "label": "fit", "expected": "Tevufa",
+            "prompt_sha256": "p" * 64,
+            "scoring_version": module.SCORING_VERSION,
+            "answer_grammar_version": module.ANSWER_GRAMMAR_VERSION,
+            "decode_policy_version": module.DECODE_POLICY_VERSION,
+            "output": "Tevufa", "generated_ids": [*content, 1],
+            "content_ids": list(content), "stop_reason": "stop_token",
+            "stop_token": 1, "max_new_tokens": 24, "truncated": False,
+            "correct": True, "reason": "correct"}
+    stops = frozenset(module.STOP_TOKENS)
+    result = module._recompute_fit_attempt(
+        item, case, candidates=(), max_new_tokens=24,
+        stop_tokens=stops, tokenizer=tokenizer)
+    assert result["correct"] is True and result["failed"] is False
+    with pytest.raises(module.RunnerError, match="no content IDs"):
+        module._recompute_fit_attempt(
+            {**item, "generated_ids": [1], "content_ids": []}, case,
+            candidates=(), max_new_tokens=24, stop_tokens=stops,
+            tokenizer=tokenizer)
+    with pytest.raises(module.RunnerError, match="decoded IDs contradict"):
+        module._recompute_fit_attempt(
+            {**item, "output": "Bazilu"}, case, candidates=(),
+            max_new_tokens=24, stop_tokens=stops, tokenizer=tokenizer)

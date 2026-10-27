@@ -120,6 +120,16 @@ def estimate_resources(config: Mapping[str, Any]) -> dict[str, Any]:
         "extension_training_official_fp8_resident": None,
         "extension_training_native_fp8_resident": None,
         "full_base_tuning_bf16_resident": full_bf16,
+        "estimate_scope": {
+            "extension_training_bf16_resident":
+                "small_extension_adaptation_only",
+            "extension_training_dequantized_derivative_resident":
+                "small_extension_adaptation_only",
+            "full_base_tuning_bf16_resident":
+                "complete_evolution_architecture_lower_bound_only",
+            "complete_evolution_architecture":
+                "not_estimated_blocked_by_resource_envelope",
+        },
         "status": {
             "extension_training_bf16_resident": classify(extension_bf16),
             "extension_training_dequantized_derivative_resident": classify(extension_bf16),
@@ -173,6 +183,206 @@ def evaluate_training_claim(evidence: Mapping[str, Any] | None,
             reasons.append(f"{gate['id']}: identity-only evidence cannot qualify")
     qualified = not missing and not reasons
     return {"qualified": qualified, "missing": missing, "reasons": reasons}
+
+
+def check_tolerances(config: Mapping[str, Any]) -> dict[str, Any]:
+    """The exact-0 same-weight rule and candidate FP8 tolerances stay separate."""
+    protocol = config["parity_protocol"]
+    _require("tolerances.legacy", "quality_tolerances" not in protocol,
+             "unpinned legacy tolerance placeholder is still present")
+    tolerances = protocol["numerical_tolerances"]
+    _require("tolerances.schema",
+             tolerances["schema"] == "replica.spark_parity_tolerances.v1",
+             "unexpected tolerance schema")
+    _require("tolerances.status",
+             tolerances["status"]
+             == "declared_for_future_checks_no_current_parity",
+             "tolerance status implies current parity")
+    _require("tolerances.status",
+             tolerances["current_parity_established"] is False
+             and tolerances["current_native_fp8_execution"] is False,
+             "tolerances imply current parity or native FP8 execution")
+
+    same = tolerances["same_weight_reload_and_base_identity"]
+    _require("tolerances.same_weight",
+             same["rtol"] == 0.0 and same["atol"] == 0.0
+             and same["require_exact_logits"] is True
+             and same["require_exact_greedy_tokens"] is True,
+             "same-weight reload/base identity must be exact 0")
+    candidate = tolerances["candidate_native_fp8_vs_derivative"]
+    _require("tolerances.candidate",
+             candidate["status"] == "candidate_not_evidence"
+             and candidate["rederive_before_use"] is True
+             and 0 < candidate["rtol"] < 1
+             and candidate["atol"] > 0
+             and candidate["require_exact_greedy_tokens"] is False
+             and candidate["requires"],
+             "native FP8-versus-derivative tolerance is not a declared candidate")
+    _require("tolerances.candidate.derivation",
+             candidate["must_not_be_derived_from"]
+             == "existing_evidence.cross_arm_logit_difference",
+             "candidate tolerance is derived from historical differences")
+    historical = tolerances["historical_cross_arm_difference"]
+    _require("tolerances.historical",
+             historical["kind"] == "historical_evidence_not_a_tolerance"
+             and historical["used_for_parity"] is False
+             and historical["used_as_tolerance"] is False,
+             "historical cross-arm difference is promoted to a tolerance")
+    evidence = config["existing_evidence"]["cross_arm_logit_difference"]
+    _require("tolerances.separation",
+             candidate["atol"] != evidence["max_abs_difference"]
+             and candidate["rtol"] != evidence["max_abs_difference"]
+             and candidate["rtol"] != evidence["mean_abs_difference"],
+             "candidate tolerance coincides with the historical difference")
+
+    policy = config["claims_policy"]
+    _require("tolerances.claims",
+             policy["candidate_tolerance_implies_parity"] is False
+             and policy["historical_cross_arm_difference_is_tolerance"] is False
+             and policy["exact_zero_tolerance_implies_native_fp8"] is False,
+             "a tolerance is promoted into a parity or execution claim")
+    return tolerances
+
+
+def check_existing_evidence(config: Mapping[str, Any], *,
+                            project_root: Path) -> dict[str, Any]:
+    """Reconcile the declared values with the pinned historical receipts."""
+    evidence = config["existing_evidence"]
+    _require("evidence.status",
+             evidence["status"] == "historical_evidence_reconciled_not_extended",
+             "unexpected evidence reconciliation status")
+    _require("evidence.scope",
+             {"native FP8 execution", "official FP8 forward parity"}
+             <= set(evidence["not_reconciled_as"]),
+             "evidence collapses storage, derivative and native execution")
+    loaded: dict[str, dict[str, Any]] = {}
+    for name, pin in evidence["sources"].items():
+        path = project_root / pin["path"]
+        _require("evidence.pin", path.is_file(), f"missing {pin['path']}")
+        _require("evidence.pin", sha256_file(path) == pin["sha256"],
+                 f"evidence pin mismatch for {pin['path']}")
+        loaded[name] = load_json(path)
+    summary = loaded["qualification_summary"]
+    selected = loaded["selected_runs_receipt"]
+    comparison = loaded["arm_comparison"]
+    qualification_config = loaded["qualification_config"]
+
+    summary_qualification = summary["qualification"]
+    _require("evidence.reload",
+             summary_qualification["fresh_process"] is True
+             and summary_qualification["fresh_process_max_abs_logit_difference"] == 0.0
+             and summary_qualification["fresh_process_exact_greedy_tokens"] is True
+             and summary_qualification["optimizer"] == "NativeFusedAdamW"
+             and summary_qualification["base_unchanged"] is True,
+             "historical reload summary disagrees with the declaration")
+    for arm in ("official_bf16", "dequantized_fp8_derivative"):
+        declared = evidence["same_weight_reload"][arm]
+        reload = selected["selected_runs"][arm]["fresh_process_reload"]
+        for field, source_field in (
+            ("max_abs_logit_difference", "max_abs_logit_difference"),
+            ("mean_abs_logit_difference", "mean_abs_logit_difference"),
+            ("exact_greedy_tokens", "exact_greedy_tokens"),
+            ("within_declared_tolerance", "within_tolerance"),
+            ("declared_rtol", "rtol"),
+            ("declared_atol", "atol"),
+        ):
+            _require("evidence.reload",
+                     declared[field] == reload[source_field],
+                     f"declared reload value differs for {arm}.{field}")
+        _require("evidence.reload",
+                 reload["fresh_process"] is True
+                 and reload["max_abs_logit_difference"] == 0.0,
+                 f"historical {arm} reload is not exact 0")
+
+    declared_cross = evidence["cross_arm_logit_difference"]
+    summary_cross = summary["comparison"]["cross_arm_logits"]
+    selected_cross = selected["cross_arm_reload_statistics"]
+    for field in ("shape", "finite", "max_abs_difference",
+                  "mean_abs_difference", "exact_greedy_tokens"):
+        _require("evidence.cross_arm",
+                 declared_cross[field] == summary_cross[field],
+                 f"cross-arm value differs for {field}")
+    _require("evidence.cross_arm",
+             declared_cross["max_abs_difference"]
+             == selected_cross["max_abs_logit_difference"]
+             and declared_cross["mean_abs_difference"]
+             == selected_cross["mean_abs_logit_difference"]
+             and declared_cross["exact_token_agreement_count"]
+             == comparison["comparison"]["exact_token_agreement_count"]
+             and declared_cross["paired_rows"]
+             == comparison["comparison"]["paired_rows"]
+             and declared_cross["used_as_tolerance"] is False,
+             "cross-arm declaration differs from the historical receipts")
+    _require("evidence.cross_arm",
+             declared_cross["kind"] == "historical_evidence_not_a_tolerance",
+             "cross-arm difference is not labelled historical")
+
+    _require("evidence.storage",
+             summary["storage"]["derivative_count"] == 1
+             and summary["storage"]["duplicate_derivatives"] == 0
+             and summary["storage"]["full_base_saves"] == 0
+             and qualification_config["storage_policy"]["max_derivatives"] == 1
+             and qualification_config["storage_policy"][
+                 "full_base_saves_during_qualification"] is False,
+             "historical storage receipts disagree with the bounded policy")
+    _require("evidence.claims",
+             summary["non_claims"]["official_native_fp8_on_mps"] is False
+             and summary["non_claims"]["full_fp32_spark_training_admitted"] is False
+             and selected["non_claims"]["derivative_equals_official_bf16"] is False,
+             "historical receipts contradict the preparation non-claims")
+    return {
+        "status": "reconciled",
+        "same_weight_reload_max_abs": 0.0,
+        "cross_arm_max_abs_difference": declared_cross["max_abs_difference"],
+        "cross_arm_mean_abs_difference": declared_cross["mean_abs_difference"],
+        "cross_arm_exact_greedy_tokens": declared_cross["exact_greedy_tokens"],
+        "used_as_tolerance": False,
+    }
+
+
+def check_resource_scope(config: Mapping[str, Any]) -> dict[str, Any]:
+    scope = config["resource_model"]["scope"]
+    _require("resources.scope",
+             scope["estimates_cover"] == "small_extension_adaptation_only",
+             "resource estimates are not labelled as extension-only")
+    small = scope["small_extension_adaptation"]
+    complete = scope["complete_evolution_architecture"]
+    _require("resources.scope.extension",
+             small["is_complete_evolution_architecture"] is False
+             and small["new_parameter_elements"]
+             == config["resource_model"]["inputs"]["new_module_parameters"],
+             "small-extension scope is inconsistent")
+    _require("resources.scope.complete",
+             complete["is_complete_evolution_architecture"] is True
+             and complete["estimated"] is False
+             and complete["status"] == "blocked_by_resource_envelope"
+             and complete["full_base_tuning_is_only_a_lower_bound"] is True
+             and complete["small_extension_estimate_reusable"] is False
+             and complete["training_admitted"] is False,
+             "complete evolution architecture is not separately blocked")
+    return scope
+
+
+def check_storage_policy(config: Mapping[str, Any]) -> dict[str, Any]:
+    policy = config["storage_and_duplication_policy"]
+    _require("storage.downloads",
+             policy["downloads_in_preparation"] is False
+             and policy["downloads_require_separate_authorization"] is True,
+             "preparation permits downloads")
+    _require("storage.weights",
+             policy["official_snapshots_max"] == 2
+             and policy["derivative_count_max"] == 1
+             and policy["duplicate_derivative_variants"] is False
+             and policy["duplicate_weight_copies"] is False,
+             "duplicate weights or derivatives are admitted")
+    _require("storage.checkpoints",
+             policy["full_base_checkpoint_saves"] == 0
+             and policy["base_optimizer_checkpoints_saved"] is False
+             and policy["training_checkpoints_max"] == 0
+             and policy["extension_exports_max"] == 1
+             and policy["spark_specific_budget_bytes"] == 42949672960,
+             "checkpoint or storage bounds are not declared")
+    return policy
 
 
 def check(config_path: str | Path, *, project_root: str | Path = ROOT) -> dict[str, Any]:
@@ -292,11 +502,17 @@ def check(config_path: str | Path, *, project_root: str | Path = ROOT) -> dict[s
              and probe["prohibited_inferences"],
              "small reload probe must not grant training qualification")
     _require("parity.tolerances",
-             protocol["quality_tolerances"]["status"]
-             == "must_be_pinned_before_any_execution"
-             and protocol["quality_tolerances"]["numeric_values"] is None,
-             "quality tolerances must remain unpinned until execution preparation")
+             "quality_tolerances" not in protocol,
+             "legacy unpinned tolerance placeholder is still present")
+    tolerances = check_tolerances(config)
     passed("parity", "bounded text-only parity; reload cannot qualify training")
+    passed("tolerances",
+           "same-weight reload/base identity requires exact 0; candidate "
+           "FP8-versus-derivative tolerances stay declared candidates")
+    evidence = check_existing_evidence(config, project_root=project_root)
+    passed("evidence",
+           "historical reload and cross-arm logit evidence reconciled; "
+           "cross-arm difference is not a tolerance")
 
     policy = config["claims_policy"]
     _require("claims.qualification",
@@ -335,9 +551,17 @@ def check(config_path: str | Path, *, project_root: str | Path = ROOT) -> dict[s
     passed("claims", "dtype and reload evidence cannot qualify training")
 
     estimates = estimate_resources(config)
+    scope = check_resource_scope(config)
     passed("resources",
            "analytical estimates: extension within budget; full tuning blocked; "
            "native FP8 unquantified")
+    passed("resource_scope",
+           "estimates cover small-extension adaptation only; the complete "
+           "evolution architecture stays unestimated and blocked")
+    storage = check_storage_policy(config)
+    passed("storage_policy",
+           "no downloads, duplicate weights, derivative variants or unbounded "
+           "checkpoints")
 
     ablation = config["later_ablation"]
     _require("ablation.status",
@@ -365,7 +589,13 @@ def check(config_path: str | Path, *, project_root: str | Path = ROOT) -> dict[s
              config["non_claims"]["native_execution_performed"] is False
              and config["non_claims"]["training_qualified"] is False
              and config["non_claims"]["model_loaded"] is False
-             and config["non_claims"]["measured_resources"] is False,
+             and config["non_claims"]["measured_resources"] is False
+             and config["non_claims"]["parity_tolerances_are_evidence"] is False
+             and config["non_claims"]["complete_evolution_architecture_estimated"]
+             is False
+             and config["non_claims"]["duplicate_weights_or_downloads_performed"]
+             is False
+             and config["non_claims"]["unbounded_checkpoints_created"] is False,
              "non-claims block is inconsistent")
     passed("non_claims", "no native execution, model load or training claim")
 
@@ -384,16 +614,24 @@ def check(config_path: str | Path, *, project_root: str | Path = ROOT) -> dict[s
             canonical_json(config).encode("utf-8")).hexdigest(),
         "checks": checks,
         "estimates": estimates,
+        "tolerances": tolerances,
+        "existing_evidence": evidence,
+        "resource_scope": scope,
+        "storage_policy": storage,
         "training_qualified": False,
         "native_fp8_training_qualified": False,
         "native_fp8_execution_evidenced": False,
         "native_execution_performed": False,
         "model_loaded": False,
+        "parity_established": False,
+        "complete_evolution_architecture_estimated": False,
         "blocked_reasons": [
             "no separate reviewed authorization receipt",
             "no measured native load, parity, gradient, update, reload or "
             "resource evidence",
             "no native FP8 kernel evidence",
+            "the complete evolution architecture has no measured residency "
+            "admission and remains blocked by the resource envelope",
         ],
         "admission_scope": "preparation only; nothing here qualifies training",
     }

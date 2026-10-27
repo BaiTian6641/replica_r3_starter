@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Review-only preflight for the value-readout abstention protocol.
 
-``--review`` validates the fixture and writes a fresh deterministic receipt;
-it never executes native work.  ``--launch`` is deliberately fail-closed: it
-requires a separate authorization receipt, and even a valid authorization is
-recorded as refused because this preparation package contains no native
-admission runner.  A separate later authorization and runner are mandatory.
+``--review`` validates hashes and writes a fresh deterministic receipt; it
+never parses evaluation labels or executes native work.  ``--launch`` is
+deliberately fail-closed: it requires a separate authorization receipt, and
+even a valid authorization is recorded as refused because this preparation
+package contains only a CPU software-integration runner, not a native model
+runner.  A separate later authorization and native runner remain mandatory.
 """
 from __future__ import annotations
 

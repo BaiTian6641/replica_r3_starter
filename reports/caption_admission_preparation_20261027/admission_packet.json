@@ -1,0 +1,376 @@
+{
+  "created_on": "2026-10-27",
+  "evidence": {
+    "admission": {
+      "default_status": "not_admitted",
+      "receipt_created": false,
+      "receipt_path": "configs/caption_admission_receipt_20261027.json",
+      "requires_separate_reviewed_receipt": true,
+      "training_admitted_row_ids": []
+    },
+    "evaluation": {
+      "counts": {
+        "families": 4,
+        "images": 24,
+        "rows": 24
+      },
+      "diagnostic_scope": {
+        "benchmark_quality": "none",
+        "broad_visual_validation": false,
+        "diagnostic_only": true,
+        "forbidden_claims": [
+          "natural-image caption quality",
+          "VLM generality, robustness or fairness",
+          "zero-shot external transfer",
+          "benchmark superiority"
+        ],
+        "images": 24,
+        "kind": "diagnostic_synthetic_scene_evaluation",
+        "natural_image_validation": false,
+        "permitted_claim": "fixed synthetic scene families only: image-conditioned grounding and caption agreement under programmatic labels",
+        "rows": 24
+      },
+      "disjoint_from_training_and_exposed": true,
+      "eval_id": "synthetic_scene_eval_20261027",
+      "images_aggregate_sha256": "c1a824f5763d13a0e865bcda5f5b3dc46fe078d5eb30d133ec35c007766aedb3",
+      "manifest_sha256": "843e5da40d9c190585375a363a4d97b6366a8c6c78969fbdedce6cd3d9da3ce1",
+      "model_executions_at_seal": 0,
+      "role": "final_eval_untouched_synthetic",
+      "rows_sha256": "9ed35b36987ac92268f44333fe6c8e617c86dafd672b9229c797ab30b379314e",
+      "scene_specs_sha256": "33da1ed78f0ce21eaf9100db8ac5272501ef64f3bf48b4d1667feb406cd4d0c7",
+      "seal_sha256": "f2179f3c02d30309362ed6c0913604d646327412dceb60600adc42e7b6f30a6e",
+      "sealed_before_any_model_use": true,
+      "split": "synthetic_scene_eval_sealed"
+    },
+    "lineage": {
+      "counts": {
+        "eval_images": 24,
+        "eval_rows": 24,
+        "exclusions": 21,
+        "exposed": 8,
+        "parent_rows_accounted": 30,
+        "rows": 9
+      },
+      "eligible_rows": [
+        {
+          "group_key": "caption-corrected-20261027:000284813",
+          "image_sha256": "b36f93bf4168376030fada198cb1ab07cd0d81162d9a6804784a6cc43df80594",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:000284813#raw_caption",
+          "row_id": "caption-corrected-20261027:000284813#raw_caption",
+          "row_sha256": "bd1b915d97e215e7706366da92504ac54a4eae75c34b7515636c9696079e557a",
+          "target_sha256": "6b18835c9a3ded672281b9480a78feb10c4378a7426785a59c00ebfb831687f3"
+        },
+        {
+          "group_key": "caption-corrected-20261027:000456905",
+          "image_sha256": "57363b7adeac59537c7c81c0ae9cdf1d069abbcc3525a83f86b848929c597841",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:000456905#raw_caption",
+          "row_id": "caption-corrected-20261027:000456905#raw_caption",
+          "row_sha256": "c13e3f2b6ee545515112de6d8dc8c857ab3f64e42e57a9384971ebfefead6a47",
+          "target_sha256": "7196ba40eee5d8b5dc5e792e416e73dadb31b0c32c221262c168d5bb9b859c8a"
+        },
+        {
+          "group_key": "caption-corrected-20261027:000764186",
+          "image_sha256": "be47781e142fc38432d3fe942826478c521342d445113024d886e3781ed9a6bc",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:000764186#raw_caption",
+          "row_id": "caption-corrected-20261027:000764186#raw_caption",
+          "row_sha256": "ac836dfad32c11900eeb9151c806be6048f9d3fbb7964123bfbe9014c76f6ff2",
+          "target_sha256": "c9851be94e854040376c978f6fb16c24c471648b366252127a0280e6de74f9b5"
+        },
+        {
+          "group_key": "caption-corrected-20261027:001719881",
+          "image_sha256": "5159e8d315bda512d22908cc6b47044cf29e45d95b5c391a559d155b6612e599",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:001719881#raw_caption",
+          "row_id": "caption-corrected-20261027:001719881#raw_caption",
+          "row_sha256": "8aa04d4ffebb82a609bb521088c2513151db6b2deb3e224d9ba6bf4d7d232890",
+          "target_sha256": "5d88b0ceb7c4cec939c30dbf0c91cfbad4bc2605bc521fbcf53b8d3b73188b08"
+        },
+        {
+          "group_key": "caption-corrected-20261027:001939145",
+          "image_sha256": "ec59a33db9ae23be3a6295a7dc757c851fb436783754a17443c1c222bc5f7269",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:001939145#raw_caption",
+          "row_id": "caption-corrected-20261027:001939145#raw_caption",
+          "row_sha256": "90601ded2b1f810adbaaea583f5fed770f0cf0e569e4149ba3c00fbca6402deb",
+          "target_sha256": "585042f5a45ea691c3d0fbc0635caed1f0197d88c41016f9553e374b5037e897"
+        },
+        {
+          "group_key": "caption-corrected-20261027:002709185",
+          "image_sha256": "ed36fde76317d037f0d9e7e92dd5284ddd7cf6fc9993910a22427545a4ad57ce",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:002709185#raw_caption",
+          "row_id": "caption-corrected-20261027:002709185#raw_caption",
+          "row_sha256": "9e3443e9afdc5db83e5ebe7e8d2b51b1811cbc972901141c0e5c2d25c1699f8c",
+          "target_sha256": "82cba8c642765fc5f79a3d574f3649b853d2ad487e637d997d191717ff9fb0c6"
+        },
+        {
+          "group_key": "caption-corrected-20261027:002710233",
+          "image_sha256": "3c6777db6d1eb66cb8a99ae7c7b4c5f7cbd8747b9fc17487206403255ae2edbb",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:002710233#raw_caption",
+          "row_id": "caption-corrected-20261027:002710233#raw_caption",
+          "row_sha256": "6c02f3208b646551019567ce5cc4a0f7c61ac0329ccc9ebefc604b835d4ea5aa",
+          "target_sha256": "72f0c24db424daf70313309da12b44ca7a0360b05c4a106feaedc6733633d2a9"
+        },
+        {
+          "group_key": "caption-corrected-20261027:002878530",
+          "image_sha256": "1d8dc0186d5da7c79a538b7c3450ad2802d21be27ce070d1692ea8dc0bb7e26b",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:002878530#raw_caption",
+          "row_id": "caption-corrected-20261027:002878530#raw_caption",
+          "row_sha256": "f7c69bc3244d75318161ad088c10db084f7ec5844c9be251daaf9a4ac5abe93b",
+          "target_sha256": "ed736336368a1ff0cc736a2fe1ac26c780cf4fe07fa65e3c9e37e53a30e0adb5"
+        },
+        {
+          "group_key": "caption-corrected-20261027:005525460",
+          "image_sha256": "f0488533e966d343d46574354a6f024e193cbc425d64e783a08377adc6d75381",
+          "parent_row_id": "liuhaotian/LLaVA-Pretrain:005525460#raw_caption",
+          "row_id": "caption-corrected-20261027:005525460#raw_caption",
+          "row_sha256": "26610265ba0b2b3d00be377ff40cead70c260b801bb5a198437f7101363aec74",
+          "target_sha256": "4fc74aaedb641bf5d19f1f61589fbcbc2b799b1b9839c060bde650008a440d3f"
+        }
+      ],
+      "exclusion_reason_counts": {
+        "sealed_exposed_quarantine": 8,
+        "semantic_mismatch": 1,
+        "semantic_unclear": 5,
+        "validation_only_role": 7
+      },
+      "exclusions": [
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:000054222#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:000237684#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:000401749#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:000809480#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:000937058#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:000961551#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "semantic_unclear",
+          "recorded_verdict": "unclear",
+          "role": "train",
+          "row_id": "liuhaotian/LLaVA-Pretrain:001104367#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:001308193#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "semantic_unclear",
+          "recorded_verdict": "unclear",
+          "role": "train",
+          "row_id": "liuhaotian/LLaVA-Pretrain:001316033#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "semantic_unclear",
+          "recorded_verdict": "unclear",
+          "role": "train",
+          "row_id": "liuhaotian/LLaVA-Pretrain:001529205#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:001725011#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "semantic_mismatch",
+          "recorded_verdict": "mismatch",
+          "role": "train",
+          "row_id": "liuhaotian/LLaVA-Pretrain:001842798#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:002321958#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:003169286#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "sealed_exposed_quarantine",
+          "recorded_verdict": null,
+          "role": "final_eval_untouched",
+          "row_id": "liuhaotian/LLaVA-Pretrain:003373510#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:003524176#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:003902288#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "semantic_unclear",
+          "recorded_verdict": "unclear",
+          "role": "train",
+          "row_id": "liuhaotian/LLaVA-Pretrain:003982744#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:004055865#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "validation_only_role",
+          "recorded_verdict": null,
+          "role": "development",
+          "row_id": "liuhaotian/LLaVA-Pretrain:005507560#raw_caption",
+          "training_eligible": false
+        },
+        {
+          "reason_code": "semantic_unclear",
+          "recorded_verdict": "unclear",
+          "role": "train",
+          "row_id": "liuhaotian/LLaVA-Pretrain:006359771#raw_caption",
+          "training_eligible": false
+        }
+      ],
+      "exclusions_sha256": "07d9292350b562695a3cd1ce9416aaf8ca37613d3ee9227bdf224e4b52f0a817",
+      "exposure": {
+        "excluded_from_training": true,
+        "exposed_row_ids": [
+          "liuhaotian/LLaVA-Pretrain:000237684#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:000401749#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:000809480#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:000937058#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:001308193#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:002321958#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:003169286#raw_caption",
+          "liuhaotian/LLaVA-Pretrain:003373510#raw_caption"
+        ],
+        "history_preserved": true,
+        "incident_sha256": "2b2af6de74799b3b98bfcb6e0a275ebf8beba84b5a093078dcef1b6b4053ec62",
+        "relabeled": false,
+        "status": "quarantined_after_semantic_review_exposure",
+        "untouched_eval_status_restored": false
+      },
+      "lineage_id": "caption_lineage_correction_20261027",
+      "manifest_sha256": "b67dd414d07a55ba2be386627860b1675197b46d40619013565cbb8241f8e691",
+      "parent_decision": {
+        "decision": "reject",
+        "queue_sha256": "eca352f42068d22c990568ea05faae2bbeeb9d5975d6074fdd9afa28a5902623",
+        "relabeled": false,
+        "training_admitted_row_ids": null
+      },
+      "rows_sha256": "b4efd15ad6b97e0df04f3d67233693d2772168e971c313ee2fce67ea554bc69c",
+      "status": "corrected_selection_derived_from_rejected_qa"
+    }
+  },
+  "format": "replica.caption_training_admission_packet.v1",
+  "lineage_id": "caption_lineage_correction_20261027",
+  "non_claims": {
+    "benchmark_quality": "none",
+    "clears_exposure_incident": false,
+    "model_execution": false,
+    "native_execution": false,
+    "relabels_rejected_decision": false,
+    "training_admitted": false
+  },
+  "not_a_receipt": true,
+  "pending_reviewer_fields": [
+    "decision",
+    "decided_by",
+    "decided_at",
+    "conditions",
+    "receipt_sha256"
+  ],
+  "receipt_fields": {
+    "admitted_row_ids": [
+      "caption-corrected-20261027:000284813#raw_caption",
+      "caption-corrected-20261027:000456905#raw_caption",
+      "caption-corrected-20261027:000764186#raw_caption",
+      "caption-corrected-20261027:001719881#raw_caption",
+      "caption-corrected-20261027:001939145#raw_caption",
+      "caption-corrected-20261027:002709185#raw_caption",
+      "caption-corrected-20261027:002710233#raw_caption",
+      "caption-corrected-20261027:002878530#raw_caption",
+      "caption-corrected-20261027:005525460#raw_caption"
+    ],
+    "bindings": {
+      "eval_config_sha256": "042cf2d821eaf97af0c9229127d83ef19b60faa5efdecc29dab767fd8f6d8cb7",
+      "eval_manifest_sha256": "843e5da40d9c190585375a363a4d97b6366a8c6c78969fbdedce6cd3d9da3ce1",
+      "eval_rows_sha256": "9ed35b36987ac92268f44333fe6c8e617c86dafd672b9229c797ab30b379314e",
+      "eval_seal_sha256": "f2179f3c02d30309362ed6c0913604d646327412dceb60600adc42e7b6f30a6e",
+      "lineage_config_sha256": "bc6446515517082f002b936f1753e13e5b5560f74767319d0be625a6ad36a002",
+      "lineage_exclusions_sha256": "07d9292350b562695a3cd1ce9416aaf8ca37613d3ee9227bdf224e4b52f0a817",
+      "lineage_manifest_sha256": "b67dd414d07a55ba2be386627860b1675197b46d40619013565cbb8241f8e691",
+      "lineage_rows_sha256": "b4efd15ad6b97e0df04f3d67233693d2772168e971c313ee2fce67ea554bc69c",
+      "validator_version": "1.1.0"
+    },
+    "conditions": [],
+    "decided_at": null,
+    "decided_by": null,
+    "decision": null,
+    "format": "replica.caption_training_admission_receipt.v1",
+    "lineage_id": "caption_lineage_correction_20261027",
+    "receipt_sha256": null,
+    "scope": "training_admission",
+    "trust": "trusted_local_reviewed_receipt_not_a_signature"
+  },
+  "receipt_format": "replica.caption_training_admission_receipt.v1",
+  "receipt_path": "configs/caption_admission_receipt_20261027.json",
+  "reviewer_instructions": [
+    "Review the lineage manifest, rows/exclusions hashes, the preserved exposure incident and the sealed diagnostic evaluation.",
+    "Only a named reviewer may copy receipt_fields to the receipt path, fill decision, decided_by, decided_at and conditions, then compute receipt_sha256 over canonical JSON without that field.",
+    "Never edit the nine eligible row ids, any binding, or the exposure/exclusion evidence.",
+    "The receipt is a trusted local review decision, not a cryptographic signature, and grants no benchmark claim."
+  ],
+  "signature_present": false,
+  "status": "prepared_unsigned_awaiting_review",
+  "unsigned": true
+}

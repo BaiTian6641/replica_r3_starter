@@ -118,6 +118,82 @@
       "qualification_reason": "no kernel trace, gradient receipt or update receipt exists"
     }
   },
+  "existing_evidence": {
+    "schema": "replica.spark_reload_evidence_reconciliation.v1",
+    "status": "historical_evidence_reconciled_not_extended",
+    "sources": {
+      "qualification_summary": {
+        "path": "reports/spark_qualification_20261026/summary.json",
+        "sha256": "bdea5cf6ba98c61c6f19110efe14fc2ce21bf0948b2eef318ed7a11ad27faa92"
+      },
+      "arm_comparison": {
+        "path": "reports/spark_qualification_20261026/comparison.json",
+        "sha256": "c2019734fdd1e85a40c158d6e74cdf701f6417b9e284dee1011de8ef44b52d11"
+      },
+      "selected_runs_receipt": {
+        "path": "reports/spark_qualification_20261026/selected_runs.json",
+        "sha256": "65a6b5c175ef3629246612b9686af2d872f2f91dc74cc3cd54316688fd4e2ece"
+      },
+      "qualification_config": {
+        "path": "configs/spark_qualification_v1.json",
+        "sha256": "702fa07d01e9fba64d2ef84d55e590c8fa278b12b9fecde795630533176ca8fd"
+      }
+    },
+    "same_weight_reload": {
+      "kind": "measured_historical_evidence",
+      "scope": "fresh-process extension-only reload of the exact same weights under the same identity",
+      "official_bf16": {
+        "max_abs_logit_difference": 0.0,
+        "mean_abs_logit_difference": 0.0,
+        "exact_greedy_tokens": true,
+        "within_declared_tolerance": true,
+        "declared_rtol": 1e-05,
+        "declared_atol": 1e-06
+      },
+      "dequantized_fp8_derivative": {
+        "max_abs_logit_difference": 0.0,
+        "mean_abs_logit_difference": 0.0,
+        "exact_greedy_tokens": true,
+        "within_declared_tolerance": true,
+        "declared_rtol": 1e-05,
+        "declared_atol": 1e-06
+      },
+      "note": "Both arms recorded 0.0 max/mean logit difference, but under the declared rtol=1e-5/atol=1e-6 window. The exact-0 requirement in numerical_tolerances is stricter and is not proven by that recorded window."
+    },
+    "cross_arm_logit_difference": {
+      "kind": "historical_evidence_not_a_tolerance",
+      "left": "official_bf16",
+      "right": "dequantized_fp8_derivative",
+      "shape": [1, 21, 131072],
+      "finite": true,
+      "max_abs_difference": 10.875,
+      "mean_abs_difference": 0.9691294431686401,
+      "exact_greedy_tokens": false,
+      "exact_token_agreement_count": 2,
+      "paired_rows": 3,
+      "source": "reports/spark_qualification_20261026/summary.json#comparison.cross_arm_logits",
+      "used_as_tolerance": false,
+      "interpretation": "The dequantized derivative is not the official BF16 release; exact same-weight reload within each arm does not imply cross-precision equality. This difference is recorded history only.",
+      "must_not_be_used_for": [
+        "a tolerance threshold",
+        "native FP8 parity",
+        "FP8-versus-derivative acceptance",
+        "a capability or accuracy claim"
+      ]
+    },
+    "not_reconciled_as": [
+      "native FP8 execution",
+      "official FP8 forward parity",
+      "training qualification",
+      "measured memory"
+    ],
+    "non_claims": {
+      "official_native_fp8_on_mps": false,
+      "full_fp32_spark_training_admitted": false,
+      "derivative_equals_official_bf16": false,
+      "second_derivative_created": false
+    }
+  },
   "parity_protocol": {
     "bounded": true,
     "prompt_set": {
@@ -165,15 +241,95 @@
         "reload success proves optimizer support or training qualification"
       ]
     },
-    "quality_tolerances": {
-      "status": "must_be_pinned_before_any_execution",
-      "numeric_values": null
+    "numerical_tolerances": {
+      "schema": "replica.spark_parity_tolerances.v1",
+      "status": "declared_for_future_checks_no_current_parity",
+      "current_parity_established": false,
+      "current_native_fp8_execution": false,
+      "same_weight_reload_and_base_identity": {
+        "applies_to": [
+          "fresh-process reload of the exact same weights under one identity",
+          "base-identity stamp re-check while the base is frozen"
+        ],
+        "rtol": 0.0,
+        "atol": 0.0,
+        "require_exact_logits": true,
+        "require_exact_greedy_tokens": true,
+        "rationale": "Identical weight bytes and an identical compute path must be bit-identical; any nonzero difference is a reload or identity failure, not noise.",
+        "historical_note": "The two historical same-weight reloads observed 0.0 but were judged under rtol=1e-5/atol=1e-6; exact 0 is stricter and remains a new requirement."
+      },
+      "candidate_native_fp8_vs_derivative": {
+        "applies_to": [
+          "future paired logits from an actually executing native FP8 kernel",
+          "the dequantized FP8 derivative on the same frozen prompts"
+        ],
+        "status": "candidate_not_evidence",
+        "rtol": 0.05,
+        "atol": 0.5,
+        "require_exact_greedy_tokens": false,
+        "require_top1_agreement": false,
+        "rationale": "Provisional candidate only: F8_E4M3 has three mantissa bits, so one weight can round by up to 2^-4 (6.25%) of its magnitude; 5% relative sits below that per-weight bound and 0.5 absolute is a provisional floor for near-zero logits. Neither value is measured or derived from the historical cross-arm difference.",
+        "rederive_before_use": true,
+        "requires": [
+          "separate reviewed authorization receipt",
+          "native FP8 kernel trace on the target device",
+          "paired prompt token/logit receipts",
+          "a measured derivation of the tolerance"
+        ],
+        "must_not_be_derived_from": "existing_evidence.cross_arm_logit_difference",
+        "must_not_imply": [
+          "current native FP8 execution",
+          "current parity",
+          "training qualification",
+          "official FP8 approval"
+        ]
+      },
+      "historical_cross_arm_difference": {
+        "kind": "historical_evidence_not_a_tolerance",
+        "reference": "existing_evidence.cross_arm_logit_difference",
+        "used_for_parity": false,
+        "used_as_tolerance": false
+      },
+      "forbidden_uses": [
+        "treating a candidate tolerance as evidence of parity",
+        "treating the historical 10.875 maximum cross-arm difference as an acceptance threshold",
+        "widening the exact-0 same-weight requirement to hide a reload defect",
+        "applying the candidate FP8-versus-derivative tolerance to any unexecuted arm"
+      ]
     }
   },
   "resource_model": {
     "analytical_only": true,
     "measured": false,
     "units": "bytes",
+    "scope": {
+      "estimates_cover": "small_extension_adaptation_only",
+      "small_extension_adaptation": {
+        "what": "frozen official Spark 4B base plus the declared projector/port extension",
+        "new_parameter_elements": 5242880,
+        "is_complete_evolution_architecture": false,
+        "estimates": [
+          "extension_training_bf16_resident",
+          "extension_training_dequantized_derivative_resident"
+        ],
+        "interpretation": "Adaptation-only residency under the declared analytical formula; not a training result."
+      },
+      "complete_evolution_architecture": {
+        "what": "the complete SparkX 2.6 4B evolution product: full base fine-tuning plus native vision, audio, memory bank, vocabulary slots, learning core and optional engram/fast-memory modules",
+        "is_complete_evolution_architecture": true,
+        "estimated": false,
+        "status": "blocked_by_resource_envelope",
+        "reason": "The full-base analytical bound alone already exceeds the usable driver headroom; the additional evolution modules are not bounded by this formula and require a measured residency admission.",
+        "full_base_tuning_is_only_a_lower_bound": true,
+        "small_extension_estimate_reusable": false,
+        "requires": [
+          "a separately measured residency admission",
+          "an H200 or equivalent capacity, or a re-derived bounded plan",
+          "a separate reviewed authorization receipt"
+        ],
+        "training_admitted": false
+      }
+    },
     "inputs": {
       "parameter_elements": 4112079360,
       "quantized_parameter_elements": 3774873600,
@@ -210,13 +366,35 @@
       "usable_budget": "driver_limit_bytes * usable_headroom_fraction"
     },
     "estimates_expected": {
-      "extension_training_bf16_resident": "defined",
-      "extension_training_dequantized_derivative_resident": "same numerical floor as BF16 resident, distinct identity",
+      "extension_training_bf16_resident": "defined; small-extension adaptation only",
+      "extension_training_dequantized_derivative_resident": "same numerical floor as BF16 resident, distinct identity; small-extension adaptation only",
       "extension_training_official_fp8_resident": "unquantified because activation/optimizer semantics are undefined without kernels",
       "extension_training_native_fp8_resident": "unquantified",
-      "full_base_tuning_bf16_resident": "defined as an analytical upper bound only"
+      "full_base_tuning_bf16_resident": "defined as a lower bound only; blocked and not the complete evolution architecture",
+      "complete_evolution_architecture_resident": "not estimated; blocked by the resource envelope"
     },
-    "interpretation": "Analytical estimates can block a plan; they can never qualify training. No value here is a measured memory result."
+    "interpretation": "Analytical estimates can block a plan; they can never qualify training. No value here is a measured memory result, and no extension estimate describes the complete evolution architecture."
+  },
+  "storage_and_duplication_policy": {
+    "schema": "replica.spark_storage_duplication_policy.v1",
+    "downloads_in_preparation": false,
+    "downloads_require_separate_authorization": true,
+    "official_snapshots_max": 2,
+    "official_snapshot_identities": [
+      "official_bf16",
+      "official_fp8"
+    ],
+    "derivative_count_max": 1,
+    "duplicate_derivative_variants": false,
+    "duplicate_weight_copies": false,
+    "full_base_checkpoint_saves": 0,
+    "base_optimizer_checkpoints_saved": false,
+    "training_checkpoints_max": 0,
+    "extension_exports_max": 1,
+    "checkpoint_fanout": "bounded extension-only qualification artifacts; retain failures; no unbounded checkpoint copies",
+    "spark_specific_budget_bytes": 42949672960,
+    "reference": "configs/spark_qualification_v1.json#storage_policy",
+    "enforced_by_preparation": true
   },
   "claims_policy": {
     "training_qualified": false,
@@ -228,6 +406,10 @@
     "small_reload_success_implies_training_qualification": false,
     "dequantized_derivative_implies_official_fp8": false,
     "header_or_config_parse_implies_forward_parity": false,
+    "candidate_tolerance_implies_parity": false,
+    "historical_cross_arm_difference_is_tolerance": false,
+    "exact_zero_tolerance_implies_native_fp8": false,
+    "small_extension_estimate_is_complete_evolution_architecture": false,
     "forbidden_statements": [
       "storage dtype implies training qualification",
       "small reload success implies training qualification",
@@ -239,7 +421,11 @@
       "a dequantized derivative is equivalent to the official BF16 release",
       "config or safetensors-header parsing proves forward parity",
       "MiniCPM5 baseline behavior changed because a Spark path was prepared",
-      "MPS FP8 training is supported"
+      "MPS FP8 training is supported",
+      "a candidate tolerance is evidence of parity",
+      "the historical cross-arm logit difference defines an acceptance tolerance",
+      "the exact-0 same-weight reload tolerance proves native FP8 execution",
+      "a small-extension memory estimate describes the complete evolution architecture"
     ],
     "training_qualification_gates": [
       {
@@ -252,7 +438,7 @@
       },
       {
         "id": "forward_parity",
-        "must_evidence": "paired prompt tokens/logits with pre-pinned tolerances"
+        "must_evidence": "paired prompt tokens/logits satisfying the pre-declared exact-0 same-weight tolerance; any native-FP8-versus-derivative check needs its candidate tolerance re-derived first"
       },
       {
         "id": "input_gradients",
@@ -283,7 +469,10 @@
       "small reload success",
       "one short generation smoke test",
       "dequantization success",
-      "analytical resource estimate"
+      "analytical resource estimate",
+      "declared tolerance alone",
+      "historical cross-arm logit difference",
+      "small-extension memory estimate"
     ]
   },
   "later_ablation": {
@@ -333,6 +522,13 @@
     "measured_resources": false,
     "baseline_changed": false,
     "mini_cpm5_default_optimizer_changed": false,
-    "authorization_granted": false
+    "authorization_granted": false,
+    "parity_tolerances_are_evidence": false,
+    "candidate_tolerance_implies_parity": false,
+    "historical_cross_arm_difference_used_as_tolerance": false,
+    "complete_evolution_architecture_estimated": false,
+    "small_extension_estimate_is_complete_architecture": false,
+    "duplicate_weights_or_downloads_performed": false,
+    "unbounded_checkpoints_created": false
   }
 }

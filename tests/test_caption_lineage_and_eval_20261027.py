@@ -49,6 +49,7 @@ FILES = (
     "configs/external_caption_asset_qa_v1.json",
     "reports/external_caption_asset_qa_20261027/admission_decision.json",
     "reports/remediation_20261027/sealed_caption_review_exposure.json",
+    "reports/caption_admission_preparation_20261027/admission_packet.json",
     "scripts/build_caption_lineage_20261027.py",
     "scripts/build_synthetic_scene_eval_20261027.py",
     "scripts/validate_caption_lineage_and_eval_20261027.py",
@@ -571,3 +572,268 @@ def test_rejecting_receipt_is_valid_but_never_admits(tmp_path):
     with pytest.raises(VALIDATOR.GuardError) as error:
         _validate(root, require_admission=True)
     assert error.value.check == "admission.required"
+
+
+# ---------------------------------------------------------------------------
+# Unsigned admission evidence packet
+
+
+def _packet(root: Path) -> dict:
+    return json.loads((root / VALIDATOR.PACKET_PATH).read_text(encoding="utf-8"))
+
+
+def _write_packet(root: Path, packet: dict) -> None:
+    _write_json(root / VALIDATOR.PACKET_PATH, packet)
+
+
+def _verify_packet(root: Path, packet: dict):
+    config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+    eval_config = json.loads((root / EVAL_CONFIG).read_text(encoding="utf-8"))
+    lineage = VALIDATOR.validate_lineage(config, project_root=root, checks=[])
+    evals = VALIDATOR.validate_eval(eval_config, project_root=root,
+                                    lineage=lineage, checks=[])
+    return VALIDATOR.verify_admission_packet(
+        packet, admission=config["admission"], config=config,
+        eval_config=eval_config, lineage=lineage, evals=evals,
+        lineage_config_sha256=_sha((root / LINEAGE_CONFIG).read_bytes()),
+        eval_config_sha256=_sha((root / EVAL_CONFIG).read_bytes()))
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_unsigned_packet_matches_receipt_schema_without_signing(tmp_path):
+    root = _workspace(tmp_path)
+    packet = _packet(root)
+    config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+    expected = VALIDATOR.build_admission_packet(
+        root / LINEAGE_CONFIG, root / EVAL_CONFIG, project_root=root)
+    assert packet == expected
+    assert not (root / RECEIPT_PATH).exists()
+
+    assert packet["format"] == VALIDATOR.PACKET_FORMAT
+    assert packet["status"] == "prepared_unsigned_awaiting_review"
+    assert packet["not_a_receipt"] is True and packet["unsigned"] is True
+    assert packet["signature_present"] is False
+    assert set(packet["receipt_fields"]) == \
+        set(config["admission"]["required_fields"])
+    assert tuple(packet["pending_reviewer_fields"]) == \
+        VALIDATOR.PACKET_PENDING_FIELDS
+    receipt_fields = packet["receipt_fields"]
+    for field in ("decision", "decided_by", "decided_at", "receipt_sha256"):
+        assert receipt_fields[field] is None
+    assert receipt_fields["conditions"] == []
+    assert receipt_fields["format"] == VALIDATOR.RECEIPT_FORMAT
+    assert receipt_fields["scope"] == "training_admission"
+
+    evidence = packet["evidence"]
+    assert evidence["lineage"]["counts"] == {
+        "rows": 9, "exclusions": 21, "exposed": 8,
+        "parent_rows_accounted": 30, "eval_rows": 24, "eval_images": 24}
+    assert evidence["lineage"]["exclusion_reason_counts"] == {
+        "semantic_mismatch": 1, "semantic_unclear": 5,
+        "validation_only_role": 7, "sealed_exposed_quarantine": 8}
+    assert len(evidence["lineage"]["eligible_rows"]) == 9
+    assert len(evidence["lineage"]["exclusions"]) == 21
+    assert evidence["lineage"]["parent_decision"]["decision"] == "reject"
+    assert evidence["lineage"]["parent_decision"]["relabeled"] is False
+    exposure = evidence["lineage"]["exposure"]
+    assert len(exposure["exposed_row_ids"]) == 8
+    assert exposure["history_preserved"] is True
+    assert exposure["untouched_eval_status_restored"] is False
+    assert evidence["admission"]["training_admitted_row_ids"] == []
+    assert evidence["admission"]["receipt_created"] is False
+
+    diagnostic = evidence["evaluation"]["diagnostic_scope"]
+    assert diagnostic["diagnostic_only"] is True
+    assert diagnostic["natural_image_validation"] is False
+    assert diagnostic["broad_visual_validation"] is False
+    assert diagnostic["rows"] == diagnostic["images"] == 24
+    assert diagnostic["benchmark_quality"] == "none"
+    assert packet["non_claims"]["training_admitted"] is False
+
+    report = _validate(root)
+    assert report["status"] == "valid"
+    assert report["admission_packet"]["status"] == "prepared_unsigned"
+    assert report["admission_packet"]["unsigned"] is True
+    assert report["admission_packet"]["packet_sha256"] == _sha(
+        (root / VALIDATOR.PACKET_PATH).read_bytes())
+    assert report["admission"]["status"] == "not_admitted"
+    assert report["non_claims"]["training_admitted"] is False
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_missing_or_unsigned_packet_fields_fail_closed(tmp_path):
+    root = _workspace(tmp_path)
+    packet = _packet(root)
+    mutations = []
+
+    def drop_top(value):
+        value.pop("unsigned")
+
+    mutations.append(("top field", drop_top, "admission.packet.fields"))
+
+    def drop_pending(value):
+        value["pending_reviewer_fields"].pop()
+
+    mutations.append(("pending field", drop_pending, "admission.packet.pending"))
+
+    def drop_binding(value):
+        value["receipt_fields"]["bindings"].pop("lineage_rows_sha256")
+
+    mutations.append(("binding", drop_binding, "admission.packet.content"))
+
+    def drop_admitted(value):
+        value["receipt_fields"]["admitted_row_ids"].pop()
+
+    mutations.append(("admitted ids", drop_admitted, "admission.packet.content"))
+
+    def drop_evidence(value):
+        value["evidence"]["lineage"].pop("exclusions")
+
+    mutations.append(("evidence", drop_evidence, "admission.packet.content"))
+
+    def set_decision(value):
+        value["receipt_fields"]["decision"] = "admit_training"
+
+    mutations.append(("decision", set_decision, "admission.packet.unsigned"))
+
+    def set_digest(value):
+        value["receipt_fields"]["receipt_sha256"] = "a" * 64
+
+    mutations.append(("digest", set_digest, "admission.packet.unsigned"))
+
+    def set_conditions(value):
+        value["receipt_fields"]["conditions"] = ["research-use only"]
+
+    mutations.append(("conditions", set_conditions, "admission.packet.unsigned"))
+
+    def set_signed(value):
+        value["unsigned"] = False
+
+    mutations.append(("signed", set_signed, "admission.packet.unsigned"))
+
+    for label, mutate, expected_check in mutations:
+        mutated = copy.deepcopy(packet)
+        mutate(mutated)
+        with pytest.raises(VALIDATOR.GuardError) as error:
+            _verify_packet(root, mutated)
+        assert error.value.check == expected_check, label
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_extra_packet_fields_and_stale_bindings_are_rejected(tmp_path):
+    root = _workspace(tmp_path)
+    packet = _packet(root)
+    packet["decision"] = "admit_training"
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        _verify_packet(root, packet)
+    assert error.value.check == "admission.packet.fields"
+
+    packet = _packet(root)
+    packet["receipt_fields"]["bindings"]["lineage_rows_sha256"] = "0" * 64
+    _write_packet(root, packet)
+    report = _validate(root)
+    assert report["status"] == "invalid"
+    assert report["failed_check"].startswith("admission.packet.")
+    assert report["non_claims"]["training_admitted"] is False
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_packet_cannot_include_exposed_or_validation_rows(tmp_path):
+    root = _workspace(tmp_path)
+    packet = _packet(root)
+    exposure = json.loads((root / "reports/remediation_20261027/"
+                          "sealed_caption_review_exposure.json")
+                          .read_text(encoding="utf-8"))
+    exposed_id = exposure["exposed_row_ids"][0]
+    packet["receipt_fields"]["admitted_row_ids"][0] = exposed_id
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        _verify_packet(root, packet)
+    assert error.value.check == "admission.packet.content"
+
+    packet = _packet(root)
+    packet["evidence"]["lineage"]["exclusions"] = [
+        item for item in packet["evidence"]["lineage"]["exclusions"]
+        if item["row_id"] != exposed_id]
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        _verify_packet(root, packet)
+    assert error.value.check == "admission.packet.content"
+
+    config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+    validation_id = next(item["row_id"] for item in
+                         packet["evidence"]["lineage"]["exclusions"]
+                         if item["reason_code"] == "validation_only_role")
+    packet = _packet(root)
+    packet["receipt_fields"]["admitted_row_ids"][0] = validation_id
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        _verify_packet(root, packet)
+    assert error.value.check == "admission.packet.content"
+    assert validation_id in config["selection"]["validation_only_row_ids"]
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_synthetic_eval_is_declared_diagnostic_only(tmp_path):
+    root = _workspace(tmp_path)
+    eval_config = json.loads((root / EVAL_CONFIG).read_text(encoding="utf-8"))
+    limits = " ".join(eval_config["benchmark_limits"]).casefold()
+    assert "no natural images" in limits
+    assert "cannot support claims about natural-image" in limits
+    assert "not a quality benchmark" in limits
+    assert eval_config["non_claims"]["external_data"] is False
+    assert eval_config["non_claims"]["benchmark_quality"] == "none"
+    assert eval_config["non_claims"]["human_reviewed"] is False
+    packet = _packet(root)
+    diagnostic = packet["evidence"]["evaluation"]["diagnostic_scope"]
+    assert diagnostic["diagnostic_only"] is True
+    assert diagnostic["natural_image_validation"] is False
+    assert diagnostic["broad_visual_validation"] is False
+    assert set(diagnostic["forbidden_claims"]) >= {
+        "natural-image caption quality", "benchmark superiority"}
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_packet_and_missing_receipt_never_admit_training(tmp_path):
+    root = _workspace(tmp_path)
+    report = _validate(root)
+    assert report["status"] == "valid"
+    assert report["admission_packet"]["status"] == "prepared_unsigned"
+    assert report["admission"]["status"] == "not_admitted"
+    assert report["admission"]["admitted_row_ids"] == []
+    assert not (root / RECEIPT_PATH).exists()
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        _validate(root, require_admission=True)
+    assert error.value.check == "admission.required"
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_eval_contract_cannot_be_relabelled_natural_image_validation(tmp_path):
+    root = _workspace(tmp_path)
+    lineage_config = json.loads((root / LINEAGE_CONFIG).read_text(encoding="utf-8"))
+    lineage = VALIDATOR.validate_lineage(lineage_config, project_root=root,
+                                         checks=[])
+    eval_config = json.loads((root / EVAL_CONFIG).read_text(encoding="utf-8"))
+    eval_config["benchmark_limits"] = [
+        "Natural-image caption quality is measured by this partition."]
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        VALIDATOR.validate_eval(eval_config, project_root=root,
+                                lineage=lineage, checks=[])
+    assert error.value.check == "eval.diagnostic_scope"
+
+    eval_config = json.loads((root / EVAL_CONFIG).read_text(encoding="utf-8"))
+    eval_config["non_claims"]["benchmark_quality"] = "natural-image benchmark"
+    with pytest.raises(VALIDATOR.GuardError) as error:
+        VALIDATOR.validate_eval(eval_config, project_root=root,
+                                lineage=lineage, checks=[])
+    assert error.value.check == "eval.diagnostic_scope"
+
+
+@require_local_artifacts(CAPTION_ARTIFACTS)
+def test_packet_copied_to_receipt_path_is_refused_as_unsigned(tmp_path):
+    root = _workspace(tmp_path)
+    packet = _packet(root)
+    _write_json(root / RECEIPT_PATH, packet)
+    report = _validate(root)
+    assert report["status"] == "valid"
+    assert report["admission"]["status"] == "blocked"
+    assert "fields" in report["admission"]["reason"]
+    assert report["admission"]["admitted_row_ids"] == []
+    assert report["non_claims"]["training_admitted"] is False

@@ -1,0 +1,21 @@
+{
+  "format": "replica.value_readout_abstention.artifact_budget_failure.v1",
+  "created_on": "2026-10-27",
+  "status": "artifact_budget_exceeded",
+  "output": "runs/value_readout_abstention_cpu_20261027",
+  "config_sha256_at_run": "49b8bc451fe78f29e79ddbf5af2ea1a787739e98eedd9ef504025dfc758d5e32",
+  "declared_limit_bytes": 16777216,
+  "actual_total_bytes": 29107600,
+  "overrun_bytes": 12330384,
+  "artifacts": {
+    "fit/fit/checkpoint.pt": 9656709,
+    "fit/fit/control_shuffled_values.pt": 9657033,
+    "fit/fit/control_wrong_world_values.pt": 9657093,
+    "other_evidence_bytes": 107765
+  },
+  "cause": "Three resume-complete checkpoints are required for the treatment and two separately trained control fits. The original 16 MiB ceiling was underprovisioned.",
+  "resolution": "Preserve this output and amend the bounded ceiling to 32 MiB with an explicit measured derivation and post-write enforcement; do not drop optimizer state or weaken exact resume.",
+  "functional_result_scope": "The fit/dev/heldout synthetic integration passed before the storage overrun was measured, but this artifact-budget failure is independently preserved and must not be hidden by the later amendment.",
+  "native_execution": false,
+  "output_deleted": false
+}

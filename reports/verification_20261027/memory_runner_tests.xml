@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="31" time="10.787" timestamp="2026-10-27T13:14:32.184908-05:00" hostname="FlaresMacStudio.ts.net lan"><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fixture_validates_deterministically_and_claims_no_native_work" time="0.007" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_chronology_labels_and_source_epochs_are_authoritative" time="0.000" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_training_replay_is_disjoint_and_one_step_per_event" time="0.001" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_workload_derivation_names_three_trained_arms_and_fit_scope" time="0.000" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_protocol_config_rejects_writer_only_and_expanded_orders" time="0.003" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_evaluation_label_or_case_leak_mutations_fail_closed" time="0.013" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_duplicate_epoch_and_step_mutations_fail_closed" time="0.009" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_opened_heldout_manifest_mutation_fails_closed" time="0.006" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_runtime_precheck_parses_no_jsonl_and_audit_is_explicit" time="0.004" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_label_vault_denies_before_admission_and_is_ordered" time="1.958" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_native_entry_is_blocked_without_admission" time="0.000" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_positive_fit_admission_recomputes_every_case" time="1.480" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fit_admission_refuses_missing_and_placeholder_artifacts" time="0.008" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fit_admission_refuses_tampered_report_metrics" time="0.045" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fit_admission_refuses_missing_and_duplicate_prediction_cases" time="0.128" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fit_admission_refuses_cross_state_predictions" time="0.064" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fit_admission_refuses_control_or_aggregate_receipt" time="0.039" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_fit_admission_refuses_bad_update_records" time="0.032" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_development_and_heldout_admission_recompute_per_case" time="0.436" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_development_refuses_claimed_metrics_after_label_recompute" time="0.039" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_failed_fit_receipt_reads_no_evaluation_labels" time="0.025" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_heldout_is_not_opened_when_development_fails" time="0.040" /><testcase classname="tests.test_value_readout_abstention_protocol" name="test_heldout_missing_evidence_refuses_before_heldout_labels" time="0.001"><failure message="FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/test_heldout_missing_evidence_0/missing/heldout_receipt.json'">evaluation_runs = {'fit': PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/fit_evidence0/...rivate/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/evaluation_evidence0/controls_run')}
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/test_heldout_missing_evidence_0')
+
+    def test_heldout_missing_evidence_refuses_before_heldout_labels(evaluation_runs,
+                                                                   tmp_path):
+        evidence = {
+            "fit": evaluation_runs["fit"],
+            "dev": evaluation_runs["dev"],
+            "heldout": tmp_path / "missing",
+        }
+        spy = contract.AccessSpy()
+        vault = _vault(spy)
+        with pytest.raises(contract.ProtocolError):
+&gt;           _admit_heldout(evidence, spy=spy, vault=vault)
+
+tests/test_value_readout_abstention_protocol.py:697: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_value_readout_abstention_protocol.py:603: in _admit_heldout
+    _heldout_receipt(evidence["heldout"]),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_value_readout_abstention_protocol.py:589: in _heldout_receipt
+    return json.loads((root / "heldout_receipt.json").read_text(encoding="utf-8"))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/test_heldout_missing_evidence_0/missing/heldout_receipt.json')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+&gt;       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/test_heldout_missing_evidence_0/missing/heldout_receipt.json'
+
+../.local/share/uv/python/cpython-3.12.14-macos-aarch64-none/lib/python3.12/pathlib.py:1013: FileNotFoundError</failure></testcase><testcase classname="tests.test_value_readout_abstention_protocol" name="test_preflight_is_review_only_and_native_launch_refuses" time="0.006" /><testcase classname="tests.test_value_readout_abstention_runner" name="test_runner_accounts_three_independent_24_update_arms" time="1.791" /><testcase classname="tests.test_value_readout_abstention_runner" name="test_runner_predictions_are_per_case_and_immutable" time="0.001" /><testcase classname="tests.test_value_readout_abstention_runner" name="test_seven_controls_are_distinct_and_gate_as_declared" time="0.001"><failure message="AssertionError: assert ['exact_conte..._values', ...] == ['learned_val..._values', ...]&#10;  &#10;  At index 0 diff: 'exact_context' != 'learned_value_readout'&#10;  &#10;  Full diff:&#10;    [&#10;  +     'exact_context',&#10;        'learned_value_readout',&#10;  -     'exact_context',&#10;  -     'selected_record_literal_readout',&#10;        'memory_disabled',&#10;        'memory_reset',&#10;  +     'selected_record_literal_readout',&#10;        'shuffled_values',&#10;        'wrong_world_values',&#10;    ]">full_runs = {'fit': {'status': 'passed', 'output': '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytes...private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/runner_integration0/dev_run'), ...}
+
+    def test_seven_controls_are_distinct_and_gate_as_declared(full_runs):
+        report = json.loads(
+            (full_runs["controls_root"] / "controls" / "dev_control_report.json")
+            .read_text(encoding="utf-8"))
+        arms = report["arms"]
+&gt;       assert list(arms) == [
+            "learned_value_readout", "exact_context",
+            "selected_record_literal_readout", "memory_disabled", "memory_reset",
+            "shuffled_values", "wrong_world_values"]
+E       AssertionError: assert ['exact_conte..._values', ...] == ['learned_val..._values', ...]
+E         
+E         At index 0 diff: 'exact_context' != 'learned_value_readout'
+E         
+E         Full diff:
+E           [
+E         +     'exact_context',
+E               'learned_value_readout',
+E         -     'exact_context',
+E         -     'selected_record_literal_readout',
+E               'memory_disabled',
+E               'memory_reset',
+E         +     'selected_record_literal_readout',
+E               'shuffled_values',
+E               'wrong_world_values',
+E           ]
+
+tests/test_value_readout_abstention_runner.py:135: AssertionError</failure></testcase><testcase classname="tests.test_value_readout_abstention_runner" name="test_interruption_and_resume_are_bit_identical" time="0.167"><failure message="replica_lab.value_readout_abstention.ReadoutError: resume format differs">full_runs = {'fit': {'status': 'passed', 'output': '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytes...private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/runner_integration0/dev_run'), ...}
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/test_interruption_and_resume_a0')
+
+    def test_interruption_and_resume_are_bit_identical(full_runs, tmp_path):
+        baseline = _report(full_runs["fit_root"])
+        target = tmp_path / "interrupted"
+        with pytest.raises(RunInterrupted) as interrupted:
+            run_fit(PREPARED, CONFIG_PATH, target, interrupt_after=5)
+        assert interrupted.value.completed_updates == 5
+        assert (target / "resume.pt").is_file()
+&gt;       resumed = run_fit(PREPARED, CONFIG_PATH, target, resume=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_value_readout_abstention_runner.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/replica_lab/value_readout_abstention.py:887: in run_fit
+    _require(resume_payload.get("format")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, detail = 'resume format differs'
+
+    def _require(condition: bool, detail: str) -&gt; None:
+        if not condition:
+&gt;           raise ReadoutError(detail)
+E           replica_lab.value_readout_abstention.ReadoutError: resume format differs
+
+src/replica_lab/value_readout_abstention.py:80: ReadoutError</failure></testcase><testcase classname="tests.test_value_readout_abstention_runner" name="test_fresh_process_resume_matches_uninterrupted" time="2.413"><failure message="AssertionError: &#10;assert 2 == 0&#10; +  where 2 = CompletedProcess(args=['/Users/flare/replica_r3_starter/.venv/bin/python', '/Users/flare/replica_r3_starter/scripts/ru...ss', '--resume'], returncode=2, stdout='{\n  &quot;error&quot;: &quot;resume format differs&quot;,\n  &quot;status&quot;: &quot;refused&quot;\n}\n', stderr='').returncode">full_runs = {'fit': {'status': 'passed', 'output': '/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytes...private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/runner_integration0/dev_run'), ...}
+tmp_path = PosixPath('/private/var/folders/wm/5c0bydl900lb08px629h1tg00000gn/T/pytest-of-flare/pytest-1380/test_fresh_process_resume_matc0')
+
+    def test_fresh_process_resume_matches_uninterrupted(full_runs, tmp_path):
+        output = tmp_path / "fresh_process"
+        command = [sys.executable,
+                   str(ROOT / "scripts" / "run_value_readout_abstention_v1.py"),
+                   "fit", "--output", str(output), "--interrupt-after", "4"]
+        first = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
+                               timeout=180,
+                               env={"PYTHONDONTWRITEBYTECODE": "1",
+                                    "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"})
+        assert first.returncode == 3, first.stderr
+        assert json.loads(first.stdout)["status"] == "interrupted"
+        second = subprocess.run(
+            command[:-2] + ["--resume"], cwd=ROOT, capture_output=True,
+            text=True, timeout=180,
+            env={"PYTHONDONTWRITEBYTECODE": "1",
+                 "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"})
+&gt;       assert second.returncode == 0, second.stderr
+E       AssertionError: 
+E       assert 2 == 0
+E        +  where 2 = CompletedProcess(args=['/Users/flare/replica_r3_starter/.venv/bin/python', '/Users/flare/replica_r3_starter/scripts/ru...ss', '--resume'], returncode=2, stdout='{\n  "error": "resume format differs",\n  "status": "refused"\n}\n', stderr='').returncode
+
+tests/test_value_readout_abstention_runner.py:194: AssertionError</failure></testcase><testcase classname="tests.test_value_readout_abstention_runner" name="test_runner_reads_no_evaluation_labels_during_fit" time="1.443" /><testcase classname="tests.test_value_readout_abstention_runner" name="test_fit_receipt_binds_only_treatment_artifacts" time="0.009" /></testsuite></testsuites>

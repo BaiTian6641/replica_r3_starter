@@ -16,7 +16,15 @@ This entry point is deliberately conservative:
   receipt that binds the exact P-only file and payload, the live config,
   protocol, episode manifest, scorer/grammar/stopping policy, fit-only
   candidate vocabulary, case coverage and attempts, and the teaching
-  run/cost/canonical state hashes.  Correctness, minimum accuracy, coverage,
+  run/cost/canonical state hashes.  Preserved ``generated_ids``/``content_ids``
+  are re-decoded with the sealed fast tokenizer before they are scored: the
+  receipt binds the model revision and lock, the tokenizer file/config digests
+  and the decode policy (``skip_special_tokens=True``,
+  ``clean_up_tokenization_spaces=False``, stripped whitespace and the terminal
+  stop token excluded before decode).  Only the tokenizer is loaded offline;
+  no model weights and no MPS device are touched before admission.  An
+  EOS-only generation can therefore never carry nonempty scored text.
+  Correctness, minimum accuracy, coverage,
   generation/stop evidence, source freedom and generation failures are
   independently recomputed from preserved generations and authoritative fit
   targets; saved score/gate flags are never trusted alone.  ``load_rows`` is
@@ -89,8 +97,19 @@ CONFIG_FORMAT_BEHAVIORAL = "replica.nested_text.behavioral_reference.v1"
 CONFIG_FORMAT_V2 = "replica.nested_text.nl1.v2"
 CONFIG_FORMAT_V1 = "replica.nested_text.nl1.v1"
 FIT_RECEIPT_FORMAT = "replica.nested_text.fit_receipt.v1"
-FIT_RECEIPT_SCHEMA_VERSION = 1
+FIT_RECEIPT_SCHEMA_VERSION = 2
 FIT_RECEIPT_FILE = "fit_receipt.json"
+# Preserved fit generations are decoded again with this exact offline contract.
+TOKENIZER_BINDING_FORMAT = "replica.nested_text.tokenizer_binding.v1"
+DECODE_POLICY_VERSION = "replica.nested_text.decode.v1"
+DECODE_SKIP_SPECIAL_TOKENS = True
+DECODE_CLEAN_UP_TOKENIZATION_SPACES = False
+DECODE_STRIP_WHITESPACE = True
+DECODE_STOP_HANDLING = "terminal_stop_token_excluded_before_decode"
+# Same sealed source the native loader pins; only the tokenizer is ever loaded here.
+PINNED_MODEL_REPO = "openbmb/MiniCPM5-2B"
+PINNED_MODEL_REVISION = "f97400052a43d642bbc6e9975e2397e3ae6a6b52"
+TOKENIZER_FILE_PREFIXES = ("tokenizer", "special_tokens", "chat_template")
 # Roles whose targets may be parsed while producing/validating the fit receipt.
 FIT_TARGET_ROLES = frozenset({"teaching", "correction",
                               "wrong_world_teaching"})
@@ -479,13 +498,104 @@ def episodes_for_role(directory: Path, manifest: Mapping[str, Any], role: str,
             for row in rows]
 
 
+def _is_lower_hex(value: Any, length: int) -> bool:
+    return (isinstance(value, str) and len(value) == length
+            and all(character in "0123456789abcdef" for character in value))
+
+
+def _tokenizer_files(lock: Mapping[str, Any]) -> dict[str, str]:
+    """The sealed tokenizer-side files a decode must be reconstructed from."""
+    _require(isinstance(lock, Mapping)
+             and isinstance(lock.get("snapshot_files_sha256"), Mapping),
+             "lock lacks the snapshot digests")
+    files = {name: digest for name, digest in
+             lock["snapshot_files_sha256"].items()
+             if name.startswith(TOKENIZER_FILE_PREFIXES)}
+    _require("tokenizer.json" in files, "lock lacks the pinned tokenizer.json")
+    for name, digest in files.items():
+        _require(_is_lower_hex(digest, 64),
+                 f"lock tokenizer digest for {name} is invalid")
+    return files
+
+
 def _tokenizer_digest(lock: Mapping[str, Any]) -> str:
-    tokenizer_files = {name: digest for name, digest in
-                       lock["snapshot_files_sha256"].items()
-                       if name.startswith(("tokenizer", "special_tokens",
-                                           "chat_template"))}
-    _require(tokenizer_files, "lock lacks tokenizer files")
-    return fingerprint(tokenizer_files)
+    return fingerprint(_tokenizer_files(lock))
+
+
+def decode_policy() -> dict:
+    """The exact decode settings preserved fit evidence must be replayed under."""
+    return {
+        "version": DECODE_POLICY_VERSION,
+        "skip_special_tokens": DECODE_SKIP_SPECIAL_TOKENS,
+        "clean_up_tokenization_spaces": DECODE_CLEAN_UP_TOKENIZATION_SPACES,
+        "strip_whitespace": DECODE_STRIP_WHITESPACE,
+        "stop_handling": DECODE_STOP_HANDLING,
+        "stop_policy_version": STOP_POLICY_VERSION,
+    }
+
+
+def tokenizer_binding(lock: Mapping[str, Any]) -> dict:
+    """Model revision, lock and tokenizer file digests plus decode settings."""
+    _require(isinstance(lock, Mapping), "tokenizer binding requires the model lock")
+    _require(lock.get("repo_id") == PINNED_MODEL_REPO,
+             "the tokenizer binding requires the pinned MiniCPM5-2B source")
+    _require(lock.get("revision") == PINNED_MODEL_REVISION,
+             "the tokenizer binding requires the pinned MiniCPM5 revision")
+    _require(_is_lower_hex(lock.get("config_sha256"), 64),
+             "the tokenizer binding requires the sealed model config digest")
+    files = _tokenizer_files(lock)
+    return {
+        "format": TOKENIZER_BINDING_FORMAT,
+        "repo_id": lock["repo_id"],
+        "revision": lock["revision"],
+        "lock_sha256": _sha256_json(lock),
+        "config_sha256": lock["config_sha256"],
+        "snapshot_files_sha256_digest": _sha256_json(
+            sorted(lock["snapshot_files_sha256"].items())),
+        "tokenizer_files_sha256": dict(sorted(files.items())),
+        "tokenizer_files_digest": fingerprint(files),
+        "decoding": decode_policy(),
+    }
+
+
+def load_pinned_tokenizer(model_path: Path, lock: Mapping[str, Any]):
+    """Load only the sealed fast tokenizer, offline; no model, weights or MPS."""
+    binding = tokenizer_binding(lock)
+    root = Path(model_path)
+    _require(root.is_dir(), "the pinned tokenizer snapshot directory is missing")
+    for name, digest in binding["tokenizer_files_sha256"].items():
+        path = root / name
+        _require(path.is_file(), f"the pinned tokenizer artifact is missing: {name}")
+        _require(_sha256_file(path) == digest,
+                 f"the pinned tokenizer artifact differs from the model lock: {name}")
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained(
+        str(root), local_files_only=True, trust_remote_code=False)
+    _require(getattr(tokenizer, "is_fast", False),
+             "the pinned tokenizer must be a fast tokenizer")
+    _require_fit_tokenizer(tokenizer)
+    return tokenizer
+
+
+def _require_fit_tokenizer(tokenizer) -> int:
+    """The vocabulary size preserved token IDs must stay inside."""
+    _require(callable(getattr(tokenizer, "decode", None)),
+             "fit evidence requires a tokenizer with decode()")
+    try:
+        size = len(tokenizer)
+    except TypeError as error:  # pragma: no cover - defensive contract
+        raise RunnerError("fit evidence tokenizer lacks a vocabulary size") from error
+    _require(type(size) is int and size > 0,
+             "fit evidence tokenizer must declare a positive vocabulary size")
+    return size
+
+
+def decode_content(tokenizer, content_ids: Iterable[int]) -> str:
+    """Decode one preserved content sequence under the pinned decode policy."""
+    text = tokenizer.decode(
+        list(content_ids), skip_special_tokens=DECODE_SKIP_SPECIAL_TOKENS,
+        clean_up_tokenization_spaces=DECODE_CLEAN_UP_TOKENIZATION_SPACES)
+    return text.strip() if DECODE_STRIP_WHITESPACE else text
 
 
 def _parameter_binding(lock: Mapping[str, Any]) -> str:
@@ -894,7 +1004,7 @@ def generate_episode_v2(learner: NestedTextLearner, session: MemorySession,
 
     def stop_on_sentence(ids):
         nonlocal sentence_stopped
-        text = session.tokenizer.decode(list(ids), skip_special_tokens=True)
+        text = decode_content(session.tokenizer, ids)
         if sentence_complete_text(text):
             sentence_stopped = True
             return True
@@ -924,8 +1034,7 @@ def generate_episode_v2(learner: NestedTextLearner, session: MemorySession,
                      "generated IDs differ from the request record")
             result = finalize_generation(
                 generated,
-                decode=lambda content: session.tokenizer.decode(
-                    list(content), skip_special_tokens=True),
+                decode=lambda content: decode_content(session.tokenizer, content),
                 stop_tokens=stop_tokens, max_new_tokens=max_new_tokens,
                 completed_by="sentence_complete" if sentence_stopped else None)
             generation_seconds = time.perf_counter() - started
@@ -976,6 +1085,7 @@ def score_episodes_v2(learner: NestedTextLearner, session: MemorySession,
                 "reason": scored.reason,
                 "scoring_version": scored.scoring_version,
                 "answer_grammar_version": scored.grammar_version,
+                "decode_policy_version": DECODE_POLICY_VERSION,
                 "generated_ids": list(result.generated_ids),
                 "content_ids": list(result.content_ids),
                 "stop_reason": result.stop_reason,
@@ -998,6 +1108,7 @@ def score_episodes_v2(learner: NestedTextLearner, session: MemorySession,
             record.update({"correct": False, "reason": "generation_failure",
                            "scoring_version": SCORING_VERSION,
                            "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+                           "decode_policy_version": DECODE_POLICY_VERSION,
                            "truncated": None,
                            "error": f"{type(error).__name__}: {error}",
                            "traceback": traceback.format_exc()})
@@ -1135,9 +1246,9 @@ def development_candidate_answers_for(directory: Path,
 
 FIT_RECEIPT_KEYS = frozenset({
     "format", "schema_version", "status", "mode", "created_by", "world_uid",
-    "scope", "config", "protocol", "episodes", "p_state", "scoring",
-    "coverage", "attempts", "teaching", "gate_report", "heldout_opened",
-    "receipt_sha256"})
+    "scope", "config", "protocol", "episodes", "p_state", "tokenizer",
+    "scoring", "coverage", "attempts", "teaching", "gate_report",
+    "heldout_opened", "receipt_sha256"})
 TEACH_RUN_KEYS = (
     "format", "mode", "status", "world_uid", "protocol_sha256",
     "config_sha256", "episodes_manifest_sha256", "implementation_sha256",
@@ -1223,10 +1334,13 @@ _FIT_EVIDENCE_FIELDS = ("output", "generated_ids", "content_ids",
                         "stop_reason", "stop_token", "max_new_tokens")
 
 
-def _fit_int_ids(value: Any, *, field: str, attempt: str) -> tuple[int, ...]:
+def _fit_int_ids(value: Any, *, field: str, attempt: str,
+                 vocab_size: int) -> tuple[int, ...]:
     _require(isinstance(value, (list, tuple))
              and all(type(item) is int for item in value),
              f"fit attempt {attempt!r} has an invalid {field} sequence")
+    _require(all(0 <= item < vocab_size for item in value),
+             f"fit attempt {attempt!r} has an out-of-vocabulary {field} token ID")
     return tuple(value)
 
 
@@ -1245,17 +1359,21 @@ def _is_fit_generation_failure(item: Mapping[str, Any]) -> bool:
     _require(not any(field in item for field in _FIT_EVIDENCE_FIELDS),
              f"fit attempt {attempt!r} generation failure carries scored evidence")
     _require(item.get("scoring_version") == SCORING_VERSION
-             and item.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION,
-             f"fit attempt {attempt!r} failure lacks the declared scorer/grammar")
+             and item.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION
+             and item.get("decode_policy_version") == DECODE_POLICY_VERSION,
+             f"fit attempt {attempt!r} failure lacks the declared "
+             "scorer/grammar/decoder")
     return True
 
 
 def _recompute_fit_attempt(item: Mapping[str, Any], case: Mapping[str, Any], *,
                            candidates: tuple[str, ...],
                            max_new_tokens: int,
-                           stop_tokens: frozenset[int]) -> dict:
-    """Independently revalidate one preserved generation and rescore its text."""
+                           stop_tokens: frozenset[int],
+                           tokenizer) -> dict:
+    """Decode one preserved generation with the pinned tokenizer and rescore it."""
     attempt = case["id"]
+    vocab_size = _require_fit_tokenizer(tokenizer)
     _require(item.get("label") == "fit",
              f"fit attempt {attempt!r} belongs to another evaluation label")
     _require(item.get("expected") == case["expected"]
@@ -1268,12 +1386,16 @@ def _recompute_fit_attempt(item: Mapping[str, Any], case: Mapping[str, Any], *,
              f"fit attempt {attempt!r} was scored by another scorer")
     _require(item.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION,
              f"fit attempt {attempt!r} lacks the current answer grammar")
+    _require(item.get("decode_policy_version") == DECODE_POLICY_VERSION,
+             f"fit attempt {attempt!r} was decoded under another policy")
     output = item.get("output")
     _require(isinstance(output, str), f"fit attempt {attempt!r} lacks decoded output")
     generated = _fit_int_ids(item.get("generated_ids"),
-                             field="generated_ids", attempt=attempt)
+                             field="generated_ids", attempt=attempt,
+                             vocab_size=vocab_size)
     content = _fit_int_ids(item.get("content_ids"),
-                           field="content_ids", attempt=attempt)
+                           field="content_ids", attempt=attempt,
+                           vocab_size=vocab_size)
     _require(generated and len(generated) <= max_new_tokens,
              f"fit attempt {attempt!r} generation violates the token budget")
     _require(content == generated[:len(content)],
@@ -1294,6 +1416,8 @@ def _recompute_fit_attempt(item: Mapping[str, Any], case: Mapping[str, Any], *,
     else:
         _require(stop_token is None and content == generated,
                  f"fit attempt {attempt!r} stop disposition disagrees with its generation")
+        _require(not any(token in stop_tokens for token in generated),
+                 f"fit attempt {attempt!r} hides a stop token in a non-token stop")
         if stop_reason == "sentence_complete":
             _require(sentence_complete_text(output),
                      f"fit attempt {attempt!r} claims an incomplete sentence stop")
@@ -1303,6 +1427,14 @@ def _recompute_fit_attempt(item: Mapping[str, Any], case: Mapping[str, Any], *,
         else:
             _require(len(generated) < max_new_tokens,
                      f"fit attempt {attempt!r} claims a missing stop after budget exhaustion")
+    _require(not any(token in stop_tokens for token in content),
+             f"fit attempt {attempt!r} preserves a stop token inside its content")
+    if not content:
+        _require(output == "",
+                 f"fit attempt {attempt!r} saves text with no content IDs")
+    decoded = decode_content(tokenizer, content)
+    _require(decoded == output,
+             f"fit attempt {attempt!r} decoded IDs contradict its saved output")
     truncated = is_truncated_stop_reason(stop_reason)
     _require(item.get("truncated") is truncated,
              f"fit attempt {attempt!r} truncation disagrees with its stop reason")
@@ -1323,7 +1455,8 @@ def recompute_fit_evaluation(cases: list[dict], score: Mapping[str, Any], *,
                              declared_attempts: int, min_accuracy: float,
                              max_new_tokens: int,
                              stop_tokens: Iterable[int],
-                             candidates: tuple[str, ...]) -> dict:
+                             candidates: tuple[str, ...],
+                             tokenizer) -> dict:
     """Recompute the whole fit gate from targets and preserved evidence.
 
     Saved ``correct`` flags, gate pass flags and gate accuracy are only compared
@@ -1356,7 +1489,7 @@ def recompute_fit_evaluation(cases: list[dict], score: Mapping[str, Any], *,
         _recompute_fit_attempt(by_id[case["id"]], case,
                                candidates=candidates,
                                max_new_tokens=int(max_new_tokens),
-                               stop_tokens=stop_set)
+                               stop_tokens=stop_set, tokenizer=tokenizer)
         for case in cases]
     audits = [item.get("request_audit") for item in results]
     audit_complete = bool(results) and all(
@@ -1585,7 +1718,8 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
                       episodes_root: Path, state_path: Path,
                       state: Mapping[str, Any], protocol: TextProtocol,
                       teach_dir: Path, teach_expected_updates: int,
-                      fit_gate_path: Path,
+                      fit_gate_path: Path, lock: Mapping[str, Any],
+                      tokenizer,
                       wrong_world_teach_dir: Path | None = None) -> dict:
     """Bind one fit evaluation to its P-state, protocol, data, scorer and teach run."""
     gate = json.loads(Path(fit_gate_path).read_text(encoding="utf-8"))
@@ -1594,6 +1728,12 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
     _require(isinstance(score, Mapping)
              and isinstance(score.get("results"), list),
              "fit gate report lacks per-attempt scores")
+    tokenizer_block = tokenizer_binding(lock)
+    _require(tokenizer_block["revision"] == str(config["theta"]["revision"]),
+             "the model lock revision differs from the configured theta revision")
+    _require(tokenizer_block["tokenizer_files_digest"]
+             == protocol.tokenizer_sha256,
+             "the model lock tokenizer files differ from the fit protocol")
     primary = manifest["primary_world"]
     scope = f"{primary}/text"
     declared = int(config["workload"]["fit_eval_attempts"])
@@ -1606,14 +1746,17 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
         cases, score, declared_attempts=declared,
         min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
         max_new_tokens=int(generation["max_new_tokens"]),
-        stop_tokens=generation["stop_tokens"], candidates=candidates)
+        stop_tokens=generation["stop_tokens"], candidates=candidates,
+        tokenizer=tokenizer)
     coverage = recomputed["coverage"]
     attempts = recomputed["attempts"]
     gate_failures = [str(value) for value in gate.get("gate_failures") or ()]
     _require(gate.get("scoring_version") == SCORING_VERSION
              and gate.get("stop_policy_version") == STOP_POLICY_VERSION
-             and gate.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION,
-             "fit gate report lacks the declared scorer/grammar/stopping metadata")
+             and gate.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION
+             and gate.get("decode_policy_version") == DECODE_POLICY_VERSION,
+             "fit gate report lacks the declared "
+             "scorer/grammar/stopping/decoder metadata")
     _require(gate_failures == recomputed["gate_failures"],
              "fit gate failures differ from independently recomputed evidence")
     _require((gate.get("all_declared_gates_passed") is True)
@@ -1674,6 +1817,7 @@ def build_fit_receipt(*, config: Mapping[str, Any], config_path: Path,
             "wrong_world": manifest["wrong_world"],
         },
         "p_state": p_state_summary(state_path, state),
+        "tokenizer": tokenizer_block,
         "scoring": {
             "scoring_version": SCORING_VERSION,
             "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
@@ -1728,12 +1872,16 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
                          manifest: Mapping[str, Any], manifest_path: Path,
                          episodes_root: Path, state_path: Path,
                          lock: Mapping[str, Any],
-                         state: Mapping[str, Any] | None = None) -> None:
+                         state: Mapping[str, Any] | None = None,
+                         tokenizer=None, model_path: Path | None = None) -> None:
     """Fail closed unless this receipt admits the live dependent evaluation.
 
     Everything except the payload digest is checked before ``torch.load``; the
     payload binding is checked immediately after the state is loaded and before
-    the native worker or any development-role access.
+    the native worker or any development-role access.  Preserved fit IDs are
+    decoded with the sealed fast tokenizer only: when no live tokenizer object
+    is supplied, the tokenizer is loaded offline from ``model_path``; no model
+    weights and no MPS device are touched.
     """
     _require(isinstance(receipt, Mapping), "fit receipt must be a mapping")
     _require(set(receipt) == FIT_RECEIPT_KEYS,
@@ -1806,6 +1954,21 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
     _require(receipt["world_uid"] == manifest["primary_world"]
              and receipt["scope"] == f"{manifest['primary_world']}/text",
              "fit receipt world/scope differs from the episodes")
+
+    tokenizer_block = receipt["tokenizer"]
+    _require(isinstance(tokenizer_block, Mapping),
+             "fit receipt tokenizer block is invalid")
+    _require(tokenizer_block == tokenizer_binding(lock),
+             "fit receipt tokenizer identity or decode policy differs "
+             "from the model lock")
+    _require(tokenizer_block["revision"] == protocol_block["theta"]["revision"]
+             and tokenizer_block["tokenizer_files_digest"]
+             == protocol_block["tokenizer_sha256"],
+             "fit receipt tokenizer differs from its protocol")
+    _require(tokenizer_block["decoding"]["version"] == DECODE_POLICY_VERSION
+             and tokenizer_block["decoding"]["stop_policy_version"]
+             == STOP_POLICY_VERSION,
+             "fit receipt decode policy differs from the declared contract")
 
     p_state = receipt["p_state"]
     _require(isinstance(p_state, Mapping), "fit receipt P-state block is invalid")
@@ -1898,9 +2061,10 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
     _require(gate.get("scoring_version") == SCORING_VERSION
              and gate.get("answer_grammar_version") == ANSWER_GRAMMAR_VERSION
              and gate.get("stop_policy_version") == STOP_POLICY_VERSION
+             and gate.get("decode_policy_version") == DECODE_POLICY_VERSION
              and gate.get("config_sha256") == config_block["sha256"],
              "fit gate report was produced by another scorer, grammar, "
-             "stopping policy or config")
+             "stopping policy, decoder or config")
     _require(list(gate.get("gate_failures") or ()) == []
              and list(gate_block["gate_failures"]) == [],
              "fit receipt records fit gate failures")
@@ -1915,11 +2079,18 @@ def validate_fit_receipt(receipt: Mapping[str, Any], *,
     candidates = fit_candidate_answers_for(
         episodes_root, manifest, world_uid=manifest["primary_world"],
         scope=f"{manifest['primary_world']}/text")
+    decoder = tokenizer
+    if decoder is None:
+        _require(model_path is not None,
+                 "fit receipt validation requires the pinned tokenizer "
+                 "snapshot or a loaded tokenizer")
+        decoder = load_pinned_tokenizer(Path(model_path), lock)
     recomputed = recompute_fit_evaluation(
         cases, score, declared_attempts=declared,
         min_accuracy=float(config["gates"]["fit"]["min_accuracy"]),
         max_new_tokens=int(generation["max_new_tokens"]),
-        stop_tokens=generation["stop_tokens"], candidates=candidates)
+        stop_tokens=generation["stop_tokens"], candidates=candidates,
+        tokenizer=decoder)
     coverage = recomputed["coverage"]
     attempts = recomputed["attempts"]
     _require(receipt["coverage"] == coverage,
@@ -2014,7 +2185,8 @@ def require_fit_receipt(args, config: Mapping[str, Any], *,
         receipt, config=config, config_path=Path(args.protocol),
         manifest=manifest, manifest_path=manifest_path,
         episodes_root=episodes_root, state_path=Path(args.p_state),
-        lock=load_model_lock(args.model_lock))
+        lock=load_model_lock(args.model_lock),
+        model_path=Path(args.model_path))
     ROLE_ACCESS.admit_fit_receipt(receipt)
     return receipt
 
@@ -2663,6 +2835,7 @@ def run_fit_eval(args, config: dict) -> int:
             "work": work_totals,
             "scoring_version": SCORING_VERSION,
             "answer_grammar_version": ANSWER_GRAMMAR_VERSION,
+            "decode_policy_version": DECODE_POLICY_VERSION,
             **version_metadata(args),
         })
         receipt = build_fit_receipt(
@@ -2672,6 +2845,7 @@ def run_fit_eval(args, config: dict) -> int:
             protocol=protocol, teach_dir=Path(teach_run),
             teach_expected_updates=required_updates,
             fit_gate_path=output / "gates" / "fit.json",
+            lock=lock, tokenizer=tokenizer,
             wrong_world_teach_dir=(Path(wrong_world_teach_run)
                                    if wrong_world_teach_run is not None
                                    else None))
@@ -2682,7 +2856,7 @@ def run_fit_eval(args, config: dict) -> int:
                 receipt, config=config, config_path=args.protocol,
                 manifest=manifest, manifest_path=args.episodes / "manifest.json",
                 episodes_root=args.episodes, state_path=args.p_state,
-                lock=lock, state=state)
+                lock=lock, state=state, tokenizer=tokenizer)
         receipt_path = output / FIT_RECEIPT_FILE
         _write_json(receipt_path, receipt)
         _write_json(output / "run.json", {

@@ -1,14 +1,20 @@
-"""Deterministic fixture and fail-closed validation for value-readout abstention.
+"""Deterministic fixture, audit and fail-closed admission for value-readout.
 
-This module is preparation-only.  It builds chronological synthetic episodes,
-sealed development/heldout labels, disjoint training replay cases, control-arm
-rows and a manifest; it validates those artifacts with the Python standard
-library only.  No model, tokenizer, optimizer, gradient, checkpoint or native
-job is constructed or run.
+This module builds chronological synthetic episodes, sealed development/heldout
+labels, disjoint training replay cases, control-arm rows and a manifest.  It
+separates a trusted all-split construction audit from a hash-only runtime
+precheck and a deny-by-default evaluation-label vault.  Receipt admission
+independently resolves local checkpoints, reports and per-case predictions and
+recomputes coverage, gates and metrics from authoritative targets.
+
+Admission lazily imports torch only to inspect the local software-integration
+checkpoint tensors.  No model, tokenizer, optimizer step, gradient, download or
+native runtime is loaded or run.
 """
 from __future__ import annotations
 
 from copy import deepcopy
+import functools
 import hashlib
 import json
 import math
@@ -19,7 +25,7 @@ from typing import Any, Iterable, Mapping, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "configs" / "value_readout_abstention_protocol_v1.json"
-PREPARED_DIR = ROOT / "data" / "value_readout_abstention_20261027" / "fixture01"
+PREPARED_DIR = ROOT / "data" / "value_readout_abstention_20261027" / "fixture02"
 
 CONFIG_FORMAT = "replica.value_readout_abstention.protocol.v1"
 MANIFEST_FORMAT = "replica.value_readout_abstention.prepared.v1"
@@ -28,13 +34,20 @@ CASE_FORMAT = "replica.value_readout_abstention.case.v1"
 LABEL_FORMAT = "replica.value_readout_abstention.label.v1"
 CONTROL_FORMAT = "replica.value_readout_abstention.control.v1"
 VALIDATION_FORMAT = "replica.value_readout_abstention.validation.v1"
+RUNTIME_PRECHECK_FORMAT = "replica.value_readout_abstention.runtime_precheck.v1"
 PREFLIGHT_FORMAT = "replica.value_readout_abstention.preflight_receipt.v1"
+CHECKPOINT_FORMAT = "replica.value_readout_abstention.checkpoint.v1"
+FIT_REPORT_FORMAT = "replica.value_readout_abstention.fit_report.v1"
+PREDICTION_FORMAT = "replica.value_readout_abstention.prediction.v1"
+EVALUATION_REPORT_FORMAT = "replica.value_readout_abstention.evaluation_report.v1"
+ARTIFACT_BUDGET_FORMAT = "replica.value_readout_abstention.artifact_budget.v1"
 FIT_RECEIPT_FORMAT = "replica.value_readout_abstention.fit_receipt.v1"
 DEVELOPMENT_RECEIPT_FORMAT = "replica.value_readout_abstention.development_receipt.v1"
 HELDOUT_RECEIPT_FORMAT = "replica.value_readout_abstention.heldout_receipt.v1"
 AUTHORIZATION_FORMAT = "replica.value_readout_abstention.authorization.v1"
 
 PROTOCOL_ID = "value_readout_abstention_v1"
+ENTRY_POINT = "scripts/run_value_readout_abstention_v1.py"
 SEED = 20261027
 GUARD_BYTES = {
     "peak_driver_bytes_max": 53687091200,
@@ -108,6 +121,7 @@ FIT_RECEIPT_FIELDS = (
 )
 DEVELOPMENT_RECEIPT_FIELDS = (
     "all_declared_gates_passed",
+    "artifacts",
     "attempt",
     "config_sha256",
     "created_by",
@@ -122,6 +136,7 @@ DEVELOPMENT_RECEIPT_FIELDS = (
     "tuning_performed",
 )
 HELDOUT_RECEIPT_FIELDS = (
+    "artifacts",
     "attempt",
     "config_sha256",
     "created_by",
@@ -133,6 +148,33 @@ HELDOUT_RECEIPT_FIELDS = (
     "protocol_id",
     "status",
     "tuning_performed",
+)
+
+FIT_ARTIFACT_KEYS = (
+    "checkpoint_sha256",
+    "fit_report_sha256",
+    "fit_predictions_sha256",
+)
+EVALUATION_ARTIFACT_KEYS = ("predictions_sha256", "report_sha256")
+FIT_EVIDENCE_FILES = {
+    "checkpoint_sha256": "checkpoint.pt",
+    "fit_report_sha256": "fit_report.json",
+    "fit_predictions_sha256": "fit_predictions.jsonl",
+}
+DEV_EVIDENCE_FILES = {
+    "predictions_sha256": "dev_predictions.jsonl",
+    "report_sha256": "dev_report.json",
+}
+HELDOUT_EVIDENCE_FILES = {
+    "predictions_sha256": "heldout_predictions.jsonl",
+    "report_sha256": "heldout_report.json",
+}
+CASE_TYPE_NAMES = (
+    "future_answer",
+    "correction",
+    "unaffected_retention",
+    "unknown_abstention",
+    "wrong_world_abstention",
 )
 
 FIT_METRIC_KEYS = (
@@ -801,6 +843,7 @@ def build_fixture(config: Mapping[str, Any], config_path: Path,
     manifest = {
         "format": MANIFEST_FORMAT,
         "protocol_id": PROTOCOL_ID,
+        "amendment": dict(config["amendment"]),
         "generated_by": "scripts/prepare_value_readout_abstention_v1.py",
         "generator_contract": "scripts/value_readout_abstention_contract_v1.py",
         "seed": seed,
@@ -1000,6 +1043,59 @@ def _planned_workload(config: Mapping[str, Any], counts: Mapping[str, Any]) -> d
 # ---------------------------------------------------------------------------
 # Config validation
 # ---------------------------------------------------------------------------
+
+def _expected_artifact_budget() -> dict:
+    return {
+        "cap_bytes": 33554432,
+        "cap_mib": 32,
+        "old_cap_bytes": 16777216,
+        "old_cap_underprovisioned": True,
+        "resume_complete_checkpoints": 3,
+        "observed_checkpoint_bytes": [9656709, 9657033, 9657093],
+        "observed_checkpoints_total_bytes": 28970835,
+        "observed_non_checkpoint_evidence_bytes": 136765,
+        "observed_total_bytes": 29107600,
+        "old_cap_deficit_bytes": 12330384,
+        "headroom_bytes": 4446832,
+        "derivation": "Three resume-complete checkpoints (9,656,709 + 9,657,033 + 9,657,093 = 28,970,835 bytes) include full model and optimizer state. Fit, control, development and held-out reports, predictions and receipts add 136,765 bytes, for 29,107,600 observed. The 33,554,432-byte ceiling leaves 4,446,832 bytes of headroom. The old 16,777,216-byte ceiling was 12,330,384 bytes too small.",
+        "enforcement": "after_final_report_and_receipt_writes_all_artifacts_included",
+        "overflow_evidence": "preserved_as_artifact_budget_overflow.json",
+    }
+
+
+def _expected_amendment() -> dict:
+    return {
+        "id": "value_readout_abstention_v1_storage_budget_20261027",
+        "amends": "value_readout_abstention_v1",
+        "date": "2026-10-27",
+        "reason": "The previous 16 MiB authorized-run artifact ceiling was underprovisioned for three resume-complete 24-update arm checkpoints plus fit, control, development and held-out evidence.",
+        "previous": {
+            "artifact_bytes_max": 16777216,
+            "config_sha256": "49b8bc451fe78f29e79ddbf5af2ea1a787739e98eedd9ef504025dfc758d5e32",
+            "prepared_manifest_sha256": "e544d41b62e9f28d4810a352d7a5e9ca20006c5a144325ffa7b15202ed87ee11",
+            "prepared_root": "data/value_readout_abstention_20261027/fixture01",
+        },
+        "current": {
+            "artifact_bytes_max": 33554432,
+            "prepared_root": "data/value_readout_abstention_20261027/fixture02",
+        },
+        "historical_evidence_preserved": True,
+        "silent_overwrite": False,
+        "provenance_update": {
+            "id": "value_readout_abstention_v1_entrypoint_provenance_20261027",
+            "date": "2026-10-27",
+            "previous_created_by": "future_authorized_runner",
+            "created_by": ENTRY_POINT,
+            "previous_config_sha256": "900dfcc68367ab4f31af4f37619b0d5388fc3d56c8e3644f040bb59a03dd3593",
+            "previous_prepared_manifest_sha256": "a1dad8216886bc1c2f9d2cd1563dfdd4a67661744d637cd653ce78b32d7631aa",
+            "previous_prepared_manifest_digest": "6d97cb00cbf28f553007705a13934cc9744ab2e03a128bbaa47cc668055947f2",
+            "prepared_root": "data/value_readout_abstention_20261027/fixture02",
+            "reason": "Replace the placeholder future_authorized_runner provenance with the actual CPU entry point; model behaviour, update counts, controls and the 32 MiB ceiling are unchanged.",
+            "run_outputs_preserved": True,
+            "silent_overwrite": False,
+        },
+    }
+
 
 def _expected_data_limits() -> dict:
     return {
@@ -1316,7 +1412,7 @@ def validate_config(config: Mapping[str, Any],
              "config", "fit receipt fields differ")
     exact_values = fit_receipt["exact_values"]
     expected_exact = {
-        "created_by": "future_authorized_runner",
+        "created_by": ENTRY_POINT,
         "dev_labels_read": False,
         "earlier_write_gradient": False,
         "heldout_opened": False,
@@ -1348,6 +1444,8 @@ def validate_config(config: Mapping[str, Any],
              "heldout attempts differ")
 
     budget = config["budget"]
+    _require(config.get("amendment") == _expected_amendment(), "config",
+             "protocol storage-budget amendment differs")
     preparation = budget["preparation"]
     for key in ("native_jobs", "model_loads", "tokenizer_loads",
                 "optimizer_updates", "gradients", "checkpoints_written",
@@ -1394,6 +1492,23 @@ def validate_config(config: Mapping[str, Any],
     _require(ceiling["checkpoint_writes"]
              == derivation["checkpoint_writes_derivation"]["total"], "config",
              "checkpoint ceiling does not equal its derivation")
+    _require(ceiling["artifact_bytes_max"] == 33554432, "config",
+             "authorized artifact ceiling is not the amended 32 MiB cap")
+    _require(ceiling["artifact_budget"] == _expected_artifact_budget(),
+             "config", "artifact budget derivation differs")
+    _require(ceiling["artifact_budget"]["cap_bytes"]
+             == ceiling["artifact_bytes_max"], "config",
+             "artifact budget cap and ceiling disagree")
+    _require(ceiling["artifact_budget"]["observed_total_bytes"]
+             <= ceiling["artifact_bytes_max"], "config",
+             "observed artifact total exceeds the amended ceiling")
+    _require(ceiling["artifact_budget"]["observed_total_bytes"]
+             > ceiling["artifact_budget"]["old_cap_bytes"], "config",
+             "amendment does not document the old-cap overflow")
+    _require(ceiling["artifact_budget"]["headroom_bytes"]
+             == ceiling["artifact_bytes_max"]
+             - ceiling["artifact_budget"]["observed_total_bytes"], "config",
+             "artifact headroom derivation differs")
     _require(derivation["fit_receipt_optimizer_steps"]
              + derivation["control_fit_optimizer_steps"]
              == derivation["total_optimizer_steps"], "config",
@@ -1803,6 +1918,229 @@ def _check_controls(rows: Sequence[Mapping[str, Any]],
     return {"arm_ids": [row["arm_id"] for row in rows], "count": len(rows)}
 
 
+def runtime_precheck(prepared_dir: Path = PREPARED_DIR,
+                     config_path: Path = CONFIG_PATH) -> dict:
+    """Runtime-safe precheck: hash files and read only allowed metadata.
+
+    This function never parses a JSONL fixture row.  Training metadata is read
+    later by fit admission; development and held-out labels are opened only by
+    :class:`LabelVault` after a validated admission.
+    """
+    prepared = Path(prepared_dir)
+    config_file = Path(config_path)
+    config = read_json(config_file)
+    validate_config(config, config_file)
+    manifest = read_json(prepared / "manifest.json")
+    _require(manifest.get("format") == MANIFEST_FORMAT, "manifest",
+             "manifest format differs")
+    _require(manifest.get("protocol_id") == PROTOCOL_ID, "manifest",
+             "protocol id differs")
+    _require(manifest.get("amendment") == config["amendment"], "manifest",
+             "manifest amendment differs from the protocol")
+    _check_manifest_digest(manifest)
+    _require(manifest["config"]["sha256"] == sha256_file(config_file), "manifest",
+             "manifest config hash differs")
+    _require(manifest["config"]["path"] == _relative_config_path(config_file),
+             "manifest", "manifest config path differs")
+    file_names = config["prepared"]["files"]
+    _require(set(manifest["files"]) == set(file_names.values()), "manifest",
+             "manifest file set differs")
+    for name in file_names.values():
+        path = prepared / name
+        _require(path.is_file() and path.stat().st_size > 0, "manifest",
+                 f"fixture artifact is missing or empty: {name}")
+        _require(sha256_file(path) == manifest["files"][name], "manifest",
+                 f"file hash differs: {name}")
+    _require(manifest["counts"] == config["prepared"]["expected_counts"],
+             "manifest", "manifest counts differ from config")
+    _require(manifest["label_seal"]["dev_labels_sha256"]
+             == manifest["files"][file_names["labels_dev"]], "manifest",
+             "dev label seal differs")
+    _require(manifest["label_seal"]["heldout_labels_sha256"]
+             == manifest["files"][file_names["labels_heldout"]], "manifest",
+             "heldout label seal differs")
+    _require(manifest["label_seal"]["dev_label_cases"] == 10
+             and manifest["label_seal"]["heldout_label_cases"] == 10,
+             "manifest", "label case counts differ")
+    _require(manifest["label_seal"]["heldout_opened"] is False, "manifest",
+             "heldout must remain closed")
+    _require(manifest["heldout_opened"] is False, "manifest",
+             "manifest opened heldout")
+    _require(manifest["native_computation"] is False
+             and manifest["model_loaded"] is False
+             and manifest["tokenizer_loaded"] is False
+             and manifest["downloads"] == 0, "manifest",
+             "manifest claims native work")
+    _require(manifest["deterministic"] is True, "manifest",
+             "manifest is not deterministic")
+    _require(manifest["fit_receipt_requirements"]
+             == config["admission"]["fit_receipt"], "manifest",
+             "fit receipt requirements differ")
+    _require(manifest["controls"]["arm_ids"] == list(CONTROL_ARM_IDS)
+             and manifest["controls"]["count"] == 7, "manifest",
+             "manifest controls differ")
+    planned = _planned_workload(config, manifest["counts"])
+    _require(planned == _expected_planned_workload(), "budget",
+             "computed planned workload differs")
+    _require(planned == manifest["planned_workload"], "manifest",
+             "manifest planned workload differs")
+    _require(manifest["workload_derivation"]
+             == config["budget"]["authorized_run_ceiling"]["workload_derivation"],
+             "manifest", "manifest workload derivation differs")
+    ceiling = config["budget"]["authorized_run_ceiling"]
+    for key, value in planned.items():
+        _require(ceiling[key] == value, "budget",
+                 f"authorized ceiling {key} differs from the fixture")
+    _require(manifest["splits"]["train"]["teaching_cases"] == 24, "manifest",
+             "teaching case count differs")
+    _require(manifest["splits"]["dev"]["teaching_cases"] == 0
+             and manifest["splits"]["heldout"]["teaching_cases"] == 0,
+             "manifest", "evaluation splits declare teaching cases")
+    report_body = {
+        "format": RUNTIME_PRECHECK_FORMAT,
+        "protocol_id": PROTOCOL_ID,
+        "status": "valid",
+        "config_sha256": sha256_file(config_file),
+        "prepared_manifest_sha256": sha256_file(prepared / "manifest.json"),
+        "files": dict(manifest["files"]),
+        "counts": dict(manifest["counts"]),
+        "splits": deepcopy(manifest["splits"]),
+        "planned_workload": planned,
+        "workload_derivation": deepcopy(manifest["workload_derivation"]),
+        "artifact_budget": deepcopy(config["budget"]["authorized_run_ceiling"][
+            "artifact_budget"]),
+        "native_computation": False,
+        "model_loaded": False,
+        "tokenizer_loaded": False,
+        "optimizer_updates": 0,
+        "gradients": 0,
+        "checkpoints_written": 0,
+        "downloads": 0,
+        "heldout_opened": False,
+        "authorization_required": True,
+        "dataset_audit": {
+            "mode": "runtime_hash_precheck",
+            "performed": True,
+            "jsonl_rows_parsed": 0,
+            "splits_parsed": [],
+            "evaluation_labels_parsed": False,
+            "trusted_construction_audit": False,
+        },
+        "label_access": {
+            "opened_splits": [],
+            "dev_parsed": False,
+            "heldout_parsed": False,
+            "opened_after_admission": False,
+        },
+        "model_evaluation": {"performed": False, "arm_ids": []},
+        "checks": [
+            "config",
+            "manifest",
+            "file_hashes",
+            "counts",
+            "label_seal",
+            "control_distinctness",
+            "budget",
+            "heldout_closure",
+            "no_evaluation_label_parse",
+        ],
+    }
+    report_body["precheck_sha256"] = sha256_json(report_body)
+    return report_body
+
+
+class AccessSpy:
+    """Records label parsing and native-load attempts for tests and reports."""
+
+    def __init__(self) -> None:
+        self.events: list[dict] = []
+
+    def label_parse(self, split: str, path: Path, *,
+                    admission_stage: str, admission_sha256: str) -> None:
+        self.events.append({
+            "kind": "label_parse", "split": split, "path": str(path),
+            "admission_stage": admission_stage,
+            "admission_sha256": admission_sha256,
+        })
+
+    def native_load(self, source: str) -> None:
+        self.events.append({"kind": "native_load", "source": source})
+
+    def of_kind(self, kind: str) -> list[dict]:
+        return [event for event in self.events if event["kind"] == kind]
+
+
+class LabelVault:
+    """Deny-by-default evaluation-label access, opened only after admission."""
+
+    def __init__(self, prepared_dir: Path = PREPARED_DIR,
+                 config: Mapping[str, Any] | None = None,
+                 *, spy: AccessSpy | None = None,
+                 config_path: Path = CONFIG_PATH,
+                 reader=read_jsonl) -> None:
+        self.prepared_dir = Path(prepared_dir)
+        self.config = (read_json(config_path) if config is None
+                       else config)
+        self.spy = spy or AccessSpy()
+        self.reader = reader
+        self.opened: list[dict] = []
+        self._cache: dict[str, list[dict]] = {}
+        self._files = self.config["prepared"]["files"]
+
+    def open_evaluation(self, split: str, *,
+                        admission: Mapping[str, Any] | None = None) -> list[dict]:
+        check = "label_access"
+        _require(split in ("dev", "heldout"), check,
+                 f"unknown evaluation split {split!r}")
+        _require(isinstance(admission, Mapping), check,
+                 "evaluation labels require a validated admission report")
+        _require(admission.get("admitted") is True, check,
+                 "evaluation labels cannot be opened before admission")
+        stage = admission.get("stage")
+        if split == "dev":
+            _require(stage == "fit", check,
+                     "development labels require an admitted fit receipt")
+            if split in self._cache:
+                return self._cache[split]
+        else:
+            _require(stage == "development", check,
+                     "held-out labels require an admitted development receipt")
+            _require(split not in self._cache, check,
+                     "held-out labels are a single attempt")
+        file_name = (self._files["labels_dev"] if split == "dev"
+                     else self._files["labels_heldout"])
+        path = self.prepared_dir / file_name
+        admission_sha = str(admission.get("fit_receipt_sha256")
+                            or admission.get("development_receipt_sha256")
+                            or admission.get("receipt_sha256"))
+        record = {
+            "split": split,
+            "path": str(path),
+            "admission_stage": stage,
+            "admission_sha256": admission_sha,
+            "after_admission": True,
+        }
+        self.spy.label_parse(split, path, admission_stage=stage,
+                             admission_sha256=admission_sha)
+        rows = self.reader(path)
+        self.opened.append(record)
+        self._cache[split] = rows
+        return rows
+
+
+def require_admission_before_native(admission: Mapping[str, Any], *,
+                                    loader, spy: AccessSpy | None = None):
+    """Guarded native entry: a failed/missing admission never calls ``loader``."""
+    check = "native_access"
+    _require(isinstance(admission, Mapping) and admission.get("admitted") is True,
+             check, "native loading requires a validated admitted receipt")
+    _require(admission.get("native_execution_allowed") is True, check,
+             "this admission does not authorize native execution")
+    if spy is not None:
+        spy.native_load(str(admission.get("fit_receipt_sha256", "admitted")))
+    return loader()
+
+
 def validate_prepared(prepared_dir: Path = PREPARED_DIR,
                       config_path: Path = CONFIG_PATH) -> dict:
     """Validate the complete fixture, labels, controls, budgets and closure."""
@@ -1815,6 +2153,8 @@ def validate_prepared(prepared_dir: Path = PREPARED_DIR,
              "manifest format differs")
     _require(manifest.get("protocol_id") == PROTOCOL_ID, "manifest",
              "protocol id differs")
+    _require(manifest.get("amendment") == config["amendment"], "manifest",
+             "manifest amendment differs from the protocol")
     _check_manifest_digest(manifest)
     _require(manifest["config"]["sha256"] == sha256_file(config_file), "manifest",
              "manifest config hash differs")
@@ -1924,6 +2264,8 @@ def validate_prepared(prepared_dir: Path = PREPARED_DIR,
         "disjointness": disjoint,
         "planned_workload": planned,
         "workload_derivation": manifest["workload_derivation"],
+        "artifact_budget": deepcopy(config["budget"]["authorized_run_ceiling"][
+            "artifact_budget"]),
         "native_computation": False,
         "model_loaded": False,
         "tokenizer_loaded": False,
@@ -1947,6 +2289,23 @@ def validate_prepared(prepared_dir: Path = PREPARED_DIR,
             "heldout_closure",
             "fit_receipt_admission",
         ],
+        "dataset_audit": {
+            "mode": "trusted_construction_audit",
+            "performed": True,
+            "jsonl_rows_parsed": sum(len(rows[key]) for key in rows),
+            "splits_parsed": ["train", "dev", "heldout"],
+            "evaluation_labels_parsed": True,
+            "trusted_construction_boundary": True,
+            "runtime_pre_admission_allowed": False,
+        },
+        "label_access": {
+            "opened_splits": ["dev", "heldout"],
+            "dev_parsed": True,
+            "heldout_parsed": True,
+            "opened_after_admission": False,
+            "construction_audit_only": True,
+        },
+        "model_evaluation": {"performed": False, "arm_ids": []},
     }
     report_body["validation_sha256"] = sha256_json(report_body)
     return report_body
@@ -1999,11 +2358,533 @@ def _check_metrics(metrics: Mapping[str, Any], thresholds: Mapping[str, Any],
     return passed
 
 
+def _hex_digest(value: Any) -> bool:
+    return _is_hex64(value)
+
+
+def _resolve_evidence(evidence_dir: Path | None,
+                      artifacts: Mapping[str, Any],
+                      keys: Sequence[str],
+                      files: Mapping[str, str],
+                      check: str) -> dict[str, Path]:
+    _require(evidence_dir is not None, "evidence",
+             "an evidence directory is required")
+    root = Path(evidence_dir)
+    _require(root.is_dir(), "evidence",
+             f"evidence directory does not exist: {root}")
+    _require(isinstance(artifacts, Mapping) and set(artifacts) == set(keys),
+             check, "artifact schema differs")
+    resolved = {}
+    for key in keys:
+        digest = artifacts[key]
+        _require(_hex_digest(digest), check,
+                 f"artifact {key} is not a real SHA-256")
+        path = root / files[key]
+        _require(path.is_file(), "evidence",
+                 f"artifact is missing: {path}")
+        _require(path.stat().st_size > 0, "evidence",
+                 f"artifact is empty: {path}")
+        _require(sha256_file(path) == digest, check,
+                 f"artifact {key} does not resolve to its bytes")
+        resolved[key] = path
+    return resolved
+
+
+def _load_checkpoint(path: Path, check: str) -> dict:
+    try:
+        import torch
+    except ImportError as error:  # pragma: no cover - runner requires torch
+        raise ProtocolError(check, "torch is required to verify checkpoints") from error
+    try:
+        payload = torch.load(Path(path), map_location="cpu", weights_only=True)
+    except Exception as error:
+        raise ProtocolError(check, f"checkpoint artifact is invalid: {error}") from error
+    _require(isinstance(payload, Mapping), check, "checkpoint is not an object")
+    return dict(payload)
+
+
+def _read_evidence_json(path: Path, check: str) -> dict:
+    try:
+        return read_json(path)
+    except Exception as error:
+        raise ProtocolError(check, f"evidence report is invalid JSON: {error}") from error
+
+
+def _read_evidence_jsonl(path: Path, check: str) -> list[dict]:
+    try:
+        return read_jsonl(path)
+    except Exception as error:
+        raise ProtocolError(check, f"evidence rows are invalid JSONL: {error}") from error
+
+
+def _total_artifact_bytes(root: Path) -> int:
+    return sum(path.stat().st_size for path in Path(root).rglob("*")
+               if path.is_file())
+
+
+def _check_artifact_budget(output_root: Path, config: Mapping[str, Any],
+                           check: str) -> dict:
+    cap = int(config["budget"]["authorized_run_ceiling"][
+        "artifact_bytes_max"])
+    title = "artifact_budget"
+    path = Path(output_root) / "artifact_budget.json"
+    _require(path.is_file(), title,
+             f"artifact budget evidence is missing: {path}")
+    summary = _read_evidence_json(path, title)
+    _require(summary.get("format") == ARTIFACT_BUDGET_FORMAT, title,
+             "artifact budget format differs")
+    _require(summary.get("protocol_id") == PROTOCOL_ID, title,
+             "artifact budget protocol differs")
+    _require(summary.get("status") == "within_budget", title,
+             "artifact budget did not pass")
+    _require(summary.get("cap_bytes") == cap, title,
+             "artifact budget cap differs from the amended ceiling")
+    _require(summary.get("resume_complete_checkpoints") == 3, title,
+             "artifact budget does not cover three checkpoints")
+    measured = summary.get("measured_bytes")
+    _require(type(measured) is int and measured >= 0, title,
+             "artifact budget measurement is invalid")
+    _require(measured <= cap, title,
+             "artifact budget measurement exceeds the ceiling")
+    actual = _total_artifact_bytes(Path(output_root))
+    _require(actual == measured, title,
+             "artifact budget measurement does not match the artifact tree")
+    _require(actual <= cap, title,
+             "complete artifact tree exceeds the amended ceiling")
+    return summary
+
+
+def _tensor_digest(name: str, tensor: Any, check: str) -> str:
+    import torch
+    _require(isinstance(tensor, torch.Tensor), check,
+             f"{name} is not a tensor")
+    _require(tensor.dtype == torch.float32, check,
+             f"{name} is not FP32")
+    value = tensor.detach().to("cpu", torch.float32).contiguous()
+    digest = hashlib.sha256()
+    digest.update(name.encode("utf-8"))
+    digest.update(str(tuple(value.shape)).encode("ascii"))
+    digest.update(value.numpy().tobytes())
+    return digest.hexdigest()
+
+
+def _state_digest(state: Mapping[str, Any], check: str) -> str:
+    return sha256_json({name: _tensor_digest(name, tensor, check)
+                        for name, tensor in state.items()})
+
+
+def _parent_state(config: Mapping[str, Any], check: str) -> dict:
+    try:
+        from replica_lab.value_readout_abstention import build_parent_state_dict
+    except ImportError as error:
+        raise ProtocolError(check, "the runner parent builder is unavailable") from error
+    return dict(build_parent_state_dict(config, int(config["transaction"]["seed"])))
+
+
+def _expected_optimizer_meta(config: Mapping[str, Any]) -> dict:
+    hyper = config["transaction"]["optimizer_hyperparameters"]
+    return {
+        "name": "NativeFusedAdamW",
+        "class": "torch.optim.AdamW",
+        "wrapper": "replica_lab.optimizers.NativeFusedAdamW",
+        "algorithm": "adamw_fused",
+        "fused": True,
+        "lr": float(hyper["lr"]),
+        "betas": [float(hyper["betas"][0]), float(hyper["betas"][1])],
+        "eps": float(hyper["eps"]),
+        "weight_decay": float(hyper["weight_decay"]),
+        "param_names": list(config["architecture"]["trainable_parameters"]),
+    }
+
+
+def _expected_shapes(config: Mapping[str, Any]) -> dict[str, tuple[int, ...]]:
+    bank = config["architecture"]["expert_bank"]
+    width = int(bank["declared_width"])
+    hidden = int(bank["declared_hidden_width"])
+    vocabulary = int(config["architecture"]["answer_vocabulary_size"])
+    return {
+        "selected_expert.gate": (hidden, width),
+        "selected_expert.up": (hidden, width),
+        "selected_expert.down": (width, hidden),
+        "read_projection": (vocabulary, width),
+        "decoder": (2048, vocabulary),
+    }
+
+
+def _validate_optimizer(checkpoint: Mapping[str, Any],
+                        config: Mapping[str, Any], check: str) -> None:
+    import torch
+    meta = checkpoint["optimizer_meta"]
+    expected = _expected_optimizer_meta(config)
+    for key, value in expected.items():
+        _require(meta.get(key) == value, check,
+                 f"optimizer {key} differs")
+    steps = meta.get("step_counts")
+    names = list(config["architecture"]["trainable_parameters"])
+    _require(isinstance(steps, Mapping) and set(steps) == set(names), check,
+             "optimizer step counts do not cover exactly the trainable scope")
+    for name in names:
+        _require(steps[name] == 24, check,
+                 f"optimizer {name} did not complete exactly 24 updates")
+    optimizer_state = checkpoint["optimizer_state"]
+    _require(isinstance(optimizer_state, Mapping)
+             and set(optimizer_state) == set(names), check,
+             "optimizer state leaves the trainable scope")
+    shapes = _expected_shapes(config)
+    for name in names:
+        entry = optimizer_state[name]
+        _require(isinstance(entry, Mapping)
+                 and {"step", "exp_avg", "exp_avg_sq"}.issubset(entry), check,
+                 f"optimizer state for {name} is incomplete")
+        step = entry["step"]
+        if isinstance(step, torch.Tensor):
+            step = int(step.detach().cpu().item())
+        _require(int(step) == 24, check,
+                 f"optimizer state step for {name} is not 24")
+        for key in ("exp_avg", "exp_avg_sq"):
+            tensor = entry[key]
+            _require(isinstance(tensor, torch.Tensor)
+                     and tensor.dtype == torch.float32
+                     and tuple(tensor.shape) == shapes[name], check,
+                     f"optimizer {name}.{key} shape differs")
+            _require(bool(torch.isfinite(tensor).all()), check,
+                     f"optimizer {name}.{key} is nonfinite")
+
+
+def _fail_closed(check: str):
+    """Convert malformed evidence exceptions into one ProtocolError."""
+    def decorator(function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            try:
+                return function(*args, **kwargs)
+            except ProtocolError:
+                raise
+            except Exception as error:
+                raise ProtocolError(
+                    check, f"malformed or incomplete evidence: {error}") from error
+        return wrapper
+    return decorator
+
+
+@_fail_closed("fit_evidence")
+def _validate_checkpoint(checkpoint: Mapping[str, Any], *,
+                         report: Mapping[str, Any],
+                         config: Mapping[str, Any],
+                         config_sha256: str,
+                         prepared_manifest_sha256: str,
+                         predictions_sha256: str,
+                         report_state_sha256: str,
+                         check: str) -> dict:
+    import torch
+    names = list(config["architecture"]["trainable_parameters"])
+    fixed_names = ["read_projection", "decoder"]
+    _require(checkpoint.get("format") == CHECKPOINT_FORMAT, check,
+             "checkpoint format differs")
+    _require(checkpoint.get("protocol_id") == PROTOCOL_ID, check,
+             "checkpoint protocol differs")
+    _require(checkpoint.get("config_sha256") == config_sha256, check,
+             "checkpoint config hash differs")
+    _require(checkpoint.get("prepared_manifest_sha256")
+             == prepared_manifest_sha256, check,
+             "checkpoint manifest hash differs")
+    _require(checkpoint.get("arm_id") == "learned_value_readout", check,
+             "checkpoint is not the treatment arm")
+    _require(checkpoint.get("phase") == "fit_treatment", check,
+             "checkpoint phase is not fit_treatment")
+    _require(checkpoint.get("seed") == int(config["transaction"]["seed"]), check,
+             "checkpoint seed differs")
+    _require(checkpoint.get("completed_steps") == 24, check,
+             "checkpoint did not complete exactly 24 treatment updates")
+    _require(checkpoint.get("event_clock_steps") == 36, check,
+             "checkpoint event clock differs")
+    _require(checkpoint.get("events_processed") == 36, check,
+             "checkpoint processed event count differs")
+    _require(checkpoint.get("trainable_names") == names, check,
+             "checkpoint trainable scope differs")
+    _require(checkpoint.get("fixed_names") == fixed_names, check,
+             "checkpoint fixed scope differs")
+    model_state = checkpoint.get("model_state")
+    fixed_state = checkpoint.get("fixed_state")
+    _require(isinstance(model_state, Mapping) and set(model_state) == set(names),
+             check, "checkpoint model state leaves the trainable scope")
+    _require(isinstance(fixed_state, Mapping)
+             and set(fixed_state) == set(fixed_names), check,
+             "checkpoint fixed state differs")
+    shapes = _expected_shapes(config)
+    combined = {}
+    for name in names + fixed_names:
+        tensor = (model_state if name in names else fixed_state)[name]
+        _require(isinstance(tensor, torch.Tensor)
+                 and tensor.dtype == torch.float32
+                 and tuple(tensor.shape) == shapes[name], check,
+                 f"checkpoint tensor {name} shape/dtype differs")
+        _require(bool(torch.isfinite(tensor).all()), check,
+                 f"checkpoint tensor {name} is nonfinite")
+        combined[name] = tensor
+    state_sha = _state_digest(combined, check)
+    _require(checkpoint.get("state_sha256") == state_sha, check,
+             "checkpoint resulting state digest differs")
+    _require(report_state_sha256 == state_sha, check,
+             "fit report resulting state digest differs")
+    parent = _parent_state(config, check)
+    expected_parent = _state_digest(parent, check)
+    _require(checkpoint.get("parent_state_sha256") == expected_parent, check,
+             "checkpoint parent state differs from the deterministic parent")
+    _require(report.get("parent_state_sha256") == expected_parent, check,
+             "fit report parent state differs")
+    for name in fixed_names:
+        expected_fixed = _tensor_digest(name, parent[name], check)
+        _require(_tensor_digest(name, fixed_state[name], check)
+                 == expected_fixed, check,
+                 f"fixed component {name} changed during fit")
+        _require(checkpoint.get("fixed_state_sha256", {}).get(name)
+                 == expected_fixed, check,
+                 f"fixed component receipt {name} differs")
+    for name in names:
+        digest = _tensor_digest(name, model_state[name], check)
+        _require(checkpoint.get("trainable_state_sha256", {}).get(name)
+                 == digest, check,
+                 f"trainable state receipt {name} differs")
+    _validate_optimizer(checkpoint, config, check)
+    _require(checkpoint.get("predictions_sha256") == predictions_sha256, check,
+             "checkpoint does not bind the preserved predictions")
+    classification = checkpoint.get("classification", {})
+    _require(classification.get("native_model") is False, check,
+             "checkpoint claims native model execution")
+    updates = checkpoint.get("update_records")
+    _require(isinstance(updates, list) and len(updates) == 24, check,
+             "checkpoint does not preserve exactly 24 update records")
+    _require(updates == report.get("update_records"), check,
+             "fit report update records differ from the checkpoint")
+    return {"state_sha256": state_sha, "parent_state_sha256": expected_parent,
+            "model_state": model_state, "fixed_state": fixed_state}
+
+
+def _case_targets(cases: Sequence[Mapping[str, Any]]) -> dict[str, dict]:
+    targets = {}
+    for case in cases:
+        target = case.get("target")
+        _require(isinstance(target, Mapping) and isinstance(target.get("token"), str),
+                 "case", f"{case['case_id']} lacks an authoritative target")
+        targets[case["case_id"]] = {
+            "case_type": case["case_type"],
+            "target": target["token"],
+            "stale_value": case.get("stale_value"),
+        }
+    return targets
+
+
+def _label_targets(labels: Sequence[Mapping[str, Any]],
+                   cases_by_id: Mapping[str, Mapping[str, Any]]) -> dict[str, dict]:
+    targets = {}
+    for label in labels:
+        case_id = label["case_id"]
+        _require(case_id in cases_by_id, "label",
+                 f"label {case_id} has no evaluation case")
+        _require(label["split"] == cases_by_id[case_id]["split"], "label",
+                 f"label {case_id} split differs")
+        _require(label["case_type"] == cases_by_id[case_id]["case_type"], "label",
+                 f"label {case_id} type differs")
+        targets[case_id] = {
+            "case_type": label["case_type"],
+            "target": label["target"]["token"],
+            "stale_value": label.get("stale_value"),
+        }
+    _require(set(targets) == set(cases_by_id), "label",
+             "labels do not exactly cover evaluation cases")
+    return targets
+
+
+def _validate_predictions(rows: Sequence[Mapping[str, Any]], *,
+                          cases_by_id: Mapping[str, Mapping[str, Any]],
+                          split: str,
+                          vocabulary: Sequence[str],
+                          state_sha256: str,
+                          check: str) -> None:
+    seen = set()
+    for row in rows:
+        _require(isinstance(row, Mapping), check, "prediction row is not an object")
+        _require(row.get("format") == PREDICTION_FORMAT, check,
+                 "prediction format differs")
+        _require(row.get("protocol_id") == PROTOCOL_ID, check,
+                 "prediction protocol differs")
+        _require(row.get("split") == split, check, "prediction split differs")
+        _require(row.get("arm_id") == "learned_value_readout", check,
+                 "prediction arm is not the treatment")
+        case_id = row.get("case_id")
+        _require(case_id in cases_by_id, check,
+                 f"prediction case is unknown: {case_id!r}")
+        _require(case_id not in seen, check,
+                 f"prediction case is duplicated: {case_id}")
+        seen.add(case_id)
+        case = cases_by_id[case_id]
+        _require(row.get("event_id") == case["event_id"], check,
+                 f"{case_id} event binding differs")
+        _require(row.get("world_id") == case["world_id"], check,
+                 f"{case_id} world binding differs")
+        _require(int(row.get("epoch", -1)) == int(case["epoch"]), check,
+                 f"{case_id} epoch binding differs")
+        _require(row.get("case_type") == case["case_type"], check,
+                 f"{case_id} case type differs")
+        index = row.get("predicted_index")
+        _require(type(index) is int and 0 <= index < len(vocabulary), check,
+                 f"{case_id} predicted index is invalid")
+        _require(row.get("predicted_token") == vocabulary[index], check,
+                 f"{case_id} predicted token/index disagree")
+        _require(_hex_digest(row.get("model_state_sha256")), check,
+                 f"{case_id} lacks a model state digest")
+        _require(row["model_state_sha256"] == state_sha256, check,
+                 f"{case_id} was not produced by the admitted checkpoint state")
+        _require(_hex_digest(row.get("memory_state_sha256")), check,
+                 f"{case_id} lacks a query-time memory digest")
+        _require(type(row.get("clock_step")) is int and row["clock_step"] > 0,
+                 check, f"{case_id} lacks a positive event clock step")
+        leaked = FORBIDDEN_EVAL_CASE_FIELDS & set(row)
+        _require(not leaked, check,
+                 f"{case_id} prediction leaks label fields {sorted(leaked)}")
+    _require(seen == set(cases_by_id), check,
+             "prediction coverage differs from the evaluation case set")
+
+
+def _evidence_metrics(rows: Sequence[Mapping[str, Any]],
+                      targets: Mapping[str, Mapping[str, Any]]) -> dict:
+    counts = {case_type: {"correct": 0, "total": 0}
+              for case_type in CASE_TYPE_NAMES}
+    stale_hits = 0
+    stale_total = 0
+    for row in rows:
+        target = targets[row["case_id"]]
+        counts[target["case_type"]]["total"] += 1
+        if row["predicted_token"] == target["target"]:
+            counts[target["case_type"]]["correct"] += 1
+        if target["case_type"] == "correction":
+            stale_total += 1
+            if row["predicted_token"] == target.get("stale_value"):
+                stale_hits += 1
+    metrics = {}
+    for case_type, entry in counts.items():
+        metrics[f"{case_type}_accuracy"] = (
+            entry["correct"] / entry["total"] if entry["total"] else 0.0)
+    metrics["stale_value_rate"] = (stale_hits / stale_total if stale_total else 0.0)
+    return {
+        "per_case": {
+            "count": len(rows),
+            "covered": len({row["case_id"] for row in rows}),
+            "unique_ids": len({row["case_id"] for row in rows}) == len(rows),
+            "counts": counts,
+        },
+        "metrics": metrics,
+    }
+
+
+def _thresholds_pass(metrics: Mapping[str, Any], thresholds: Mapping[str, Any],
+                     check: str) -> bool:
+    passed = True
+    for key, limit in thresholds.items():
+        name = key[:-4]
+        value = _finite_number(metrics.get(name), check, name)
+        if key.endswith("_min"):
+            passed = passed and value >= float(limit)
+        else:
+            passed = passed and value <= float(limit)
+    return passed
+
+
+def _compare_claimed_metrics(claimed: Mapping[str, Any],
+                             computed: Mapping[str, Any],
+                             thresholds: Mapping[str, Any],
+                             check: str) -> None:
+    _require(set(claimed) == set(_metric_names_from_thresholds(thresholds)),
+             check, "claimed metric keys differ")
+    for key in thresholds:
+        name = key[:-4]
+        _require(abs(float(claimed[name]) - float(computed[name])) <= 1e-12,
+                 check, f"claimed {name} differs from the per-case recomputation")
+
+
+def _validate_update_records(report: Mapping[str, Any],
+                             teaching_cases: Sequence[Mapping[str, Any]],
+                             config: Mapping[str, Any], check: str) -> None:
+    updates = report.get("update_records")
+    _require(isinstance(updates, list) and len(updates) == 24, check,
+             "fit report does not contain exactly 24 updates")
+    expected_ids = [case["case_id"] for case in teaching_cases]
+    _require([row["case_id"] for row in updates] == expected_ids, check,
+             "update records do not cover the chronological teaching cases")
+    _require([int(row["step"]) for row in updates] == list(range(24)), check,
+             "update step indices differ")
+    clock_steps = [int(row["clock_step"]) for row in updates]
+    _require(clock_steps == sorted(set(clock_steps)) and len(clock_steps) == 24,
+             check, "one event clock was not preserved")
+    limit = float(config["transaction"]["gradient_norm_max"]) + 1e-6
+    for row in updates:
+        _require(isinstance(row.get("event_id"), str) and row["event_id"], check,
+                 "update lacks an event id")
+        _require(bool(row.get("gradient_finite")) is True, check,
+                 "update gradient was not finite")
+        _require(math.isfinite(float(row["loss"])), check,
+                 "update loss is nonfinite")
+        _require(math.isfinite(float(row["gradient_norm"]))
+                 and float(row["gradient_norm"]) <= limit, check,
+                 "update gradient norm exceeds the cap")
+        _require(_hex_digest(row.get("state_after_sha256")), check,
+                 "update lacks a resulting state digest")
+
+
+def _validate_control_fits(report: Mapping[str, Any], evidence: Path,
+                           config: Mapping[str, Any],
+                           treatment_checkpoint_sha256: str,
+                           treatment_state_sha256: str,
+                           check: str) -> list[dict]:
+    fits = report.get("control_fits")
+    _require(isinstance(fits, list) and len(fits) == 2, check,
+             "control fits are not separate evidence")
+    expected = {"shuffled_values", "wrong_world_values"}
+    _require({row["arm_id"] for row in fits} == expected, check,
+             "control fit arm ids differ")
+    seen_hashes = set()
+    seen_states = set()
+    for row in fits:
+        _require(row.get("phase") == "control_fit", check,
+                 "control fit phase differs")
+        _require(row.get("optimizer_steps") == 24, check,
+                 "control fit did not complete exactly 24 updates")
+        _require(row.get("fit_receipt_binding") is False, check,
+                 "a control fit claims fit receipt binding")
+        digest = row.get("checkpoint_sha256")
+        _require(_hex_digest(digest) and digest != treatment_checkpoint_sha256,
+                 check, "control checkpoint is not separate from the treatment")
+        _require(digest not in seen_hashes, check,
+                 "control checkpoints are not distinct")
+        seen_hashes.add(digest)
+        path = Path(evidence) / f"control_{row['arm_id']}.pt"
+        _require(path.is_file() and sha256_file(path) == digest, check,
+                 "control checkpoint artifact does not resolve")
+        payload = _load_checkpoint(path, check)
+        _require(payload.get("arm_id") == row["arm_id"], check,
+                 "control checkpoint arm differs")
+        _require(payload.get("completed_steps") == 24, check,
+                 "control checkpoint did not complete 24 updates")
+        state = payload.get("state_sha256")
+        _require(_hex_digest(state) and state != treatment_state_sha256, check,
+                 "control checkpoint state equals the treatment")
+        _require(state not in seen_states, check,
+                 "control checkpoint states are not distinct")
+        seen_states.add(state)
+    return fits
+
+
+@_fail_closed("fit_receipt")
 def admit_fit_receipt(receipt: Mapping[str, Any],
                       prepared_dir: Path = PREPARED_DIR,
-                      config_path: Path = CONFIG_PATH) -> dict:
-    """Fail closed unless a passing fit receipt binds this exact fixture."""
-    report = validate_prepared(prepared_dir, config_path)
+                      config_path: Path = CONFIG_PATH, *,
+                      evidence_dir: Path | None = None,
+                      spy: AccessSpy | None = None) -> dict:
+    """Independently verify the treatment fit and every preserved case."""
+    label_events_before = len(spy.of_kind("label_parse")) if spy is not None else 0
+    native_events_before = len(spy.of_kind("native_load")) if spy is not None else 0
+    precheck = runtime_precheck(prepared_dir, config_path)
     config = read_json(config_path)
     expected = config["admission"]["fit_receipt"]
     check = "fit_receipt"
@@ -2018,72 +2899,210 @@ def admit_fit_receipt(receipt: Mapping[str, Any],
     for key, value in expected["exact_values"].items():
         _require(receipt.get(key) == value, check,
                  f"receipt {key} must be {value!r}")
-    _require(receipt["config_sha256"] == report["config_sha256"], check,
+    _require(receipt["config_sha256"] == precheck["config_sha256"], check,
              "receipt config hash differs")
     _require(receipt["prepared_manifest_sha256"]
-             == report["prepared_manifest_sha256"], check,
+             == precheck["prepared_manifest_sha256"], check,
              "receipt manifest hash differs")
     _require(receipt["losses"] == list(LOSS_NAMES), check,
              "receipt losses differ")
     _require(receipt["trainable_parameters"]
              == config["architecture"]["trainable_parameters"], check,
              "receipt trainable parameters differ")
-    artifacts = receipt["artifacts"]
-    _require(isinstance(artifacts, Mapping)
-             and set(artifacts) == {"checkpoint_sha256", "fit_report_sha256"},
-             check, "receipt artifacts differ")
-    for key, value in artifacts.items():
-        _require(_is_hex64(value), check, f"artifact {key} is not a SHA-256")
+    paths = _resolve_evidence(evidence_dir, receipt["artifacts"],
+                              FIT_ARTIFACT_KEYS, FIT_EVIDENCE_FILES, check)
+    budget = _check_artifact_budget(Path(evidence_dir).parent, config, check)
+    report = _read_evidence_json(paths["fit_report_sha256"], check)
+    _require(report.get("format") == FIT_REPORT_FORMAT, check,
+             "fit report format differs")
+    _require(report.get("protocol_id") == PROTOCOL_ID, check,
+             "fit report protocol differs")
+    _require(report.get("arm_id") == "learned_value_readout", check,
+             "fit report is not the treatment arm")
+    _require(report.get("phase") == "fit_treatment", check,
+             "fit report phase differs")
+    _require(report.get("completed_steps") == 24, check,
+             "fit report did not complete exactly 24 treatment updates")
+    _require(report.get("train_case_count") == 15
+             and report.get("replay_case_count") == 12, check,
+             "fit report case counts differ")
+    _require(report.get("optimizer") == "NativeFusedAdamW", check,
+             "fit report optimizer differs")
+    _require(report.get("config_sha256") == precheck["config_sha256"], check,
+             "fit report config hash differs")
+    _require(report.get("prepared_manifest_sha256")
+             == precheck["prepared_manifest_sha256"], check,
+             "fit report manifest hash differs")
+    _require(report.get("status") == "passed", check,
+             "fit report did not pass")
+    _require(report.get("predictions_sha256")
+             == receipt["artifacts"]["fit_predictions_sha256"], check,
+             "fit report predictions hash differs")
+    checkpoint = _load_checkpoint(paths["checkpoint_sha256"], check)
+    verified = _validate_checkpoint(
+        checkpoint, report=report, config=config,
+        config_sha256=precheck["config_sha256"],
+        prepared_manifest_sha256=precheck["prepared_manifest_sha256"],
+        predictions_sha256=receipt["artifacts"]["fit_predictions_sha256"],
+        report_state_sha256=report.get("resulting_state_sha256"),
+        check=check)
+    _require(report.get("optimizer_meta") == checkpoint.get("optimizer_meta"),
+             check, "fit report optimizer metadata differs from the checkpoint")
+    # Training metadata (cases and replay cases) is allowed before admission.
+    files = config["prepared"]["files"]
+    train_rows = read_jsonl(Path(prepared_dir) / files["cases_train"])
+    replay_rows = read_jsonl(Path(prepared_dir) / files["cases_train_replay"])
+    all_cases = train_rows + replay_rows
+    cases_by_id = {case["case_id"]: case for case in all_cases}
+    teaching = [case for case in all_cases
+                if int(case["optimizer_steps"]) == 1]
+    teaching.sort(key=lambda case: (case["world_id"], int(case["epoch"])))
+    _require(len(all_cases) == 27 and len(teaching) == 24, check,
+             "training metadata coverage differs")
+    _validate_update_records(report, teaching, config, check)
+    _validate_control_fits(report, Path(evidence_dir), config,
+                           receipt["artifacts"]["checkpoint_sha256"],
+                           verified["state_sha256"], check)
+    targets = _case_targets(all_cases)
+    predictions = _read_evidence_jsonl(paths["fit_predictions_sha256"], check)
+    _require(len(predictions) == 27, check,
+             "fit predictions do not cover all fit cases")
+    _validate_predictions(
+        predictions, cases_by_id=cases_by_id, split="fit",
+        vocabulary=config["architecture"]["answer_vocabulary"],
+        state_sha256=verified["state_sha256"], check=check)
+    computed = _evidence_metrics(predictions, targets)
+    thresholds = _metric_thresholds(config, "fit")
+    gated = _thresholds_pass(computed["metrics"], thresholds, check)
+    _require(gated is True and report.get("all_declared_gates_passed") is True,
+             check, "fit gates did not pass on recomputed per-case evidence")
+    _compare_claimed_metrics(report["metrics"], computed["metrics"],
+                             thresholds, check)
+    _require(report.get("per_case") == computed["per_case"], check,
+             "fit report per-case coverage differs from the recomputation")
     fit_gates = receipt["fit_gates"]
     _require(isinstance(fit_gates, Mapping)
              and set(fit_gates) == {"all_declared_gates_passed",
                                     "local_associative_loss_gate",
                                     "metrics", "thresholds"}, check,
              "fit gate report differs")
-    thresholds = _metric_thresholds(config, "fit")
     _require(fit_gates["thresholds"] == thresholds, check,
              "fit gate thresholds differ")
-    computed = _check_metrics(fit_gates["metrics"], thresholds, check)
+    _compare_claimed_metrics(fit_gates["metrics"], computed["metrics"],
+                             thresholds, check)
     _require(fit_gates["all_declared_gates_passed"] is True
-             and computed is True, check, "fit gates did not pass")
-    _require(fit_gates["local_associative_loss_gate"] is False, check,
-             "fit receipt gates a local associative loss")
+             and fit_gates["local_associative_loss_gate"] is False, check,
+             "fit receipt gates differ")
+    if spy is not None:
+        _require(len(spy.of_kind("label_parse")) == label_events_before, check,
+                 "fit admission parsed evaluation labels")
+        _require(len(spy.of_kind("native_load")) == native_events_before, check,
+                 "fit admission attempted native loading")
     return {
         "admitted": True,
-        "fit_receipt_sha256": receipt["receipt_sha256"],
+        "stage": "fit",
         "protocol_id": PROTOCOL_ID,
-        "config_sha256": report["config_sha256"],
-        "prepared_manifest_sha256": report["prepared_manifest_sha256"],
-        "optimizer_steps": receipt["optimizer_steps"],
+        "fit_receipt_sha256": receipt["receipt_sha256"],
+        "config_sha256": precheck["config_sha256"],
+        "prepared_manifest_sha256": precheck["prepared_manifest_sha256"],
+        "checkpoint_sha256": receipt["artifacts"]["checkpoint_sha256"],
+        "checkpoint_path": str(paths["checkpoint_sha256"]),
+        "predictions_sha256": receipt["artifacts"]["fit_predictions_sha256"],
+        "parent_state_sha256": verified["parent_state_sha256"],
+        "resulting_state_sha256": verified["state_sha256"],
+        "optimizer_steps": 24,
+        "completed_steps": 24,
+        "event_clock_steps": 36,
+        "per_case": computed["per_case"],
+        "metrics": computed["metrics"],
+        "gates_passed": True,
+        "control_fits": report["control_fits"],
+        "artifact_budget": budget,
         "heldout_opened": False,
         "dev_labels_read": False,
         "tuning_performed": False,
+        "native_execution_allowed": False,
+        "dataset_audit": precheck["dataset_audit"],
+        "label_access": {
+            "opened_splits": [],
+            "dev_parsed": False,
+            "heldout_parsed": False,
+            "opened_after_admission": False,
+            "training_metadata_parsed": True,
+        },
+        "model_evaluation": {
+            "performed": True, "arm_ids": ["learned_value_readout"],
+            "kind": "preserved_fit_predictions",
+        },
     }
 
 
+def _validate_evaluation_report(report: Mapping[str, Any], *,
+                                split: str, fit_admission: Mapping[str, Any],
+                                checkpoint_sha256: str,
+                                state_sha256: str,
+                                predictions_sha256: str,
+                                config: Mapping[str, Any],
+                                check: str) -> None:
+    _require(report.get("format") == EVALUATION_REPORT_FORMAT, check,
+             "evaluation report format differs")
+    _require(report.get("protocol_id") == PROTOCOL_ID, check,
+             "evaluation report protocol differs")
+    _require(report.get("split") == split, check,
+             "evaluation report split differs")
+    _require(report.get("mode") == f"{split}-eval", check,
+             "evaluation report mode differs")
+    _require(report.get("status") == "passed", check,
+             "evaluation report did not pass")
+    _require(report.get("fit_receipt_sha256")
+             == fit_admission["fit_receipt_sha256"], check,
+             "evaluation report does not bind the admitted fit receipt")
+    _require(report.get("config_sha256") == fit_admission["config_sha256"],
+             check, "evaluation report config hash differs")
+    _require(report.get("prepared_manifest_sha256")
+             == fit_admission["prepared_manifest_sha256"], check,
+             "evaluation report manifest hash differs")
+    _require(report.get("checkpoint_sha256") == checkpoint_sha256, check,
+             "evaluation report checkpoint differs")
+    _require(report.get("model_state_sha256") == state_sha256, check,
+             "evaluation report model state differs")
+    _require(report.get("predictions_sha256") == predictions_sha256, check,
+             "evaluation report predictions hash differs")
+    _require(int(report.get("cases", -1)) == 10, check,
+             "evaluation report case count differs")
+    _require(report.get("optimizer_steps") == 0
+             and report.get("gradient") is False, check,
+             "evaluation produced an optimizer update or gradient")
+
+
+@_fail_closed("development_receipt")
 def admit_development(receipt: Mapping[str, Any], *,
                       fit_receipt: Mapping[str, Any],
                       prepared_dir: Path = PREPARED_DIR,
-                      config_path: Path = CONFIG_PATH) -> dict:
-    """Admit one development evaluation only after a passing fit receipt."""
-    fit = admit_fit_receipt(fit_receipt, prepared_dir, config_path)
+                      config_path: Path = CONFIG_PATH,
+                      evidence_dir: Path | None = None,
+                      fit_evidence_dir: Path | None = None,
+                      label_vault: LabelVault | None = None,
+                      spy: AccessSpy | None = None) -> dict:
+    """Verify development evidence and only then parse development labels."""
     config = read_json(config_path)
-    expected = config["admission"]["development"]
+    fit = admit_fit_receipt(
+        fit_receipt, prepared_dir, config_path,
+        evidence_dir=fit_evidence_dir, spy=spy)
     check = "development_receipt"
     _require(isinstance(receipt, Mapping), check, "receipt must be an object")
     _require(set(receipt) == set(DEVELOPMENT_RECEIPT_FIELDS) | {"receipt_sha256"},
              check, "receipt fields differ from the declared schema")
     _check_receipt_digest(receipt, check)
-    _require(receipt["format"] == expected["format"], check,
+    _require(receipt["format"] == DEVELOPMENT_RECEIPT_FORMAT, check,
              "receipt format differs")
     _require(receipt["protocol_id"] == PROTOCOL_ID, check,
              "receipt protocol differs")
     _require(receipt["status"] == "passed", check, "development did not pass")
     _require(receipt["mode"] == "dev-eval", check, "receipt mode differs")
-    _require(receipt["created_by"] == "future_authorized_runner", check,
+    _require(receipt["created_by"] == ENTRY_POINT, check,
              "receipt creator differs")
-    _require(receipt["attempt"] == expected["attempt"], check,
-             "development attempt differs")
+    _require(receipt["attempt"] == 1, check, "development attempt differs")
     _require(receipt["fit_receipt_sha256"] == fit["fit_receipt_sha256"], check,
              "development does not bind the admitted fit receipt")
     _require(receipt["config_sha256"] == fit["config_sha256"], check,
@@ -2095,64 +3114,184 @@ def admit_development(receipt: Mapping[str, Any], *,
              "development opened heldout")
     _require(receipt["tuning_performed"] is False, check,
              "development performed tuning")
+    paths = _resolve_evidence(evidence_dir, receipt["artifacts"],
+                              EVALUATION_ARTIFACT_KEYS, DEV_EVIDENCE_FILES,
+                              check)
+    budget = _check_artifact_budget(Path(evidence_dir).parent, config, check)
+    _validate_evaluation_report(
+        _read_evidence_json(paths["report_sha256"], check), split="dev",
+        fit_admission=fit, checkpoint_sha256=fit["checkpoint_sha256"],
+        state_sha256=fit["resulting_state_sha256"],
+        predictions_sha256=receipt["artifacts"]["predictions_sha256"],
+        config=config, check=check)
+    files = config["prepared"]["files"]
+    cases = read_jsonl(Path(prepared_dir) / files["cases_dev"])
+    cases_by_id = {case["case_id"]: case for case in cases}
+    _require(len(cases_by_id) == 10, check, "development case count differs")
+    predictions = _read_evidence_jsonl(paths["predictions_sha256"], check)
+    _validate_predictions(
+        predictions, cases_by_id=cases_by_id, split="dev",
+        vocabulary=config["architecture"]["answer_vocabulary"],
+        state_sha256=fit["resulting_state_sha256"], check=check)
+    vault = label_vault or LabelVault(Path(prepared_dir), config, spy=spy)
+    labels = vault.open_evaluation("dev", admission=fit)
+    targets = _label_targets(labels, cases_by_id)
+    computed = _evidence_metrics(predictions, targets)
     thresholds = _metric_thresholds(config, "dev")
-    computed = _check_metrics(receipt["dev_metrics"], thresholds, check)
-    _require(receipt["all_declared_gates_passed"] is True and computed is True,
-             check, "development gates did not pass")
+    gated = _thresholds_pass(computed["metrics"], thresholds, check)
+    _require(gated is True and receipt["all_declared_gates_passed"] is True,
+             check, "development gates did not pass on recomputed evidence")
+    _compare_claimed_metrics(receipt["dev_metrics"], computed["metrics"],
+                             thresholds, check)
+    report = _read_evidence_json(paths["report_sha256"], check)
+    _compare_claimed_metrics(report["metrics"], computed["metrics"],
+                             thresholds, check)
+    _require(report.get("per_case") == computed["per_case"], check,
+             "development report per-case coverage differs")
+    _require(report.get("all_declared_gates_passed") is True, check,
+             "development report claims a failing gate")
     return {
         "admitted": True,
-        "development_receipt_sha256": receipt["receipt_sha256"],
+        "stage": "development",
         "fit_receipt_sha256": fit["fit_receipt_sha256"],
+        "development_receipt_sha256": receipt["receipt_sha256"],
+        "config_sha256": fit["config_sha256"],
+        "prepared_manifest_sha256": fit["prepared_manifest_sha256"],
+        "checkpoint_sha256": fit["checkpoint_sha256"],
+        "resulting_state_sha256": fit["resulting_state_sha256"],
+        "predictions_sha256": receipt["artifacts"]["predictions_sha256"],
+        "per_case": computed["per_case"],
+        "metrics": computed["metrics"],
+        "gates_passed": True,
+        "artifact_budget": budget,
         "heldout_opened": False,
-        "attempt": receipt["attempt"],
+        "tuning_performed": False,
+        "native_execution_allowed": False,
+        "label_access": {
+            "opened_splits": ["dev"],
+            "dev_parsed": True,
+            "heldout_parsed": False,
+            "opened_after_admission": True,
+            "fit_admission_sha256": fit["fit_receipt_sha256"],
+        },
+        "model_evaluation": {
+            "performed": True, "arm_ids": ["learned_value_readout"],
+            "kind": "preserved_development_predictions",
+        },
     }
 
 
+@_fail_closed("heldout_receipt")
 def admit_heldout(receipt: Mapping[str, Any], *,
                   development_receipt: Mapping[str, Any],
                   fit_receipt: Mapping[str, Any],
                   prepared_dir: Path = PREPARED_DIR,
-                  config_path: Path = CONFIG_PATH) -> dict:
-    """Admit the single post-development heldout evaluation."""
+                  config_path: Path = CONFIG_PATH,
+                  evidence_dir: Path | None = None,
+                  dev_evidence_dir: Path | None = None,
+                  fit_evidence_dir: Path | None = None,
+                  label_vault: LabelVault | None = None,
+                  spy: AccessSpy | None = None) -> dict:
+    """Verify the single held-out attempt; labels open only after dev admission."""
+    config = read_json(config_path)
     development = admit_development(
         development_receipt, fit_receipt=fit_receipt,
-        prepared_dir=prepared_dir, config_path=config_path)
-    config = read_json(config_path)
-    expected = config["admission"]["heldout"]
+        prepared_dir=prepared_dir, config_path=config_path,
+        evidence_dir=dev_evidence_dir, fit_evidence_dir=fit_evidence_dir,
+        label_vault=label_vault, spy=spy)
     check = "heldout_receipt"
     _require(isinstance(receipt, Mapping), check, "receipt must be an object")
     _require(set(receipt) == set(HELDOUT_RECEIPT_FIELDS) | {"receipt_sha256"},
              check, "receipt fields differ from the declared schema")
     _check_receipt_digest(receipt, check)
-    _require(receipt["format"] == expected["format"], check,
+    _require(receipt["format"] == HELDOUT_RECEIPT_FORMAT, check,
              "receipt format differs")
     _require(receipt["protocol_id"] == PROTOCOL_ID, check,
              "receipt protocol differs")
     _require(receipt["status"] == "passed", check, "heldout did not pass")
     _require(receipt["mode"] == "heldout-eval", check, "receipt mode differs")
-    _require(receipt["created_by"] == "future_authorized_runner", check,
+    _require(receipt["created_by"] == ENTRY_POINT, check,
              "receipt creator differs")
-    _require(receipt["attempt"] == expected["attempts"], check,
-             "heldout attempt differs")
+    _require(receipt["attempt"] == 1, check, "heldout attempt differs")
     _require(receipt["dev_receipt_sha256"]
              == development["development_receipt_sha256"], check,
              "heldout does not bind the admitted development receipt")
     _require(receipt["config_sha256"] == sha256_file(config_path), check,
              "heldout config hash differs")
     _require(receipt["prepared_manifest_sha256"]
-             == validate_prepared(prepared_dir, config_path)["prepared_manifest_sha256"],
-             check, "heldout manifest hash differs")
+             == runtime_precheck(prepared_dir, config_path)[
+                 "prepared_manifest_sha256"], check,
+             "heldout manifest hash differs")
     _require(receipt["tuning_performed"] is False, check,
              "heldout performed tuning")
+    paths = _resolve_evidence(evidence_dir, receipt["artifacts"],
+                              EVALUATION_ARTIFACT_KEYS, HELDOUT_EVIDENCE_FILES,
+                              check)
+    budget = _check_artifact_budget(Path(evidence_dir).parent, config, check)
+    _validate_evaluation_report(
+        _read_evidence_json(paths["report_sha256"], check), split="heldout",
+        fit_admission=development,
+        checkpoint_sha256=development["checkpoint_sha256"],
+        state_sha256=development["resulting_state_sha256"],
+        predictions_sha256=receipt["artifacts"]["predictions_sha256"],
+        config=config, check=check)
+    files = config["prepared"]["files"]
+    cases = read_jsonl(Path(prepared_dir) / files["cases_heldout"])
+    cases_by_id = {case["case_id"]: case for case in cases}
+    _require(len(cases_by_id) == 10, check, "heldout case count differs")
+    predictions = _read_evidence_jsonl(paths["predictions_sha256"], check)
+    _validate_predictions(
+        predictions, cases_by_id=cases_by_id, split="heldout",
+        vocabulary=config["architecture"]["answer_vocabulary"],
+        state_sha256=development["resulting_state_sha256"], check=check)
+    vault = label_vault or LabelVault(Path(prepared_dir), config, spy=spy)
+    labels = vault.open_evaluation("heldout", admission=development)
+    targets = _label_targets(labels, cases_by_id)
+    computed = _evidence_metrics(predictions, targets)
     thresholds = _metric_thresholds(config, "dev")
-    computed = _check_metrics(receipt["heldout_metrics"], thresholds, check)
-    _require(computed is True, check, "heldout gates did not pass")
+    gated = _thresholds_pass(computed["metrics"], thresholds, check)
+    _require(gated is True, check,
+             "heldout gates did not pass on recomputed evidence")
+    _compare_claimed_metrics(receipt["heldout_metrics"], computed["metrics"],
+                             thresholds, check)
+    report = _read_evidence_json(paths["report_sha256"], check)
+    _compare_claimed_metrics(report["metrics"], computed["metrics"],
+                             thresholds, check)
+    _require(report.get("per_case") == computed["per_case"], check,
+             "heldout report per-case coverage differs")
+    _require(report.get("all_declared_gates_passed") is True, check,
+             "heldout report claims a failing gate")
     return {
         "admitted": True,
+        "stage": "heldout",
+        "fit_receipt_sha256": development["fit_receipt_sha256"],
+        "development_receipt_sha256": development[
+            "development_receipt_sha256"],
         "heldout_receipt_sha256": receipt["receipt_sha256"],
-        "development_receipt_sha256": development["development_receipt_sha256"],
-        "attempt": receipt["attempt"],
+        "config_sha256": development["config_sha256"],
+        "prepared_manifest_sha256": development["prepared_manifest_sha256"],
+        "checkpoint_sha256": development["checkpoint_sha256"],
+        "resulting_state_sha256": development["resulting_state_sha256"],
+        "predictions_sha256": receipt["artifacts"]["predictions_sha256"],
+        "per_case": computed["per_case"],
+        "metrics": computed["metrics"],
+        "gates_passed": True,
+        "artifact_budget": budget,
         "heldout_opened": True,
+        "tuning_performed": False,
+        "native_execution_allowed": False,
+        "label_access": {
+            "opened_splits": ["dev", "heldout"],
+            "dev_parsed": True,
+            "heldout_parsed": True,
+            "opened_after_admission": True,
+            "development_admission_sha256": development[
+                "development_receipt_sha256"],
+        },
+        "model_evaluation": {
+            "performed": True, "arm_ids": ["learned_value_readout"],
+            "kind": "preserved_heldout_predictions",
+        },
     }
 
 
@@ -2190,8 +3329,8 @@ def preflight_report(*, config_path: Path = CONFIG_PATH,
                      receipt_path: Path,
                      authorization_path: Path | None = None,
                      launch: bool = False) -> dict:
-    """Write a fresh review receipt; never execute native work."""
-    report = validate_prepared(prepared_dir, config_path)
+    """Write a fresh review receipt; never parse evaluation labels or run native work."""
+    report = runtime_precheck(prepared_dir, config_path)
     config = read_json(config_path)
     target = Path(receipt_path)
     _require(not target.exists(), "preflight",
@@ -2217,7 +3356,11 @@ def preflight_report(*, config_path: Path = CONFIG_PATH,
         "status": "reviewed" if exit_code == 0 else "refused",
         "config_sha256": report["config_sha256"],
         "prepared_manifest_sha256": report["prepared_manifest_sha256"],
-        "validation_sha256": report["validation_sha256"],
+        "runtime_precheck_sha256": report["precheck_sha256"],
+        "dataset_audit": report["dataset_audit"],
+        "label_access": report["label_access"],
+        "model_evaluation": report["model_evaluation"],
+        "artifact_budget": report["artifact_budget"],
         "review_only": True,
         "native_execution": False,
         "launch_requested": bool(launch),

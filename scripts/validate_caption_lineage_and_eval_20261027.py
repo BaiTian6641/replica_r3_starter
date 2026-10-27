@@ -11,6 +11,10 @@ The validator never loads a model and never writes to the data roots.  It checks
   probes and label provenance);
 * separation between training, validation-only, sealed/exposed and synthetic
   evaluation rows;
+* an explicitly diagnostic synthetic evaluation contract, never natural-image
+  or broad visual validation;
+* a deterministic unsigned admission evidence packet carrying the exact receipt
+  fields and bindings, without a decision, reviewer, timestamp or self-digest;
 * a separate trusted local reviewed decision receipt.
 
 Training admission is refused by default.  A receipt is honoured only when its
@@ -41,7 +45,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from replica_lab.contracts import canonical_json  # noqa: E402
 from replica_lab.external_intake import normalize_caption  # noqa: E402
 
-VALIDATOR_VERSION = "1.0.0"
+VALIDATOR_VERSION = "1.1.0"
 LINEAGE_CONFIG_FORMAT = "replica.caption_lineage_correction_config.v1"
 EVAL_CONFIG_FORMAT = "replica.synthetic_scene_eval_contract.v1"
 LINEAGE_MANIFEST_FORMAT = "replica.caption_lineage_manifest.v1"
@@ -54,6 +58,32 @@ EVAL_MANIFEST_FORMAT = "replica.synthetic_scene_eval_manifest.v1"
 SEAL_FORMAT = "replica.synthetic_scene_eval_seal.v1"
 RECEIPT_FORMAT = "replica.caption_training_admission_receipt.v1"
 RECEIPT_SCOPE = "training_admission"
+PACKET_FORMAT = "replica.caption_training_admission_packet.v1"
+PACKET_STATUS = "prepared_unsigned_awaiting_review"
+PACKET_PATH = "reports/caption_admission_preparation_20261027/admission_packet.json"
+PACKET_PENDING_FIELDS = ("decision", "decided_by", "decided_at",
+                         "conditions", "receipt_sha256")
+PACKET_FIELDS = {
+    "format", "created_on", "status", "not_a_receipt", "unsigned",
+    "signature_present", "lineage_id", "receipt_format", "receipt_path",
+    "receipt_fields", "pending_reviewer_fields", "evidence",
+    "reviewer_instructions", "non_claims",
+}
+PACKET_NON_CLAIMS = {
+    "training_admitted": False,
+    "model_execution": False,
+    "native_execution": False,
+    "relabels_rejected_decision": False,
+    "clears_exposure_incident": False,
+    "benchmark_quality": "none",
+}
+EVAL_DIAGNOSTIC_FLAGS = {
+    "kind": "diagnostic_synthetic_scene_evaluation",
+    "diagnostic_only": True,
+    "natural_image_validation": False,
+    "broad_visual_validation": False,
+    "benchmark_quality": "none",
+}
 VALIDATION_FORMAT = "replica.caption_lineage_eval_validation.v1"
 SEALED_EXTERNAL_ROLE = "final_eval_untouched"
 DEVELOPMENT_ROLE = "development"
@@ -727,6 +757,20 @@ def validate_eval(config: Mapping[str, Any], *, project_root: Path,
     _require("eval.config_status",
              config.get("status") == "sealed_preparation_only_no_model_use",
              "unexpected eval status")
+    limits = " ".join(config["benchmark_limits"]).casefold()
+    _require("eval.diagnostic_scope",
+             config["non_claims"]["external_data"] is False
+             and config["non_claims"]["benchmark_quality"] == "none"
+             and config["non_claims"]["training_use"] is False
+             and config["non_claims"]["model_use"] == "none"
+             and "no natural images" in limits
+             and "cannot support claims about natural-image" in limits
+             and "not a quality benchmark" in limits,
+             "evaluation contract must be explicitly diagnostic, not "
+             "natural-image validation")
+    checks.append({"id": "eval.diagnostic_scope", "status": "pass",
+                   "detail": "24 scenes are declared diagnostic synthetic "
+                             "evaluation only"})
     pins = _check_eval_config_pins(config, project_root, checks)
     artifacts = config["artifacts"]
     specs_path = project_root / artifacts["scene_specs"]
@@ -1094,6 +1138,357 @@ def verify_admission_receipt(receipt: Mapping[str, Any], *,
     return {"status": "admitted", **base, "admitted_row_ids": list(listed)}
 
 
+# ---------------------------------------------------------------------------
+# Unsigned admission evidence packet
+#
+# The packet is the deterministic, unsigned preparation for the trusted local
+# reviewed receipt.  It carries every immutable receipt field plus the evidence
+# bindings, and leaves exactly the reviewer-owned fields pending.  It is not a
+# receipt: it has no decision, reviewer, timestamp or self-digest.
+
+
+def _packet_bindings(*, lineage_config_sha256: str, eval_config_sha256: str,
+                     lineage: Mapping[str, Any],
+                     evals: Mapping[str, Any],
+                     admission: Mapping[str, Any]) -> dict[str, str]:
+    bindings = {
+        "lineage_config_sha256": lineage_config_sha256,
+        "eval_config_sha256": eval_config_sha256,
+        "lineage_manifest_sha256": lineage["manifest"]["manifest_sha256"],
+        "lineage_rows_sha256": lineage["manifest"]["rows_sha256"],
+        "lineage_exclusions_sha256": lineage["manifest"]["exclusions_sha256"],
+        "eval_manifest_sha256":
+            evals["seal"]["sealed_artifacts"]["manifest_sha256"],
+        "eval_rows_sha256": evals["seal"]["sealed_artifacts"]["rows_sha256"],
+        "eval_seal_sha256": evals["seal"]["seal_sha256"],
+        "validator_version": VALIDATOR_VERSION,
+    }
+    _require("admission.packet.bindings",
+             set(bindings) == set(admission["must_bind"]),
+             "packet bindings differ from the declared receipt bindings")
+    return bindings
+
+
+def _packet_evidence(*, config: Mapping[str, Any],
+                     eval_config: Mapping[str, Any],
+                     lineage: Mapping[str, Any],
+                     evals: Mapping[str, Any]) -> dict[str, Any]:
+    eligible = sorted(
+        (
+            {
+                "row_id": row["row_id"],
+                "group_key": row["group_key"],
+                "parent_row_id": row["parent"]["tranche_row_id"],
+                "row_sha256": row["row_sha256"],
+                "image_sha256": row["asset"]["image_sha256"],
+                "target_sha256": row["target"]["caption_sha256"],
+            }
+            for row in lineage["rows"]
+        ),
+        key=lambda item: item["row_id"],
+    )
+    exclusions = sorted(
+        (
+            {
+                "row_id": row["row_id"],
+                "role": row["role"],
+                "recorded_verdict": row["recorded_verdict"],
+                "reason_code": row["reason_code"],
+                "training_eligible": row["training_eligible"],
+            }
+            for row in lineage["exclusions"]
+        ),
+        key=lambda item: item["row_id"],
+    )
+    reason_counts: dict[str, int] = defaultdict(int)
+    for item in exclusions:
+        reason_counts[item["reason_code"]] += 1
+    exposed = sorted(lineage["exposed"])
+    decision = lineage["decision"]
+    exposure = lineage["exposure"]
+    seal = evals["seal"]
+    counts = {
+        "rows": len(eligible),
+        "exclusions": len(exclusions),
+        "exposed": len(exposed),
+        "parent_rows_accounted":
+            config["selection"]["total_parent_rows_accounted"],
+        "eval_rows": len(evals["rows"]),
+        "eval_images": len(evals["images"]),
+    }
+    return {
+        "lineage": {
+            "lineage_id": config["lineage_id"],
+            "status": config["status"],
+            "manifest_sha256": lineage["manifest"]["manifest_sha256"],
+            "rows_sha256": lineage["manifest"]["rows_sha256"],
+            "exclusions_sha256": lineage["manifest"]["exclusions_sha256"],
+            "counts": counts,
+            "eligible_rows": eligible,
+            "exclusions": exclusions,
+            "exclusion_reason_counts": dict(sorted(reason_counts.items())),
+            "exposure": {
+                "incident_sha256":
+                    config["parents"]["exposure_incident"]["sha256"],
+                "status": exposure["status"],
+                "exposed_row_ids": exposed,
+                "excluded_from_training": True,
+                "history_preserved": True,
+                "relabeled": False,
+                "untouched_eval_status_restored": False,
+            },
+            "parent_decision": {
+                "decision": decision["decision"],
+                "relabeled": False,
+                "training_admitted_row_ids": None,
+                "queue_sha256": decision["queue_sha256"],
+            },
+        },
+        "evaluation": {
+            "eval_id": eval_config["eval_id"],
+            "role": seal["role"],
+            "split": seal["split"],
+            "manifest_sha256":
+                seal["sealed_artifacts"]["manifest_sha256"],
+            "rows_sha256": seal["sealed_artifacts"]["rows_sha256"],
+            "seal_sha256": seal["seal_sha256"],
+            "scene_specs_sha256":
+                seal["sealed_artifacts"]["scene_specs_sha256"],
+            "images_aggregate_sha256":
+                seal["sealed_artifacts"]["images_aggregate_sha256"],
+            "counts": {
+                "rows": len(evals["rows"]),
+                "images": len(evals["images"]),
+                "families": len({row["family"] for row in evals["rows"]}),
+            },
+            "diagnostic_scope": {
+                **EVAL_DIAGNOSTIC_FLAGS,
+                "rows": len(evals["rows"]),
+                "images": len(evals["images"]),
+                "permitted_claim":
+                    "fixed synthetic scene families only: image-conditioned "
+                    "grounding and caption agreement under programmatic labels",
+                "forbidden_claims": [
+                    "natural-image caption quality",
+                    "VLM generality, robustness or fairness",
+                    "zero-shot external transfer",
+                    "benchmark superiority",
+                ],
+            },
+            "sealed_before_any_model_use":
+                seal["attestations"]["sealed_before_any_model_use"],
+            "model_executions_at_seal":
+                seal["attestations"]["model_executions_at_seal"],
+            "disjoint_from_training_and_exposed":
+                seal["attestations"]["disjoint_from_training_and_exposed_rows"],
+        },
+        "admission": {
+            "default_status": config["admission"]["default_status"],
+            "requires_separate_reviewed_receipt":
+                config["admission"]["requires_separate_reviewed_receipt"],
+            "receipt_path": config["admission"]["receipt_path"],
+            "receipt_created": False,
+            "training_admitted_row_ids": [],
+        },
+    }
+
+
+def _packet_payload(*, admission: Mapping[str, Any], config: Mapping[str, Any],
+                    eval_config: Mapping[str, Any],
+                    lineage: Mapping[str, Any], evals: Mapping[str, Any],
+                    bindings: Mapping[str, str]) -> dict[str, Any]:
+    receipt_fields = {
+        "format": RECEIPT_FORMAT,
+        "scope": RECEIPT_SCOPE,
+        "trust": admission["trust_model"],
+        "lineage_id": config["lineage_id"],
+        "decision": None,
+        "decided_by": None,
+        "decided_at": None,
+        "bindings": dict(bindings),
+        "admitted_row_ids": sorted(row["row_id"] for row in lineage["rows"]),
+        "conditions": [],
+        "receipt_sha256": None,
+    }
+    _require("admission.packet.receipt_fields",
+             set(receipt_fields) == set(admission["required_fields"]),
+             "packet receipt fields differ from the declared receipt schema")
+    return {
+        "format": PACKET_FORMAT,
+        "created_on": config["created_on"],
+        "status": PACKET_STATUS,
+        "not_a_receipt": True,
+        "unsigned": True,
+        "signature_present": False,
+        "lineage_id": config["lineage_id"],
+        "receipt_format": RECEIPT_FORMAT,
+        "receipt_path": admission["receipt_path"],
+        "receipt_fields": receipt_fields,
+        "pending_reviewer_fields": list(PACKET_PENDING_FIELDS),
+        "evidence": _packet_evidence(config=config, eval_config=eval_config,
+                                     lineage=lineage, evals=evals),
+        "reviewer_instructions": [
+            "Review the lineage manifest, rows/exclusions hashes, the preserved "
+            "exposure incident and the sealed diagnostic evaluation.",
+            "Only a named reviewer may copy receipt_fields to the receipt path, "
+            "fill decision, decided_by, decided_at and conditions, then compute "
+            "receipt_sha256 over canonical JSON without that field.",
+            "Never edit the nine eligible row ids, any binding, or the "
+            "exposure/exclusion evidence.",
+            "The receipt is a trusted local review decision, not a "
+            "cryptographic signature, and grants no benchmark claim.",
+        ],
+        "non_claims": dict(PACKET_NON_CLAIMS),
+    }
+
+
+def build_admission_packet(lineage_config_path: str | Path,
+                           eval_config_path: str | Path, *,
+                           project_root: str | Path = ROOT) -> dict[str, Any]:
+    """Prepare, but never sign, the reviewed-receipt evidence packet."""
+    project_root = Path(project_root)
+    lineage_config_path = Path(lineage_config_path)
+    eval_config_path = Path(eval_config_path)
+    if not lineage_config_path.is_absolute():
+        lineage_config_path = project_root / lineage_config_path
+    if not eval_config_path.is_absolute():
+        eval_config_path = project_root / eval_config_path
+    checks: list[dict[str, str]] = []
+    config = load_json(lineage_config_path)
+    eval_config = load_json(eval_config_path)
+    lineage = validate_lineage(config, project_root=project_root, checks=checks)
+    evals = validate_eval(eval_config, project_root=project_root,
+                          lineage=lineage, checks=checks)
+    validate_separation(lineage, evals, config, checks=checks)
+    admission = config["admission"]
+    bindings = _packet_bindings(
+        lineage_config_sha256=sha256_file(lineage_config_path),
+        eval_config_sha256=sha256_file(eval_config_path),
+        lineage=lineage, evals=evals, admission=admission)
+    return _packet_payload(admission=admission, config=config,
+                           eval_config=eval_config, lineage=lineage,
+                           evals=evals, bindings=bindings)
+
+
+def _first_difference(left: Any, right: Any, path: str = "") -> str | None:
+    if type(left) is not type(right):
+        return path or "<root>"
+    if isinstance(left, dict):
+        if set(left) != set(right):
+            missing = sorted(set(right) - set(left))
+            extra = sorted(set(left) - set(right))
+            return (f"{path or '<root>'}: missing={missing} extra={extra}")
+        for key in sorted(left):
+            found = _first_difference(left[key], right[key],
+                                      f"{path}.{key}" if path else key)
+            if found is not None:
+                return found
+        return None
+    if isinstance(left, list):
+        if len(left) != len(right):
+            return f"{path or '<root>'}: length {len(left)} != {len(right)}"
+        for index, (first, second) in enumerate(zip(left, right)):
+            found = _first_difference(first, second, f"{path}[{index}]")
+            if found is not None:
+                return found
+        return None
+    return None if left == right else (path or "<root>")
+
+
+def verify_admission_packet(packet: Mapping[str, Any], *,
+                            admission: Mapping[str, Any],
+                            config: Mapping[str, Any],
+                            eval_config: Mapping[str, Any],
+                            lineage: Mapping[str, Any],
+                            evals: Mapping[str, Any],
+                            lineage_config_sha256: str,
+                            eval_config_sha256: str) -> dict[str, Any]:
+    """Fail closed unless the packet is the current unsigned preparation."""
+    _require("admission.packet.fields", isinstance(packet, dict)
+             and set(packet) == PACKET_FIELDS,
+             "packet fields differ from the declared unsigned schema")
+    _require("admission.packet.format", packet.get("format") == PACKET_FORMAT,
+             "unexpected admission packet format")
+    _require("admission.packet.status", packet.get("status") == PACKET_STATUS,
+             "packet is not in prepared-unsigned state")
+    _require("admission.packet.unsigned",
+             packet.get("not_a_receipt") is True
+             and packet.get("unsigned") is True
+             and packet.get("signature_present") is False,
+             "packet is signed or claims to be a receipt")
+    _require("admission.packet.lineage",
+             packet.get("lineage_id") == config["lineage_id"],
+             "packet lineage mismatch")
+    _require("admission.packet.receipt",
+             packet.get("receipt_format") == RECEIPT_FORMAT
+             and packet.get("receipt_path") == admission["receipt_path"],
+             "packet receipt target mismatch")
+    _require("admission.packet.pending",
+             tuple(packet.get("pending_reviewer_fields", ()))
+             == PACKET_PENDING_FIELDS,
+             "pending reviewer fields differ from the declared set")
+    receipt_fields = packet.get("receipt_fields")
+    _require("admission.packet.receipt_fields", isinstance(receipt_fields, dict)
+             and set(receipt_fields) == set(admission["required_fields"]),
+             "packet does not carry exactly the receipt fields")
+    for field in PACKET_PENDING_FIELDS:
+        value = receipt_fields.get(field)
+        if field == "conditions":
+            _require("admission.packet.unsigned",
+                     value == [], "packet must not pre-fill conditions")
+        else:
+            _require("admission.packet.unsigned", value is None,
+                     f"packet must leave {field} unsigned")
+    _require("admission.packet.unsigned",
+             receipt_fields.get("receipt_sha256") is None
+             and packet.get("non_claims") == PACKET_NON_CLAIMS,
+             "packet carries a self-digest or claims admission")
+
+    bindings = _packet_bindings(
+        lineage_config_sha256=lineage_config_sha256,
+        eval_config_sha256=eval_config_sha256,
+        lineage=lineage, evals=evals, admission=admission)
+    expected = _packet_payload(admission=admission, config=config,
+                               eval_config=eval_config, lineage=lineage,
+                               evals=evals, bindings=bindings)
+    difference = _first_difference(packet, expected)
+    _require("admission.packet.content", difference is None,
+             f"packet differs from the current artifacts at {difference}")
+    return {
+        "status": "prepared_unsigned",
+        "path": PACKET_PATH,
+        "format": PACKET_FORMAT,
+        "unsigned": True,
+        "receipt_path": admission["receipt_path"],
+        "eligible_row_ids": list(receipt_fields["admitted_row_ids"]),
+        "exclusions": len(packet["evidence"]["lineage"]["exclusions"]),
+        "exposed_rows": len(packet["evidence"]["lineage"]["exposure"][
+            "exposed_row_ids"]),
+    }
+
+
+def resolve_packet(lineage: Mapping[str, Any], evals: Mapping[str, Any],
+                   config: Mapping[str, Any], eval_config: Mapping[str, Any], *,
+                   lineage_config_path: Path, eval_config_path: Path,
+                   project_root: Path,
+                   checks: list[dict[str, str]]) -> dict[str, Any]:
+    path = project_root / PACKET_PATH
+    if not path.is_file():
+        checks.append({"id": "admission.packet", "status": "pass",
+                       "detail": "no unsigned packet present"})
+        return {"status": "absent", "path": PACKET_PATH}
+    packet = load_json(path)
+    info = verify_admission_packet(
+        packet, admission=config["admission"], config=config,
+        eval_config=eval_config, lineage=lineage, evals=evals,
+        lineage_config_sha256=sha256_file(lineage_config_path),
+        eval_config_sha256=sha256_file(eval_config_path))
+    info["packet_sha256"] = sha256_file(path)
+    checks.append({"id": "admission.packet", "status": "pass",
+                   "detail": "unsigned packet matches the validated artifacts"})
+    return info
+
+
 def resolve_admission(lineage: Mapping[str, Any], evals: Mapping[str, Any],
                       config: Mapping[str, Any], *,
                       lineage_config_path: Path, eval_config_path: Path,
@@ -1198,6 +1593,11 @@ def validate(lineage_config_path: str | Path, eval_config_path: str | Path, *,
             lineage_config_path=lineage_config_path,
             eval_config_path=eval_config_path,
             project_root=project_root, checks=checks)
+        packet = resolve_packet(
+            lineage, evals, lineage_config, eval_config,
+            lineage_config_path=lineage_config_path,
+            eval_config_path=eval_config_path,
+            project_root=project_root, checks=checks)
     except GuardError as error:
         report = {
             "format": VALIDATION_FORMAT,
@@ -1243,6 +1643,7 @@ def validate(lineage_config_path: str | Path, eval_config_path: str | Path, *,
         },
         "separation": separation,
         "admission": admission,
+        "admission_packet": packet,
         "as_of": as_of,
         "non_claims": {
             "model_execution": False,
@@ -1267,8 +1668,22 @@ def main(argv: Sequence[str] | None = None) -> int:
                         help="exit non-zero unless a valid reviewed receipt admits training")
     parser.add_argument("--as-of", default=None,
                         help="ISO date recorded in the validation report (default: today)")
+    parser.add_argument("--write-packet", nargs="?", const=PACKET_PATH,
+                        default=None,
+                        help="write the deterministic unsigned admission packet "
+                             "to this path (default: the prepared packet path) "
+                             "after validation passes")
     args = parser.parse_args(argv)
     try:
+        if args.write_packet:
+            target = Path(args.write_packet)
+            if not target.is_absolute():
+                target = ROOT / target
+            packet = build_admission_packet(args.lineage_config,
+                                            args.eval_config)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(packet, indent=2, sort_keys=True) + "\n",
+                              encoding="utf-8")
         report = validate(args.lineage_config, args.eval_config,
                           as_of=args.as_of, require_admission=args.require_admission)
         status = 0 if report["status"] == "valid" else 1

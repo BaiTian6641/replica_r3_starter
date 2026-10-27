@@ -2,6 +2,37 @@
   "format": "replica.value_readout_abstention.protocol.v1",
   "protocol_id": "value_readout_abstention_v1",
   "declared_at_utc": "2026-10-27T00:00:00+00:00",
+  "amendment": {
+    "id": "value_readout_abstention_v1_storage_budget_20261027",
+    "amends": "value_readout_abstention_v1",
+    "date": "2026-10-27",
+    "reason": "The previous 16 MiB authorized-run artifact ceiling was underprovisioned for three resume-complete 24-update arm checkpoints plus fit, control, development and held-out evidence.",
+    "previous": {
+      "artifact_bytes_max": 16777216,
+      "config_sha256": "49b8bc451fe78f29e79ddbf5af2ea1a787739e98eedd9ef504025dfc758d5e32",
+      "prepared_manifest_sha256": "e544d41b62e9f28d4810a352d7a5e9ca20006c5a144325ffa7b15202ed87ee11",
+      "prepared_root": "data/value_readout_abstention_20261027/fixture01"
+    },
+    "current": {
+      "artifact_bytes_max": 33554432,
+      "prepared_root": "data/value_readout_abstention_20261027/fixture02"
+    },
+    "historical_evidence_preserved": true,
+    "silent_overwrite": false,
+    "provenance_update": {
+      "id": "value_readout_abstention_v1_entrypoint_provenance_20261027",
+      "date": "2026-10-27",
+      "previous_created_by": "future_authorized_runner",
+      "created_by": "scripts/run_value_readout_abstention_v1.py",
+      "previous_config_sha256": "900dfcc68367ab4f31af4f37619b0d5388fc3d56c8e3644f040bb59a03dd3593",
+      "previous_prepared_manifest_sha256": "a1dad8216886bc1c2f9d2cd1563dfdd4a67661744d637cd653ce78b32d7631aa",
+      "previous_prepared_manifest_digest": "6d97cb00cbf28f553007705a13934cc9744ab2e03a128bbaa47cc668055947f2",
+      "prepared_root": "data/value_readout_abstention_20261027/fixture02",
+      "reason": "Replace the placeholder future_authorized_runner provenance with the actual CPU entry point; model behaviour, update counts, controls and the 32 MiB ceiling are unchanged.",
+      "run_outputs_preserved": true,
+      "silent_overwrite": false
+    }
+  },
   "purpose": "Predeclare a chronological, one-step-per-event value-readout and abstention protocol over the selected plastic expert, with a deterministic CPU fixture, disjoint training replay and sealed evaluation cases, distinct controls, and fail-closed admission before any native execution.",
   "classification": {
     "package": "value_readout_abstention_protocol",
@@ -235,7 +266,7 @@
     }
   },
   "prepared": {
-    "root": "data/value_readout_abstention_20261027/fixture01",
+    "root": "data/value_readout_abstention_20261027/fixture02",
     "manifest": "manifest.json",
     "formats": {
       "manifest": "replica.value_readout_abstention.prepared.v1",
@@ -544,7 +575,7 @@
     "fit_receipt": {
       "format": "replica.value_readout_abstention.fit_receipt.v1",
       "required_before_development": true,
-      "created_by": "future_authorized_runner",
+      "created_by": "scripts/run_value_readout_abstention_v1.py",
       "scope": {
         "arm_id": "learned_value_readout",
         "phase": "fit_treatment",
@@ -578,7 +609,7 @@
         "tuning_performed"
       ],
       "exact_values": {
-        "created_by": "future_authorized_runner",
+        "created_by": "scripts/run_value_readout_abstention_v1.py",
         "dev_labels_read": false,
         "earlier_write_gradient": false,
         "heldout_opened": false,
@@ -636,7 +667,27 @@
       "context_tokens_total": 480,
       "generated_tokens_total": 0,
       "checkpoint_writes": 3,
-      "artifact_bytes_max": 16777216,
+      "artifact_bytes_max": 33554432,
+      "artifact_budget": {
+        "cap_bytes": 33554432,
+        "cap_mib": 32,
+        "old_cap_bytes": 16777216,
+        "old_cap_underprovisioned": true,
+        "resume_complete_checkpoints": 3,
+        "observed_checkpoint_bytes": [
+          9656709,
+          9657033,
+          9657093
+        ],
+        "observed_checkpoints_total_bytes": 28970835,
+        "observed_non_checkpoint_evidence_bytes": 136765,
+        "observed_total_bytes": 29107600,
+        "old_cap_deficit_bytes": 12330384,
+        "headroom_bytes": 4446832,
+        "derivation": "Three resume-complete checkpoints (9,656,709 + 9,657,033 + 9,657,093 = 28,970,835 bytes) include full model and optimizer state. Fit, control, development and held-out reports, predictions and receipts add 136,765 bytes, for 29,107,600 observed. The 33,554,432-byte ceiling leaves 4,446,832 bytes of headroom. The old 16,777,216-byte ceiling was 12,330,384 bytes too small.",
+        "enforcement": "after_final_report_and_receipt_writes_all_artifacts_included",
+        "overflow_evidence": "preserved_as_artifact_budget_overflow.json"
+      },
       "wall_seconds_max": 1200,
       "gpu_minutes_max": 20,
       "peak_driver_bytes_max": 53687091200,
@@ -716,9 +767,9 @@
   "launch": {
     "review_only": true,
     "native_execution": false,
-    "command": "python3 scripts/preflight_value_readout_abstention_v1.py --config configs/value_readout_abstention_protocol_v1.json --prepared data/value_readout_abstention_20261027/fixture01 --receipt runs/value_readout_abstention_20261027/preflight01.json --review",
+    "command": "python3 scripts/preflight_value_readout_abstention_v1.py --config configs/value_readout_abstention_protocol_v1.json --prepared data/value_readout_abstention_20261027/fixture02 --receipt runs/value_readout_abstention_20261027/preflight02.json --review",
     "receipt_format": "replica.value_readout_abstention.preflight_receipt.v1",
-    "review_receipt_path": "runs/value_readout_abstention_20261027/preflight01.json",
+    "review_receipt_path": "runs/value_readout_abstention_20261027/preflight02.json",
     "requires_authorization_receipt": true,
     "authorization_receipt_format": "replica.value_readout_abstention.authorization.v1",
     "authorization_fields": [
