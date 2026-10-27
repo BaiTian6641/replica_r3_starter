@@ -911,6 +911,38 @@ def sum_phase_work(rows: list[dict]) -> dict:
     }
     return totals
 
+def response_teaching_work(*, prompt_positions: int, full_positions: int,
+                           response_tokens: int, events: int,
+                           steps_per_event: int) -> dict:
+    """Count detached targets once and response-CE work per transaction step."""
+    values = (prompt_positions, full_positions, response_tokens, events,
+              steps_per_event)
+    _require(all(type(value) is int and value >= 0 for value in values)
+             and steps_per_event >= 1,
+             "response teaching work requires nonnegative counts and positive steps")
+    updates = events * steps_per_event
+    return {
+        "response_supervised_tokens": response_tokens * steps_per_event,
+        # Detached prompt P + detached target F + steps * (read P + sense P + CE F).
+        "processed_positions": ((1 + 2 * steps_per_event) * prompt_positions
+                                + (1 + steps_per_event) * full_positions),
+        "plastic_feature_prompt_positions": prompt_positions,
+        "differentiable_read_prompt_positions": prompt_positions * steps_per_event,
+        "session_sense_prompt_positions": prompt_positions * steps_per_event,
+        "response_target_positions": full_positions,
+        "response_ce_positions": full_positions * steps_per_event,
+        "forward_calls": {
+            "prompt_features": 2 * events,
+            "differentiable_read": updates,
+            "session_sense": updates,
+            "response_ce": updates,
+            "total": 2 * events + 3 * updates,
+        },
+        "backward_calls": updates,
+        "response_ce_backward_calls": updates,
+    }
+
+
 
 def _merge_request_rows(work_rows: list[dict],
                         latency_rows: list[dict]) -> list[dict]:
@@ -1282,8 +1314,8 @@ def run_response_teach(args, config: dict) -> int:
         update_limit = int(config["training"][
             "wrong_world_max_updates" if args.world_role == "wrong_world"
             else "max_updates"])
-        _require(len(episodes) <= update_limit,
-                 f"response-CE episodes exceed declared update bound {update_limit}")
+        _require(len(episodes) * int(protocol.steps_per_event) <= update_limit,
+                 f"response-CE optimizer steps exceed declared update bound {update_limit}")
         (output / "teach").mkdir(parents=True, exist_ok=True)
         session = MemorySession(adapter, tokenizer,
                                 RecordLedger(output / "teach" / "ledger.sqlite"))
@@ -1351,13 +1383,13 @@ def run_response_teach(args, config: dict) -> int:
         full_positions = sum(int(episode.input_ids.shape[1]) for episode in episodes)
         supervised = sum(int(episode.response_mask.sum()) for episode in episodes)
         events = len(episodes)
-        forward_calls = {
-            "prompt_features": 2 * events,
-            "differentiable_read": events,
-            "session_sense": events,
-            "response_ce": events,
-            "total": 5 * events,
-        }
+        response_work = response_teaching_work(
+            prompt_positions=prompt_positions, full_positions=full_positions,
+            response_tokens=supervised, events=events,
+            steps_per_event=int(protocol.steps_per_event))
+        _require(int(learner.accounting["optimizer_steps"])
+                 == response_work["backward_calls"],
+                 "optimizer steps differ from response-CE transaction accounting")
         end_to_end = time.perf_counter() - started_total
         cost = {
             "events": events,
@@ -1365,14 +1397,7 @@ def run_response_teach(args, config: dict) -> int:
             "optimizer_steps": int(learner.accounting["optimizer_steps"]),
             "feature_vectors": int(learner.accounting["feature_vectors"]),
             "response_tokens": int(learner.accounting["response_tokens"]),
-            "response_supervised_tokens": supervised,
-            "processed_positions": 3 * prompt_positions + full_positions,
-            "plastic_feature_prompt_positions": prompt_positions,
-            "session_sense_prompt_positions": prompt_positions,
-            "response_ce_positions": full_positions,
-            "forward_calls": forward_calls,
-            "backward_calls": events,
-            "response_ce_backward_calls": events,
+            **response_work,
             "replay_calls": 0,
             "wall_seconds": wall,
             "update_seconds": update_seconds,

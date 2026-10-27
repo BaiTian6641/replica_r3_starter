@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "format": "replica.nested_text.response_diagnostic.v1",
+  "status": "predeclared_read_only_fit_diagnostic",
+  "native_execution_admitted": true,
+  "training_admitted": false,
+  "promotion": false,
+  "parent_protocol": "configs/nested_text_behavioral_reference_v1.json",
+  "parent_protocol_sha256": "053ed39a08bfa55e09b36314cc1bb4ae9c55308d774581bd6d3886ab94e4c14e",
+  "episodes": {
+    "root": "data/nested_text_nl1_v2_20261026",
+    "manifest_sha256": "8bf2e64f935a18b2800e02f28a352cb9831c227cb5f98bdec39f2a19d956d09d",
+    "role": "teaching",
+    "attempts": 28
+  },
+  "inputs": {
+    "trained_p_state": "runs/nested_text_behavioral_reference_attempt03_20261026/teach_primary/p_only/state.pt",
+    "trained_p_state_sha256": "abf2bf5df2c4b5f4a6e2b9cd3e4031b3febafd1d78dbc5993d9954d14b739efb",
+    "baseline_p_state": "runs/nested_text_nl1_v2_20261026/init_primary/p_only/state.pt",
+    "baseline_p_state_sha256": "84b98f60f5f97f27fbf045c6e1f97d5424b7b8ffa3aee34cc2189d6665b25e45",
+    "greedy_report": "runs/nested_text_behavioral_reference_attempt04_20261026/fit_primary/gates/fit.json",
+    "greedy_report_sha256": "48c0e811f849d08b9251a76e45fdd0a655d50eed70c2c64362672855be11b5e2"
+  },
+  "workload": {
+    "max_prompt_tokens": 256,
+    "max_response_tokens": 64,
+    "max_new_tokens_in_reused_greedy_report": 24,
+    "teacher_forced_attempts_per_state": 28,
+    "states": ["trained", "null_parent_baseline"],
+    "reuse_greedy_outputs": true,
+    "new_generation": false,
+    "updates": 0,
+    "backward_calls": 0,
+    "heldout_opened": false,
+    "sealed_final_rows_parsed": false,
+    "sealed_final_scoring": false
+  },
+  "metrics": [
+    "response_nll",
+    "response_token_accuracy",
+    "teacher_forced_exact_response",
+    "reused_greedy_exact_answer",
+    "trained_minus_baseline"
+  ],
+  "controls": {
+    "same_prompt_and_response_rows": true,
+    "prompt_only_sense_frame": true,
+    "gold_response_action_pass_only": true,
+    "source_free_request": true,
+    "no_controller_or_coordinator": true,
+    "no_optimizer_or_clock_state": true,
+    "no_new_training_or_tuning": true
+  },
+  "resource_policy": {
+    "device": "mps",
+    "cpu_fallback": false,
+    "exclusive_worker": true,
+    "max_driver_bytes": 53687091200,
+    "max_swap_growth_bytes": 536870912,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3,
+    "model_loads": 1,
+    "tokenizer_loads": 1,
+    "fresh_output_required": true
+  }
+}

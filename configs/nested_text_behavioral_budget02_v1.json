@@ -1,0 +1,281 @@
+{
+  "schema_version": 2,
+  "format": "replica.nested_text.behavioral_reference.v1",
+  "status": "predeclared_response_ce_budget02_training_admitted",
+  "software_only": false,
+  "native_execution_admitted": true,
+  "training_admitted": true,
+  "allowed_native_modes": ["init", "teach", "fit-eval", "p-only-eval"],
+  "promotion": false,
+  "one_clock_control_only": true,
+  "adaptive_router": false,
+  "rsi_enabled": false,
+  "replay_bytes": 0,
+  "notes": [
+    "Bounded behavioral budget-02 probe only; no large training campaign or RSI advancement.",
+    "The 28-update response-CE reference had partial teacher-forced signal but 0/28 exact fit; this arm changes only the predeclared optimizer-step budget to two steps per event.",
+    "One shared expert makes paraphrase-independent routing structural. No evaluation labels, world/family labels or gold IDs enter routing.",
+    "Verified response cross-entropy through the frozen decoder is the only admitted training objective. The detached local feature objective remains unadmitted.",
+    "This is the only additional optimization-budget arm admitted after the diagnostic. If fit fails, no further training arm or dependent evaluation follows.",
+    "Fit evaluation precedes development. Sealed-final opens only once after all corrected development gates pass; failure stops dependent stages."
+  ],
+  "parent": {
+    "protocol": "configs/nested_text_behavioral_reference_v1.json",
+    "base_protocol": "configs/nested_text_nl1_v2.json",
+    "primary_checkpoint": "runs/nested_text_behavioral_budget02_20261026/init_primary/full_checkpoint.pt",
+    "wrong_world_checkpoint": "runs/nested_text_behavioral_budget02_20261026/init_wrong_world/full_checkpoint.pt",
+    "response_diagnostic": "runs/nested_text_response_diagnostic_attempt01_20261026/diagnostic/response_diagnostic.json",
+    "negative_result": "runs/nested_text_behavioral_reference_attempt04_20261026/fit_primary/run.json",
+    "validity_reproduction": "reports/nested_text_validity_20261026/reproduction.json",
+    "scoring_replay": "reports/nested_text_validity_20261026/scoring_v2_replay.json"
+  },
+  "theta": {
+    "repo": "openbmb/MiniCPM5-2B",
+    "revision": "f97400052a43d642bbc6e9975e2397e3ae6a6b52",
+    "model_path": "checkpoints/minicpm5_source",
+    "lock_path": "configs/minicpm5_sealed_lock.local.json",
+    "expected_parameters": 2516756480,
+    "parameter_stamp_policy": "canonical_json_sha256_of_sorted_lock_snapshot_file_digests",
+    "native_abi": "pinned_transformers_llama_eager",
+    "cpu_fallback": false
+  },
+  "runtime": {
+    "device": "mps",
+    "one_worker": true,
+    "offline": true,
+    "fresh_output_required": true,
+    "model_loads_per_process": 1,
+    "tokenizer_loads_per_process": 1,
+    "max_wall_seconds": 3600,
+    "max_driver_bytes": 53687091200,
+    "max_swap_growth_bytes": 536870912,
+    "minimum_free_percent": 15,
+    "sustained_host_samples": 3
+  },
+  "bank": {
+    "experts": 1,
+    "width": 256,
+    "hidden_width": 1024,
+    "optimizer": "NativeFusedAdamW",
+    "dtype": "FP32",
+    "seed": 0,
+    "lr": 0.0001,
+    "p_init": "zero_read_down",
+    "initial_read_is_null": true,
+    "after_update_read_may_be_nonzero": true
+  },
+  "routing": {
+    "mode": "fixed",
+    "expert_id": 0,
+    "constant_single_expert": true,
+    "key_source": "constant_single_expert",
+    "labels_used": false,
+    "world_uid_used": false,
+    "gold_record_ids_used": false,
+    "adaptive_router": false,
+    "hashed_prompt_v1_is_negative_control": true
+  },
+  "features": {
+    "sites": [13, 27],
+    "extraction": "masked_mean_then_fixed_projection",
+    "target": "verified_response_mask_masked_mean_then_same_fixed_projection",
+    "target_projection_seed": 20261026,
+    "detached": true,
+    "no_grad_feature_pass": true,
+    "feature_version": "sites_masked_mean_projection.v1"
+  },
+  "read_path": {
+    "decoder": "same_fixed_projection_transpose",
+    "gain": 0.1,
+    "trainable": false,
+    "initial_null": true
+  },
+  "transaction": {
+    "objective": "verified_response_cross_entropy_through_frozen_decoder",
+    "objective_admitted_for_this_protocol": true,
+    "steps_per_event": 2,
+    "max_steps": 2,
+    "total_step_cap": 4,
+    "gradient_norm_max": 1.0,
+    "clock_period": 16,
+    "eligible_events_only": true,
+    "duplicate_returns_original": true,
+    "changed_duplicate_fails": true,
+    "external_gradient_transaction": true,
+    "second_controller": false,
+    "response_only_labels": true,
+    "label_shift": 1,
+    "loss": "mean_response_nll",
+    "train_sense": false,
+    "train_core": false,
+    "detach_decision_boundaries": true
+  },
+  "observation": {
+    "one_chunk_per_event": true,
+    "one_transition_per_eligible_chunk": true,
+    "ineligible_chunk_transitions": 0,
+    "writer_sources": ["feedback", "correction", "observation"],
+    "teacher_forced_answer_is_writable": false,
+    "reader_ids": ["13", "27"],
+    "shared_pre_chunk_view": true,
+    "spine_read_only_optional": true
+  },
+  "generation": {
+    "scoring_version": "replica.nested_text.scoring.v2.1",
+    "max_new_tokens": 24,
+    "stop_tokens": [1, 130073],
+    "sentence_stop": {
+      "enabled": true,
+      "version": "replica.nested_text.sentence_stop.v1",
+      "boundary": "first_complete_sentence",
+      "terminators": [".", "!", "?"],
+      "min_words": 1,
+      "decimal_point_is_not_boundary": true,
+      "hard_cap_is_not_clean_stop": true,
+      "answer_selection_allowed": false
+    },
+    "target_eos_token": 1,
+    "response_grammar": "bare_expected_or_complete_declarative_with_expected_whole_phrase",
+    "status_answers_exact_only": ["unknown", "revoked"],
+    "ambiguous_contradictory_competing_or_incomplete_credit": false,
+    "token_budget_credit": false,
+    "empty_generation_credit": false,
+    "candidate_answers_used_only_to_reject_conflicts": true
+  },
+  "persistence": {
+    "full_checkpoint": "weights+moments+counters+clock+dedup+revision+coordinator+personality+bindings",
+    "p_only_export": "weights+bindings_only",
+    "p_only_forbidden": ["optimizer", "moments", "dedup", "clock", "revision", "coordinator", "observations", "sources", "kv"],
+    "p_only_load_rejects_learning_state": true,
+    "wrong_theta_scope_protocol_route_feature_read_personality_fail_closed": true,
+    "resumed_learning_is_separate_process": true,
+    "restart_must_match_uninterrupted": true
+  },
+  "episodes": {
+    "root": "data/nested_text_nl1_v2_20261026",
+    "recipe": "configs/nested_text_episodes_v2.json",
+    "manifest_sha256": "8bf2e64f935a18b2800e02f28a352cb9831c227cb5f98bdec39f2a19d956d09d",
+    "roles": ["teaching", "development", "sealed_final"],
+    "teaching_files": ["teaching.jsonl", "correction.jsonl"],
+    "development_files": ["development.jsonl", "unaffected.jsonl", "unknown.jsonl", "revoked.jsonl", "legacy_retention.jsonl", "wrong_world.jsonl"],
+    "sealed_final_files": ["sealed_final.jsonl"],
+    "wrong_world_teaching_files": ["wrong_world_teaching.jsonl"],
+    "access_order": ["teaching", "development", "sealed_final"],
+    "heldout_opens_after_dev_only": true,
+    "heldout_retry_after_failure": false
+  },
+  "workload": {
+    "id": "behavioral_budget02_v1_teaching_28x2_wrong_world_24x2_fit_28_dev_196",
+    "scoring_attempts": 196,
+    "fit_scoring_attempts": 28,
+    "attempts": {
+      "taught_primary": 60,
+      "preteach_primary": 60,
+      "shuffled": 16,
+      "reset_P": 16,
+      "spine_absent": 16,
+      "wrong_world_P": 12,
+      "wrong_world_on_primary": 16
+    },
+    "teaching_events_for_this_baseline": 28,
+    "wrong_world_teaching_events": 24,
+    "fit_eval_attempts": 28,
+    "development_attempts": 196,
+    "duty_cycle": "(learning_update_seconds + wrong_world_learning_update_seconds) / (teaching_end_to_end_seconds + wrong_world_teaching_end_to_end_seconds + evaluation_end_to_end_seconds)",
+    "end_to_end_seconds": "primary and wrong-world model/protocol initialization, all sensing, request preparation, generation, scoring, checkpoint/export and report phases; no arbitrary idle insertion",
+    "evaluation_latency": "per-request plastic-read preparation + session preparation + generation/finalization + release; p50/p95 reported for each phase and total",
+    "wrong_world_initialization_cost_required": true,
+    "fit_eval_required": true,
+    "sealed_final_access": "not part of the development workload; after all corrected development gates pass, one read-only heldout evaluation is admitted once"
+  },
+  "training": {
+    "parent_checkpoint": "runs/nested_text_behavioral_budget02_20261026/init_primary/full_checkpoint.pt",
+    "wrong_world_parent_checkpoint": "runs/nested_text_behavioral_budget02_20261026/init_wrong_world/full_checkpoint.pt",
+    "max_updates": 56,
+    "wrong_world_max_updates": 48,
+    "max_backward_calls": 56,
+    "wrong_world_max_backward_calls": 48,
+    "max_wall_seconds": 3600,
+    "max_artifact_bytes": 67108864,
+    "trainable_groups": ["expert_0.gate", "expert_0.up", "expert_0.down"],
+    "frozen_groups": ["theta", "fixed_projection", "read_decoder", "sense/core readers"],
+    "response_ce_forward_calls": 56,
+    "response_ce_backward_calls": 56,
+    "backward_only_gradient_check": false,
+    "detach_decision_boundaries": true,
+    "extension_only": true,
+    "no_duplicate_base_saves": true,
+    "fit_eval_required": true,
+    "optimizer": "NativeFusedAdamW",
+    "lr": 0.0001,
+    "gradient_norm_max": 1.0,
+    "train_sense": false,
+    "train_core": false
+  },
+  "gates": {
+    "fit": {
+      "min_accuracy": 0.5,
+      "stop_dependent_stages": true
+    },
+    "dev": {
+      "require_dev_gates": true,
+      "min_new_instance_accuracy": 0.5,
+      "min_gain_over_preteach": 0.1,
+      "min_unaffected_accuracy": 0.7,
+      "max_unknown_false_recall": 0.1,
+      "max_revoked_false_recall": 0.25,
+      "min_correction_accuracy": 0.6,
+      "max_retention_decline": 0.02,
+      "require_shuffled_not_better": true,
+      "require_controls_not_reproduce_gain": true,
+      "require_cost_gate": true
+    },
+    "cost": {
+      "max_peak_driver_bytes": 53687091200,
+      "max_warm_p95_overhead_ms": 2000.0,
+      "warm_p95_overhead_ms_semantics": "end-to-end request preparation, feature sensing, generation/finalization and release, not generation-only",
+      "max_duty_cycle": 0.1,
+      "duty_cycle_semantics": "amortized over the complete primary and wrong-world teaching+evaluation workload; a primary-only teaching ratio cannot satisfy this gate",
+      "max_checkpoint_bytes": 268435456,
+      "max_p_only_bytes": 134217728
+    },
+    "promotion": {
+      "min_independent_seeds": 3,
+      "paired_worlds": true,
+      "single_seed_is_descriptive_only": true
+    }
+  },
+  "controls": {
+    "p_only": ["preteach", "reset_P", "wrong_world_P", "frozen", "shuffled_route", "spine_absent"],
+    "no_updates_during_p_only": true,
+    "no_source_text_in_p_only_request": true,
+    "no_memory_records_in_p_only_request": true,
+    "observer_parity": true,
+    "v1_hashed_routing_is_negative_control": true,
+    "retention_scoring_replay": "reports/nested_text_validity_20261026/scoring_v2_replay.json"
+  },
+  "claims": {
+    "implemented": [
+      "verified response-CE plastic transaction through the frozen decoder",
+      "one-shared-expert constant routing",
+      "v2.1 response grammar and sentence-stop accounting",
+      "fit and development evaluation with complete workload accounting"
+    ],
+    "measured": [],
+    "rejected": [
+      "v1 prompt-hashed expert routing",
+      "v1 exact-string retention scoring",
+      "v1 eight-token generation budget",
+      "v1 response-token-as-processed-position accounting",
+      "v1 teaching-only duty-cycle comparison",
+      "v1 generation-only latency",
+      "detached local feature objective as a behavioral reference",
+      "28-update response-CE fit as a useful behavioral reference (0/28)"
+    ],
+    "non_claims": [
+      "No learned utility, nested-timescale, adaptive-routing or RSI claim.",
+      "No held-out evaluation before corrected development gates pass, no retry after failure, no full-backbone update or Spark execution is admitted by this bounded reference.",
+      "No local feature objective comparison is admitted until a useful behavioral reference exists."
+    ]
+  }
+}

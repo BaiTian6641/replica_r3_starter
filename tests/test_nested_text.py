@@ -704,6 +704,47 @@ def test_response_loss_reaches_prompt_sites_and_selected_expert(tmp_path):
                 enabled_branches=("plastic",), plastic=detached,
                 identity=None, identity_enabled=False):
             pass
+
+def test_response_diagnostic_is_prompt_only_aligned_and_no_grad(tmp_path):
+    from architecture_helpers import tiny_adapter
+    from replica_lab.memory_system.ledger import RecordLedger
+    from replica_lab.memory_system.session import MemorySession
+
+    diagnostic = diagnostic_module()
+    runner = runner_module()
+    adapter = tiny_adapter().eval()
+    adapter.install_plastic(PlasticSpec(
+        experts=EXPERTS, width=WIDTH, hidden_width=HIDDEN_WIDTH,
+        sites=(0, 2), route_mode="fixed", route_seed=0,
+        projection_seed=1, read_gain=0.5))
+    protocol_value = protocol(seed=1, hidden_size=16, feature_sites=(0, 2))
+    expert_bank = ExpertBank(expert_count=EXPERTS, width=WIDTH,
+                             hidden_width=HIDDEN_WIDTH, seed=7, lr=0.05)
+    learner = NestedTextLearner(adapter, bank=expert_bank,
+                                protocol=protocol_value)
+    prompt_ids = torch.tensor([[1, 2, 3]], dtype=torch.long)
+    input_ids = torch.tensor([[1, 2, 3, 4, 5]], dtype=torch.long)
+    attention = torch.ones_like(input_ids, dtype=torch.bool)
+    response = torch.zeros_like(attention)
+    response[:, 3:] = True
+    episode = runner.Episode(
+        row={"id": "diagnostic-smoke", "expected_response": "4 5",
+             "prompt_sha256": "smoke", "prompt": "smoke"},
+        event=None, prompt_ids=prompt_ids, prompt_mask=prompt_ids.bool(),
+        input_ids=input_ids, attention_mask=attention, response_mask=response)
+    tokenizer = SimpleNamespace(
+        decode=lambda ids, skip_special_tokens=True: " ".join(map(str, ids)))
+    session = MemorySession(adapter, tokenizer,
+                            RecordLedger(tmp_path / "diagnostic.sqlite"))
+    result = diagnostic.teacher_forced(learner, session, [episode], label="smoke")
+    assert result["successful"] == 1 and result["failures"] == 0
+    assert result["loss_alignment_max_abs"] == 0.0
+    assert result["results"][0]["target_ids"] == [4, 5]
+    assert result["work"]["forward_calls"]["total"] == 3
+    assert result["work"]["backward_calls"] == 0
+    assert result["results"][0]["request_audit"]["sources_present"] is False
+    assert all(parameter.grad is None for parameter in expert_bank.parameters())
+
 def test_dev_gate_fails_closed_before_heldout():
     config = json.loads((ROOT / "configs" / "nested_text_nl1_v1.json").read_text())
     gates = config["gates"]["dev"]
@@ -885,6 +926,17 @@ def runner_module():
     spec.loader.exec_module(module)
     return module
 
+@functools.lru_cache(maxsize=1)
+def diagnostic_module():
+    spec = importlib.util.spec_from_file_location(
+        "diagnose_nested_response_contract",
+        ROOT / "scripts" / "diagnose_nested_response.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 
 def v2_directory() -> Path:
     return ROOT / "data" / "nested_text_nl1_v2_20261026"
@@ -940,6 +992,20 @@ def test_behavioral_reference_admits_response_ce_and_fit_gate():
         **config["training"], "fit_eval_required": False}}
     with pytest.raises(module.RunnerError, match="fit evaluation"):
         module.validate_v2_config(bad_fit)
+
+def test_behavioral_budget02_declares_two_step_bounded_arm():
+    module = runner_module()
+    config = json.loads((ROOT / "configs" /
+                         "nested_text_behavioral_budget02_v1.json").read_text())
+    for mode in ("init", "teach", "fit-eval"):
+        module.validate_run_mode(config, mode)
+    module.validate_v2_config(config)
+    assert config["transaction"]["steps_per_event"] == 2
+    assert config["training"]["max_updates"] == 56
+    assert config["training"]["max_backward_calls"] == 56
+    assert config["training"]["wrong_world_max_updates"] == 48
+    assert config["workload"]["fit_eval_attempts"] == 28
+
 
 
 def test_v2_protocol_binds_constant_single_expert():
@@ -1034,6 +1100,29 @@ def test_v2_work_totals_sum_positions_and_forward_calls():
     assert totals["truncated_attempts"] == 1
     assert totals["backward_calls"] == 0 and totals["replay_calls"] == 0
 
+
+
+def test_response_teaching_work_counts_targets_and_each_optimizer_step():
+    module = runner_module()
+    work = module.response_teaching_work(
+        prompt_positions=7, full_positions=11, response_tokens=5,
+        events=2, steps_per_event=2)
+    assert work["processed_positions"] == 68
+    assert work["response_target_positions"] == 11
+    assert work["response_ce_positions"] == 22
+    assert work["response_supervised_tokens"] == 10
+    assert work["differentiable_read_prompt_positions"] == 14
+    assert work["session_sense_prompt_positions"] == 14
+    assert work["forward_calls"] == {
+        "prompt_features": 4, "differentiable_read": 4,
+        "session_sense": 4, "response_ce": 4, "total": 16}
+    assert work["backward_calls"] == 4
+    assert work["response_ce_backward_calls"] == 4
+    single = module.response_teaching_work(
+        prompt_positions=637, full_positions=759, response_tokens=122,
+        events=28, steps_per_event=1)
+    assert single["processed_positions"] == 3429
+    assert single["forward_calls"]["total"] == 140
 
 def test_v2_latency_summary_reports_p50_and_p95_for_each_phase():
     module = runner_module()
