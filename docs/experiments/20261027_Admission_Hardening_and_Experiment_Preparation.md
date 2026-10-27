@@ -206,7 +206,23 @@ any development labels are read. The smaller-step vision runner additionally
 requires its committed protocol and separate authorization before any native
 launch. Neither protocol permits automatic retry, development, held-out or RSI.
 
-## 8. Copy-ready continuation prompt
+## 8. Final verification
+
+The [verification receipt](../../reports/admission_preparation_20261027/summary.json)
+separates the provisioned `46af5dd` result from the final clean `9191cb7a`
+result. The provisioned suite passes **2,786 tests plus 21 subtests**, with 9
+explicit Pillow skips and no failures. The clean suite passes **2,710 tests plus
+21 subtests**, with 85 explicit artifact/provisioning skips and no failures.
+Both artifact guards pass over 11,083 files and the clean Spark verifier passes
+436 checks without a source cache.
+
+The first clean run failed 29 tests because their payload requirements were not
+declared. Its receipt is preserved. Module-wide guards were then narrowed to the
+29 genuinely artifact-dependent cases, so nine independent tests still execute
+in the clean clone. Provisioned data/Spark behavior remains **38 passed**. No
+old report, historical pin or failed experiment was rewritten.
+
+## 9. Copy-ready continuation prompt
 
 > Continue from the current HEAD. Inspect `git status`, intervening commits,
 > `AGENT_START.md`, `execution_state.md` and

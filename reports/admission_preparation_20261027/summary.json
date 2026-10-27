@@ -1,0 +1,157 @@
+{
+  "format": "replica.admission_preparation.verification.v1",
+  "date": "2026-10-27",
+  "native_execution": false,
+  "protected_runtime_pilot_read_imported_modified_or_staged": false,
+  "provisioned": {
+    "tested_commit": "46af5dd463e03d723f37afee8347a328db5302df",
+    "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=reports/admission_preparation_20261027/full_suite_tests.xml",
+    "junit_xml": "reports/admission_preparation_20261027/full_suite_tests.xml",
+    "junit_tests": 2816,
+    "passed": 2786,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 9,
+    "subtests_passed": 21,
+    "junit_time_seconds": 459.828,
+    "console_seconds": 460.09,
+    "skip_scope": "Seven Pillow-required JPEG-fixture tests and two official-PIL processor/QA branches; existing overlay evidence covers these branches",
+    "artifact_guard": {
+      "status": "passed",
+      "checked_files": 11083,
+      "largest_checked_blob_bytes": 8148167,
+      "violations": [],
+      "guard_tests": "74 passed"
+    }
+  },
+  "clean_export": {
+    "source": "git clone --no-hardlinks . /tmp/replica_admission_clean_20261027; git checkout 9191cb7a",
+    "clone": "/tmp/replica_admission_clean_20261027",
+    "tested_commit": "9191cb7a",
+    "command": "PYTHONDONTWRITEBYTECODE=1 /Users/flare/replica_r3_starter/.venv/bin/python -m pytest -q -p no:cacheprovider --junitxml=/Users/flare/replica_r3_starter/reports/admission_preparation_20261027/clean_export/tests.xml",
+    "junit_xml": "reports/admission_preparation_20261027/clean_export/tests.xml",
+    "junit_tests": 2816,
+    "passed": 2710,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 85,
+    "subtests_passed": 21,
+    "console_seconds": 414.05,
+    "git_status": "clean",
+    "skip_scope": "Existing artifact/Pillow skips plus exactly 29 newly declared ignored-payload cases. Nine other tests in those files still execute; no test was deleted or converted into a pass.",
+    "artifact_guard": {
+      "status": "passed",
+      "checked_files": 11083,
+      "largest_checked_blob_bytes": 8148167,
+      "violations": []
+    },
+    "spark_verification": {
+      "status": "passed",
+      "checks": 436,
+      "bundle_inputs": 43,
+      "bundle_digest": "ceebdb951de3a771c0eecdeeae38c47875565e1fa87c2da9ef0eee055a309d4a",
+      "temporary_source_cache_required": false
+    }
+  },
+  "provisioning_history": {
+    "initial_failure": {
+      "junit_xml": "reports/admission_preparation_20261027/clean_export/tests_attempt01.xml",
+      "passed": 2710,
+      "failed": 29,
+      "skipped": 56,
+      "cause": "New tests copied ignored local artifacts without declaring their provisioning contract"
+    },
+    "module_guard_refinement": {
+      "junit_xml": "reports/admission_preparation_20261027/clean_export/tests_module_guard.xml",
+      "passed": 2701,
+      "skipped": 94,
+      "issue": "Module-wide guards also skipped nine tests that did not require ignored artifacts"
+    },
+    "final_per_test_guards": "Only the 29 artifact-dependent cases skip; provisioned behavior remains 38 passed and clean coverage is preserved"
+  },
+  "focused": {
+    "admission_scoring": "255 passed",
+    "source_provenance": "174 passed",
+    "memory_protocol": "10 passed",
+    "vision_smaller_step": "38 passed",
+    "data_and_spark": "38 passed",
+    "continuation_replay": "exact_match with zero failures",
+    "vision_accounting_replay": "replay_matches at 7695 scoring passes and 7755 total events",
+    "step1_replay": "original stopped_engineering_failure; derived step1_reproduction_supported"
+  },
+  "implementation": {
+    "fit_runner_sha256": "4e202fdb956ec1196311c9002b3ad864e7415dd84080d5c69558fe3c27062d88",
+    "continuation_current_receipt_digest": "83d58b41ef62f1fd8e47186afbf8f4489c051e900ef67d3acb29d743584f2213",
+    "fit_independence": "Saved correct/pass flags are not trusted; scorer/grammar/stop/coverage/audit/minimum accuracy are independently recomputed before native or development access",
+    "development_boundary": "Deny-by-default role parsing; fit vocabulary uses only authorized teaching/correction targets",
+    "optimizer_policy": "MiniCPM5 baseline and NativeFusedAdamW default; historical Muon/eager AdamW records unchanged"
+  },
+  "prepared_protocols": {
+    "memory": {
+      "config": "configs/value_readout_abstention_protocol_v1.json",
+      "config_sha256": "49b8bc451fe78f29e79ddbf5af2ea1a787739e98eedd9ef504025dfc758d5e32",
+      "manifest_sha256": "e544d41b62e9f28d4810a352d7a5e9ca20006c5a144325ffa7b15202ed87ee11",
+      "validation_sha256": "c5d32f73314958837942b2417ce2d8c86d0cfb1a2e0b8927920cc550692d28b4",
+      "episodes": 7,
+      "events": 68,
+      "cases": 47,
+      "teaching_steps_per_arm": 24,
+      "trained_arms": 3,
+      "total_step_ceiling": 72,
+      "fit_admission_steps": 24,
+      "fit_admission_arm": "learned_value_readout/fit_treatment only",
+      "native_runner_implemented": false
+    },
+    "vision": {
+      "config": "configs/vision_smaller_step_lr3e5_v1.json",
+      "config_sha256": "931851ecc954cea91d97aa7a087c1a2bef528172379b06d453e6bec93ef4abad",
+      "lr": 0.00003,
+      "completed_lr": 0.0003,
+      "update_batch_nll_before": 10.964820146560669,
+      "update_batch_nll_after": 12.560267925262451,
+      "native_runner_implemented": true,
+      "native_execution_verified": false,
+      "decoder_forward_cap": 4824,
+      "visual_observation_cap": 168,
+      "backward_calls": 4,
+      "optimizer_steps": 1,
+      "wall_limit_seconds": 1200,
+      "artifact_limit_bytes": 33554432,
+      "development_authorized": false
+    },
+    "data": {
+      "lineage_manifest_sha256": "b67dd414d07a55ba2be386627860b1675197b46d40619013565cbb8241f8e691",
+      "training_rows": 9,
+      "exclusions": 21,
+      "evaluation_scenes": 24,
+      "evaluation_seal_sha256": "f2179f3c02d30309362ed6c0913604d646327412dceb60600adc42e7b6f30a6e",
+      "training_admitted": false,
+      "exposed_rows_relabeled": false
+    },
+    "spark": {
+      "official_bf16_official_fp8_dequantized_native_fp8_distinct": true,
+      "extension_bf16_resident_estimate_bytes": 11594609442,
+      "full_base_bf16_resident_estimate_bytes": 87256869666,
+      "native_fp8_training": "unquantified",
+      "training_qualified": false,
+      "estimates_are_measured": false
+    }
+  },
+  "preserved_rejections_and_gaps": {
+    "response_ce_fit": "0/28 remains rejected",
+    "memory_v4": "21/384 accepted-correct remains rejected",
+    "vision_curve": "curve_no_optimization_progress remains rejected; step-1 supports overshoot only with 0/14 answers",
+    "caption_tranche": "parent decision remains reject; eight exposed rows remain quarantined",
+    "passing_production_fit_receipt": false,
+    "useful_future_answer_correction_retention": false,
+    "generated_visual_correctness_or_causal_dependence": false,
+    "native_spark_training": false,
+    "neural_RSI_or_personality_adaptation": false
+  },
+  "next_admission_requirements": {
+    "memory": "Implement/review the native admission runner only after CPU review; require an independently validated 24-step treatment fit receipt before development labels. Preserve one-step events, all seven controls and exact-context as an ungated quality/cost reference.",
+    "vision": "Commit the exact smaller-step protocol and issue a separate authorization receipt before any native run; enforce offline/fallback and final-report-inclusive artifact limits. Functional fit is required before a new development protocol; no automatic retry.",
+    "data": "Require a trusted local reviewed admission receipt bound to exact lineage/eval hashes and exactly nine eligible rows; keep the 24-scene evaluation sealed and the eight exposed rows out of training and untouched evaluation",
+    "RSI": "Remain deferred; publication, rollback and recovery are infrastructure evidence only"
+  }
+}

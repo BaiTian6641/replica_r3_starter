@@ -46,6 +46,16 @@ No native training, development/held-out evaluation, neural RSI or personality
 adaptation was launched. Publication, rollback and recovery remain
 infrastructure evidence, not learned improvement.
 
+Final verification is recorded in
+[the admission-preparation receipt](reports/admission_preparation_20261027/summary.json).
+The provisioned `46af5dd` suite passes **2,786 tests plus 21 subtests** with 9
+Pillow skips and no failures. The final clean `9191cb7a` suite passes **2,710
+tests plus 21 subtests** with 85 explicit artifact/provisioning skips and no
+failures. The first 29-failure clean run and over-broad module guard are
+preserved; per-test guards now skip only actual ignored-payload cases. Both
+artifact guards pass over 11,083 files and clean Spark verification passes 436
+checks. No native run was launched.
+
 
 ## Review remediation and bounded step-1 — 27 October 2026
 
