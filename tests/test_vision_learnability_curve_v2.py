@@ -63,7 +63,7 @@ def test_v2_curve_config_declares_measured_units_and_preserves_verdict():
         "decoder_forward_calls"] == 12000
     assert config["accounting"]["per_readout"][
         "prepare_sense_passes"] == 294
-    assert config["expectations"]["historical_total_scoring_decoder_passes"] == 7704
+    assert config["expectations"]["historical_total_scoring_decoder_passes"] == 7695
     assert config["expectations"]["measured_by_old_run"] is False
     assert config["authorization"]["native_execution_authorized"] is False
     assert config["authorization"]["protocol_commit"] is None
@@ -116,8 +116,8 @@ def test_step1_protocol_is_predeclared_and_fail_closed():
     assert config["readouts"]["labels"] == [
         "prefix_0", "prefix_0_null", "prefix_1"]
     assert config["expected_measured_work"] == curve_v2.STEP1_EXPECTED_WORK
-    assert config["expected_measured_work"]["decoder_forward_calls"] == 5660
-    assert config["expected_measured_work"]["generated_tokens"] == 4182
+    assert config["expected_measured_work"]["decoder_forward_calls"] == 5644
+    assert config["expected_measured_work"]["generated_tokens"] == 4166
     assert config["expected_measured_work"]["prepare_sense_passes"] == 882
     assert config["expected_measured_work"]["explicit_logits_forwards"] == 588
     assert config["expected_measured_work"]["update_forwards"] == 8
@@ -160,7 +160,7 @@ def test_step1_config_rejects_scope_or_anchor_drift(tmp_path, mutation,
 # ---------------------------------------------------------------------------
 
 
-def _measured_counters(*, generated=1370, prepares=294, logits=196,
+def _measured_counters(*, generated=1362, prepares=294, logits=196,
                        prefill=98, logical_cells=98, encoder_misses=72):
     decode = generated - prefill
     visual_forward = 200
@@ -235,7 +235,7 @@ def _records(prefix, generated):
     return records
 
 
-def _readout(prefix=0, generated=1370, *, gates=None, records=None):
+def _readout(prefix=0, generated=1362, *, gates=None, records=None):
     counters, measured = _measured_counters(generated=generated)
     return {
         "format": curve_v2.READOUT_FORMAT,
@@ -269,9 +269,9 @@ def _readout(prefix=0, generated=1370, *, gates=None, records=None):
 def test_measured_readout_accepts_physical_and_logical_units():
     readout = _readout()
     report = curve_v2.validate_measured_readout(
-        readout, records=_records(0, 1370))
+        readout, records=_records(0, 1362))
     assert report["ok"] is True, report["violations"]
-    assert report["decoder_forward_calls"] == 1860
+    assert report["decoder_forward_calls"] == 1852
     assert report["logical_scoring_operations"] == 294
 
 
@@ -292,11 +292,11 @@ def test_measured_readout_rejects_missing_counters_and_bad_arithmetic():
 
 
 def test_measured_readout_rejects_generation_length_and_record_sum():
-    readout = _readout(generated=1370)
+    readout = _readout(generated=1362)
     report = curve_v2.validate_measured_readout(
         readout, records=_records(0, 1369))
     assert any("record_token_sum" in item for item in report["violations"])
-    records = _records(0, 1370)
+    records = _records(0, 1362)
     records[0]["generated_ids"] = [1] * 200
     report = curve_v2.validate_measured_readout(
         readout, records=records,
@@ -463,8 +463,8 @@ def test_feature_report_requires_sibling_and_shuffled_controls():
 
 def _step1_readouts():
     return [
-        _readout(0, 1370),
-        _readout(0, 1370),
+        _readout(0, 1362),
+        _readout(0, 1362),
         _readout(1, 1442),
     ]
 
@@ -472,7 +472,10 @@ def _step1_readouts():
 def _training_totals():
     counters = {key: 0 for key in fwd.COUNTER_KEYS}
     counters.update({"backward_calls": 4, "optimizer_steps": 1,
-                     "visual_encoder_calls": 0})
+                     "visual_observation_calls": 4,
+                     "visual_encoder_calls": 4,
+                     "visual_encoder_cache_misses": 4,
+                     "projector_passes": 4})
     return {
         "format": fwd.ACCOUNTING_FORMAT,
         "counters": counters,
@@ -487,22 +490,25 @@ def _training_totals():
     }
 
 
-def test_step1_accounting_reconciles_5660_decoder_passes():
+def test_step1_accounting_reconciles_5644_decoder_passes():
     report = curve_v2.validate_step1_accounting(
         _step1_readouts(), _training_totals())
     assert report["ok"] is True, report["violations"]
-    assert report["totals"]["generated_tokens"] == 4182
+    assert report["totals"]["generated_tokens"] == 4166
     assert report["totals"]["prepare_sense_passes"] == 882
     assert report["totals"]["explicit_logits_forwards"] == 588
     assert report["totals"]["update_forwards"] == 8
-    assert report["totals"]["decoder_forward_calls"] == 5660
+    assert report["totals"]["decoder_forward_calls"] == 5644
     assert report["totals"]["backward_calls"] == 4
     assert report["totals"]["optimizer_steps"] == 1
+    assert report["visual_observation_calls"] == 220
+    assert report["visual_encoder_calls"] == 220
+    assert report["visual_encoder_cache_misses"] == 220
 
 
 def test_step1_accounting_fails_closed_on_length_or_update_drift():
     readouts = _step1_readouts()
-    readouts[1]["generation_summary"]["generated_tokens"] = 1362
+    readouts[1]["generation_summary"]["generated_tokens"] = 1361
     report = curve_v2.validate_step1_accounting(
         readouts, _training_totals())
     assert report["ok"] is False
@@ -600,7 +606,7 @@ def test_authorization_receipt_binds_config_and_commit():
     "reports/vision_learnability_curve_v1_20261026",
     "data/vision_balanced_alignment_v2_20261026/prepared04",
 )
-def test_historical_correction_reconstructs_7704_and_audits_receipts():
+def test_historical_correction_reconstructs_7695_and_audits_receipts():
     evidence = curve_v2.build_historical_correction(
         root=ROOT,
         run="runs/vision_learnability_curve_v1_20261026_attempt04",
@@ -611,10 +617,10 @@ def test_historical_correction_reconstructs_7704_and_audits_receipts():
     correction = evidence["correction"]
     assert correction["measured_by_old_run"] is False
     assert correction["declared_readout_decoder_passes"] == {
-        "0": 1860, "1": 1932, "2": 1886, "4": 1211, "7": 815}
+        "0": 1852, "1": 1932, "2": 1886, "4": 1211, "7": 814}
     assert correction["reconstruction"]["totals"][
-        "scoring_decoder_passes"] == 7704
-    assert correction["grand_total_events"] == 7764
+        "scoring_decoder_passes"] == 7695
+    assert correction["grand_total_events"] == 7755
     assert evidence["audits"]["response"]["eos_only"] == 103
     assert evidence["audits"]["response"]["whitespace_only"] == 47
     assert evidence["audits"]["response"]["by_prefix"]["7"] == {

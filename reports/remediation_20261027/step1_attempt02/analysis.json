@@ -1,0 +1,95 @@
+{
+  "format": "replica.vision_learnability_step1.attempt_analysis.v1",
+  "created_on": "2026-10-27",
+  "attempt": 2,
+  "status": "stopped_engineering_failure",
+  "protocol_commit": "dfe39a077269e11f328895c9a20ff2e3cca337a3",
+  "authorization_commit": "d9c7393",
+  "config_sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+  "failure_report_sha256": "3b8e55737e7635107a75c1e31488fdd46cfcbfd2ac0c3f881409d115109c767f",
+  "failure": {
+    "type": "AccountingError",
+    "message": "Cumulative budget exceeded at call time: visual_encoder_cache_misses",
+    "declared_cumulative_miss_cap": 216,
+    "first_exceeding_observation": 217,
+    "corrected_required_observations_and_misses": 220,
+    "budget_derivation": "Three readouts each measured 72 encoder misses; the four-row update also observes four images through the same miss-counting wrapper. 3*72+4=220. The original cap omitted update encoding.",
+    "host_guard_stop": false,
+    "custom_accounting_stop": true
+  },
+  "measured": {
+    "wall_seconds_console": 630.85,
+    "profile_elapsed_seconds": 628.4166329167783,
+    "mps_driver_peak_sampled_bytes": 11932680192,
+    "host_swap_used_start_bytes": 2577137664,
+    "host_swap_used_end_bytes": 2577137664,
+    "host_swap_growth_bytes": 0,
+    "host_free_start_percent": 94.0,
+    "host_free_end_percent": 74.0,
+    "model_loads": 1,
+    "completed_readouts": 2,
+    "partial_readouts": 1,
+    "updates": 1,
+    "backward_calls": 4,
+    "optimizer_steps": 1,
+    "extension_writes": 0,
+    "checkpoint_writes": 0,
+    "downloads": 0
+  },
+  "prefix0_null_control": {
+    "records_jsonl_byte_equal": true,
+    "scores_equal": true,
+    "teacher_forced_aggregates_equal": true,
+    "generation_summary_equal": true,
+    "projector_sha256": "511ba5c7648851424649962467972f0e926303d64873dfce08ecd3de299314b9",
+    "answer_teacher_forced_nll": 10.704498972211566,
+    "caption_teacher_forced_nll": 9.773420969645182,
+    "generated_tokens_each": 1362,
+    "decoder_forward_calls_each": 1852,
+    "prepare_sense_passes_each": 294,
+    "explicit_logits_forwards_each": 196,
+    "visual_encoder_cache_misses_each": 72,
+    "readout_sha256": "3d45d91f1fd16ccf6a72f38c634c714bab89fc32c0facc1302aa91098933db59",
+    "null_readout_sha256": "a5d1af34fc4881ff7505728b5d5cc230fe1b2909f8a36c15d0ae9561efc7cf07"
+  },
+  "update": {
+    "loss": 10.964820146560669,
+    "grad_norm": 345.9010314941406,
+    "projector_update_norm": 1.0185893941275908,
+    "projector_tensors_with_finite_nonzero_gradients": 6,
+    "original_backbone_gradient_tensors": 0,
+    "visual_training_rows": 4
+  },
+  "generation_evidence_correction": {
+    "raw_saved_generation_ids_by_prefix": {"0": 1362, "1": 1442, "2": 1396, "4": 721, "7": 324},
+    "raw_total": 5245,
+    "superseded_declared_total": 5254,
+    "corrected_scoring_decoder_passes_by_prefix": {"0": 1852, "1": 1932, "2": 1886, "4": 1211, "7": 814},
+    "corrected_scoring_decoder_passes": 7695,
+    "corrected_total_including_training_probe_events": 7755,
+    "basis": "Direct sum of saved generated_ids; terminal stop IDs are already present. This replaces the earlier reconstruction convention, not the v1 verdict."
+  },
+  "not_measured": {
+    "prefix1_final_readout": true,
+    "step1_hypothesis_verdict": true,
+    "post_update_projector_digest": true,
+    "development_evaluation": true,
+    "heldout_evaluation": true,
+    "generated_answer_conversion": true
+  },
+  "access_and_claims": {
+    "dev_accessed": false,
+    "heldout_accessed": false,
+    "v0_run": false,
+    "promotion": false,
+    "curve_v1_verdict": "curve_no_optimization_progress",
+    "curve_verdict_preserved": true,
+    "retry_authorized": false
+  },
+  "preservation": {
+    "run": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt02",
+    "tracked_copy": "reports/remediation_20261027/step1_attempt02",
+    "failed_attempt_deleted": false,
+    "base_or_checkpoint_copies": 0
+  }
+}

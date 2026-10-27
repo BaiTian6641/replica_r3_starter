@@ -12,11 +12,11 @@
     "classification": "reconstructed_not_measured_by_old_run",
     "measured_by_old_run": false,
     "generation_lengths_by_prefix": {
-      "0": 1370,
+      "0": 1362,
       "1": 1442,
       "2": 1396,
       "4": 721,
-      "7": 325
+      "7": 324
     },
     "preserved_record_token_sums": {
       "0": 1362,
@@ -26,13 +26,13 @@
       "7": 324
     },
     "record_token_sum_delta": {
-      "0": 8,
+      "0": 0,
       "1": 0,
       "2": 0,
       "4": 0,
-      "7": 1
+      "7": 0
     },
-    "delta_note": "The remediation accounting convention records 1,370/1,442/1,396/721/325 generated tokens. The preserved records sum to 1,362/1,442/1,396/721/324; the 9-token difference is a reconstruction-convention discrepancy and does not change the 7,704 arithmetic. Both sets are emitted and any future drift is a replay failure.",
+    "delta_note": "The remediation accounting convention records 1,362/1,442/1,396/721/324 generated tokens = 5,245. An earlier correction incorrectly declared 1,370/1,442/1,396/721/325 = 5,254 (7,704 scoring / 7,764 events); that artifact is preserved under reports/remediation_20261027/superseded/. The corrected scoring total is 7,695 and grand total 7,755.",
     "reconstruction": {
       "format": "replica.vision_forward_accounting.reconstruction.v2",
       "classification": "reconstructed_from_preserved_receipts",
@@ -48,12 +48,12 @@
       "per_readout": [
         {
           "prefix": 0,
-          "generated_tokens": 1370,
+          "generated_tokens": 1362,
           "prepare_sense_passes": 294,
           "prefill_logits_forwards": 98,
           "teacher_forced_logits_forwards": 98,
           "explicit_logits_forwards": 196,
-          "scoring_decoder_passes": 1860
+          "scoring_decoder_passes": 1852
         },
         {
           "prefix": 1,
@@ -84,25 +84,25 @@
         },
         {
           "prefix": 7,
-          "generated_tokens": 325,
+          "generated_tokens": 324,
           "prepare_sense_passes": 294,
           "prefill_logits_forwards": 98,
           "teacher_forced_logits_forwards": 98,
           "explicit_logits_forwards": 196,
-          "scoring_decoder_passes": 815
+          "scoring_decoder_passes": 814
         }
       ],
       "totals": {
-        "generated_tokens": 5254,
+        "generated_tokens": 5245,
         "prepare_sense_passes": 1470,
         "prefill_logits_forwards": 490,
         "teacher_forced_logits_forwards": 490,
         "explicit_logits_forwards": 980,
-        "scoring_decoder_passes": 7704,
+        "scoring_decoder_passes": 7695,
         "training_forward_passes": 30,
         "training_backward_calls": 30,
         "training_probe_events": 60,
-        "grand_total_decoder_and_backward_events": 7764
+        "grand_total_decoder_and_backward_events": 7755
       },
       "arithmetic": {
         "scoring_identity": "generated_tokens + 3*available + 2*available per readout",
@@ -111,16 +111,69 @@
       }
     },
     "declared_readout_decoder_passes": {
-      "0": 1860,
+      "0": 1852,
       "1": 1932,
       "2": 1886,
       "4": 1211,
-      "7": 815
+      "7": 814
     },
     "training_probe_events": 60,
-    "grand_total_events": 7764,
+    "grand_total_events": 7755,
     "prepares_are_a_subset_of_scoring_passes": true,
-    "logical_operations_total": 1470
+    "logical_operations_total": 1470,
+    "supersedes": {
+      "path": "reports/remediation_20261027/superseded/vision_learnability_curve_v1_accounting_correction_declared_5254.json",
+      "sha256": "4560fb25611904dbd70c0d955f7d241ba9a4bb9612d73a25353241a12f1d5782",
+      "status": "superseded_by_measured_attempt02",
+      "declared_generation_lengths": [
+        1370,
+        1442,
+        1396,
+        721,
+        325
+      ],
+      "declared_total_generated_tokens": 5254,
+      "declared_scoring_decoder_passes": [
+        1860,
+        1932,
+        1886,
+        1211,
+        815
+      ],
+      "declared_total_scoring_decoder_passes": 7704,
+      "declared_grand_total_events": 7764,
+      "reason": "raw saved generation IDs include terminal stops and sum to 1,362/1,442/1,396/721/324 = 5,245"
+    }
+  },
+  "attempt02_evidence": {
+    "run": "runs/vision_learnability_step1_reproduction_v1_20261027_attempt02",
+    "preserved_copy": "reports/remediation_20261027/step1_attempt02",
+    "prefix0": {
+      "generated_tokens": 1362,
+      "decoder_calls": 1852,
+      "visual_encoder_misses": 72,
+      "answer_nll": 10.704498972211566,
+      "caption_nll": 9.773420969645182,
+      "projector_sha256": "511ba5c7648851424649962467972f0e926303d64873dfce08ecd3de299314b9"
+    },
+    "prefix0_null": {
+      "generated_tokens": 1362,
+      "decoder_calls": 1852,
+      "visual_encoder_misses": 72,
+      "answer_nll": 10.704498972211566,
+      "caption_nll": 9.773420969645182,
+      "projector_sha256": "511ba5c7648851424649962467972f0e926303d64873dfce08ecd3de299314b9"
+    },
+    "update": {
+      "loss": 10.964820146560669,
+      "grad_norm": 345.9010314941406,
+      "projector_update_norm": 1.0185893941275908,
+      "backward_calls": 4,
+      "optimizer_steps": 1
+    },
+    "prefix1_failure": "cumulative visual_encoder_cache_misses reached 217 because the 216 cap omitted four update-phase image observations",
+    "prefix1_final_readout_exists": false,
+    "hypothesis_verdict_exists": false
   },
   "audits": {
     "response": {
@@ -907,9 +960,10 @@
   },
   "preserved_source_receipts": {
     "configs/vision_learnability_curve_v1.json": "c97902da2862c8141ab22d98cbb6ad3c01739916854da8e7fd1a15639ec81c40",
-    "configs/vision_learnability_step1_reproduction_v1.json": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+    "configs/vision_learnability_step1_reproduction_v1.json": "b7bb9ded894ba053fa17f380a408697317b8d6862a4cac53c8b8f6ec80b1e32a",
     "data/vision_balanced_alignment_v2_20261026/prepared04/training/alignment.jsonl": "be6d62e32e688b7e4fc14ff327ec41df7062747e13d4c4d041cd7d05caa00bd8",
     "data/vision_balanced_alignment_v2_20261026/prepared04/training/train_caption_labels.jsonl": "84788b08bd6c3a66f9c241e18db73ca8828c8dd15b62aad83e8d3bdf235b1954",
+    "reports/remediation_20261027/superseded/vision_learnability_curve_v1_accounting_correction_declared_5254.json": "4560fb25611904dbd70c0d955f7d241ba9a4bb9612d73a25353241a12f1d5782",
     "reports/vision_learnability_curve_v1_20261026/summary.json": "3a96e196ba75f9ce5bc915e01ab9b5cd5c9ba0260914dec369ca7203c65874ef",
     "runs/vision_learnability_curve_v1_20261026_attempt04/backward_probes.json": "87a9d1e484484ad73e628d25662214d63bbf366498b2d105ad494a67b9b7ddbd",
     "runs/vision_learnability_curve_v1_20261026_attempt04/readouts/prefix_000/readout.json": "d889fdca5e38697de530800fe3e29d21dcdc921b6c2f5da2271043cc107ffaa6",
@@ -937,13 +991,13 @@
   },
   "step1_protocol": {
     "path": "configs/vision_learnability_step1_reproduction_v1.json",
-    "sha256": "8487e1c4cc9b4b818b7d46513daa5c149bfc1e2a8af2bd8dcdac787d3f2827b8",
+    "sha256": "b7bb9ded894ba053fa17f380a408697317b8d6862a4cac53c8b8f6ec80b1e32a",
     "name": "vision_learnability_step1_reproduction_v1",
     "status": "predeclared_pending_protocol_commit",
     "native_execution_authorized": false,
     "expected_measured_work": {
-      "decoder_forward_calls": 5660,
-      "generated_tokens": 4182,
+      "decoder_forward_calls": 5644,
+      "generated_tokens": 4166,
       "prepare_sense_passes": 882,
       "explicit_logits_forwards": 588,
       "update_forwards": 8,
@@ -951,17 +1005,19 @@
       "optimizer_steps": 1,
       "readouts": 3,
       "generation_lengths_by_readout": [
-        1370,
-        1370,
+        1362,
+        1362,
         1442
       ],
       "declared_readout_decoder_passes": [
-        1860,
-        1860,
+        1852,
+        1852,
         1932
       ],
-      "visual_encoder_calls_max": 216,
-      "projector_passes_max": 5660
+      "visual_observation_calls": 220,
+      "visual_encoder_calls": 220,
+      "visual_encoder_cache_misses": 220,
+      "projector_passes_max": 5644
     },
     "statuses": [
       "step1_reproduction_supported",
@@ -981,7 +1037,7 @@
       "v1 verdict unchanged",
       "source receipt hashes",
       "generation lengths and record sums",
-      "7,704 reconstruction",
+      "7,695 reconstruction",
       "EOS/whitespace counts",
       "target equality",
       "response masks",

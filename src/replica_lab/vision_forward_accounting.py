@@ -9,7 +9,7 @@ The historical v1 curve receipt declared ``3 * 98 = 294`` "scoring forwards"
 per readout and ``1,470`` in total.  That number is real, but its unit was
 ``prepare/sense pass``: the generation loop, explicit prefill logits and the
 teacher-forced loss forward were never counted.  The preserved reconstruction
-is 7,704 readout passes plus 60 training/probe events (7,764 total).
+is 7,695 readout passes plus 60 training/probe events (7,755 total).
 
 Design rules enforced here:
 
@@ -124,7 +124,7 @@ NATIVE_COUNTERS = (
 )
 
 HISTORICAL_PREFIXES = (0, 1, 2, 4, 7)
-HISTORICAL_GENERATION_LENGTHS = (1370, 1442, 1396, 721, 325)
+HISTORICAL_GENERATION_LENGTHS = (1362, 1442, 1396, 721, 324)
 HISTORICAL_RECORD_TOKEN_SUMS = (1362, 1442, 1396, 721, 324)
 HISTORICAL_AVAILABLE_PER_READOUT = 98
 HISTORICAL_PREPARES_PER_CELL = 3
@@ -134,10 +134,10 @@ HISTORICAL_UPDATE_FORWARDS = 28
 HISTORICAL_PROBE_FORWARDS = 2
 HISTORICAL_UPDATE_BACKWARDS = 28
 HISTORICAL_PROBE_BACKWARDS = 2
-HISTORICAL_SCORING_PASSES = (1860, 1932, 1886, 1211, 815)
-HISTORICAL_TOTAL_SCORING_PASSES = 7704
+HISTORICAL_SCORING_PASSES = (1852, 1932, 1886, 1211, 814)
+HISTORICAL_TOTAL_SCORING_PASSES = 7695
 HISTORICAL_TRAINING_PROBE_EVENTS = 60
-HISTORICAL_GRAND_TOTAL = 7764
+HISTORICAL_GRAND_TOTAL = 7755
 
 _MISSING = object()
 
@@ -263,13 +263,15 @@ class ForwardBudget:
                     prospective = self._readout_counters[key] + int(delta)
                     _require(prospective <= cap,
                              f"Per-readout budget exceeded at call time: {key} "
-                             f"{prospective} > {cap} (prefix "
-                             f"{self._readout_prefix})")
+                             f"current={self._readout_counters[key]} "
+                             f"attempt={prospective} cap={cap} "
+                             f"(prefix {self._readout_prefix})")
                 cumulative = self._cumulative_total[key] + int(delta)
                 total_cap = int(self.declaration["cumulative"].get(key, cap))
                 _require(cumulative <= total_cap,
                          f"Cumulative budget exceeded at call time: {key} "
-                         f"{cumulative} > {total_cap}")
+                         f"current={self._cumulative_total[key]} "
+                         f"attempt={cumulative} cap={total_cap}")
         self._maybe_wall()
 
     def commit_forward(self, increments: Mapping[str, int]) -> None:
@@ -295,10 +297,14 @@ class ForwardBudget:
                 prospective = self._readout_counters[key] + amount
                 _require(prospective <= cap,
                          f"Per-readout budget exceeded at call time: {key} "
-                         f"{prospective} > {cap}")
+                         f"current={self._readout_counters[key]} "
+                         f"attempt={prospective} cap={cap}")
             total_cap = int(self.declaration["cumulative"].get(key, cap))
             _require(self._cumulative_total[key] + amount <= total_cap,
-                     f"Cumulative budget exceeded at call time: {key}")
+                     f"Cumulative budget exceeded at call time: {key} "
+                     f"current={self._cumulative_total[key]} "
+                     f"attempt={self._cumulative_total[key] + amount} "
+                     f"cap={total_cap}")
         self._maybe_wall()
 
     def commit_event(self, key: str, amount: int = 1) -> None:
@@ -920,7 +926,7 @@ def reconstruct_scoring_accounting(
 
 
 def validate_reconstruction(report: Mapping[str, Any]) -> dict[str, Any]:
-    """Validate the historical 7,704 + 60 = 7,764 reconciliation."""
+    """Validate the historical 7,695 + 60 = 7,755 reconciliation."""
     _require(report.get("format") == RECONSTRUCTION_FORMAT,
              "Reconstruction format differs")
     _require(report.get("measured_by_old_run") is False,

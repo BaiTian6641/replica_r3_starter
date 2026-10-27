@@ -195,8 +195,8 @@
     "stop_before_update": true
   },
   "expected_measured_work": {
-    "decoder_forward_calls": 5660,
-    "generated_tokens": 4182,
+    "decoder_forward_calls": 5644,
+    "generated_tokens": 4166,
     "prepare_sense_passes": 882,
     "explicit_logits_forwards": 588,
     "update_forwards": 8,
@@ -204,17 +204,19 @@
     "optimizer_steps": 1,
     "readouts": 3,
     "generation_lengths_by_readout": [
-      1370,
-      1370,
+      1362,
+      1362,
       1442
     ],
     "declared_readout_decoder_passes": [
-      1860,
-      1860,
+      1852,
+      1852,
       1932
     ],
-    "visual_encoder_calls_max": 216,
-    "projector_passes_max": 5660
+    "projector_passes_max": 5644,
+    "visual_observation_calls": 220,
+    "visual_encoder_calls": 220,
+    "visual_encoder_cache_misses": 220
   },
   "accounting": {
     "format": "replica.vision_forward_accounting.budget.v2",
@@ -265,12 +267,12 @@
       "generated_tokens": 5700,
       "processed_text_positions": 3500000,
       "processed_visual_positions": 1411200,
-      "visual_forward_calls": 7200,
-      "projector_passes": 5660,
-      "visual_observation_calls": 294,
-      "visual_encoder_calls": 216,
-      "visual_encoder_cache_hits": 294,
-      "visual_encoder_cache_misses": 216,
+      "visual_forward_calls": 5644,
+      "projector_passes": 5644,
+      "visual_observation_calls": 220,
+      "visual_encoder_calls": 220,
+      "visual_encoder_cache_hits": 220,
+      "visual_encoder_cache_misses": 220,
       "backward_calls": 4,
       "optimizer_steps": 1,
       "logical_scoring_cells": 294,
@@ -296,9 +298,9 @@
     "max_explicit_logits": 588,
     "max_generated_tokens_per_readout": 1900,
     "max_generated_tokens": 5700,
-    "max_visual_encoder_calls": 216,
+    "max_visual_encoder_calls": 220,
     "max_visual_encoder_calls_per_readout": 78,
-    "max_projector_passes": 5660,
+    "max_projector_passes": 5644,
     "readout_weight_writes": 0,
     "max_seconds": 900,
     "artifact_bytes": 16777216,
@@ -378,8 +380,8 @@
       }
     },
     "new_files": {
-      "src/replica_lab/vision_forward_accounting.py": "b9783fd0c125ff957673369a20d531600503b7dc93e49b59ba8a7016181d02f7",
-      "src/replica_lab/vision_learnability_curve_v2.py": "dd00d9152c31cfeb425e19ff265a9cdda1061e6557d1051d237e73f9bdbde6a4",
+      "src/replica_lab/vision_forward_accounting.py": "b85fff6436ebbdbbcb36566051e4a284a82a0eee8d1bdd5354ed66e355df455a",
+      "src/replica_lab/vision_learnability_curve_v2.py": "10e1c4a3ad78ce799db4a9218126687d872e43e51faf8ce0eea334df7008462b",
       "scripts/run_vision_learnability_curve_v2.py": "34752ad1040b10b42fbae9883ea511e09878a451e4b208a5a728be0c5da116cb"
     }
   },

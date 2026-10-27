@@ -52,13 +52,13 @@ V1_RUN = "runs/vision_learnability_curve_v1_20261026_attempt04"
 V1_CONFIG = "configs/vision_learnability_curve_v1.json"
 
 HISTORICAL_PREFIXES = (0, 1, 2, 4, 7)
-HISTORICAL_GENERATION_LENGTHS = (1370, 1442, 1396, 721, 325)
+HISTORICAL_GENERATION_LENGTHS = (1362, 1442, 1396, 721, 324)
 HISTORICAL_RECORD_TOKEN_SUMS = (1362, 1442, 1396, 721, 324)
-HISTORICAL_SCORING_PASSES = (1860, 1932, 1886, 1211, 815)
-HISTORICAL_TOTAL_SCORING_PASSES = 7704
+HISTORICAL_SCORING_PASSES = (1852, 1932, 1886, 1211, 814)
+HISTORICAL_TOTAL_SCORING_PASSES = 7695
 HISTORICAL_PREPARES = 1470
 HISTORICAL_TRAINING_PROBE_EVENTS = 60
-HISTORICAL_GRAND_TOTAL = 7764
+HISTORICAL_GRAND_TOTAL = 7755
 HISTORICAL_AVAILABLE = 98
 HISTORICAL_LOGICAL_OPERATIONS = 1470
 
@@ -89,18 +89,20 @@ STEP1_ANCHORS = {
 }
 
 STEP1_EXPECTED_WORK = {
-    "decoder_forward_calls": 5660,
-    "generated_tokens": 4182,
+    "decoder_forward_calls": 5644,
+    "generated_tokens": 4166,
     "prepare_sense_passes": 882,
     "explicit_logits_forwards": 588,
     "update_forwards": 8,
     "backward_calls": 4,
     "optimizer_steps": 1,
     "readouts": 3,
-    "generation_lengths_by_readout": [1370, 1370, 1442],
-    "declared_readout_decoder_passes": [1860, 1860, 1932],
-    "visual_encoder_calls_max": 216,
-    "projector_passes_max": 5660,
+    "generation_lengths_by_readout": [1362, 1362, 1442],
+    "declared_readout_decoder_passes": [1852, 1852, 1932],
+    "visual_observation_calls": 220,
+    "visual_encoder_calls": 220,
+    "visual_encoder_cache_misses": 220,
+    "projector_passes_max": 5644,
 }
 
 STEP1_STATUS_SUPPORTED = "step1_reproduction_supported"
@@ -443,9 +445,9 @@ def _validate_step1_limits(limits: Mapping[str, Any]) -> None:
         "max_explicit_logits": 588,
         "max_generated_tokens_per_readout": 1900,
         "max_generated_tokens": 5700,
-        "max_visual_encoder_calls": 216,
+        "max_visual_encoder_calls": 220,
         "max_visual_encoder_calls_per_readout": 78,
-        "max_projector_passes": 5660,
+        "max_projector_passes": 5644,
         "readout_weight_writes": 0,
         "max_seconds": 900,
         "artifact_bytes": 16777216,
@@ -1233,6 +1235,61 @@ def build_historical_correction(
                     correct_sha != shuffled_row.get("image_sha256"))
     sibling_separated = bool(sibling_checks) and all(sibling_checks)
     shuffled_separated = bool(shuffled_checks) and all(shuffled_checks)
+    superseded_path = root / (
+        "reports/remediation_20261027/superseded/"
+        "vision_learnability_curve_v1_accounting_correction_declared_5254.json")
+    superseded = None
+    if superseded_path.is_file():
+        superseded_sha = _sha256_file(superseded_path)
+        source_receipts[str(superseded_path.relative_to(root))] = (
+            superseded_sha)
+        superseded = {
+            "path": str(superseded_path.relative_to(root)),
+            "sha256": superseded_sha,
+            "status": "superseded_by_measured_attempt02",
+            "declared_generation_lengths": [1370, 1442, 1396, 721, 325],
+            "declared_total_generated_tokens": 5254,
+            "declared_scoring_decoder_passes": [
+                1860, 1932, 1886, 1211, 815],
+            "declared_total_scoring_decoder_passes": 7704,
+            "declared_grand_total_events": 7764,
+            "reason": (
+                "raw saved generation IDs include terminal stops and sum to "
+                "1,362/1,442/1,396/721/324 = 5,245"),
+        }
+    attempt02_evidence = {
+        "run": "runs/vision_learnability_step1_reproduction_v1_20261027_"
+               "attempt02",
+        "preserved_copy": "reports/remediation_20261027/step1_attempt02",
+        "prefix0": {
+            "generated_tokens": 1362,
+            "decoder_calls": 1852,
+            "visual_encoder_misses": 72,
+            "answer_nll": 10.704498972211566,
+            "caption_nll": 9.773420969645182,
+            "projector_sha256": STEP1_INIT_SHA256,
+        },
+        "prefix0_null": {
+            "generated_tokens": 1362,
+            "decoder_calls": 1852,
+            "visual_encoder_misses": 72,
+            "answer_nll": 10.704498972211566,
+            "caption_nll": 9.773420969645182,
+            "projector_sha256": STEP1_INIT_SHA256,
+        },
+        "update": {
+            "loss": 10.964820146560669,
+            "grad_norm": 345.9010314941406,
+            "projector_update_norm": 1.0185893941275908,
+            "backward_calls": 4,
+            "optimizer_steps": 1,
+        },
+        "prefix1_failure": (
+            "cumulative visual_encoder_cache_misses reached 217 because the "
+            "216 cap omitted four update-phase image observations"),
+        "prefix1_final_readout_exists": False,
+        "hypothesis_verdict_exists": False,
+    }
     step1_identity = None
     if step1_config is not None:
         step1_path = root / step1_config
@@ -1278,11 +1335,11 @@ def build_historical_correction(
                 for prefix in HISTORICAL_PREFIXES},
             "delta_note": (
                 "The remediation accounting convention records "
-                "1,370/1,442/1,396/721/325 generated tokens. The preserved "
-                "records sum to 1,362/1,442/1,396/721/324; the 9-token "
-                "difference is a reconstruction-convention discrepancy and "
-                "does not change the 7,704 arithmetic. Both sets are emitted "
-                "and any future drift is a replay failure."),
+                "1,362/1,442/1,396/721/324 generated tokens = 5,245. An earlier "
+                "correction incorrectly declared 1,370/1,442/1,396/721/325 "
+                "= 5,254 (7,704 scoring / 7,764 events); that artifact is "
+                "preserved under reports/remediation_20261027/superseded/. "
+                "The corrected scoring total is 7,695 and grand total 7,755."),
             "reconstruction": reconstruction,
             "declared_readout_decoder_passes": {
                 str(prefix): pass_count
@@ -1292,7 +1349,9 @@ def build_historical_correction(
             "grand_total_events": HISTORICAL_GRAND_TOTAL,
             "prepares_are_a_subset_of_scoring_passes": True,
             "logical_operations_total": HISTORICAL_LOGICAL_OPERATIONS,
+            "supersedes": superseded,
         },
+        "attempt02_evidence": attempt02_evidence,
         "audits": {
             "response": audit,
             "caption_prefill_target_alignment": {
@@ -1338,7 +1397,7 @@ def build_historical_correction(
                 "v1 verdict unchanged",
                 "source receipt hashes",
                 "generation lengths and record sums",
-                "7,704 reconstruction",
+                "7,695 reconstruction",
                 "EOS/whitespace counts",
                 "target equality",
                 "response masks",
@@ -1375,11 +1434,16 @@ def validate_historical_correction(evidence: Mapping[str, Any]) -> dict[str, Any
                                          HISTORICAL_SCORING_PASSES)},
             "Declared per-prefix scoring passes differ")
     require(correction.get("training_probe_events") == 60
-            and correction.get("grand_total_events") == 7764,
+            and correction.get("grand_total_events") == 7755,
             "Historical totals differ")
     require((correction.get("reconstruction") or {}).get("totals", {})
-            .get("scoring_decoder_passes") == 7704,
+            .get("scoring_decoder_passes") == 7695,
             "Reconstruction total differs")
+    superseded = correction.get("supersedes")
+    require(isinstance(superseded, Mapping)
+            and superseded.get("declared_total_scoring_decoder_passes") == 7704
+            and superseded.get("declared_total_generated_tokens") == 5254,
+            "The superseded declared-5,254 artifact is not recorded")
     audits = evidence.get("audits") or {}
     require((audits.get("response_masks") or {}).get("ok") is True,
             "Response mask audit failed")
@@ -1400,13 +1464,16 @@ def validate_step1_accounting(
         training: Mapping[str, Any], *,
         expected: Mapping[str, Any] = STEP1_EXPECTED_WORK,
 ) -> dict[str, Any]:
-    """Reconcile the three readouts plus the one-update block to 5,660."""
+    """Reconcile the three readouts plus the one-update block to 5,644."""
     violations: list[str] = []
     totals = {
         "decoder_forward_calls": 0,
         "generated_tokens": 0,
         "prepare_sense_passes": 0,
         "explicit_logits_forwards": 0,
+        "visual_observation_calls": 0,
+        "visual_encoder_calls": 0,
+        "visual_encoder_cache_misses": 0,
     }
     for readout in readouts:
         measured = readout.get("measured") or {}
@@ -1415,16 +1482,17 @@ def validate_step1_accounting(
             totals[key] += int(counters.get(key, 0))
     training_counters = (training.get("phase_totals") or {}).get(
         "training") or {}
+    training_global = training.get("counters") or {}
     update_forwards = int(training_counters.get("forward_calls", 0))
     totals["update_forwards"] = update_forwards
     totals["decoder_forward_calls"] += update_forwards
-    totals["backward_calls"] = int(
-        (training.get("counters") or {}).get("backward_calls", 0))
+    totals["backward_calls"] = int(training_global.get("backward_calls", 0))
     totals["optimizer_steps"] = int(
-        (training.get("counters") or {}).get("optimizer_steps", 0))
-    for key in ("decoder_forward_calls", "generated_tokens",
-                "prepare_sense_passes", "explicit_logits_forwards",
-                "update_forwards", "backward_calls", "optimizer_steps"):
+        training_global.get("optimizer_steps", 0))
+    for key in ("visual_observation_calls", "visual_encoder_calls",
+                "visual_encoder_cache_misses"):
+        totals[key] += int(training_global.get(key, 0))
+    for key in totals:
         expected_value = int(expected[key])
         if int(totals[key]) != expected_value:
             violations.append(f"{key}:{totals[key]}!={expected_value}")
@@ -1434,18 +1502,10 @@ def validate_step1_accounting(
         "generated_tokens", -1)) for readout in readouts]
     if lengths != list(expected["generation_lengths_by_readout"]):
         violations.append(f"generation_lengths:{lengths}")
-    encoder = int((training.get("counters") or {}).get(
-        "visual_encoder_calls", 0))
-    # Readout-level encoder calls are not part of the training block.
-    for readout in readouts:
-        encoder += int(((readout.get("measured") or {}).get(
-            "counters") or {}).get("visual_encoder_calls", 0))
-    if encoder > int(expected["visual_encoder_calls_max"]):
-        violations.append(f"visual_encoder_calls:{encoder}")
     projectors = sum(int(((readout.get("measured") or {}).get(
         "counters") or {}).get("projector_passes", 0))
-        for readout in readouts) + int(training_counters.get(
-            "visual_forward_calls", 0))
+        for readout in readouts) + int(training_global.get(
+            "projector_passes", 0))
     if projectors > int(expected["projector_passes_max"]):
         violations.append(f"projector_passes:{projectors}")
     return {
@@ -1453,11 +1513,14 @@ def validate_step1_accounting(
         "violations": violations,
         "totals": totals,
         "expected": dict(expected),
-        "visual_encoder_calls": encoder,
+        "visual_observation_calls": totals["visual_observation_calls"],
+        "visual_encoder_calls": totals["visual_encoder_calls"],
+        "visual_encoder_cache_misses":
+            totals["visual_encoder_cache_misses"],
         "projector_passes": projectors,
         "arithmetic":
-            "4,182 generated + 882 prepares + 588 logits + 8 update "
-            "forwards = 5,660 decoder passes",
+            "4,166 generated + 882 prepares + 588 logits + 8 update "
+            "forwards = 5,644 decoder passes",
     }
 
 

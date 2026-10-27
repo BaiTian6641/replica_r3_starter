@@ -355,27 +355,27 @@ def test_historical_reconstruction_is_exact_and_labeled_reconstructed():
         list(fwd.HISTORICAL_GENERATION_LENGTHS))
     assert [item["scoring_decoder_passes"]
             for item in report["per_readout"]] == [
-                1860, 1932, 1886, 1211, 815]
+                1852, 1932, 1886, 1211, 814]
     assert report["totals"]["prepare_sense_passes"] == 1470
     assert report["totals"]["explicit_logits_forwards"] == 980
-    assert report["totals"]["scoring_decoder_passes"] == 7704
+    assert report["totals"]["scoring_decoder_passes"] == 7695
     assert report["totals"]["training_probe_events"] == 60
     assert report["totals"][
-        "grand_total_decoder_and_backward_events"] == 7764
+        "grand_total_decoder_and_backward_events"] == 7755
     assert report["measured_by_old_run"] is False
     assert report["classification"] == "reconstructed_from_preserved_receipts"
     validation = fwd.validate_reconstruction(report)
     assert validation["ok"] is True
     assert validation["per_prefix_scoring_passes"] == (
-        1860, 1932, 1886, 1211, 815)
+        1852, 1932, 1886, 1211, 814)
 
 
 def test_historical_reconstruction_rejects_tampering():
-    report = fwd.reconstruct_scoring_accounting([1370, 1442, 1396, 721, 325])
+    report = fwd.reconstruct_scoring_accounting([1362, 1442, 1396, 721, 324])
     report["totals"]["scoring_decoder_passes"] = 1470
     with pytest.raises(fwd.AccountingError, match="Historical scoring total"):
         fwd.validate_reconstruction(report)
-    report = fwd.reconstruct_scoring_accounting([1370, 1442, 1396, 721, 325])
+    report = fwd.reconstruct_scoring_accounting([1362, 1442, 1396, 721, 324])
     report["measured_by_old_run"] = True
     with pytest.raises(fwd.AccountingError, match="reconstructed"):
         fwd.validate_reconstruction(report)
