@@ -20,6 +20,15 @@ and the unchanged 50 GiB / 512 MiB / 15% guard.
   0.999938. Five quality/cost gates fail and `heldout_opened=false`. The
   focused integration suite passes 112 tests. Learned utility, additional
   clocks/objectives and promotion remain unauthorized.
+- [Bounded response-CE behavioral reference](docs/experiments/20261026_Nested_Text_Behavioral_Reference.md)
+  (`57a4f69`) completes 28 primary response-CE updates with unchanged native
+  parameters and strict P-only export. Native fit evaluation scores 0/28;
+  `min_fit_accuracy` fails and `heldout_opened=false`. Wrong-world behavioral
+  teaching, development and sealed-final scoring were not run after the fit
+  barrier. The focused suite passes 197 tests; the full run passes 2,362 tests
+  plus 21 subtests with 8 skips and 7 Spark/vision pin/receipt failures outside
+  this increment. Failed launch/device/CLI attempts and raw fit generations
+  remain preserved.
 - [Vision learnability](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
   (`0caf14fa`, corrections through `8fedebd`) first records a read-only
   mean-only ablation with exact full-patch baseline identity. Mean replacement
@@ -62,12 +71,11 @@ provisioned-workspace focus suite passes 237 tests. Pillow-overlay runs cover
 all seven base-environment JPEG dependency branches and the official PIL
 processor branch.
 
-The next justified work is development-only analysis of the existing one-clock
-readout's null generations and teaching cost. Do not parse or score nested
-sealed-final rows or start held-out evaluation, run another vision job, add
-clocks/objectives, or infer useful memory,
-memory, native Spark backend and exact full-scope continuation remain separate
-open gates.
+The next justified work is development-only diagnosis of the response readout's
+null fit and teaching cost. Do not parse or score nested sealed-final rows or
+start held-out evaluation, run another vision job or training arm, add
+clocks/objectives, or infer useful memory. Native Spark backend and exact
+full-scope continuation remain separate open gates.
 
 
 ## BF16/Muon and parallel GPU budget follow-up — 26 October 2026

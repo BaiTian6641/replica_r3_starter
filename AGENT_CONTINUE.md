@@ -19,6 +19,17 @@ unaffected 0/8 and duty cycle 0.999938. Held-out evaluation is unopened and
 sealed-final rows are not parsed or scored. No extra
 clock, objective, router or promotion follows.
 
+The [bounded response-CE behavioral reference](docs/experiments/20261026_Nested_Text_Behavioral_Reference.md)
+is committed at `57a4f69`. It completes 28 primary response-CE updates and
+strict P-only export, but native teaching-fit accuracy is 0/28 and the declared
+fit gate stops dependent work. Wrong-world behavioral teaching, development
+and sealed-final scoring were not run; earlier one-clock controls remain
+separate evidence. The focused suite passes 197 tests; the full repository run
+passes 2,362 tests plus 21 subtests with 8 skips and 7 Spark/vision pin or
+receipt failures outside this increment. Preserve the failed launch/device/CLI
+attempts and all raw fit generations. Next work is development-only diagnosis
+of the response readout, not another training arm or held-out retry.
+
 [Real images](docs/experiments/20261026_Real_Image_Tranche.md) provide seven
 public-domain/CC0 JPEG derivatives from six source groups with verified rights,
 hashes, geometry, exact dedup and 4/1/2 source-group splits. Admission remains
