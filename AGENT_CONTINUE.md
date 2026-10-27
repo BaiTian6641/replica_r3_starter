@@ -46,9 +46,13 @@ public-domain/CC0 JPEG derivatives from six source groups with verified rights,
 hashes, geometry, exact dedup and 4/1/2 source-group splits. Admission remains
 local image-input validation only; `training_admitted=false`.
 
-[Memory readout](docs/experiments/20261026_Memory_Bank_Value.md) passes literal
-dev at 124/128 with zero unknown/revoked selections but fails MiniCPM at 19/152.
-Held-out and train were not run; useful learned memory remains unestablished.
+[Memory bank value](docs/experiments/20261026_Memory_Bank_Value.md) remains the
+older rejected MiniCPM diagnostic at 19/152; its held-out and train roles were
+not opened. The separate [H1 selected-record readout](docs/experiments/20261026_Memory_Bank_Readout_Hypothesis.md)
+passes literal development and one-shot heldout at 148/152 with memory disabled;
+it is not retrieval or persistent learning. Its [26-check replay](reports/memory_bank_readout_20261026/replay_receipt_v1.json)
+validates 456 decisions and 152 dev +152 heldout rows without reopening heldout
+labels. Useful learned memory remains unestablished.
 
 The [vision learnability diagnostic](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
 first observes spatial contribution: mean-only replacement changes 24/46 paired
@@ -228,9 +232,12 @@ No new model or capability is qualified by this documentation update.
    tests, composition inputs, historical score replay and response-contract
    migration are repaired. Sustained full-scope fused training passes; native
    full-size resume remains unqualified on optimizer-state transfer memory.
-2. **Memory diagnosis is bounded and rejected.** Causal query refresh improves
-   recovery but fails correction, unaffected and abstention gates. Next inspect
-   address calibration and abstention on fresh sealed data; do not train a writer.
+2. **H1 evidence is closed; learned memory quality remains rejected.** The H1
+   replay validates 456 decisions and 152 dev +152 heldout rows without
+   reopening heldout labels. Acceptance-v4 rejects candidate quality at 21/384
+   accepted-correct despite a 384/384 answerable-fact oracle. Next run the
+   declared CPU-only development acceptance/address diagnostic; do not train a
+   writer or reuse prepared04 heldout for calibration.
 3. **Vision learnability is rejected.** Mean ablation isolates spatial
    contribution, but the mixed answer/caption gradient arm fails train-fit.
    No development, held-out, new V0 alignment or larger arm is authorized.

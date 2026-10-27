@@ -14,9 +14,18 @@ gradient arm fails all answer gates and stops before development, held-out and
 new V0 alignment work. Historical interface-only V0 remains unchanged.
 The [real-image tranche](docs/experiments/20261026_Real_Image_Tranche.md) is
 admitted for local input validation only, and
-[memory readout](docs/experiments/20261026_Memory_Bank_Value.md) still fails
-MiniCPM at 19/152. Keep the 50 GiB driver / 512 MiB swap / 15% host-free guard
-and protected draft rules.
+[memory bank value](docs/experiments/20261026_Memory_Bank_Value.md) remains the
+older rejected MiniCPM diagnostic at 19/152. The separate [H1 selected-record
+readout](docs/experiments/20261026_Memory_Bank_Readout_Hypothesis.md) passes
+literal development and one-shot heldout at 148/152 with memory disabled; its
+[26-check replay](reports/memory_bank_readout_20261026/replay_receipt_v1.json)
+validates 456 decisions and 152 dev +152 heldout rows without reopening heldout
+labels. This is not retrieval or persistent learning. Keep the 50 GiB driver /
+512 MiB swap / 15% host-free guard and protected draft rules.
+Acceptance-v4 rejects candidate quality at 21/384 accepted-correct despite a
+384/384 answerable-fact oracle. The next memory step is the declared CPU-only
+development acceptance/address diagnostic; do not train a writer or reuse
+prepared04 heldout for calibration.
 
 The v5 writer-only arm is complete and rejected: 48 updates, 14 changed tensors,
 fast and disabled both 56/192 with zero factual recall. Selective exact context

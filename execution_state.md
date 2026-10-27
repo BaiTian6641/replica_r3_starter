@@ -56,10 +56,15 @@ and the unchanged 50 GiB / 512 MiB / 15% guard.
   (`1bf6345`) remains limited to seven rights-cleared JPEG derivatives for
   local input validation; `training_admitted=false`. Its strict bundle verifies
   89 tracked inputs and 38 focused tests.
-- [Memory readout](docs/experiments/20261026_Memory_Bank_Value.md)
-  (`88167db`) remains rejected for useful MiniCPM memory at 19/152 despite
-  literal development recovery of 124/128. Its held-out and train roles were
-  not opened.
+- [Memory bank value](docs/experiments/20261026_Memory_Bank_Value.md)
+  (`88167db`) remains the older rejected MiniCPM memory diagnostic at 19/152;
+  its held-out and train roles were not opened. This is separate from H1.
+- [H1 selected-record readout](docs/experiments/20261026_Memory_Bank_Readout_Hypothesis.md)
+  passes literal development gates and one-shot heldout at 148/152, with memory
+  disabled and host-selected literal values; it is not memory retrieval or
+  persistent learning. The [26-check replay receipt](reports/memory_bank_readout_20261026/replay_receipt_v1.json)
+  validates 456 decisions and 152 dev +152 heldout rows without reopening
+  heldout labels.
 - [Vision collapse](docs/experiments/20261026_Vision_Collapse_Diagnostic.md)
   (`510f6dd`) remains the historical train04 baseline: text fitting without
   robust image-dependent generation. The new ablation isolates spatial
@@ -172,14 +177,16 @@ query-local applied refreshes; all 144 shuffled pairs perturbed state/value
 outputs while durable state stayed unchanged. Mechanical gates, checkpoint
 bindings, revocation/stale enforcement and resource limits pass.
 
-The immutable restart rankings replay through `memory.acceptance.v3` into
-`reports/memory_acceptance_20261026/causal_fresh_restart02_acceptance_v3.json`
-and `receipt_manifest_v3.native02.json`. All 17,520 rows validate. Candidate
-quality is rejected: 21/384 accepted-correct, 15.22% accepted precision and
-30.26% coverage; restart-held-out is 2/64 accepted-correct at 15.38% precision.
-The full-cohort oracle diagnostic is 384/456 raw top-1 (84.21%), below its 0.85
-bound, so the native disposition remains `inconclusive`, not accepted. No
-learned selector or useful-memory claim is made. Deterministic checkpoint
+The immutable restart rankings replay through `memory.acceptance.v4` into
+[the v4 receipts](docs/experiments/20261026_Memory_Acceptance_V4.md) and their
+per-run manifests; v3 receipts remain historical. All 17,520 rows validate.
+Candidate quality is rejected: 21/384 accepted-correct, 15.22% accepted
+precision and 30.26% coverage; restart-held-out is 2/64 accepted-correct at
+15.38% precision. The answerable-fact oracle gate is 384/384 (100%) and passes,
+but oracle accepted-correct is only 132/384, so acceptance calibration remains
+a separate failure boundary. The v4 receipt decision is `rejected`; the native
+process's earlier v3 `inconclusive` label is not reused as the current verdict.
+No learned selector or useful-memory claim is made. Deterministic checkpoint
 crash-injection recovery passes; no SIGKILL/native crash test is claimed.
 See [causal results](docs/experiments/20261026_Causal_Fresh_Selectors.md).
 

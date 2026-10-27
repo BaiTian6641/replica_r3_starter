@@ -391,12 +391,15 @@ zero swap growth and no CPU fallback, gradients, optimizer updates, downloads,
 checkpoint writes or extension exports. Artifacts are 424,576 bytes for first
 and 1,217,677 bytes for restart.
 
-The focused suite passes **21 tests**, including real checkpoint verification.
-Independent replay validated all 456 decision identities and all 232 dev plus
-152 heldout generations, recomputed every phase/state/heldout metric and
-verified every raw hash. `first02` and `restart02` bind the same implementation
-hashes. The initial `first` failure was only a baseline source-shape mismatch;
-its preserved receipt remains separate from `first02`.
+The focused suite passes **21 tests**. The deterministic
+[H1 replay receipt](../../reports/memory_bank_readout_20261026/replay_receipt_v1.json)
+passes 26 checks: it rebuilds all 456 decision identities and replays **152 dev
+plus 152 heldout generation rows**, every development phase/state/accounting
+gate, raw hashes, implementation pins and zero-update/resource claims. Heldout
+labels were not reopened or re-scored; only heldout structure, counts and
+reported arithmetic were checked. `first02` and `restart02` bind the same
+implementation hashes. The initial `first` failure was only a baseline source-
+shape mismatch; its preserved receipt remains separate from `first02`.
 
 ## Status and non-claims
 
