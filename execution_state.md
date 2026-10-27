@@ -29,6 +29,14 @@ and the unchanged 50 GiB / 512 MiB / 15% guard.
   plus 21 subtests with 8 skips and 7 Spark/vision pin/receipt failures outside
   this increment. Failed launch/device/CLI attempts and raw fit generations
   remain preserved.
+- [Response readout diagnostic and budget02](docs/experiments/20261026_Nested_Text_Response_Diagnostic_Budget02.md)
+  (`65c20d7`, rejection `56ce435`) measures trained/null teacher-forced NLL
+  5.608277/10.689084 and token accuracy 13.9344%/1.6393%; exact teacher-forced
+  and greedy responses remain 0/28. The two-step arm was rejected before
+  teaching because the one-clock `TextProtocol` invariant requires one step per
+  event. Zero-update initialization, raw diagnostic rows and the derived 3,429
+  position accounting correction are preserved. The focused suite passes 200
+  tests; no useful baseline or dependent evaluation is established.
 - [Vision learnability](docs/experiments/20261026_Vision_Learnability_Diagnostic.md)
   (`0caf14fa`, corrections through `8fedebd`) first records a read-only
   mean-only ablation with exact full-patch baseline identity. Mean replacement
@@ -71,11 +79,13 @@ provisioned-workspace focus suite passes 237 tests. Pillow-overlay runs cover
 all seven base-environment JPEG dependency branches and the official PIL
 processor branch.
 
-The next justified work is development-only diagnosis of the response readout's
-null fit and teaching cost. Do not parse or score nested sealed-final rows or
-start held-out evaluation, run another vision job or training arm, add
-clocks/objectives, or infer useful memory. Native Spark backend and exact
-full-scope continuation remain separate open gates.
+The response readout diagnosis is complete: it shows partial teacher-forced
+optimization but no exact fit, and the two-step probe is rejected by the
+one-clock invariant. The next justified work requires a separately declared
+one-clock-compatible hypothesis. Do not parse or score nested sealed-final rows,
+start held-out evaluation, repeat the same training recipe, add clocks/objectives
+or infer useful memory. Native Spark backend and exact full-scope continuation
+remain separate open gates.
 
 
 ## BF16/Muon and parallel GPU budget follow-up — 26 October 2026

@@ -30,6 +30,17 @@ receipt failures outside this increment. Preserve the failed launch/device/CLI
 attempts and all raw fit generations. Next work is development-only diagnosis
 of the response readout, not another training arm or held-out retry.
 
+The [response readout diagnostic and budget02 report](docs/experiments/20261026_Nested_Text_Response_Diagnostic_Budget02.md)
+(`65c20d7`, rejection `56ce435`) measures trained/null teacher-forced NLL
+5.608277/10.689084 and token accuracy 13.9344%/1.6393%, but exact teacher-
+forced and greedy responses remain 0/28. The proposed two-step budget arm was
+initialized with zero updates, then rejected because `TextProtocol` requires
+one step per event; no teaching or dependent evaluation followed. The focused
+suite now passes 200 tests. A corrected derived teaching total is 3,429
+positions; raw cost bytes remain preserved. No useful baseline is established;
+do not repeat the recipe or open sealed-final rows without a new authorized
+one-clock-compatible hypothesis.
+
 [Real images](docs/experiments/20261026_Real_Image_Tranche.md) provide seven
 public-domain/CC0 JPEG derivatives from six source groups with verified rights,
 hashes, geometry, exact dedup and 4/1/2 source-group splits. Admission remains
