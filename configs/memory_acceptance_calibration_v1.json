@@ -1,0 +1,117 @@
+{
+  "format": "replica.memory_acceptance.calibration.v1",
+  "metric_version": "memory.acceptance.calibration.v1",
+  "declared_at_utc": "2026-10-26T00:00:00+00:00",
+  "purpose": "Development-only acceptance/abstention and per-arm diagnosis over immutable causal-fresh rankings; no native execution, model update, relabeling or held-out confirmation.",
+  "source": {
+    "rankings": "runs/memory_causal_fresh_20261026/restart02/rankings.jsonl",
+    "rankings_sha256": "e8c8a4a0338ebb1fcc1ec689372f1792350dcc7a8120714145d31c5e835f7952",
+    "inventory": "data/memory_causal_fresh_20261026/prepared03/inventory.json",
+    "inventory_sha256": "5994de0da6e7f863f4a697a40a25041e760d0d9e8e5c77f565713e1bdf763a93",
+    "expected_rows": 17520
+  },
+  "scope": {
+    "splits": ["train", "dev"],
+    "phases": ["first_process", "restart", "revocation"],
+    "variants": [
+      "shared_mean/full",
+      "shared_mean/causal_query_refresh",
+      "shared_mean/causal_query_refresh_shuffled_values",
+      "shared_mean/disabled",
+      "shared_mean/oracle_target_refresh_last"
+    ],
+    "arms": ["query_key_value", "exact_key_value", "query_key_address", "context_removed"],
+    "heldout_rows_scored": false,
+    "heldout_metrics_reported": false,
+    "prepared04_heldout_reused": false,
+    "layers": [13, 27]
+  },
+  "native_thresholds": {
+    "value": {"cosine_floor": 0.5, "margin_floor": 0.05},
+    "address": {"cosine_floor": 0.5, "margin_floor": 0.05}
+  },
+  "frontier": {
+    "value": {
+      "cosine_floors": [0.0, 0.25, 0.5, 0.75, 0.9],
+      "margin_floors": [0.0, 0.01, 0.05, 0.1, 0.2],
+      "max_points": 25,
+      "applies_to_arms": ["query_key_value", "exact_key_value", "context_removed"],
+      "recomputes_existing_readout_acceptance_only": true
+    },
+    "address": {
+      "cosine_floors": [0.0, 0.25, 0.5, 0.75, 0.9],
+      "margin_floors": [0.0, 0.01, 0.05, 0.1, 0.2],
+      "max_points": 25,
+      "applies_to_arms": ["query_key_address"],
+      "address_arm_only": true,
+      "downstream_refresh_recomputed": false,
+      "candidate_policy_reselected": false
+    }
+  },
+  "layer_semantics": {
+    "raw_top1": "any_layer_valid_top1",
+    "raw_top1_all": "all_layers_valid_top1",
+    "accepted": "any_layer_accepted",
+    "accepted_correct": "all_layers_accepted_and_correct",
+    "accepted_wrong": "accepted_and_not_all_correct",
+    "zero_or_tied": "all_layers_zero_or_tied",
+    "zero_or_tied_credit": "none",
+    "layers_are_independent_samples": false,
+    "report_layer_and_query_views": true
+  },
+  "controls": {
+    "candidate_variant": "shared_mean/causal_query_refresh",
+    "oracle_variant": "shared_mean/oracle_target_refresh_last",
+    "baselines": [
+      "shared_mean/full",
+      "shared_mean/causal_query_refresh_shuffled_values",
+      "shared_mean/disabled"
+    ],
+    "exact_key_value_is_mixture_diagnostic_not_upper_bound": true,
+    "wrong_address_categories": ["other_source", "independent_world", "unknown_address", "revoked_target_other_live"],
+    "unknown_and_revoked_separate": true,
+    "policy_blocking_preserved": true,
+    "no_relabeling": true,
+    "no_gold_inputs_to_threshold_rule": true
+  },
+  "gates": {
+    "accepted_correct_rate_min": 0.85,
+    "accepted_precision_min": 0.9,
+    "correction_accepted_correct_rate_min": 0.6,
+    "unaffected_accepted_correct_rate_min": 0.7,
+    "unknown_false_recall_max": 0.1,
+    "revoked_false_recall_max": 0.25,
+    "oracle_raw_top1_rate_min": 0.85
+  },
+  "decision_rules": {
+    "oracle_cannot_meet_gates": "reject_acceptance_calibration_as_boundary; do not train writer or rerun native",
+    "oracle_passes_candidate_fails": "selection_or_refresh_boundary_on_existing_native_path",
+    "candidate_passes_development": "new_sealed_fixture_required_before_any_native_confirmation",
+    "prepared04_heldout": "spent_and_not_used_for_calibration_or_confirmation"
+  },
+  "limits": {
+    "max_source_rows": 17520,
+    "max_frontier_points_per_arm": 25,
+    "max_output_bytes": 67108864,
+    "native_execution": false,
+    "model_loads": 0,
+    "tokenizer_loads": 0,
+    "gradients": 0,
+    "optimizer_updates": 0,
+    "checkpoint_writes": 0,
+    "new_generation": false
+  },
+  "output": {
+    "receipt": "reports/memory_acceptance_20261026/calibration_dev01.json",
+    "raw_rankings_modified": false,
+    "raw_labels_modified": false,
+    "receipt_is_derived_not_authority": true,
+    "heldout_opened": false
+  },
+  "non_claims": [
+    "No learned-memory, learned-selector, generated-answer or calibrated-confidence claim.",
+    "Address-grid results are address-arm diagnostics only; they do not simulate downstream candidate refresh or reselection.",
+    "Development-only threshold exploration is not a native policy or a held-out result.",
+    "Prepared04 heldout is already spent and is not reused for calibration or confirmation."
+  ]
+}
